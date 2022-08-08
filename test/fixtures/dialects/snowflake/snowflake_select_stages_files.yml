@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e99ca75d19d11eb2e9fa08237ae4cb076fc42fbca3f2d2dcba74239025c8cc82
+_hash: 2411842892cde7247ba74e0ab69635007361306e0338e02178cde8bdcf303808
 file:
 - statement:
     select_statement:
@@ -11,31 +11,31 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $1
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $2
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $2
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
-              identifier: '@mystage1'
+              stage_path: '@mystage1'
               bracketed:
                 start_bracket: (
                 keyword: file_format
                 parameter_assigner: =>
                 file_format_segment:
                   object_reference:
-                    identifier: myformat
+                    naked_identifier: myformat
                 end_bracket: )
             alias_expression:
-              identifier: t
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -43,34 +43,34 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $1
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $2
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $2
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
-              identifier: '@mystage1'
+              stage_path: '@mystage1'
               bracketed:
               - start_bracket: (
               - keyword: file_format
               - parameter_assigner: =>
               - file_format_segment:
-                  literal: "'myformat'"
+                  quoted_literal: "'myformat'"
               - comma: ','
               - keyword: pattern
               - parameter_assigner: =>
-              - literal: "'.*data.*[.]csv.gz'"
+              - quoted_literal: "'.*data.*[.]csv.gz'"
               - end_bracket: )
             alias_expression:
-              identifier: t
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -78,34 +78,34 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $1
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $2
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $2
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
-              identifier: '@mystage1'
+              stage_path: '@mystage1'
               bracketed:
               - start_bracket: (
               - keyword: pattern
               - parameter_assigner: =>
-              - literal: "'.*data.*[.]csv.gz'"
+              - quoted_literal: "'.*data.*[.]csv.gz'"
               - comma: ','
               - keyword: file_format
               - parameter_assigner: =>
               - file_format_segment:
-                  literal: "'myformat'"
+                  quoted_literal: "'myformat'"
               - end_bracket: )
             alias_expression:
-              identifier: t
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,29 +113,29 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $1
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $2
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $2
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
-              identifier: '@mystage1'
+              stage_path: '@mystage1'
               bracketed:
                 start_bracket: (
                 keyword: pattern
                 parameter_assigner: =>
-                literal: "'.*data.*[.]csv.gz'"
+                quoted_literal: "'.*data.*[.]csv.gz'"
                 end_bracket: )
             alias_expression:
-              identifier: t
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -143,22 +143,22 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $1
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: $2
+            naked_identifier: t
+            dot: .
+            column_index_identifier_segment: $2
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '@mystage1'
+                stage_path: '@mystage1'
             alias_expression:
-              identifier: t
+              naked_identifier: t
 - statement_terminator: ;

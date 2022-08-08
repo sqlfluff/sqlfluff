@@ -3,51 +3,51 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22bd10c70d3ce15f9fbcbc9f70df88f04b05c510c0b04a40cc71f56274d3dd5b
+_hash: 6caef570ecdf6ec635d22eccd23434c239efca88596bf79cd99ab8f7db1be3ba
 file:
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: CHANGE
     - keyword: OWNER
-    - identifier: user1
+    - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: CHANGE
     - keyword: OWNER
-    - identifier: role1
+    - naked_identifier: role1
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: SET
     - keyword: RAW_SIZE_LIMIT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '128'
+    - numeric_literal: '128'
     - star: '*'
-    - literal: '1024'
+    - numeric_literal: '1024'
     - star: '*'
-    - literal: '1024'
+    - numeric_literal: '1024'
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: CHANGE
     - keyword: OWNER
-    - identifier: '"role1"'
+    - quoted_identifier: '"role1"'
 - statement_terminator: ;

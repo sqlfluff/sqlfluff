@@ -3,25 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cf8b1381604d7794427cb4837459f8302c565ff4e86346ebbbd9898dbbf2de4
+_hash: a420dc4999c43a235f958ae912f431afd817a6b0dd44737ccf8f002256e62eeb
 file:
 - statement:
     alter_view_statement:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: view1
+        naked_identifier: view1
     - keyword: rename
     - keyword: to
     - table_reference:
-        identifier: view2
+        naked_identifier: view2
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: view1
+        naked_identifier: view1
     - keyword: set
     - keyword: secure
 - statement_terminator: ;
@@ -30,7 +30,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: view1
+        naked_identifier: view1
     - keyword: unset
     - keyword: secure
 - statement_terminator: ;
@@ -39,11 +39,11 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: user_info_v
+        naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
-        identifier: ssn_number
+        naked_identifier: ssn_number
     - keyword: set
     - keyword: masking
     - keyword: policy
@@ -55,11 +55,11 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: user_info_v
+        naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
-        identifier: ssn_number
+        naked_identifier: ssn_number
     - keyword: set
     - keyword: masking
     - keyword: policy
@@ -68,7 +68,7 @@ file:
     - comma: ','
     - keyword: column
     - column_reference:
-        identifier: dob
+        naked_identifier: dob
     - keyword: set
     - keyword: masking
     - keyword: policy
@@ -80,11 +80,11 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: user_info_v
+        naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
-        identifier: ssn_number
+        naked_identifier: ssn_number
     - keyword: unset
     - keyword: masking
     - keyword: policy
@@ -94,18 +94,18 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: user_info_v
+        naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
-        identifier: ssn_number
+        naked_identifier: ssn_number
     - keyword: unset
     - keyword: masking
     - keyword: policy
     - comma: ','
     - keyword: column
     - column_reference:
-        identifier: dob
+        naked_identifier: dob
     - keyword: unset
     - keyword: masking
     - keyword: policy
@@ -115,7 +115,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: v1
+        naked_identifier: v1
     - keyword: add
     - keyword: row
     - keyword: access
@@ -126,7 +126,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,7 +134,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: v1
+        naked_identifier: v1
     - keyword: drop
     - keyword: row
     - keyword: access
@@ -147,7 +147,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: v1
+        naked_identifier: v1
     - keyword: drop
     - keyword: row
     - keyword: access
@@ -165,7 +165,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -173,18 +173,18 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-        identifier: v1
+        naked_identifier: v1
     - keyword: modify
     - keyword: column
     - column_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: set
     - keyword: masking
     - keyword: policy
     - function_name:
-      - identifier: my
+      - naked_identifier: my
       - dot: .
-      - identifier: scoped
+      - naked_identifier: scoped
       - dot: .
       - function_name_identifier: policy
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 import regex
 from typing import Tuple, List, Optional
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -56,8 +56,8 @@ class Rule_L010(BaseRule):
     # Skip boolean and null literals (which are also keywords)
     # as they have their own rule (L040)
     _exclude_elements: List[Tuple[str, str]] = [
-        ("name", "null_literal"),
-        ("name", "boolean_literal"),
+        ("type", "null_literal"),
+        ("type", "boolean_literal"),
         ("parenttype", "data_type"),
         ("parenttype", "datetime_type_identifier"),
         ("parenttype", "primitive_type"),

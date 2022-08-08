@@ -3,7 +3,7 @@
 from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -45,7 +45,7 @@ class Rule_L060(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""
         # We only care about function names.
-        if context.segment.name != "function_name_identifier":
+        if not context.segment.is_type("function_name_identifier"):
             return None
 
         # Only care if the function is ``IFNULL`` or ``NVL``.
@@ -58,7 +58,6 @@ class Rule_L060(BaseRule):
             [
                 CodeSegment(
                     raw="COALESCE",
-                    name="function_name_identifier",
                     type="function_name_identifier",
                 )
             ],

@@ -1,7 +1,7 @@
 """Implementation of Rule L050."""
 from typing import Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 import sqlfluff.core.rules.functional.raw_file_slice_predicates as rsp

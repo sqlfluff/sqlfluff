@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a8aafe431f1168b743a3407562c82fa80afaaa5c55b448ba641cd4f3258d0b3c
+_hash: a1439fe14d3633a0a6010879e8f07aef5f4dccfb13b299b4825c224eec080f9e
 file:
 - statement:
     alter_system_statement:
@@ -13,7 +13,7 @@ file:
     - system_parameter: NLS_DATE_LANGUAGE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'DEU'"
+    - quoted_literal: "'DEU'"
 - statement_terminator: ;
 - statement:
     alter_system_statement:
@@ -23,7 +23,7 @@ file:
     - system_parameter: NLS_FIRST_DAY_OF_WEEK
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_system_statement:
@@ -33,7 +33,7 @@ file:
     - system_parameter: SNAPSHOT_MODE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'SYSTEM TABLES'"
+    - quoted_literal: "'SYSTEM TABLES'"
 - statement_terminator: ;
 - statement:
     alter_system_statement:
@@ -43,7 +43,7 @@ file:
     - system_parameter: IDLE_TIMEOUT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '3600'
+    - numeric_literal: '3600'
 - statement_terminator: ;
 - statement:
     alter_system_statement:
@@ -53,5 +53,5 @@ file:
     - system_parameter: USER_TEMP_DB_RAM_LIMIT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'50G'"
+    - quoted_literal: "'50G'"
 - statement_terminator: ;

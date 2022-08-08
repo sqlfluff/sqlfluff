@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 678bda90d41620898d67908a9acc156c4b6a5e1da9ab33d2a8c7ab89b83751de
+_hash: 834efd7fb7e37450e536ce2dfe8cd171d0c3f52d1c3749a32167280fdb466071
 file:
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: AFTER
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -25,7 +25,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -33,12 +33,12 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'on'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -48,7 +48,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -56,18 +56,18 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: bar
+        naked_identifier: bar
     - comma: ','
     - column_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -77,7 +77,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -85,16 +85,16 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: INSTEAD
     - keyword: OF
     - keyword: DELETE
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: FROM
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: DEFERRED
@@ -110,7 +110,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -118,16 +118,16 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: INSTEAD
     - keyword: OF
     - keyword: DELETE
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: FROM
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: DEFERRED
@@ -138,14 +138,14 @@ file:
     - keyword: FUNCTION
     - function:
         function_name:
-          identifier: schema
+          naked_identifier: schema
           dot: .
           function_name_identifier: proc
         bracketed:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -153,22 +153,22 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: WHEN
     - bracketed:
         start_bracket: (
         expression:
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: b
+            naked_identifier: b
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
@@ -179,7 +179,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -190,12 +190,12 @@ file:
     - keyword: CONSTRAINT
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -205,7 +205,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -213,23 +213,23 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: REFERENCING
     - keyword: OLD
     - keyword: TABLE
     - keyword: as
     - table_reference:
-        identifier: old_table
+        naked_identifier: old_table
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-        identifier: new_table
+        naked_identifier: new_table
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function:
@@ -239,7 +239,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: args
+              naked_identifier: args
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -247,14 +247,14 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: check_update
+        naked_identifier: check_update
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: OR
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -274,18 +274,18 @@ file:
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: check_update
+        naked_identifier: check_update
     - keyword: BEFORE
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: balance
+        naked_identifier: balance
     - comma: ','
     - column_reference:
-        identifier: transactions
+        naked_identifier: transactions
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -305,20 +305,20 @@ file:
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: check_update
+        naked_identifier: check_update
     - keyword: BEFORE
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: balance
+        naked_identifier: balance
     - comma: ','
     - column_reference:
-        identifier: transactions
+        naked_identifier: transactions
     - keyword: OR
     - keyword: TRUNCATE
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -338,15 +338,15 @@ file:
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: check_update
+        naked_identifier: check_update
     - keyword: BEFORE
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: balance
+        naked_identifier: balance
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -364,12 +364,12 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: check_update
+        naked_identifier: check_update
     - keyword: BEFORE
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -378,16 +378,16 @@ file:
         start_bracket: (
         expression:
         - column_reference:
-          - identifier: OLD
+          - naked_identifier: OLD
           - dot: .
-          - identifier: balance
+          - naked_identifier: balance
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
         - column_reference:
-          - identifier: NEW
+          - naked_identifier: NEW
           - dot: .
-          - identifier: balance
+          - naked_identifier: balance
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
@@ -403,13 +403,13 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: view_insert
+        naked_identifier: view_insert
     - keyword: INSTEAD
     - keyword: OF
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -427,18 +427,18 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: transfer_insert
+        naked_identifier: transfer_insert
     - keyword: AFTER
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: transfer
+        naked_identifier: transfer
     - keyword: REFERENCING
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-        identifier: inserted
+        naked_identifier: inserted
     - keyword: FOR
     - keyword: EACH
     - keyword: STATEMENT
@@ -456,23 +456,23 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: paired_items_update
+        naked_identifier: paired_items_update
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
-        identifier: paired_items
+        naked_identifier: paired_items
     - keyword: REFERENCING
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-        identifier: newtab
+        naked_identifier: newtab
     - keyword: OLD
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-        identifier: oldtab
+        naked_identifier: oldtab
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -490,12 +490,12 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: log_update
+        naked_identifier: log_update
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -503,13 +503,13 @@ file:
     - bracketed:
         start_bracket: (
         expression:
-        - identifier: OLD
+        - naked_identifier: OLD
         - dot: .
         - star: '*'
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
-        - identifier: NEW
+        - naked_identifier: NEW
         - dot: .
         - star: '*'
         end_bracket: )

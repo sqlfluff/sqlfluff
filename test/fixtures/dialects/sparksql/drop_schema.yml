@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 098ae4f95405aa8d4841977c9d9c663c2cfb524f8089778e06b798992ca77fa0
+_hash: 763435cb4e9ae153438594ebc352ed261a944aa2bcb99f482894dd5541f500f5
 file:
 - statement:
     drop_schema_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - schema_reference:
-        identifier: dbname
+        naked_identifier: dbname
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -22,7 +22,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - schema_reference:
-        identifier: dbname
+        naked_identifier: dbname
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - keyword: DROP
     - keyword: SCHEMA
     - schema_reference:
-        identifier: inventory_db
+        naked_identifier: inventory_db
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -40,6 +40,6 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - schema_reference:
-        identifier: inventory_db
+        naked_identifier: inventory_db
     - keyword: CASCADE
 - statement_terminator: ;

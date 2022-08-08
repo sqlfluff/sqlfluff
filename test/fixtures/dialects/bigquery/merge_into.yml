@@ -3,37 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7bc3f8f63d79e6fe432f2b0428a65d019132d278abd05d3e61e53dfbc5fbc646
+_hash: feac558779eab5cd039ec703125209de00ded78733b832070559793932bc656b
 file:
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: detailedinventory
+      - naked_identifier: detailedinventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -42,26 +42,26 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-              identifier: quantity
+              naked_identifier: quantity
             comparison_operator:
               raw_comparison_operator: <
-            literal: '20'
+            numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - comma: ','
             - column_reference:
-                identifier: comments
+                naked_identifier: comments
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -69,14 +69,14 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -88,13 +88,13 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -102,14 +102,14 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -117,31 +117,31 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: detailedinventory
+      - naked_identifier: detailedinventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -150,26 +150,26 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-              identifier: quantity
+              naked_identifier: quantity
             comparison_operator:
               raw_comparison_operator: <
-            literal: '20'
+            numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - comma: ','
             - column_reference:
-                identifier: comments
+                naked_identifier: comments
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -177,14 +177,14 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -196,13 +196,13 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -210,45 +210,45 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -260,19 +260,19 @@ file:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
                 - binary_operator: +
                 - column_reference:
-                  - identifier: s
+                  - naked_identifier: s
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
         not_matched_by_target_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -283,10 +283,10 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -294,22 +294,22 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -326,34 +326,34 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: dataset
+                  - naked_identifier: dataset
                   - dot: .
-                  - identifier: newarrivals
+                  - naked_identifier: newarrivals
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: warehouse
+                naked_identifier: warehouse
               comparison_operator:
               - raw_comparison_operator: '!'
               - raw_comparison_operator: '='
-              literal: "'warehouse #2'"
+              quoted_literal: "'warehouse #2'"
         end_bracket: )
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
       - merge_when_matched_clause:
         - keyword: WHEN
@@ -361,12 +361,12 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-            - identifier: t
+            - naked_identifier: t
             - dot: .
-            - identifier: warehouse
+            - naked_identifier: warehouse
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'warehouse #1'"
+            quoted_literal: "'warehouse #1'"
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -374,16 +374,16 @@ file:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
                   binary_operator: +
-                  literal: '20'
+                  numeric_literal: '20'
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
@@ -395,11 +395,11 @@ file:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -408,66 +408,66 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: product
+                naked_identifier: product
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: quantity
+                naked_identifier: quantity
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: state
+                naked_identifier: state
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: dataset
+                  - naked_identifier: dataset
                   - dot: .
-                  - identifier: newarrivals
+                  - naked_identifier: newarrivals
               join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dataset
+                    - naked_identifier: dataset
                     - dot: .
-                    - identifier: warehouse
+                    - naked_identifier: warehouse
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: dataset
+                    - naked_identifier: dataset
                     - dot: .
-                    - identifier: newarrivals
+                    - naked_identifier: newarrivals
                     - dot: .
-                    - identifier: warehouse
+                    - naked_identifier: warehouse
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: dataset
+                    - naked_identifier: dataset
                     - dot: .
-                    - identifier: warehouse
+                    - naked_identifier: warehouse
                     - dot: .
-                    - identifier: warehouse
+                    - naked_identifier: warehouse
         end_bracket: )
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
       - merge_when_matched_clause:
         - keyword: WHEN
@@ -475,10 +475,10 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-              identifier: state
+              naked_identifier: state
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'CA'"
+            quoted_literal: "'CA'"
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -486,19 +486,19 @@ file:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
                 - binary_operator: +
                 - column_reference:
-                  - identifier: s
+                  - naked_identifier: s
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
@@ -510,31 +510,31 @@ file:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -546,49 +546,49 @@ file:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
                 - binary_operator: +
                 - column_reference:
-                  - identifier: s
+                  - naked_identifier: s
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
         not_matched_by_target_clause:
         - keyword: WHEN
@@ -603,31 +603,31 @@ file:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -638,26 +638,26 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-              identifier: quantity
+              naked_identifier: quantity
             comparison_operator:
               raw_comparison_operator: <
-            literal: '20'
+            numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - comma: ','
             - column_reference:
-                identifier: comments
+                naked_identifier: comments
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -665,14 +665,14 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -686,13 +686,13 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: product
+                naked_identifier: product
             - comma: ','
             - column_reference:
-                identifier: quantity
+                naked_identifier: quantity
             - comma: ','
             - column_reference:
-                identifier: supply_constrained
+                naked_identifier: supply_constrained
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -700,45 +700,45 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: quantity
+                    naked_identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: inventory
+      - naked_identifier: inventory
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: newarrivals
+      - naked_identifier: newarrivals
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: product
+          - naked_identifier: product
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -753,27 +753,27 @@ file:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
                 - binary_operator: +
                 - column_reference:
-                  - identifier: s
+                  - naked_identifier: s
                   - dot: .
-                  - identifier: quantity
+                  - naked_identifier: quantity
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: NewArrivals
+      - naked_identifier: NewArrivals
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -790,23 +790,23 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: dataset
+                  - naked_identifier: dataset
                   - dot: .
-                  - identifier: NewArrivals
+                  - naked_identifier: NewArrivals
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: warehouse
+                naked_identifier: warehouse
               comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '>'
-              literal: "'warehouse #2'"
+              quoted_literal: "'warehouse #2'"
         end_bracket: )
     - join_on_condition:
         keyword: 'ON'
         expression:
-          literal: 'FALSE'
+          boolean_literal: 'FALSE'
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN

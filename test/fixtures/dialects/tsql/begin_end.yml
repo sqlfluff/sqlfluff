@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9216e0d0c1802a11a9a4405f3a3cc63232b52b0cc05db0111047f452615b0305
+_hash: 89e27b9db8605baae4659e1ecea24f550f5326f3cf87fb886482d9fbac8d8f6c
 file:
   batch:
   - statement:
@@ -14,7 +14,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: "'Weekend'"
+                quoted_literal: "'Weekend'"
             statement_terminator: ;
       - keyword: END
   - statement:
@@ -26,7 +26,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: "'Weekend'"
+                quoted_literal: "'Weekend'"
             statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
@@ -39,7 +39,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: "'Weekend'"
+                quoted_literal: "'Weekend'"
             statement_terminator: ;
       - keyword: END
   - statement:
@@ -50,7 +50,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: "'Weekend'"
+                quoted_literal: "'Weekend'"
             statement_terminator: ;
       - keyword: END
   - statement_terminator: ;

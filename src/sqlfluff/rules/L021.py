@@ -1,7 +1,7 @@
 """Implementation of Rule L021."""
 from typing import Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import document_groups
 

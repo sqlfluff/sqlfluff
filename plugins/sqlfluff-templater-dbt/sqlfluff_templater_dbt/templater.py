@@ -25,7 +25,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
@@ -307,7 +307,14 @@ class DbtTemplater(JinjaTemplater):
         for fname in fnames:
             if fname not in already_yielded:
                 yield fname
+                # Dedupe here so we don't yield twice
+                already_yielded.add(fname)
+            else:
+                templater_logger.debug(
+                    "- Skipping yield of previously sequenced file: %r", fname
+                )
 
+    @large_file_check
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
@@ -449,6 +456,9 @@ class DbtTemplater(JinjaTemplater):
             return old_from_string(*args, **kwargs)
 
         node = self._find_node(fname, config)
+        templater_logger.debug(
+            "_find_node for path %r returned object of type %s.", fname, type(node)
+        )
 
         save_ephemeral_nodes = dict(
             (k, v)
@@ -464,6 +474,20 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
+            except Exception as err:
+                templater_logger.exception(
+                    "Fatal dbt compilation error on %s. This occurs most often "
+                    "during incorrect sorting of ephemeral models before linting. "
+                    "Please report this error on github at "
+                    "https://github.com/sqlfluff/sqlfluff/issues, including "
+                    "both the raw and compiled sql for the model affected.",
+                    fname,
+                )
+                # Additional error logging in case we get a fatal dbt error.
+                raise SQLTemplaterSkipFile(  # pragma: no cover
+                    f"Skipped file {fname} because dbt raised a fatal "
+                    f"exception during compilation: {err!s}"
+                ) from err
             finally:
                 # Undo the monkeypatch.
                 Environment.from_string = old_from_string

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5746fcd77c4af9b1377b249d701c392fcb1ef0f9012960944a5208ab50a886ab
+_hash: 5da646ea7ac1fc4b9d5602093d75a4521539f0acbe14d93e17ac7b7cccd339ad
 file:
   batch:
   - statement:
@@ -15,17 +15,17 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '20'
+              numeric_literal: '20'
             end_bracket: )
         comparison_operator:
           raw_comparison_operator: '='
         expression:
-          literal: "'Test Print'"
+          quoted_literal: "'Test Print'"
   - statement:
       print_statement:
         keyword: PRINT
         expression:
-          literal: "'#Dates'"
+          quoted_literal: "'#Dates'"
   - statement:
       print_statement:
         keyword: PRINT
@@ -48,7 +48,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '50'
+                    numeric_literal: '50'
                   end_bracket: )
               end_bracket: )
         statement_terminator: ;

@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26c4cfcd873e4af02a5f95df27034c6ae6c4722857dc7713b740d2c599250953
+_hash: 5c5586f9471e934aaae4230cd18a11da243eeb04fd581eeced85fe9e7061841e
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: mycte1
+        naked_identifier: mycte1
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,43 +18,43 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: baz
+                  naked_identifier: baz
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: mytable
+                      naked_identifier: mytable
           end_bracket: )
       insert_statement:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
-          identifier: table2
+          naked_identifier: table2
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: column1
+            naked_identifier: column1
         - comma: ','
         - column_reference:
-            identifier: column2
+            naked_identifier: column2
         - comma: ','
         - column_reference:
-            identifier: column3
+            naked_identifier: column3
         - end_bracket: )
       - with_compound_statement:
           keyword: WITH
           common_table_expression:
-            identifier: mycte2
+            naked_identifier: mycte2
             keyword: AS
             bracketed:
               start_bracket: (
@@ -63,42 +63,42 @@ file:
                 - keyword: SELECT
                 - select_clause_element:
                     column_reference:
-                      identifier: foo
+                      naked_identifier: foo
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: bar
+                      naked_identifier: bar
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: baz
+                      naked_identifier: baz
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: mycte1
+                          naked_identifier: mycte1
               end_bracket: )
           select_statement:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: baz
+                  naked_identifier: baz
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: mycte2
+                      naked_identifier: mycte2
   statement_terminator: ;

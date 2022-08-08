@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     Indent,
     KeywordSegment,
     Matchable,
+    MultiStringParser,
     NamedParser,
     NewlineSegment,
     Nothing,
@@ -48,7 +49,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     WhitespaceSegment,
-    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
@@ -68,7 +68,7 @@ ansi_dialect.set_lexer_matchers(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#")},
+            segment_kwargs={"trim_start": ("--", "#"), "type": "inline_comment"},
         ),
         RegexLexer(
             "block_comment",
@@ -84,8 +84,9 @@ ansi_dialect.set_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
+            segment_kwargs={"type": "block_comment"},
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
@@ -199,85 +200,80 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
+
+class IdentifierSegment(CodeSegment):
+    """An identifier segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "identifier"
+
+
+class LiteralSegment(CodeSegment):
+    """An literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
+class LiteralKeywordSegment(KeywordSegment):
+    """An keyword style literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
-    SemicolonSegment=StringParser(
-        ";", SymbolSegment, name="semicolon", type="statement_terminator"
-    ),
-    ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
-    SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
-    StartBracketSegment=StringParser(
-        "(", SymbolSegment, name="start_bracket", type="start_bracket"
-    ),
-    EndBracketSegment=StringParser(
-        ")", SymbolSegment, name="end_bracket", type="end_bracket"
-    ),
+    SemicolonSegment=StringParser(";", SymbolSegment, type="statement_terminator"),
+    ColonSegment=StringParser(":", SymbolSegment, type="colon"),
+    SliceSegment=StringParser(":", SymbolSegment, type="slice"),
+    StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
+    EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
-        "[", SymbolSegment, name="start_square_bracket", type="start_square_bracket"
+        "[", SymbolSegment, type="start_square_bracket"
     ),
-    EndSquareBracketSegment=StringParser(
-        "]", SymbolSegment, name="end_square_bracket", type="end_square_bracket"
-    ),
+    EndSquareBracketSegment=StringParser("]", SymbolSegment, type="end_square_bracket"),
     StartCurlyBracketSegment=StringParser(
-        "{", SymbolSegment, name="start_curly_bracket", type="start_curly_bracket"
+        "{", SymbolSegment, type="start_curly_bracket"
     ),
-    EndCurlyBracketSegment=StringParser(
-        "}", SymbolSegment, name="end_curly_bracket", type="end_curly_bracket"
-    ),
-    CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
-    DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
-    StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
-    TildeSegment=StringParser("~", SymbolSegment, name="tilde", type="tilde"),
-    CastOperatorSegment=StringParser(
-        "::", SymbolSegment, name="casting_operator", type="casting_operator"
-    ),
-    PlusSegment=StringParser("+", SymbolSegment, name="plus", type="binary_operator"),
-    MinusSegment=StringParser("-", SymbolSegment, name="minus", type="binary_operator"),
-    PositiveSegment=StringParser(
-        "+", SymbolSegment, name="positive", type="sign_indicator"
-    ),
-    NegativeSegment=StringParser(
-        "-", SymbolSegment, name="negative", type="sign_indicator"
-    ),
-    DivideSegment=StringParser(
-        "/", SymbolSegment, name="divide", type="binary_operator"
-    ),
-    MultiplySegment=StringParser(
-        "*", SymbolSegment, name="multiply", type="binary_operator"
-    ),
-    ModuloSegment=StringParser(
-        "%", SymbolSegment, name="modulo", type="binary_operator"
-    ),
-    SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    AmpersandSegment=StringParser(
-        "&", SymbolSegment, name="ampersand", type="ampersand"
-    ),
-    PipeSegment=StringParser("|", SymbolSegment, name="pipe", type="pipe"),
-    BitwiseXorSegment=StringParser(
-        "^", SymbolSegment, name="binary_xor", type="binary_operator"
-    ),
+    EndCurlyBracketSegment=StringParser("}", SymbolSegment, type="end_curly_bracket"),
+    CommaSegment=StringParser(",", SymbolSegment, type="comma"),
+    DotSegment=StringParser(".", SymbolSegment, type="dot"),
+    StarSegment=StringParser("*", SymbolSegment, type="star"),
+    TildeSegment=StringParser("~", SymbolSegment, type="tilde"),
+    CastOperatorSegment=StringParser("::", SymbolSegment, type="casting_operator"),
+    PlusSegment=StringParser("+", SymbolSegment, type="binary_operator"),
+    MinusSegment=StringParser("-", SymbolSegment, type="binary_operator"),
+    PositiveSegment=StringParser("+", SymbolSegment, type="sign_indicator"),
+    NegativeSegment=StringParser("-", SymbolSegment, type="sign_indicator"),
+    DivideSegment=StringParser("/", SymbolSegment, type="binary_operator"),
+    MultiplySegment=StringParser("*", SymbolSegment, type="binary_operator"),
+    ModuloSegment=StringParser("%", SymbolSegment, type="binary_operator"),
+    SlashSegment=StringParser("/", SymbolSegment, type="slash"),
+    AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
+    PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
+    BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
     LikeOperatorSegment=NamedParser(
-        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
+        "like_operator", SymbolSegment, type="comparison_operator"
     ),
-    RawNotSegment=StringParser(
-        "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"
-    ),
-    RawEqualsSegment=StringParser(
-        "=", SymbolSegment, name="raw_equals", type="raw_comparison_operator"
-    ),
+    RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
+    RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),
     RawGreaterThanSegment=StringParser(
-        ">", SymbolSegment, name="raw_greater_than", type="raw_comparison_operator"
+        ">", SymbolSegment, type="raw_comparison_operator"
     ),
-    RawLessThanSegment=StringParser(
-        "<", SymbolSegment, name="raw_less_than", type="raw_comparison_operator"
-    ),
+    RawLessThanSegment=StringParser("<", SymbolSegment, type="raw_comparison_operator"),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             dialect.sets("bare_functions"),
             CodeSegment,
-            name="bare_function",
             type="bare_function",
         )
     ),
@@ -287,22 +283,16 @@ ansi_dialect.add(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=RegexParser(
-        r"[A-Z0-9_.]*", CodeSegment, name="version", type="identifier"
-    ),
-    ParameterNameSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
-    ),
+    VersionIdentifierSegment=RegexParser(r"[A-Z0-9_.]*", IdentifierSegment),
+    ParameterNameSegment=RegexParser(r"[A-Z][A-Z0-9_]*", CodeSegment, type="parameter"),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
@@ -311,7 +301,6 @@ ansi_dialect.add(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*",
             CodeSegment,
-            name="data_type_identifier",
             type="data_type_identifier",
             anti_template=r"^(NOT)$",
             # TODO - this is a stopgap until we implement explicit data types
@@ -322,7 +311,6 @@ ansi_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("datetime_units"),
             CodeSegment,
-            name="date_part",
             type="date_part",
         )
     ),
@@ -330,33 +318,26 @@ ansi_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("date_part_function_name"),
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         )
     ),
     QuotedIdentifierSegment=NamedParser(
-        "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "double_quote", IdentifierSegment, type="quoted_identifier"
     ),
     QuotedLiteralSegment=NamedParser(
-        "single_quote", CodeSegment, name="quoted_literal", type="literal"
+        "single_quote", LiteralSegment, type="quoted_literal"
     ),
     SingleQuotedIdentifierSegment=NamedParser(
-        "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "single_quote", IdentifierSegment, type="quoted_identifier"
     ),
     NumericLiteralSegment=NamedParser(
-        "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
+        "numeric_literal", LiteralSegment, type="numeric_literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different
     # type
-    NullLiteralSegment=StringParser(
-        "null", KeywordSegment, name="null_literal", type="literal"
-    ),
-    TrueSegment=StringParser(
-        "true", KeywordSegment, name="boolean_literal", type="literal"
-    ),
-    FalseSegment=StringParser(
-        "false", KeywordSegment, name="boolean_literal", type="literal"
-    ),
+    NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
+    TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
+    FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
@@ -376,7 +357,9 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
-    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
+    SignedSegmentGrammar=AnyNumberOf(
+        Ref("PositiveSegment"), Ref("NegativeSegment"), min_times=1
+    ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
@@ -398,9 +381,7 @@ ansi_dialect.add(
     # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
-        NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
-        ),
+        NamedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
@@ -414,6 +395,8 @@ ansi_dialect.add(
         # can otherwise be easily mistaken for an identifier.
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
+        Ref("ArrayLiteralSegment"),
+        Ref("ObjectLiteralSegment"),
     ),
     AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
     OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
@@ -431,7 +414,6 @@ ansi_dialect.add(
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
             Ref("ColumnReferenceSegment"),
-            ephemeral_name="ColumnReferenceList",
         )
     ),
     OrReplaceGrammar=Sequence("OR", "REPLACE"),
@@ -469,6 +451,7 @@ ansi_dialect.add(
     # non-standard keywords)
     IsNullGrammar=Nothing(),
     NotNullGrammar=Nothing(),
+    CollateGrammar=Nothing(),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -489,6 +472,19 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -512,7 +508,8 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
-    StructTypeGrammar=Nothing(),
+    # Base Expression element is the right thing to reference for everything
+    # which functions as an expression, but could include literals.
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -520,11 +517,28 @@ ansi_dialect.add(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+        Sequence(
+            Ref("DatatypeSegment"),
+            Ref("LiteralGrammar"),
+        ),
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    JoinTypeKeywordsGrammar=OneOf(
+        "CROSS",
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        optional=True,
+    ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
@@ -624,9 +638,36 @@ class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
     type = "array_literal"
+    match_grammar: Matchable = Sequence(
+        Ref("SimpleArrayTypeGrammar", optional=True),
+        Bracketed(
+            Delimited(Ref("BaseExpressionElementGrammar"), optional=True),
+            bracket_type="square",
+        ),
+    )
+
+
+class ObjectLiteralSegment(BaseSegment):
+    """An object literal segment."""
+
+    type = "object_literal"
     match_grammar: Matchable = Bracketed(
-        Delimited(Ref("ExpressionSegment"), optional=True),
-        bracket_type="square",
+        Delimited(
+            Ref("ObjectLiteralElementSegment"),
+            optional=True,
+        ),
+        bracket_type="curly",
+    )
+
+
+class ObjectLiteralElementSegment(BaseSegment):
+    """An object literal element segment."""
+
+    type = "object_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("QuotedLiteralSegment"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
     )
 
 
@@ -943,7 +984,7 @@ class ShorthandCastSegment(BaseSegment):
 
 
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """A numeric literal with a + or - sign preceding.
+    """A numeric literal with one or more + or - signs preceding.
 
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
@@ -955,7 +996,6 @@ class QualifiedNumericLiteralSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SignedSegmentGrammar"),
         Ref("NumericLiteralSegment"),
-        allow_gaps=False,
     )
 
 
@@ -1421,19 +1461,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            OneOf(
-                "CROSS",
-                "INNER",
-                Sequence(
-                    OneOf(
-                        "FULL",
-                        "LEFT",
-                        "RIGHT",
-                    ),
-                    Ref.keyword("OUTER", optional=True),
-                ),
-                optional=True,
-            ),
+            Ref("JoinTypeKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
@@ -1703,6 +1731,7 @@ ansi_dialect.add(
                 ),
                 Ref("IsNullGrammar"),
                 Ref("NotNullGrammar"),
+                Ref("CollateGrammar"),
                 Sequence(
                     # e.g. NOT EXISTS, but other expressions could be met as
                     # well by inverting the condition with the NOT operator
@@ -1792,14 +1821,15 @@ ansi_dialect.add(
                 Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
             ),
             Sequence(
-                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
-            ),
-            Sequence(
-                Ref("StructTypeGrammar"),
+                Ref("StructTypeSegment"),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),
@@ -1992,13 +2022,13 @@ class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
+
     match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
+
     parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
@@ -2011,9 +2041,7 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            terminator=OneOf(
-                Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
-            ),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         Dedent,
     )
@@ -2025,7 +2053,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar: Matchable = StartsWith(
         "HAVING",
-        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=Ref("HavingClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -2301,8 +2329,13 @@ class SetOperatorSegment(BaseSegment):
     type = "set_operator"
     match_grammar: Matchable = OneOf(
         Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
-        "INTERSECT",
-        "EXCEPT",
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
         "MINUS",
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
@@ -2605,6 +2638,16 @@ class TypelessArraySegment(BaseSegment):
     """
 
     type = "typeless_array"
+    match_grammar: Matchable = Nothing()
+
+
+class StructTypeSegment(BaseSegment):
+    """Expression to construct a STRUCT datatype.
+
+    (Used in BigQuery for example)
+    """
+
+    type = "struct_type"
     match_grammar: Matchable = Nothing()
 
 
@@ -3039,7 +3082,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                     "ON",
@@ -3056,7 +3098,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
                 OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
-                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -3083,7 +3124,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                     "ON",
@@ -3096,7 +3136,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
                 Ref("ObjectReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -3129,8 +3168,8 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "UPDATE",
         Ref("TableReferenceSegment"),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -3255,7 +3294,6 @@ class FunctionParameterListGrammar(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(
             Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )

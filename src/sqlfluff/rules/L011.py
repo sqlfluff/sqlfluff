@@ -6,7 +6,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
 )
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -95,17 +95,17 @@ class Rule_L011(BaseRule):
 
                     # Add initial whitespace if we need to...
                     assert context.raw_segment_pre
-                    if context.raw_segment_pre.name not in ["whitespace", "newline"]:
+                    if not context.raw_segment_pre.is_type("whitespace", "newline"):
                         insert_buff.append(WhitespaceSegment())
 
                     # Add an AS (Uppercase for now, but could be corrected later)
                     insert_buff.append(KeywordSegment("AS"))
 
                     # Add a trailing whitespace if we need to
-                    if context.segment.segments[0].name not in [
+                    if not context.segment.segments[0].is_type(
                         "whitespace",
                         "newline",
-                    ]:
+                    ):
                         insert_buff.append(WhitespaceSegment())
 
                     return LintResult(

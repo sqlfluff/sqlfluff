@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6b3c234a8275df3772e08da6c353b07099671b6fe44b4604de13e5a0c71d66b
+_hash: 2c02c6b91dd87146c7d0e271966beea6473289a4ae243637cd8742d72f5aa1ed
 file:
   statement:
     drop_MODELstatement:
@@ -12,4 +12,4 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: model3
+        naked_identifier: model3

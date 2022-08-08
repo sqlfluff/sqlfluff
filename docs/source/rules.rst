@@ -36,7 +36,7 @@ only :code:`core` rules by default.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.core.rules
+.. automodule:: sqlfluff.rules
    :members:
    :member-order: alphabetical
 

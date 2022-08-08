@@ -10,6 +10,7 @@ from abc import ABC
 import bdb
 import functools
 import logging
+import multiprocessing
 import multiprocessing.dummy
 import signal
 import sys
@@ -227,15 +228,29 @@ def get_runner(
     config: FluffConfig,
     processes: int,
     allow_process_parallelism: bool = True,
-) -> BaseRunner:
-    """Generate a runner instance based on parallel and system configuration."""
+) -> Tuple[BaseRunner, int]:
+    """Generate a runner instance based on parallel and system configuration.
+
+    The processes argument can be positive or negative.
+    - If positive, the integer is interpreted as the number of processes.
+    - If negative or zero, the integer is interpreted as number_of_cpus - processes.
+
+    e.g.
+    -1 = all cpus but one.
+    0 = all cpus
+    1 = 1 cpu
+
+    """
+    if processes <= 0:
+        processes = max(multiprocessing.cpu_count() + processes, 1)
+
     if processes > 1:
         # Process parallelism isn't really supported during testing
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
         if allow_process_parallelism:
-            return MultiProcessRunner(linter, config, processes=processes)
+            return MultiProcessRunner(linter, config, processes=processes), processes
         else:
-            return MultiThreadRunner(linter, config, processes=processes)
+            return MultiThreadRunner(linter, config, processes=processes), processes
     else:
-        return SequentialRunner(linter, config)
+        return SequentialRunner(linter, config), processes

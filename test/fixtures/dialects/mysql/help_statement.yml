@@ -3,35 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0c91e010fdc6d8cc82e8d4aa865bf5fcb59089bcefb32d40ff2381d1e25a57c
+_hash: 2870d78e2fbb06bc6dee4188a68515024d12f2143da14b0aa617149d244033e0
 file:
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'contents'"
+      quoted_literal: "'contents'"
 - statement_terminator: ;
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'data types'"
+      quoted_literal: "'data types'"
 - statement_terminator: ;
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'ascii'"
+      quoted_literal: "'ascii'"
 - statement_terminator: ;
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'create table'"
+      quoted_literal: "'create table'"
 - statement_terminator: ;
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'status'"
+      quoted_literal: "'status'"
 - statement_terminator: ;
 - statement:
     help_statement:
       keyword: HELP
-      literal: "'functions'"
+      quoted_literal: "'functions'"
 - statement_terminator: ;

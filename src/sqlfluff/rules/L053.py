@@ -2,7 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.parser.segments.base import IdentitySet
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.functional import Segments, sp
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
@@ -71,7 +71,7 @@ class Rule_L053(BaseRule):
             *[
                 segment
                 for segment in context.segment.segments
-                if segment.name not in bracket_set and not segment.is_meta
+                if segment.get_type() not in bracket_set and not segment.is_meta
             ]
         )
 

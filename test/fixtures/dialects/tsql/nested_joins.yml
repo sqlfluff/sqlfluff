@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6423c6ca2be10d1d3c39320bc15b81230b718e83cf1307d3e0bbbab96a7e92b9
+_hash: 7cbf5938384c1ea604a0b07ea850f8a356d98fcbfdd4e80c991f4a0ef5e9814d
 file:
 - batch:
     statement:
@@ -11,17 +11,17 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
             alias_expression:
               keyword: AS
-              identifier: RegionCode
+              naked_identifier: RegionCode
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: BA
+                  naked_identifier: BA
             join_clause:
             - keyword: LEFT
             - keyword: OUTER
@@ -29,7 +29,7 @@ file:
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: I
+                    naked_identifier: I
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -37,33 +37,33 @@ file:
               - from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: P
+                      naked_identifier: P
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: I
+                    - naked_identifier: I
                     - dot: .
-                    - identifier: Pcd
+                    - naked_identifier: Pcd
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: P
+                    - naked_identifier: P
                     - dot: .
-                    - identifier: Iid
+                    - naked_identifier: Iid
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: BA
+                  - naked_identifier: BA
                   - dot: .
-                  - identifier: Iid
+                  - naked_identifier: Iid
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: I
+                  - naked_identifier: I
                   - dot: .
-                  - identifier: Bcd
+                  - naked_identifier: Bcd
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -73,14 +73,14 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: BA
+                  naked_identifier: BA
             join_clause:
             - keyword: RIGHT
             - keyword: OUTER
@@ -88,7 +88,7 @@ file:
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: I
+                    naked_identifier: I
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -96,10 +96,10 @@ file:
               - from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: P
+                      naked_identifier: P
                   alias_expression:
                     keyword: AS
-                    identifier: P_1
+                    naked_identifier: P_1
               - join_clause:
                 - keyword: LEFT
                 - keyword: OUTER
@@ -107,30 +107,30 @@ file:
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: IP
+                        naked_identifier: IP
                     alias_expression:
                       keyword: AS
-                      identifier: IP_1
+                      naked_identifier: IP_1
                 - join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: P_1
+                      - naked_identifier: P_1
                       - dot: .
-                      - identifier: NID
+                      - naked_identifier: NID
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: IP_1
+                      - naked_identifier: IP_1
                       - dot: .
-                      - identifier: NID
+                      - naked_identifier: NID
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                     column_reference:
-                    - identifier: I
+                    - naked_identifier: I
                     - dot: .
-                    - identifier: PID
+                    - naked_identifier: PID
                     comparison_operator:
                       raw_comparison_operator: '='
                     function:
@@ -140,9 +140,9 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                          - identifier: P_1
+                          - naked_identifier: P_1
                           - dot: .
-                          - identifier: IDEID
+                          - naked_identifier: IDEID
                         keyword: AS
                         data_type:
                           data_type_identifier: varchar
@@ -154,10 +154,10 @@ file:
               - from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: P
+                      naked_identifier: P
                   alias_expression:
                     keyword: AS
-                    identifier: P_2
+                    naked_identifier: P_2
               - join_clause:
                 - keyword: LEFT
                 - keyword: OUTER
@@ -165,30 +165,30 @@ file:
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: IP
+                        naked_identifier: IP
                     alias_expression:
                       keyword: AS
-                      identifier: IP_2
+                      naked_identifier: IP_2
                 - join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: P_2
+                      - naked_identifier: P_2
                       - dot: .
-                      - identifier: NID
+                      - naked_identifier: NID
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: IP_2
+                      - naked_identifier: IP_2
                       - dot: .
-                      - identifier: NID
+                      - naked_identifier: NID
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                     column_reference:
-                    - identifier: I
+                    - naked_identifier: I
                     - dot: .
-                    - identifier: SecondaryPID
+                    - naked_identifier: SecondaryPID
                     comparison_operator:
                       raw_comparison_operator: '='
                     function:
@@ -198,9 +198,9 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                          - identifier: P_2
+                          - naked_identifier: P_2
                           - dot: .
-                          - identifier: IDEID
+                          - naked_identifier: IDEID
                         keyword: AS
                         data_type:
                           data_type_identifier: varchar
@@ -215,9 +215,9 @@ file:
                       start_bracket: (
                       expression:
                         column_reference:
-                        - identifier: BA
+                        - naked_identifier: BA
                         - dot: .
-                        - identifier: IDEID
+                        - naked_identifier: IDEID
                       keyword: AS
                       data_type:
                         data_type_identifier: varchar
@@ -225,25 +225,25 @@ file:
                   comparison_operator:
                     raw_comparison_operator: '='
                   column_reference:
-                  - identifier: I
+                  - naked_identifier: I
                   - dot: .
-                  - identifier: BAID
+                  - naked_identifier: BAID
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
             alias_expression:
               keyword: AS
-              identifier: RegionCode
+              naked_identifier: RegionCode
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: BA
+                  naked_identifier: BA
             join_clause:
             - keyword: LEFT
             - keyword: OUTER
@@ -254,40 +254,40 @@ file:
                     start_bracket: (
                     table_expression:
                       table_reference:
-                        identifier: I
+                        naked_identifier: I
                     join_clause:
                       keyword: JOIN
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: P
+                            naked_identifier: P
                       join_on_condition:
                         keyword: 'ON'
                         expression:
                         - column_reference:
-                          - identifier: I
+                          - naked_identifier: I
                           - dot: .
-                          - identifier: Pcd
+                          - naked_identifier: Pcd
                         - comparison_operator:
                             raw_comparison_operator: '='
                         - column_reference:
-                          - identifier: P
+                          - naked_identifier: P
                           - dot: .
-                          - identifier: Iid
+                          - naked_identifier: Iid
                     end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: BA
+                  - naked_identifier: BA
                   - dot: .
-                  - identifier: Iid
+                  - naked_identifier: Iid
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: I
+                  - naked_identifier: I
                   - dot: .
-                  - identifier: Bcd
+                  - naked_identifier: Bcd
           statement_terminator: ;
 - go_statement:
     keyword: GO

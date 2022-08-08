@@ -4,6 +4,7 @@ Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
+from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -33,6 +34,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     MultiStringParser,
 )
+from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -154,46 +156,38 @@ snowflake_dialect.add(
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
     ParameterAssignerSegment=StringParser(
-        "=>", SymbolSegment, name="parameter_assigner", type="parameter_assigner"
+        "=>", SymbolSegment, type="parameter_assigner"
     ),
-    FunctionAssignerSegment=StringParser(
-        "->", SymbolSegment, name="function_assigner", type="function_assigner"
-    ),
+    FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     QuotedStarSegment=StringParser(
         "'*'",
-        CodeSegment,
-        name="quoted_star",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_star",
         trim_chars=("'",),
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
         CodeSegment,
-        name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
     QuotedSemiStructuredElementSegment=NamedParser(
         "double_quote",
         CodeSegment,
-        name="quoted_semi_structured_element",
         type="semi_structured_element",
     ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
-        CodeSegment,
-        name="column_index_identifier_segment",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="column_index_identifier_segment",
     ),
     LocalVariableNameSegment=RegexParser(
         r"[a-zA-Z0-9_]*",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     ReferencedVariableNameSegment=RegexParser(
         r"\$[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="referenced_variable",
         type="variable",
         trim_chars=("$"),
     ),
@@ -207,84 +201,71 @@ snowflake_dialect.add(
                 if "-" not in size
             ],
             CodeSegment,
-            name="warehouse_size",
             type="warehouse_size",
         ),
         MultiStringParser(
             [f"'{size}'" for size in snowflake_dialect.sets("warehouse_sizes")],
             CodeSegment,
-            name="warehouse_size",
             type="warehouse_size",
         ),
     ),
     CompressionType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("compression_types"),
-            CodeSegment,
-            name="compression_type",
-            type="keyword",
+            KeywordSegment,
+            type="compression_type",
         ),
         MultiStringParser(
             [
                 f"'{compression}'"
                 for compression in snowflake_dialect.sets("compression_types")
             ],
-            CodeSegment,
-            name="compression_type",
-            type="keyword",
+            KeywordSegment,
+            type="compression_type",
         ),
     ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
-        name="validation_mode_option",
         type="validation_mode_option",
     ),
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-        CodeSegment,
-        name="literal",
-        type="literal",
+        ansi.LiteralSegment,
     ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=('"',),
     ),
     SingleQuotedUDFBody=NamedParser(
         "single_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("'",),
     ),
     DollarQuotedUDFBody=NamedParser(
         "dollar_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("$",),
     ),
     StagePath=RegexParser(
         r"(?:@[^\s;)]+|'@[^']+')",
-        CodeSegment,
-        name="stage_path",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="stage_path",
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="s3_path",
         type="bucket_path",
     ),
     GCSPath=RegexParser(
         # https://cloud.google.com/storage/docs/naming-buckets
         r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="gcs_path",
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
@@ -292,59 +273,55 @@ snowflake_dialect.add(
         r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
         r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="azure_blob_storage_path",
         type="bucket_path",
     ),
     UnquotedFilePath=NamedParser(
         "unquoted_file_path",
         CodeSegment,
-        name="unquoted_file_path",
         type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
         CodeSegment,
-        name="snowflake_encryption_option",
         type="stage_encryption_option",
     ),
     S3EncryptionOption=MultiStringParser(
         ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'"],
         CodeSegment,
-        name="s3_encryption_option",
         type="stage_encryption_option",
     ),
     GCSEncryptionOption=StringParser(
         "'GCS_SSE_KMS'",
         CodeSegment,
-        name="gcs_encryption_option",
         type="stage_encryption_option",
     ),
     AzureBlobStorageEncryptionOption=StringParser(
         "'AZURE_CSE'",
         CodeSegment,
-        name="azure_blob_storage_encryption_option",
         type="stage_encryption_option",
     ),
     FileType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("file_types"),
             CodeSegment,
-            name="file_type",
             type="file_type",
         ),
         MultiStringParser(
             [f"'{file_type}'" for file_type in snowflake_dialect.sets("file_types")],
             CodeSegment,
-            name="file_type",
             type="file_type",
         ),
     ),
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
         r"[0-9]+",
+        ansi.LiteralSegment,
+        type="integer_literal",
+    ),
+    SystemFunctionName=RegexParser(
+        r"SYSTEM\$([A-Za-z0-9_]*)",
         CodeSegment,
-        name="integer_literal",
-        type="literal",
+        type="system_function_name",
     ),
     GroupByContentsGrammar=Delimited(
         OneOf(
@@ -365,16 +342,14 @@ snowflake_dialect.add(
         Ref("QuotedLiteralSegment"),
     ),
     StartExcludeBracketSegment=StringParser(
-        "{-", SymbolSegment, name="start_exclude_bracket", type="start_exclude_bracket"
+        "{-", SymbolSegment, type="start_exclude_bracket"
     ),
     EndExcludeBracketSegment=StringParser(
-        "-}", SymbolSegment, name="end_exclude_bracket", type="end_exclude_bracket"
+        "-}", SymbolSegment, type="end_exclude_bracket"
     ),
-    QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, name="question_mark", type="question_mark"
-    ),
-    CaretSegment=StringParser("^", SymbolSegment, name="caret", type="caret"),
-    DollarSegment=StringParser("$", SymbolSegment, name="dollar", type="dollar"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    CaretSegment=StringParser("^", SymbolSegment, type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, type="dollar"),
     PatternQuantifierGrammar=Sequence(
         OneOf(
             Ref("PositiveSegment"),
@@ -497,9 +472,8 @@ snowflake_dialect.replace(
         lambda dialect: RegexParser(
             # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
             r"[a-zA-Z_][a-zA-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -564,30 +538,27 @@ snowflake_dialect.replace(
         optional=True,
     ),
     TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
-    BaseExpressionElementGrammar=OneOf(
-        # Allow use of CONNECT_BY_ROOT pseudo-columns.
-        # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
-        Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("IntervalExpressionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            # Allow use of CONNECT_BY_ROOT pseudo-columns.
+            # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
+            Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
     ),
     QuotedLiteralSegment=OneOf(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
         NamedParser(
             "single_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
         NamedParser(
             "dollar_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
     ),
     LikeGrammar=OneOf(
@@ -645,6 +616,17 @@ snowflake_dialect.replace(
         "MEASURES",
     ),
     TrimParametersGrammar=Nothing(),
+    GroupByClauseTerminatorGrammar=OneOf(
+        "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        "OFFSET",
+    ),
 )
 
 # Add all Snowflake keywords
@@ -828,14 +810,12 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
     """
 
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -1028,16 +1008,11 @@ class SetAssignmentStatementSegment(BaseSegment):
         ),
         Sequence(
             "SET",
-            Bracketed(
-                Delimited(
-                    Ref("LocalVariableNameSegment"), delimiter=Ref("CommaSegment")
-                )
-            ),
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
                     Ref("ExpressionSegment"),
-                    delimiter=Ref("CommaSegment"),
                 ),
             ),
         ),
@@ -1289,7 +1264,7 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"), delimiter=Ref("CommaSegment"))),
+            Bracketed(Delimited(Ref("LiteralGrammar"))),
         ),
     )
 
@@ -1305,9 +1280,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(
-                Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-            ),
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
         ),
     )
 
@@ -1462,6 +1435,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
             # Rename
@@ -1507,6 +1481,16 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
+            # @TODO: add more contraint actions
+            Sequence(
+                "DROP",
+                Ref("PrimaryKeyGrammar"),
+            ),
+            Sequence(
+                "ADD",
+                Ref("PrimaryKeyGrammar"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+            )
             # @TODO: Set/unset TAG
             # @TODO: Unset table options
             # @TODO: Add/drop row access policies
@@ -2696,7 +2680,7 @@ class CreateTaskSegment(BaseSegment):
         Sequence(
             "WHEN",
             Indent,
-            Ref("ExpressionSegment"),
+            Ref("TaskExpressionSegment"),
             Dedent,
             optional=True,
         ),
@@ -2706,6 +2690,28 @@ class CreateTaskSegment(BaseSegment):
             Ref("StatementSegment"),
             Dedent,
         ),
+    )
+
+
+class TaskExpressionSegment(BaseSegment):
+    """Expressions for WHEN clause in TASK.
+
+    e.g. "SYSTEM$STREAM_HAS_DATA('MYSTREAM')"
+
+    """
+
+    type = "snowflake_task_expression_segment"
+    match_grammar = Sequence(
+        Delimited(
+            OneOf(
+                Ref("ExpressionSegment"),
+                Sequence(
+                    Ref("SystemFunctionName"),
+                    Bracketed(Ref("QuotedLiteralSegment")),
+                ),
+            ),
+            delimiter=OneOf(Ref("BooleanBinaryOperatorGrammar")),
+        )
     )
 
 
@@ -3657,7 +3663,7 @@ class S3StorageIntegrationParameters(BaseSegment):
         Sequence(
             "STORAGE_AWS_OBJECT_ACL",
             Ref("EqualsSegment"),
-            StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
+            StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
         ),
     )
 
@@ -4500,7 +4506,7 @@ class AlterSessionUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 
@@ -4617,7 +4623,6 @@ class AlterTaskSetClauseSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
         ),
     )
 
@@ -4636,7 +4641,7 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 
@@ -5187,17 +5192,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         ),
         Dedent,
     )
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """A `HAVING` clause."""
-
-    type = "having_clause"
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
 class DropProcedureStatementSegment(BaseSegment):

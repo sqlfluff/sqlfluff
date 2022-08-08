@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a51e59d07f2042e5144fa6a3ce671b7926136e3b1a48fd4a1d22ef952ac1c216
+_hash: 4a9441c495d439f8c047af003862b6a20eefe224ba3cd7d57e9efffa9e4f43bb
 file:
 - statement:
     create_table_statement:
@@ -13,10 +13,10 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: LIKE
     - table_reference:
-        identifier: source_table_identifier
+        naked_identifier: source_table_identifier
     - keyword: USING
     - keyword: PARQUET
     - row_format_clause:
@@ -26,7 +26,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
@@ -34,39 +34,39 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: '"key1"'
+          quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
-          identifier: '"key2"'
+          quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: LOCATION
-    - literal: '"path/to/files"'
+    - quoted_literal: '"path/to/files"'
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - keyword: USING
     - keyword: CSV
 - statement_terminator: ;
@@ -75,22 +75,22 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - keyword: LOCATION
-    - literal: "'/root1/home'"
+    - quoted_literal: "'/root1/home'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -98,7 +98,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
@@ -106,9 +106,9 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'owner'"
+          quoted_identifier: "'owner'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'xxxx'"
+        quoted_literal: "'xxxx'"
         end_bracket: )
 - statement_terminator: ;

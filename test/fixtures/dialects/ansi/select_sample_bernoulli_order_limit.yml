@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a165e65429ad14e37e0ea1da3539b7964fbeca61f3d780faaf550165e149a61
+_hash: f21525a5906c37fc87da1b4790b90701a283c29277b569a3f542beaa477d661e
 file:
   statement:
     select_statement:
@@ -11,30 +11,30 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col1
+            naked_identifier: col1
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: col2
+            naked_identifier: col2
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
             sample_expression:
             - keyword: TABLESAMPLE
             - keyword: BERNOULLI
             - bracketed:
                 start_bracket: (
-                literal: '10'
+                numeric_literal: '10'
                 end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       limit_clause:
         keyword: LIMIT
-        literal: '100'
+        numeric_literal: '100'

@@ -4,9 +4,10 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
+from uuid import UUID, uuid4
 
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.markers import PositionMarker
 
 
@@ -29,6 +30,8 @@ class RawSegment(BaseSegment):
         name: Optional[str] = None,
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
+        source_fixes: Optional[List[SourceFix]] = None,
+        uuid: Optional[UUID] = None,
     ):
         """Initialise raw segment.
 
@@ -53,6 +56,10 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # A cache variable for expandable
         self._is_expandable = None
+        # Keep track of any source fixes
+        self._source_fixes = source_fixes
+        # UUID for matching
+        self.uuid = uuid or uuid4()
 
     def __repr__(self):
         return "<{}: ({}) {!r}>".format(
@@ -113,6 +120,11 @@ class RawSegment(BaseSegment):
         """
         return []
 
+    @property
+    def source_fixes(self) -> List[SourceFix]:
+        """Return any source fixes as list."""
+        return self._source_fixes or []
+
     # ################ INSTANCE METHODS
 
     def invalidate_caches(self):
@@ -169,7 +181,9 @@ class RawSegment(BaseSegment):
         """
         return f"{self.raw!r}"
 
-    def edit(self, raw):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
         """Create a new segment, with exactly the same position but different content.
 
         Returns:
@@ -177,14 +191,17 @@ class RawSegment(BaseSegment):
 
         Used mostly by fixes.
 
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+
         """
         return self.__class__(
-            raw=raw,
+            raw=raw or self.raw,
             pos_marker=self.pos_marker,
             type=self._surrogate_type,
             name=self._surrogate_name,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
+            source_fixes=source_fixes or self.source_fixes,
         )
 
 
@@ -260,14 +277,21 @@ class KeywordSegment(CodeSegment):
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
         name: Optional[str] = None,
+        source_fixes: Optional[List[SourceFix]] = None,
     ):
         """If no other name is provided we extrapolate it from the raw."""
         if raw and not name:
             # names are all lowercase by convention.
             name = raw.lower()
-        super().__init__(raw=raw, pos_marker=pos_marker, type=type, name=name)
+        super().__init__(
+            raw=raw,
+            pos_marker=pos_marker,
+            type=type,
+            name=name,
+            source_fixes=source_fixes,
+        )
 
-    def edit(self, raw):
+    def edit(self, raw=None, source_fixes=None):
         """Create a new segment, with exactly the same position but different content.
 
         Returns:
@@ -275,12 +299,15 @@ class KeywordSegment(CodeSegment):
 
         Used mostly by fixes.
 
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+
         """
         return self.__class__(
-            raw=raw,
+            raw=raw or self.raw,
             pos_marker=self.pos_marker,
             type=self._surrogate_type,
             name=self._surrogate_name,
+            source_fixes=source_fixes or self.source_fixes,
         )
 
 

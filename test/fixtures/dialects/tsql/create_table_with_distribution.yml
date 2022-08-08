@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35aeec15d3df4c3e2bddb886d3715f9d787c24b17d0a5f37d573755978fac457
+_hash: 949a316997d06d8bd81c0b45452d66cb06690d73bbbad7dfdfcc4c30a70fcd3c
 file:
 - batch:
     statement:
@@ -11,42 +11,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -73,9 +73,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
 - go_statement:
     keyword: GO
 - batch:
@@ -84,42 +84,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -144,9 +144,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
 - go_statement:
     keyword: GO
 - batch:
@@ -155,42 +155,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -211,7 +211,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
@@ -223,9 +223,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
 - go_statement:
     keyword: GO
 - batch:
@@ -234,42 +234,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -295,7 +295,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
@@ -307,9 +307,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
 - go_statement:
     keyword: GO
 - batch:
@@ -318,42 +318,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -366,7 +366,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
             comma: ','
             table_distribution_clause:
@@ -377,7 +377,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
@@ -389,9 +389,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -401,42 +401,42 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
@@ -451,7 +451,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
             comma: ','
             table_distribution_clause:
@@ -462,7 +462,7 @@ file:
             - bracketed:
                 start_bracket: (
                 column_reference:
-                  identifier: '[Column B]'
+                  quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
       - statement_terminator: ;
@@ -474,9 +474,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - statement_terminator: ;
 - go_statement:
     keyword: GO

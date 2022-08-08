@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7dd34b8180340ba8c16f26254d7575991865a1d989a9f94170cb509695a29ca
+_hash: ddb0f0a16d3621ad997255a98f4989de04e3689165072077b221c139f0cf28bd
 file:
   statement:
     resignal_segment:
       keyword: resignal
-      identifier: testcondition
+      naked_identifier: testcondition
   statement_terminator: ;

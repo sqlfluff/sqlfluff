@@ -6,8 +6,6 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-import itertools
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -20,7 +18,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Matchable,
     NamedParser,
     Nothing,
@@ -84,64 +81,50 @@ bigquery_dialect.patch_lexer_matchers(
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     SingleQuotedLiteralSegment=NamedParser(
         "single_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=("'",),
     ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=('"',),
     ),
     SingleQuotedUDFBody=NamedParser(
         "single_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("'",),
     ),
-    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
-    RightArrowSegment=StringParser(
-        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
-    ),
-    DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    DashSegment=StringParser("-", SymbolSegment, type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
-        delimiter=Ref("CommaSegment"),
         allow_trailing=True,
     ),
-    QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, name="question_mark", type="question_mark"
-    ),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        name="naked_identifier_all",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="naked_identifier_all",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -164,7 +147,6 @@ bigquery_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("extended_datetime_units"),
             CodeSegment,
-            name="date_part",
             type="date_part",
         )
     ),
@@ -173,14 +155,12 @@ bigquery_dialect.add(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
-            name="procedure_name_identifier",
             type="procedure_name_identifier",
             anti_template=r"STRUCT",
         ),
         RegexParser(
             r"`[^`]*`",
             CodeSegment,
-            name="procedure_name_identifier",
             type="procedure_name_identifier",
         ),
     ),
@@ -203,9 +183,8 @@ bigquery_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -226,42 +205,16 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
-    StructTypeGrammar=Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
-        RegexParser(
-            r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
-        ),
-        RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
+        RegexParser(r"[A-Z_][A-Z0-9_]*", CodeSegment, type="parameter"),
+        RegexParser(r"`[^`]*`", CodeSegment, type="parameter"),
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
@@ -279,6 +232,8 @@ bigquery_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    PrimaryKeyGrammar=Nothing(),
+    ForeignKeyGrammar=Nothing(),
 )
 
 
@@ -731,16 +686,13 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        NamedParser(
-            "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
-        ),
+        NamedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     # Add three elements to the ansi LiteralGrammar
@@ -767,14 +719,12 @@ bigquery_dialect.replace(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
             anti_template=r"^(STRUCT|ARRAY)$",
         ),
         RegexParser(
             r"`[^`]*`",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     ),
@@ -792,7 +742,6 @@ class ExtractFunctionNameSegment(BaseSegment):
     match_grammar: Matchable = StringParser(
         "EXTRACT",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     )
 
@@ -809,13 +758,11 @@ class NormalizeFunctionNameSegment(BaseSegment):
         StringParser(
             "NORMALIZE",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
         StringParser(
             "NORMALIZE_AND_CASEFOLD",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     )
@@ -946,7 +893,6 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                                 Ref("EqualsSegment"),
                                 Anything(),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                     optional=True,
@@ -986,9 +932,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-        ),
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
@@ -1003,7 +947,6 @@ class ReplaceClauseSegment(BaseSegment):
                 # Not *really* a select target element. It behaves exactly
                 # the same way however.
                 Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
             )
         ),
     )
@@ -1020,22 +963,34 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
-        Ref("StructTypeGrammar"),
+        Ref("StructTypeSegment"),
     )
 
 
-class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
-    """The parameters for a function ie. `(string, number)`."""
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
 
-    # Function parameter list. Note that the only difference from the ANSI
-    # grammar is that BigQuery provides overrides bracket_pairs_set.
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+            ),
+            bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
-            optional=True,
-        )
+        ),
     )
 
 
@@ -1046,22 +1001,6 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
     """
 
     match_grammar = Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
-        ),
-    )
-
-    # Workaround: https://github.com/sqlfluff/sqlfluff/issues/3277
-    # There is a weird issue where sometimes typeless structs are parsed as typed
-    # structs and trigger false-positives of L063 when `parse_grammar` is not set.
-    # Follow the linked issue for progress on this issue.
-    parse_grammar = Sequence(
         "STRUCT",
         Bracketed(
             Delimited(
@@ -1230,7 +1169,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -1277,24 +1216,42 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
-        for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "literal", "dash", "dot"),
-            lambda e: e.is_type("dot"),
+        parts = []
+        elems_for_parts = []
+
+        def flush():
+            nonlocal parts, elems_for_parts
+            result = self.ObjectReferencePart("".join(parts), elems_for_parts)
+            parts = []
+            elems_for_parts = []
+            return result
+
+        for elem in self.recursive_crawl(
+            "identifier", "literal", "dash", "dot", "star"
         ):
-            if not is_dot:
-                segments = list(elems)
-                parts = [seg.raw_trimmed() for seg in segments]
-                yield self.ObjectReferencePart("".join(parts), segments)
+            if not elem.is_type("dot"):
+                if elem.is_type("identifier"):
+                    # Found an identifier (potentially with embedded dots).
+                    elem_subparts = elem.raw_trimmed().split(".")
+                    for idx, part in enumerate(elem_subparts):
+                        # Save each part of the segment.
+                        parts.append(part)
+                        elems_for_parts.append(elem)
 
+                        if idx != len(elem_subparts) - 1:
+                            # For each part except the last, flush.
+                            yield flush()
 
-class TableExpressionSegment(ansi.TableExpressionSegment):
-    """Main table expression e.g. within a FROM clause, with hyphen support."""
+                else:
+                    # For non-identifier segments, save the whole segment.
+                    parts.append(elem.raw_trimmed())
+                    elems_for_parts.append(elem)
+            else:
+                yield flush()
 
-    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("HyphenatedTableReferenceSegment"),
-        ]
-    )
+        # Flush any leftovers.
+        if parts:
+            yield flush()
 
 
 class DeclareStatementSegment(BaseSegment):
@@ -1648,16 +1605,8 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
-            # As SelectableGrammar can be bracketed too, the parse gets confused
-            # so we need slightly odd syntax here to allow those to parse (rather
-            # than just add optional=True to BracketedColumnReferenceListGrammar).
-            Ref("SelectableGrammar"),
-            Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
-            ),
-        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1883,8 +1832,6 @@ class ProcedureParameterListSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
-            bracket_pairs_set="angle_bracket_pairs",
             optional=True,
         )
     )
@@ -1924,9 +1871,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence(
             "OPTIONS",
             "strict_mode",
-            StringParser(
-                "strict_mode", CodeSegment, name="strict_mode", type="procedure_option"
-            ),
+            StringParser("strict_mode", CodeSegment, type="procedure_option"),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
             optional=True,

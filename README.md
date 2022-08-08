@@ -20,6 +20,7 @@
 Although SQL is reasonably consistent in its implementations, there are several different dialects available with variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
+- [Athena](https://aws.amazon.com/athena/)
 - [BigQuery](https://cloud.google.com/bigquery/)
 - [ClickHouse](https://clickhouse.com/)
 - [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).

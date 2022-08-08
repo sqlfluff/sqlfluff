@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d465ab4126507916404c690be63c85ad070a15c44102c42472463dd923179ae4
+_hash: 85eb5ea66a830ebcaf88fe4de952e6b43c8c149166cbf164f5f2b04ad969b9c7
 file:
   statement:
     create_model_statement:
@@ -12,26 +12,27 @@ file:
     - keyword: REPLACE
     - keyword: MODEL
     - object_reference:
-        identifier: model3
+        naked_identifier: model3
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
       - parameter: MODEL_TYPE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'LOGISTIC_REG'"
+      - quoted_literal: "'LOGISTIC_REG'"
       - comma: ','
       - parameter: AUTO_CLASS_WEIGHTS
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'TRUE'
+      - boolean_literal: 'TRUE'
       - comma: ','
       - parameter: INPUT_LABEL_COLS
       - comparison_operator:
           raw_comparison_operator: '='
-      - start_square_bracket: '['
-      - literal: "'label_str'"
-      - end_square_bracket: ']'
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'label_str'"
+          end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -39,23 +40,23 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: training
+              naked_identifier: training
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'

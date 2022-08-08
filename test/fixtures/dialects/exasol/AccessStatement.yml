@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eef3c596ee5cfc250d0532a84f0fbb94ca6ffc4d2bc5e4521b6ddcc4bb6023e4
+_hash: 2bb545f4adeb85060bff12a0f95565113146d63e1b8dcd7f456fe621a241f985
 file:
 - statement:
     access_statement:
@@ -13,7 +13,7 @@ file:
         - keyword: CREATE
         - keyword: SCHEMA
         keyword: TO
-        identifier: role1
+        naked_identifier: role1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -24,7 +24,7 @@ file:
         - keyword: ANY
         - keyword: TABLE
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
       - keyword: WITH
       - keyword: ADMIN
       - keyword: OPTION
@@ -37,13 +37,13 @@ file:
           keyword: INSERT
       - keyword: 'ON'
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
         - dot: .
-        - identifier: my_table
+        - naked_identifier: my_table
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
       - comma: ','
-      - identifier: role2
+      - naked_identifier: role2
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -54,11 +54,11 @@ file:
       - keyword: 'ON'
       - keyword: VIEW
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
         - dot: .
-        - identifier: my_view
+        - naked_identifier: my_view
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -68,24 +68,24 @@ file:
           keyword: SELECT
       - keyword: 'ON'
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
         - dot: .
-        - identifier: my_view
+        - naked_identifier: my_view
       - keyword: TO
-      - identifier: PUBLIC
+      - naked_identifier: PUBLIC
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: GRANT
       grant_revoke_roles:
       - role_reference:
-          identifier: role1
+          naked_identifier: role1
       - keyword: TO
       - role_reference:
-          identifier: user1
+          naked_identifier: user1
       - comma: ','
       - role_reference:
-          identifier: user2
+          naked_identifier: user2
       - keyword: WITH
       - keyword: ADMIN
       - keyword: OPTION
@@ -95,10 +95,10 @@ file:
       keyword: GRANT
       grant_revoke_roles:
       - role_reference:
-          identifier: role2
+          naked_identifier: role2
       - keyword: TO
       - role_reference:
-          identifier: role1
+          naked_identifier: role1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -106,9 +106,9 @@ file:
       grant_revoke_impersonation:
       - keyword: IMPERSONATION
       - keyword: 'ON'
-      - identifier: user2
+      - naked_identifier: user2
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -116,9 +116,9 @@ file:
       grant_revoke_impersonation:
       - keyword: IMPERSONATION
       - keyword: 'ON'
-      - identifier: '"user2"'
+      - quoted_identifier: '"user2"'
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -126,27 +126,27 @@ file:
       grant_revoke_impersonation:
       - keyword: IMPERSONATION
       - keyword: 'ON'
-      - identifier: user2
+      - naked_identifier: user2
       - keyword: TO
-      - identifier: '"user1"'
+      - quoted_identifier: '"user1"'
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: GRANT
       grant_revoke_connection:
       - keyword: CONNECTION
-      - identifier: my_connection
+      - naked_identifier: my_connection
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: GRANT
       grant_revoke_connection:
       - keyword: CONNECTION
-      - identifier: my_connection
+      - naked_identifier: my_connection
       - keyword: TO
-      - identifier: '"ADMIN"'
+      - quoted_identifier: '"ADMIN"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -155,12 +155,12 @@ file:
       - keyword: ACCESS
       - keyword: 'ON'
       - keyword: CONNECTION
-      - identifier: my_connection
+      - naked_identifier: my_connection
       - keyword: FOR
       - keyword: SCRIPT
-      - identifier: script1
+      - naked_identifier: script1
       - keyword: TO
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -169,12 +169,12 @@ file:
       - keyword: ACCESS
       - keyword: 'ON'
       - keyword: CONNECTION
-      - identifier: '"my_connection"'
+      - quoted_identifier: '"my_connection"'
       - keyword: FOR
       - keyword: SCRIPT
-      - identifier: '"script1"'
+      - quoted_identifier: '"script1"'
       - keyword: TO
-      - identifier: '"user1"'
+      - quoted_identifier: '"user1"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -184,9 +184,9 @@ file:
         - keyword: CREATE
         - keyword: SCHEMA
       - keyword: FROM
-      - identifier: role1
+      - naked_identifier: role1
       - comma: ','
-      - identifier: user3
+      - naked_identifier: user3
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -199,13 +199,13 @@ file:
           keyword: INSERT
       - keyword: 'ON'
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
         - dot: .
-        - identifier: my_table
+        - naked_identifier: my_table
       - keyword: FROM
-      - identifier: user1
+      - naked_identifier: user1
       - comma: ','
-      - identifier: role2
+      - naked_identifier: role2
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -216,24 +216,24 @@ file:
       - keyword: 'ON'
       - keyword: VIEW
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
         - dot: .
-        - identifier: my_view
+        - naked_identifier: my_view
       - keyword: FROM
-      - identifier: PUBLIC
+      - naked_identifier: PUBLIC
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: REVOKE
       grant_revoke_roles:
       - role_reference:
-          identifier: role1
+          naked_identifier: role1
       - keyword: FROM
       - role_reference:
-          identifier: user1
+          naked_identifier: user1
       - comma: ','
       - role_reference:
-          identifier: user2
+          naked_identifier: user2
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -241,25 +241,25 @@ file:
       grant_revoke_impersonation:
       - keyword: IMPERSONATION
       - keyword: 'ON'
-      - identifier: user2
+      - naked_identifier: user2
       - keyword: FROM
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: REVOKE
       grant_revoke_connection:
       - keyword: CONNECTION
-      - identifier: my_connection
+      - naked_identifier: my_connection
       - keyword: FROM
-      - identifier: user1
+      - naked_identifier: user1
 - statement_terminator: ;
 - statement:
     access_statement:
       keyword: REVOKE
       grant_revoke_connection:
       - keyword: CONNECTION
-      - identifier: my_connection
+      - naked_identifier: my_connection
       - keyword: FROM
-      - identifier: '"ADMIN"'
+      - quoted_identifier: '"ADMIN"'
 - statement_terminator: ;

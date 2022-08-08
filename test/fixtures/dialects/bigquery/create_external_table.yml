@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d30c96ec3d95dfe608ec866bbaee1a390b5d3dc718a4152fdfc8e466cc3b7d24
+_hash: c1a2b25cdbdf47210e66ae07cab232d7a6820dfc411e0505064e56c472390cfd
 file:
 - statement:
     create_external_table_statement:
@@ -11,9 +11,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: CsvTable
+      - naked_identifier: CsvTable
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -21,20 +21,17 @@ file:
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'CSV'"
+        - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
-                literal: "'gs://bucket/path1.csv'"
-            - comma: ','
-            - expression:
-                literal: "'gs://bucket/path2.csv'"
-            - end_square_bracket: ']'
+        - array_literal:
+          - start_square_bracket: '['
+          - quoted_literal: "'gs://bucket/path1.csv'"
+          - comma: ','
+          - quoted_literal: "'gs://bucket/path2.csv'"
+          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -45,18 +42,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: CsvTable
+      - naked_identifier: CsvTable
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: INT64
       - comma: ','
       - column_definition:
-          identifier: y
+          naked_identifier: y
           data_type:
             data_type_identifier: STRING
       - end_bracket: )
@@ -67,27 +64,25 @@ file:
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'CSV'"
+        - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path1.csv'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'gs://bucket/path1.csv'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: field_delimiter
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'|'"
+        - quoted_literal: "'|'"
         - comma: ','
         - parameter: max_bad_records
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '5'
+        - numeric_literal: '5'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,9 +91,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: AutoHivePartitionedTable
+      - naked_identifier: AutoHivePartitionedTable
     - keyword: WITH
     - keyword: PARTITION
     - keyword: COLUMNS
@@ -109,23 +104,21 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: csv
+            naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,21 +127,21 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: CustomHivePartitionedTable
+      - naked_identifier: CustomHivePartitionedTable
     - keyword: WITH
     - keyword: PARTITION
     - keyword: COLUMNS
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: field_1
+          naked_identifier: field_1
           data_type:
             data_type_identifier: STRING
       - comma: ','
       - column_definition:
-          identifier: field_2
+          naked_identifier: field_2
           data_type:
             data_type_identifier: INT64
       - end_bracket: )
@@ -159,23 +152,21 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: csv
+            naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -184,9 +175,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: CustomHivePartitionedTable
+      - naked_identifier: CustomHivePartitionedTable
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -194,23 +185,21 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: csv
+            naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
     - keyword: WITH
     - keyword: PARTITION
@@ -218,12 +207,12 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: field_1
+          naked_identifier: field_1
           data_type:
             data_type_identifier: STRING
       - comma: ','
       - column_definition:
-          identifier: field_2
+          naked_identifier: field_2
           data_type:
             data_type_identifier: INT64
       - end_bracket: )

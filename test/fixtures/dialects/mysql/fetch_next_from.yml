@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1b85be0cbac81a55be33042a20d15079aefc63ec71f3826c350315833962d53
+_hash: 5799de98d4fbb26b52d336da9b39a4a58ecbce7623c1a8aefa4ccf02ba3ec0bc
 file:
   statement:
     cursor_fetch_segment:
     - keyword: fetch
     - keyword: next
     - keyword: from
-    - identifier: curcursor
+    - naked_identifier: curcursor
     - keyword: into
     - variable: test
   statement_terminator: ;

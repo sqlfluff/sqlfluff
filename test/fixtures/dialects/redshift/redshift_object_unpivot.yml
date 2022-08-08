@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa9b0cec7ba3e6a16a49dfe4c304eaee6982c6e00ac66d1bb561bd630ccf4d5e
+_hash: 13b725638b2155b43d565a2538a62acd701b5466c0836b1c1f2664519f050262
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: example_data
+        naked_identifier: example_data
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,10 +18,10 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: '10'
+                  numeric_literal: '10'
                   alias_expression:
                     keyword: AS
-                    identifier: shop_id
+                    naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                   function:
@@ -30,11 +30,11 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: "'{\"apple_count\": 2, \"orange_count\": 6}'"
+                        quoted_literal: "'{\"apple_count\": 2, \"orange_count\": 6}'"
                       end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: inventory
+                    naked_identifier: inventory
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -42,10 +42,10 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: '20'
+                  numeric_literal: '20'
                   alias_expression:
                     keyword: AS
-                    identifier: shop_id
+                    naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                   function:
@@ -54,11 +54,11 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
+                        quoted_literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
                       end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: inventory
+                    naked_identifier: inventory
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -66,10 +66,10 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: '30'
+                  numeric_literal: '30'
                   alias_expression:
                     keyword: AS
-                    identifier: shop_id
+                    naked_identifier: shop_id
               - comma: ','
               - select_clause_element:
                   function:
@@ -78,35 +78,35 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: "'{\"apple_count\": 3, \"lemon_count\": 5}'"
+                        quoted_literal: "'{\"apple_count\": 3, \"lemon_count\": 5}'"
                       end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: inventory
+                    naked_identifier: inventory
           end_bracket: )
       select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: shop_id
+              naked_identifier: shop_id
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: key
+              naked_identifier: key
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: value
+              naked_identifier: value
         from_clause:
         - keyword: FROM
         - from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: example_data
+                  naked_identifier: example_data
               alias_expression:
-                identifier: ed
+                naked_identifier: ed
         - comma: ','
         - from_expression:
             from_expression_element:
@@ -114,13 +114,13 @@ file:
                 object_unpivoting:
                 - keyword: UNPIVOT
                 - object_reference:
-                  - identifier: ed
+                  - naked_identifier: ed
                   - dot: .
-                  - identifier: inventory
+                  - naked_identifier: inventory
                 - keyword: AS
-                - identifier: value
+                - naked_identifier: value
                 - keyword: AT
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -128,37 +128,37 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: attr
+            naked_identifier: attr
           alias_expression:
             keyword: as
-            identifier: attribute_name
+            naked_identifier: attribute_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: val
+            naked_identifier: val
           alias_expression:
             keyword: as
-            identifier: object_value
+            naked_identifier: object_value
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders_lineitem
+                naked_identifier: customer_orders_lineitem
             alias_expression:
-              identifier: c
+              naked_identifier: c
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: c
+              - naked_identifier: c
               - dot: .
-              - identifier: c_orders
+              - naked_identifier: c_orders
             alias_expression:
               keyword: AS
-              identifier: o
+              naked_identifier: o
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -166,17 +166,17 @@ file:
               object_unpivoting:
               - keyword: UNPIVOT
               - object_reference:
-                  identifier: o
+                  naked_identifier: o
               - keyword: AS
-              - identifier: val
+              - naked_identifier: val
               - keyword: AT
-              - identifier: attr
+              - naked_identifier: attr
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: c_custkey
+            naked_identifier: c_custkey
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '9451'
+          numeric_literal: '9451'
 - statement_terminator: ;

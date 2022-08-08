@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86e01072588e69d864bfed9ed92966795c09f3e1f3f587b3e85dd41af9fbac18
+_hash: 0cc7539cfacaea779991399a74316f23911acc1c6ea79a02f493c3a4a26fa793
 file:
 - statement:
     select_statement:
@@ -11,18 +11,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: foo
+            naked_identifier: foo
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: bar
+            naked_identifier: bar
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: baz
+                naked_identifier: baz
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -31,10 +31,10 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: foo
+            naked_identifier: foo
         - comma: ','
         - column_reference:
-            identifier: bar
+            naked_identifier: bar
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -52,18 +52,18 @@ file:
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: medical_license
+            naked_identifier: medical_license
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: radio_license
+            naked_identifier: radio_license
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: nurses
+                naked_identifier: nurses
       groupby_clause:
       - keyword: group
       - keyword: by
@@ -72,10 +72,10 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: medical_license
+            naked_identifier: medical_license
         - comma: ','
         - column_reference:
-            identifier: radio_license
+            naked_identifier: radio_license
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -93,18 +93,18 @@ file:
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: medical_license
+            naked_identifier: medical_license
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: radio_license
+            naked_identifier: radio_license
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: nurses
+                naked_identifier: nurses
       groupby_clause:
       - keyword: group
       - keyword: by
@@ -113,9 +113,9 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: medical_license
+            naked_identifier: medical_license
         - comma: ','
         - column_reference:
-            identifier: radio_license
+            naked_identifier: radio_license
         - end_bracket: )
 - statement_terminator: ;

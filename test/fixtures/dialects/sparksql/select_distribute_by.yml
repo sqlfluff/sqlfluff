@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 216046fcf1cf2f947ad4df7674d2d4d4662c3fe7f18a2adbca56d03aed7f0ed4
+_hash: 8f2f532ff7665ea2c71c0cf1909410c79e774bdeac37a31ef2c4671685c42084
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -35,22 +35,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -58,26 +58,26 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - comma: ','
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,18 +85,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
@@ -114,18 +114,124 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                        identifier: name
+                        naked_identifier: name
                   - comma: ','
                   - expression:
-                      literal: "' '"
+                      quoted_literal: "' '"
                   - comma: ','
                   - expression:
                       numeric_literal:
                         sign_indicator: '-'
-                        literal: '1'
+                        numeric_literal: '1'
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          numeric_literal: '100'
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: age
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: age
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: age
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '1'
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: age
 - statement_terminator: ;

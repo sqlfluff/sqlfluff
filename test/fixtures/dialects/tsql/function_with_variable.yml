@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9c250ade9dff2ff89bc044ff6ea78a559d0ca1760ee15b1abd5477e46c7b6cf
+_hash: 303a92979610a1d5c54d822f3cfe4eedc68c90f74610c7e955be8e2529e38421
 file:
   batch:
     statement:
@@ -13,9 +13,9 @@ file:
       - keyword: ALTER
       - keyword: FUNCTION
       - object_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
       - function_parameter_list:
           bracketed:
           - start_bracket: (
@@ -49,7 +49,7 @@ file:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
-                    literal: '4'
+                    numeric_literal: '4'
             - statement:
                 return_segment:
                   keyword: RETURN

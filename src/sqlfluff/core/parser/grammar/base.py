@@ -2,7 +2,7 @@
 
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union, Type, Tuple, Any
+from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -21,6 +21,9 @@ from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
+
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
 @dataclass
@@ -53,14 +56,19 @@ def cached_method_for_parse_context(func):
     """
     cache_key = "__cache_" + func.__name__
 
-    def wrapped_method(self, parse_context: ParseContext):
-        """Cache the output of the method against a given parse context."""
+    def wrapped_method(self, parse_context: ParseContext, **kwargs):
+        """Cache the output of the method against a given parse context.
+
+        Note: kwargs are not taken into account in the caching, but
+        for the current use case of dependency loop debugging that's
+        ok.
+        """
         cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
         # Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context)
+        result = func(self, parse_context=parse_context, **kwargs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
@@ -80,6 +88,7 @@ class BaseGrammar(Matchable):
     # Are we allowed to refer to keywords as strings instead of only passing
     # grammars or segments?
     allow_keyword_string_refs = True
+    equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
 
     @staticmethod
     def _resolve_ref(elem):
@@ -107,7 +116,7 @@ class BaseGrammar(Matchable):
 
     def __init__(
         self,
-        *args,
+        *args: Union[MatchableType, str],
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
@@ -116,7 +125,9 @@ class BaseGrammar(Matchable):
 
         Args:
             *args: Any number of elements which because the subjects
-                of this grammar.
+                of this grammar. Optionally these elements may also be
+                string references to elements rather than the Matchable
+                elements themselves.
             allow_gaps (:obj:`bool`, optional): Does this instance of the
                 grammar allow gaps between the elements it matches? This
                 may be exhibited slightly differently in each grammar. See
@@ -174,7 +185,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -404,11 +415,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
         # Make some buffers
-        seg_buff = segments  # pragma: no cover
-        pre_seg_buff = ()  # pragma: no cover
+        seg_buff = segments
+        pre_seg_buff = ()
 
         # Loop
-        while True:  # pragma: no cover
+        while True:
             # Do we have anything left to match on?
             if seg_buff:
                 # Great, carry on.
@@ -447,7 +458,8 @@ class BaseGrammar(Matchable):
                 ):
                     return (pre_seg_buff, mat, m)
                 else:
-                    return best_simple_match
+                    # TODO: Make a test case to cover this.
+                    return best_simple_match  # pragma: no cover
             else:
                 # If there aren't any matches, then advance the buffer and try again.
                 # Two improvements:
@@ -561,11 +573,11 @@ class BaseGrammar(Matchable):
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
                             # For the start bracket we don't have the matcher
-                            # but we can work out the name, so we use that for
+                            # but we can work out the type, so we use that for
                             # the lookup.
                             start_index = [
-                                bracket.name for bracket in start_brackets
-                            ].index(bracket_stack[-1].bracket.name)
+                                bracket.type for bracket in start_brackets
+                            ].index(bracket_stack[-1].bracket.get_type())
                             # For the end index, we can just look for the matcher
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
@@ -706,14 +718,18 @@ class BaseGrammar(Matchable):
     def __eq__(self, other):
         """Two grammars are equal if their elements and types are equal.
 
-        NOTE: This could potentially mean that two grammars with
-        the same elements but _different configuration_ will be
-        classed as the same. If this matters for your use case,
-        consider extending this function.
-
-        e.g. `OneOf(foo) == OneOf(foo, optional=True)`
+        NOTE: We use the equality_kwargs tuple on the class to define
+        other kwargs which should also be checked so that things like
+        "optional" is also taken into account in considering equality.
         """
-        return type(self) is type(other) and self._elements == other._elements
+        return (
+            type(self) is type(other)
+            and self._elements == other._elements
+            and all(
+                getattr(self, k, None) == getattr(other, k, None)
+                for k in self.equality_kwargs
+            )
+        )
 
     def copy(
         self,
@@ -795,27 +811,40 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: str, **kwargs):
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
         """
+        ref = self._get_ref()
+        if crumbs and ref in crumbs:  # pragma: no cover
+            loop = " -> ".join(crumbs)
+            raise RecursionError(f"Self referential grammar detected: {loop}")
         return self._get_elem(dialect=parse_context.dialect).simple(
-            parse_context=parse_context
+            parse_context=parse_context,
+            crumbs=(crumbs or ()) + (ref,),
         )
 
-    def _get_ref(self):
+    def _get_ref(self) -> str:
         """Get the name of the thing we're referencing."""
         # Unusually for a grammar we expect _elements to be a list of strings.
         # Notable ONE string for now.
         if len(self._elements) == 1:
             # We're good on length. Get the name of the reference
+            ref = self._elements[0]
+            if not isinstance(ref, str):  # pragma: no cover
+                raise ValueError(
+                    "Ref Grammar expects elements to be strings. "
+                    f"Found {ref!r} instead."
+                )
             return self._elements[0]
         else:  # pragma: no cover
             raise ValueError(
@@ -823,7 +852,7 @@ class Ref(BaseGrammar):
                 "found {!r}".format(self._elements)
             )
 
-    def _get_elem(self, dialect):
+    def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
@@ -856,9 +885,6 @@ class Ref(BaseGrammar):
             with parse_context.deeper_match() as ctx:
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
-
-        if not elem:  # pragma: no cover
-            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given

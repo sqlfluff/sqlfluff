@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4be4d833b3c01f410554aac333e5651fbb295624fd63128fbca06c7b66862878
+_hash: 4cd966e4f6b9f99639f7964d1e1c7c25c561e2ae594f6a7dfd4ed7d69c869998
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: iif
     - function_parameter_list:
@@ -36,9 +36,9 @@ file:
     - function_definition:
       - keyword: STABLE
       - keyword: AS
-      - literal: "$$\n    if condition:\n        return true_result\n    return false_result\n\
-          $$"
+      - quoted_literal: "$$\n    if condition:\n        return true_result\n    return\
+          \ false_result\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpythonu
+          naked_identifier: plpythonu
   statement_terminator: ;

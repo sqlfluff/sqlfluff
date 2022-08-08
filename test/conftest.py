@@ -21,7 +21,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
     BaseSegment,
 )
-from sqlfluff.core.rules.base import BaseRule
+from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
 
 # When writing YAML files, double quotes string values needing escapes.

@@ -3,27 +3,31 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    OneOf,
     AnyNumberOf,
     AnySetOf,
     Anything,
-    Ref,
-    Sequence,
-    Bracketed,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
     Delimited,
     Matchable,
     Nothing,
+    OneOf,
     OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_postgres as postgres
-from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -160,6 +164,17 @@ redshift_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    NakedIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            # Optionally begins with # for temporary tables. Otherwise
+            # must only contain digits, letters, underscore, and $ but
+            # can’t be all digits.
+            r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     ColumnReferenceSegment=Delimited(
         Sequence(
             ansi.ColumnReferenceSegment,
@@ -181,6 +196,13 @@ redshift_dialect.replace(
         ),
         allow_gaps=False,
     ),
+)
+
+redshift_dialect.patch_lexer_matchers(
+    [
+        # add optional leading # to code for temporary tables
+        RegexLexer("code", r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+    ]
 )
 
 
@@ -2225,8 +2247,11 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[Ref("ObjectUnpivotSegment", optional=True)],
-        before=Ref("TableReferenceSegment", optional=True),
+        insert=[
+            Ref("ObjectUnpivotSegment", optional=True),
+            Ref("ArrayUnnestSegment", optional=True),
+        ],
+        before=Ref("TableReferenceSegment"),
     )
 
 
@@ -2247,6 +2272,41 @@ class ObjectUnpivotSegment(BaseSegment):
     )
 
 
+class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
+    """Array element accessor.
+
+    Redshift allows multiple levels of array access, like Postgres,
+    but it
+    * doesn't allow ranges like `myarray[1:2]`
+    * does allow function or column expressions `myarray[idx]`
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Bracketed(
+                OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
+                bracket_type="square",
+            )
+        )
+    )
+
+
+class ArrayUnnestSegment(BaseSegment):
+    """Array unnesting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+    """
+
+    type = "array_unnesting"
+    match_grammar: Matchable = Sequence(
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class CallStatementSegment(BaseSegment):
     """A `CALL` statement.
 
@@ -2257,4 +2317,85 @@ class CallStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CALL",
         Ref("FunctionSegment"),
+    )
+
+
+class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns."""
+
+    match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
+        insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
+    )
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Function taking a data type identifier and an expression.
+    An alternative to CAST.
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CONVERT")
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ConvertFunctionNameSegment"),
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
     )

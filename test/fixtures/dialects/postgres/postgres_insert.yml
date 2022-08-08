@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3844ba7a79bb56ca8928f9801fdae250c223753c4207f4f03935e208fab02984
+_hash: 1972e838880e449d4187a8c7cc9fce8f821e315f5ceceb01e1859bdeb28b0f0b
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -29,33 +29,33 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - comma: ','
         - expression:
-            literal: '4'
+            numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -63,35 +63,35 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
         - expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: +
-          - literal: '1'
+          - numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - comma: ','
         - expression:
-            literal: '4'
+            numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,11 +99,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -117,27 +117,27 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alias_expression:
         keyword: AS
-        identifier: d
+        naked_identifier: d
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: did
+          naked_identifier: did
       - comma: ','
       - column_reference:
-          identifier: dname
+          naked_identifier: dname
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '8'
+            numeric_literal: '8'
         - comma: ','
         - expression:
-            literal: "'Anvil Distribution'"
+            quoted_literal: "'Anvil Distribution'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -145,14 +145,14 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: test
+        naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - comma: ','
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - end_bracket: )
     - keyword: OVERRIDING
     - keyword: SYSTEM
@@ -162,10 +162,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'val'"
+            quoted_literal: "'val'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -173,14 +173,14 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: test
+        naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - comma: ','
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - end_bracket: )
     - keyword: OVERRIDING
     - keyword: USER
@@ -190,10 +190,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'val'"
+            quoted_literal: "'val'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -201,11 +201,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - keyword: DEFAULT
     - keyword: VALUES
@@ -215,7 +215,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: films
+        naked_identifier: films
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -229,26 +229,26 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tmp_films
+                  naked_identifier: tmp_films
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: date_prod
+              naked_identifier: date_prod
             comparison_operator:
               raw_comparison_operator: <
-            literal: "'2004-05-07'"
+            quoted_literal: "'2004-05-07'"
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -265,11 +265,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -281,18 +281,18 @@ file:
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: bar
+          naked_identifier: bar
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -304,106 +304,106 @@ file:
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: bar
+          naked_identifier: bar
     - alias_expression:
         keyword: AS
-        identifier: some_alias
+        naked_identifier: some_alias
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: bar
+          naked_identifier: bar
     - comma: ','
     - expression:
         column_reference:
-          identifier: baz
+          naked_identifier: baz
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: bar
+          naked_identifier: bar
     - alias_expression:
         keyword: AS
-        identifier: alias1
+        naked_identifier: alias1
     - comma: ','
     - expression:
         column_reference:
-          identifier: baz
+          naked_identifier: baz
     - alias_expression:
         keyword: AS
-        identifier: alias2
+        naked_identifier: alias2
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -411,45 +411,45 @@ file:
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: bar
+            naked_identifier: bar
           end_bracket: )
     - conflict_action:
       - keyword: DO
       - keyword: UPDATE
       - keyword: SET
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
           column_reference:
-          - identifier: EXCLUDED
+          - naked_identifier: EXCLUDED
           - dot: .
-          - identifier: baz
+          - naked_identifier: baz
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -457,7 +457,7 @@ file:
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: bar
+            naked_identifier: bar
           end_bracket: )
     - conflict_action:
       - keyword: DO
@@ -468,27 +468,27 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - alias_expression:
         keyword: AS
-        identifier: f
+        naked_identifier: f
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -496,70 +496,70 @@ file:
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: bar
+            naked_identifier: bar
           end_bracket: )
     - conflict_action:
       - keyword: DO
       - keyword: UPDATE
       - keyword: SET
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
         - column_reference:
-          - identifier: EXCLUDED
+          - naked_identifier: EXCLUDED
           - dot: .
-          - identifier: baz
+          - naked_identifier: baz
         - binary_operator:
           - pipe: '|'
           - pipe: '|'
-        - literal: "' (formerly '"
+        - quoted_literal: "' (formerly '"
         - binary_operator:
           - pipe: '|'
           - pipe: '|'
         - column_reference:
-          - identifier: f
+          - naked_identifier: f
           - dot: .
-          - identifier: baz
+          - naked_identifier: baz
         - binary_operator:
           - pipe: '|'
           - pipe: '|'
-        - literal: "')'"
+        - quoted_literal: "')'"
       - keyword: WHERE
       - expression:
           column_reference:
-          - identifier: f
+          - naked_identifier: f
           - dot: .
-          - identifier: zipcode
+          - naked_identifier: zipcode
           comparison_operator:
           - raw_comparison_operator: '!'
           - raw_comparison_operator: '='
-          literal: "'21201'"
+          quoted_literal: "'21201'"
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -576,24 +576,24 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -601,12 +601,12 @@ file:
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: bar
+            naked_identifier: bar
           end_bracket: )
         keyword: WHERE
         expression:
           column_reference:
-            identifier: is_active
+            naked_identifier: is_active
     - conflict_action:
       - keyword: DO
       - keyword: NOTHING
@@ -616,24 +616,24 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: "'var'"
+            quoted_literal: "'var'"
         - end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT
@@ -641,7 +641,7 @@ file:
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: bar
+            naked_identifier: bar
           end_bracket: )
     - conflict_action:
       - keyword: DO
@@ -650,7 +650,7 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: baz
+            naked_identifier: baz
           end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -662,22 +662,22 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: baz
+                    naked_identifier: baz
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: foobar
+                        naked_identifier: foobar
               where_clause:
                 keyword: WHERE
                 expression:
                   column_reference:
-                    identifier: bar
+                    naked_identifier: bar
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '1'
+                  numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -685,11 +685,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: megatable
+        naked_identifier: megatable
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: megacolumn
+          naked_identifier: megacolumn
         end_bracket: )
     - select_statement:
         select_clause:
@@ -710,16 +710,16 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: "'megavalue'"
+                        quoted_literal: "'megavalue'"
                       end_bracket: )
                 end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: tmp
+                naked_identifier: tmp
                 bracketed:
                   start_bracket: (
                   identifier_list:
-                    identifier: megacolumn
+                    naked_identifier: megacolumn
                   end_bracket: )
         where_clause:
           keyword: WHERE
@@ -737,23 +737,23 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: megatable
+                          naked_identifier: megatable
                       alias_expression:
                         keyword: AS
-                        identifier: mt
+                        naked_identifier: mt
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                    - identifier: mt
+                    - naked_identifier: mt
                     - dot: .
-                    - identifier: megacolumn
+                    - naked_identifier: megacolumn
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: tmp
+                    - naked_identifier: tmp
                     - dot: .
-                    - identifier: megacolumn
+                    - naked_identifier: megacolumn
               end_bracket: )
     - keyword: 'ON'
     - keyword: CONFLICT

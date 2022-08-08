@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b77585c166ef9de12502ec73e8ceac9c932d6e73cdcd3cf2b06445c8e81cd96
+_hash: ce20fc23dc8e2aae7b9a2ad6e51a7ecb24fcb8c54f74cb0b12c2980ede299875
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: txt
+        naked_identifier: txt
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,15 +18,15 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: id
+                  naked_identifier: id
                 end_bracket: )
           end_bracket: )
       select_statement:
@@ -42,13 +42,13 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: txt
+                  naked_identifier: txt
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: txt
+        naked_identifier: txt
         keyword: AS
         bracketed:
           start_bracket: (
@@ -57,29 +57,27 @@ file:
           - expression:
               bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - expression:
-                  literal: '2'
+              - numeric_literal: '2'
               - end_bracket: )
           - comma: ','
           - expression:
               bracketed:
               - start_bracket: (
-              - literal: '3'
+              - numeric_literal: '3'
               - comma: ','
-              - literal: '4'
+              - numeric_literal: '4'
               - end_bracket: )
           - alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: c1
+                - naked_identifier: c1
                 - comma: ','
-                - identifier: c2
+                - naked_identifier: c2
                 end_bracket: )
           end_bracket: )
       select_statement:
@@ -95,7 +93,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: txt
+                  naked_identifier: txt
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -117,16 +115,16 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                     end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: id
+                  naked_identifier: id
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -149,29 +147,27 @@ file:
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - expression:
-                        literal: '1'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - expression:
-                        literal: '2'
+                    - numeric_literal: '2'
                     - end_bracket: )
                 - comma: ','
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - literal: '3'
+                    - numeric_literal: '3'
                     - comma: ','
-                    - literal: '4'
+                    - numeric_literal: '4'
                     - end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: c1
+                - naked_identifier: c1
                 - comma: ','
-                - identifier: c2
+                - naked_identifier: c2
                 end_bracket: )
 - statement_terminator: ;

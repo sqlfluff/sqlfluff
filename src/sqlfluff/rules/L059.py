@@ -1,11 +1,11 @@
 """Implementation of Rule L059."""
 
-from typing import List, Optional
+from typing import List, Optional, cast, Type
 
 import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -142,7 +142,9 @@ class Rule_L059(BaseRule):
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
         # need to explicity check for that.
-        if context.segment.name != context_policy or context.segment.raw.lower() in (
+        if not context.segment.is_type(
+            context_policy
+        ) or context.segment.raw.lower() in (
             "quoted_identifier",
             "naked_identifier",
         ):
@@ -166,6 +168,9 @@ class Rule_L059(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
+        IdentifierSegment = cast(
+            Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
+        )
 
         # Check if quoted_identifier_contents could be a valid naked identifier
         # and that it is not a reserved keyword.
@@ -190,10 +195,9 @@ class Rule_L059(BaseRule):
                     LintFix.replace(
                         context.segment,
                         [
-                            CodeSegment(
+                            IdentifierSegment(
                                 raw=quoted_identifier_contents,
-                                name="naked_identifier",
-                                type="identifier",
+                                type="naked_identifier",
                             )
                         ],
                     )

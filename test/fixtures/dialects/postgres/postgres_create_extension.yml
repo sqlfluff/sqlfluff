@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f79e354a953d0122ec1715d27a9804e868ab65d4e1a95e14f5a33cbb8b07528c
+_hash: ecc9699f8a881f56b241c5099433e6d13173c8537e1aa113206c93ba08b6f4ba
 file:
 - statement:
     create_extension_statement:
     - keyword: CREATE
     - keyword: EXTENSION
     - extension_reference:
-        identifier: amazing_extension
+        naked_identifier: amazing_extension
     - keyword: with
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: VERSION
     - identifier: '2.0'
     - keyword: FROM
@@ -28,11 +28,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - extension_reference:
-        identifier: amazing_extension
+        naked_identifier: amazing_extension
     - keyword: with
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: VERSION
     - identifier: '2.0'
     - keyword: FROM
@@ -43,7 +43,7 @@ file:
     - keyword: DROP
     - keyword: EXTENSION
     - extension_reference:
-        identifier: amazing_extension
+        naked_identifier: amazing_extension
 - statement_terminator: ;
 - statement:
     drop_extension_statement:
@@ -52,5 +52,5 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - extension_reference:
-        identifier: amazing_extension
+        naked_identifier: amazing_extension
 - statement_terminator: ;

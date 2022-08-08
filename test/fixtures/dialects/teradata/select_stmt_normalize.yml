@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b32081a8f262a043f0ce05142c2dad75fa535560762e77d80a75c0c1677d4e78
+_hash: e3ba8a2583bd3448e0e87373ae5338ec94005ee9f3273e6cd0b8bc083b273bd9
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
         - keyword: overlaps
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -27,32 +27,32 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: vld_fm
+                  naked_identifier: vld_fm
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: vld_to
+                  naked_identifier: vld_to
             - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: vld_prd
+            naked_identifier: vld_prd
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: mydb
+              - naked_identifier: mydb
               - dot: .
-              - identifier: mytable
+              - naked_identifier: mytable
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: id
+            naked_identifier: id
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '12345'
+          numeric_literal: '12345'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -66,18 +66,18 @@ file:
         - keyword: OVERLAPS
       - select_clause_element:
           column_reference:
-            identifier: emp_id
+            naked_identifier: emp_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: duration
+            naked_identifier: duration
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: project
+                naked_identifier: project
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,18 +87,18 @@ file:
           keyword: NORMALIZE
       - select_clause_element:
           column_reference:
-            identifier: project_name
+            naked_identifier: project_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: duration
+            naked_identifier: duration
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: project
+                naked_identifier: project
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -108,22 +108,22 @@ file:
           keyword: NORMALIZE
       - select_clause_element:
           column_reference:
-            identifier: project_name
+            naked_identifier: project_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept_id
+            naked_identifier: dept_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: duration
+            naked_identifier: duration
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: project
+                naked_identifier: project
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -135,22 +135,22 @@ file:
         - keyword: OVERLAPS
       - select_clause_element:
           column_reference:
-            identifier: project_name
+            naked_identifier: project_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept_id
+            naked_identifier: dept_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: duration
+            naked_identifier: duration
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: project
+                naked_identifier: project
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -164,20 +164,20 @@ file:
         - keyword: MEETS
       - select_clause_element:
           column_reference:
-            identifier: project_name
+            naked_identifier: project_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept_id
+            naked_identifier: dept_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: duration
+            naked_identifier: duration
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: project
+                naked_identifier: project
 - statement_terminator: ;
