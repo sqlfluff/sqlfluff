@@ -20,8 +20,8 @@ class BaseCrawler:
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
         raise NotImplementedError(  # pragma: no cover
-            "Use a sepecific crawler, not the BaseCrawler. If you're seeing "
-            "this error, a rule has likely not set it's crawl_behaviour attribute."
+            "Use a specific crawler, not the BaseCrawler. If you're seeing "
+            "this error, a rule has likely not set its crawl_behaviour attribute."
         )
 
 
