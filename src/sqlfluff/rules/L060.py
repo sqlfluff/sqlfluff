@@ -47,7 +47,7 @@ class Rule_L060(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""
         # We only care about function names, and they should be the
-        # onlythings we get
+        # only things we get
         assert context.segment.is_type("function_name_identifier")
 
         # Only care if the function is ``IFNULL`` or ``NVL``.
