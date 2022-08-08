@@ -2,7 +2,7 @@
 
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union, Type, Tuple, Any
+from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -21,6 +21,9 @@ from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
+
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import Dialect
 
 
 @dataclass
@@ -412,11 +415,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
         # Make some buffers
-        seg_buff = segments  # pragma: no cover
-        pre_seg_buff = ()  # pragma: no cover
+        seg_buff = segments
+        pre_seg_buff = ()
 
         # Loop
-        while True:  # pragma: no cover
+        while True:
             # Do we have anything left to match on?
             if seg_buff:
                 # Great, carry on.
@@ -848,7 +851,7 @@ class Ref(BaseGrammar):
                 "found {!r}".format(self._elements)
             )
 
-    def _get_elem(self, dialect):
+    def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
@@ -881,9 +884,6 @@ class Ref(BaseGrammar):
             with parse_context.deeper_match() as ctx:
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
-
-        if not elem:  # pragma: no cover
-            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given
