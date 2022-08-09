@@ -14,6 +14,7 @@ from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLPar
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult, NoQaDirective
+from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
@@ -260,7 +261,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     config = FluffConfig(overrides={"dialect": "ansi"})
     output_stream = make_output_stream(config, None, os.devnull)
     lntr = Linter(
-        formatter=OutputStreamFormatter(output_stream, verbosity=0),
+        formatter=OutputStreamFormatter(output_stream, False, verbosity=0),
         dialect="ansi",
     )
     result = lntr.lint_paths(
@@ -287,6 +288,36 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
         assert isinstance(result, runner.DelayedException)
         with pytest.raises(ValueError):
             result.reraise()
+
+
+@pytest.mark.parametrize(
+    "mock_cpu,in_processes,exp_processes",
+    [
+        # Make the mocked cpu count a really high value which is
+        # unlikely to collide with the real value. We can then
+        # test all the different combos.
+        (512, 1, 1),
+        (512, 0, 512),
+        (512, -12, 500),
+        (512, 5, 5),
+        # Check that we can't go lower than 1 in a 1 cpu case
+        (1, -1, 1),
+    ],
+)
+@patch("multiprocessing.cpu_count")
+def test__linter__get_runner_processes(
+    patched_cpu_count, mock_cpu, in_processes, exp_processes
+):
+    """Test that get_runner handles processes correctly."""
+    # Make the mocked cpu count a really high value which is
+    # unlikely to collide with the real value.
+    patched_cpu_count.return_value = mock_cpu
+    _, return_processes = get_runner(
+        linter=Linter(),
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+        processes=in_processes,
+    )
+    assert return_processes == exp_processes
 
 
 @patch("sqlfluff.core.linter.runner.linter_logger")

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a256ea29b08e57345d3831a09f779d08e2feaa503894ff495e850ecfcbde7b2
+_hash: df12c2e4312b5167eee081db51c9bef0059974d4742d2aa9f315fcb238a4d169
 file:
 - statement:
     insert_overwrite_directory_hive_fmt_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: OVERWRITE
     - keyword: LOCAL
     - keyword: DIRECTORY
-    - literal: "'/tmp/destination'"
+    - quoted_literal: "'/tmp/destination'"
     - keyword: STORED
     - keyword: AS
     - keyword: ORC
@@ -28,7 +28,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_hive_fmt_statement:
@@ -36,7 +36,7 @@ file:
     - keyword: OVERWRITE
     - keyword: LOCAL
     - keyword: DIRECTORY
-    - literal: "'/tmp/destination'"
+    - quoted_literal: "'/tmp/destination'"
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -44,7 +44,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -58,5 +58,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;

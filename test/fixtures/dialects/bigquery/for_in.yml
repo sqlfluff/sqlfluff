@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82b6abd44ca890221b669e4363b44464aeb79df637e24a0d329267e433590ffe
+_hash: 7775b88f55c77a35515b37384786c1bd94cc2be7968b7f712a5957a2ec5b3345
 file:
 - multi_statement_segment:
     for_in_statement:
     - keyword: FOR
-    - identifier: record
+    - naked_identifier: record
     - keyword: IN
     - bracketed:
         start_bracket: (
@@ -17,29 +17,29 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: word
+                naked_identifier: word
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: word_count
+                naked_identifier: word_count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: bigquery
+                  - naked_identifier: bigquery
                   - dash: '-'
-                  - identifier: public
+                  - naked_identifier: public
                   - dash: '-'
-                  - identifier: data
+                  - naked_identifier: data
                   - dot: .
-                  - identifier: samples
+                  - naked_identifier: samples
                   - dot: .
-                  - identifier: shakespeare
+                  - naked_identifier: shakespeare
           limit_clause:
             keyword: LIMIT
-            literal: '5'
+            numeric_literal: '5'
         end_bracket: )
     - keyword: DO
     - for_in_statements:
@@ -49,15 +49,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word
+                - naked_identifier: word
             - comma: ','
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word_count
+                - naked_identifier: word_count
         statement_terminator: ;
     - keyword: END
     - keyword: FOR
@@ -65,7 +65,7 @@ file:
 - multi_statement_segment:
     for_in_statement:
     - keyword: FOR
-    - identifier: record
+    - naked_identifier: record
     - keyword: IN
     - bracketed:
         start_bracket: (
@@ -74,29 +74,29 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: word
+                naked_identifier: word
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: word_count
+                naked_identifier: word_count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: bigquery
+                  - naked_identifier: bigquery
                   - dash: '-'
-                  - identifier: public
+                  - naked_identifier: public
                   - dash: '-'
-                  - identifier: data
+                  - naked_identifier: data
                   - dot: .
-                  - identifier: samples
+                  - naked_identifier: samples
                   - dot: .
-                  - identifier: shakespeare
+                  - naked_identifier: shakespeare
           limit_clause:
             keyword: LIMIT
-            literal: '5'
+            numeric_literal: '5'
         end_bracket: )
     - keyword: DO
     - for_in_statements:
@@ -106,15 +106,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word
+                - naked_identifier: word
             - comma: ','
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word_count
+                - naked_identifier: word_count
       - statement_terminator: ;
       - statement:
           select_statement:
@@ -122,15 +122,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word
+                - naked_identifier: word
             - comma: ','
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word_count
+                - naked_identifier: word_count
       - statement_terminator: ;
       - statement:
           select_statement:
@@ -138,15 +138,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word
+                - naked_identifier: word
             - comma: ','
             - select_clause_element:
                 column_reference:
-                - identifier: record
+                - naked_identifier: record
                 - dot: .
-                - identifier: word_count
+                - naked_identifier: word_count
       - statement_terminator: ;
     - keyword: END
     - keyword: FOR
@@ -154,7 +154,7 @@ file:
 - multi_statement_segment:
     for_in_statement:
     - keyword: FOR
-    - identifier: user
+    - naked_identifier: user
     - keyword: IN
     - bracketed:
         start_bracket: (
@@ -163,7 +163,7 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: group1
+                naked_identifier: group1
           - comma: ','
           - select_clause_element:
               function:
@@ -175,14 +175,14 @@ file:
                   end_bracket: )
               alias_expression:
                 keyword: as
-                identifier: count
+                naked_identifier: count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: '`database.user`'
+                    quoted_identifier: '`database.user`'
         end_bracket: )
     - keyword: DO
     - for_in_statements:
@@ -194,10 +194,10 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: COUNT
+                    naked_identifier: COUNT
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: '0'
+                  numeric_literal: '0'
                 end_bracket: )
         statement_terminator: ;
     - keyword: END

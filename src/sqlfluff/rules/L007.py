@@ -2,7 +2,7 @@
 import copy
 from typing import List
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 from sqlfluff.core.rules.doc_decorators import (
@@ -94,7 +94,7 @@ class Rule_L007(BaseRule):
             # If the anchor side of the list has no newline
             # then everything is ok already
             if not anchor_list.any(
-                sp.and_(sp.is_name("newline"), sp.not_(sp.is_templated()))
+                sp.and_(sp.is_type("newline"), sp.not_(sp.is_templated()))
             ):
                 continue
 

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9748dfc4411dfc9c3abaec67cd1525709fd35959c9fec383614b763db8d3aa41
+_hash: 5db8cdf9f2d5bbf23fbb9a36401f9236af4d0b54707dcbbfaa0a41d12905720b
 file:
 - statement:
     check_table_statement:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: FOR
     - keyword: UPGRADE
 - statement_terminator: ;
@@ -19,10 +19,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: FOR
     - keyword: UPGRADE
 - statement_terminator: ;
@@ -31,7 +31,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: QUICK
 - statement_terminator: ;
 - statement:
@@ -39,10 +39,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: QUICK
 - statement_terminator: ;
 - statement:
@@ -50,7 +50,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: FAST
 - statement_terminator: ;
 - statement:
@@ -58,10 +58,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: FAST
 - statement_terminator: ;
 - statement:
@@ -69,7 +69,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: MEDIUM
 - statement_terminator: ;
 - statement:
@@ -77,10 +77,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: MEDIUM
 - statement_terminator: ;
 - statement:
@@ -88,7 +88,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: EXTENDED
 - statement_terminator: ;
 - statement:
@@ -96,10 +96,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: EXTENDED
 - statement_terminator: ;
 - statement:
@@ -107,7 +107,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: CHANGED
 - statement_terminator: ;
 - statement:
@@ -115,10 +115,10 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
     - keyword: CHANGED
 - statement_terminator: ;
 - statement:
@@ -126,7 +126,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: FAST
     - keyword: QUICK
 - statement_terminator: ;

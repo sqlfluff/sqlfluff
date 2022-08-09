@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ef23eb5901de98f902664e0230e16e2a61b1cb332f4c7d3bd83d1b52edd6068
+_hash: a40fabce576738fd3cf6906914c39c675c61a6f105bd4e3e642815c931db1b3e
 file:
   batch:
     statement:
@@ -11,15 +11,15 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - object_reference:
-        - identifier: '[Facility]'
+        - quoted_identifier: '[Facility]'
         - dot: .
-        - identifier: '[PL_stage]'
+        - quoted_identifier: '[PL_stage]'
       - keyword: SWITCH
       - keyword: TO
       - object_reference:
-        - identifier: '[Facility]'
+        - quoted_identifier: '[Facility]'
         - dot: .
-        - identifier: '[PL_BASE]'
+        - quoted_identifier: '[PL_BASE]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (

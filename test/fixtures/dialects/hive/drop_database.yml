@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fec0366bfc7840ea1b005a51d5b88f62d6e2e98aeab6092d790128b3f126a0c
+_hash: 627698553969b8096046732155df04afb6d8d25701c26005ce447a34b08aab71
 file:
 - statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
     - database_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;

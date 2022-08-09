@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e9ddab73505cbaa613f54578784f4c2f363360244669dcc1931f49b2070ff23
+_hash: c9015c1cd3d7019aa2a1a344618fb599ad50b0da8060990046598c927fb8350c
 file:
   statement:
     create_virtual_schema_statement:
@@ -11,31 +11,31 @@ file:
     - keyword: VIRTUAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: hive
+        naked_identifier: hive
     - keyword: USING
     - object_reference:
-      - identifier: adapter
+      - naked_identifier: adapter
       - dot: .
-      - identifier: jdbc_adapter
+      - naked_identifier: jdbc_adapter
     - keyword: WITH
     - parameter: SQL_DIALECT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'HIVE'"
+    - quoted_literal: "'HIVE'"
     - parameter: CONNECTION_STRING
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'jdbc:hive2://localhost:10000/default'"
+    - quoted_literal: "'jdbc:hive2://localhost:10000/default'"
     - parameter: SCHEMA_NAME
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'default'"
+    - quoted_literal: "'default'"
     - parameter: USERNAME
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'hive-usr'"
+    - quoted_literal: "'hive-usr'"
     - parameter: PASSWORD
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'hive-pwd'"
+    - quoted_literal: "'hive-pwd'"
   statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb7edbac58ce73a044da671e84e030d44a98411330dc40ca8e39b1bc359d6193
+_hash: da851b0b764dd7ecae8f7e79097a5f4e0b3e7f8cefdddb880fe7f6a9fec771de
 file:
 - statement:
     create_statement:
@@ -13,20 +13,20 @@ file:
     - keyword: MASKING
     - keyword: POLICY
     - object_reference:
-      - identifier: XXXX
+      - naked_identifier: XXXX
       - dot: .
-      - identifier: XX
+      - naked_identifier: XX
       - dot: .
-      - identifier: example_MASKING_POLICY
+      - naked_identifier: example_MASKING_POLICY
     - keyword: AS
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: VARCHAR
+            naked_identifier: VARCHAR
       - end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -44,21 +44,21 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'SNOWFLAKE_PII'"
+                    quoted_literal: "'SNOWFLAKE_PII'"
                   end_bracket: )
           - keyword: THEN
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: ELSE
             expression:
-              literal: "'*** masked ***'"
+              quoted_literal: "'*** masked ***'"
         - keyword: END
     - keyword: COMMENT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'Applied 2021-07-13T03:12:16+0000'"
+    - quoted_literal: "'Applied 2021-07-13T03:12:16+0000'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -68,16 +68,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -98,16 +98,16 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
-              literal: "'*********'"
+              quoted_literal: "'*********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -118,16 +118,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -148,16 +148,16 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'<prod_account_identifier>'"
+                quoted_literal: "'<prod_account_identifier>'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
-              literal: "'*********'"
+              quoted_literal: "'*********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -168,16 +168,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -198,16 +198,16 @@ file:
               keyword: IN
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
-              literal: 'NULL'
+              null_literal: 'NULL'
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -218,16 +218,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -248,16 +248,16 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
-              literal: "'********'"
+              quoted_literal: "'********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -268,16 +268,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -298,12 +298,12 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
@@ -314,7 +314,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: val
+                      naked_identifier: val
                   end_bracket: )
         - keyword: end
 - statement_terminator: ;
@@ -326,16 +326,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -356,12 +356,12 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - when_clause:
           - keyword: when
           - expression:
@@ -374,7 +374,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'SUPPORT'"
+                quoted_literal: "'SUPPORT'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -385,18 +385,18 @@ file:
                 - start_bracket: (
                 - expression:
                     column_reference:
-                      identifier: val
+                      naked_identifier: val
                 - comma: ','
                 - expression:
-                    literal: "'.+\\@'"
+                    quoted_literal: "'.+\\@'"
                 - comma: ','
                 - expression:
-                    literal: "'*****@'"
+                    quoted_literal: "'*****@'"
                 - end_bracket: )
         - else_clause:
             keyword: else
             expression:
-              literal: "'********'"
+              quoted_literal: "'********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -407,16 +407,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -437,12 +437,12 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'SUPPORT'"
+                quoted_literal: "'SUPPORT'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
@@ -452,13 +452,13 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '0001'
+                    numeric_literal: '0001'
                 - comma: ','
                 - expression:
-                    literal: '01'
+                    numeric_literal: '01'
                 - comma: ','
                 - expression:
-                    literal: '01'
+                    numeric_literal: '01'
                 - end_bracket: )
               cast_expression:
                 casting_operator: '::'
@@ -474,16 +474,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -504,12 +504,12 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
@@ -520,7 +520,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: val
+                      naked_identifier: val
                   end_bracket: )
         - keyword: end
 - statement_terminator: ;
@@ -532,16 +532,16 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: email_mask
+        naked_identifier: email_mask
     - keyword: as
     - bracketed:
       - start_bracket: (
       - expression:
           column_reference:
-            identifier: val
+            naked_identifier: val
       - expression:
           column_reference:
-            identifier: string
+            naked_identifier: string
       - end_bracket: )
     - keyword: returns
     - data_type:
@@ -562,12 +562,12 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
               column_reference:
-                identifier: val
+                naked_identifier: val
         - else_clause:
             keyword: else
             expression:
@@ -578,16 +578,16 @@ file:
                 - start_bracket: (
                 - expression:
                     column_reference:
-                      identifier: val
+                      naked_identifier: val
                 - comma: ','
                 - expression:
-                    literal: "'USER_IPADDRESS'"
+                    quoted_literal: "'USER_IPADDRESS'"
                 - comma: ','
                 - expression:
-                    literal: "'****'"
+                    quoted_literal: "'****'"
                 - comma: ','
                 - expression:
-                    literal: 'true'
+                    boolean_literal: 'true'
                 - end_bracket: )
         - keyword: end
 - statement_terminator: ;

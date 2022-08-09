@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a913a0b69da720af0a2cf1c1c21d336c681616bd1fcd0b8bba73935acb77a61f
+_hash: 40517fe1d1589508ea7e1ea2a3179256d8d7cfdcf5dd24ac85ef41ef8f036cee
 file:
 - statement:
     create_function_statement:
@@ -17,10 +17,10 @@ file:
     - keyword: EXISTS
     - function_name_identifier: function_name
     - keyword: AS
-    - literal: '"class_name"'
+    - quoted_literal: '"class_name"'
     - keyword: USING
     - file_keyword: FILE
-    - literal: '"resource_locations"'
+    - quoted_literal: '"resource_locations"'
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -28,10 +28,10 @@ file:
     - keyword: FUNCTION
     - function_name_identifier: simple_udf
     - keyword: AS
-    - literal: "'SimpleUdf'"
+    - quoted_literal: "'SimpleUdf'"
     - keyword: USING
     - file_keyword: JAR
-    - literal: "'/tmp/SimpleUdf.jar'"
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -40,10 +40,10 @@ file:
     - keyword: FUNCTION
     - function_name_identifier: simple_temp_udf
     - keyword: AS
-    - literal: "'SimpleUdf'"
+    - quoted_literal: "'SimpleUdf'"
     - keyword: USING
     - file_keyword: JAR
-    - literal: "'/tmp/SimpleUdf.jar'"
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -53,10 +53,10 @@ file:
     - keyword: FUNCTION
     - function_name_identifier: simple_udf
     - keyword: AS
-    - literal: "'SimpleUdfR'"
+    - quoted_literal: "'SimpleUdfR'"
     - keyword: USING
     - file_keyword: JAR
-    - literal: "'/tmp/SimpleUdfR.jar'"
+    - quoted_literal: "'/tmp/SimpleUdfR.jar'"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -64,7 +64,7 @@ file:
     - keyword: FUNCTION
     - function_name_identifier: test_avg
     - keyword: AS
-    - literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -73,5 +73,5 @@ file:
     - keyword: FUNCTION
     - function_name_identifier: test_avg
     - keyword: AS
-    - literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
 - statement_terminator: ;

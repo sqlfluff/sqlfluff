@@ -3,29 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f9ad7bf7b49d556f00496d6ec41b3142cdef9d5ca22fb863c788a65b03389fb
+_hash: ed30f4be30e506cc082f7ec9f657e666a5c481314f3b68a2931be0b6933d3a03
 file:
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: events
+        naked_identifier: events
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: event_type
+            naked_identifier: event_type
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'click'"
+          quoted_literal: "'click'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: event_type
+            naked_identifier: event_type
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'clck'"
+          quoted_literal: "'clck'"
 - statement_terminator: ;
 - statement:
     update_statement:
@@ -33,49 +33,49 @@ file:
       file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: event_type
+            naked_identifier: event_type
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'click'"
+          quoted_literal: "'click'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: event_type
+            naked_identifier: event_type
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'clck'"
+          quoted_literal: "'clck'"
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: all_events
+        naked_identifier: all_events
       set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier: session_time
+            naked_identifier: session_time
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '0'
+          numeric_literal: '0'
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: ignored
+            naked_identifier: ignored
           comparison_operator:
             raw_comparison_operator: '='
-          literal: 'true'
+          boolean_literal: 'true'
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: session_time
+            naked_identifier: session_time
           comparison_operator:
             raw_comparison_operator: <
           bracketed:
@@ -92,7 +92,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: session_time
+                            naked_identifier: session_time
                         end_bracket: )
                 from_clause:
                   keyword: FROM
@@ -100,25 +100,25 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: good_events
+                          naked_identifier: good_events
             end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: orders
+        naked_identifier: orders
       alias_expression:
         keyword: AS
-        identifier: t1
+        naked_identifier: t1
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: order_status
+            naked_identifier: order_status
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'returned'"
+          quoted_literal: "'returned'"
       where_clause:
         keyword: WHERE
         expression:
@@ -130,49 +130,49 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                  - identifier: returned_orders
+                  - naked_identifier: returned_orders
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: returned_orders
+                        naked_identifier: returned_orders
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: t1
+                  - naked_identifier: t1
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: returned_orders
+                  - naked_identifier: returned_orders
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
             end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: events
+        naked_identifier: events
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: category
+            naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'undefined'"
+          quoted_literal: "'undefined'"
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: category
+            naked_identifier: category
         - keyword: NOT
         - keyword: IN
         - bracketed:
@@ -182,21 +182,21 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: category
+                    naked_identifier: category
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: events2
+                        naked_identifier: events2
               where_clause:
                 keyword: WHERE
                 expression:
                   column_reference:
-                    identifier: date
+                    naked_identifier: date
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: "'2001-01-01'"
+                  quoted_literal: "'2001-01-01'"
             end_bracket: )
 - statement_terminator: ;

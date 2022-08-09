@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 55552c8e7d241533be286e380f9752bab773d4a2c5dce274d14b02adcec867f6
+_hash: f6284ad17cca775e8dc9aee5fe276a1e65b6d4f00bfdaa01ddbc5827a1ac8761
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: t
+        naked_identifier: t
         cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: x
+            - naked_identifier: x
             - comma: ','
-            - identifier: y
+            - naked_identifier: y
             end_bracket: )
         keyword: AS
         bracketed:
@@ -25,10 +25,10 @@ file:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - select_clause_element:
-                literal: '2'
+                numeric_literal: '2'
           end_bracket: )
       select_statement:
         select_clause:
@@ -43,34 +43,34 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t
+                  naked_identifier: t
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: x
+              naked_identifier: x
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: AND
           - column_reference:
-              identifier: y
+              naked_identifier: y
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '2'
+          - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: t
+        naked_identifier: t
         keyword: AS
         bracketed:
           start_bracket: (
           with_compound_statement:
             keyword: WITH
             common_table_expression:
-              identifier: t2
+              naked_identifier: t2
               keyword: AS
               bracketed:
                 start_bracket: (
@@ -78,7 +78,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '1'
+                      numeric_literal: '1'
                 end_bracket: )
             select_statement:
               select_clause:
@@ -93,7 +93,7 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: t2
+                        naked_identifier: t2
           end_bracket: )
       select_statement:
         select_clause:
@@ -108,7 +108,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -122,7 +122,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: c
+                  naked_identifier: c
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -134,12 +134,12 @@ file:
                 with_compound_statement:
                   keyword: WITH
                   common_table_expression:
-                    identifier: t
+                    naked_identifier: t
                     cte_column_list:
                       bracketed:
                         start_bracket: (
                         identifier_list:
-                          identifier: c
+                          naked_identifier: c
                         end_bracket: )
                     keyword: AS
                     bracketed:
@@ -148,7 +148,7 @@ file:
                         select_clause:
                           keyword: SELECT
                           select_clause_element:
-                            literal: '1'
+                            numeric_literal: '1'
                       end_bracket: )
                   select_statement:
                     select_clause:
@@ -163,7 +163,7 @@ file:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier: t
+                              naked_identifier: t
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -177,7 +177,7 @@ file:
               with_compound_statement:
                 keyword: WITH
                 common_table_expression:
-                  identifier: t
+                  naked_identifier: t
                   keyword: AS
                   bracketed:
                     start_bracket: (
@@ -185,7 +185,7 @@ file:
                       select_clause:
                         keyword: SELECT
                         select_clause_element:
-                          literal: '1'
+                          numeric_literal: '1'
                     end_bracket: )
                 select_statement:
                   select_clause:
@@ -200,7 +200,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: t
+                            naked_identifier: t
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -208,23 +208,23 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: v
+        naked_identifier: v
     - keyword: AS
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-          identifier: t
+          naked_identifier: t
           cte_column_list:
             bracketed:
               start_bracket: (
               identifier_list:
-              - identifier: a
+              - naked_identifier: a
               - comma: ','
-              - identifier: b
+              - naked_identifier: b
               - comma: ','
-              - identifier: c
+              - naked_identifier: c
               - comma: ','
-              - identifier: d
+              - naked_identifier: d
               end_bracket: )
           keyword: AS
           bracketed:
@@ -233,16 +233,16 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: '1'
+                  numeric_literal: '1'
               - comma: ','
               - select_clause_element:
-                  literal: '2'
+                  numeric_literal: '2'
               - comma: ','
               - select_clause_element:
-                  literal: '3'
+                  numeric_literal: '3'
               - comma: ','
               - select_clause_element:
-                  literal: '4'
+                  numeric_literal: '4'
             end_bracket: )
         select_statement:
           select_clause:
@@ -257,7 +257,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t
+                    naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -273,13 +273,13 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: v
+                naked_identifier: v
 - statement_terminator: ;
 - statement:
     with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-        identifier: t
+        naked_identifier: t
         keyword: AS
         bracketed:
           start_bracket: (
@@ -287,18 +287,18 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
           end_bracket: )
     - comma: ','
     - common_table_expression:
-        identifier: t2
+        naked_identifier: t2
         keyword: AS
         bracketed:
           start_bracket: (
           with_compound_statement:
             keyword: WITH
             common_table_expression:
-              identifier: t
+              naked_identifier: t
               keyword: AS
               bracketed:
                 start_bracket: (
@@ -306,7 +306,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '2'
+                      numeric_literal: '2'
                 end_bracket: )
             select_statement:
               select_clause:
@@ -321,7 +321,7 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: t
+                        naked_identifier: t
           end_bracket: )
     - select_statement:
         select_clause:
@@ -336,5 +336,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;

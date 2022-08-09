@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7dd3cbb7d1d92610bd65366f672bd2e61bb7137852875e03df0f1173e41d9dd7
+_hash: 30cc5c94b78e31be517e738d44b5c3cd8bec96e130bf1cd285a66ce642433734
 file:
 - statement:
     create_external_function_statement:
@@ -27,9 +27,9 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -39,7 +39,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -59,21 +59,21 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -85,27 +85,27 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -115,7 +115,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -139,21 +139,21 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -165,27 +165,27 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -195,7 +195,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -218,25 +218,25 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'SQLFluff rocks!'"
+        quoted_literal: "'SQLFluff rocks!'"
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -248,25 +248,25 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5544d347d35f2c1715e9fd945b874a558d912fcef97134d8ab27946d0f29a75
+_hash: d7e87d353954c6cf8cb521155d461614e6034ccc99b3ad3297b608fd6bf0c677
 file:
   statement:
     select_statement:
@@ -11,51 +11,51 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: exists_left
+          - naked_identifier: exists_left
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
           alias_expression:
             keyword: AS
-            identifier: business_type_left
+            naked_identifier: business_type_left
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exists_right
+          - naked_identifier: exists_right
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
           alias_expression:
             keyword: AS
-            identifier: business_type_right
+            naked_identifier: business_type_right
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: benchmark_summaries
+                naked_identifier: benchmark_summaries
             alias_expression:
               keyword: AS
-              identifier: exists_left
+              naked_identifier: exists_left
           join_clause:
           - keyword: FULL
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: business_types
+                  naked_identifier: business_types
               alias_expression:
                 keyword: AS
-                identifier: exists_right
+                naked_identifier: exists_right
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: exists_left
+                - naked_identifier: exists_left
                 - dot: .
-                - identifier: business_type
+                - naked_identifier: business_type
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: exists_right
+                - naked_identifier: exists_right
                 - dot: .
-                - identifier: business_type
+                - naked_identifier: business_type

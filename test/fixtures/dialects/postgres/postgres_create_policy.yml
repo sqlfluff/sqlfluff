@@ -3,52 +3,52 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2099146180de500f07c592f24edce808a415f28803bad6291a2598dbd23bd4d7
+_hash: 5eef8817d8adec60e63a49eb7a08d3022e047e29f5cfe8c9ba9a01aa0cc339b5
 file:
 - statement:
     create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: TO
     - object_reference:
-        identifier: current_user
+        naked_identifier: current_user
 - statement_terminator: ;
 - statement:
     create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
-      - identifier: accounts
+      - naked_identifier: accounts
     - keyword: AS
     - keyword: permissive
     - keyword: FOR
     - keyword: ALL
     - keyword: TO
     - object_reference:
-        identifier: managers
+        naked_identifier: managers
 - statement_terminator: ;
 - statement:
     create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: TO
     - object_reference:
-        identifier: public
+        naked_identifier: public
     - comma: ','
     - keyword: session_user
 - statement_terminator: ;
@@ -57,10 +57,10 @@ file:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -74,7 +74,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: full_name
+                  naked_identifier: full_name
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -83,21 +83,21 @@ file:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: emp_rls_policy
+        naked_identifier: emp_rls_policy
     - keyword: 'ON'
     - table_reference:
-        identifier: employee
+        naked_identifier: employee
     - keyword: FOR
     - keyword: all
     - keyword: TO
     - object_reference:
-        identifier: public
+        naked_identifier: public
     - keyword: USING
     - bracketed:
         start_bracket: (
         expression:
           column_reference:
-            identifier: ename
+            naked_identifier: ename
           comparison_operator:
             raw_comparison_operator: '='
           function:
@@ -106,7 +106,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: "'rls.ename'"
+                quoted_literal: "'rls.ename'"
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -115,20 +115,20 @@ file:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
         start_bracket: (
         expression:
           column_reference:
-            identifier: col
+            naked_identifier: col
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '10'
+          numeric_literal: '10'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -136,19 +136,19 @@ file:
     - keyword: CREATE
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: USING
     - bracketed:
         start_bracket: (
         expression:
         - column_reference:
-            identifier: username
+            naked_identifier: username
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: current_user
+            naked_identifier: current_user
         end_bracket: )
 - statement_terminator: ;

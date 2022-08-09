@@ -3,39 +3,36 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    AnySetOf,
+    BaseFileSegment,
     BaseSegment,
-    Sequence,
-    OneOf,
     Bracketed,
-    Ref,
-    Nothing,
-    RegexLexer,
     CodeSegment,
-    RegexParser,
+    CommentSegment,
+    Conditional,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     NamedParser,
+    Nothing,
+    OneOf,
     OptionallyBracketed,
-    Dedent,
-    BaseFileSegment,
-    Indent,
-    AnyNumberOf,
-    CommentSegment,
+    Ref,
+    RegexLexer,
+    RegexParser,
     SegmentGenerator,
-    Conditional,
-    AnySetOf,
+    Sequence,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
-
+from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
@@ -89,7 +86,7 @@ tsql_dialect.sets("datetime_units").update(
 
 tsql_dialect.sets("date_part_function_name").clear()
 tsql_dialect.sets("date_part_function_name").update(
-    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME"]
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
 
 tsql_dialect.insert_lexer_matchers(
@@ -177,17 +174,17 @@ tsql_dialect.patch_lexer_matchers(
 
 tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
-        "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=NamedParser(
-        "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
+        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=NamedParser(
-        "var_prefix", CodeSegment, name="variable_identifier", type="identifier"
+        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
-        "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
+        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -198,7 +195,7 @@ tsql_dialect.add(
         "TRAN",
     ),
     SystemVariableSegment=RegexParser(
-        r"@@[A-Za-z0-9_]+", CodeSegment, name="system_variable", type="system_variable"
+        r"@@[A-Za-z0-9_]+", CodeSegment, type="system_variable"
     ),
     StatementAndDelimiterGrammar=Sequence(
         Ref("StatementSegment"),
@@ -217,6 +214,15 @@ tsql_dialect.add(
         Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
         Ref("ParameterNameSegment"),
     ),
+    CollationSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Za-z0-9_]*[A-Za-z0-9_]",
+            CodeSegment,
+            type="collation",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
 )
 
 tsql_dialect.replace(
@@ -226,19 +232,18 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
-    BaseExpressionElementGrammar=OneOf(
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        remove=[
+            Ref("IntervalExpressionSegment"),
+        ]
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -248,22 +253,24 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment"),
         Ref("VariableIdentifierSegment"),
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("QuotedLiteralSegmentWithN"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Ref("ParameterNameSegment"),
-        Ref("SystemVariableSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
+    .copy(
+        insert=[
+            Ref("QuotedLiteralSegmentWithN"),
+        ],
+        before=Ref("NumericLiteralSegment"),
+        remove=[
+            Ref("ArrayLiteralSegment"),
+            Ref("ObjectLiteralSegment"),
+        ],
+    )
+    .copy(
+        insert=[
+            Ref("ParameterNameSegment"),
+            Ref("SystemVariableSegment"),
+        ],
     ),
-    ParameterNameSegment=RegexParser(
-        r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
-    ),
+    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
@@ -276,24 +283,8 @@ tsql_dialect.replace(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
-            anti_template=r"^("
-            + r"|".join(
-                dialect.sets("reserved_keywords")
-                - {
-                    "COALESCE",
-                    "CONVERT",
-                    "CURRENT_TIMESTAMP",
-                    "CURRENT_USER",
-                    "LEFT",
-                    "NULLIF",
-                    "RIGHT",
-                    "SESSION_USER",
-                    "SYSTEM_USER",
-                }
-            )
-            + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
@@ -306,7 +297,6 @@ tsql_dialect.replace(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
-            name="data_type_identifier",
             type="data_type_identifier",
             # anti_template=r"^(NOT)$",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -395,8 +385,20 @@ tsql_dialect.replace(
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
+    JoinTypeKeywordsGrammar=OneOf(
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        optional=True,
+    ),
     JoinKeywordsGrammar=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
-    NaturalJoinKeywordsGrammar=Nothing(),
+    NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
     NestedJoinGrammar=Sequence(
         Indent,
         Ref("JoinClauseSegment"),
@@ -447,6 +449,7 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationSegment")),
 )
 
 
@@ -938,7 +941,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                                                         "BLOCKERS",
                                                     ),
                                                 ),
-                                                delimiter=Ref("CommaSegment"),
                                             ),
                                         ),
                                     ),
@@ -971,7 +973,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                     ),
                     min_times=1,
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
         ),
     )
@@ -1880,6 +1881,12 @@ class CreateViewStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         "VIEW",
         Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+            optional=True,
+        ),
         Sequence(
             "WITH",
             Delimited("ENCRYPTION", "SCHEMABINDING", "VIEW_METADATA"),
@@ -1934,6 +1941,26 @@ class RankFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = OneOf("DENSE_RANK", "NTILE", "RANK", "ROW_NUMBER")
+
+
+class ReservedKeywordFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are also functions.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "COALESCE",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LEFT",
+        "NULLIF",
+        "RIGHT",
+        "SESSION_USER",
+        "SYSTEM_USER",
+    )
 
 
 class WithinGroupFunctionNameSegment(BaseSegment):
@@ -2125,17 +2152,20 @@ class FunctionSegment(BaseSegment):
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
-            Ref(
-                "FunctionNameSegment",
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
-                    # List of special functions handled differently
-                    Ref("CastFunctionNameSegment"),
-                    Ref("ConvertFunctionNameSegment"),
-                    Ref("DatePartFunctionNameSegment"),
-                    Ref("WithinGroupFunctionNameSegment"),
-                    Ref("RankFunctionNameSegment"),
+            OneOf(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                        # List of special functions handled differently
+                        Ref("CastFunctionNameSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("WithinGroupFunctionNameSegment"),
+                        Ref("RankFunctionNameSegment"),
+                    ),
                 ),
+                Ref("ReservedKeywordFunctionNameSegment"),
             ),
             Bracketed(
                 Ref(
@@ -3885,7 +3915,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                 ),
@@ -3901,7 +3930,6 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             Delimited(
                 OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
-                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -3918,7 +3946,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3933,7 +3960,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),
@@ -3947,7 +3973,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3962,7 +3987,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO", "FROM"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),
@@ -4078,3 +4102,11 @@ class ForXmlSegment(BaseSegment):
             Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )
+
+
+class ConcatSegment(BaseSegment):
+    """Concat operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar: Matchable = Ref("PlusSegment")

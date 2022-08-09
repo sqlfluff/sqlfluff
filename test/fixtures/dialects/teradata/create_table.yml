@@ -3,63 +3,63 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c3afb29b3a1c7a8b0608a5dbdbf23f72062c256f3c74895c9cdf51ac038963c
+_hash: 9575db20580324d3eeb9919f2fdebdb2174b8b78d41d59ccfe94dffa6e31f8e9
 file:
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
     - bracketed:
       - start_bracket: (
       - column_definition:
           column_reference:
-            identifier: Org_Unit_Code
+            naked_identifier: Org_Unit_Code
           data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Org_Unit_Type
+            naked_identifier: Org_Unit_Type
           data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Entity_Code
+            naked_identifier: Entity_Code
           data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
@@ -69,49 +69,49 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Org_Unit_Code
+            naked_identifier: Parent_Org_Unit_Code
           data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Org_Unit_Type
+            naked_identifier: Parent_Org_Unit_Type
           data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Entity_Code
+            naked_identifier: Parent_Entity_Code
           data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
@@ -123,14 +123,14 @@ file:
       - keyword: primary
       - keyword: index
       - object_reference:
-          identifier: Org_Descendant_NUPI
+          naked_identifier: Org_Descendant_NUPI
       - bracketed:
         - start_bracket: (
-        - identifier: Org_Unit_Code
+        - naked_identifier: Org_Unit_Code
         - comma: ','
-        - identifier: Org_Unit_Type
+        - naked_identifier: Org_Unit_Type
         - comma: ','
-        - identifier: Entity_Code
+        - naked_identifier: Entity_Code
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -141,79 +141,79 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Org_Unit_Type
+          naked_identifier: Org_Unit_Type
       - comma: ','
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - end_bracket: )
     - keyword: as
     - object_reference:
-        identifier: Org_Descendant_NUPI
+        naked_identifier: Org_Descendant_NUPI
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Org_Unit_Type
+          naked_identifier: Org_Unit_Type
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Code
+          naked_identifier: Parent_Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Type
+          naked_identifier: Parent_Org_Unit_Type
       - end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Parent_Org_Unit_Code
+          naked_identifier: Parent_Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Type
+          naked_identifier: Parent_Org_Unit_Type
       - comma: ','
       - column_reference:
-          identifier: Parent_Entity_Code
+          naked_identifier: Parent_Entity_Code
       - end_bracket: )
     - keyword: 'on'
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -221,11 +221,11 @@ file:
     - keyword: 'on'
     - keyword: table
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
     - keyword: is
-    - literal: "'View with all Org_Unit_Ids on all levels'"
+    - quoted_literal: "'View with all Org_Unit_Ids on all levels'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -233,13 +233,13 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Org_Unit_Code
+      - naked_identifier: Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -247,13 +247,14 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Org_Unit_Type
+      - naked_identifier: Org_Unit_Type
     - keyword: is
-    - literal: "'The type of organization such as branch, region, team, call center'"
+    - quoted_literal: "'The type of organization such as branch, region, team, call\
+        \ center'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -261,13 +262,13 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Entity_Code
+      - naked_identifier: Entity_Code
     - keyword: is
-    - literal: "'Owning entity code'"
+    - quoted_literal: "'Owning entity code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -275,13 +276,13 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Parent_Org_Unit_Code
+      - naked_identifier: Parent_Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -289,13 +290,14 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Parent_Org_Unit_Type
+      - naked_identifier: Parent_Org_Unit_Type
     - keyword: is
-    - literal: "'The type of organization such as branch, region, team, call center'"
+    - quoted_literal: "'The type of organization such as branch, region, team, call\
+        \ center'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -303,11 +305,11 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Parent_Entity_Code
+      - naked_identifier: Parent_Entity_Code
     - keyword: is
-    - literal: "'Owning entity code parent'"
+    - quoted_literal: "'Owning entity code parent'"
 - statement_terminator: ;

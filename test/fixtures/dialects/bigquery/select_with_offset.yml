@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd928cd170e004b83e0eecf72f1df45f8a36b53a88faf8c5af514588ee7e5c46
+_hash: 71e16dfa6259fe56b20ec3371bfdd21e73a17bdadb948b9e228fd8a29d5ad18d
 file:
   statement:
     select_statement:
@@ -22,19 +22,19 @@ file:
                   - keyword: WHEN
                   - expression:
                     - column_reference:
-                        identifier: value
+                        naked_identifier: value
                     - comparison_operator:
                       - raw_comparison_operator: '!'
                       - raw_comparison_operator: '='
                     - column_reference:
-                        identifier: previous_value
+                        naked_identifier: previous_value
                   - keyword: THEN
                   - expression:
-                      literal: '1.0'
+                      numeric_literal: '1.0'
                 - else_clause:
                     keyword: ELSE
                     expression:
-                      literal: '0.0'
+                      numeric_literal: '0.0'
                 - keyword: END
               end_bracket: )
       from_clause:
@@ -49,7 +49,7 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: value
+                        naked_identifier: value
                   - comma: ','
                   - select_clause_element:
                       expression:
@@ -59,11 +59,11 @@ file:
                           - keyword: WHEN
                           - expression:
                               column_reference:
-                                identifier: ix
+                                naked_identifier: ix
                               comparison_operator:
                               - raw_comparison_operator: '!'
                               - raw_comparison_operator: '='
-                              literal: '0'
+                              numeric_literal: '0'
                           - keyword: THEN
                           - expression:
                               function:
@@ -73,7 +73,7 @@ file:
                                   start_bracket: (
                                   expression:
                                     column_reference:
-                                      identifier: value
+                                      naked_identifier: value
                                   end_bracket: )
                                 over_clause:
                                   keyword: OVER
@@ -84,18 +84,18 @@ file:
                                       - keyword: ORDER
                                       - keyword: BY
                                       - column_reference:
-                                          identifier: ix
+                                          naked_identifier: ix
                                       - keyword: ASC
                                     end_bracket: )
                         - else_clause:
                             keyword: ELSE
                             expression:
                               column_reference:
-                                identifier: value
+                                naked_identifier: value
                         - keyword: END
                       alias_expression:
                         keyword: AS
-                        identifier: previous_value
+                        naked_identifier: previous_value
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -108,16 +108,16 @@ file:
                               start_bracket: (
                               expression:
                                 column_reference:
-                                - identifier: sequence_validation_and_business_rules
+                                - naked_identifier: sequence_validation_and_business_rules
                                 - dot: .
-                                - identifier: sequence_validation_and_business_rules
+                                - naked_identifier: sequence_validation_and_business_rules
                               end_bracket: )
                       - alias_expression:
                           keyword: AS
-                          identifier: value
+                          naked_identifier: value
                       - keyword: WITH
                       - keyword: OFFSET
                       - alias_expression:
                           keyword: AS
-                          identifier: ix
+                          naked_identifier: ix
                 end_bracket: )

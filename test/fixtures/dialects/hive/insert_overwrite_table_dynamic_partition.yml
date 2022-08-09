@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 775ab853dba5e9aacbbd275ceb7f6e256950fd41a9e1165ef6e7333a85bdf81e
+_hash: 202beaad04e718b7b9b006acd5376ec0ca72c8d7eaf0677716fd721f5a86e6ef
 file:
 - statement:
     insert_statement:
@@ -11,18 +11,18 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
+          naked_identifier: a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'test_foo'"
+      - quoted_literal: "'test_foo'"
       - comma: ','
       - column_reference:
-          identifier: b
+          naked_identifier: b
       - end_bracket: )
     - keyword: IF
     - keyword: NOT
@@ -32,20 +32,20 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
-            literal: "'test_bar'"
+            quoted_literal: "'test_bar'"
             alias_expression:
               keyword: AS
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -53,15 +53,15 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
+          naked_identifier: a
       - comma: ','
       - column_reference:
-          identifier: b
+          naked_identifier: b
       - end_bracket: )
     - keyword: IF
     - keyword: NOT
@@ -70,21 +70,21 @@ file:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
-            literal: "'test_foo'"
+            quoted_literal: "'test_foo'"
             alias_expression:
               keyword: AS
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
-            literal: "'test_bar'"
+            quoted_literal: "'test_bar'"
             alias_expression:
               keyword: AS
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aad380ecd6f8a887c5c0ec4d8619ef9e5ead14376e87ae8e23fff3b1c56fff8c
+_hash: f4eba93c6a11b233fad3114a515737c0e48856a894636163fe46be9f6c82c520
 file:
 - statement:
     alter_default_privileges_statement:
@@ -13,11 +13,11 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: the_user
+        naked_identifier: the_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: the_schema
+        naked_identifier: the_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -28,7 +28,7 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           role_reference:
-            identifier: the_other_user
+            naked_identifier: the_other_user
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -38,11 +38,11 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: the_user
+        naked_identifier: the_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: the_schema
+        naked_identifier: the_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -53,5 +53,5 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           role_reference:
-            identifier: the_other_user
+            naked_identifier: the_other_user
 - statement_terminator: ;

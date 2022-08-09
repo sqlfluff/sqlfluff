@@ -3,61 +3,61 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f8de0d1bff7fb37ad25e67d180d5b3c2dafc05998989fc055589927afcd01b0
+_hash: 82fc2f28c5517d75f43744d817dc64b5d047d7cc3590bea26013a71265f97050
 file:
 - statement:
     alter_consumer_group_statement:
     - keyword: ALTER
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: TEST_TEAM
+    - naked_identifier: TEST_TEAM
     - keyword: SET
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'800'"
+        quoted_literal: "'800'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'150'"
+        quoted_literal: "'150'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'10G'"
+        quoted_literal: "'10G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: SESSION_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'5G'"
+        quoted_literal: "'5G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: QUERY_TIMEOUT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '60'
+        numeric_literal: '60'
     - comma: ','
     - consumer_group_parameter:
         keyword: IDLE_TIMEOUT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '3600'
+        numeric_literal: '3600'
 - statement_terminator: ;
 - statement:
     alter_consumer_group_statement:
     - keyword: ALTER
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: '"ADMIN"'
+    - quoted_identifier: '"ADMIN"'
     - keyword: SET
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'800'"
+        quoted_literal: "'800'"
 - statement_terminator: ;

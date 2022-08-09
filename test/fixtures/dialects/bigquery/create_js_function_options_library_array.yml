@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a221d1b3f2908c42beb320cd33ddde7125bf7d266bd62af9a1be4851a5bc26cb
+_hash: 47cac850e15c1ef1e0669f66f3ffa81e3550e3ec3e11b2e458dee27710119c67
 file:
   statement:
     create_function_statement:
@@ -24,20 +24,21 @@ file:
         keyword: ARRAY
         start_angle_bracket: <
         data_type:
-        - keyword: STRUCT
-        - start_angle_bracket: <
-        - parameter: product_id
-        - data_type:
-            data_type_identifier: INT64
-        - comma: ','
-        - parameter: rating
-        - data_type:
-            data_type_identifier: FLOAT64
-        - end_angle_bracket: '>'
+          struct_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - parameter: product_id
+          - data_type:
+              data_type_identifier: INT64
+          - comma: ','
+          - parameter: rating
+          - data_type:
+              data_type_identifier: FLOAT64
+          - end_angle_bracket: '>'
         end_angle_bracket: '>'
     - function_definition:
       - keyword: LANGUAGE
-      - identifier: js
+      - naked_identifier: js
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (

@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5ba329dbdeab07fec1da271050a1eb101ebc1886c9dc2f6edb66f74534773b6
+_hash: 38570fd1de11ce681838552aac7a502c8163cd496475a4639714b51b0b736a48
 file:
   statement:
     drop_domain_statement:
     - keyword: DROP
     - keyword: DOMAIN
     - object_reference:
-        identifier: box
+        naked_identifier: box
   statement_terminator: ;

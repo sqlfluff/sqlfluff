@@ -336,3 +336,16 @@ test_pass_ansi:
         INNER JOIN mapping_table ON (mapping_table.other_fk = other_table.id_pk)
         WHERE mapping_table.kind = my_table.kind
     )
+
+test_pass_redshift_convert:
+  # This was failing in issue 3651.
+  pass_str: |
+    SELECT
+        sellers.name,
+        CONVERT(integer, sales.pricepaid) AS price
+    FROM sales
+    LEFT JOIN sellers ON sales.sellerid = sellers.sellerid
+    WHERE sales.salesid = 100
+  configs:
+    core:
+      dialect: redshift

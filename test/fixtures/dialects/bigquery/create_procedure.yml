@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b0ce00a69d6e463cd705bbc446c7f21ff7bdf85c5a3d480b1f22fb064c675d7
+_hash: b6e3d437bfcd1728d0466ceeaf60034b799468b6393673dabe02d5d6fccbc004
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -41,9 +41,9 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - procedure_name:
-      - identifier: myProject
+      - naked_identifier: myProject
       - dot: .
-      - identifier: myDataset
+      - naked_identifier: myDataset
       - dot: .
       - procedure_name_identifier: QueryTable
     - procedure_parameter_list:
@@ -66,9 +66,9 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: anotherDataset
+                    - naked_identifier: anotherDataset
                     - dot: .
-                    - identifier: myTable
+                    - naked_identifier: myTable
         statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
@@ -77,7 +77,7 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: AddDelta
     - procedure_parameter_list:
@@ -97,15 +97,15 @@ file:
         statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
             - column_reference:
-                identifier: x
+                naked_identifier: x
             - binary_operator: +
             - column_reference:
-                identifier: delta
+                naked_identifier: delta
         statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
@@ -114,7 +114,7 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: SelectFromTablesAndAppend
     - procedure_parameter_list:
@@ -137,89 +137,89 @@ file:
           - keyword: TEMP
           - keyword: TABLE
           - table_reference:
-              identifier: DataForTargetDate
+              naked_identifier: DataForTargetDate
           - keyword: AS
           - select_statement:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: t1
+                  - naked_identifier: t1
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t1
+                  - naked_identifier: t1
                   - dot: .
-                  - identifier: x
+                  - naked_identifier: x
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t2
+                  - naked_identifier: t2
                   - dot: .
-                  - identifier: y
+                  - naked_identifier: y
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: dataset
+                      - naked_identifier: dataset
                       - dot: .
-                      - identifier: partitioned_table1
+                      - naked_identifier: partitioned_table1
                     alias_expression:
                       keyword: AS
-                      identifier: t1
+                      naked_identifier: t1
                   join_clause:
                     keyword: JOIN
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: dataset
+                        - naked_identifier: dataset
                         - dot: .
-                        - identifier: partitioned_table2
+                        - naked_identifier: partitioned_table2
                       alias_expression:
                         keyword: AS
-                        identifier: t2
+                        naked_identifier: t2
                     join_on_condition:
                       keyword: 'ON'
                       expression:
                       - column_reference:
-                        - identifier: t1
+                        - naked_identifier: t1
                         - dot: .
-                        - identifier: id
+                        - naked_identifier: id
                       - comparison_operator:
                           raw_comparison_operator: '='
                       - column_reference:
-                        - identifier: t2
+                        - naked_identifier: t2
                         - dot: .
-                        - identifier: id
+                        - naked_identifier: id
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: t1
+                  - naked_identifier: t1
                   - dot: .
-                  - identifier: date
+                  - naked_identifier: date
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                    identifier: target_date
+                    naked_identifier: target_date
                 - binary_operator: AND
                 - column_reference:
-                  - identifier: t2
+                  - naked_identifier: t2
                   - dot: .
-                  - identifier: date
+                  - naked_identifier: date
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                    identifier: target_date
+                    naked_identifier: target_date
       - statement_terminator: ;
       - statement:
           set_segment:
             keyword: SET
-            identifier: rows_added
+            naked_identifier: rows_added
             comparison_operator:
               raw_comparison_operator: '='
             bracketed:
@@ -241,7 +241,7 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: DataForTargetDate
+                          naked_identifier: DataForTargetDate
               end_bracket: )
       - statement_terminator: ;
       - statement:
@@ -250,33 +250,33 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: y
+                  naked_identifier: y
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: target_date
+                  naked_identifier: target_date
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: DataForTargetDate
+                      naked_identifier: DataForTargetDate
       - statement_terminator: ;
       - statement:
           drop_table_statement:
           - keyword: DROP
           - keyword: TABLE
           - table_reference:
-              identifier: DataForTargetDate
+              naked_identifier: DataForTargetDate
       - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
@@ -287,7 +287,7 @@ file:
     - keyword: REPLACE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: create_customer
     - procedure_parameter_list:
@@ -299,14 +299,14 @@ file:
       - statement:
           declare_segment:
             keyword: DECLARE
-            identifier: id
+            naked_identifier: id
             data_type:
               data_type_identifier: STRING
       - statement_terminator: ;
       - statement:
           set_segment:
             keyword: SET
-            identifier: id
+            naked_identifier: id
             comparison_operator:
               raw_comparison_operator: '='
             function:
@@ -321,13 +321,13 @@ file:
           - keyword: INSERT
           - keyword: INTO
           - table_reference:
-            - identifier: mydataset
+            - naked_identifier: mydataset
             - dot: .
-            - identifier: customers
+            - naked_identifier: customers
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: customer_id
+                naked_identifier: customer_id
               end_bracket: )
           - values_clause:
               keyword: VALUES
@@ -335,7 +335,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
                 end_bracket: )
       - statement_terminator: ;
       - statement:
@@ -349,11 +349,11 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '"Created customer %s"'
+                      quoted_literal: '"Created customer %s"'
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: id
+                        naked_identifier: id
                   - end_bracket: )
       - statement_terminator: ;
     - keyword: END
@@ -365,7 +365,7 @@ file:
     - keyword: REPLACE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: create_customer
     - procedure_parameter_list:
@@ -380,14 +380,14 @@ file:
       - statement:
           declare_segment:
             keyword: DECLARE
-            identifier: id
+            naked_identifier: id
             data_type:
               data_type_identifier: STRING
       - statement_terminator: ;
       - statement:
           set_segment:
             keyword: SET
-            identifier: id
+            naked_identifier: id
             comparison_operator:
               raw_comparison_operator: '='
             function:
@@ -402,16 +402,16 @@ file:
           - keyword: INSERT
           - keyword: INTO
           - table_reference:
-            - identifier: mydataset
+            - naked_identifier: mydataset
             - dot: .
-            - identifier: customers
+            - naked_identifier: customers
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: customer_id
+                naked_identifier: customer_id
             - comma: ','
             - column_reference:
-                identifier: name
+                naked_identifier: name
             - end_bracket: )
           - values_clause:
               keyword: VALUES
@@ -419,11 +419,11 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: name
+                    naked_identifier: name
               - end_bracket: )
       - statement_terminator: ;
       - statement:
@@ -437,15 +437,15 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '"Created customer %s (%s)"'
+                      quoted_literal: '"Created customer %s (%s)"'
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: id
+                        naked_identifier: id
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: name
+                        naked_identifier: name
                   - end_bracket: )
       - statement_terminator: ;
     - keyword: END
@@ -457,7 +457,7 @@ file:
     - keyword: REPLACE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: create_customer
     - procedure_parameter_list:
@@ -477,7 +477,7 @@ file:
       - statement:
           set_segment:
             keyword: SET
-            identifier: id
+            naked_identifier: id
             comparison_operator:
               raw_comparison_operator: '='
             function:
@@ -492,16 +492,16 @@ file:
           - keyword: INSERT
           - keyword: INTO
           - table_reference:
-            - identifier: mydataset
+            - naked_identifier: mydataset
             - dot: .
-            - identifier: customers
+            - naked_identifier: customers
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: customer_id
+                naked_identifier: customer_id
             - comma: ','
             - column_reference:
-                identifier: name
+                naked_identifier: name
             - end_bracket: )
           - values_clause:
               keyword: VALUES
@@ -509,11 +509,11 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: name
+                    naked_identifier: name
               - end_bracket: )
       - statement_terminator: ;
       - statement:
@@ -527,15 +527,15 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '"Created customer %s (%s)"'
+                      quoted_literal: '"Created customer %s (%s)"'
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: id
+                        naked_identifier: id
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: name
+                        naked_identifier: name
                   - end_bracket: )
       - statement_terminator: ;
     - keyword: END
@@ -547,7 +547,7 @@ file:
     - keyword: REPLACE
     - keyword: PROCEDURE
     - procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: test_raise_return
     - procedure_parameter_list:
@@ -575,7 +575,7 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - expression:
-              literal: '"Test"'
+              quoted_literal: '"Test"'
       - statement_terminator: ;
       - statement:
           raise_statement:
@@ -586,7 +586,7 @@ file:
               raw_comparison_operator: '='
           - expression:
               column_reference:
-                identifier: error_message
+                naked_identifier: error_message
       - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;

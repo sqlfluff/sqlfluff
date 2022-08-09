@@ -3,53 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd4be336dce34a77e31e655710d60fb20dfb80aa8134507f5a30ed5e474a1d1c
+_hash: 10f3b4f58d751b37ee4aa9a901fdea77a7ec0175e149f9288a0168cf1462fdf5
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: test
+        naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: my_field_1#
+          naked_identifier: my_field_1#
           data_type:
             data_type_identifier: decimal
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: '#my_field_1'
+          naked_identifier: '#my_field_1'
           data_type:
             data_type_identifier: decimal
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: '#'
+          naked_identifier: '#'
           data_type:
             data_type_identifier: decimal
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
       - end_bracket: )
   statement_terminator: ;

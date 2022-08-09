@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e1a98e653be0c409d08a1f45806ef605d31b1f57b8789f1b2bf824890942a41
+_hash: b6bfaf31e908af9c1f325c512dd5f00b90151bc17f53bcef9f1d12a08d58a315
 file:
 - statement:
     set_expression:
@@ -12,14 +12,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: number1
+                  naked_identifier: number1
     - set_operator:
       - keyword: EXCEPT
       - keyword: DISTINCT
@@ -28,14 +28,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: number2
+                  naked_identifier: number2
 - statement_terminator: ;
 - statement:
     set_expression:
@@ -46,14 +46,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: c
+                naked_identifier: c
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: number1
+                    naked_identifier: number1
         end_bracket: )
     - set_operator:
       - keyword: INTERSECT
@@ -65,14 +65,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: c
+                naked_identifier: c
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: number2
+                    naked_identifier: number2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -84,14 +84,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: c
+                naked_identifier: c
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: number1
+                    naked_identifier: number1
         end_bracket: )
     - set_operator:
       - keyword: UNION
@@ -103,14 +103,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: c
+                naked_identifier: c
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: number2
+                    naked_identifier: number2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -120,14 +120,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: number1
+                  naked_identifier: number1
       set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -138,13 +138,13 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: c
+                naked_identifier: c
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: number2
+                    naked_identifier: number2
         end_bracket: )
 - statement_terminator: ;

@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5a413200e158b8ac62f353ac00e3d082eb9676fb73796631179fc1b7210c31b
+_hash: a2b51cb8a76355701372426af12374b845e5aa4dc7013371eaa94cb1b8e35b1b
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -22,12 +22,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -38,13 +38,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -52,11 +52,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -64,12 +64,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: GENERATED
@@ -79,9 +79,9 @@ file:
         - keyword: IDENTITY
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - numeric_literal: '1'
           - comma: ','
-          - literal: '1'
+          - numeric_literal: '1'
           - end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -89,13 +89,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -103,11 +103,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -115,48 +115,48 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: col4
+          naked_identifier: col4
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: col5
+          naked_identifier: col5
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: col6
+          naked_identifier: col6
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -164,20 +164,20 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: COMPOUND
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col4
+            naked_identifier: col4
         - comma: ','
         - column_reference:
-            identifier: col5
+            naked_identifier: col5
         - comma: ','
         - column_reference:
-            identifier: col6
+            naked_identifier: col6
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -185,11 +185,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -197,21 +197,21 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_constraint_segment:
           keyword: REFERENCES
           table_reference:
-            identifier: t2
+            naked_identifier: t2
           bracketed:
             start_bracket: (
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -219,13 +219,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -236,11 +236,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -248,12 +248,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -261,13 +261,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -276,11 +276,11 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -288,12 +288,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -301,13 +301,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -316,11 +316,11 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -328,12 +328,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -341,13 +341,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -357,23 +357,23 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
           keyword: UNIQUE
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -385,11 +385,11 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_constraint_segment:
@@ -397,12 +397,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -412,16 +412,16 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -429,11 +429,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_attribute_segment:
@@ -444,12 +444,12 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
@@ -460,7 +460,7 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - keyword: AUTO
@@ -472,13 +472,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: schema1
+      - naked_identifier: schema1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - column_attribute_segment:
@@ -489,36 +489,36 @@ file:
         - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
         - keyword: TEXT255
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
         - keyword: CASE_SENSITIVE
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
@@ -530,11 +530,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: UniqueKey_demo
+        naked_identifier: UniqueKey_demo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INT
       - column_constraint_segment:
@@ -543,18 +543,18 @@ file:
         - keyword: UNIQUE
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           datetime_type_identifier:
             keyword: DATE
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -562,7 +562,7 @@ file:
           bracketed:
             start_bracket: (
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -570,17 +570,17 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: COMPOUND
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -588,11 +588,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: UniqueKey_demo
+        naked_identifier: UniqueKey_demo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INT
       - column_constraint_segment:
@@ -601,18 +601,18 @@ file:
         - keyword: UNIQUE
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           datetime_type_identifier:
             keyword: DATE
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -621,7 +621,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -629,17 +629,17 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: INTERLEAVED
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -651,11 +651,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: UniqueKey_demo
+        naked_identifier: UniqueKey_demo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INT
       - column_constraint_segment:
@@ -664,18 +664,18 @@ file:
         - keyword: UNIQUE
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           datetime_type_identifier:
             keyword: DATE
       - comma: ','
       - column_reference:
-          identifier: col3
+          naked_identifier: col3
       - data_type:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -684,15 +684,15 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: col3
+              naked_identifier: col3
             end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-            identifier: t2
+            naked_identifier: t2
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: col5
+              naked_identifier: col5
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -702,14 +702,14 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
         start_bracket: (
         keyword: LIKE
         table_reference:
-        - identifier: schema1
+        - naked_identifier: schema1
         - dot: .
-        - identifier: t2
+        - naked_identifier: t2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -718,14 +718,14 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
         start_bracket: (
         keyword: LIKE
         table_reference:
-        - identifier: schema1
+        - naked_identifier: schema1
         - dot: .
-        - identifier: t2
+        - naked_identifier: t2
         like_option_segment:
         - keyword: INCLUDING
         - keyword: DEFAULTS
@@ -736,14 +736,14 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
         start_bracket: (
         keyword: LIKE
         table_reference:
-        - identifier: schema1
+        - naked_identifier: schema1
         - dot: .
-        - identifier: t2
+        - naked_identifier: t2
         like_option_segment:
         - keyword: EXCLUDING
         - keyword: DEFAULTS
@@ -754,11 +754,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: some_column
+          naked_identifier: some_column
         data_type:
           keyword: INTEGER
         column_constraint_segment:
@@ -767,7 +767,7 @@ file:
         column_attribute_segment:
           keyword: DEFAULT
           expression:
-            literal: '1'
+            numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -775,11 +775,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: IdentityColumn_demo
+        naked_identifier: IdentityColumn_demo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: BIGINT
         column_attribute_segment:
@@ -791,11 +791,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: IdentityColumnGeneratedByDefault_demo
+        naked_identifier: IdentityColumnGeneratedByDefault_demo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: BIGINT
         column_attribute_segment:
@@ -811,11 +811,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: IdentityColumnNotNull_demo
+        naked_identifier: IdentityColumnNotNull_demo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: BIGINT
         column_attribute_segment:
@@ -830,11 +830,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: IdentityColumnGeneratedByDefaultNotNull_demo
+        naked_identifier: IdentityColumnGeneratedByDefaultNotNull_demo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: BIGINT
         column_attribute_segment:

@@ -1,7 +1,7 @@
 """Implementation of Rule L027."""
 import regex
 
-from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules import LintResult
 from sqlfluff.rules.L020 import Rule_L020
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 

@@ -206,7 +206,8 @@ class JinjaAnalyzer:
 
         # Internal bookkeeping
         self.slice_id: int = 0
-        self.inside_set_or_macro: bool = False  # {% set %} or {% macro %}
+        # {% set %} or {% macro %} or {% call %}
+        self.inside_set_macro_or_call: bool = False
         self.inside_block = False  # {% block %}
         self.stack: List[int] = []
         self.idx_raw: int = 0
@@ -236,12 +237,18 @@ class JinjaAnalyzer:
             unique_alternate_id, alternate_code, inside_block=self.inside_block
         )
 
-    def update_inside_set_or_macro_or_block(
-        self, block_type: str, trimmed_parts: List[str]
-    ) -> None:
-        """Based on block tag, update whether we're in a set/macro section."""
+    def update_inside_set_call_macro_or_block(
+        self,
+        block_type: str,
+        trimmed_parts: List[str],
+        m_open: Optional[regex.Match],
+        m_close: Optional[regex.Match],
+        tag_contents: List[str],
+    ) -> Optional[RawSliceInfo]:
+        """Based on block tag, update whether in a set/call/macro/block section."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "block",
+            "call",
             "macro",
             "set",
         ):
@@ -274,16 +281,22 @@ class JinjaAnalyzer:
                     if trimmed_parts[0] == "block":
                         self.inside_block = True
                     else:
-                        self.inside_set_or_macro = True
+                        result = None
+                        if trimmed_parts[0] == "call":
+                            assert m_open and m_close
+                            result = self.track_call(m_open, m_close, tag_contents)
+                        self.inside_set_macro_or_call = True
+                        return result
                 else:
                     raise  # pragma: no cover
         elif block_type == "block_end":
-            if trimmed_parts[0] in ("endmacro", "endset"):
-                # Exiting a set or macro.
-                self.inside_set_or_macro = False
+            if trimmed_parts[0] in ("endcall", "endmacro", "endset"):
+                # Exiting a set or macro or block.
+                self.inside_set_macro_or_call = False
             elif trimmed_parts[0] == "endblock":
                 # Exiting a {% block %} block.
                 self.inside_block = False
+        return None
 
     def make_raw_slice_info(
         self,
@@ -292,7 +305,7 @@ class JinjaAnalyzer:
         inside_block: bool = False,
     ) -> RawSliceInfo:
         """Create RawSliceInfo as given, or "empty" if in set/macro block."""
-        if not self.inside_set_or_macro:
+        if not self.inside_set_macro_or_call:
             return RawSliceInfo(unique_alternate_id, alternate_code, [], inside_block)
         else:
             return RawSliceInfo(None, None, [], False)
@@ -355,6 +368,8 @@ class JinjaAnalyzer:
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
+            m_open = None
+            m_close = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = self.block_types[elem_type]
                 block_subtype = None
@@ -376,7 +391,11 @@ class JinjaAnalyzer:
                         raw_slice_info = self.track_templated(
                             m_open, m_close, tag_contents
                         )
-                self.update_inside_set_or_macro_or_block(block_type, tag_contents)
+                raw_slice_info_temp = self.update_inside_set_call_macro_or_block(
+                    block_type, tag_contents, m_open, m_close, tag_contents
+                )
+                if raw_slice_info_temp:
+                    raw_slice_info = raw_slice_info_temp
                 m_strip_right = regex.search(
                     r"\s+$", raw, regex.MULTILINE | regex.DOTALL
                 )
@@ -428,6 +447,7 @@ class JinjaAnalyzer:
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
                 if block_type.startswith("block"):
+                    self.track_block_start(block_type, tag_contents[0])
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
                         slice_idx, block_type, tag_contents[0]
@@ -446,6 +466,21 @@ class JinjaAnalyzer:
         self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
     ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
+        unique_alternate_id = self.next_slice_id()
+        open_ = m_open.group(1)
+        close_ = m_close.group(1)
+        # Here, we still need to evaluate the original tag contents, e.g. in
+        # case it has intentional side effects, but also return a slice ID
+        # for tracking.
+        alternate_code = (
+            f"\0{unique_alternate_id} {open_} " f"{''.join(tag_contents)} {close_}"
+        )
+        return self.make_raw_slice_info(unique_alternate_id, alternate_code)
+
+    def track_call(
+        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
+    ):
+        """Set up tracking for "{% call ... %}"."""
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)
         close_ = m_close.group(1)
@@ -517,6 +552,20 @@ class JinjaAnalyzer:
             trimmed_parts = trimmed_content.split()
         return trimmed_parts
 
+    def track_block_start(self, block_type: str, tag_name: str) -> None:
+        """On starting a 'call' block, set slice_type to "templated"."""
+        if block_type == "block_start" and tag_name == "call":
+            # Replace RawSliceInfo for this slice with one that has block_type
+            # "templated".
+            old_raw_file_slice = self.raw_sliced[-1]
+            self.raw_sliced[-1] = old_raw_file_slice._replace(slice_type="templated")
+
+            # Move existing raw_slice_info entry since it's keyed by RawFileSlice.
+            self.raw_slice_info[self.raw_sliced[-1]] = self.raw_slice_info[
+                old_raw_file_slice
+            ]
+            del self.raw_slice_info[old_raw_file_slice]
+
     def track_block_end(self, block_type: str, tag_name: str) -> None:
         """On ending a 'for' or 'if' block, set up tracking."""
         if block_type == "block_end" and tag_name in (
@@ -553,7 +602,7 @@ class JinjaAnalyzer:
             "endfor",
             "endif",
         ):
-            if not self.inside_set_or_macro:
+            if not self.inside_set_macro_or_call:
                 # Record potential forward jump over this block.
                 self.raw_slice_info[
                     self.raw_sliced[self.stack[-1]]

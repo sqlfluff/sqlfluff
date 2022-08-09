@@ -3,67 +3,67 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f46b35984c27779547c884bbe01cac77be3b6714e369022fb0133b40e889c403
+_hash: efa69dfefc61d1b9b842bb77160caadfe278edadf91a158c444f01a1e4c0e16a
 file:
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
 - statement_terminator: ;
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: '"admin_group"'
+        quoted_identifier: '"admin_group"'
 - statement_terminator: ;
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: user
     - object_reference:
-        identifier: admin1
+        naked_identifier: admin1
 - statement_terminator: ;
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: with
     - keyword: user
     - object_reference:
-        identifier: admin1
+        naked_identifier: admin1
 - statement_terminator: ;
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: user
     - object_reference:
-        identifier: admin1
+        naked_identifier: admin1
     - comma: ','
     - object_reference:
-        identifier: admin2
+        naked_identifier: admin2
 - statement_terminator: ;
 - statement:
     create_group:
     - keyword: create
     - keyword: group
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: with
     - keyword: user
     - object_reference:
-        identifier: admin1
+        naked_identifier: admin1
     - comma: ','
     - object_reference:
-        identifier: admin2
+        naked_identifier: admin2
 - statement_terminator: ;

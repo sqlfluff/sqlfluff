@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a942d019c6cd1e08d911c8767f9646126e87fd50ffbb0c1077e08bfc34c99fe7
+_hash: 4dcc841678a21a7fe42a1604833bdc7089d1f015e3041884d035b203d3e11b32
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: b
+        naked_identifier: b
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: b
+          naked_identifier: b
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -22,7 +22,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: c
+          naked_identifier: c
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -30,7 +30,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: d
+          naked_identifier: d
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -40,21 +40,21 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: c_b
+            naked_identifier: c_b
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: b
+              naked_identifier: b
             end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-            identifier: a
+            naked_identifier: a
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: b
+              naked_identifier: b
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
@@ -67,21 +67,21 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: c_d
+            naked_identifier: c_d
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: d
+              naked_identifier: d
             end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-            identifier: a
+            naked_identifier: a
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: d
+              naked_identifier: d
             end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
@@ -94,21 +94,21 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: c_c
+            naked_identifier: c_c
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: c
+              naked_identifier: c
             end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-            identifier: a
+            naked_identifier: a
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: c
+              naked_identifier: c
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5794f12b86fc8c75502f50f929f0c30675c9845909f6e8065c9e4105f5ce5f1c
+_hash: 086b545c01f2b427fc396b6127f0b9edfb33c01818dc97ff5ece225dbd3529cf
 file:
   statement:
     select_statement:
@@ -12,9 +12,9 @@ file:
         select_clause_element:
           expression:
             column_reference:
-            - identifier: x
+            - naked_identifier: x
             - dot: .
-            - identifier: y
+            - naked_identifier: y
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: _z
@@ -28,4 +28,4 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x

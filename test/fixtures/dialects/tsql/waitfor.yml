@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f348e3c6e1846863afc24260acc071d326cb77715077abfa91d55a250ecd0f9
+_hash: 1be27bfe60666f3494dc3c6c97d1d56226c124be3559d00ab6a7804b3ac45907
 file:
 - batch:
   - statement:
       execute_script_statement:
         keyword: EXECUTE
         object_reference:
-          identifier: sp_add_job
+          naked_identifier: sp_add_job
         parameter: '@job_name'
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'TestJob'"
+        quoted_literal: "'TestJob'"
         statement_terminator: ;
   - statement:
       begin_end_block:
@@ -24,22 +24,22 @@ file:
           - keyword: WAITFOR
           - keyword: TIME
           - expression:
-              literal: "'22:20'"
+              quoted_literal: "'22:20'"
       - statement_terminator: ;
       - statement:
           execute_script_statement:
           - keyword: EXECUTE
           - object_reference:
-              identifier: sp_update_job
+              naked_identifier: sp_update_job
           - parameter: '@job_name'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'TestJob'"
+          - quoted_literal: "'TestJob'"
           - comma: ','
           - parameter: '@new_name'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'UpdatedJob'"
+          - quoted_literal: "'UpdatedJob'"
           - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
@@ -54,13 +54,13 @@ file:
           - keyword: WAITFOR
           - keyword: DELAY
           - expression:
-              literal: "'02:00'"
+              quoted_literal: "'02:00'"
       - statement_terminator: ;
       - statement:
           execute_script_statement:
             keyword: EXECUTE
             object_reference:
-              identifier: sp_helpdb
+              naked_identifier: sp_helpdb
             statement_terminator: ;
       - keyword: END
     statement_terminator: ;

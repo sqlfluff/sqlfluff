@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65dd770b0d99c89c8bbbf0f377159e6cabc5a3e81052f840a68b2a53280bdc80
+_hash: cef3c0ce8f899b9aaf73447c99616ef7b20cee593d5599461084a48820e0b34a
 file:
 - statement:
     select_statement:
@@ -11,10 +11,10 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: y
+            naked_identifier: y
           alias_expression:
             keyword: AS
-            identifier: woy
+            naked_identifier: woy
       from_clause:
         keyword: FROM
         from_expression:
@@ -32,15 +32,15 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '1'
+                          numeric_literal: '1'
                       - comma: ','
                       - expression:
-                          literal: '53'
+                          numeric_literal: '53'
                       - end_bracket: )
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: y
+              naked_identifier: y
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -48,11 +48,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
       - keyword: FROM
       - from_expression:
@@ -66,22 +66,19 @@ file:
                   expression:
                     array_literal:
                     - start_square_bracket: '['
-                    - expression:
-                        literal: '1'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - expression:
-                        literal: '2'
+                    - numeric_literal: '2'
                     - comma: ','
-                    - expression:
-                        literal: '3'
+                    - numeric_literal: '3'
                     - end_square_bracket: ']'
                   end_bracket: )
           - alias_expression:
-              identifier: id
+              naked_identifier: id
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-              identifier: pos1
+              naked_identifier: pos1
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -94,29 +91,26 @@ file:
                   expression:
                     array_literal:
                     - start_square_bracket: '['
-                    - expression:
-                        literal: "'a'"
+                    - quoted_literal: "'a'"
                     - comma: ','
-                    - expression:
-                        literal: "'b'"
+                    - quoted_literal: "'b'"
                     - comma: ','
-                    - expression:
-                        literal: "'c'"
+                    - quoted_literal: "'c'"
                     - end_square_bracket: ']'
                   end_bracket: )
           - alias_expression:
-              identifier: name
+              naked_identifier: name
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-              identifier: pos2
+              naked_identifier: pos2
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: pos1
+            naked_identifier: pos1
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: pos2
+            naked_identifier: pos2
 - statement_terminator: ;

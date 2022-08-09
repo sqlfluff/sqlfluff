@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 23ac2a1432d1d9a9d3d1082d960b7377edb1c61437200d966cf7c4dd2bd5e5fc
+_hash: 5004c7943db9940697b546dbae8f8053c5060bb03e5c625652b9ea5bbe9a0803
 file:
 - batch:
     statement:
@@ -11,12 +11,12 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: reminder1
+          naked_identifier: reminder1
       - keyword: 'ON'
       - table_reference:
-        - identifier: Sales
+        - naked_identifier: Sales
         - dot: .
-        - identifier: Customer
+        - naked_identifier: Customer
       - keyword: AFTER
       - keyword: INSERT
       - comma: ','
@@ -27,11 +27,11 @@ file:
             keyword: RAISERROR
             bracketed:
             - start_bracket: (
-            - literal: "'Notify Customer Relations'"
+            - quoted_literal: "'Notify Customer Relations'"
             - comma: ','
-            - literal: '16'
+            - numeric_literal: '16'
             - comma: ','
-            - literal: '10'
+            - numeric_literal: '10'
             - end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -42,12 +42,12 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: reminder2
+          naked_identifier: reminder2
       - keyword: 'ON'
       - table_reference:
-        - identifier: Sales
+        - naked_identifier: Sales
         - dot: .
-        - identifier: Customer
+        - naked_identifier: Customer
       - keyword: AFTER
       - keyword: INSERT
       - comma: ','
@@ -59,30 +59,30 @@ file:
           execute_script_statement:
           - keyword: EXEC
           - object_reference:
-            - identifier: msdb
+            - naked_identifier: msdb
             - dot: .
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: sp_send_dbmail
+            - naked_identifier: sp_send_dbmail
           - parameter: '@profile_name'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'AdventureWorks2012 Administrator'"
+          - quoted_literal: "'AdventureWorks2012 Administrator'"
           - comma: ','
           - parameter: '@recipients'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'danw@Adventure-Works.com'"
+          - quoted_literal: "'danw@Adventure-Works.com'"
           - comma: ','
           - parameter: '@body'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'Don''t forget to print a report for the sales force.'"
+          - quoted_literal: "'Don''t forget to print a report for the sales force.'"
           - comma: ','
           - parameter: '@subject'
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'Reminder'"
+          - quoted_literal: "'Reminder'"
           - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -92,14 +92,14 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-        - identifier: Purchasing
+        - naked_identifier: Purchasing
         - dot: .
-        - identifier: LowCredit
+        - naked_identifier: LowCredit
       - keyword: 'ON'
       - table_reference:
-        - identifier: Purchasing
+        - naked_identifier: Purchasing
         - dot: .
-        - identifier: PurchaseOrderHeader
+        - naked_identifier: PurchaseOrderHeader
       - keyword: AFTER
       - keyword: INSERT
       - keyword: AS
@@ -119,7 +119,7 @@ file:
                         end_bracket: )
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '0'
+                    numeric_literal: '0'
                   end_bracket: )
             statement:
               return_segment:
@@ -137,51 +137,51 @@ file:
                     select_clause:
                       keyword: SELECT
                       select_clause_element:
-                        literal: '1'
+                        numeric_literal: '1'
                     from_clause:
                       keyword: FROM
                       from_expression:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier: inserted
+                              naked_identifier: inserted
                           alias_expression:
                             keyword: AS
-                            identifier: i
+                            naked_identifier: i
                         join_clause:
                           keyword: JOIN
                           from_expression_element:
                             table_expression:
                               table_reference:
-                              - identifier: Purchasing
+                              - naked_identifier: Purchasing
                               - dot: .
-                              - identifier: Vendor
+                              - naked_identifier: Vendor
                             alias_expression:
                               keyword: AS
-                              identifier: v
+                              naked_identifier: v
                           join_on_condition:
                             keyword: 'ON'
                             expression:
                             - column_reference:
-                              - identifier: v
+                              - naked_identifier: v
                               - dot: .
-                              - identifier: BusinessEntityID
+                              - naked_identifier: BusinessEntityID
                             - comparison_operator:
                                 raw_comparison_operator: '='
                             - column_reference:
-                              - identifier: i
+                              - naked_identifier: i
                               - dot: .
-                              - identifier: VendorID
+                              - naked_identifier: VendorID
                     where_clause:
                       keyword: WHERE
                       expression:
                         column_reference:
-                        - identifier: v
+                        - naked_identifier: v
                         - dot: .
-                        - identifier: CreditRating
+                        - naked_identifier: CreditRating
                         comparison_operator:
                           raw_comparison_operator: '='
-                        literal: '5'
+                        numeric_literal: '5'
                   end_bracket: )
             statement:
               begin_end_block:
@@ -191,12 +191,12 @@ file:
                     keyword: RAISERROR
                     bracketed:
                     - start_bracket: (
-                    - literal: "'A vendor''s credit rating is too low to accept new\n\
-                        purchase orders.'"
+                    - quoted_literal: "'A vendor''s credit rating is too low to accept\
+                        \ new\npurchase orders.'"
                     - comma: ','
-                    - literal: '16'
+                    - numeric_literal: '16'
                     - comma: ','
-                    - literal: '1'
+                    - numeric_literal: '1'
                     - end_bracket: )
               - statement_terminator: ;
               - statement:
@@ -217,11 +217,11 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: safety
+          naked_identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
       - keyword: FOR
-      - identifier: DROP_SYNONYM
+      - naked_identifier: DROP_SYNONYM
       - keyword: AS
       - statement:
           if_then_statement:
@@ -234,7 +234,7 @@ file:
                     system_variable: '@@ROWCOUNT'
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '0'
+                    numeric_literal: '0'
                   end_bracket: )
             statement:
               return_segment:
@@ -245,11 +245,11 @@ file:
             keyword: RAISERROR
             bracketed:
             - start_bracket: (
-            - literal: "'You must disable Trigger \"safety\" to remove synonyms!'"
+            - quoted_literal: "'You must disable Trigger \"safety\" to remove synonyms!'"
             - comma: ','
-            - literal: '10'
+            - numeric_literal: '10'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
       - statement:
           transaction_statement:
@@ -262,7 +262,7 @@ file:
       - keyword: DROP
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: safety
+          naked_identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
@@ -274,24 +274,24 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: ddl_trig_database
+          naked_identifier: ddl_trig_database
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
       - keyword: FOR
-      - identifier: CREATE_DATABASE
+      - naked_identifier: CREATE_DATABASE
       - keyword: AS
       - statement:
           print_statement:
             keyword: PRINT
             expression:
-              literal: "'Database Created.'"
+              quoted_literal: "'Database Created.'"
       - statement:
           select_statement:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
 - go_statement:
     keyword: GO
 - batch:
@@ -300,25 +300,25 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: ddl_trig_database
+          naked_identifier: ddl_trig_database
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
       - keyword: FOR
-      - identifier: CREATE_DATABASE
+      - naked_identifier: CREATE_DATABASE
       - keyword: AS
       - statement:
           print_statement:
             keyword: PRINT
             expression:
-              literal: "'Database Created.'"
+              quoted_literal: "'Database Created.'"
             statement_terminator: ;
       - statement:
           select_statement:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
 - go_statement:
     keyword: GO
 - batch:
@@ -327,7 +327,7 @@ file:
       - keyword: DROP
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: ddl_trig_database
+          naked_identifier: ddl_trig_database
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
@@ -340,16 +340,16 @@ file:
       - keyword: CREATE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: connection_limit_trigger
+          naked_identifier: connection_limit_trigger
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
       - keyword: WITH
       - keyword: EXECUTE
       - keyword: AS
-      - identifier: "'login_test'"
+      - quoted_identifier: "'login_test'"
       - keyword: FOR
-      - identifier: LOGON
+      - naked_identifier: LOGON
       - keyword: AS
       - statement:
           begin_end_block:
@@ -367,7 +367,7 @@ file:
                         end_bracket: )
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: "'login_test'"
+                  - quoted_literal: "'login_test'"
                   - binary_operator: AND
                   - bracketed:
                       start_bracket: (
@@ -389,27 +389,27 @@ file:
                               from_expression_element:
                                 table_expression:
                                   table_reference:
-                                  - identifier: sys
+                                  - naked_identifier: sys
                                   - dot: .
-                                  - identifier: dm_exec_sessions
+                                  - naked_identifier: dm_exec_sessions
                           where_clause:
                             keyword: WHERE
                             expression:
                             - column_reference:
-                                identifier: is_user_process
+                                naked_identifier: is_user_process
                             - comparison_operator:
                                 raw_comparison_operator: '='
-                            - literal: '1'
+                            - numeric_literal: '1'
                             - binary_operator: AND
                             - column_reference:
-                                identifier: original_login_name
+                                naked_identifier: original_login_name
                             - comparison_operator:
                                 raw_comparison_operator: '='
-                            - literal: "'login_test'"
+                            - quoted_literal: "'login_test'"
                       end_bracket: )
                   - comparison_operator:
                       raw_comparison_operator: '>'
-                  - literal: '3'
+                  - numeric_literal: '3'
                 statement:
                   transaction_statement:
                     keyword: ROLLBACK
@@ -424,14 +424,14 @@ file:
       - keyword: Create
       - keyword: TRIGGER
       - trigger_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: tr_SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
       - keyword: 'ON'
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
       - keyword: AFTER
       - keyword: UPDATE
       - keyword: AS
@@ -439,14 +439,14 @@ file:
           update_statement:
             keyword: UPDATE
             table_reference:
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: SP_BALS_L2_ATTRIBUTES
+            - naked_identifier: SP_BALS_L2_ATTRIBUTES
             set_clause_list:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: PDW_LAST_UPDATED
+                  naked_identifier: PDW_LAST_UPDATED
                 assignment_operator:
                   comparison_operator:
                     raw_comparison_operator: '='
@@ -463,33 +463,33 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SP_BALS_L2_ATTRIBUTES
+                    - naked_identifier: SP_BALS_L2_ATTRIBUTES
                   alias_expression:
-                    identifier: o
+                    naked_identifier: o
                 join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: Inserted
+                        naked_identifier: Inserted
                     alias_expression:
-                      identifier: i
+                      naked_identifier: i
                 - join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: o
+                      - naked_identifier: o
                       - dot: .
-                      - identifier: PK_L2_BALS
+                      - naked_identifier: PK_L2_BALS
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: i
+                      - naked_identifier: i
                       - dot: .
-                      - identifier: PK_L2_BALS
+                      - naked_identifier: PK_L2_BALS
 - go_statement:
     keyword: go
 - batch:
@@ -498,14 +498,14 @@ file:
       - keyword: disable
       - keyword: trigger
       - trigger_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: tr_SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
       - keyword: 'on'
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
 - go_statement:
     keyword: go
 - batch:
@@ -514,14 +514,14 @@ file:
       - keyword: Create
       - keyword: TRIGGER
       - trigger_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
       - keyword: 'ON'
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
       - keyword: AFTER
       - keyword: UPDATE
       - keyword: AS
@@ -529,14 +529,14 @@ file:
           update_statement:
             keyword: UPDATE
             table_reference:
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: SP_BALS_L2_ATTRIBUTES
+            - naked_identifier: SP_BALS_L2_ATTRIBUTES
             set_clause_list:
               keyword: SET
               set_clause:
                 column_reference:
-                  identifier: PDW_LAST_UPDATED
+                  naked_identifier: PDW_LAST_UPDATED
                 assignment_operator:
                   comparison_operator:
                     raw_comparison_operator: '='
@@ -553,33 +553,33 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SP_BALS_L2_ATTRIBUTES
+                    - naked_identifier: SP_BALS_L2_ATTRIBUTES
                   alias_expression:
-                    identifier: o
+                    naked_identifier: o
                 join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: Inserted
+                        naked_identifier: Inserted
                     alias_expression:
-                      identifier: i
+                      naked_identifier: i
                 - join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: o
+                      - naked_identifier: o
                       - dot: .
-                      - identifier: PK_L2_BALS
+                      - naked_identifier: PK_L2_BALS
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: i
+                      - naked_identifier: i
                       - dot: .
-                      - identifier: PK_L2_BALS
+                      - naked_identifier: PK_L2_BALS
 - go_statement:
     keyword: GO
 - batch:
@@ -588,7 +588,7 @@ file:
       - keyword: DROP
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: employee_insupd
+          naked_identifier: employee_insupd
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -598,7 +598,7 @@ file:
       - keyword: DROP
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: safety
+          naked_identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
@@ -610,14 +610,14 @@ file:
       - keyword: disable
       - keyword: trigger
       - trigger_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
       - keyword: 'on'
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: SP_BALS_L2_ATTRIBUTES
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
 - go_statement:
     keyword: GO
 - batch:
@@ -626,7 +626,7 @@ file:
       - keyword: DISABLE
       - keyword: TRIGGER
       - trigger_reference:
-          identifier: safety
+          naked_identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;

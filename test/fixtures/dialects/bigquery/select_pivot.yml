@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76d2e82e90f97d57482d060a0ed0d913f4dad2bcbbe4c1d192b9021efc09c357
+_hash: 49f11ac3710251e70d56b2401c43c5cde0e08d3f81d5913210af6c8af06ce0b0
 file:
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -46,20 +46,20 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - comma: ','
-              - literal: "'Q4'"
+              - quoted_literal: "'Q4'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -83,18 +83,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -107,20 +107,20 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - comma: ','
-              - literal: "'Q4'"
+              - quoted_literal: "'Q4'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -152,7 +152,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -165,18 +165,18 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -200,18 +200,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -224,18 +224,18 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -259,18 +259,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -283,7 +283,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - comma: ','
             - function:
@@ -293,18 +293,18 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9702e3e0e0fae0b9462f814075a1a0afaa718094fab08c22d8c29287688dd4b1
+_hash: 16bdf27c12ddfed8b01f70cdd28d5ef9448e8161bb52cbbb05ac2492e515ec67
 file:
 - statement:
     create_procedure_statement:
@@ -25,18 +25,18 @@ file:
             keyword: varchar
             bracketed:
               start_bracket: (
-              literal: '20'
+              numeric_literal: '20'
               end_bracket: )
         - end_bracket: )
     - function_definition:
       - keyword: AS
-      - literal: "$$\nDECLARE\n  min_val int;\nBEGIN\n  DROP TABLE IF EXISTS tmp_tbl;\n\
-          \  CREATE TEMP TABLE tmp_tbl(id int);\n  INSERT INTO tmp_tbl values (f1),(10001),(10002);\n\
-          \  SELECT INTO min_val MIN(id) FROM tmp_tbl;\n  RAISE INFO 'min_val = %,\
-          \ f2 = %', min_val, f2;\nEND;\n$$"
+      - quoted_literal: "$$\nDECLARE\n  min_val int;\nBEGIN\n  DROP TABLE IF EXISTS\
+          \ tmp_tbl;\n  CREATE TEMP TABLE tmp_tbl(id int);\n  INSERT INTO tmp_tbl\
+          \ values (f1),(10001),(10002);\n  SELECT INTO min_val MIN(id) FROM tmp_tbl;\n\
+          \  RAISE INFO 'min_val = %, f2 = %', min_val, f2;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: SECURITY
       - keyword: INVOKER
 - statement_terminator: ;
@@ -62,7 +62,7 @@ file:
             keyword: varchar
             bracketed:
               start_bracket: (
-              literal: '256'
+              numeric_literal: '256'
               end_bracket: )
         - comma: ','
         - parameter: out_var
@@ -71,18 +71,18 @@ file:
             keyword: varchar
             bracketed:
               start_bracket: (
-              literal: '256'
+              numeric_literal: '256'
               end_bracket: )
         - end_bracket: )
     - function_definition:
         keyword: AS
-        literal: "$$\nDECLARE\n  loop_var int;\nBEGIN\n  IF f1 is null OR f2 is null\
-          \ THEN\n    RAISE EXCEPTION 'input cannot be null';\n  END IF;\n  DROP TABLE\
-          \ if exists my_etl;\n  CREATE TEMP TABLE my_etl(a int, b varchar);\n   \
-          \ FOR loop_var IN 1..f1 LOOP\n        insert into my_etl values (loop_var,\
+        quoted_literal: "$$\nDECLARE\n  loop_var int;\nBEGIN\n  IF f1 is null OR f2\
+          \ is null THEN\n    RAISE EXCEPTION 'input cannot be null';\n  END IF;\n\
+          \  DROP TABLE if exists my_etl;\n  CREATE TEMP TABLE my_etl(a int, b varchar);\n\
+          \    FOR loop_var IN 1..f1 LOOP\n        insert into my_etl values (loop_var,\
           \ f2);\n        f2 := f2 || '+' || f2;\n    END LOOP;\n  SELECT INTO out_var\
           \ count(*) from my_etl;\nEND;\n$$"
         language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
 - statement_terminator: ;

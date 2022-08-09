@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8872d775a7d7f9eaa325e30a68ee62a5be37c88705c4538de81cdf7cd1f5bfb2
+_hash: 6ed863caa9a7eab7e2c71c52f49b316faee0ebd9cc2f9407ba9fa7d343d2385e
 file:
   statement:
     create_materialized_view_statement:
@@ -11,17 +11,17 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: mv_sales
+      - naked_identifier: mv_sales
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: pg_default
+        naked_identifier: pg_default
     - keyword: AS
     - with_compound_statement:
       - keyword: WITH
       - common_table_expression:
-          identifier: regional_sales
+          naked_identifier: regional_sales
           keyword: AS
           bracketed:
             start_bracket: (
@@ -30,7 +30,7 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: region
+                    naked_identifier: region
               - comma: ','
               - select_clause_element:
                   function:
@@ -40,27 +40,27 @@ file:
                       start_bracket: (
                       expression:
                         column_reference:
-                          identifier: amount
+                          naked_identifier: amount
                       end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: total_sales
+                    naked_identifier: total_sales
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: orders
+                        naked_identifier: orders
               groupby_clause:
               - keyword: GROUP
               - keyword: BY
               - column_reference:
-                  identifier: region
+                  naked_identifier: region
             end_bracket: )
       - comma: ','
       - common_table_expression:
-          identifier: top_regions
+          naked_identifier: top_regions
           keyword: AS
           bracketed:
             start_bracket: (
@@ -69,19 +69,19 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: region
+                    naked_identifier: region
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: regional_sales
+                        naked_identifier: regional_sales
               where_clause:
                 keyword: WHERE
                 expression:
                   column_reference:
-                    identifier: total_sales
+                    naked_identifier: total_sales
                   comparison_operator:
                     raw_comparison_operator: '>'
                   bracketed:
@@ -99,17 +99,17 @@ file:
                                   start_bracket: (
                                   expression:
                                     column_reference:
-                                      identifier: total_sales
+                                      naked_identifier: total_sales
                                   end_bracket: )
                               binary_operator: /
-                              literal: '10'
+                              numeric_literal: '10'
                         from_clause:
                           keyword: FROM
                           from_expression:
                             from_expression_element:
                               table_expression:
                                 table_reference:
-                                  identifier: regional_sales
+                                  naked_identifier: regional_sales
                     end_bracket: )
             end_bracket: )
       - select_statement:
@@ -117,11 +117,11 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: region
+                naked_identifier: region
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: product
+                naked_identifier: product
           - comma: ','
           - select_clause_element:
               function:
@@ -131,11 +131,11 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: quantity
+                      naked_identifier: quantity
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: product_units
+                naked_identifier: product_units
           - comma: ','
           - select_clause_element:
               function:
@@ -145,23 +145,23 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: amount
+                      naked_identifier: amount
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: product_sales
+                naked_identifier: product_sales
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: orders
+                    naked_identifier: orders
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: region
+                naked_identifier: region
               keyword: IN
               bracketed:
                 start_bracket: (
@@ -170,23 +170,23 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       column_reference:
-                        identifier: region
+                        naked_identifier: region
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: top_regions
+                            naked_identifier: top_regions
                 end_bracket: )
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
           - column_reference:
-              identifier: region
+              naked_identifier: region
           - comma: ','
           - column_reference:
-              identifier: product
+              naked_identifier: product
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA

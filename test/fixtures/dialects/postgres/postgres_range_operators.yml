@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 409b867a638598f0709224a6b3867912c5f4b0ef938648ff2a4618e37e408e53
+_hash: c7f82e72dc37ec47d9013ba40c43b4e16f1722417eb887b0763fb164e4f3045e
 file:
   statement:
     select_statement:
@@ -12,167 +12,167 @@ file:
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: word
+              naked_identifier: word
               dot: .
               star: '*'
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: id
+          - naked_identifier: id
           alias_expression:
             keyword: AS
-            identifier: paragraph_id
+            naked_identifier: paragraph_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: word
+                naked_identifier: word
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: paragraph
+                  naked_identifier: paragraph
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: paragraph
+                - naked_identifier: paragraph
                 - dot: .
-                - identifier: page_id
+                - naked_identifier: page_id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: word
+                - naked_identifier: word
                 - dot: .
-                - identifier: page_id
+                - naked_identifier: page_id
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: '@>'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: <@
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - comparison_operator:
           - ampersand: '&'
           - ampersand: '&'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: <
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: '>'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - comparison_operator:
             ampersand: '&'
             raw_comparison_operator: '>'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - comparison_operator:
             ampersand: '&'
             raw_comparison_operator: <
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - comparison_operator:
           - binary_operator: '-'
           - pipe: '|'
           - binary_operator: '-'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: +
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: '*'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: AND
         - column_reference:
-          - identifier: word
+          - naked_identifier: word
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range
         - binary_operator: '-'
         - column_reference:
-          - identifier: paragraph
+          - naked_identifier: paragraph
           - dot: .
-          - identifier: character_range
+          - naked_identifier: character_range

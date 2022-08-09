@@ -7,6 +7,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseFileSegment,
     BaseSegment,
+    Bracketed,
     CodeSegment,
     CommentSegment,
     Delimited,
@@ -46,8 +47,156 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.add(
-    AtSignSegment=StringParser("@", SymbolSegment, name="atsign", type="at_sign"),
+    AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
 )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+    If possible, please keep the order below the same as Oracle's doc:
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # @TODO all stuff inside this "Delimited" is not validated for Oracle
+            Delimited(
+                OneOf(
+                    # Table options
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                    ),
+                ),
+            ),
+            Ref("AlterTablePropertiesSegment"),
+            Ref("AlterTableColumnClausesSegment"),
+            Ref("AlterTableConstraintClauses"),
+        ),
+    )
+
+
+class AlterTablePropertiesSegment(BaseSegment):
+    """ALTER TABLE `alter_table_properties` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's alter_table_properties grammar.
+    """
+
+    type = "alter_table_properties"
+
+    # TODO: There are many more alter_table_properties to implement
+    match_grammar = OneOf(
+        # Rename
+        Sequence(
+            "RENAME",
+            "TO",
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class AlterTableColumnClausesSegment(BaseSegment):
+    """ALTER TABLE `column_clauses` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's column_clauses grammar.
+    """
+
+    type = "alter_table_column_clauses"
+
+    match_grammar = OneOf(
+        # add_column_clause
+        # modify_column_clause
+        Sequence(
+            OneOf(
+                "ADD",
+                "MODIFY",
+            ),
+            OneOf(
+                Ref("ColumnDefinitionSegment"),
+                Bracketed(Delimited(Ref("ColumnDefinitionSegment"))),
+            ),
+        ),
+        # drop_column_clause
+        # @TODO: extend drop_column_clause
+        Sequence(
+            "DROP",
+            OneOf(
+                Sequence("COLUMN", Ref("ColumnReferenceSegment")),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+        ),
+        # @TODO: add_period_clause
+        # @TODO: drop_period_clause
+        # rename_column_clause
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            Ref("ColumnReferenceSegment"),
+            "TO",
+            Ref("ColumnReferenceSegment"),
+        )
+        # @TODO: modify_collection_retrieval
+        # @TODO: modify_LOB_storage_clause
+        # @TODO: alter_varray_col_properties
+    )
+
+
+class AlterTableConstraintClauses(BaseSegment):
+    """ALTER TABLE `constraint_clauses` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's constraint_clauses grammar.
+    """
+
+    type = "alter_table_constraint_clauses"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ADD",
+            Ref("TableConstraintSegment"),
+        ),
+        # @TODO MODIFY
+        # @TODO RENAME
+        # @TODO DROP
+        # drop_constraint_clause
+        Sequence(
+            "DROP",
+            OneOf(
+                Sequence(
+                    "PRIMARY",
+                    "KEY",
+                ),
+                Sequence(
+                    "UNIQUE",
+                    Bracketed(Ref("ColumnReferenceSegment")),
+                ),
+                Sequence("CONSTRAINT", Ref("ObjectReferenceSegment")),
+            ),
+            Ref.keyword("CASCADE", optional=True),
+            Sequence(
+                OneOf(
+                    "KEEP",
+                    "DROP",
+                ),
+                "INDEX",
+                optional=True,
+            ),
+            Ref.keyword("ONLINE", optional=True),
+        ),
+    )
 
 
 class ExecuteFileSegment(BaseSegment):

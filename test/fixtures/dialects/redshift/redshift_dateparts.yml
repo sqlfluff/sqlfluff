@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dce084b3775abcb45ff313fde2c2cb9eef9bf072b7a3a1ff4d01cdc9b4359ec1
+_hash: 2e09566434aadc2390a179b1b719e485f2e2d76b71c682c929350f8acffbeeea
 file:
 - statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -27,7 +27,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -43,7 +43,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -51,7 +51,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -67,7 +67,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -75,7 +75,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -91,7 +91,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -99,7 +99,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -115,7 +115,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -123,7 +123,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -139,7 +139,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -147,7 +147,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -163,7 +163,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -171,7 +171,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -187,7 +187,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -195,7 +195,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -211,7 +211,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -219,7 +219,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -235,7 +235,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -243,7 +243,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -259,7 +259,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -267,7 +267,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -283,7 +283,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -291,7 +291,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -307,7 +307,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -315,7 +315,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -331,7 +331,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -339,7 +339,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -355,7 +355,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -363,7 +363,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -379,7 +379,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -387,7 +387,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -403,7 +403,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -411,7 +411,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -427,7 +427,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -435,7 +435,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -451,7 +451,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -459,7 +459,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -475,7 +475,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -483,7 +483,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -499,7 +499,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -507,7 +507,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -523,7 +523,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -531,7 +531,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -547,7 +547,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -555,7 +555,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -571,7 +571,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -579,7 +579,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -595,7 +595,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -603,7 +603,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -619,7 +619,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -627,7 +627,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -643,7 +643,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -651,7 +651,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -667,7 +667,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -675,7 +675,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -691,7 +691,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -699,7 +699,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -715,7 +715,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -723,7 +723,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -739,7 +739,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -747,7 +747,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -763,7 +763,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -771,7 +771,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -787,7 +787,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -795,7 +795,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -811,7 +811,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -819,7 +819,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -835,7 +835,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -843,7 +843,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -859,7 +859,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -867,7 +867,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -883,7 +883,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -891,7 +891,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -907,7 +907,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -915,7 +915,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -931,7 +931,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -939,7 +939,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -955,7 +955,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -963,7 +963,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -979,7 +979,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -987,7 +987,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1003,7 +1003,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1011,7 +1011,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1027,7 +1027,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1035,7 +1035,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1051,7 +1051,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1059,7 +1059,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1075,7 +1075,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1083,7 +1083,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1099,7 +1099,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1107,7 +1107,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1123,7 +1123,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1131,7 +1131,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1147,7 +1147,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1155,7 +1155,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1171,7 +1171,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1179,7 +1179,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1195,7 +1195,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1203,7 +1203,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1219,7 +1219,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1227,7 +1227,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1243,7 +1243,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1251,7 +1251,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1267,7 +1267,7 @@ file:
               keyword: from
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
       from_clause:
         keyword: from
@@ -1275,7 +1275,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1290,11 +1290,11 @@ file:
             - date_part: s
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1302,7 +1302,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1317,11 +1317,11 @@ file:
             - date_part: sec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1329,7 +1329,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1344,11 +1344,11 @@ file:
             - date_part: secs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1356,7 +1356,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1371,11 +1371,11 @@ file:
             - date_part: millisecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1383,7 +1383,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1398,11 +1398,11 @@ file:
             - date_part: milliseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1410,7 +1410,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1425,11 +1425,11 @@ file:
             - date_part: ms
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1437,7 +1437,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1452,11 +1452,11 @@ file:
             - date_part: msec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1464,7 +1464,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1479,11 +1479,11 @@ file:
             - date_part: msecs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1491,7 +1491,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1506,11 +1506,11 @@ file:
             - date_part: msecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1518,7 +1518,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1533,11 +1533,11 @@ file:
             - date_part: mseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1545,7 +1545,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1560,11 +1560,11 @@ file:
             - date_part: millisec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1572,7 +1572,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1587,11 +1587,11 @@ file:
             - date_part: millisecs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1599,7 +1599,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1614,11 +1614,11 @@ file:
             - date_part: millisecon
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1626,7 +1626,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1641,11 +1641,11 @@ file:
             - date_part: microsecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1653,7 +1653,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1668,11 +1668,11 @@ file:
             - date_part: microseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1680,7 +1680,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1696,11 +1696,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1708,7 +1708,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1724,11 +1724,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1736,7 +1736,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1752,11 +1752,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1764,7 +1764,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1780,11 +1780,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1792,7 +1792,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1808,11 +1808,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1820,7 +1820,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1836,11 +1836,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1848,7 +1848,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1864,11 +1864,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1876,7 +1876,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1892,11 +1892,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1904,7 +1904,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1920,11 +1920,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1932,7 +1932,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1948,11 +1948,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1960,7 +1960,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1976,11 +1976,11 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - end_bracket: )
       from_clause:
         keyword: from
@@ -1988,5 +1988,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3a6930d6681ac484720ab8322991bc463aa8a29ab286671428dc53619fb5001
+_hash: 35529ba8804ad93991b801f34ea63c8abc1f6ece22ba11cd1d91ce801ef6f64a
 file:
 - batch:
     statement:
@@ -18,11 +18,11 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: t
+                    naked_identifier: t
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t_date
+              naked_identifier: t_date
         - comma: ','
         - select_clause_element:
             function:
@@ -32,33 +32,33 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
               - comma: ','
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: b_round
+              naked_identifier: b_round
         - comma: ','
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: LEFT
+                keyword: LEFT
               bracketed:
               - start_bracket: (
               - expression:
                   function:
                     function_name:
-                      function_name_identifier: RIGHT
+                      keyword: RIGHT
                     bracketed:
                     - start_bracket: (
                     - expression:
                         column_reference:
-                          identifier: s
+                          naked_identifier: s
                     - comma: ','
                     - expression:
-                        literal: '5'
+                        numeric_literal: '5'
                     - end_bracket: )
               - comma: ','
               - expression:
@@ -69,14 +69,14 @@ file:
                       start_bracket: (
                       expression:
                         column_reference:
-                          identifier: s
+                          naked_identifier: s
                         binary_operator: +
-                        literal: '6'
+                        numeric_literal: '6'
                       end_bracket: )
               - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: compound
+              naked_identifier: compound
         - comma: ','
         - select_clause_element:
             function:
@@ -89,15 +89,15 @@ file:
               - expression:
                   numeric_literal:
                     sign_indicator: '-'
-                    literal: '1'
+                    numeric_literal: '1'
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: column1
+                    naked_identifier: column1
               - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: column1_lastmonth
+              naked_identifier: column1_lastmonth
         - comma: ','
         - select_clause_element:
             function:
@@ -110,22 +110,22 @@ file:
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: tbl_b
+                  - naked_identifier: tbl_b
                   - dot: .
-                  - identifier: column1
+                  - naked_identifier: column1
               - comma: ','
-              - literal: '23'
+              - numeric_literal: '23'
               - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: column1_varchar
+              naked_identifier: column1_varchar
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tbl_b
+                  naked_identifier: tbl_b
 - go_statement:
     keyword: GO
 - batch:
@@ -134,9 +134,9 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: RandDate
+        - naked_identifier: RandDate
       - function_parameter_list:
           bracketed:
             start_bracket: (
@@ -166,9 +166,9 @@ file:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                              - identifier: dbo
-                              - dot: .
-                              - identifier: '[RandomDate]'
+                                naked_identifier: dbo
+                                dot: .
+                                quoted_identifier: '[RandomDate]'
                   end_bracket: )
               statement_terminator: ;
 - go_statement:
@@ -179,9 +179,9 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: no_paramters
+        - naked_identifier: no_paramters
       - function_parameter_list:
           bracketed:
             start_bracket: (
@@ -198,7 +198,7 @@ file:
                 return_segment:
                   keyword: RETURN
                   expression:
-                    literal: '2'
+                    numeric_literal: '2'
                   statement_terminator: ;
             - keyword: END
 - go_statement:
@@ -211,7 +211,7 @@ file:
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
-                identifier: a
+                naked_identifier: a
                 dot: .
                 star: '*'
         from_clause:
@@ -226,45 +226,45 @@ file:
                       keyword: SELECT
                       select_clause_element:
                         column_reference:
-                          identifier: FIN
+                          naked_identifier: FIN
                     from_clause:
                       keyword: FROM
                       from_expression:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier: enc
+                              naked_identifier: enc
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: a
+                naked_identifier: a
             join_clause:
             - keyword: LEFT
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: b
+                    naked_identifier: b
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: a
+                  - naked_identifier: a
                   - dot: .
-                  - identifier: FIN
+                  - naked_identifier: FIN
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: b
+                  - naked_identifier: b
                   - dot: .
-                  - identifier: FIN
+                  - naked_identifier: FIN
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-            - identifier: b
+            - naked_identifier: b
             - dot: .
-            - identifier: FIN
+            - naked_identifier: FIN
           - keyword: IS
           - keyword: 'NULL'
         statement_terminator: ;

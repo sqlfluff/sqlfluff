@@ -126,12 +126,13 @@ class LintFix:
             position to create at (with the existing element at this position
             to be moved *after* the edit), for a `replace` it implies the
             segment to be replaced.
-        edit (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
-            this holds the iterable of segments to create or replace at the
-            given `anchor` point.
-        source (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
-            this holds iterable of segments that provided code. IMPORTANT: The
-            linter uses this to prevent copying material from templated areas.
+        edit (iterable of :obj:`BaseSegment`, optional): For `replace` and
+            `create` fixes, this holds the iterable of segments to create
+            or replace at the given `anchor` point.
+        source (iterable of :obj:`BaseSegment`, optional): For `replace` and
+            `create` fixes, this holds iterable of segments that provided
+            code. IMPORTANT: The linter uses this to prevent copying material
+            from templated areas.
 
     """
 
@@ -199,6 +200,15 @@ class LintFix:
             return True  # pragma: no cover TODO?
         return False
 
+    def is_just_source_edit(self) -> bool:
+        """Return whether this a valid source only edit."""
+        return (
+            self.edit_type == "replace"
+            and self.edit is not None
+            and len(self.edit) == 1
+            and self.edit[0].raw == self.anchor.raw
+        )
+
     def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
@@ -209,7 +219,10 @@ class LintFix:
                 new_detail = "".join(s.raw for s in self.edit)
 
             if self.edit_type == "replace":
-                detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
+                if self.is_just_source_edit():
+                    detail = f"src-edt:{self.edit[0].source_fixes!r}"
+                else:
+                    detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
             else:
                 detail = f"create:{new_detail!r}"
         else:
@@ -313,6 +326,14 @@ class LintFix:
 
     def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
         """Based on the fix slices, should we discard the fix?"""
+        # Check for explicit source fixes.
+        # TODO: This doesn't account for potentially more complicated source fixes.
+        # If we're replacing a single segment with many *and* doing source fixes
+        # then they will be discarded here as unsafe.
+        if self.edit_type == "replace" and self.edit and len(self.edit) == 1:
+            edit: BaseSegment = self.edit[0]
+            if edit.raw == self.anchor.raw and edit.source_fixes:
+                return False
         # Given fix slices, check for conflicts.
         check_fn = all if self.edit_type in ("create_before", "create_after") else any
         fix_slices = self.get_fix_slices(templated_file, within_only=False)
@@ -817,7 +838,9 @@ class BaseRule:
         parent: Optional[BaseSegment] = None,
     ):
         """Does the given segment match any of the given type tuples?"""
-        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+        if seg.raw_upper in [
+            elem[1] for elem in target_tuples if elem[0] == "raw_upper"
+        ]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True

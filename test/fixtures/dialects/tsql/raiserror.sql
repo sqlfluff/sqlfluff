@@ -34,3 +34,9 @@ RAISERROR (@ErrorMessage, -- Message text.
 			@ErrorSeverity, -- Severity.
 			@ErrorState -- State.
 			);
+
+RAISERROR (
+                'The specified table does not exist. Please enter @tableName in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'
+                ,11
+                ,- 1
+                );
