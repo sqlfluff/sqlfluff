@@ -5,7 +5,7 @@ from typing import Tuple, List, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.crawlers import BaseCrawler, SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -49,7 +49,9 @@ class Rule_L010(BaseRule):
     groups: Tuple[str, ...] = ("all", "core")
     lint_phase = "post"
     # Binary operators behave like keywords too.
-    crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
+    crawl_behaviour: Optional[BaseCrawler] = SegmentSeekerCrawler(
+        {"keyword", "binary_operator", "date_part"}
+    )
     # Skip boolean and null literals (which are also keywords)
     # as they have their own rule (L040)
     _exclude_elements: List[Tuple[str, str]] = [
