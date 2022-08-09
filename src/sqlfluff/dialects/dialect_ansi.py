@@ -979,6 +979,12 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("ColumnReferenceSegment"),
+            Ref("CaseExpressionSegment")
+        ),
         Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
     )
 
@@ -1778,10 +1784,11 @@ ansi_dialect.add(
         Sequence(
             OneOf(
                 Ref("Expression_D_Grammar"),
-                Ref("CaseExpressionSegment"),
+                Ref("CaseExpressionSegment")
             ),
             AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
         ),
+        Ref("ShorthandCastSegment")
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
