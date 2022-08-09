@@ -118,9 +118,11 @@ def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa
 def _get_fixture_path(template_output_folder_path, fname):
     fixture_path: Path = template_output_folder_path / fname  # Default fixture location
     # Is there a version-specific version of the fixture file?
-    dbt_version_specific_fixture_folder = {(1, 0): "dbt_utils_0.8.0"}.get(
-        DBT_VERSION_TUPLE
-    )
+    if DBT_VERSION_TUPLE >= (1, 0):
+        dbt_version_specific_fixture_folder = "dbt_utils_0.8.0"
+    else:
+        dbt_version_specific_fixture_folder = None
+
     if dbt_version_specific_fixture_folder:
         # Maybe. Determine where it would exist.
         version_specific_path = (
