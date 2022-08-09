@@ -69,6 +69,8 @@ class Rule_L067(BaseRule):
                     len(select_targets) == 1
                     and select_targets[0].get_start_loc()[0]
                     == select_targets[0].get_end_loc()[0]
+                    == start_bracket.pos_marker.line_no
+                    == end_bracket.pos_marker.line_no
                 ):
                     return None
 
