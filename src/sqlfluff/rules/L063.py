@@ -43,6 +43,7 @@ class Rule_L063(Rule_L010):
 
     groups = ("all",)
     lint_phase = "post"
+    crawl_behaviour = None  # Don't set this yet. Not ready.
     _target_elems: List[Tuple[str, str]] = [
         ("parenttype", "data_type"),
         ("parenttype", "datetime_type_identifier"),
