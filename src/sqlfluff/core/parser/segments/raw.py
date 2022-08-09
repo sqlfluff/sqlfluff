@@ -121,14 +121,14 @@ class RawSegment(BaseSegment):
         return []
 
     @property
-    def full_type_set(self) -> Set[str]:
+    def class_types(self) -> Set[str]:
         """The set of full types for this segment, including inherited.
 
         Add the surrogate type for raw segments.
         """
         return (
             {self._surrogate_type} if self._surrogate_type else set()
-        ) | super().full_type_set
+        ) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:

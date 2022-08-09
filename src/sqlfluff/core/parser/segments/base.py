@@ -17,6 +17,7 @@ from itertools import takewhile, chain
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Optional,
     List,
@@ -201,7 +202,26 @@ class AnchorEditInfo:
         return False  # pragma: no cover
 
 
-class BaseSegment:
+class SegmentMetaclass(type):
+    """The metaclass for segments.
+
+    This metaclass provides pre-computed class attributes
+    based on the defined attributes of specific classes.
+    """
+
+    def __new__(mcs, name, bases, class_dict):
+        class_obj = super().__new__(mcs, name, bases, class_dict)
+        added_type = class_dict.get("type", None)
+        class_types = {added_type} if added_type else set()
+        for base in bases:
+            class_types.update(base._class_types)
+        # NB: We're setting the private value so that some dependent
+        # classes can make their own public property.
+        class_obj._class_types = class_types
+        return class_obj
+
+
+class BaseSegment(metaclass=SegmentMetaclass):
     """The base segment element.
 
     This defines the base element which drives both Lexing, Parsing and Linting.
@@ -220,7 +240,8 @@ class BaseSegment:
     """
 
     # `type` should be the *category* of this kind of segment
-    type = "base"
+    type: ClassVar[str] = "base"
+    _class_types: ClassVar[Set[str]]  # NOTE: Set by SegmentMetaclass
     parse_grammar: Optional[Matchable] = None
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
@@ -396,9 +417,12 @@ class BaseSegment:
         return "".join(seg.raw for seg in self.segments)
 
     @cached_property
-    def full_type_set(self) -> Set[str]:
+    def class_types(self) -> Set[str]:
         """The set of types for this segment."""
-        return set(self._class_types())
+        # NOTE: This version is simple, but some dependent classes
+        # (notably RawSegment) override this with something more
+        # custom.
+        return self._class_types
 
     @cached_property
     def child_type_set(self) -> Set[str]:
@@ -410,7 +434,7 @@ class BaseSegment:
         """
         return set(
             chain.from_iterable(
-                seg.child_type_set | set(seg.full_type_set) for seg in self.segments
+                seg.child_type_set | set(seg.class_types) for seg in self.segments
             )
         )
 
@@ -422,7 +446,7 @@ class BaseSegment:
 
         NOTE: Does not include the types of the parent segment itself.
         """
-        return set(chain.from_iterable(set(seg.full_type_set) for seg in self.segments))
+        return set(chain.from_iterable(set(seg.class_types) for seg in self.segments))
 
     @cached_property
     def raw_upper(self) -> str:
@@ -665,23 +689,10 @@ class BaseSegment:
     @classmethod
     def class_is_type(cls, *seg_type):
         """Is this segment class (or its parent) of the given type."""
-        # Work backward in the class hierarchy to see if there's a match
-        for class_type in cls._class_types():
-            if class_type in seg_type:
-                return True
+        # Use set intersection
+        if cls._class_types.intersection(seg_type):
+            return True
         return False
-
-    @classmethod
-    def _class_types(cls) -> Iterator[str]:
-        """Iterate the list of class types for this segment."""
-        # First yield the explicit type
-        yield cls.type
-        # Then yield parent types
-        for base_class in cls.__bases__:
-            if base_class is object:
-                return
-            base_class = cast(Type[BaseSegment], base_class)
-            yield base_class.type
 
     @classmethod
     def structural_simplify(cls, elem):
