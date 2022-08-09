@@ -1,6 +1,6 @@
 """Implementation of Rule L014."""
 
-from typing import Tuple
+from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
@@ -83,10 +83,10 @@ class Rule_L014(Rule_L010):
     ]
     _description_elem = "Unquoted identifiers"
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         if identifiers_policy_applicable(
             self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
         ):
             return super()._eval(context=context)
         else:
-            return LintResult(memory=context.memory)
+            return [LintResult(memory=context.memory)]

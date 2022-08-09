@@ -104,8 +104,8 @@ class LintResult:
             return "LintResult(<empty)"
         fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
         if self.description:
-            return f"LintResult({self.description}: {self.anchor} {fix_coda})"
-        return f"LintResult({self.anchor} {fix_coda})"
+            return f"LintResult({self.description}: {self.anchor}{fix_coda})"
+        return f"LintResult({self.anchor}{fix_coda})"
 
     def to_linting_error(self, rule) -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""

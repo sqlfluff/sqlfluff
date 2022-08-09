@@ -81,9 +81,8 @@ class Rule_L063(Rule_L010):
         parent: Optional[BaseSegment] = (
             context.parent_stack[-1] if context.parent_stack else None
         )
-
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
-            return [LintResult(memory=context.memory)]
+            return [LintResult(memory=context.memory)]  # pragma: no cover
 
         results = []
         # For some of these segments we want to run the code on
@@ -91,13 +90,22 @@ class Rule_L063(Rule_L010):
             "primitive_type", "datetime_type_identifier", "data_type"
         ):
             for seg in context.segment.segments:
-                if not seg.is_type("raw"):
+                # We don't want to edit symbols, quoted things or identifiers
+                # if they appear.
+                if seg.is_type(
+                    "symbol", "identifier", "quoted_literal"
+                ) or not seg.is_type("raw"):
                     continue
                 res = self._handle_segment(seg, context.memory)
                 if res:
                     results.append(res)
 
-        if context.segment.is_type("data_type_identifier"):
-            results.append(self._handle_segment(context.segment, context.memory))
+        # Don't process it if it's likely to have been processed by the parent.
+        if context.segment.is_type("data_type_identifier") and not context.parent_stack[
+            -1
+        ].is_type("primitive_type", "datetime_type_identifier", "data_type"):
+            results.append(
+                self._handle_segment(context.segment, context.memory)
+            )  # pragma: no cover
 
         return results

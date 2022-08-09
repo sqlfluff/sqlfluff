@@ -2,6 +2,7 @@
 import pytest
 
 from sqlfluff.core import Linter
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
@@ -11,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.testing.rules import get_rule_from_set
 
 from test.fixtures.rules.custom.L000 import Rule_L000
@@ -184,3 +186,37 @@ def test_rule_set_return_informative_error_when_rule_not_registered():
         get_rule_from_set("L000", config=cfg)
 
     e.match("'L000' not in")
+
+
+seg = WhitespaceSegment(
+    pos_marker=PositionMarker(
+        slice(0, 1), slice(0, 1), TemplatedFile(" ", fname="<str>")
+    )
+)
+
+
+@pytest.mark.parametrize(
+    "lint_result, expected",
+    [
+        (LintResult(), "LintResult(<empty)"),
+        (LintResult(seg), "LintResult(<WhitespaceSegment: ([L:  1, P:  1]) ' '>)"),
+        (
+            LintResult(seg, description="foo"),
+            "LintResult(foo: <WhitespaceSegment: ([L:  1, P:  1]) ' '>)",
+        ),
+        (
+            LintResult(
+                seg,
+                description="foo",
+                fixes=[
+                    LintFix("create_before", seg, edit=[seg]),
+                    LintFix("create_after", seg, edit=[seg]),
+                ],
+            ),
+            "LintResult(foo: <WhitespaceSegment: ([L:  1, P:  1]) ' '>+2F)",
+        ),
+    ],
+)
+def test_rules__lint_result_repr(lint_result, expected):
+    """Test that repr(LintResult) works as expected."""
+    assert repr(lint_result) == expected

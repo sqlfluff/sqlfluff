@@ -65,7 +65,7 @@ class Rule_L010(BaseRule):
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be
@@ -73,17 +73,14 @@ class Rule_L010(BaseRule):
         for what the possible case is.
 
         """
-        # Config type hints
-        self.ignore_words_regex: str
-
         # Skip if not an element of the specified type/name
         parent: Optional[BaseSegment] = (
             context.parent_stack[-1] if context.parent_stack else None
         )
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
-            return LintResult(memory=context.memory)
+            return [LintResult(memory=context.memory)]
 
-        return self._handle_segment(context.segment, context.memory)
+        return [self._handle_segment(context.segment, context.memory)]
 
     def _handle_segment(self, segment, memory) -> LintResult:
         # NOTE: this mutates the memory field.

@@ -45,13 +45,13 @@ class Rule_L039(BaseRule):
         if ref_seg.is_type("casting_operator"):
             return True
         if not ref_seg.raw_segments:
-            return False
+            return False  # pragma: no cover
         if diff == -1:
             child_raw = ref_seg.raw_segments[-1]
         elif diff == 1:
             child_raw = ref_seg.raw_segments[0]
         else:
-            raise ValueError("Diff should be 1 or -1")
+            raise ValueError("Diff should be 1 or -1")  # pragma: no cover
         return child_raw.is_type("casting_operator")
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
@@ -91,6 +91,10 @@ class Rule_L039(BaseRule):
                                 ],
                             )
                         )
+                    # If we find whitespace at the start of a segment it's probably
+                    # from a fix, so leave it be. It otherwise shouldn't be there.
+                    elif idx == 0:
+                        continue
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
