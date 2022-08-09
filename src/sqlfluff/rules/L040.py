@@ -1,6 +1,7 @@
 """Implementation of Rule L040."""
 
 from typing import Tuple, List
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -57,9 +58,6 @@ class Rule_L040(Rule_L010):
 
     groups = ("all", "core")
     lint_phase = "post"
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "null_literal"),
-        ("type", "boolean_literal"),
-    ]
+    crawl_behaviour = SegmentSeekerCrawler({"null_literal", "boolean_literal"})
     _exclude_elements: List[Tuple[str, str]] = []
     _description_elem = "Boolean/null literals"

@@ -1,9 +1,10 @@
 """Implementation of Rule L014."""
 
-from typing import Tuple, List
+from typing import Tuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -71,10 +72,9 @@ class Rule_L014(Rule_L010):
 
     groups = ("all", "core")
     lint_phase = "post"
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "naked_identifier"),
-        ("type", "properties_naked_identifier"),
-    ]
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"naked_identifier", "properties_naked_identifier"}
+    )
     config_keywords = [
         "extended_capitalisation_policy",
         "unquoted_identifiers_policy",
