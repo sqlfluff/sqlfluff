@@ -3,6 +3,7 @@ import copy
 from typing import List
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 from sqlfluff.core.rules.doc_decorators import (
@@ -59,6 +60,7 @@ class Rule_L007(BaseRule):
 
     groups = ("all",)
     config_keywords = ["operator_new_lines"]
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
