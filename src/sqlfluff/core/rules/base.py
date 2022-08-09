@@ -99,6 +99,14 @@ class LintResult:
         # store a description_override for later
         self.description = description
 
+    def __repr__(self):
+        if not self.anchor:
+            return "LintResult(<empty)"
+        fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
+        if self.description:
+            return f"LintResult({self.description}: {self.anchor} {fix_coda})"
+        return f"LintResult({self.anchor} {fix_coda})"
+
     def to_linting_error(self, rule) -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:

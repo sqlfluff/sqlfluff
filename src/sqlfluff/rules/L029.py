@@ -1,6 +1,6 @@
 """Implementation of Rule L029."""
 import regex
-from typing import Optional, Tuple, List
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
