@@ -12,6 +12,7 @@ from sqlfluff.core.rules import (
     RuleContext,
     EvalResultType,
 )
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -43,6 +44,7 @@ class Rule_L006(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
     # L006 works on operators so requires three operators.
     # However some rules that inherit from here (e.g. L048) do not.
     # So allow this to be configurable.

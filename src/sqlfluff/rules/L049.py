@@ -41,6 +41,7 @@ class Rule_L049(Rule_L006):
     """
 
     groups = ("all", "core")
+    # Inherit crawl behaviour from L006
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Relational operators should not be used to check for NULL values."""
