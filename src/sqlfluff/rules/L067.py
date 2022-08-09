@@ -27,12 +27,11 @@ class Rule_L067(BaseRule):
     .. code-block:: sql
         :force:
 
-        select
-            A.something
-        from (select
+        SELECT A.SOMETHING
+        FROM (SELECT
                 B,
                 C
-            from Table group by 1) as A
+            FROM D GROUP BY 1) AS A
 
 
 
@@ -43,14 +42,13 @@ class Rule_L067(BaseRule):
     .. code-block:: sql
         :force:
 
-        select
-            A.something
-        from (
-            select
+        SELECT A.SOMETHING
+        FROM (
+            SELECT
                 B,
                 C
-            from Table group by 1
-        ) as A
+            FROM D GROUP BY 1
+        ) AS A
 
     """
     groups = ("all",)
@@ -75,7 +73,8 @@ class Rule_L067(BaseRule):
                     return None
 
                 # Otherwise, check and insert newlines after opening bracket and
-                # before ending bracket
+                # before ending bracket. This rule won't care the indentation of
+                # the subquery. It supposes L003 will take care of indentaion for it
 
                 # Opening bracket: check whether the opening is at the same line
                 # with the first select statement. If so, insert a new line and
