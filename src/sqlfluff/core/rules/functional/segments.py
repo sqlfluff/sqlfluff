@@ -80,8 +80,9 @@ class Segments(tuple):
             templated_file=self.templated_file
         )
 
+    # TODO:This method isn't used as at 2022-08-10. Consider removing in future.
     @property
-    def raw_segments(self) -> "Segments":
+    def raw_segments(self) -> "Segments":  # pragma: no cover
         """Get raw segments underlying the segments."""
         raw_segments_list = []
         for s in self:

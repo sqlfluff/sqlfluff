@@ -47,8 +47,8 @@ def test__parser__base_segments_type():
 
 
 def test__parser__base_segments_class_types():
-    """Test the metclass .class_types attribute."""
-    assert DummySegment.class_types == {"dummy", "base"}
+    """Test the metclass ._class_types attribute."""
+    assert DummySegment._class_types == {"dummy", "base"}
 
 
 def test__parser__base_segments_child_type_set(raw_seg_list):

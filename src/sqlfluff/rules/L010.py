@@ -116,6 +116,10 @@ class Rule_L010(BaseRule):
         if segment.is_templated:
             return LintResult(memory=memory)
 
+        # Skip if empty.
+        if not segment.raw:
+            return LintResult(memory=memory)
+
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?

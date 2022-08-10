@@ -25,8 +25,6 @@ from typing import (
     Iterator,
     Set,
     TYPE_CHECKING,
-    cast,
-    Type,
 )
 import logging
 from uuid import UUID, uuid4
@@ -210,6 +208,15 @@ class SegmentMetaclass(type):
     """
 
     def __new__(mcs, name, bases, class_dict):
+        """Generate a new class.
+
+        We use the `type` class attribute for the class
+        and it's parent base classes to build up a `set`
+        of types on construction to use in type checking
+        later in the process. Doing it on construction
+        here saves calculating it at runtime for each
+        instance of the class.
+        """
         class_obj = super().__new__(mcs, name, bases, class_dict)
         added_type = class_dict.get("type", None)
         class_types = {added_type} if added_type else set()

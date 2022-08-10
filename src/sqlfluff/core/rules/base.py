@@ -760,7 +760,10 @@ class BaseRule:
                 *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
             )
         ):
-            return True
+            # TODO: This clause is much less used post crawler migration.
+            # Consider whether this should be removed once that migration
+            # is complete.
+            return True  # pragma: no cover
         return False
 
     @staticmethod
