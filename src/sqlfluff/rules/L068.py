@@ -30,11 +30,11 @@ class Rule_L068(BaseRule):
     .. code-block:: sql
         :force:
 
-        select
-            A.something
-        from
-        (select B from Table1 group by 1)
-        as A
+        SELECT
+            A.SOMETHING
+        FROM
+            (SELECT B FROM D GROUP BY 1)
+        AS A
 
 
 
@@ -46,9 +46,9 @@ class Rule_L068(BaseRule):
     .. code-block:: sql
         :force:
 
-        select
-            A.something
-        from (select B from Table1 group by 1) as A
+        SELECT
+            A.SOMETHING
+        FROM (SELECT B FROM D GROUP BY 1) AS A
 
     """
     groups = ("all",)
