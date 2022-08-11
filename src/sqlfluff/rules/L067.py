@@ -15,10 +15,10 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 @document_fix_compatible
 class Rule_L067(BaseRule):
 
-    """A subquery inside parentheses should go a new line.
-        For brackets, if there are any subquery inside, the subqueries
-        should take the next line after opening, and the ending bracket
-        should take the next line after the subqueries.
+    """A subquery inside parentheses should start on a new line.
+        For brackets, if there are any subqueries inside, the subqueries
+        should begin on the next line after the starting bracket, and the
+        ending bracket should go on the next line after the subquery.
 
     **Anti-pattern**
 
