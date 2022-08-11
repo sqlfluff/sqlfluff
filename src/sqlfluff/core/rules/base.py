@@ -826,12 +826,12 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
-                    context, fix.edit_type, fix.anchor
+                    context.parent_stack[0], fix.edit_type, fix.anchor
                 )
 
     @staticmethod
     def _choose_anchor_segment(
-        context: RuleContext,
+        root_segment: BaseSegment,
         edit_type: str,
         segment: BaseSegment,
         filter_meta: bool = False,
@@ -853,8 +853,9 @@ class BaseRule:
 
         anchor: BaseSegment = segment
         child: BaseSegment = segment
-        parent: BaseSegment = context.parent_stack[0]
-        path: Optional[List[BaseSegment]] = parent.path_to(segment) if parent else None
+        path: Optional[List[BaseSegment]] = (
+            root_segment.path_to(segment) if root_segment else None
+        )
         inner_path: Optional[List[BaseSegment]] = path[1:-1] if path else None
         if inner_path:
             for seg in inner_path[::-1]:
