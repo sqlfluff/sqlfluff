@@ -5,6 +5,7 @@ from sqlfluff.core import Linter
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -40,6 +41,7 @@ class Rule_T001(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"whitespace"})
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -126,6 +128,7 @@ def test_rule_exception_is_caught_to_validation():
         """Rule that throws an exception."""
 
         groups = ("all",)
+        crawl_behaviour = RootOnlyCrawler()
 
         def _eval(self, segment, parent_stack, **kwargs):
             raise Exception("Catch me or I'll deny any linting results from you")
