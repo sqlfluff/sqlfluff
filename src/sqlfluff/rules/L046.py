@@ -9,6 +9,7 @@ from sqlfluff.core.rules import (
     LintFix,
     RuleContext,
 )
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.functional import rsp
 from sqlfluff.core.rules.doc_decorators import document_groups
 
@@ -42,6 +43,10 @@ class Rule_L046(BaseRule):
     """
 
     groups = ("all", "core")
+    # Crawling for "raw" isn't a great way of filtering but it will
+    # do for now. TODO: Make a more efficient crawler for templated
+    # sections.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"})
     targets_templated = True
 
     @staticmethod
