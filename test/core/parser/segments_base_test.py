@@ -51,16 +51,16 @@ def test__parser__base_segments_class_types():
     assert DummySegment._class_types == {"dummy", "base"}
 
 
-def test__parser__base_segments_child_type_set(raw_seg_list):
-    """Test the .child_type_set() method."""
+def test__parser__base_segments_descendant_type_set(raw_seg_list):
+    """Test the .descendant_type_set () method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
-    assert test_seg.child_type_set == {"raw", "base", "dummy_aux"}
+    assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
 
 
-def test__parser__base_segments_direct_child_type_set(raw_seg_list):
-    """Test the .direct_child_type_set() method."""
+def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
+    """Test the .direct_descendant_type_set () method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
-    assert test_seg.direct_child_type_set == {"base", "dummy_aux"}
+    assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
 
 
 def test__parser__base_segments_stubs():

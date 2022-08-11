@@ -78,7 +78,7 @@ class SegmentSeekerCrawler(BaseCrawler):
             return
 
         # Check whether one of the targets is present (set intersection)
-        if not self.types & context.segment.child_type_set:
+        if not self.types & context.segment.descendant_type_set:
             # None present. Don't look further.
             # This aggressive pruning helps performance.
             # Track raw stack if required.
@@ -119,4 +119,4 @@ class ParentOfSegmentCrawler(SegmentSeekerCrawler):
         for, then we know that this segment is a parent of that
         kind of segment.
         """
-        return bool(self.types & segment.direct_child_type_set)
+        return bool(self.types & segment.direct_descendant_type_set)

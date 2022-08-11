@@ -198,7 +198,7 @@ seg = WhitespaceSegment(
 @pytest.mark.parametrize(
     "lint_result, expected",
     [
-        (LintResult(), "LintResult(<empty)"),
+        (LintResult(), "LintResult(<empty>)"),
         (LintResult(seg), "LintResult(<WhitespaceSegment: ([L:  1, P:  1]) ' '>)"),
         (
             LintResult(seg, description="foo"),

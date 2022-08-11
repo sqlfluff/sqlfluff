@@ -423,7 +423,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Make a string from the segments of this segment."""
         return "".join(seg.raw for seg in self.segments)
 
-    @cached_property
+    @property
     def class_types(self) -> Set[str]:
         """The set of types for this segment."""
         # NOTE: This version is simple, but some dependent classes
@@ -432,7 +432,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self._class_types
 
     @cached_property
-    def child_type_set(self) -> Set[str]:
+    def descendant_type_set(self) -> Set[str]:
         """The set of all contained types.
 
         This is used for rule crawling.
@@ -441,12 +441,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return set(
             chain.from_iterable(
-                seg.child_type_set | set(seg.class_types) for seg in self.segments
+                seg.descendant_type_set | set(seg.class_types) for seg in self.segments
             )
         )
 
     @cached_property
-    def direct_child_type_set(self) -> Set[str]:
+    def direct_descendant_type_set(self) -> Set[str]:
         """The set of all directly child types.
 
         This is used for rule crawling.
@@ -807,8 +807,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
-            "child_type_set",
-            "direct_child_type_set",
+            "descendant_type_set ",
+            "direct_descendant_type_set ",
         ]:
             self.__dict__.pop(key, None)
 

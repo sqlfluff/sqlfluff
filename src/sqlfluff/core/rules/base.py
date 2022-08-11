@@ -101,7 +101,8 @@ class LintResult:
 
     def __repr__(self):
         if not self.anchor:
-            return "LintResult(<empty)"
+            return "LintResult(<empty>)"
+        # The "F" at the end is short for "fixes", to indicate how many there are.
         fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
         if self.description:
             return f"LintResult({self.description}: {self.anchor}{fix_coda})"
