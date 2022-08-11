@@ -148,7 +148,7 @@ class Rule_L067(BaseRule):
                             anchor=end_bracket,
                             description=(
                                 (
-                                    "The ending bracket after a subquery should go a new "
+                                    "The ending bracket after a subquery should go on a new "
                                     "line. No newline between the subquery and ending "
                                     f"bracket {end_bracket.raw}."
                                 )
