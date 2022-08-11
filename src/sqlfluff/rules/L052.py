@@ -301,6 +301,7 @@ class Rule_L052(BaseRule):
         # Iterate backwards over complete stack to find
         # if the final semi-colon is already present.
         anchor_segment = parent_segment.segments[-1]
+        trigger_segment = parent_segment.segments[-1]
         semi_colon_exist_flag = False
         is_one_line = False
         before_segment = []
@@ -313,6 +314,8 @@ class Rule_L052(BaseRule):
                 break
             elif not segment.is_meta:
                 before_segment.append(segment)
+            trigger_segment = segment
+        self.logger.debug("Trigger on: %s", trigger_segment)
         self.logger.debug("Anchoring on: %s", anchor_segment)
 
         semicolon_newline = self.multiline_newline if not is_one_line else False
@@ -361,7 +364,7 @@ class Rule_L052(BaseRule):
                     )
                 ]
             return LintResult(
-                anchor=anchor_segment,
+                anchor=trigger_segment,
                 fixes=fixes,
             )
         return None
