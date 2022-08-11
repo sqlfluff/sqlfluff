@@ -57,7 +57,7 @@ class RuleContext:
         if self.parent_stack:
             return self.parent_stack[-1].segments[self.segment_idx + 1 :]
         else:
-            return tuple()
+            return tuple()  # pragma: no cover
 
     @cached_property
     def final_segment(self) -> BaseSegment:

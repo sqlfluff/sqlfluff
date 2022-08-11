@@ -666,35 +666,6 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext, filter_meta: bool = True) -> bool:
-        """Is the current segment the final segment in the parse tree."""
-        siblings_post = context.siblings_post
-        if filter_meta:
-            siblings_post = self.filter_meta(siblings_post)
-        if len(siblings_post) > 0:
-            # This can only fail on the last segment
-            return False
-        elif len(context.segment.segments) > 0:
-            # This can only fail on the last base segment
-            return False
-        elif filter_meta and context.segment.is_meta:
-            return False
-        else:
-            # We know we are at a leaf of the tree but not necessarily at the end of the
-            # tree. Therefore we look backwards up the parent stack and ask if any of
-            # the parent segments have another non-meta child segment after the current
-            # one.
-            child_segment = context.segment
-            for parent_segment in context.parent_stack[::-1]:
-                possible_children = parent_segment.segments
-                if filter_meta:
-                    possible_children = [s for s in possible_children if not s.is_meta]
-                if len(possible_children) > possible_children.index(child_segment) + 1:
-                    return False
-                child_segment = parent_segment
-
-        return True
-
     @staticmethod
     def filter_meta(segments, keep_meta=False):
         """Filter the segments to non-meta.
