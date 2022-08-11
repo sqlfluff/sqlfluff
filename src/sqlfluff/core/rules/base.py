@@ -23,7 +23,6 @@ import regex
 from typing import (
     cast,
     Iterable,
-    Iterator,
     Optional,
     List,
     Set,
@@ -388,53 +387,6 @@ class LintFix:
 EvalResultType = Union[LintResult, List[LintResult], None]
 
 
-class CrawlBehavior:
-    """Implements how a lint rule traverses the parse tree."""
-
-    def __init__(self, works_on_unparsable: bool, needs_raw_stack: bool):
-        self.works_on_unparsable = works_on_unparsable
-        self.raw_stack: Optional[List[RawSegment]] = [] if needs_raw_stack else None
-
-    def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
-        """Yields a RuleContext for each segment the rule should process."""
-        # First, check whether we're looking at an unparsable and whether
-        # this rule will still operate on that.
-        if not self.works_on_unparsable and context.segment.is_type("unparsable"):
-            # Abort here if it doesn't. Otherwise we'll get odd results.
-            return
-
-        # NOTE: I haven't moved this logic. CONSIDER WHETHER I SHOULD.
-        assert (
-            self.raw_stack is None
-            or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
-            or context.raw_stack[-1] is context.raw_segment_pre
-        )
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children.
-        yield context
-
-        # NOTE: We used to check for `recurse_into` here.
-        # The raw stack only keeps track of the previous *raw* segments.
-        if len(context.segment.segments) == 0:
-            context.raw_segment_pre = cast(RawSegment, context.segment)
-            # Tracking raw_stack is expensive, so it's optional per rule.
-            if self.raw_stack is not None:
-                self.raw_stack.append(context.raw_segment_pre)
-                context.raw_stack = tuple(self.raw_stack)
-        base_parent_stack = context.parent_stack
-        new_parent_stack = base_parent_stack + (context.segment,)
-        for idx, child in enumerate(context.segment.segments):
-            # For performance reasons, don't create a new RuleContext for
-            # each segment; just modify the existing one in place. This
-            # requires some careful bookkeeping, but it avoids creating a
-            # HUGE number of short-lived RuleContext objects
-            # (#linter loops x #rules x #segments).
-            context.segment = child
-            context.parent_stack = new_parent_stack
-            context.segment_idx = idx
-            yield from self.crawl(context)
-
-
 class BaseRule:
     """The base class for a rule.
 
@@ -453,25 +405,7 @@ class BaseRule:
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
-    crawl_behaviour: Optional[BaseCrawler] = None
-    # crawl_behaviour: BaseCrawler = BaseCrawler()
-    # "needs_raw_stack" defaults to False because rules run faster that way, and
-    # most rules don't need it. Rules that use it are usually those that look
-    # at the surroundings of a segment, e.g. "is there whitespace preceding this
-    # segment?" In the long run, it would be good to review rules that use
-    # raw_stack to try and eliminate its use. These rules will often be good
-    # candidates for one of the following:
-    # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
-    #   "raw_stack", but it's only the ONE raw segment prior to the current
-    #   one.
-    # - Rewriting to use "BaseRule.recurse_into = False" and traversing the
-    #   parse tree directly.
-    # - Using "RuleContext.memory" to implement custom, lighter weight tracking
-    #   of just the MINIMUM required state across calls to _eval().  Reason:
-    #   "raw_stack" becomes very large for large files (thousands or more
-    #   segments!). In practice, most rules only need to look at a few adjacent
-    #   segments, e.g. others on the same line or in the same statement.
-    needs_raw_stack = False
+    crawl_behaviour: BaseCrawler
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
     # They run on two occasions:
@@ -556,11 +490,8 @@ class BaseRule:
 
         # Propagates memory from one rule _eval() to the next.
         memory: Any = root_context.memory
-        crawl_behavior = self.crawl_behaviour or CrawlBehavior(
-            self._works_on_unparsable, self.needs_raw_stack
-        )
         context = root_context
-        for context in crawl_behavior.crawl(root_context):
+        for context in self.crawl_behaviour.crawl(root_context):
             try:
                 context.memory = memory
                 res = self._eval(context=context)
