@@ -11,6 +11,8 @@ from sqlfluff.core.parser import (
     CommentSegment,
 )
 
+from sqlfluff.dialects import dialect_ansi as ansi
+
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -24,9 +26,8 @@ db2_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),

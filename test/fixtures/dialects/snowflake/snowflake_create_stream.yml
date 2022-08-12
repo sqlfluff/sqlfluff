@@ -3,29 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ba373b891304f17f9998477909e6755b830ccc0cc25bbcafa90b770e545e07d
+_hash: 4231f1ad0afda72d3bf827f7d841e80a423dfec0a772844a467110f18f99cf4d
 file:
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_before_expression:
         keyword: before
         bracketed:
@@ -39,11 +39,11 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                - literal: '40'
+                - numeric_literal: '40'
                 - binary_operator: '*'
-                - literal: '365'
+                - numeric_literal: '365'
                 - binary_operator: '*'
-                - literal: '86400'
+                - numeric_literal: '86400'
                 end_bracket: )
           end_bracket: )
 - statement_terminator: ;
@@ -52,11 +52,11 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_at_expression:
         keyword: at
         bracketed:
@@ -64,11 +64,11 @@ file:
           keyword: offset
           parameter_assigner: =>
           expression:
-            numeric_literal:
+          - numeric_literal:
               sign_indicator: '-'
-              literal: '60'
-            binary_operator: '*'
-            literal: '5'
+              numeric_literal: '60'
+          - binary_operator: '*'
+          - numeric_literal: '5'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,11 +76,11 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_before_expression:
         keyword: before
         bracketed:
@@ -88,7 +88,7 @@ file:
           keyword: statement
           parameter_assigner: =>
           expression:
-            literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+            quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,44 +96,44 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: external
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: stage
     - object_reference:
-        identifier: stage_name
+        naked_identifier: stage_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: view
     - object_reference:
-        identifier: view_name
+        naked_identifier: view_name
 - statement_terminator: ;
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: clone
     - object_reference:
-        identifier: source_stream
+        naked_identifier: source_stream
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -142,11 +142,11 @@ file:
     - keyword: replace
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -156,11 +156,11 @@ file:
     - keyword: not
     - keyword: exists
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -169,26 +169,26 @@ file:
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: COPY
     - keyword: GRANTS
     - keyword: 'ON'
     - keyword: TABLE
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -197,21 +197,21 @@ file:
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: EXTERNAL
     - keyword: TABLE
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: INSERT_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -221,16 +221,16 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: STAGE
     - object_reference:
-        identifier: stage_name
+        naked_identifier: stage_name
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -240,22 +240,22 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: VIEW
     - object_reference:
-        identifier: view_name
+        naked_identifier: view_name
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'FALSE'
+    - boolean_literal: 'FALSE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'FALSE'
+    - boolean_literal: 'FALSE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;

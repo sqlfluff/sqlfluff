@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d795c868b9e279e23a114faf1e9e6fcdd63c15d70c543c0def0aeffa878953c
+_hash: df94df5aa4e31d1c17cd308ad44d4b6c3080f149b07591753693654209d4e6f9
 file:
 - statement:
     drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     drop_trigger:
@@ -22,20 +22,20 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -45,10 +45,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -56,8 +56,8 @@ file:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: if_dist_exists
+        naked_identifier: if_dist_exists
     - keyword: 'ON'
     - table_reference:
-        identifier: films
+        naked_identifier: films
 - statement_terminator: ;

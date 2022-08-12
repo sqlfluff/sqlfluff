@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: daccf17a16f6bde76f300a4ee366d9824b09c56816521a05587f96b6efeca24d
+_hash: cc2412a6f4b64cadb5905abeb2c69cfdd39803647f0ed2f75c2a2bc4957c3bb3
 file:
 - statement:
     drop_script_statement:
     - keyword: DROP
     - keyword: SCRIPT
     - script_reference:
-        identifier: my_script
+        naked_identifier: my_script
 - statement_terminator: ;
 - statement:
     drop_script_statement:
@@ -20,7 +20,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - script_reference:
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: ADAPTER_SCRIPT
+      - naked_identifier: ADAPTER_SCRIPT
 - statement_terminator: ;

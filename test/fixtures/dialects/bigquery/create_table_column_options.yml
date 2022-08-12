@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 768b525b3be45bf3ab6d64f2267f3d857065f250cf7ebae18fba2fbeb0df4a88
+_hash: 739a8e7f8f105b16fc898fe7c28ec270b485e155f93df0877a0b35d9ad15320f
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t_table1
+        naked_identifier: t_table1
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: INT64
           options_segment:
@@ -24,7 +24,7 @@ file:
               parameter: description
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '"An INTEGER field"'
+              quoted_literal: '"An INTEGER field"'
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -33,11 +33,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t_table1
+        naked_identifier: t_table1
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: INT64
           column_constraint_segment:
@@ -50,7 +50,7 @@ file:
               parameter: description
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '"An INTEGER field that is NOT NULL"'
+              quoted_literal: '"An INTEGER field that is NOT NULL"'
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -59,11 +59,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t_table1
+        naked_identifier: t_table1
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             struct_type:
               keyword: STRUCT
@@ -78,12 +78,12 @@ file:
                   parameter: description
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '"An INTEGER field in a STRUCT"'
+                  quoted_literal: '"An INTEGER field in a STRUCT"'
                   end_bracket: )
               end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: y
+          naked_identifier: y
           data_type:
             keyword: ARRAY
             start_angle_bracket: <
@@ -101,7 +101,7 @@ file:
                     parameter: description
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '"An INTEGER field in a REPEATED STRUCT"'
+                    quoted_literal: '"An INTEGER field in a REPEATED STRUCT"'
                     end_bracket: )
                 end_angle_bracket: '>'
             end_angle_bracket: '>'

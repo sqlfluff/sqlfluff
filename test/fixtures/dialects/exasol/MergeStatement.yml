@@ -3,34 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 748b1a9979fe697d4eed3c3c35640a4134b00fa44dfdb71640ab8c28fc2793b8
+_hash: cf69f6048a644afca395a0752a97e0e6780fb56107cf14f96e1ff0e2fe09cd20
 file:
 - statement:
     merge_statement:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
     - alias_expression:
-        identifier: T
+        naked_identifier: T
     - keyword: USING
     - table_reference:
-        identifier: changes
+        naked_identifier: changes
     - alias_expression:
-        identifier: U
+        naked_identifier: U
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: T
+          - naked_identifier: T
           - dot: .
-          - identifier: name
+          - naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: name
+          - naked_identifier: name
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -42,22 +42,22 @@ file:
             - keyword: SET
             - set_clause:
                 column_reference:
-                - identifier: T
+                - naked_identifier: T
                 - dot: .
-                - identifier: salary
+                - naked_identifier: salary
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
                   column_reference:
-                  - identifier: U
+                  - naked_identifier: U
                   - dot: .
-                  - identifier: salary
+                  - naked_identifier: salary
             - comma: ','
             - set_clause:
                 column_reference:
-                - identifier: T
+                - naked_identifier: T
                 - dot: .
-                - identifier: lastChange
+                - naked_identifier: lastChange
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
@@ -66,15 +66,15 @@ file:
               keyword: WHERE
               expression:
               - column_reference:
-                - identifier: T
+                - naked_identifier: T
                 - dot: .
-                - identifier: salary
+                - naked_identifier: salary
               - comparison_operator:
                   raw_comparison_operator: <
               - column_reference:
-                - identifier: U
+                - naked_identifier: U
                 - dot: .
-                - identifier: salary
+                - naked_identifier: salary
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -87,15 +87,15 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                - identifier: U
+                - naked_identifier: U
                 - dot: .
-                - identifier: name
+                - naked_identifier: name
             - comma: ','
             - expression:
                 column_reference:
-                - identifier: U
+                - naked_identifier: U
                 - dot: .
-                - identifier: salary
+                - naked_identifier: salary
             - comma: ','
             - expression:
                 bare_function: CURRENT_DATE
@@ -106,9 +106,9 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
     - alias_expression:
-        identifier: T
+        naked_identifier: T
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -117,30 +117,30 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: name
+                naked_identifier: name
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: X
+                    naked_identifier: X
         end_bracket: )
     - alias_expression:
-        identifier: U
+        naked_identifier: U
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: T
+          - naked_identifier: T
           - dot: .
-          - identifier: name
+          - naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: name
+          - naked_identifier: name
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -154,9 +154,9 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
     - alias_expression:
-        identifier: T
+        naked_identifier: T
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -165,30 +165,30 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: name
+                naked_identifier: name
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: X
+                    naked_identifier: X
         end_bracket: )
     - alias_expression:
-        identifier: U
+        naked_identifier: U
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: T
+          - naked_identifier: T
           - dot: .
-          - identifier: name
+          - naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: name
+          - naked_identifier: name
     - merge_match:
         merge_when_not_matched_clause:
         - keyword: WHEN
@@ -201,13 +201,13 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
         merge_when_matched_clause:
         - keyword: WHEN

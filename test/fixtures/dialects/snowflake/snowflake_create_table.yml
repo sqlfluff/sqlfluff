@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 204c3aa3dc0ab12d08013dce12c60f6b1445fd82ecdd846ca33b2bf08b1a62eb
+_hash: a1c71be10afb88d4c7412bb82152520a33ddb68b1ecfa93cc246aa691da1c93a
 file:
 - statement:
     create_table_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: not
     - keyword: exists
     - table_reference:
-        identifier: '"p08_base"'
+        quoted_identifier: '"p08_base"'
     - keyword: as
     - select_statement:
         select_clause:
@@ -21,7 +21,7 @@ file:
           select_clause_element:
             expression:
               column_reference:
-                identifier: VALUE
+                naked_identifier: VALUE
               snowflake_semi_structured_expression:
                 colon: ':'
                 semi_structured_element: id
@@ -30,14 +30,14 @@ file:
                 data_type:
                   data_type_identifier: TEXT
             alias_expression:
-              identifier: id
+              naked_identifier: id
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: '"_p08"'
+                  quoted_identifier: '"_p08"'
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -47,11 +47,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             data_type_identifier: VARCHAR
         end_bracket: )
@@ -61,11 +61,11 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: amount
+          naked_identifier: amount
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -75,11 +75,11 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: amount
+          naked_identifier: amount
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -89,7 +89,7 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: amount
+            naked_identifier: amount
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -97,11 +97,11 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: amount
+          naked_identifier: amount
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -114,7 +114,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: amount
+              naked_identifier: amount
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -122,19 +122,19 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: CLUSTER
     - keyword: BY
     - bracketed:
         start_bracket: (
         expression:
           column_reference:
-            identifier: amount
+            naked_identifier: amount
         end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: amount
+          naked_identifier: amount
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -144,7 +144,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: CLUSTER
     - keyword: BY
     - function:
@@ -154,12 +154,12 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: amount
+              naked_identifier: amount
           end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: amount
+          naked_identifier: amount
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -169,7 +169,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable_copy2
+        naked_identifier: mytable_copy2
     - keyword: as
     - select_statement:
         select_clause:
@@ -177,29 +177,29 @@ file:
           select_clause_element:
             expression:
               column_reference:
-                identifier: b
+                naked_identifier: b
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
             alias_expression:
               keyword: as
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: mytable_copy
+                  naked_identifier: mytable_copy
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable_2
+        naked_identifier: mytable_2
     - keyword: like
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -207,11 +207,11 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-        identifier: demo_temporary
+        naked_identifier: demo_temporary
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -222,11 +222,11 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-        identifier: demo_temp
+        naked_identifier: demo_temp
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -238,11 +238,11 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-        identifier: demo_local_temporary
+        naked_identifier: demo_local_temporary
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -254,11 +254,11 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-        identifier: demo_local_temp
+        naked_identifier: demo_local_temp
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -270,11 +270,11 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-        identifier: demo_global_temporary
+        naked_identifier: demo_global_temporary
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -286,11 +286,11 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-        identifier: demo_global_temp
+        naked_identifier: demo_global_temp
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -301,11 +301,11 @@ file:
     - keyword: volatile
     - keyword: table
     - table_reference:
-        identifier: demo_volatile
+        naked_identifier: demo_volatile
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: i
+          naked_identifier: i
           data_type:
             data_type_identifier: integer
         end_bracket: )
@@ -315,34 +315,34 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: example
+        naked_identifier: example
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             data_type_identifier: number
         comment_clause:
           keyword: comment
-          literal: "'a column comment'"
+          quoted_literal: "'a column comment'"
         end_bracket: )
     - comment_equals_clause:
         keyword: comment
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'a table comment'"
+        quoted_literal: "'a table comment'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: testtable_summary
+        naked_identifier: testtable_summary
     - bracketed:
       - start_bracket: (
-      - identifier: name
+      - naked_identifier: name
       - comma: ','
-      - identifier: summary_amount
+      - naked_identifier: summary_amount
       - end_bracket: )
     - keyword: as
     - select_statement:
@@ -350,33 +350,33 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             expression:
             - column_reference:
-                identifier: amount1
+                naked_identifier: amount1
             - binary_operator: +
             - column_reference:
-                identifier: amount2
+                naked_identifier: amount2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: testtable
+                  naked_identifier: testtable
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: testtable_summary
+        naked_identifier: testtable_summary
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: barry
+          naked_identifier: barry
           data_type:
             data_type_identifier: char
         end_bracket: )
@@ -386,51 +386,51 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             expression:
             - column_reference:
-                identifier: amount1
+                naked_identifier: amount1
             - binary_operator: +
             - column_reference:
-                identifier: amount2
+                naked_identifier: amount2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: testtable
+                  naked_identifier: testtable
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: testtable_summary
+        naked_identifier: testtable_summary
     - keyword: as
     - select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             expression:
             - column_reference:
-                identifier: amount1
+                naked_identifier: amount1
             - binary_operator: +
             - column_reference:
-                identifier: amount2
+                naked_identifier: amount2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: testtable
+                  naked_identifier: testtable
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -439,46 +439,46 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-        identifier: parquet_col
+        naked_identifier: parquet_col
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: custkey
+          naked_identifier: custkey
           data_type:
             data_type_identifier: number
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
-          identifier: orderdate
+          naked_identifier: orderdate
           data_type:
             data_type_identifier: date
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
-          identifier: orderstatus
+          naked_identifier: orderstatus
           data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (
               expression:
-                literal: '100'
+                numeric_literal: '100'
               end_bracket: )
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
-          identifier: price
+          naked_identifier: price
           data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
       - end_bracket: )
     - keyword: as
@@ -488,7 +488,7 @@ file:
         - select_clause_element:
             expression:
               column_reference:
-                identifier: $1
+                column_index_identifier_segment: $1
               snowflake_semi_structured_expression:
                 colon: ':'
                 semi_structured_element: o_custkey
@@ -500,7 +500,7 @@ file:
         - select_clause_element:
             expression:
               column_reference:
-                identifier: $1
+                column_index_identifier_segment: $1
               snowflake_semi_structured_expression:
                 colon: ':'
                 semi_structured_element: o_orderdate
@@ -512,7 +512,7 @@ file:
         - select_clause_element:
             expression:
               column_reference:
-                identifier: $1
+                column_index_identifier_segment: $1
               snowflake_semi_structured_expression:
                 colon: ':'
                 semi_structured_element: o_orderstatus
@@ -524,7 +524,7 @@ file:
         - select_clause_element:
             expression:
               column_reference:
-                identifier: $1
+                column_index_identifier_segment: $1
               snowflake_semi_structured_expression:
                 colon: ':'
                 semi_structured_element: o_totalprice
@@ -538,44 +538,44 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: '@my_stage'
+                  stage_path: '@my_stage'
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: collation_demo
+        naked_identifier: collation_demo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: uncollated_phrase
+          naked_identifier: uncollated_phrase
           data_type:
             data_type_identifier: varchar
       - comma: ','
       - column_definition:
-          identifier: utf8_phrase
+          naked_identifier: utf8_phrase
           data_type:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'utf8'"
+            quoted_literal: "'utf8'"
       - comma: ','
       - column_definition:
-          identifier: english_phrase
+          naked_identifier: english_phrase
           data_type:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'en'"
+            quoted_literal: "'en'"
       - comma: ','
       - column_definition:
-          identifier: spanish_phrase
+          naked_identifier: spanish_phrase
           data_type:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'sp'"
+            quoted_literal: "'sp'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -583,7 +583,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: using
     - keyword: template
     - bracketed:
@@ -625,12 +625,12 @@ file:
                           - snowflake_keyword_expression:
                               parameter: location
                               parameter_assigner: =>
-                              literal: "'@mystage'"
+                              quoted_literal: "'@mystage'"
                           - comma: ','
                           - snowflake_keyword_expression:
                               parameter: file_format
                               parameter_assigner: =>
-                              literal: "'my_parquet_format'"
+                              quoted_literal: "'my_parquet_format'"
                           - end_bracket: )
                       end_bracket: )
         end_bracket: )
@@ -640,11 +640,11 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: dollar_sign_table
+        naked_identifier: dollar_sign_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: foo$bar
+          naked_identifier: foo$bar
           data_type:
             data_type_identifier: boolean
         end_bracket: )
@@ -654,13 +654,13 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - identifier: dollar_sign_schema
+      - naked_identifier: dollar_sign_schema
       - dot: .
-      - identifier: dollar_sign_table
+      - naked_identifier: dollar_sign_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: foo$bar
+          naked_identifier: foo$bar
           data_type:
             data_type_identifier: boolean
         end_bracket: )
@@ -670,11 +670,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: timestamp_column_default_value_demo
+        naked_identifier: timestamp_column_default_value_demo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: timestamp_col1
+          naked_identifier: timestamp_col1
           data_type:
             data_type_identifier: TIMESTAMP_TZ
           column_constraint_segment:
@@ -684,7 +684,7 @@ file:
           - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: timestamp_col2
+          naked_identifier: timestamp_col2
           data_type:
             data_type_identifier: TIMESTAMP_TZ
           column_constraint_segment:
@@ -695,7 +695,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: timestamp_col3
+          naked_identifier: timestamp_col3
           data_type:
             data_type_identifier: TIMESTAMP_TZ
           column_constraint_segment:
@@ -703,11 +703,11 @@ file:
           - keyword: CURRENT_TIMESTAMP
           - bracketed:
               start_bracket: (
-              literal: '2'
+              numeric_literal: '2'
               end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: sysdate_col4
+          naked_identifier: sysdate_col4
           data_type:
             data_type_identifier: TIMESTAMP_TZ
           column_constraint_segment:
@@ -723,20 +723,20 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: test_table
+        naked_identifier: test_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_column
+          naked_identifier: test_column
           data_type:
             data_type_identifier: NUMBER
           column_constraint_segment:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -745,22 +745,22 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - identifier: test_schema
+      - naked_identifier: test_schema
       - dot: .
-      - identifier: test_table
+      - naked_identifier: test_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_column
+          naked_identifier: test_column
           data_type:
             data_type_identifier: NUMBER
           column_constraint_segment:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -771,22 +771,22 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-      - identifier: test_schema
+      - naked_identifier: test_schema
       - dot: .
-      - identifier: test_table
+      - naked_identifier: test_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_column
+          naked_identifier: test_column
           data_type:
             data_type_identifier: NUMBER
           column_constraint_segment:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -795,13 +795,13 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - identifier: test_schema
+      - naked_identifier: test_schema
       - dot: .
-      - identifier: test_table
+      - naked_identifier: test_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_column
+          naked_identifier: test_column
           data_type:
             data_type_identifier: INTEGER
           column_constraint_segment:
@@ -813,11 +813,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: test_table
+        naked_identifier: test_table
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_column
+          naked_identifier: test_column
           data_type:
             data_type_identifier: NUMBER
           column_constraint_segment:
@@ -830,13 +830,13 @@ file:
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: test_column
+                naked_identifier: test_column
               comma: ','
               expression:
                 column_reference:
-                  identifier: test_column
+                  naked_identifier: test_column
                 comparison_operator:
                   raw_comparison_operator: '>'
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
         end_bracket: )

@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfdca649a237349a55e8915062675688d0d019bbb510fd6f75b8bf4b736fb80e
+_hash: 60cf5e0c09e3c94be9dcab99e6548d9b4b8c78d07c24dda49540b922537d4ad4
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+        quoted_identifier: '`foo`'
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: created_date
+        - naked_identifier: created_date
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -23,7 +23,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: ts1
+        - naked_identifier: ts1
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -32,7 +32,7 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt1
+        - naked_identifier: dt1
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -41,56 +41,56 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts2
+        - naked_identifier: ts2
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt2
+        - naked_identifier: dt2
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts3
+        - naked_identifier: ts3
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: dt3
+        - naked_identifier: dt3
         - keyword: DATETIME
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: ts4
+        - naked_identifier: ts4
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt4
+        - naked_identifier: dt4
         - keyword: DATETIME
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts5
+        - naked_identifier: ts5
         - keyword: TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts6
+        - naked_identifier: ts6
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: 'ON'
@@ -98,14 +98,14 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt5
+        - naked_identifier: dt5
         - keyword: DATETIME
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt6
+        - naked_identifier: dt6
         - keyword: DATETIME
         - keyword: NOT
         - keyword: 'NULL'
@@ -114,28 +114,28 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts7
+        - naked_identifier: ts7
         - keyword: TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: ts8
+        - naked_identifier: ts8
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
@@ -143,21 +143,21 @@ file:
             keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: ts9
+        - naked_identifier: ts9
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: ts10
+        - naked_identifier: ts10
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts11
+        - naked_identifier: ts11
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
@@ -167,21 +167,21 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: ts12
+        - naked_identifier: ts12
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - literal: "'0000-00-00 00:00:00'"
+        - quoted_literal: "'0000-00-00 00:00:00'"
       - comma: ','
       - column_definition:
-        - identifier: ts13
+        - naked_identifier: ts13
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: NOW
       - comma: ','
       - column_definition:
-        - identifier: ts14
+        - naked_identifier: ts14
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT

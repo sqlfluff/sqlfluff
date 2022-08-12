@@ -3,23 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c8afe3bea7deebe4d9ac56572152ca17c5bfc5a1614da015242322be263d6c8
+_hash: ac38d2239b9a4d6f5bfbca9f35cabd66d1cc1f2dded465f7773b63f14469a8f9
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'John'"
+        quoted_literal: "'John'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -27,22 +27,22 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
+      - quoted_literal: "'John'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'Edit-date'"
+          quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - quoted_literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,16 +50,16 @@ file:
     - keyword: ALTER
     - keyword: SCHEMA
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'John'"
+        quoted_literal: "'John'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -67,21 +67,21 @@ file:
     - keyword: ALTER
     - keyword: SCHEMA
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
+      - quoted_literal: "'John'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'Edit-date'"
+          quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - quoted_literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;

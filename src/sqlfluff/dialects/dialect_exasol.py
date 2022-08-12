@@ -14,7 +14,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Nothing,
     OneOf,
     Ref,
@@ -127,7 +126,7 @@ exasol_dialect.add(
     ),
     RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
-        "unknown", KeywordSegment, name="boolean_literal", type="literal"
+        "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -174,7 +173,6 @@ exasol_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("session_parameters"),
             CodeSegment,
-            name="session_parameter",
             type="session_parameter",
         )
     ),
@@ -182,7 +180,6 @@ exasol_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("system_parameters"),
             CodeSegment,
-            name="system_parameter",
             type="system_parameter",
         )
     ),
@@ -203,7 +200,6 @@ exasol_dialect.add(
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_variable",
         type="variable",
     ),
 )
@@ -217,7 +213,6 @@ exasol_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
         CodeSegment,
-        name="parameter",
         type="parameter",
     ),
     LikeGrammar=Ref.keyword("LIKE"),
@@ -285,7 +280,7 @@ exasol_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     CharCharacterSetGrammar=OneOf(

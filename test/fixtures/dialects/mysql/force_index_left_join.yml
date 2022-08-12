@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c25c079c0ff6461ed28c30c4a889e9f29f5a2cb8b0dd21cac9426f68f0f1a6d
+_hash: 7156f479a87ebed7b8e34b4cd7016aadd3dab7e0bd6b0ad14bc7d4795fd2de90
 file:
   statement:
     select_statement:
@@ -11,48 +11,48 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: onetable
+          - naked_identifier: onetable
           - dot: .
-          - identifier: f1
+          - naked_identifier: f1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: twotable
+          - naked_identifier: twotable
           - dot: .
-          - identifier: f1
+          - naked_identifier: f1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: onetable
+                naked_identifier: onetable
           join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: twotable
+                  naked_identifier: twotable
       index_hint_clause:
       - keyword: FORCE
       - keyword: INDEX
       - bracketed:
           start_bracket: (
           object_reference:
-            identifier: idx_index
+            naked_identifier: idx_index
           end_bracket: )
       - join_on_condition:
           keyword: 'on'
           expression:
           - column_reference:
-            - identifier: onetable
+            - naked_identifier: onetable
             - dot: .
-            - identifier: f1
+            - naked_identifier: f1
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: twotable
+            - naked_identifier: twotable
             - dot: .
-            - identifier: f1
+            - naked_identifier: f1
   statement_terminator: ;

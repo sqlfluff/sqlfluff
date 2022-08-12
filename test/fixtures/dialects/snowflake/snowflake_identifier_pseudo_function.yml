@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 770f12ddd43779db0e961600e5e14eeb1c9b28212646276f219c2f95636df758
+_hash: bdd7d356ea2c7ef3bc8091e3cc967c8129b2ef875e37027755b9529a777828c4
 file:
 - statement:
     use_statement:
@@ -13,7 +13,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -24,7 +24,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'{{ params.schema_name }}'"
+          quoted_identifier: "'{{ params.schema_name }}'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -37,7 +37,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_db'"
+          quoted_identifier: "'my_db'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,7 +50,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -63,12 +63,12 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_db.my_schema.my_table'"
+          quoted_identifier: "'my_db.my_schema.my_table'"
           end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -83,12 +83,12 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'\"my_table\"'"
+          quoted_identifier: "'\"my_table\"'"
           end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -103,7 +103,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -132,19 +132,19 @@ file:
       - bracketed:
           start_bracket: (
           expression:
-            literal: '1'
+            numeric_literal: '1'
           end_bracket: )
       - comma: ','
       - bracketed:
           start_bracket: (
           expression:
-            literal: '2'
+            numeric_literal: '2'
           end_bracket: )
       - comma: ','
       - bracketed:
           start_bracket: (
           expression:
-            literal: '3'
+            numeric_literal: '3'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -169,7 +169,7 @@ file:
       orderby_clause:
       - keyword: order
       - keyword: by
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -188,12 +188,12 @@ file:
                 keyword: identifier
                 bracketed:
                   start_bracket: (
-                  identifier: "'my_table'"
+                  quoted_identifier: "'my_table'"
                   end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -233,7 +233,7 @@ file:
               keyword: identifier
               bracketed:
                 start_bracket: (
-                identifier: "'my_function_name'"
+                quoted_identifier: "'my_function_name'"
                 end_bracket: )
             bracketed:
               start_bracket: (
@@ -249,17 +249,17 @@ file:
               keyword: identifier
               bracketed:
                 start_bracket: (
-                identifier: "'my_function_name'"
+                quoted_identifier: "'my_function_name'"
                 end_bracket: )
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
 - statement_terminator: ;

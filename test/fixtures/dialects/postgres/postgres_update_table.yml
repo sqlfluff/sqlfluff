@@ -3,62 +3,62 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab4234134cc30f3dfe8db28d772e37df88f0ef1129837debbb076659cdad58f2
+_hash: 86626a1823ad820cb0c4a708ab00298f00e1fb7a615911bd384bc95204644b16
 file:
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: films
+        naked_identifier: films
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: kind
+            naked_identifier: kind
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'Dramatic'"
+          quoted_literal: "'Dramatic'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: kind
+            naked_identifier: kind
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'Drama'"
+          quoted_literal: "'Drama'"
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: weather
+        naked_identifier: weather
       set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier: temp_lo
+            naked_identifier: temp_lo
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: temp_lo
+              naked_identifier: temp_lo
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: temp_hi
+            naked_identifier: temp_hi
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: temp_lo
+              naked_identifier: temp_lo
             binary_operator: +
-            literal: '15'
+            numeric_literal: '15'
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: prcp
+            naked_identifier: prcp
           comparison_operator:
             raw_comparison_operator: '='
           keyword: DEFAULT
@@ -66,49 +66,49 @@ file:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: city
+            naked_identifier: city
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'San Francisco'"
+        - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
-            identifier: date
+            naked_identifier: date
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'2003-07-03'"
+        - quoted_literal: "'2003-07-03'"
 - statement_terminator: ;
 - statement:
     update_statement:
     - keyword: UPDATE
     - table_reference:
-        identifier: weather
+        naked_identifier: weather
     - set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier: temp_lo
+            naked_identifier: temp_lo
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: temp_lo
+              naked_identifier: temp_lo
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: temp_hi
+            naked_identifier: temp_hi
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: temp_lo
+              naked_identifier: temp_lo
             binary_operator: +
-            literal: '15'
+            numeric_literal: '15'
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: prcp
+            naked_identifier: prcp
           comparison_operator:
             raw_comparison_operator: '='
           keyword: DEFAULT
@@ -116,47 +116,47 @@ file:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: city
+            naked_identifier: city
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'San Francisco'"
+        - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
-            identifier: date
+            naked_identifier: date
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'2003-07-03'"
+        - quoted_literal: "'2003-07-03'"
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: temp_lo
+          naked_identifier: temp_lo
     - comma: ','
     - expression:
         column_reference:
-          identifier: temp_hi
+          naked_identifier: temp_hi
     - comma: ','
     - expression:
         column_reference:
-          identifier: prcp
+          naked_identifier: prcp
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: weather
+        naked_identifier: weather
       set_clause_list:
         keyword: SET
         set_clause:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: temp_lo
+              naked_identifier: temp_lo
           - comma: ','
           - column_reference:
-              identifier: temp_hi
+              naked_identifier: temp_hi
           - comma: ','
           - column_reference:
-              identifier: prcp
+              naked_identifier: prcp
           - end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
@@ -164,15 +164,15 @@ file:
           - start_bracket: (
           - expression:
               column_reference:
-                identifier: temp_lo
+                naked_identifier: temp_lo
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
           - comma: ','
           - expression:
               column_reference:
-                identifier: temp_lo
+                naked_identifier: temp_lo
               binary_operator: +
-              literal: '15'
+              numeric_literal: '15'
           - comma: ','
           - keyword: DEFAULT
           - end_bracket: )
@@ -180,85 +180,85 @@ file:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: city
+            naked_identifier: city
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'San Francisco'"
+        - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
-            identifier: date
+            naked_identifier: date
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'2003-07-03'"
+        - quoted_literal: "'2003-07-03'"
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: employees
+        naked_identifier: employees
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: sales_count
+            naked_identifier: sales_count
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: sales_count
+              naked_identifier: sales_count
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: accounts
+                naked_identifier: accounts
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: accounts
+          - naked_identifier: accounts
           - dot: .
-          - identifier: name
+          - naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'Acme Corporation'"
+        - quoted_literal: "'Acme Corporation'"
         - binary_operator: AND
         - column_reference:
-          - identifier: employees
+          - naked_identifier: employees
           - dot: .
-          - identifier: id
+          - naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: accounts
+          - naked_identifier: accounts
           - dot: .
-          - identifier: sales_person
+          - naked_identifier: sales_person
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: employees
+        naked_identifier: employees
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: sales_count
+            naked_identifier: sales_count
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: sales_count
+              naked_identifier: sales_count
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: id
+            naked_identifier: id
           comparison_operator:
             raw_comparison_operator: '='
           bracketed:
@@ -269,39 +269,39 @@ file:
                   keyword: SELECT
                   select_clause_element:
                     column_reference:
-                      identifier: sales_person
+                      naked_identifier: sales_person
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: accounts
+                          naked_identifier: accounts
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: name
+                      naked_identifier: name
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: "'Acme Corporation'"
+                    quoted_literal: "'Acme Corporation'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: accounts
+        naked_identifier: accounts
       set_clause_list:
         keyword: SET
         set_clause:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: contact_first_name
+              naked_identifier: contact_first_name
           - comma: ','
           - column_reference:
-              identifier: contact_last_name
+              naked_identifier: contact_last_name
           - end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
@@ -313,99 +313,99 @@ file:
                 - keyword: SELECT
                 - select_clause_element:
                     column_reference:
-                      identifier: first_name
+                      naked_identifier: first_name
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: last_name
+                      naked_identifier: last_name
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: salesmen
+                          naked_identifier: salesmen
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                    - identifier: salesmen
+                    - naked_identifier: salesmen
                     - dot: .
-                    - identifier: id
+                    - naked_identifier: id
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: accounts
+                    - naked_identifier: accounts
                     - dot: .
-                    - identifier: sales_id
+                    - naked_identifier: sales_id
             end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: accounts
+        naked_identifier: accounts
       set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
-            identifier: contact_first_name
+            naked_identifier: contact_first_name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: first_name
+            naked_identifier: first_name
       - comma: ','
       - set_clause:
         - column_reference:
-            identifier: contact_last_name
+            naked_identifier: contact_last_name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: last_name
+            naked_identifier: last_name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: salesmen
+                naked_identifier: salesmen
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: salesmen
+          - naked_identifier: salesmen
           - dot: .
-          - identifier: id
+          - naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: accounts
+          - naked_identifier: accounts
           - dot: .
-          - identifier: sales_id
+          - naked_identifier: sales_id
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: summary
+        naked_identifier: summary
       alias_expression:
-        identifier: s
+        naked_identifier: s
       set_clause_list:
         keyword: SET
         set_clause:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: sum_x
+              naked_identifier: sum_x
           - comma: ','
           - column_reference:
-              identifier: sum_y
+              naked_identifier: sum_y
           - comma: ','
           - column_reference:
-              identifier: avg_x
+              naked_identifier: avg_x
           - comma: ','
           - column_reference:
-              identifier: avg_y
+              naked_identifier: avg_y
           - end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
@@ -423,7 +423,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: x
+                            naked_identifier: x
                         end_bracket: )
                 - comma: ','
                 - select_clause_element:
@@ -434,7 +434,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: y
+                            naked_identifier: y
                         end_bracket: )
                 - comma: ','
                 - select_clause_element:
@@ -445,7 +445,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: x
+                            naked_identifier: x
                         end_bracket: )
                 - comma: ','
                 - select_clause_element:
@@ -456,7 +456,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: y
+                            naked_identifier: y
                         end_bracket: )
                 from_clause:
                   keyword: FROM
@@ -464,59 +464,59 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: data
+                          naked_identifier: data
                       alias_expression:
-                        identifier: d
+                        naked_identifier: d
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                    - identifier: d
+                    - naked_identifier: d
                     - dot: .
-                    - identifier: group_id
+                    - naked_identifier: group_id
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: s
+                    - naked_identifier: s
                     - dot: .
-                    - identifier: group_id
+                    - naked_identifier: group_id
             end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
     - keyword: UPDATE
     - table_reference:
-        identifier: films
+        naked_identifier: films
     - set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: kind
+            naked_identifier: kind
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'Dramatic'"
+          quoted_literal: "'Dramatic'"
     - keyword: WHERE
     - keyword: CURRENT
     - keyword: OF
     - object_reference:
-        identifier: c_films
+        naked_identifier: c_films
 - statement_terminator: ;
 - statement:
     update_statement:
     - keyword: UPDATE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - set_clause_list:
         keyword: SET
         set_clause:
         - column_reference:
-            identifier: my_column
+            naked_identifier: my_column
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: '"SQLFluff rules!"'
+            quoted_identifier: '"SQLFluff rules!"'
     - keyword: RETURNING
     - expression:
         column_reference:
-          identifier: my_column
+          naked_identifier: my_column
 - statement_terminator: ;

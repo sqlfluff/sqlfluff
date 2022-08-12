@@ -3,61 +3,61 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b923e67ed7225b5498e4e83f8aa888730880c55d9fcfd69b0c1d457809c1afb8
+_hash: 1a8724603b31e1a4dde7c44d3582aa88829be16616255d5118659ffbdcb077aa
 file:
 - statement:
     listen_statement:
       keyword: LISTEN
-      identifier: virtual
+      naked_identifier: virtual
 - statement_terminator: ;
 - statement:
     notify_statement:
       keyword: NOTIFY
-      identifier: virtual
+      naked_identifier: virtual
 - statement_terminator: ;
 - statement:
     unlisten_statement:
       keyword: UNLISTEN
-      identifier: virtual
+      naked_identifier: virtual
 - statement_terminator: ;
 - statement:
     listen_statement:
       keyword: LISTEN
-      identifier: '"virtual listener"'
+      quoted_identifier: '"virtual listener"'
 - statement_terminator: ;
 - statement:
     notify_statement:
       keyword: NOTIFY
-      identifier: '"virtual listener"'
+      quoted_identifier: '"virtual listener"'
 - statement_terminator: ;
 - statement:
     unlisten_statement:
       keyword: UNLISTEN
-      identifier: '"virtual listener"'
+      quoted_identifier: '"virtual listener"'
 - statement_terminator: ;
 - statement:
     listen_statement:
       keyword: LISTEN
-      identifier: listener_a
+      naked_identifier: listener_a
 - statement_terminator: ;
 - statement:
     listen_statement:
       keyword: LISTEN
-      identifier: listener_b
+      naked_identifier: listener_b
 - statement_terminator: ;
 - statement:
     notify_statement:
       keyword: NOTIFY
-      identifier: listener_a
+      naked_identifier: listener_a
       comma: ','
-      literal: "'payload_a'"
+      quoted_literal: "'payload_a'"
 - statement_terminator: ;
 - statement:
     notify_statement:
       keyword: NOTIFY
-      identifier: listener_b
+      naked_identifier: listener_b
       comma: ','
-      literal: "'payload_b'"
+      quoted_literal: "'payload_b'"
 - statement_terminator: ;
 - statement:
     unlisten_statement:

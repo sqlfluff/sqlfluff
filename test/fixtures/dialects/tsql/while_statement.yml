@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5ba3ea50fea419c66a70bab0d6fa187e2c5919d273f5e0383aaaae9c775bee9
+_hash: 10866693896cdecd8390324d3138cc43804895595bcda91c8e64c983aa9365cc
 file:
   batch:
     statement:
@@ -13,10 +13,10 @@ file:
           bracketed:
             start_bracket: (
             expression:
-            - literal: '1'
+            - numeric_literal: '1'
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '1'
+            - numeric_literal: '1'
             end_bracket: )
         statement:
           begin_end_block:
@@ -42,15 +42,15 @@ file:
                             from_expression_element:
                               table_expression:
                                 table_reference:
-                                  identifier: '##MyTempTable'
+                                  hash_identifier: '##MyTempTable'
                         where_clause:
                           keyword: WHERE
                           expression:
                             column_reference:
-                              identifier: EventCode
+                              naked_identifier: EventCode
                             comparison_operator:
                               raw_comparison_operator: '='
-                            literal: "'Done'"
+                            quoted_literal: "'Done'"
                       end_bracket: )
                 statement:
                   begin_end_block:
@@ -64,6 +64,6 @@ file:
               print_statement:
                 keyword: PRINT
                 expression:
-                  literal: "N'The other process is not yet done.'"
+                  quoted_literal: "N'The other process is not yet done.'"
                 statement_terminator: ;
           - keyword: END

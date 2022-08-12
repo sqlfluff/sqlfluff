@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 260221447c164df9e45d25f8cbcfd2ebd6668e05fb24c12d50a73b672be56f59
+_hash: fd7206234d3089bf40aa15d903a2a756abe694096830bbd9e25d37311ce22728
 file:
 - statement:
     create_function_statement:
@@ -25,10 +25,10 @@ file:
         keyword: integer
     - function_definition:
         keyword: AS
-        literal: "'select $1 + $2;'"
+        quoted_literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -50,10 +50,10 @@ file:
         keyword: integer
     - function_definition:
         keyword: AS
-        literal: "'select $1 + $2;'"
+        quoted_literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          identifier: "'sql'"
+          quoted_identifier: "'sql'"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -75,10 +75,10 @@ file:
         keyword: integer
     - function_definition:
       - keyword: AS
-      - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - quoted_literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: VOLATILE
 - statement_terminator: ;
 - statement:
@@ -101,10 +101,10 @@ file:
         keyword: integer
     - function_definition:
       - keyword: AS
-      - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - quoted_literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -118,12 +118,12 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: ROWS
-      - literal: '5'
+      - numeric_literal: '5'
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -145,12 +145,12 @@ file:
         keyword: integer
     - function_definition:
       - keyword: AS
-      - literal: "'C:\\\\my_file.c'"
+      - quoted_literal: "'C:\\\\my_file.c'"
       - comma: ','
-      - literal: "'symlink_c'"
+      - quoted_literal: "'symlink_c'"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -164,14 +164,14 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: COST
-      - literal: '123'
+      - numeric_literal: '123'
       - keyword: ROWS
-      - literal: '5'
+      - numeric_literal: '5'
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - keyword: WITH
       - bracketed:
           start_bracket: (
@@ -200,10 +200,10 @@ file:
       - keyword: PARALLEL
       - keyword: UNSAFE
       - keyword: AS
-      - literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
+      - quoted_literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: SUPPORT
       - parameter: my_function
 - statement_terminator: ;
@@ -227,10 +227,10 @@ file:
         keyword: integer
     - function_definition:
       - keyword: AS
-      - literal: "'select $1 + $2;'"
+      - quoted_literal: "'select $1 + $2;'"
       - language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
       - keyword: IMMUTABLE
       - keyword: RETURNS
       - keyword: 'NULL'
@@ -258,11 +258,11 @@ file:
         keyword: integer
     - function_definition:
         keyword: AS
-        literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
-          $$"
+        quoted_literal: "$$\n        BEGIN\n                RETURN i + 1;\n      \
+          \  END;\n$$"
         language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -289,10 +289,10 @@ file:
         - end_bracket: )
     - function_definition:
         keyword: AS
-        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -313,7 +313,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -321,7 +321,7 @@ file:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: dup_result
+        naked_identifier: dup_result
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -349,10 +349,10 @@ file:
         data_type_identifier: dup_result
     - function_definition:
         keyword: AS
-        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -373,7 +373,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -393,21 +393,21 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: f1
+          naked_identifier: f1
       - data_type:
           keyword: int
       - comma: ','
       - column_reference:
-          identifier: f2
+          naked_identifier: f2
       - data_type:
           keyword: text
       - end_bracket: )
     - function_definition:
         keyword: AS
-        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -426,21 +426,21 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: '"f1"'
+          quoted_identifier: '"f1"'
       - data_type:
           keyword: int
       - comma: ','
       - column_reference:
-          identifier: '"f2"'
+          quoted_identifier: '"f2"'
       - data_type:
           keyword: text
       - end_bracket: )
     - function_definition:
         keyword: AS
-        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -461,7 +461,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -486,12 +486,12 @@ file:
         keyword: BOOLEAN
     - function_definition:
       - keyword: AS
-      - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
-          \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
-          \   RETURN passed;\nEND;\n$$"
+      - quoted_literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd\
+          \ = $2) INTO passed\n        FROM    pwds\n        WHERE   username = $1;\n\
+          \n        RETURN passed;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: SET
@@ -528,12 +528,12 @@ file:
         keyword: BOOLEAN
     - function_definition:
       - keyword: AS
-      - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
-          \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
-          \   RETURN passed;\nEND;\n$$"
+      - quoted_literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd\
+          \ = $2) INTO passed\n        FROM    pwds\n        WHERE   username = $1;\n\
+          \n        RETURN passed;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
 - statement_terminator: ;
@@ -544,7 +544,7 @@ file:
     - keyword: 'ON'
     - keyword: FUNCTION
     - object_reference:
-        identifier: check_password
+        naked_identifier: check_password
     - function_parameter_list:
         bracketed:
         - start_bracket: (
@@ -558,7 +558,7 @@ file:
         - end_bracket: )
     - keyword: FROM
     - object_reference:
-        identifier: PUBLIC
+        naked_identifier: PUBLIC
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -567,7 +567,7 @@ file:
     - keyword: 'ON'
     - keyword: FUNCTION
     - object_reference:
-        identifier: check_password
+        naked_identifier: check_password
     - function_parameter_list:
         bracketed:
         - start_bracket: (
@@ -581,7 +581,7 @@ file:
         - end_bracket: )
     - keyword: TO
     - role_reference:
-        identifier: admins
+        naked_identifier: admins
 - statement_terminator: ;
 - statement:
     transaction_statement:
@@ -594,7 +594,7 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: setof_test
     - function_parameter_list:
@@ -608,11 +608,11 @@ file:
     - function_definition:
       - language_clause:
           keyword: LANGUAGE
-          identifier: sql
+          naked_identifier: sql
       - keyword: STABLE
       - keyword: STRICT
       - keyword: AS
-      - literal: "$function$\nselect unnest(array['hi', 'test'])\n$function$"
+      - quoted_literal: "$function$\nselect unnest(array['hi', 'test'])\n$function$"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -621,7 +621,7 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: foo
     - function_parameter_list:
@@ -640,10 +640,10 @@ file:
         keyword: FLOAT
     - function_definition:
       - keyword: AS
-      - literal: "$$\n  RETURN 0.0\n$$"
+      - quoted_literal: "$$\n  RETURN 0.0\n$$"
       - language_clause:
           keyword: LANGUAGE
-          identifier: plpgsql
+          naked_identifier: plpgsql
       - keyword: STABLE
       - keyword: PARALLEL
       - keyword: SAFE
@@ -668,10 +668,10 @@ file:
         keyword: integer
     - function_definition:
         keyword: AS
-        literal: "'select $1 + $2;'"
+        quoted_literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -693,10 +693,10 @@ file:
         keyword: integer
     - function_definition:
         keyword: AS
-        literal: "'select $1 + $2;'"
+        quoted_literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          identifier: SQL
+          naked_identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -722,7 +722,7 @@ file:
           keyword: date
     - function_definition:
         keyword: as
-        literal: "$$\n  begin\n    return x;\n  end;\n$$"
+        quoted_literal: "$$\n  begin\n    return x;\n  end;\n$$"
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -747,5 +747,5 @@ file:
           keyword: date
     - function_definition:
         keyword: as
-        literal: "$$\n  begin\n    return x;\n  end;\n$$"
+        quoted_literal: "$$\n  begin\n    return x;\n  end;\n$$"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ba591924793ee8b220bab4ac72acacfc799f302ff22f8f3d4e6a28f591501911
+_hash: 56bd613fcf0c4d9d563e1919153506fc9ebe2af11c234e1e509db53e77970979
 file:
 - statement:
     show_statement:
@@ -42,7 +42,7 @@ file:
     - keyword: SYSTEM
     - keyword: FUNCTIONS
     - function_name:
-        identifier: salesdb
+        naked_identifier: salesdb
         dot: .
         function_name_identifier: max
 - statement_terminator: ;
@@ -51,19 +51,19 @@ file:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: LIKE
-    - literal: "'t*'"
+    - quoted_literal: "'t*'"
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: LIKE
-    - literal: "'yea*|windo*'"
+    - quoted_literal: "'yea*|windo*'"
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: FUNCTIONS
     - keyword: LIKE
-    - literal: "'t[a-z][a-z][a-z]'"
+    - quoted_literal: "'t[a-z][a-z][a-z]'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73e53b36c1a9aef4acd4b6f11b95c8d9daf1e7df5c0345e680f58049e898b625
+_hash: ec768aae77d8a2ecce149b275de13c7ca322a6d1fc8a2d249ca6ed00a7445d15
 file:
   statement:
     select_statement:
@@ -19,244 +19,244 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - binary_operator: AND
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: <
         - column_reference:
-            identifier: b
+            naked_identifier: b

@@ -3,47 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6db48fd893573f34c90e458f8e829f9221da5156b89418c5b4272417c62c4272
+_hash: e7c3d1f233e5041e5097f81128665af7895b563ccfcf6e247911f714db0b0c04
 file:
 - statement:
     declare_segment:
       keyword: declare
-      identifier: var1
+      naked_identifier: var1
       data_type:
         data_type_identifier: int64
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var2
+    - naked_identifier: var2
     - comma: ','
-    - identifier: var3
+    - naked_identifier: var3
     - data_type:
         data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var4
+    - naked_identifier: var4
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var5
+    - naked_identifier: var5
     - data_type:
         data_type_identifier: int64
     - keyword: default
     - expression:
-      - literal: '1'
+      - numeric_literal: '1'
       - binary_operator: +
-      - literal: '2'
+      - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: declare
-      identifier: arr1
+      naked_identifier: arr1
       data_type:
         keyword: array
         start_angle_bracket: <
@@ -54,19 +54,19 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: arr2
+    - naked_identifier: arr2
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - literal: "'one'"
+      - quoted_literal: "'one'"
       - comma: ','
-      - literal: "'two'"
+      - quoted_literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: arr3
+    - naked_identifier: arr3
     - keyword: default
     - array_literal:
         start_square_bracket: '['
@@ -75,7 +75,7 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: arr4
+    - naked_identifier: arr4
     - data_type:
         keyword: array
         start_angle_bracket: <
@@ -85,15 +85,15 @@ file:
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - literal: "'one'"
+      - quoted_literal: "'one'"
       - comma: ','
-      - literal: "'two'"
+      - quoted_literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: declare
-      identifier: str1
+      naked_identifier: str1
       data_type:
         struct_type:
         - keyword: struct
@@ -110,7 +110,7 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: str2
+    - naked_identifier: str2
     - data_type:
         struct_type:
         - keyword: struct
@@ -129,30 +129,30 @@ file:
           keyword: struct
           bracketed:
           - start_bracket: (
-          - literal: "'one'"
+          - quoted_literal: "'one'"
           - comma: ','
-          - literal: "'two'"
+          - quoted_literal: "'two'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: str3
+    - naked_identifier: str3
     - keyword: default
     - expression:
         typeless_struct:
           keyword: struct
           bracketed:
           - start_bracket: (
-          - literal: "'one'"
+          - quoted_literal: "'one'"
           - comma: ','
-          - literal: "'two'"
+          - quoted_literal: "'two'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: str4
+    - naked_identifier: str4
     - data_type:
         struct_type:
         - keyword: struct
@@ -169,53 +169,53 @@ file:
     - tuple:
         bracketed:
         - start_bracket: (
-        - literal: "'one'"
+        - quoted_literal: "'one'"
         - comma: ','
-        - literal: "'two'"
+        - quoted_literal: "'two'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: declare
-      identifier: '`var1`'
+      quoted_identifier: '`var1`'
       data_type:
         data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - data_type:
         data_type_identifier: string
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - comma: ','
-    - identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - data_type:
         data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
-    - keyword: declare
-    - identifier: var1
-    - comma: ','
-    - identifier: '`var2`'
-    - data_type:
+      keyword: declare
+      naked_identifier: var1
+      comma: ','
+      quoted_identifier: '`var2`'
+      data_type:
         data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var1
+    - naked_identifier: var1
     - comma: ','
-    - identifier: '`var2`'
+    - quoted_identifier: '`var2`'
     - data_type:
         data_type_identifier: string
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;

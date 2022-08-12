@@ -47,7 +47,7 @@ oracle_dialect.insert_lexer_matchers(
 )
 
 oracle_dialect.add(
-    AtSignSegment=StringParser("@", SymbolSegment, name="atsign", type="at_sign"),
+    AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
 )
 
 

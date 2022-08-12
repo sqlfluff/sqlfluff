@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c3f1a9ff8303f1c1714ef240d1d9d1b793ff895f8575dca49322892e7325e13
+_hash: 7c04ee8c9f925904cdc9cb7e006f1bb3fcc6b131a147151e2d9d0c2b74af92ac
 file:
 - statement:
     select_statement:
@@ -20,18 +20,18 @@ file:
                     keyword: STRUCT
                     bracketed:
                       start_bracket: (
-                      literal: '1'
+                      numeric_literal: '1'
                       alias_expression:
                         keyword: AS
-                        identifier: b
+                        naked_identifier: b
                       end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: foo
+            naked_identifier: foo
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,16 +49,16 @@ file:
                   bracketed:
                   - start_bracket: (
                   - column_reference:
-                      identifier: a
+                      naked_identifier: a
                   - alias_expression:
                       keyword: AS
-                      identifier: a
+                      naked_identifier: a
                   - comma: ','
                   - column_reference:
-                      identifier: b
+                      naked_identifier: b
                   - alias_expression:
                       keyword: AS
-                      identifier: b
+                      naked_identifier: b
                   - end_bracket: )
               end_bracket: )
       from_clause:
@@ -67,5 +67,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
 - statement_terminator: ;

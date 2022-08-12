@@ -51,7 +51,7 @@ class Rule_L012(Rule_L011):
         # Recognise this and exit early
         if (
             context.segment.is_type("alias_expression")
-            and context.functional.segment.children()[-1].name == "raw_equals"
+            and context.functional.segment.children()[-1].raw == "="
         ):
             return None
         return super()._eval(context)

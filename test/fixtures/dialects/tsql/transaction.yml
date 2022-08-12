@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7881f3e67891fd6240f0801b7defe10fdd8b4e0330f5d4c3f6593e982facbb4a
+_hash: fd3b8479ff5e72d7996d7e9a7a1b284d2130dd66ea72112371626a50ab94b12c
 file:
   batch:
   - statement:
@@ -16,17 +16,17 @@ file:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: JobCandidate
+        - naked_identifier: JobCandidate
       - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: JobCandidateID
+              naked_identifier: JobCandidateID
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '13'
+            numeric_literal: '13'
       - statement_terminator: ;
   - statement:
       transaction_statement:
@@ -42,17 +42,17 @@ file:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: JobCandidate
+        - naked_identifier: JobCandidate
       - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: JobCandidateID
+              naked_identifier: JobCandidateID
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '13'
+            numeric_literal: '13'
       - statement_terminator: ;
   - statement:
       transaction_statement:
@@ -73,12 +73,12 @@ file:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRAN
-      - identifier: namey
+      - naked_identifier: namey
       - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: ROLLBACK
-        identifier: namey
+        naked_identifier: namey
         statement_terminator: ;
   - statement:
       transaction_statement:

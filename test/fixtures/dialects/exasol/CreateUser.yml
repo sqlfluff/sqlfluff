@@ -3,55 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c233cde2d8a4be3f3effa0dd38bd4a558068b75daf937fae7a81591a6f4c67cb
+_hash: 635527ad5397828b25d70c26312b49c232b5b255e99d6ca92ffb502a3200eb3d
 file:
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user_1
+        naked_identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
-        identifier: '"h12_xhz"'
+        quoted_identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user_2
+        naked_identifier: user_2
     - keyword: IDENTIFIED
     - ldap_auth:
       - keyword: AT
       - keyword: LDAP
       - keyword: AS
-      - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+      - quoted_literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user_3
+        naked_identifier: user_3
     - keyword: IDENTIFIED
     - kerberos_auth:
       - keyword: BY
       - keyword: KERBEROS
       - keyword: PRINCIPAL
-      - literal: "'<user>@<realm>'"
+      - quoted_literal: "'<user>@<realm>'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: oidctestuser
+        naked_identifier: oidctestuser
     - keyword: IDENTIFIED
     - openid_auth:
       - keyword: BY
       - keyword: OPENID
       - keyword: SUBJECT
-      - literal: "'database-user@exasol.example'"
+      - quoted_literal: "'database-user@exasol.example'"
 - statement_terminator: ;

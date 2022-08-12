@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 084eb2820c4a64efa735808ec3ca01bf72c12f6ebef2f204d1b5cfa43733eb6b
+_hash: 72d4e1b192aea1c4eaf970bf27f493e205d6c131d1e6e09bd636f9f51e4a5245
 file:
   statement:
     select_statement:
@@ -11,223 +11,223 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: foo
+            naked_identifier: foo
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bar
+                naked_identifier: bar
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: '2147483648'
+            numeric_literal: '2147483648'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: 9223372036854775807l
+        - numeric_literal: 9223372036854775807l
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: 9223372036854775807L
+        - numeric_literal: 9223372036854775807L
         - binary_operator: AND
         - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            literal: 32y
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: 32Y
+            numeric_literal: 32y
         - binary_operator: AND
         - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 482s
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 482S
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: '12.578'
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: '0.1234567'
+            numeric_literal: 32Y
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 482s
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 482S
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '12.578'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: '.1234567'
+            numeric_literal: '0.1234567'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: '123.'
+            numeric_literal: '.1234567'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 123.bd
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 123.BD
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 5e2
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 5E2
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 5d
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 5D
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: 5bd
+            numeric_literal: '123.'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 123.bd
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 123.BD
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 5e2
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 5E2
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 5d
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 5D
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: 5BD
+            numeric_literal: 5bd
         - binary_operator: AND
         - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 12.578e-2d
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
-        - comparison_operator:
-            raw_comparison_operator: '>'
-        - literal: 12.578E-2D
-        - binary_operator: AND
-        - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: .1234567e+2bd
+            numeric_literal: 5BD
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 12.578e-2d
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: 12.578E-2D
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: .1234567E+2BD
+            numeric_literal: .1234567e+2bd
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: .1234567E+2BD
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: +
-            literal: '3.e+3'
+            numeric_literal: '3.e+3'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: +
-            literal: '3.E+3'
+            numeric_literal: '3.E+3'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: 3.E-3D
+            numeric_literal: 3.E-3D
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
-            literal: 3.e-3d
+            numeric_literal: 3.e-3d
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
           - sign_indicator: '-'
           - sign_indicator: +
           - sign_indicator: '-'
-          - literal: '1'
+          - numeric_literal: '1'
         - binary_operator: AND
         - column_reference:
-            identifier: baz
+            naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
           - sign_indicator: '-'
           - sign_indicator: +
           - sign_indicator: '-'
-          - literal: '1'
+          - numeric_literal: '1'

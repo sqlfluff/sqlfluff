@@ -33,7 +33,7 @@ class Rule_L024(Rule_L023):
 
     groups = ("all", "core")
     expected_mother_segment_type = "join_clause"
-    pre_segment_identifier = ("name", "using")
+    pre_segment_identifier = ("raw_upper", "USING")
     post_segment_identifier = ("type", "bracketed")
     expand_children = None
     allow_newline = True

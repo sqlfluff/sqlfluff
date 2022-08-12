@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1302ba02e74cb3b34a5bbadad03d4e7b1663b2867a650c4422b2c01809af58c0
+_hash: f460493de140f638f4dd9eb1395cbaf4587a1ccb7526ce784a60fcc24dd8b5c2
 file:
 - statement:
     select_statement:
@@ -11,9 +11,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -25,20 +25,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -46,9 +46,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -60,20 +60,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -81,9 +81,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -95,20 +95,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -116,9 +116,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -130,20 +130,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -151,9 +151,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -165,20 +165,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -186,9 +186,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -200,20 +200,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -221,9 +221,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -235,20 +235,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -256,9 +256,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -270,20 +270,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -291,9 +291,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -305,20 +305,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -326,9 +326,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -340,20 +340,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -361,9 +361,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -375,20 +375,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -396,9 +396,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -410,20 +410,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -431,9 +431,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -445,20 +445,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -466,9 +466,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -480,20 +480,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -501,9 +501,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -515,20 +515,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -536,9 +536,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -550,20 +550,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -571,9 +571,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -585,20 +585,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -606,9 +606,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -620,20 +620,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -641,9 +641,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -655,20 +655,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -676,9 +676,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -690,20 +690,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -711,9 +711,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -725,20 +725,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -746,9 +746,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -760,20 +760,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -781,9 +781,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -795,20 +795,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -816,9 +816,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -830,20 +830,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -851,9 +851,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -865,20 +865,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -886,9 +886,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -900,20 +900,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -921,9 +921,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -935,20 +935,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -956,9 +956,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -970,20 +970,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -991,9 +991,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1005,20 +1005,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1026,9 +1026,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1040,20 +1040,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1061,9 +1061,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1075,20 +1075,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1096,9 +1096,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1110,20 +1110,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1131,9 +1131,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1145,20 +1145,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1166,9 +1166,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1180,20 +1180,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1201,9 +1201,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1215,20 +1215,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1236,9 +1236,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1250,20 +1250,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1271,9 +1271,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1285,20 +1285,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1306,9 +1306,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1320,20 +1320,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1341,9 +1341,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1355,20 +1355,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1376,9 +1376,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1390,20 +1390,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1411,9 +1411,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1425,20 +1425,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1446,9 +1446,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1460,20 +1460,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1481,9 +1481,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1495,20 +1495,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1516,9 +1516,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1530,20 +1530,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1551,9 +1551,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1565,20 +1565,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1586,9 +1586,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1600,20 +1600,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1621,9 +1621,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1635,20 +1635,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1656,9 +1656,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1670,20 +1670,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1691,9 +1691,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1705,20 +1705,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1726,9 +1726,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1740,20 +1740,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1761,9 +1761,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1775,20 +1775,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1796,9 +1796,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1810,20 +1810,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1831,9 +1831,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1845,20 +1845,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1866,9 +1866,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1880,20 +1880,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1901,9 +1901,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1915,20 +1915,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1936,9 +1936,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1950,20 +1950,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1971,9 +1971,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -1985,20 +1985,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2006,9 +2006,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2020,20 +2020,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2041,9 +2041,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2055,20 +2055,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2076,9 +2076,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2090,20 +2090,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2111,9 +2111,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2125,20 +2125,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2146,9 +2146,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2160,20 +2160,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2181,9 +2181,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2195,20 +2195,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2216,9 +2216,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2230,20 +2230,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2251,9 +2251,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2265,20 +2265,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2286,9 +2286,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2300,20 +2300,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2321,9 +2321,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2335,20 +2335,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2356,9 +2356,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2370,20 +2370,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2391,9 +2391,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2405,20 +2405,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2426,9 +2426,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2440,20 +2440,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2461,9 +2461,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2475,20 +2475,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2496,9 +2496,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2510,20 +2510,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2531,9 +2531,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2545,20 +2545,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2566,9 +2566,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2580,20 +2580,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2601,9 +2601,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2615,20 +2615,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2636,9 +2636,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2650,20 +2650,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2671,9 +2671,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2685,20 +2685,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2706,9 +2706,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2720,20 +2720,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2741,9 +2741,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2755,20 +2755,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2776,9 +2776,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2790,20 +2790,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2811,9 +2811,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2825,20 +2825,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2846,9 +2846,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2860,20 +2860,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2881,9 +2881,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2895,20 +2895,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2916,9 +2916,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2930,20 +2930,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2951,9 +2951,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -2965,20 +2965,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -2986,9 +2986,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3000,20 +3000,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3021,9 +3021,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3035,20 +3035,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3056,9 +3056,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3070,20 +3070,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3091,9 +3091,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3105,20 +3105,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3126,9 +3126,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3140,20 +3140,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3161,9 +3161,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3175,20 +3175,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3196,9 +3196,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3210,20 +3210,20 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -3231,9 +3231,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: field
+          - naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -3245,18 +3245,18 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: sometime
+                - naked_identifier: sometime
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
 - statement_terminator: ;

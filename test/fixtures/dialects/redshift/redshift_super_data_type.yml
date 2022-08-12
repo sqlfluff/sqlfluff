@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b16dfd012256a556b2987b513a67526db9dd2bf2a936507fd1ce9d2c719583a2
+_hash: 8ccb74adc863fb3c44a010173d8b64666c6b05513e690fa1a1e5ca91460a3092
 file:
 - statement:
     select_statement:
@@ -11,37 +11,37 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-            identifier: c
+            naked_identifier: c
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: col
+            naked_identifier: col
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: o
+            naked_identifier: o
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders
+                naked_identifier: customer_orders
             alias_expression:
-              identifier: c
+              naked_identifier: c
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: c
+              - naked_identifier: c
               - dot: .
-              - identifier: c_orders
+              - naked_identifier: c_orders
             alias_expression:
-              identifier: o
+              naked_identifier: o
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -61,19 +61,19 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders_lineitem
+                naked_identifier: customer_orders_lineitem
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: c_orders
+            naked_identifier: c_orders
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: o_orderkey
+            naked_identifier: o_orderkey
         - keyword: IS
         - keyword: NOT
         - keyword: 'NULL'
@@ -84,14 +84,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: c_custkey
+            naked_identifier: c_custkey
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders_lineitem
+                naked_identifier: customer_orders_lineitem
       where_clause:
         keyword: WHERE
         expression:
@@ -107,29 +107,29 @@ file:
                     start_bracket: (
                     expression:
                     - column_reference:
-                        identifier: c_orders
+                        naked_identifier: c_orders
                     - array_accessor:
                         start_square_bracket: '['
-                        literal: '0'
+                        numeric_literal: '0'
                         end_square_bracket: ']'
                     - dot: .
                     - column_reference:
-                        identifier: o_orderstatus
+                        naked_identifier: o_orderstatus
                     end_bracket: )
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: "'string'"
+                quoted_literal: "'string'"
             - keyword: THEN
             - expression:
               - column_reference:
-                  identifier: c_orders
+                  naked_identifier: c_orders
               - array_accessor:
                   start_square_bracket: '['
-                  literal: '0'
+                  numeric_literal: '0'
                   end_square_bracket: ']'
               - dot: .
               - column_reference:
-                  identifier: o_orderstatus
+                  naked_identifier: o_orderstatus
               - cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -137,11 +137,11 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: <
                 - raw_comparison_operator: '='
-              - literal: "'P'"
+              - quoted_literal: "'P'"
           - else_clause:
               keyword: ELSE
               expression:
-                literal: 'NULL'
+                null_literal: 'NULL'
           - keyword: END
 - statement_terminator: ;
 - statement:
@@ -150,49 +150,49 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-            identifier: c
+            naked_identifier: c
         - array_accessor:
           - start_square_bracket: '['
-          - literal: '0'
+          - numeric_literal: '0'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '1'
+          - numeric_literal: '1'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '2'
+          - numeric_literal: '2'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '3'
+          - numeric_literal: '3'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '4'
+          - numeric_literal: '4'
           - end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: col
+            naked_identifier: col
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: o
+            naked_identifier: o
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders
+                naked_identifier: customer_orders
             alias_expression:
-              identifier: c
+              naked_identifier: c
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: c
+              - naked_identifier: c
               - dot: .
-              - identifier: c_orders
+              - naked_identifier: c_orders
             alias_expression:
-              identifier: o
+              naked_identifier: o
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -201,32 +201,32 @@ file:
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: c
+              naked_identifier: c
               dot: .
               star: '*'
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: o
+            naked_identifier: o
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customer_orders_lineitem
+                naked_identifier: customer_orders_lineitem
             alias_expression:
-              identifier: c
+              naked_identifier: c
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: c
+              - naked_identifier: c
               - dot: .
-              - identifier: c_orders
+              - naked_identifier: c_orders
             alias_expression:
-              identifier: o
+              naked_identifier: o
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -234,51 +234,51 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-            identifier: messages
+            naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: format
+            naked_identifier: format
       - comma: ','
       - select_clause_element:
         - column_reference:
-            identifier: messages
+            naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: topic
+            naked_identifier: topic
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: subscription_auto
+                naked_identifier: subscription_auto
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: messages
+            naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-          - identifier: payload
+          - naked_identifier: payload
           - dot: .
-          - identifier: payload
+          - naked_identifier: payload
           - dot: .
-          - identifier: '"assetId"'
+          - quoted_identifier: '"assetId"'
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: '0'
+        - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -286,14 +286,14 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-            identifier: messages
+            naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-            identifier: format
+            naked_identifier: format
       - comma: ','
       - select_clause_element:
           function:
@@ -303,14 +303,14 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: messages
+                  naked_identifier: messages
               - array_accessor:
                   start_square_bracket: '['
-                  literal: '0'
+                  numeric_literal: '0'
                   end_square_bracket: ']'
               - dot: .
               - column_reference:
-                  identifier: topic
+                  naked_identifier: topic
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -318,36 +318,36 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: subscription_auto
+                naked_identifier: subscription_auto
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: messages
+            naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
-          - identifier: payload
+          - naked_identifier: payload
           - dot: .
-          - identifier: payload
+          - naked_identifier: payload
           - dot: .
-          - identifier: '"assetId"'
+          - quoted_identifier: '"assetId"'
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: "'abc'"
+        - quoted_literal: "'abc'"
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: messages
+          naked_identifier: messages
       - array_accessor:
           start_square_bracket: '['
-          literal: '0'
+          numeric_literal: '0'
           end_square_bracket: ']'
       - dot: .
       - column_reference:
-          identifier: format
+          naked_identifier: format
 - statement_terminator: ;

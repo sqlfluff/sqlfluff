@@ -3,26 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6469816f4e4c64b9af86701ef4f034af0635749a38b71dfe230ee7ef1c3a899c
+_hash: abf81ee9ace798cb2eb60dcd9cd07450e8176ffe0cc16ff318a091a2c47de691
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: my_ctas
+        naked_identifier: my_ctas
     - keyword: WITH
     - bracketed:
       - start_bracket: (
       - keyword: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'Parquet'"
+      - quoted_literal: "'Parquet'"
       - comma: ','
       - keyword: external_location
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'s3://my-bucket/my-path-level-1/my-path-level-2'"
+      - quoted_literal: "'s3://my-bucket/my-path-level-1/my-path-level-2'"
       - comma: ','
       - keyword: partitioned_by
       - comparison_operator:
@@ -30,7 +30,7 @@ file:
       - array_literal:
           keyword: array
           start_square_bracket: '['
-          literal: "'load_date'"
+          quoted_literal: "'load_date'"
           end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
@@ -39,20 +39,20 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field_1
+              naked_identifier: field_1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field_2
+              naked_identifier: field_2
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field_3
+              naked_identifier: field_3
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
   statement_terminator: ;

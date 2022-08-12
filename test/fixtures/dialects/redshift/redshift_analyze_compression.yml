@@ -3,37 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6dc68193013b7dd098367b1f6e13e717a00ad2938ab8dfa7045bba3e5039ce1
+_hash: d0afed803f6f284e6ce947638cc96551cfb53fd8f8506989cf0f815f91da0ce5
 file:
 - statement:
     analyze_statement:
       keyword: analyze
       table_reference:
-        identifier: compression
+        naked_identifier: compression
 - statement_terminator: ;
 - statement:
     analyze_compression_statement:
     - keyword: analyze
     - keyword: compression
     - table_reference:
-        identifier: listing
+        naked_identifier: listing
 - statement_terminator: ;
 - statement:
     analyze_compression_statement:
     - keyword: analyse
     - keyword: compression
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: qtysold
+          naked_identifier: qtysold
       - comma: ','
       - column_reference:
-          identifier: commission
+          naked_identifier: commission
       - comma: ','
       - column_reference:
-          identifier: saletime
+          naked_identifier: saletime
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -41,7 +41,7 @@ file:
     - keyword: analyse
     - keyword: compression
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
     - keyword: comprows
-    - literal: '10000'
+    - numeric_literal: '10000'
 - statement_terminator: ;

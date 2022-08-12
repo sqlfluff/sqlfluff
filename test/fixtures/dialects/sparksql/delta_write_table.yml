@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e461676f523407410601287c4d1cacd6abf67ccfa6fb204241a1a4742f02bce7
+_hash: 3701321590713305bb67b6c867b1d19318a4f46c706df55d2269bfdf8e1ae68b
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -26,7 +26,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -34,9 +34,9 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -50,33 +50,33 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;
 - statement:
     set_statement:
       keyword: SET
       property_name_identifier:
-      - identifier: spark
+      - properties_naked_identifier: spark
       - dot: .
-      - identifier: databricks
+      - properties_naked_identifier: databricks
       - dot: .
-      - identifier: delta
+      - properties_naked_identifier: delta
       - dot: .
-      - identifier: commitInfo
+      - properties_naked_identifier: commitInfo
       - dot: .
-      - identifier: userMetadata
+      - properties_naked_identifier: userMetadata
       comparison_operator:
         raw_comparison_operator: '='
-      literal: '"overwritten-for-fixing-incorrect-data"'
+      quoted_literal: '"overwritten-for-fixing-incorrect-data"'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -90,5 +90,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;

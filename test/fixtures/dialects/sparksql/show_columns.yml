@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c14661a50ba1ff4327e994bcde59b193ff4a1ed8b13f058ea11a114728cfd2fb
+_hash: 67e5fe11f6cfbc707a143431f2a1c59578833cbd0d59aa06f589f92c4e413f59
 file:
 - statement:
     show_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: IN
     - table_expression:
         table_reference:
-          identifier: customer
+          naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -21,9 +21,9 @@ file:
     - keyword: IN
     - table_expression:
         table_reference:
-        - identifier: salesdb
+        - naked_identifier: salesdb
         - dot: .
-        - identifier: customer
+        - naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -32,8 +32,8 @@ file:
     - keyword: IN
     - table_expression:
         table_reference:
-          identifier: customer
+          naked_identifier: customer
     - keyword: IN
     - database_reference:
-        identifier: salesdb
+        naked_identifier: salesdb
 - statement_terminator: ;

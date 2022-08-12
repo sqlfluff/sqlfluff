@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74f2327478229fe50d6c0ccc8ab09faced850dad30be7abdca8235b4ee3a12ef
+_hash: 2453ec227853be4f8cd172f70bedf92bdc447d41ed96b716b1aa01e5dc191bb3
 file:
 - statement:
     msck_table_statement:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: ADD
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -19,7 +19,7 @@ file:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: DROP
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -28,7 +28,7 @@ file:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: SYNC
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -37,21 +37,21 @@ file:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
 - statement_terminator: ;
 - statement:
     msck_table_statement:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
 - statement_terminator: ;
 - statement:
     msck_table_statement:
     - keyword: MSCK
     - keyword: TABLE
     - table_reference:
-        identifier: emp_part
+        naked_identifier: emp_part
     - keyword: DROP
     - keyword: PARTITIONS
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f90ae55bc8af8b2e181e6066e356c3144e423b0be2a7e0974790b69a910aefb3
+_hash: 5f5efb217212b97c6ea3f52e5a265c8dc25e078729131d82262c8a1cbd33285d
 file:
 - statement:
     with_compound_statement:
@@ -17,13 +17,13 @@ file:
                 select_clause:
                   keyword: select
                   select_clause_element:
-                    literal: '1'
+                    numeric_literal: '1'
                     alias_expression:
                       keyword: as
-                      identifier: p
+                      naked_identifier: p
             end_bracket: )
         keyword: as
-        identifier: test_param
+        naked_identifier: test_param
       select_statement:
         select_clause:
         - keyword: select
@@ -34,11 +34,11 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '1'
+                  numeric_literal: '1'
                 end_bracket: )
             alias_expression:
               keyword: as
-              identifier: Test_string
+              naked_identifier: Test_string
         - comma: ','
         - select_clause_element:
             function:
@@ -47,14 +47,14 @@ file:
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: "'2022-05-25'"
+                  quoted_literal: "'2022-05-25'"
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
             alias_expression:
               keyword: as
-              identifier: Test_dateTime64
+              naked_identifier: Test_dateTime64
         - comma: ','
         - select_clause_element:
             function:
@@ -63,14 +63,14 @@ file:
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: 'null'
+                  null_literal: 'null'
               - comma: ','
               - expression:
-                  literal: "'TestNull'"
+                  quoted_literal: "'TestNull'"
               - end_bracket: )
             alias_expression:
               keyword: as
-              identifier: testIf
+              naked_identifier: testIf
         - comma: ','
         - select_clause_element:
             function:
@@ -79,30 +79,30 @@ file:
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: "'{\"abc\": \"hello\"}'"
+                  quoted_literal: "'{\"abc\": \"hello\"}'"
               - comma: ','
               - expression:
-                  literal: "'abc'"
+                  quoted_literal: "'abc'"
               - end_bracket: )
             alias_expression:
               keyword: as
-              identifier: testJSON
+              naked_identifier: testJSON
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: test_param
+              naked_identifier: test_param
             alias_expression:
               keyword: as
-              identifier: param
+              naked_identifier: param
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
         expression:
-          literal: "'2019-08-01 15:23:00'"
+          quoted_literal: "'2019-08-01 15:23:00'"
         keyword: as
-        identifier: ts_upper_bound
+        naked_identifier: ts_upper_bound
       select_statement:
         select_clause:
           keyword: SELECT
@@ -116,12 +116,12 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: hits
+                  naked_identifier: hits
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: EventDate
+              naked_identifier: EventDate
           - comparison_operator:
               raw_comparison_operator: '='
           - function:
@@ -131,16 +131,16 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: ts_upper_bound
+                    naked_identifier: ts_upper_bound
                 end_bracket: )
           - binary_operator: AND
           - column_reference:
-              identifier: EventTime
+              naked_identifier: EventTime
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
           - column_reference:
-              identifier: ts_upper_bound
+              naked_identifier: ts_upper_bound
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -154,10 +154,10 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: bytes
+                  naked_identifier: bytes
               end_bracket: )
         keyword: as
-        identifier: s
+        naked_identifier: s
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -169,31 +169,31 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: s
+                    naked_identifier: s
                 end_bracket: )
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: table
+              naked_identifier: table
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: system
+                - naked_identifier: system
                 - dot: .
-                - identifier: parts
+                - naked_identifier: parts
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - column_reference:
-            identifier: table
+            naked_identifier: table
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: s
+            naked_identifier: s
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -214,7 +214,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: bytes
+                            naked_identifier: bytes
                         end_bracket: )
                 from_clause:
                   keyword: FROM
@@ -222,17 +222,17 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: system
+                        - naked_identifier: system
                         - dot: .
-                        - identifier: parts
+                        - naked_identifier: parts
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: active
+                      naked_identifier: active
             end_bracket: )
         keyword: AS
-        identifier: total_disk_usage
+        naked_identifier: total_disk_usage
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -248,50 +248,50 @@ file:
                       start_bracket: (
                       expression:
                         column_reference:
-                          identifier: bytes
+                          naked_identifier: bytes
                       end_bracket: )
                   binary_operator: /
                   column_reference:
-                    identifier: total_disk_usage
+                    naked_identifier: total_disk_usage
                 end_bracket: )
               binary_operator: '*'
-              literal: '100'
+              numeric_literal: '100'
             alias_expression:
               keyword: AS
-              identifier: table_disk_usage
+              naked_identifier: table_disk_usage
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: table
+              naked_identifier: table
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: system
+                - naked_identifier: system
                 - dot: .
-                - identifier: parts
+                - naked_identifier: parts
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - column_reference:
-            identifier: table
+            naked_identifier: table
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: table_disk_usage
+            naked_identifier: table_disk_usage
         - keyword: DESC
         limit_clause:
           keyword: LIMIT
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: test1
+        naked_identifier: test1
         keyword: AS
         bracketed:
           start_bracket: (
@@ -301,23 +301,23 @@ file:
             - select_clause_element:
                 expression:
                   column_reference:
-                    identifier: i
+                    naked_identifier: i
                   binary_operator: +
-                  literal: '1'
+                  numeric_literal: '1'
             - comma: ','
             - select_clause_element:
                 expression:
                   column_reference:
-                    identifier: j
+                    naked_identifier: j
                   binary_operator: +
-                  literal: '1'
+                  numeric_literal: '1'
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: test1
+                      naked_identifier: test1
           end_bracket: )
       select_statement:
         select_clause:
@@ -332,5 +332,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test1
+                  naked_identifier: test1
 - statement_terminator: ;

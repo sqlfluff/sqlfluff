@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d8eee2dccf2bfcff100c1b33854c39ac4b8d74ca62aacf8144b6f0730a3a0d24
+_hash: fb9e7dc34f4b21e8f79008a50df7bc2c1e2ad75a3163333471d5adb25a3d5e9f
 file:
 - statement:
     delete_statement:
@@ -14,15 +14,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: events
+                naked_identifier: events
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: date
+            naked_identifier: date
           comparison_operator:
             raw_comparison_operator: <
-          literal: "'2017-01-01'"
+          quoted_literal: "'2017-01-01'"
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -35,15 +35,15 @@ file:
               file_reference:
                 keyword: DELTA
                 dot: .
-                identifier: '`/data/events/`'
+                quoted_identifier: '`/data/events/`'
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: date
+            naked_identifier: date
           comparison_operator:
             raw_comparison_operator: <
-          literal: "'2017-01-01'"
+          quoted_literal: "'2017-01-01'"
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -54,12 +54,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: all_events
+                naked_identifier: all_events
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: session_time
+            naked_identifier: session_time
           comparison_operator:
             raw_comparison_operator: <
           bracketed:
@@ -76,7 +76,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: session_time
+                            naked_identifier: session_time
                         end_bracket: )
                 from_clause:
                   keyword: FROM
@@ -84,7 +84,7 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: good_events
+                          naked_identifier: good_events
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,10 +96,10 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
             alias_expression:
               keyword: AS
-              identifier: t1
+              naked_identifier: t1
       where_clause:
         keyword: WHERE
         expression:
@@ -111,29 +111,29 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                  - identifier: returned_orders
+                  - naked_identifier: returned_orders
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: returned_orders
+                        naked_identifier: returned_orders
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: t1
+                  - naked_identifier: t1
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: returned_orders
+                  - naked_identifier: returned_orders
                   - dot: .
-                  - identifier: oid
+                  - naked_identifier: oid
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -145,12 +145,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: events
+                naked_identifier: events
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: category
+            naked_identifier: category
         - keyword: NOT
         - keyword: IN
         - bracketed:
@@ -160,21 +160,21 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: category
+                    naked_identifier: category
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: events2
+                        naked_identifier: events2
               where_clause:
                 keyword: WHERE
                 expression:
                   column_reference:
-                    identifier: date
+                    naked_identifier: date
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: "'2001-01-01'"
+                  quoted_literal: "'2001-01-01'"
             end_bracket: )
 - statement_terminator: ;

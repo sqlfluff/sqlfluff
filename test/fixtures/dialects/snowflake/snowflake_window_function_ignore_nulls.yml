@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1dcd1e7df93de3351bcea6346bea205cde9301d59378966efaf99d3457474b0
+_hash: 24b3b3cbfd9990418a4b456c5c443f94639d0ec00d3e329e739e28150c62a2c4
 file:
   statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
               end_bracket: )
           - keyword: IGNORE
           - keyword: NULLS
@@ -31,12 +31,12 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: buzz
+                        naked_identifier: buzz
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: bar
+                      naked_identifier: bar
                   frame_clause:
                   - keyword: ROWS
                   - keyword: BETWEEN
@@ -48,11 +48,11 @@ file:
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: bat
+            naked_identifier: bat
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: some_table
+                naked_identifier: some_table

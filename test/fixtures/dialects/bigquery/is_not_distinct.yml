@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49d24d55f05fd6e437a3ed51a9356dcf7d53883f73fea81cb032dedd0a94eeb2
+_hash: 0d9ed9cabb7b1dedcb113c5b3e1e927f2224ba7002a18e9108d5c67388db5f05
 file:
 - statement:
     select_statement:
@@ -15,12 +15,12 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: a_column
+                  naked_identifier: a_column
               - keyword: IS
               - keyword: DISTINCT
               - keyword: FROM
               - column_reference:
-                  identifier: b_column
+                  naked_identifier: b_column
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -28,7 +28,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -40,13 +40,13 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: b_column
+                  naked_identifier: b_column
               - keyword: IS
               - keyword: NOT
               - keyword: DISTINCT
               - keyword: FROM
               - column_reference:
-                  identifier: c_column
+                  naked_identifier: c_column
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -54,7 +54,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -62,24 +62,24 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a_column
+            naked_identifier: a_column
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: a_column
+            naked_identifier: a_column
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
         - column_reference:
-            identifier: b_column
+            naked_identifier: b_column
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,25 +87,25 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a_column
+            naked_identifier: a_column
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: a_column
+            naked_identifier: a_column
         - keyword: IS
         - keyword: NOT
         - keyword: DISTINCT
         - keyword: FROM
         - column_reference:
-            identifier: b_column
+            naked_identifier: b_column
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,37 +113,37 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: t_table_1
+          - naked_identifier: t_table_1
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table_1
+                naked_identifier: t_table_1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t_table_2
+                  naked_identifier: t_table_2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t_table_1
+                - naked_identifier: t_table_1
                 - dot: .
-                - identifier: a_column
+                - naked_identifier: a_column
               - keyword: IS
               - keyword: DISTINCT
               - keyword: FROM
               - column_reference:
-                - identifier: t_table_2
+                - naked_identifier: t_table_2
                 - dot: .
-                - identifier: a_column
+                - naked_identifier: a_column
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -151,62 +151,62 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: t_table_1
+          - naked_identifier: t_table_1
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table_1
+                naked_identifier: t_table_1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t_table_2
+                  naked_identifier: t_table_2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t_table_1
+                - naked_identifier: t_table_1
                 - dot: .
-                - identifier: a_column
+                - naked_identifier: a_column
               - keyword: IS
               - keyword: NOT
               - keyword: DISTINCT
               - keyword: FROM
               - column_reference:
-                - identifier: t_table_2
+                - naked_identifier: t_table_2
                 - dot: .
-                - identifier: a_column
+                - naked_identifier: a_column
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t_table_1
+        naked_identifier: t_table_1
     - keyword: USING
     - table_reference:
-        identifier: t_table_2
+        naked_identifier: t_table_2
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t_table_1
+          - naked_identifier: t_table_1
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
         - column_reference:
-          - identifier: t_table_2
+          - naked_identifier: t_table_2
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
     - merge_match:
         not_matched_by_target_clause:
         - keyword: WHEN
@@ -218,7 +218,7 @@ file:
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: a
+                naked_identifier: a
               end_bracket: )
             values_clause:
               keyword: VALUES
@@ -226,7 +226,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -234,25 +234,25 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t_table_1
+        naked_identifier: t_table_1
     - keyword: USING
     - table_reference:
-        identifier: t_table_2
+        naked_identifier: t_table_2
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: t_table_1
+          - naked_identifier: t_table_1
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
         - keyword: IS
         - keyword: NOT
         - keyword: DISTINCT
         - keyword: FROM
         - column_reference:
-          - identifier: t_table_2
+          - naked_identifier: t_table_2
           - dot: .
-          - identifier: a_column
+          - naked_identifier: a_column
     - merge_match:
         not_matched_by_target_clause:
         - keyword: WHEN
@@ -264,7 +264,7 @@ file:
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: a
+                naked_identifier: a
               end_bracket: )
             values_clause:
               keyword: VALUES
@@ -272,6 +272,6 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;

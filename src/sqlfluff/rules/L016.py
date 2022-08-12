@@ -255,7 +255,7 @@ class Rule_L016(Rule_L003):
                         is_pause = False
                     else:
                         # We're not in a pause (or not in a pause yet)
-                        if seg.name == "comma":  # or seg.is_type('binary_operator')
+                        if seg.is_type("comma"):  # or seg.is_type('binary_operator')
                             if segment_buff:
                                 # End the previous section, start a comma/operator.
                                 # Any whitespace is added to the segment
@@ -386,7 +386,7 @@ class Rule_L016(Rule_L003):
         while True:
             if len(raw_stack) >= abs(idx):
                 s = raw_stack[idx]
-                if s.name == "newline":
+                if s.is_type("newline"):
                     break
                 else:
                     working_buff.insert(0, s)
@@ -485,7 +485,7 @@ class Rule_L016(Rule_L003):
             memory: dict = {"comment_clauses": set()}
         else:
             memory = context.memory
-        if context.segment.name == "newline":
+        if context.segment.is_type("newline"):
             # iterate to buffer the whole line up to this point
             this_line = self._gen_line_so_far(context.raw_stack)
         else:
@@ -493,7 +493,7 @@ class Rule_L016(Rule_L003):
                 "comment_clause", "comment_equals_clause"
             ):
                 comment_segment = context.functional.segment.children().first(
-                    sp.is_name("quoted_literal")
+                    sp.is_type("quoted_literal")
                 )
                 if comment_segment:
                     memory["comment_clauses"].add(comment_segment.get())
@@ -510,7 +510,7 @@ class Rule_L016(Rule_L003):
             # We'll need the indent, so let's get it for fixing.
             line_indent = []
             for s in this_line:
-                if s.name == "whitespace":
+                if s.is_type("whitespace"):
                     line_indent.append(s)
                 else:
                     break
@@ -530,11 +530,12 @@ class Rule_L016(Rule_L003):
                     return LintResult(memory=memory)
 
             # Does the line end in an inline comment that we can move back?
-            if this_line[-1].name == "inline_comment":
+            if this_line[-1].is_type("inline_comment"):
                 # Is this line JUST COMMENT (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
                 if len(this_line) == 1 or all(
-                    elem.name == "whitespace" or elem.is_meta for elem in this_line[:-1]
+                    elem.is_type("whitespace") or elem.is_meta
+                    for elem in this_line[:-1]
                 ):
                     self.logger.info(
                         "Unfixable inline comment, alone on line: %s", this_line[-1]
@@ -552,9 +553,8 @@ class Rule_L016(Rule_L003):
                 delete_buffer = [LintFix.delete(this_line[-1])]
                 idx = -2
                 while True:
-                    if (
-                        len(this_line) >= abs(idx)
-                        and this_line[idx].name == "whitespace"
+                    if len(this_line) >= abs(idx) and this_line[idx].is_type(
+                        "whitespace"
                     ):
                         delete_buffer.append(LintFix.delete(this_line[idx]))
                         idx -= 1

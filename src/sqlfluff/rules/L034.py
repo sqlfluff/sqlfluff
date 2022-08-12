@@ -205,7 +205,7 @@ class Rule_L034(BaseRule):
         if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses
             if segment.is_type("groupby_clause", "orderby_clause"):
                 for seg in segment.segments:
-                    if seg.name == "numeric_literal":
+                    if seg.is_type("numeric_literal"):
                         yield segment
             else:
                 for seg in segment.segments:

@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import logging
 from unittest.mock import MagicMock, patch
 
 import chardet
@@ -27,6 +28,33 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
+
+
+@pytest.fixture(autouse=True)
+def logging_cleanup():
+    """This gracefully handles logging issues at session teardown.
+
+    Removes handlers from all loggers. Autouse applies this to all
+    tests in this file (i.e. all the cli command tests), which should
+    be all of the test cases where `set_logging_level` is called.
+
+    https://github.com/sqlfluff/sqlfluff/issues/3702
+    https://github.com/pytest-dev/pytest/issues/5502#issuecomment-1190557648
+    """
+    yield
+    # NOTE: This is a teardown function so the clearup code
+    # comes _after_ the yield.
+    # Get only the sqlfluff loggers (which we set in set_logging_level)
+    loggers = [
+        logger
+        for logger in logging.Logger.manager.loggerDict.values()
+        if isinstance(logger, logging.Logger) and logger.name.startswith("sqlfluff")
+    ]
+    for logger in loggers:
+        if not hasattr(logger, "handlers"):
+            continue
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
 
 
 def contains_ansi_escape(s: str) -> bool:
@@ -261,7 +289,8 @@ def test__cli__command_lint_stdin(command):
                 "L051",
             ],
         ),
-        # Test basic linting with specific logger
+        # Test basic linting with specific logger.
+        # Also test short rule exclusion.
         (
             lint,
             [
@@ -270,7 +299,7 @@ def test__cli__command_lint_stdin(command):
                 "-vvv",
                 "--logger",
                 "parser",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
@@ -283,7 +312,7 @@ def test__cli__command_lint_stdin(command):
                 "-n",
                 "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
@@ -630,7 +659,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate {{ condition }}
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -643,7 +673,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3  -- noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -752,7 +783,9 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
                 fix_args
                 + [
                     "-f",
-                    "--dialect=ansi",
+                    # Use the short dialect option
+                    "-d",
+                    "ansi",
                 ]
             )
         assert exit_code == e.value.code

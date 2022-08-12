@@ -3,71 +3,71 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b937ea42b19ddca9c06fd5b99e9a10c2c2829956c81b9ce7c0d4c99990ad0f14
+_hash: 263d90711353d53f5f77479efc5bd525ccbf67b45fc4382aba7ee621eb1d836d
 file:
   batch:
   - statement:
       delete_statement:
         keyword: DELETE
         table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: Table2
+        - naked_identifier: Table2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: dbo
+                - naked_identifier: dbo
                 - dot: .
-                - identifier: Table2
+                - naked_identifier: Table2
             join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: dbo
+                  - naked_identifier: dbo
                   - dot: .
-                  - identifier: Table1
+                  - naked_identifier: Table1
             - join_on_condition:
                 keyword: 'ON'
                 bracketed:
                   start_bracket: (
                   expression:
                   - column_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: Table2
+                    - naked_identifier: Table2
                     - dot: .
-                    - identifier: ColA
+                    - naked_identifier: ColA
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: Table1
+                    - naked_identifier: Table1
                     - dot: .
-                    - identifier: ColA
+                    - naked_identifier: ColA
                   end_bracket: )
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: dboTable2
+            - naked_identifier: dboTable2
             - dot: .
-            - identifier: ColA
+            - naked_identifier: ColA
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-          identifier: dodos
+          naked_identifier: dodos
       - post_table_expression:
           keyword: WITH
           bracketed:
@@ -78,38 +78,38 @@ file:
       - output_clause:
         - keyword: OUTPUT
         - column_reference:
-            identifier: age
+            naked_identifier: age
         - keyword: INTO
         - table_reference:
-            identifier: ages
+            naked_identifier: ages
   - statement:
       delete_statement:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-          identifier: Table1
+          naked_identifier: Table1
       - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-          identifier: Table1
+          naked_identifier: Table1
       - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: StandardCost
+              naked_identifier: StandardCost
             comparison_operator:
               raw_comparison_operator: '>'
-            literal: '1000.00'
+            numeric_literal: '1000.00'
       - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-          identifier: Table1
+          naked_identifier: Table1
       - option_clause:
           keyword: OPTION
           bracketed:
@@ -118,7 +118,7 @@ file:
               keyword: LABEL
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "N'label1'"
+              quoted_literal: "N'label1'"
             end_bracket: )
       - statement_terminator: ;
   - statement:
@@ -126,14 +126,14 @@ file:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: FactInternetSales
+        - naked_identifier: FactInternetSales
       - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: ProductKey
+              naked_identifier: ProductKey
             keyword: IN
             bracketed:
               start_bracket: (
@@ -142,53 +142,53 @@ file:
                   keyword: SELECT
                   select_clause_element:
                     column_reference:
-                    - identifier: T1
+                    - naked_identifier: T1
                     - dot: .
-                    - identifier: ProductKey
+                    - naked_identifier: ProductKey
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: dbo
+                        - naked_identifier: dbo
                         - dot: .
-                        - identifier: DimProduct
+                        - naked_identifier: DimProduct
                       alias_expression:
-                        identifier: T1
+                        naked_identifier: T1
                     join_clause:
                       keyword: JOIN
                       from_expression_element:
                         table_expression:
                           table_reference:
-                          - identifier: dbo
+                          - naked_identifier: dbo
                           - dot: .
-                          - identifier: DimProductSubcategory
+                          - naked_identifier: DimProductSubcategory
                         alias_expression:
-                          identifier: T2
+                          naked_identifier: T2
                       join_on_condition:
                         keyword: 'ON'
                         expression:
                         - column_reference:
-                          - identifier: T1
+                          - naked_identifier: T1
                           - dot: .
-                          - identifier: ProductSubcategoryKey
+                          - naked_identifier: ProductSubcategoryKey
                         - comparison_operator:
                             raw_comparison_operator: '='
                         - column_reference:
-                          - identifier: T2
+                          - naked_identifier: T2
                           - dot: .
-                          - identifier: ProductSubcategoryKey
+                          - naked_identifier: ProductSubcategoryKey
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                    - identifier: T2
+                    - naked_identifier: T2
                     - dot: .
-                    - identifier: EnglishProductSubcategoryName
+                    - naked_identifier: EnglishProductSubcategoryName
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: "'Road Bikes'"
+                    quoted_literal: "'Road Bikes'"
               end_bracket: )
       - option_clause:
           keyword: OPTION
@@ -198,7 +198,7 @@ file:
               keyword: LABEL
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "N'CustomJoin'"
+              quoted_literal: "N'CustomJoin'"
           - comma: ','
           - query_hint_segment:
             - keyword: HASH
@@ -209,7 +209,7 @@ file:
       delete_statement:
         keyword: DELETE
         table_reference:
-          identifier: tableA
+          naked_identifier: tableA
         where_clause:
           keyword: WHERE
           expression:
@@ -222,85 +222,85 @@ file:
                   select_clause_modifier:
                     keyword: TOP
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                   select_clause_element:
-                    literal: '1'
+                    numeric_literal: '1'
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: tableB
+                          naked_identifier: tableB
                       alias_expression:
-                        identifier: tb
+                        naked_identifier: tb
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                    - identifier: tb
+                    - naked_identifier: tb
                     - dot: .
-                    - identifier: col1
+                    - naked_identifier: col1
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: tableA
+                    - naked_identifier: tableA
                     - dot: .
-                    - identifier: col1
+                    - naked_identifier: col1
               end_bracket: )
   - statement:
       delete_statement:
         keyword: DELETE
         table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: Table2
+        - naked_identifier: Table2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: dbo
+                - naked_identifier: dbo
                 - dot: .
-                - identifier: Table2
+                - naked_identifier: Table2
             join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: dbo
+                  - naked_identifier: dbo
                   - dot: .
-                  - identifier: Table1
+                  - naked_identifier: Table1
             - join_on_condition:
                 keyword: 'ON'
                 bracketed:
                   start_bracket: (
                   expression:
                   - column_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: Table2
+                    - naked_identifier: Table2
                     - dot: .
-                    - identifier: ColA
+                    - naked_identifier: ColA
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: Table1
+                    - naked_identifier: Table1
                     - dot: .
-                    - identifier: ColA
+                    - naked_identifier: ColA
                   end_bracket: )
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: dboTable2
+            - naked_identifier: dboTable2
             - dot: .
-            - identifier: ColA
+            - naked_identifier: ColA
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         statement_terminator: ;

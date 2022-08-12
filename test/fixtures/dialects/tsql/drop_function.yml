@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d14f2b6b16bb2743a5c4f8439be4a40e30bf5a63afca8622686674ef4445013c
+_hash: 53f098315280e3585eb8fd5446073bad29baa39a2b9c800df558b87c597cc397
 file:
   batch:
   - statement:
@@ -11,7 +11,7 @@ file:
       - keyword: DROP
       - keyword: FUNCTION
       - function_name:
-          identifier: Sales
+          naked_identifier: Sales
           dot: .
           function_name_identifier: fn_SalesByStore
       - statement_terminator: ;

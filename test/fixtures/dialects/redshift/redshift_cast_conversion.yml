@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29b2bd2f7511b32a80bbd5d7ef8cfdc99ef123a566c1f35099f3d97b439675da
+_hash: 2130a673b93939acf16d2977dc0d32dc85df5a6c4578d4de7e376ae7b0d63156
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               keyword: as
               data_type:
                 keyword: integer
@@ -28,7 +28,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -45,7 +45,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               end_bracket: )
       from_clause:
         keyword: from
@@ -53,7 +53,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -62,7 +62,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -73,7 +73,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,7 +87,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               keyword: as
               data_type:
                 datetime_type_identifier:
@@ -99,7 +99,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -117,7 +117,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               end_bracket: )
       from_clause:
         keyword: from
@@ -125,7 +125,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -134,7 +134,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -146,7 +146,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -160,15 +160,15 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               keyword: as
               data_type:
                 keyword: decimal
                 bracketed:
                 - start_bracket: (
-                - literal: '38'
+                - numeric_literal: '38'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
               end_bracket: )
       from_clause:
@@ -177,7 +177,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -193,14 +193,14 @@ file:
                 keyword: decimal
                 bracketed:
                 - start_bracket: (
-                - literal: '38'
+                - numeric_literal: '38'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
               comma: ','
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               end_bracket: )
       from_clause:
         keyword: from
@@ -208,7 +208,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -217,16 +217,16 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: decimal
                 bracketed:
                 - start_bracket: (
-                - literal: '38'
+                - numeric_literal: '38'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
       from_clause:
         keyword: from
@@ -234,7 +234,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -248,7 +248,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               keyword: as
               data_type:
                 keyword: interval
@@ -259,7 +259,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -276,7 +276,7 @@ file:
               comma: ','
               expression:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               end_bracket: )
       from_clause:
         keyword: from
@@ -284,7 +284,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -293,7 +293,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -304,5 +304,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;

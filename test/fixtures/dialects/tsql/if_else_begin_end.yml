@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d286430f137a7a502524fc589e23ee659d88c18ed3540a41c9bcba55e672782
+_hash: 4f41c12e1919d54180dd06f40c06e2fa380cfb1a5d33d48bdc07cadb6c15f085
 file:
   batch:
     statement:
@@ -11,7 +11,7 @@ file:
       - if_clause:
           keyword: IF
           expression:
-            literal: '1'
+            numeric_literal: '1'
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
@@ -23,22 +23,22 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       column_reference:
-                        identifier: Weight
+                        naked_identifier: Weight
                   from_clause:
                     keyword: from
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: DimProduct
+                            naked_identifier: DimProduct
                   where_clause:
                     keyword: WHERE
                     expression:
                       column_reference:
-                        identifier: ProductKey
+                        naked_identifier: ProductKey
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: '1'
+                      numeric_literal: '1'
               end_bracket: )
       - statement:
           begin_end_block:
@@ -49,37 +49,37 @@ file:
                 - keyword: SELECT
                 - select_clause_element:
                     column_reference:
-                      identifier: ProductKey
+                      naked_identifier: ProductKey
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: EnglishDescription
+                      naked_identifier: EnglishDescription
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: Weight
+                      naked_identifier: Weight
                 - comma: ','
                 - select_clause_element:
-                    literal: "'This product is too heavy to ship and is only available\
-                      \ for pickup.'"
+                    quoted_literal: "'This product is too heavy to ship and is only\
+                      \ available for pickup.'"
                     alias_expression:
                       keyword: AS
-                      identifier: ShippingStatus
+                      naked_identifier: ShippingStatus
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: DimProduct
+                          naked_identifier: DimProduct
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: ProductKey
+                      naked_identifier: ProductKey
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '1'
+                    numeric_literal: '1'
           - keyword: END
       - keyword: ELSE
       - statement:
@@ -91,34 +91,34 @@ file:
                 - keyword: SELECT
                 - select_clause_element:
                     column_reference:
-                      identifier: ProductKey
+                      naked_identifier: ProductKey
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: EnglishDescription
+                      naked_identifier: EnglishDescription
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: Weight
+                      naked_identifier: Weight
                 - comma: ','
                 - select_clause_element:
-                    literal: "'This product is available for shipping or pickup.'"
+                    quoted_literal: "'This product is available for shipping or pickup.'"
                     alias_expression:
                       keyword: AS
-                      identifier: ShippingStatus
+                      naked_identifier: ShippingStatus
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: DimProduct
+                          naked_identifier: DimProduct
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: ProductKey
+                      naked_identifier: ProductKey
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '1'
+                    numeric_literal: '1'
           - keyword: END

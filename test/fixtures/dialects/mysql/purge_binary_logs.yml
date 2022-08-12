@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd25d700f1df99b7fc2fb7ee7027f66c180d3cfe7723d0c80eddec684c8eb0f1
+_hash: 51c15c89e4dc6b04a76d423156b4a5be282cdf103af91fa0a316e8cd51725770
 file:
 - statement:
     purge_binary_logs_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: BINARY
     - keyword: LOGS
     - keyword: TO
-    - literal: "'mysql-bin.010'"
+    - quoted_literal: "'mysql-bin.010'"
 - statement_terminator: ;
 - statement:
     purge_binary_logs_statement:
@@ -19,33 +19,7 @@ file:
     - keyword: BINARY
     - keyword: LOGS
     - keyword: BEFORE
-    - literal: "'2019-04-02 22:46:26'"
-- statement_terminator: ;
-- statement:
-    purge_binary_logs_statement:
-    - keyword: PURGE
-    - keyword: BINARY
-    - keyword: LOGS
-    - keyword: BEFORE
-    - keyword: DATETIME
-    - literal: "'2019-04-02 22:46:26'"
-- statement_terminator: ;
-- statement:
-    purge_binary_logs_statement:
-    - keyword: PURGE
-    - keyword: BINARY
-    - keyword: LOGS
-    - keyword: BEFORE
-    - keyword: TIMESTAMP
-    - literal: "'2019-04-02 22:46:26'"
-- statement_terminator: ;
-- statement:
-    purge_binary_logs_statement:
-    - keyword: PURGE
-    - keyword: BINARY
-    - keyword: LOGS
-    - keyword: BEFORE
-    - literal: '19830905132800'
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
 - statement_terminator: ;
 - statement:
     purge_binary_logs_statement:
@@ -54,7 +28,7 @@ file:
     - keyword: LOGS
     - keyword: BEFORE
     - keyword: DATETIME
-    - literal: '19830905132800'
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
 - statement_terminator: ;
 - statement:
     purge_binary_logs_statement:
@@ -63,5 +37,31 @@ file:
     - keyword: LOGS
     - keyword: BEFORE
     - keyword: TIMESTAMP
-    - literal: '19830905132800'
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: DATETIME
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: TIMESTAMP
+    - numeric_literal: '19830905132800'
 - statement_terminator: ;

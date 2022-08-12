@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 91bf0ec3d75c49613c0c530e02281238b4fec45bec4daea180cc8a054a95e631
+_hash: f4555a64da9a1f91ea794a5115d957ab9bbb7ec5b3dd64192134e563d80ad844
 file:
   statement:
     select_statement:
@@ -11,22 +11,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: field_1
+            naked_identifier: field_1
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: field_2
+            naked_identifier: field_2
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: column_value
+            naked_identifier: column_value
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
           join_clause:
           - keyword: CROSS
           - keyword: JOIN
@@ -39,14 +39,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: array_field
+                        naked_identifier: array_field
                     end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_unnested_table
+                naked_identifier: my_unnested_table
                 bracketed:
                   start_bracket: (
                   identifier_list:
-                    identifier: column_value
+                    naked_identifier: column_value
                   end_bracket: )
   statement_terminator: ;

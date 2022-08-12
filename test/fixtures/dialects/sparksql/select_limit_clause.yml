@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 190283809cd373c5510165093d1ae63036f72633f59c1c41a5aa757d29540db0
+_hash: 0bda33c859d1fc24de87abe17e48161c92c47c41e11e68222ca8dcaf01552941
 file:
 - statement:
     select_statement:
@@ -11,26 +11,26 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       limit_clause:
         keyword: LIMIT
-        literal: '2'
+        numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -38,23 +38,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       limit_clause:
       - keyword: LIMIT
       - keyword: ALL
@@ -65,23 +65,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       limit_clause:
         keyword: LIMIT
         function:
@@ -90,6 +90,6 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: "'SPARK'"
+              quoted_literal: "'SPARK'"
             end_bracket: )
 - statement_terminator: ;

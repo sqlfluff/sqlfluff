@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 707472212be196863a4dfab61c5a0c3c63a3b5da9b9283e0ad4a36e88d216087
+_hash: df4715f63f5dd0a56000567de395eb865dc0e1eeef7e2570651814e8e78f023c
 file:
   batch:
     statement:
@@ -13,38 +13,38 @@ file:
       - keyword: ALTER
       - keyword: VIEW
       - object_reference:
-        - identifier: DEST
+        - naked_identifier: DEST
         - dot: .
-        - identifier: V_HOSPITAL_ADMISSIONS_OVERTIME_BYAGEGROUP
+        - naked_identifier: V_HOSPITAL_ADMISSIONS_OVERTIME_BYAGEGROUP
       - keyword: AS
       - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
-              literal: "'AverageCost'"
+              quoted_literal: "'AverageCost'"
               alias_expression:
                 keyword: AS
-                identifier: Cost_Sorted_By_Production_Days
+                naked_identifier: Cost_Sorted_By_Production_Days
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: '[0]'
+                quoted_identifier: '[0]'
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: '[1]'
+                quoted_identifier: '[1]'
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: '[2]'
+                quoted_identifier: '[2]'
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: '[3]'
+                quoted_identifier: '[3]'
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: '[4]'
+                quoted_identifier: '[4]'
           from_clause:
             keyword: FROM
             from_expression:
@@ -57,24 +57,24 @@ file:
                       - keyword: SELECT
                       - select_clause_element:
                           column_reference:
-                            identifier: DaysToManufacture
+                            naked_identifier: DaysToManufacture
                       - comma: ','
                       - select_clause_element:
                           column_reference:
-                            identifier: StandardCost
+                            naked_identifier: StandardCost
                       from_clause:
                         keyword: FROM
                         from_expression:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                              - identifier: Production
+                              - naked_identifier: Production
                               - dot: .
-                              - identifier: Product
+                              - naked_identifier: Product
                     end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: SourceTable
+                  naked_identifier: SourceTable
               from_pivot_expression:
               - keyword: PIVOT
               - bracketed:
@@ -86,31 +86,31 @@ file:
                       start_bracket: (
                       expression:
                         column_reference:
-                          identifier: StandardCost
+                          naked_identifier: StandardCost
                       end_bracket: )
                 - keyword: FOR
                 - column_reference:
-                    identifier: DaysToManufacture
+                    naked_identifier: DaysToManufacture
                 - keyword: IN
                 - bracketed:
                   - start_bracket: (
                   - pivot_column_reference:
-                      identifier: '[0]'
+                      quoted_identifier: '[0]'
                   - comma: ','
                   - pivot_column_reference:
-                      identifier: '[1]'
+                      quoted_identifier: '[1]'
                   - comma: ','
                   - pivot_column_reference:
-                      identifier: '[2]'
+                      quoted_identifier: '[2]'
                   - comma: ','
                   - pivot_column_reference:
-                      identifier: '[3]'
+                      quoted_identifier: '[3]'
                   - comma: ','
                   - pivot_column_reference:
-                      identifier: '[4]'
+                      quoted_identifier: '[4]'
                   - end_bracket: )
                 - end_bracket: )
               - keyword: AS
               - table_reference:
-                  identifier: PivotTable
+                  naked_identifier: PivotTable
             statement_terminator: ;

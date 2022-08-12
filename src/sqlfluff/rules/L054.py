@@ -104,14 +104,14 @@ class Rule_L054(BaseRule):
         # N.B. segment names are used as the numeric literal type is 'raw', so best to
         # be specific with the name.
         column_reference_category_map = {
-            "ColumnReferenceSegment": "explicit",
-            "ExpressionSegment": "explicit",
+            "column_reference": "explicit",
+            "expression": "explicit",
             "numeric_literal": "implicit",
         }
         column_reference_category_set = {
-            column_reference_category_map[segment.name]
+            column_reference_category_map[segment.get_type()]
             for segment in context.segment.segments
-            if segment.name in column_reference_category_map
+            if segment.is_type(*column_reference_category_map.keys())
         }
 
         # If there are no column references then just return

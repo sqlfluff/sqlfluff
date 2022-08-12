@@ -170,9 +170,8 @@ redshift_dialect.replace(
             # must only contain digits, letters, underscore, and $ but
             # can’t be all digits.
             r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -2270,6 +2269,25 @@ class ObjectUnpivotSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         "AT",
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
+    """Array element accessor.
+
+    Redshift allows multiple levels of array access, like Postgres,
+    but it
+    * doesn't allow ranges like `myarray[1:2]`
+    * does allow function or column expressions `myarray[idx]`
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Bracketed(
+                OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
+                bracket_type="square",
+            )
+        )
     )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c65b2eb3307c9ecc34f9e7c6c50ddc91b4eb9ae95ec1567fe7f6c3a111c92d1
+_hash: 07939b1502c3d5a56b29565a8927c4229cf388ead897001f227365c5e5a1143f
 file:
   statement:
     create_function_statement:
@@ -31,60 +31,60 @@ file:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '1'
+                  numeric_literal: '1'
               - keyword: THEN
               - expression:
-                  literal: "'low'"
+                  quoted_literal: "'low'"
             - when_clause:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '2'
+                  numeric_literal: '2'
               - keyword: THEN
               - expression:
-                  literal: "'midlow'"
+                  quoted_literal: "'midlow'"
             - when_clause:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '3'
+                  numeric_literal: '3'
               - keyword: THEN
               - expression:
-                  literal: "'mid'"
+                  quoted_literal: "'mid'"
             - when_clause:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '4'
+                  numeric_literal: '4'
               - keyword: THEN
               - expression:
-                  literal: "'midhigh'"
+                  quoted_literal: "'midhigh'"
             - when_clause:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '5'
+                  numeric_literal: '5'
               - keyword: THEN
               - expression:
-                  literal: "'high'"
+                  quoted_literal: "'high'"
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: '"unknown"'
+                  quoted_literal: '"unknown"'
             - keyword: END
           end_bracket: )

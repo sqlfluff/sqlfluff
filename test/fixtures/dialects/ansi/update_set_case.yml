@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd70d00113bb7f1d70f6e557d056178f7750d17fb4451b32e17ebb0a998f664d
+_hash: 8bda546d9e67ac39e4b62470c06e8bd4b711510e0a1aa122c158b2eb78c3b911
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: table1
+        naked_identifier: table1
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: a
+            naked_identifier: a
           comparison_operator:
             raw_comparison_operator: '='
           expression:
@@ -24,32 +24,32 @@ file:
               - keyword: WHEN
               - expression:
                   column_reference:
-                  - identifier: t2
+                  - naked_identifier: t2
                   - dot: .
-                  - identifier: column
+                  - naked_identifier: column
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: "'T'"
+                  quoted_literal: "'T'"
               - keyword: THEN
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
             - when_clause:
               - keyword: WHEN
               - expression:
                   column_reference:
-                  - identifier: t2
+                  - naked_identifier: t2
                   - dot: .
-                  - identifier: column
+                  - naked_identifier: column
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: "'F'"
+                  quoted_literal: "'F'"
               - keyword: THEN
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: 'NULL'
+                  null_literal: 'NULL'
             - keyword: END
       from_clause:
         keyword: FROM
@@ -57,7 +57,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table2
+                naked_identifier: table2
             alias_expression:
-              identifier: t2
+              naked_identifier: t2
   statement_terminator: ;

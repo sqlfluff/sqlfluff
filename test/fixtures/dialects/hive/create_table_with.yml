@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b971db8b8f1d1b70f382ec872b8746f9916600e7cab8f137029eeae2139694
+_hash: 9b6e5c9ad01dd44a93dbd5dac68c1f42b3a7984d1b2c7eae9bc8ac0460e1a03e
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: masonboro_sandbox
+      - naked_identifier: masonboro_sandbox
       - dot: .
-      - identifier: test
+      - naked_identifier: test
     - keyword: AS
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-          identifier: us_sales
+          naked_identifier: us_sales
           keyword: AS
           bracketed:
             start_bracket: (
@@ -26,28 +26,28 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: rev
+                    naked_identifier: rev
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: masonboro_sales
+                      - naked_identifier: masonboro_sales
                       - dot: .
-                      - identifier: us_2021
+                      - naked_identifier: us_2021
             end_bracket: )
         select_statement:
           select_clause:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: rev
+                naked_identifier: rev
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: us_sales
+                    naked_identifier: us_sales
   statement_terminator: ;

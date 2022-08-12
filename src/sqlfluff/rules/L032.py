@@ -2,7 +2,6 @@
 from typing import List, Optional, Tuple
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
-    CodeSegment,
     KeywordSegment,
     SymbolSegment,
     WhitespaceSegment,
@@ -12,7 +11,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
-from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
+from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment, IdentifierSegment
 
 
 @document_groups
@@ -201,8 +200,8 @@ def _extract_deletion_sequence_and_anchor(
 
 def _create_col_reference(table_ref: str, column_name: str):
     segments = [
-        CodeSegment(raw=table_ref, name="naked_identifier", type="identifier"),
-        SymbolSegment(raw=".", type="symbol", name="dot"),
-        CodeSegment(raw=column_name, name="naked_identifier", type="identifier"),
+        IdentifierSegment(raw=table_ref, type="naked_identifier"),
+        SymbolSegment(raw=".", type="symbol"),
+        IdentifierSegment(raw=column_name, type="naked_identifier"),
     ]
     return ColumnReferenceSegment(segments=segments, pos_marker=None)

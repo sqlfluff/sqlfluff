@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 180e33bf259724317583dab3e78b19c1f51ed36022b5309a35e1bc0c4f58eb8c
+_hash: e1ac769a469451f83cd79aeacda74b84cd3e92d57f9d5f24df882939a37691d5
 file:
   statement:
     select_statement:
@@ -17,13 +17,13 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             dot: .
             parameter: b
           alias_expression:
             keyword: AS
-            identifier: field
+            naked_identifier: field
       - comma: ','
       - select_clause_element:
           function:
@@ -33,13 +33,13 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             dot: .
             star: '*'
           alias_expression:
             keyword: AS
-            identifier: wildcard
+            naked_identifier: wildcard
       - comma: ','
       - select_clause_element:
           function:
@@ -49,7 +49,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
           - dot: .
           - parameter: b
@@ -57,7 +57,7 @@ file:
           - parameter: c
           alias_expression:
             keyword: AS
-            identifier: field_with_field
+            naked_identifier: field_with_field
       - comma: ','
       - select_clause_element:
           function:
@@ -67,7 +67,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
           - dot: .
           - parameter: b
@@ -75,7 +75,7 @@ file:
           - star: '*'
           alias_expression:
             keyword: AS
-            identifier: field_with_wildcard
+            naked_identifier: field_with_wildcard
       - comma: ','
       - select_clause_element:
           function:
@@ -85,7 +85,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             array_accessor:
               start_square_bracket: '['
@@ -96,14 +96,14 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '0'
+                      numeric_literal: '0'
                     end_bracket: )
               end_square_bracket: ']'
             dot: .
             star: '*'
           alias_expression:
             keyword: AS
-            identifier: field_with_offset_wildcard
+            naked_identifier: field_with_offset_wildcard
       - comma: ','
       - select_clause_element:
           function:
@@ -113,7 +113,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             array_accessor:
               start_square_bracket: '['
@@ -124,14 +124,14 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '0'
+                      numeric_literal: '0'
                     end_bracket: )
               end_square_bracket: ']'
             dot: .
             star: '*'
           alias_expression:
             keyword: AS
-            identifier: field_with_safe_offset_wildcard
+            naked_identifier: field_with_safe_offset_wildcard
       - comma: ','
       - select_clause_element:
           function:
@@ -141,7 +141,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             array_accessor:
               start_square_bracket: '['
@@ -152,14 +152,14 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                     end_bracket: )
               end_square_bracket: ']'
             dot: .
             star: '*'
           alias_expression:
             keyword: AS
-            identifier: field_with_ordinal_wildcard
+            naked_identifier: field_with_ordinal_wildcard
       - comma: ','
       - select_clause_element:
           function:
@@ -169,7 +169,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
               end_bracket: )
             array_accessor:
               start_square_bracket: '['
@@ -180,18 +180,18 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                     end_bracket: )
               end_square_bracket: ']'
             dot: .
             parameter: a
           alias_expression:
             keyword: AS
-            identifier: field_with_ordinal_field
+            naked_identifier: field_with_ordinal_field
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1

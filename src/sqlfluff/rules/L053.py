@@ -71,7 +71,7 @@ class Rule_L053(BaseRule):
             *[
                 segment
                 for segment in context.segment.segments
-                if segment.name not in bracket_set and not segment.is_meta
+                if segment.get_type() not in bracket_set and not segment.is_meta
             ]
         )
 

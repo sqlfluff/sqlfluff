@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 43ce176611eb2d0911dd3fb8451c18db37976ae99a32c179b24131f5f57e46c8
+_hash: b0533a4086a4a1240f4920f5d1d1a657eb89eb7248622ee0d81cf538cfc01242
 file:
 - statement:
     restore_table_statement:
@@ -12,35 +12,35 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01"'
+    - quoted_literal: '"2019-01-01"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01"'
+    - quoted_literal: '"2019-01-01"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -59,7 +59,7 @@ file:
                 end_bracket: )
         - comma: ','
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -67,14 +67,14 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01 01:30:00.000"'
+    - quoted_literal: '"2019-01-01 01:30:00.000"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
@@ -83,24 +83,24 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - keyword: TO
     - keyword: VERSION
     - keyword: AS
     - keyword: OF
-    - literal: '5238'
+    - numeric_literal: '5238'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: VERSION
     - keyword: AS
     - keyword: OF
-    - literal: '5238'
+    - numeric_literal: '5238'
 - statement_terminator: ;
