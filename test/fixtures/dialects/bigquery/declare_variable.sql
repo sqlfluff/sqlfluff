@@ -3,6 +3,7 @@ declare var2, var3 string;
 declare var4 default 'value';
 declare var5 int64 default 1 + 2;
 declare var6 string(10);
+declare var7 numeric(5, 2);
 declare arr1 array<string>;
 declare arr2 default ['one', 'two'];
 declare arr3 default [];

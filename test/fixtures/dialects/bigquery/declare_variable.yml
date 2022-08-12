@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b17e71de9db77f87edb67886d67c0b9f59f8697db4a00a860db090a6f2c797e
+_hash: 3f8dd62bbc3aa635110e8d2a40c829daf27d53b2a9cde8bcc410f08249d4619d
 file:
 - statement:
     declare_segment:
@@ -48,8 +48,21 @@ file:
         data_type_identifier: string
       bracketed:
         start_bracket: (
-        raw: '10'
+        numeric_literal: '10'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: var7
+      data_type:
+        data_type_identifier: numeric
+      bracketed:
+      - start_bracket: (
+      - numeric_literal: '5'
+      - comma: ','
+      - numeric_literal: '2'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -112,7 +125,7 @@ file:
           data_type_identifier: string
         bracketed:
           start_bracket: (
-          raw: '10'
+          numeric_literal: '10'
           end_bracket: )
         end_angle_bracket: '>'
 - statement_terminator: ;
@@ -213,7 +226,7 @@ file:
             data_type_identifier: string
         - bracketed:
             start_bracket: (
-            raw: '10'
+            numeric_literal: '10'
             end_bracket: )
         - comma: ','
         - parameter: f2
@@ -221,7 +234,7 @@ file:
             data_type_identifier: string
         - bracketed:
             start_bracket: (
-            raw: '10'
+            numeric_literal: '10'
             end_bracket: )
         - end_angle_bracket: '>'
 - statement_terminator: ;

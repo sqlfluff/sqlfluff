@@ -202,7 +202,7 @@ bigquery_dialect.replace(
         Bracketed(
             Sequence(
                 Ref("DatatypeSegment"),
-                Bracketed(Anything(), optional=True),  # For types like STRING(10)
+                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
             ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
@@ -985,15 +985,15 @@ class StructTypeSegment(ansi.StructTypeSegment):
                         Sequence(
                             Ref("DatatypeSegment"),
                             Bracketed(
-                                Anything(), optional=True
-                            ),  # For types like STRING(10)
+                                Delimited(Ref("NumericLiteralSegment")), optional=True
+                            ),
                         ),
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Ref("DatatypeSegment"),
                             Bracketed(
-                                Anything(), optional=True
-                            ),  # For types like STRING(10)
+                                Delimited(Ref("NumericLiteralSegment")), optional=True
+                            ),
                         ),
                     ),
                     Ref("OptionsSegment", optional=True),
@@ -1278,12 +1278,12 @@ class DeclareStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("DatatypeSegment"),
-                Bracketed(Anything(), optional=True),  # For types like STRING(10)
+                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
             ),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                Bracketed(Anything(), optional=True),  # For types like STRING(10)
+                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
                 Ref("DefaultDeclareOptionsGrammar"),
             ),
         ),
@@ -1387,7 +1387,7 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like STRING(10)
+        Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
