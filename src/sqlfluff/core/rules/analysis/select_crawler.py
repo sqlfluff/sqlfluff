@@ -36,6 +36,10 @@ class Selectable:
     parent: Optional[BaseSegment]
     dialect: Dialect
 
+    def as_str(self) -> str:
+        """String representation for logging/testing."""
+        return self.selectable.raw
+
     @cached_property
     def select_info(self):
         """Returns SelectStatementColumnsAndTables on the SELECT."""
@@ -134,6 +138,25 @@ class Query:
     children: List["Query"] = field(default_factory=list)
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
+
+    def as_json(self) -> Dict:
+        """JSON representation for logging/testing."""
+        result = {}
+        if self.query_type != QueryType.Simple:
+            result["query_type"] = self.query_type.name
+        if self.selectables:
+            result["selectables"] = [
+                s.as_str() for s in self.selectables
+            ]  # type: ignore
+        if self.ctes:
+            result["ctes"] = {
+                k: v.as_json() for k, v in self.ctes.items()
+            }  # type: ignore
+        # Omit for now: In current test cases, children are also CTEs, so this
+        # just adds noise.
+        # if self.children:
+        #     result["children"] = [c.as_json() for c in self.children]
+        return result
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         """Look up a CTE by name, in the current or any parent scope."""
@@ -266,7 +289,14 @@ class SelectCrawler:
                             # added to this Query later.
                             query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
-                        else:
+                        elif not any(
+                            seg.is_type("from_expression_element") for seg in path
+                        ):
+                            # Ignore segments under a from_expression_element.
+                            # Those will be nested queries, and we're only
+                            # interested in CTEs and "main" queries, i.e.
+                            # standalones or those following a block of CTEs.
+
                             # It's a select_statement or values_clause.
                             selectable = Selectable(
                                 path[-1], path[-2] if len(path) >= 2 else None, dialect
