@@ -1,10 +1,9 @@
 """Implementation of Rule L042."""
 import copy
+import json
 from functools import partial
 from typing import (
-    Generator,
     List,
-    NamedTuple,
     Optional,
     Set,
     Tuple,
@@ -12,6 +11,7 @@ from typing import (
     TypeVar,
     cast,
 )
+
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -26,7 +26,6 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query,
-    QueryType,
     SelectCrawler,
 )
 from sqlfluff.core.rules.doc_decorators import (
@@ -47,13 +46,6 @@ from sqlfluff.dialects.dialect_ansi import (
     TableReferenceSegment,
     WithCompoundStatementSegment,
 )
-
-
-class _NestedSubQuerySummary(NamedTuple):
-    parent_clause_type: str
-    parent_select_segments: Segments
-    clause_segments: Segments
-    subquery: BaseSegment
 
 
 @document_groups
@@ -113,7 +105,7 @@ class Rule_L042(BaseRule):
             "select_statement",
         ]
         self.forbid_subquery_in: str
-        parent_types = self._config_mapping[self.forbid_subquery_in]
+        # parent_types = self._config_mapping[self.forbid_subquery_in]
         segment = context.functional.segment
         parent_stack = context.functional.parent_stack
         is_select = segment.all(is_type(*select_types))
@@ -122,19 +114,9 @@ class Rule_L042(BaseRule):
             # Nothing to do.
             return None
 
-        # Gather all possible offending Elements in one crawl
-        nested_subqueries: List[_NestedSubQuerySummary] = []
-        selects = segment.recursive_crawl(*select_types, recurse_into=True)
-        for select in selects.iterate_segments():
-            for res in _find_nested_subqueries(select, context.dialect):
-                if res.parent_clause_type not in parent_types:
-                    continue
-                nested_subqueries.append(res)
         crawler = SelectCrawler(context.segment, context.dialect)
 
         assert crawler.query_tree
-        if not crawler.query_tree.children:
-            return None
 
         # generate an instance which will track and shape our output CTE
         ctes = _CTEBuilder()
@@ -161,7 +143,6 @@ class Rule_L042(BaseRule):
         result = _calculate_fixes(
             dialect=context.dialect,
             query=crawler.query_tree,
-            parent_stack=parent_stack,
             ctes=ctes,
             case_preference=case_preference,
             clone_map=clone_map,
@@ -209,66 +190,68 @@ class Rule_L042(BaseRule):
 
 
 def _calculate_fixes(
-    dialect: Dialect,
-    query: Query,
-    parent_stack: Segments,
-    ctes: "_CTEBuilder",
-    case_preference,
-    clone_map,
+    dialect: Dialect, query: Query, ctes: "_CTEBuilder", case_preference, clone_map
 ):  # -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
-    if not query.children:
-        return []
-
-    print(f"Query: {query.selectables[0].selectable.raw}")
+    print(f"Query: {json.dumps(query.as_json(), indent=4)}")
     lint_results = []
-    subquery_summary: _NestedSubQuerySummary
-    for source in SelectCrawler.get(query, query.selectables[0].selectable):
-        if isinstance(source, Query):
-            lint_results.extend(
-                _calculate_fixes(
-                    dialect, source, parent_stack, ctes, case_preference, clone_map
-                )
-            )
+    for idx, selectable in enumerate(query.selectables):
+        print(f"query selectable #{idx+1}: {selectable.as_str()}")
+        for idx2, child in enumerate(
+            query.crawl_sources(selectable.selectable, lookup_cte=False)
+        ):
+            if isinstance(child, Query):
+                print(f"selectable child query #{idx2+1}: {child.as_json()}")
+                # lint_results.extend(
+                #     _calculate_fixes(
+                #         dialect, child_query, ctes, case_preference, clone_map
+                #     )
+                # )
+                # if child.query_type != QueryType.WithCompound:
+                for selectable in child.selectables:
+                    alias_name, is_new_name = ctes.create_cte_alias(
+                        selectable.select_info.table_aliases
+                    )
+                    assert selectable.parent
+                    # import pdb; pdb.set_trace()
+                    new_cte = _create_cte_seg(
+                        alias_name=alias_name,
+                        subquery=clone_map[selectable.parent],
+                        case_preference=case_preference,
+                        dialect=dialect,
+                    )
+                    print(f"Creating new CTE: {new_cte.raw}")
+                    insert_position = ctes.insert_cte(new_cte)
+                    print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
+                    from_expression = _find_from_expression(
+                        query, selectable.selectable
+                    )
 
-    if query.query_type != QueryType.WithCompound:
-        for child in query.children:
-            for selectable in child.selectables:
-                alias_name, is_new_name = ctes.create_cte_alias(
-                    selectable.select_info.table_aliases
-                )
-                assert selectable.parent
-                new_cte = _create_cte_seg(
-                    alias_name=alias_name,
-                    subquery=clone_map[selectable.parent],
-                    case_preference=case_preference,
-                    dialect=dialect,
-                )
-                print(f"Creating new CTE: {new_cte.raw}")
-                insert_position = ctes.insert_cte(new_cte)
-                print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
-                from_expression = _find_from_expression(query, selectable.selectable)
-
-                # this_seg_clone = clone_map[from_expression]
-                # new_table_ref = _create_table_ref(alias_name, dialect)
-                # this_seg_clone.segments = [new_table_ref]
-                anchor = from_expression.get_child("table_expression")
-                # Grab the first keyword or symbol in the subquery to use as the
-                # anchor. This makes the lint warning less likely to be filtered out
-                # if a bit of the subquery happens to be templated.
-                for seg in anchor.recursive_crawl("keyword", "symbol"):
-                    anchor = seg
-                    break
-                res = LintResult(
-                    anchor=anchor,
-                    description=f"{query.selectables[0].selectable.type} clauses "
-                    "should not contain subqueries. Use CTEs instead",
-                    fixes=[],
-                )
-                assert len(query.selectables) == 1
-                lint_results.append(
-                    (res, from_expression, alias_name, query.selectables[0].selectable)
-                )
+                    # this_seg_clone = clone_map[from_expression]
+                    # new_table_ref = _create_table_ref(alias_name, dialect)
+                    # this_seg_clone.segments = [new_table_ref]
+                    anchor = from_expression.get_child("table_expression")
+                    # Grab the first keyword or symbol in the subquery to use as the
+                    # anchor. This makes the lint warning less likely to be filtered out
+                    # if a bit of the subquery happens to be templated.
+                    for seg in anchor.recursive_crawl("keyword", "symbol"):
+                        anchor = seg
+                        break
+                    res = LintResult(
+                        anchor=anchor,
+                        description=f"{query.selectables[0].selectable.type} clauses "
+                        "should not contain subqueries. Use CTEs instead",
+                        fixes=[],
+                    )
+                    assert len(query.selectables) == 1
+                    lint_results.append(
+                        (
+                            res,
+                            from_expression,
+                            alias_name,
+                            query.selectables[0].selectable,
+                        )
+                    )
     return lint_results
 
 
@@ -295,27 +278,6 @@ def _get_first_select_statement_descendant(
     return None  # pragma: no cover
 
 
-def _get_sources_from_select(segment: BaseSegment, dialect: Dialect) -> Set[str]:
-    """Given segment, return set of table or alias names it queries from."""
-    result = set()
-    select = None
-    if segment.is_type("select_statement"):
-        select = segment
-    elif segment.is_type("with_compound_statement"):
-        # For WITH statement, process the main query underneath.
-        select = _get_first_select_statement_descendant(segment)
-    if select and select.is_type("select_statement"):
-        select_info = get_select_statement_info(select, dialect)
-        if select_info:
-            for a in select_info.table_aliases:
-                # For each table in FROM, return table name and any alias.
-                if a.ref_str:
-                    result.add(a.ref_str)
-                if a.object_reference:
-                    result.add(a.object_reference.raw)
-    return result
-
-
 def _is_correlated_subquery(
     nested_select: Segments, select_source_names: Set[str], dialect: Dialect
 ):
@@ -339,51 +301,6 @@ def _is_correlated_subquery(
                 if tr.part in select_source_names:
                     return True
     return False
-
-
-def _find_nested_subqueries(
-    select: Segments,
-    dialect: Dialect,
-) -> Generator[_NestedSubQuerySummary, None, None]:
-    """Find possible offending elements and return enough to fix them."""
-    select_types = [
-        "with_compound_statement",
-        "set_expression",
-        "select_statement",
-    ]
-    from_clause = select.children().first(is_type("from_clause")).children()
-    offending_types = ["join_clause", "from_expression_element"]
-    select_source_names = _get_sources_from_select(select[0], dialect)
-
-    # Match any of the types we care about
-    for this_seg in from_clause.children(is_type(*offending_types)).iterate_segments():
-        parent_type = this_seg[0].get_type()
-        # Ensure we are at the right depth (from_expression_element)
-        if not this_seg.all(is_type("from_expression_element")):
-            this_seg = this_seg.children(
-                is_type("from_expression_element"),
-            )
-
-        table_expression_el = this_seg.children(
-            is_type("table_expression"),
-        )
-
-        # Is it bracketed? If so, lint that instead.
-        bracketed_expression = table_expression_el.children(
-            is_type("bracketed"),
-        )
-        nested_select = bracketed_expression or table_expression_el
-        # If we find a child with a "problem" type, raise an issue.
-        # If not, we're fine.
-        seg = nested_select.children(is_type(*select_types))
-        if not seg:
-            # If there is no match there is no error
-            continue
-        # Type, parent_select, parent_sequence
-        if not _is_correlated_subquery(nested_select, select_source_names, dialect):
-            yield _NestedSubQuerySummary(
-                parent_type, select, this_seg, table_expression_el[0]
-            )
 
 
 class _CTEBuilder:

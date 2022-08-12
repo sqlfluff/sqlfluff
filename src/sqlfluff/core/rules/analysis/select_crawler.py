@@ -171,7 +171,7 @@ class Query:
             return None
 
     def crawl_sources(
-        self, segment: BaseSegment, recurse_into=True, pop=False
+        self, segment: BaseSegment, recurse_into=True, pop=False, lookup_cte=True
     ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -179,20 +179,26 @@ class Query:
         references or function call strings, yield those.
         """
         found_nested_select = False
-        for seg in segment.recursive_crawl(
+        types = [
             "table_reference",
             "set_expression",
             "select_statement",
             "values_clause",
-            recurse_into=recurse_into,
+        ]
+        for event, path in SelectCrawler.visit_segments(
+            segment, recurse_into=recurse_into
         ):
+            seg = path[-1]
+            if event == "end" or not seg.is_type(*types):
+                continue
+
             if seg is segment:
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
                 continue
 
             if seg.is_type("table_reference"):
-                if not seg.is_qualified():
+                if not seg.is_qualified() and lookup_cte:
                     cte = self.lookup_cte(seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.
@@ -204,7 +210,9 @@ class Query:
                     "set_expression", "select_statement", "values_clause"
                 )
                 found_nested_select = True
-                crawler = SelectCrawler(seg, self.dialect, parent=self)
+                crawler = SelectCrawler(
+                    seg if len(path) == 1 else path[-2], self.dialect, parent=self
+                )
                 # We know this will pass because we specified parent=self above.
                 assert crawler.query_tree
                 yield crawler.query_tree
@@ -405,13 +413,14 @@ class SelectCrawler:
         return list(query.crawl_sources(segment, True))
 
     @classmethod
-    def visit_segments(cls, seg, path=None):
+    def visit_segments(cls, seg, path=None, recurse_into=True):
         """Recursively visit all segments."""
         if path is None:
             path = []
         path.append(seg)
         yield "start", path
-        for seg in seg.segments:
-            yield from cls.visit_segments(seg, path)
+        if recurse_into:
+            for seg in seg.segments:
+                yield from cls.visit_segments(seg, path, recurse_into)
         yield "end", path
         path.pop()
