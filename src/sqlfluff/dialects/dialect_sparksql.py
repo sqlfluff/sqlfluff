@@ -804,6 +804,23 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                 ),
             ),
+            # ALTER TABLE - DROP COLUMN
+            # https://docs.delta.io/2.0.0/delta-batch.html#drop-columns
+            Sequence(
+                "DROP",
+                OneOf(
+                    Sequence(
+                        "COLUMN",
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    Sequence(
+                        "COLUMNS",
+                        Bracketed(
+                            Delimited(AnyNumberOf(Ref("ColumnReferenceSegment"))),
+                        ),
+                    ),
+                ),
+            ),
             # ALTER TABLE - ADD PARTITION
             Sequence(
                 "ADD",
