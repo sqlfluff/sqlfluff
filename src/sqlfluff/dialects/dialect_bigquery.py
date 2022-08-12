@@ -200,7 +200,10 @@ bigquery_dialect.replace(
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(
-            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("DatatypeSegment"),
+                Bracketed(Anything(), optional=True),  # For types like STRING(10)
+            ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
@@ -979,10 +982,18 @@ class StructTypeSegment(ansi.StructTypeSegment):
                         # ParameterNames can look like Datatypes so can't use
                         # Optional=True here and instead do a OneOf in order
                         # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("DatatypeSegment"),
+                            Bracketed(
+                                Anything(), optional=True
+                            ),  # For types like STRING(10)
+                        ),
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Ref("DatatypeSegment"),
+                            Bracketed(
+                                Anything(), optional=True
+                            ),  # For types like STRING(10)
                         ),
                     ),
                     Ref("OptionsSegment", optional=True),
@@ -1265,10 +1276,14 @@ class DeclareStatementSegment(BaseSegment):
         "DECLARE",
         Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
-            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("DatatypeSegment"),
+                Bracketed(Anything(), optional=True),  # For types like STRING(10)
+            ),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
+                Bracketed(Anything(), optional=True),  # For types like STRING(10)
                 Ref("DefaultDeclareOptionsGrammar"),
             ),
         ),

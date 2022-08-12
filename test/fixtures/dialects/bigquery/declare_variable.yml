@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7c3d1f233e5041e5097f81128665af7895b563ccfcf6e247911f714db0b0c04
+_hash: 3b17e71de9db77f87edb67886d67c0b9f59f8697db4a00a860db090a6f2c797e
 file:
 - statement:
     declare_segment:
@@ -39,6 +39,17 @@ file:
       - numeric_literal: '1'
       - binary_operator: +
       - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: var6
+      data_type:
+        data_type_identifier: string
+      bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -89,6 +100,21 @@ file:
       - comma: ','
       - quoted_literal: "'two'"
       - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: arr5
+      data_type:
+        keyword: array
+        start_angle_bracket: <
+        data_type:
+          data_type_identifier: string
+        bracketed:
+          start_bracket: (
+          raw: '10'
+          end_bracket: )
+        end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -173,6 +199,31 @@ file:
         - comma: ','
         - quoted_literal: "'two'"
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: str5
+      data_type:
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - bracketed:
+            start_bracket: (
+            raw: '10'
+            end_bracket: )
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - bracketed:
+            start_bracket: (
+            raw: '10'
+            end_bracket: )
+        - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
