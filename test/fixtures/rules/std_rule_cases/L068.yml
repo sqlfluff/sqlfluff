@@ -75,5 +75,8 @@ test_fail_end_bracket:
   fix_str: |
       SELECT A.SOMETHING
       FROM (
-          SELECT B FROM D
+          SELECT 
+              B,
+              C
+          FROM D
       ) AS A
