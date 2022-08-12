@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f764a90e522fbf93af91502b7d5d60fc7d52aad1069da7826c78e772707cb35e
+_hash: 165a27d604367bcfd0b6120bd77f56eb432074fd3ca1bed5785f1491971e8cea
 file:
 - statement:
     select_statement:
@@ -11,38 +11,38 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -50,27 +50,27 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -78,37 +78,37 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -116,26 +116,26 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -143,38 +143,38 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: NULLS
       - keyword: LAST
 - statement_terminator: ;
@@ -184,27 +184,27 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: NULLS
       - keyword: LAST
 - statement_terminator: ;
@@ -214,38 +214,38 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -254,27 +254,27 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -283,38 +283,38 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
       - keyword: NULLS
       - keyword: FIRST
@@ -325,27 +325,27 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
       - keyword: NULLS
       - keyword: FIRST
@@ -356,42 +356,42 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: zip_code
+                naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - keyword: ASC
       - comma: ','
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -400,31 +400,31 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zip_code
+            naked_identifier: zip_code
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - keyword: ASC
       - comma: ','
       - column_reference:
-          identifier: age
+          naked_identifier: age
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -433,18 +433,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -462,19 +462,19 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                        identifier: name
+                        naked_identifier: name
                   - comma: ','
                   - expression:
-                      literal: "' '"
+                      quoted_literal: "' '"
                   - comma: ','
                   - expression:
                       numeric_literal:
                         sign_indicator: '-'
-                        literal: '1'
+                        numeric_literal: '1'
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -483,32 +483,32 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: age
+            naked_identifier: age
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '100'
+          numeric_literal: '100'
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -516,28 +516,28 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -545,23 +545,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       having_clause:
         keyword: HAVING
         expression:
@@ -572,14 +572,14 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '1'
+          numeric_literal: '1'
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;

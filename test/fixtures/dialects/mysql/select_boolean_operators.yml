@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dbbc8e7e4eab1d7deeedabd2729455f48982c64656b8c2e2deeb90c76cc23c2e
+_hash: d21bd7c1927fa694dafe5d0812e99cabeeffb6fd21b122189c8c7dbb79328f70
 file:
 - statement:
     select_statement:
@@ -12,7 +12,7 @@ file:
         select_clause_element:
           expression:
             not_operator: '!'
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -20,9 +20,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: '&&'
-          - literal: '1'
+          - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -30,9 +30,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: '&&'
-          - literal: '0'
+          - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -40,9 +40,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: XOR
-          - literal: '1'
+          - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -50,9 +50,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: '||'
-          - literal: '1'
+          - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -61,9 +61,9 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: col_1
+              naked_identifier: col_1
             binary_operator: '&&'
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -75,13 +75,13 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: col_1
+                  naked_identifier: col_1
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                  identifier: col_2
+                  naked_identifier: col_2
               end_bracket: )
             binary_operator: '||'
             column_reference:
-              identifier: col_3
+              naked_identifier: col_3
 - statement_terminator: ;

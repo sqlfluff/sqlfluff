@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcbbe4e41b82a575ef0f9f09e41953cabb8b595933014fcc3d0ce5cfc0acab88
+_hash: 3331ebbbdfebac532a05c372437bc04e0f1dfb59d3c22d61acf1d3efa217a5b5
 file:
 - statement:
     reset_statement:
@@ -12,7 +12,7 @@ file:
 - statement:
     reset_statement:
     - keyword: RESET
-    - identifier: spark
+    - naked_identifier: spark
     - dot: .
-    - identifier: abc
+    - naked_identifier: abc
 - statement_terminator: ;

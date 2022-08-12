@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb5668d4692a023cbc141d281e70e350027273f62325d15d8d755a7f1c10321b
+_hash: e8d6e7c005fdc570dc9a08ccd787476aa3adff9797cdb618e173430f4e60b207
 file:
 - batch:
     statement:
@@ -11,9 +11,9 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ISOweek
+        - naked_identifier: ISOweek
       - function_parameter_list:
           bracketed:
             start_bracket: (
@@ -61,7 +61,7 @@ file:
                           parameter: '@DATE'
                         end_bracket: )
                   - binary_operator: +
-                  - literal: '1'
+                  - numeric_literal: '1'
                   - binary_operator: '-'
                   - function:
                       function_name:
@@ -93,11 +93,11 @@ file:
                                 bracketed:
                                   start_bracket: (
                                   expression:
-                                    literal: '4'
+                                    numeric_literal: '4'
                                   end_bracket: )
                               end_bracket: )
                           binary_operator: +
-                          literal: "'0104'"
+                          quoted_literal: "'0104'"
                         end_bracket: )
                   statement_terminator: ;
             - statement:
@@ -111,7 +111,7 @@ file:
                           parameter: '@ISOweek'
                           comparison_operator:
                             raw_comparison_operator: '='
-                          literal: '0'
+                          numeric_literal: '0'
                         end_bracket: )
                   statement:
                     set_segment:
@@ -123,7 +123,7 @@ file:
                       expression:
                         function:
                           function_name:
-                            identifier: dbo
+                            naked_identifier: dbo
                             dot: .
                             function_name_identifier: ISOweek
                           bracketed:
@@ -146,18 +146,18 @@ file:
                                           parameter: '@DATE'
                                         end_bracket: )
                                     binary_operator: '-'
-                                    literal: '1'
+                                    numeric_literal: '1'
                                   keyword: AS
                                   data_type:
                                     data_type_identifier: CHAR
                                     bracketed:
                                       start_bracket: (
                                       expression:
-                                        literal: '4'
+                                        numeric_literal: '4'
                                       end_bracket: )
                                   end_bracket: )
                             - binary_operator: +
-                            - literal: "'12'"
+                            - quoted_literal: "'12'"
                             - binary_operator: +
                             - function:
                                 function_name:
@@ -165,7 +165,7 @@ file:
                                 bracketed:
                                   start_bracket: (
                                   expression:
-                                    literal: '24'
+                                    numeric_literal: '24'
                                     binary_operator: +
                                     function:
                                       function_name:
@@ -183,12 +183,12 @@ file:
                                     bracketed:
                                       start_bracket: (
                                       expression:
-                                        literal: '2'
+                                        numeric_literal: '2'
                                       end_bracket: )
                                   end_bracket: )
                             end_bracket: )
                         binary_operator: +
-                        literal: '1'
+                        numeric_literal: '1'
                       statement_terminator: ;
             - statement:
                 if_then_statement:
@@ -213,7 +213,7 @@ file:
                                   end_bracket: )
                               comparison_operator:
                                 raw_comparison_operator: '='
-                              literal: '12'
+                              numeric_literal: '12'
                             end_bracket: )
                         - binary_operator: AND
                         - bracketed:
@@ -247,7 +247,7 @@ file:
                               comparison_operator:
                               - raw_comparison_operator: '>'
                               - raw_comparison_operator: '='
-                              literal: '28'
+                              numeric_literal: '28'
                             end_bracket: )
                         end_bracket: )
                   statement:
@@ -258,7 +258,7 @@ file:
                         comparison_operator:
                           raw_comparison_operator: '='
                       expression:
-                        literal: '1'
+                        numeric_literal: '1'
                       statement_terminator: ;
             - statement:
                 return_segment:
@@ -280,7 +280,7 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
-          identifier: f
+          naked_identifier: f
       - function_parameter_list:
           bracketed:
             start_bracket: (
@@ -291,7 +291,7 @@ file:
       - bracketed:
           start_bracket: (
           column_definition:
-            identifier: i
+            naked_identifier: i
             data_type:
               data_type_identifier: int
           end_bracket: )
@@ -310,7 +310,7 @@ file:
                     select_clause:
                       keyword: SELECT
                       select_clause_element:
-                        literal: '1'
+                        numeric_literal: '1'
                     statement_terminator: ;
             - statement:
                 return_segment:
@@ -326,7 +326,7 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
-          identifier: F
+          naked_identifier: F
       - function_parameter_list:
           bracketed:
             start_bracket: (
@@ -347,7 +347,7 @@ file:
                 return_segment:
                   keyword: RETURN
                   expression:
-                    literal: '0'
+                    numeric_literal: '0'
             - keyword: END
           statement_terminator: ;
 - go_statement:

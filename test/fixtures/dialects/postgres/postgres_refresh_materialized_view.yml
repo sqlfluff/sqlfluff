@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5f2271d7be725928f9a8fdf12f69d77dc63c3f3c109a16d102b7021d9c96d59
+_hash: 011617b04ac29d2c81f9dde19306c07200d628114014dbb490659d79ed70013c
 file:
 - statement:
     refresh_materialized_view_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     refresh_materialized_view_statement:
@@ -20,7 +20,7 @@ file:
     - keyword: VIEW
     - keyword: CONCURRENTLY
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
 - statement_terminator: ;
 - statement:
     refresh_materialized_view_statement:
@@ -28,7 +28,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA
@@ -39,7 +39,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'

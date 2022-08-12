@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74bad0d28ff18bdd2b6afaa5af6ddbaa8ebce2f71fc9a7368d9e6395cbcc4e93
+_hash: 80890f68625e258cea1cda0d83a4ac3758b29fa0a28ee0c9bcea13ca0ca4d559
 file:
   batch:
   - statement:
@@ -11,7 +11,7 @@ file:
       - if_clause:
           keyword: IF
           expression:
-            literal: '1'
+            numeric_literal: '1'
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
@@ -23,22 +23,22 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       column_reference:
-                        identifier: Weight
+                        naked_identifier: Weight
                   from_clause:
                     keyword: from
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: DimProduct
+                            naked_identifier: DimProduct
                   where_clause:
                     keyword: WHERE
                     expression:
                       column_reference:
-                        identifier: ProductKey
+                        naked_identifier: ProductKey
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: '1'
+                      numeric_literal: '1'
               end_bracket: )
       - statement:
           select_statement:
@@ -46,37 +46,37 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: EnglishDescription
+                  naked_identifier: EnglishDescription
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: Weight
+                  naked_identifier: Weight
             - comma: ','
             - select_clause_element:
-                literal: "'This product is too heavy to ship and is only available\
+                quoted_literal: "'This product is too heavy to ship and is only available\
                   \ for pickup.'"
                 alias_expression:
                   keyword: AS
-                  identifier: ShippingStatus
+                  naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: DimProduct
+                      naked_identifier: DimProduct
             where_clause:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: '1'
+                numeric_literal: '1'
       - keyword: ELSE
       - statement:
           select_statement:
@@ -84,36 +84,36 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: EnglishDescription
+                  naked_identifier: EnglishDescription
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: Weight
+                  naked_identifier: Weight
             - comma: ','
             - select_clause_element:
-                literal: "'This product is available for shipping or pickup.'"
+                quoted_literal: "'This product is available for shipping or pickup.'"
                 alias_expression:
                   keyword: AS
-                  identifier: ShippingStatus
+                  naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: DimProduct
+                      naked_identifier: DimProduct
             where_clause:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: '1'
+                numeric_literal: '1'
   - statement:
       if_then_statement:
         if_clause:
@@ -136,7 +136,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: '#a'
+                            hash_identifier: '#a'
               - set_operator:
                 - keyword: union
                 - keyword: all
@@ -153,7 +153,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: '#b'
+                            hash_identifier: '#b'
               end_bracket: )
         statement:
           set_segment:
@@ -163,5 +163,5 @@ file:
               comparison_operator:
                 raw_comparison_operator: '='
             expression:
-              literal: '1'
+              numeric_literal: '1'
             statement_terminator: ;

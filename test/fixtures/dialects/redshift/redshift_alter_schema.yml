@@ -3,38 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0547c2567bf7de196541057dff55e0702e55eac0757b0bc4c0bad1090a9642ee
+_hash: fd0a3f56eabf13406394006718db8bdeb0d09fe9ad3bfdbb476619984fe809b8
 file:
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: RENAME
     - keyword: TO
     - schema_reference:
-        identifier: schema2
+        naked_identifier: schema2
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: OWNER
     - keyword: TO
     - role_reference:
-        identifier: new_owner
+        naked_identifier: new_owner
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: QUOTA
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -42,7 +42,7 @@ file:
     - keyword: ALTER
     - keyword: SCHEMA
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: QUOTA
     - keyword: UNLIMITED
 - statement_terminator: ;

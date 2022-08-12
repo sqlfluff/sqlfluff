@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6ff3a18f404cf99e333bb99a0debee787101ab1a0545f9e5a94d23b882fc11a
+_hash: b0eb41bbfff930069d2dee1c38806061e4d02c975049a911ff45b4c6f5f2f892
 file:
 - statement:
     create_materialized_view_statement:
@@ -11,21 +11,21 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -36,21 +36,21 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -58,7 +58,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -67,14 +67,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -83,21 +83,21 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
     - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'
@@ -109,21 +109,21 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA
@@ -137,7 +137,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -146,14 +146,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -162,7 +162,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -171,26 +171,26 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: b
+                naked_identifier: b
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: y
+                naked_identifier: y
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'value'"
+              quoted_literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -211,26 +211,26 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: b
+                naked_identifier: b
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: y
+                naked_identifier: y
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'value'"
+              quoted_literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -239,33 +239,33 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: y
+              naked_identifier: y
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'value'"
+            quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -276,33 +276,33 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: y
+              naked_identifier: y
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'value'"
+            quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -310,25 +310,25 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -339,25 +339,25 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -365,7 +365,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -374,14 +374,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: col
+                naked_identifier: col
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -397,7 +397,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -406,14 +406,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: col
+                naked_identifier: col
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -426,29 +426,29 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: USING
     - parameter: heap
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: pg_default
+        naked_identifier: pg_default
     - keyword: WITH
     - bracketed:
       - start_bracket: (
       - parameter: prop_a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'some_value'"
+      - quoted_literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'FALSE'
+      - boolean_literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
       - end_bracket: )
@@ -460,7 +460,7 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               function:
@@ -470,11 +470,11 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: b
+                      naked_identifier: b
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_avg
+                naked_identifier: my_avg
           - comma: ','
           - select_clause_element:
               function:
@@ -486,27 +486,27 @@ file:
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_count
+                naked_identifier: my_count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
           - column_reference:
-              identifier: grp
+              naked_identifier: grp
           having_clause:
             keyword: HAVING
             expression:
               column_reference:
-                identifier: col
+                naked_identifier: col
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '2'
+              numeric_literal: '2'
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -521,29 +521,29 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: USING
     - parameter: heap
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: pg_default
+        naked_identifier: pg_default
     - keyword: WITH
     - bracketed:
       - start_bracket: (
       - parameter: prop_a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'some_value'"
+      - quoted_literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'FALSE'
+      - boolean_literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
       - end_bracket: )
@@ -555,7 +555,7 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               function:
@@ -565,11 +565,11 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: b
+                      naked_identifier: b
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_avg
+                naked_identifier: my_avg
           - comma: ','
           - select_clause_element:
               function:
@@ -581,27 +581,27 @@ file:
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_count
+                naked_identifier: my_count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
           - column_reference:
-              identifier: grp
+              naked_identifier: grp
           having_clause:
             keyword: HAVING
             expression:
               column_reference:
-                identifier: col
+                naked_identifier: col
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '2'
+              numeric_literal: '2'
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -613,10 +613,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: my_mat_view
+        naked_identifier: my_mat_view
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: pg_default
+        naked_identifier: pg_default
     - keyword: AS
     - set_expression:
       - select_statement:
@@ -624,22 +624,22 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-              - identifier: table_1
+              - naked_identifier: table_1
               - dot: .
-              - identifier: field_1
+              - naked_identifier: field_1
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: table_1
+              - naked_identifier: table_1
               - dot: .
-              - identifier: field_2
+              - naked_identifier: field_2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table_1
+                    naked_identifier: table_1
       - set_operator:
           keyword: UNION
       - select_statement:
@@ -647,30 +647,30 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-              - identifier: table_2
+              - naked_identifier: table_2
               - dot: .
-              - identifier: field_1
+              - naked_identifier: field_1
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: table_2
+              - naked_identifier: table_2
               - dot: .
-              - identifier: field_2
+              - naked_identifier: field_2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table_2
+                    naked_identifier: table_2
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field_1
+            naked_identifier: field_1
         - comma: ','
         - column_reference:
-            identifier: field_2
+            naked_identifier: field_2
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA

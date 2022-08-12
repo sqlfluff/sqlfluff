@@ -87,9 +87,8 @@ mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -139,9 +138,8 @@ mysql_dialect.replace(
         OneOf(
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="date_constructor_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="date_constructor_literal",
             ),
             Ref("NumericLiteralSegment"),
         ),
@@ -153,9 +151,8 @@ mysql_dialect.replace(
             # we use grammar to handle this.
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             min_times=1,
         ),
@@ -168,51 +165,44 @@ mysql_dialect.replace(
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser(
-        "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ),
+    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", KeywordSegment, type="binary_operator"),
-        StringParser(
-            "&&", CodeSegment, name="double_ampersand", type="binary_operator"
-        ),
+        StringParser("&&", CodeSegment, type="binary_operator"),
     ),
     OrOperatorGrammar=OneOf(
         StringParser("OR", KeywordSegment, type="binary_operator"),
-        StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
+        StringParser("||", CodeSegment, type="binary_operator"),
         StringParser("XOR", KeywordSegment, type="binary_operator"),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
-        StringParser("!", CodeSegment, name="not_operator", type="not_operator"),
+        StringParser("!", CodeSegment, type="not_operator"),
     ),
 )
 
 mysql_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",
         CodeSegment,
-        name="system_variable",
         type="system_variable",
     ),
 )
@@ -669,13 +659,11 @@ class IntervalExpressionSegment(BaseSegment):
 
 mysql_dialect.add(
     OutputParameterSegment=StringParser(
-        "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
+        "OUT", SymbolSegment, type="parameter_direction"
     ),
-    InputParameterSegment=StringParser(
-        "IN", SymbolSegment, name="outputparameter", type="parameter_direction"
-    ),
+    InputParameterSegment=StringParser("IN", SymbolSegment, type="parameter_direction"),
     InputOutputParameterSegment=StringParser(
-        "INOUT", SymbolSegment, name="inputoutputparameter", type="parameter_direction"
+        "INOUT", SymbolSegment, type="parameter_direction"
     ),
     ProcedureParameterGrammar=OneOf(
         Sequence(
@@ -693,13 +681,11 @@ mysql_dialect.add(
     LocalVariableNameSegment=RegexParser(
         r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
         r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     BooleanDynamicSystemVariablesGrammar=OneOf(

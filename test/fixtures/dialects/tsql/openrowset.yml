@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48b092c4656aec4c6f3f765ce1da48bb1a78e1cbddd5210ad4ee88644a435491
+_hash: 3711edeb255f7411613a876ef888e2da9cab67a2a5f15523df1a0e9fc71ec47c
 file:
 - batch:
     statement:
@@ -13,7 +13,7 @@ file:
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
-                identifier: a
+                naked_identifier: a
                 dot: .
                 star: '*'
         from_clause:
@@ -25,20 +25,20 @@ file:
                   keyword: OPENROWSET
                   bracketed:
                   - start_bracket: (
-                  - literal: "'Microsoft.Jet.OLEDB.4.0'"
+                  - quoted_literal: "'Microsoft.Jet.OLEDB.4.0'"
                   - comma: ','
-                  - literal: "'C:\\SAMPLES\\Northwind.mdb'"
+                  - quoted_literal: "'C:\\SAMPLES\\Northwind.mdb'"
                   - statement_terminator: ;
-                  - literal: "'admin'"
+                  - quoted_literal: "'admin'"
                   - statement_terminator: ;
-                  - literal: "'password'"
+                  - quoted_literal: "'password'"
                   - comma: ','
                   - table_reference:
-                      identifier: Customers
+                      naked_identifier: Customers
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: a
+                naked_identifier: a
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -50,7 +50,7 @@ file:
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
-                identifier: d
+                naked_identifier: d
                 dot: .
                 star: '*'
         from_clause:
@@ -62,16 +62,16 @@ file:
                   keyword: OPENROWSET
                   bracketed:
                   - start_bracket: (
-                  - literal: "'SQLNCLI'"
+                  - quoted_literal: "'SQLNCLI'"
                   - comma: ','
-                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - quoted_literal: "'Server=Seattle1;Trusted_Connection=yes;'"
                   - comma: ','
                   - table_reference:
-                      identifier: Department
+                      naked_identifier: Department
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: d
+                naked_identifier: d
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -83,7 +83,7 @@ file:
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
-                identifier: d
+                naked_identifier: d
                 dot: .
                 star: '*'
         from_clause:
@@ -95,20 +95,20 @@ file:
                   keyword: OPENROWSET
                   bracketed:
                   - start_bracket: (
-                  - literal: "'SQLNCLI'"
+                  - quoted_literal: "'SQLNCLI'"
                   - comma: ','
-                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - quoted_literal: "'Server=Seattle1;Trusted_Connection=yes;'"
                   - comma: ','
                   - table_reference:
-                    - identifier: AdventureWorks2012
+                    - naked_identifier: AdventureWorks2012
                     - dot: .
-                    - identifier: HumanResources
+                    - naked_identifier: HumanResources
                     - dot: .
-                    - identifier: Department
+                    - naked_identifier: Department
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: d
+                naked_identifier: d
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -120,7 +120,7 @@ file:
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
-                identifier: a
+                naked_identifier: a
                 dot: .
                 star: '*'
         from_clause:
@@ -132,15 +132,15 @@ file:
                   keyword: OPENROWSET
                   bracketed:
                   - start_bracket: (
-                  - literal: "'SQLNCLI'"
+                  - quoted_literal: "'SQLNCLI'"
                   - comma: ','
-                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - quoted_literal: "'Server=Seattle1;Trusted_Connection=yes;'"
                   - comma: ','
-                  - literal: "'SELECT TOP 10 GroupName, Name\n     FROM AdventureWorks2012.HumanResources.Department'"
+                  - quoted_literal: "'SELECT TOP 10 GroupName, Name\n     FROM AdventureWorks2012.HumanResources.Department'"
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: a
+                naked_identifier: a
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -163,13 +163,13 @@ file:
                   bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - literal: "'C:\\DATA\\inv-2017-01-19.csv'"
+                  - quoted_literal: "'C:\\DATA\\inv-2017-01-19.csv'"
                   - comma: ','
                   - keyword: SINGLE_CLOB
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: DATA
+                naked_identifier: DATA
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -192,13 +192,13 @@ file:
                   bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - literal: "N'C:\\Text1.txt'"
+                  - quoted_literal: "N'C:\\Text1.txt'"
                   - comma: ','
                   - keyword: SINGLE_NCLOB
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: Document
+                naked_identifier: Document
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -221,26 +221,26 @@ file:
                   bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - literal: "N'D:\\XChange\\test-csv.csv'"
+                  - quoted_literal: "N'D:\\XChange\\test-csv.csv'"
                   - comma: ','
                   - keyword: FORMATFILE
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: "N'D:\\XChange\\test-csv.fmt'"
+                  - quoted_literal: "N'D:\\XChange\\test-csv.fmt'"
                   - comma: ','
                   - keyword: FIRSTROW
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: '2'
+                  - numeric_literal: '2'
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: "'CSV'"
+                  - quoted_literal: "'CSV'"
                   - end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: cars
+                naked_identifier: cars
           statement_terminator: ;
 - go_statement:
     keyword: GO

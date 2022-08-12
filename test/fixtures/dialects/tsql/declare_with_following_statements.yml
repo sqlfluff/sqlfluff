@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b15bff17b0bca2a6197eaee7bdc2da1d35fcd74e08b42e3751b8a5bf6d99201
+_hash: 9013ff18c7dda6a855445fac2ea3c7ea44f06b45a408fc6b51cbb373085a86fc
 file:
   batch:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROC
     - object_reference:
-      - identifier: Reporting
+      - naked_identifier: Reporting
       - dot: .
-      - identifier: DeclareProblem
+      - naked_identifier: DeclareProblem
     - keyword: AS
     - procedure_statement:
         statement:
@@ -82,7 +82,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: "'1900-01-01'"
+                      quoted_literal: "'1900-01-01'"
                     end_bracket: )
           - statement:
               set_segment:
@@ -95,7 +95,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: "'2000-01-01'"
+                      quoted_literal: "'2000-01-01'"
                     end_bracket: )
           - statement:
               set_segment:
@@ -108,7 +108,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: "'2001-01-01'"
+                      quoted_literal: "'2001-01-01'"
                     end_bracket: )
                 statement_terminator: ;
           - statement:
@@ -122,7 +122,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: "'tempdb..#UP'"
+                          quoted_literal: "'tempdb..#UP'"
                         end_bracket: )
                   - keyword: IS
                   - keyword: NOT
@@ -132,6 +132,6 @@ file:
                   - keyword: DROP
                   - keyword: TABLE
                   - table_reference:
-                      identifier: '#UP'
+                      hash_identifier: '#UP'
                   - statement_terminator: ;
           - keyword: END

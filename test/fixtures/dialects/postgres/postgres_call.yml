@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f41728aca3a606d1fc11715eb928375c95a00e330f0f82a2a77a4670fb24eaed
+_hash: b12374e2b1d93458057b2bea73d70f3a3b0439b0b09dbbe7ef34c4d4f594dec5
 file:
 - statement:
     call_statement:
@@ -20,7 +20,7 @@ file:
       keyword: CALL
       function:
         function_name:
-          identifier: my_schema
+          naked_identifier: my_schema
           dot: .
           function_name_identifier: do_db_maintenance
         bracketed:
@@ -46,10 +46,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'param1'"
+            quoted_literal: "'param1'"
         - comma: ','
         - expression:
-            literal: '123'
+            numeric_literal: '123'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -57,7 +57,7 @@ file:
       keyword: call
       function:
         function_name:
-          identifier: schema
+          naked_identifier: schema
           dot: .
           function_name_identifier: procedure_name
         bracketed:
@@ -69,15 +69,15 @@ file:
       keyword: call
       function:
         function_name:
-          identifier: schema
+          naked_identifier: schema
           dot: .
           function_name_identifier: procedure_name
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'param1'"
+            quoted_literal: "'param1'"
         - comma: ','
         - expression:
-            literal: '123'
+            numeric_literal: '123'
         - end_bracket: )
 - statement_terminator: ;

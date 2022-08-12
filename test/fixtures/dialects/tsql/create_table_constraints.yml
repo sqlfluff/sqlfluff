@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a796718d04f9ad17b20dff0919bdd408d031e1e73c03c1a4a3129084fa55778b
+_hash: ae78f80d2edb04232dca076a9b908ecec860d7000e48422858ae0811b3ace7c1
 file:
 - batch:
     statement:
@@ -11,13 +11,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[example]'
+        - quoted_identifier: '[example]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column A]'
+            quoted_identifier: '[Column A]'
             data_type:
               data_type_identifier: '[int]'
             column_constraint_segment:
@@ -25,7 +25,7 @@ file:
                 keyword: IDENTITY
         - comma: ','
         - column_definition:
-          - identifier: '[Column B]'
+          - quoted_identifier: '[Column B]'
           - data_type:
               data_type_identifier: '[int]'
           - column_constraint_segment:
@@ -33,29 +33,29 @@ file:
                 keyword: IDENTITY
                 bracketed:
                 - start_bracket: (
-                - literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
+                - numeric_literal: '1'
                 - end_bracket: )
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
-              literal: "'mydefault'"
+              quoted_literal: "'mydefault'"
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: DATE
             column_constraint_segment:
@@ -68,7 +68,7 @@ file:
                   end_bracket: )
         - comma: ','
         - column_definition:
-          - identifier: '[col1]'
+          - quoted_identifier: '[col1]'
           - data_type:
               data_type_identifier: int
           - column_constraint_segment:
@@ -79,7 +79,7 @@ file:
                   start_bracket: (
                   numeric_literal:
                     sign_indicator: '-'
-                    literal: '1'
+                    numeric_literal: '1'
                   end_bracket: )
                 end_bracket: )
           - column_constraint_segment:
@@ -87,7 +87,7 @@ file:
             - keyword: 'null'
         - comma: ','
         - column_definition:
-          - identifier: '[col1]'
+          - quoted_identifier: '[col1]'
           - data_type:
               data_type_identifier: int
           - column_constraint_segment:
@@ -96,34 +96,34 @@ file:
                 start_bracket: (
                 numeric_literal:
                   sign_indicator: '-'
-                  literal: '1'
+                  numeric_literal: '1'
                 end_bracket: )
           - column_constraint_segment:
             - keyword: not
             - keyword: 'null'
         - comma: ','
         - column_definition:
-          - identifier: '[col1]'
+          - quoted_identifier: '[col1]'
           - data_type:
               data_type_identifier: int
           - column_constraint_segment:
               keyword: default
               numeric_literal:
                 sign_indicator: '-'
-                literal: '1'
+                numeric_literal: '1'
           - column_constraint_segment:
             - keyword: not
             - keyword: 'null'
         - comma: ','
         - column_definition:
-          - identifier: '[col1]'
+          - quoted_identifier: '[col1]'
           - data_type:
               data_type_identifier: INT
           - column_constraint_segment:
               keyword: DEFAULT
               bracketed:
                 start_bracket: (
-                literal: 'NULL'
+                null_literal: 'NULL'
                 end_bracket: )
           - column_constraint_segment:
               keyword: 'NULL'
@@ -136,13 +136,13 @@ file:
       - keyword: create
       - keyword: table
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed:
           start_bracket: (
           column_definition:
-            identifier: '[col1]'
+            quoted_identifier: '[col1]'
             data_type:
               data_type_identifier: INT
           comma: ','
@@ -154,7 +154,7 @@ file:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: '[col1]'
+                  quoted_identifier: '[col1]'
                   keyword: ASC
                 end_bracket: )
           end_bracket: )
@@ -166,20 +166,20 @@ file:
       - keyword: create
       - keyword: table
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed:
           start_bracket: (
           column_definition:
-            identifier: '[col1]'
+            quoted_identifier: '[col1]'
             data_type:
               data_type_identifier: INT
           comma: ','
           table_constraint:
           - keyword: CONSTRAINT
           - object_reference:
-              identifier: '[Pk_Id]'
+              quoted_identifier: '[Pk_Id]'
           - keyword: PRIMARY
           - keyword: KEY
           - keyword: NONCLUSTERED
@@ -187,7 +187,7 @@ file:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: '[col1]'
+                  quoted_identifier: '[col1]'
                   keyword: DESC
                 end_bracket: )
           end_bracket: )
@@ -199,19 +199,19 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - identifier: '[ColumnB]'
+          - quoted_identifier: '[ColumnB]'
           - data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
           - column_constraint_segment:
               keyword: FILESTREAM
@@ -223,17 +223,17 @@ file:
                 keyword: FUNCTION
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: "'my_func'"
+                quoted_literal: "'my_func'"
                 end_bracket: )
         - comma: ','
         - column_definition:
-          - identifier: '[ColumnC]'
+          - quoted_identifier: '[ColumnC]'
           - data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
           - column_constraint_segment:
               keyword: 'NULL'
@@ -243,16 +243,16 @@ file:
             - keyword: REPLICATION
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
             column_constraint_segment:
             - keyword: GENERATED
@@ -263,13 +263,13 @@ file:
             - keyword: HIDDEN
         - comma: ','
         - column_definition:
-            identifier: '[columnE]'
+            quoted_identifier: '[columnE]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               encrypted_with_grammar:
@@ -280,7 +280,7 @@ file:
                 - keyword: COLUMN_ENCRYPTION_KEY
                 - comparison_operator:
                     raw_comparison_operator: '='
-                - identifier: key_name
+                - naked_identifier: key_name
                 - comma: ','
                 - keyword: ENCRYPTION_TYPE
                 - comparison_operator:
@@ -290,22 +290,22 @@ file:
                 - keyword: ALGORITHM
                 - comparison_operator:
                     raw_comparison_operator: '='
-                - literal: "'AEAD_AES_256_CBC_HMAC_SHA_256'"
+                - quoted_literal: "'AEAD_AES_256_CBC_HMAC_SHA_256'"
                 - end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[column1]'
+            quoted_identifier: '[column1]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: collate
               object_reference:
-                identifier: Latin1_General_BIN
+                naked_identifier: Latin1_General_BIN
         - end_bracket: )
 - go_statement:
     keyword: GO

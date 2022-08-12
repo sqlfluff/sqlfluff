@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 313a0ed2d9d3ed25e2465b005b85f0ad561ca7cc480334bd820feb59ae99cf2c
+_hash: fee23c92023bf3d3cc4811b1bde6f35bc684d179d3f3ed3377345add96fe6e4d
 file:
   statement:
     unload_statement:
@@ -15,38 +15,38 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: field_1
+                naked_identifier: field_1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: field_2
+                naked_identifier: field_2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
     - keyword: TO
-    - literal: "'s3://my_athena_data_location/my_folder/'"
+    - quoted_literal: "'s3://my_athena_data_location/my_folder/'"
     - keyword: WITH
     - bracketed:
       - start_bracket: (
       - keyword: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - keyword: compression
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gzip'"
+      - quoted_literal: "'gzip'"
       - comma: ','
       - keyword: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "','"
+      - quoted_literal: "','"
       - comma: ','
       - keyword: partitioned_by
       - comparison_operator:
@@ -55,7 +55,7 @@ file:
           keyword: ARRAY
           start_square_bracket: '['
           column_reference:
-            identifier: field_2
+            naked_identifier: field_2
           end_square_bracket: ']'
       - end_bracket: )
   statement_terminator: ;

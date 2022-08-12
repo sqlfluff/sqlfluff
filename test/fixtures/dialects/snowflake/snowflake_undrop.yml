@@ -3,26 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c57e010625311f703254a2ab8e966b7d8eda5daac434e955affc20706cda6c2
+_hash: 838d75cabfaa26669ef8ee2837f2c286b8b34c3cb9a06cd10612193b6ed2e1dc
 file:
 - statement:
     undrop_statement:
     - keyword: UNDROP
     - keyword: database
     - database_reference:
-        identifier: mytestdb2
+        naked_identifier: mytestdb2
 - statement_terminator: ;
 - statement:
     undrop_statement:
     - keyword: undrop
     - keyword: schema
     - schema_reference:
-        identifier: myschema
+        naked_identifier: myschema
 - statement_terminator: ;
 - statement:
     undrop_statement:
     - keyword: undrop
     - keyword: table
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
 - statement_terminator: ;

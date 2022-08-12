@@ -3,61 +3,61 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77127f1290fab222c69f541d36ee93d5c295b91a2ddf6050911b5f3a182bde11
+_hash: 09f1c96dbf54c8f69b60a676d2bc40e9fc0b0ec9a0194347d3190d82d047ca1e
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&''"
+          quoted_literal: "U&''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'\n'"
+          quoted_literal: "U&'\n'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&''''"
+          quoted_literal: "U&''''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'aaa'''"
+          quoted_literal: "U&'aaa'''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'\n''\n'"
+          quoted_literal: "U&'\n''\n'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'' UESCAPE '!'"
+          quoted_literal: "U&'' UESCAPE '!'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'asdf' UESCAPE 'P'"
+          quoted_literal: "U&'asdf' UESCAPE 'P'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "U&'\nsomestuff\n'\nUESCAPE\n\n\n'?'"
+          quoted_literal: "U&'\nsomestuff\n'\nUESCAPE\n\n\n'?'"
 - statement_terminator: ;

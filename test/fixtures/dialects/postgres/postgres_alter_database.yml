@@ -3,154 +3,154 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 493cf6c8b8ef0e646333fac960017ac2cdccdbcd82edb6b8899598e2cc9fdc7f
+_hash: ab60c1beb820b1bc2a5122bd1ca0f722c4e14323e2cf3a50eb71013edcbd7d1b
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: WITH
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
-    - keyword: WITH
-    - keyword: CONNECTION
-    - keyword: LIMIT
-    - literal: '10'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
-    - keyword: WITH
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-    - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
-    - keyword: WITH
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-    - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
-    - keyword: CONNECTION
-    - keyword: LIMIT
-    - literal: '10'
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-    - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
-- statement_terminator: ;
-- statement:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: WITH
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
-    - keyword: IS_TEMPLATE
-    - literal: 'true'
-    - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
     - keyword: RENAME
     - keyword: TO
     - database_reference:
-        identifier: new_db
+        naked_identifier: new_db
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: other_role
+        naked_identifier: other_role
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_ROLE
@@ -160,18 +160,18 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: CURRENT_USER
+        naked_identifier: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: OWNER
     - keyword: TO
     - keyword: SESSION_USER
@@ -181,51 +181,51 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: postgres
+        naked_identifier: postgres
     - keyword: SET
     - parameter: password_encryption
     - keyword: TO
-    - literal: "'scram-sha-256'"
+    - quoted_literal: "'scram-sha-256'"
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - keyword: TO
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - keyword: TO
-    - literal: "'some_value'"
+    - quoted_literal: "'some_value'"
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - keyword: TO
@@ -236,31 +236,31 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'some_value'"
+    - quoted_literal: "'some_value'"
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - comparison_operator:
@@ -272,7 +272,7 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: SET
     - parameter: parameter1
     - keyword: FROM
@@ -283,7 +283,7 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: RESET
     - parameter: parameter1
 - statement_terminator: ;
@@ -292,7 +292,7 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: db
+        naked_identifier: db
     - keyword: RESET
     - keyword: ALL
 - statement_terminator: ;

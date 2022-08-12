@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74f499926398aefa1e0c93f26292651f2787f706091ab6108b6e78744c63dd90
+_hash: 6da6849d0cf0e48809d62b8bdfce5180ca01fd95df5005628ca1532711c76fca
 file:
   batch:
   - statement:
@@ -12,36 +12,36 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-            - identifier: table1
+            - naked_identifier: table1
             - dot: .
-            - identifier: col
+            - naked_identifier: col
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
             join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table2
+                    naked_identifier: table2
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: table1
+                  - naked_identifier: table1
                   - dot: .
-                  - identifier: col
+                  - naked_identifier: col
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: table2
+                  - naked_identifier: table2
                   - dot: .
-                  - identifier: col
+                  - naked_identifier: col
                 - keyword: COLLATE
                 - collation: Latin1_GENERAL_CS_AS
           statement_terminator: ;
@@ -51,38 +51,38 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-            - identifier: table1
+            - naked_identifier: table1
             - dot: .
-            - identifier: col
+            - naked_identifier: col
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
             join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table2
+                    naked_identifier: table2
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: table1
+                  - naked_identifier: table1
                   - dot: .
-                  - identifier: col
+                  - naked_identifier: col
                 - keyword: COLLATE
                 - collation: Latin1_GENERAL_CS_AS
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: table2
+                  - naked_identifier: table2
                   - dot: .
-                  - identifier: col
+                  - naked_identifier: col
           statement_terminator: ;
   - statement:
       select_statement:
@@ -90,20 +90,20 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col
+              naked_identifier: col
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - expression:
             column_reference:
-              identifier: col
+              naked_identifier: col
             keyword: COLLATE
             collation: Latin1_General_CS_AS_KS_WS
         - keyword: DESC
@@ -115,7 +115,7 @@ file:
           select_clause_element:
             expression:
               column_reference:
-                identifier: col
+                naked_identifier: col
               keyword: COLLATE
               collation: Latin1_General_CS_AS_KS_WS
         from_clause:
@@ -124,7 +124,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
           statement_terminator: ;
   - statement:
       select_statement:
@@ -133,7 +133,7 @@ file:
           select_clause_element:
             expression:
               column_reference:
-                identifier: col
+                naked_identifier: col
               keyword: COLLATE
               collation: database_default
         from_clause:
@@ -142,5 +142,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
           statement_terminator: ;

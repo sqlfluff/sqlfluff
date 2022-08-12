@@ -3,79 +3,79 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 174e81c54842504ed42929c67173a5740f2939a77ac38a5e665a13198f533345
+_hash: 13e3b4d4c698c500750e8957a91ac71d8ee8d711d531847e9b197400f95fd866
 file:
 - statement:
     alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: RENAME
     - keyword: TO
     - trigger_reference:
-        identifier: new_name
+        naked_identifier: new_name
 - statement_terminator: ;
 - statement:
     alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
-        identifier: extension_name
+        naked_identifier: extension_name
 - statement_terminator: ;
 - statement:
     alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: 'ON'
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: 'NO'
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
-        identifier: extension_name
+        naked_identifier: extension_name
 - statement_terminator: ;
 - statement:
     alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: emp_stamp
+        naked_identifier: emp_stamp
     - keyword: 'ON'
     - table_reference:
-        identifier: emp
+        naked_identifier: emp
     - keyword: RENAME
     - keyword: TO
     - trigger_reference:
-        identifier: emp_track_chgs
+        naked_identifier: emp_track_chgs
 - statement_terminator: ;
 - statement:
     alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: emp_stamp
+        naked_identifier: emp_stamp
     - keyword: 'ON'
     - table_reference:
-        identifier: emp
+        naked_identifier: emp
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
-        identifier: emplib
+        naked_identifier: emplib
 - statement_terminator: ;

@@ -3,23 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b97ca7aed9ff7c9ebeb305bf72765e4b8ede9c4b215ef21c61540941d24629b2
+_hash: 0f19977ccbaad4b1cac3168bab6bc93b927fc4d2b68926f3abd0f25258bc1c93
 file:
 - statement:
     drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
     - sequence_reference:
-      - identifier: foo
+      - naked_identifier: foo
       - dot: .
-      - identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
     drop_sequence_statement:
@@ -28,7 +28,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     drop_sequence_statement:
@@ -37,7 +37,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -45,6 +45,6 @@ file:
     - keyword: DROP
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: RESTRICT
 - statement_terminator: ;

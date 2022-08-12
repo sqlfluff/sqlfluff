@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e26e953c76d3057c8870add1b2ae20687a47122872dc58e1cb484b0d6f9c1d5
+_hash: 6f72e33f00da94be292df2b7a638bb3903965fcf4a9ffe352c4bdfb5dfca0d79
 file:
 - statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           changes_clause:
           - keyword: changes
           - bracketed:
@@ -34,7 +34,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -55,7 +55,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           changes_clause:
           - keyword: changes
           - bracketed:
@@ -70,11 +70,11 @@ file:
               keyword: offset
               parameter_assigner: =>
               expression:
-                numeric_literal:
+              - numeric_literal:
                   sign_indicator: '-'
-                  literal: '60'
-                binary_operator: '*'
-                literal: '5'
+                  numeric_literal: '60'
+              - binary_operator: '*'
+              - numeric_literal: '5'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -83,14 +83,14 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: c1
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           changes_clause:
           - keyword: changes
           - bracketed:
@@ -105,7 +105,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -117,7 +117,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 05 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 05 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -138,7 +138,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           changes_clause:
           - keyword: changes
           - bracketed:
@@ -153,6 +153,6 @@ file:
               keyword: statement
               parameter_assigner: =>
               expression:
-                literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+                quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
               end_bracket: )
 - statement_terminator: ;

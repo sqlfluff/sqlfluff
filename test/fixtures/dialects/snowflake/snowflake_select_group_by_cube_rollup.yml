@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b4fa00951bb9d05e3e86c26cf4153dbca449232608916d6a6d5e612abc392d5
+_hash: f87666ca56011ac296f9d5713d781ea4d3579f504e59fcb6a1e6a3aa8ad5aec7
 file:
 - statement:
     select_statement:
@@ -11,11 +11,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           function:
@@ -27,14 +27,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: record_count
+            naked_identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: people
+                naked_identifier: people
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -42,10 +42,10 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - comma: ','
         - column_reference:
-            identifier: age
+            naked_identifier: age
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -54,11 +54,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           function:
@@ -70,14 +70,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: record_count
+            naked_identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: people
+                naked_identifier: people
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -85,9 +85,9 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - comma: ','
         - column_reference:
-            identifier: age
+            naked_identifier: age
         - end_bracket: )
 - statement_terminator: ;

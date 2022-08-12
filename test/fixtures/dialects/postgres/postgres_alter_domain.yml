@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c4fcc99db32bb75485502d6ca6c6f7fc2bfea986023d0b3c04df28e3c3619d1
+_hash: 0842cce75d5ff763da81ba1a1620dd6a7387bffae5ba7feb612778a0d6bd75d6
 file:
 - statement:
     alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: SET
     - keyword: NOT
     - keyword: 'NULL'
@@ -20,7 +20,7 @@ file:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: DROP
     - keyword: NOT
     - keyword: 'NULL'
@@ -30,11 +30,11 @@ file:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: ADD
     - keyword: CONSTRAINT
     - object_reference:
-        identifier: zipchk
+        naked_identifier: zipchk
     - keyword: CHECK
     - expression:
         bracketed:
@@ -47,11 +47,11 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: VALUE
+                    naked_identifier: VALUE
                 end_bracket: )
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '5'
+            numeric_literal: '5'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -59,47 +59,47 @@ file:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: DROP
     - keyword: CONSTRAINT
     - object_reference:
-        identifier: zipchk
+        naked_identifier: zipchk
 - statement_terminator: ;
 - statement:
     alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: RENAME
     - keyword: CONSTRAINT
     - object_reference:
-        identifier: zipchk
+        naked_identifier: zipchk
     - keyword: TO
     - object_reference:
-        identifier: zip_check
+        naked_identifier: zip_check
 - statement_terminator: ;
 - statement:
     alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
     - object_reference:
-        identifier: zipcode
+        naked_identifier: zipcode
     - keyword: SET
     - keyword: SCHEMA
     - object_reference:
-        identifier: customers
+        naked_identifier: customers
 - statement_terminator: ;
 - statement:
     alter_domain_statement:
     - keyword: alter
     - keyword: domain
     - object_reference:
-        identifier: oname
+        naked_identifier: oname
     - keyword: add
     - keyword: constraint
     - object_reference:
-        identifier: '"test"'
+        quoted_identifier: '"test"'
     - keyword: check
     - expression:
         bracketed:
@@ -112,10 +112,10 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: value
+                    naked_identifier: value
                 end_bracket: )
             comparison_operator:
               raw_comparison_operator: <
-            literal: '512'
+            numeric_literal: '512'
           end_bracket: )
 - statement_terminator: ;

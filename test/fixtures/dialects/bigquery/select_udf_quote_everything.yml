@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d23fbe052b4b3469508ec1bfb5af0d4104fc70afb7ccee753d44fad42d488326
+_hash: 87e79f07adffb44eb77cd74fca7cfa0a249c682f4e9e108ed10d7db33c443f38
 file:
   statement:
     select_statement:
@@ -17,20 +17,20 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                - identifier: log_tbl
+                - naked_identifier: log_tbl
                 - dot: .
-                - identifier: orderdate
+                - naked_identifier: orderdate
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: orderdate
+            naked_identifier: orderdate
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`gcp-project.data.year_2021`'
+                quoted_identifier: '`gcp-project.data.year_2021`'
             alias_expression:
               keyword: AS
-              identifier: log_tbl
+              naked_identifier: log_tbl

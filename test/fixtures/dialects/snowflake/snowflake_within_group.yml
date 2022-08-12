@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e055abed63064d701205d01aa7a1db53a595627a3816220fc5ae3ecad163c78b
+_hash: ae4bc291752c96f5835abc1f446a4e45477ab253bf6de7d14866ce4c403909cd
 file:
 - statement:
     with_compound_statement:
       keyword: with
       common_table_expression:
-        identifier: favourite_fruits
+        naked_identifier: favourite_fruits
         keyword: as
         bracketed:
           start_bracket: (
@@ -18,17 +18,17 @@ file:
             - keyword: select
             - select_clause_element:
                 column_reference:
-                  identifier: column1
+                  naked_identifier: column1
                 alias_expression:
                   keyword: as
-                  identifier: name
+                  naked_identifier: name
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: column2
+                  naked_identifier: column2
                 alias_expression:
                   keyword: as
-                  identifier: colour
+                  naked_identifier: colour
             from_clause:
               keyword: from
               from_expression:
@@ -41,55 +41,55 @@ file:
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'apple'"
+                            quoted_literal: "'apple'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'unripe banana'"
+                            quoted_literal: "'unripe banana'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'kiwi'"
+                            quoted_literal: "'kiwi'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'blueberry'"
+                            quoted_literal: "'blueberry'"
                         - comma: ','
                         - expression:
-                            literal: "'blue'"
+                            quoted_literal: "'blue'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'strawberry'"
+                            quoted_literal: "'strawberry'"
                         - comma: ','
                         - expression:
-                            literal: "'red'"
+                            quoted_literal: "'red'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'grape'"
+                            quoted_literal: "'grape'"
                         - comma: ','
                         - expression:
-                            literal: "'red'"
+                            quoted_literal: "'red'"
                         - end_bracket: )
                     end_bracket: )
           end_bracket: )
@@ -98,7 +98,7 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: colour
+              naked_identifier: colour
         - comma: ','
         - select_clause_element:
             function:
@@ -108,10 +108,10 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: name
+                    naked_identifier: name
               - comma: ','
               - expression:
-                  literal: "', '"
+                  quoted_literal: "', '"
               - end_bracket: )
               withingroup_clause:
               - keyword: within
@@ -122,23 +122,23 @@ file:
                   - keyword: order
                   - keyword: by
                   - column_reference:
-                      identifier: name
+                      naked_identifier: name
                   end_bracket: )
             alias_expression:
               keyword: as
-              identifier: fruits
+              naked_identifier: fruits
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: favourite_fruits
+                  naked_identifier: favourite_fruits
         groupby_clause:
         - keyword: group
         - keyword: by
         - column_reference:
-            identifier: colour
+            naked_identifier: colour
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -152,7 +152,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: o_orderkey
+                  naked_identifier: o_orderkey
               end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
@@ -163,7 +163,7 @@ file:
                 - keyword: ORDER
                 - keyword: BY
                 - column_reference:
-                    identifier: o_orderkey
+                    naked_identifier: o_orderkey
                 - keyword: ASC
                 end_bracket: )
       from_clause:
@@ -172,7 +172,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -186,7 +186,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: o_orderkey
+                  naked_identifier: o_orderkey
               end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -197,7 +197,7 @@ file:
                 - keyword: order
                 - keyword: by
                 - column_reference:
-                    identifier: o_orderkey
+                    naked_identifier: o_orderkey
                 - keyword: asc
                 end_bracket: )
       from_clause:
@@ -206,15 +206,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -229,7 +229,7 @@ file:
               keyword: distinct
               expression:
                 column_reference:
-                  identifier: o_orderstatus
+                  naked_identifier: o_orderstatus
               end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -240,7 +240,7 @@ file:
                 - keyword: order
                 - keyword: by
                 - column_reference:
-                    identifier: o_orderstatus
+                    naked_identifier: o_orderstatus
                 - keyword: asc
                 end_bracket: )
       from_clause:
@@ -249,20 +249,20 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: o_orderstatus
+          naked_identifier: o_orderstatus
       - keyword: asc
 - statement_terminator: ;
 - statement:
@@ -271,7 +271,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: o_orderstatus
+            naked_identifier: o_orderstatus
       - comma: ','
       - select_clause_element:
           function:
@@ -281,7 +281,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: o_clerk
+                  naked_identifier: o_clerk
               end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -292,7 +292,7 @@ file:
                 - keyword: order
                 - keyword: by
                 - column_reference:
-                    identifier: o_totalprice
+                    naked_identifier: o_totalprice
                 - keyword: desc
                 end_bracket: )
       from_clause:
@@ -301,25 +301,25 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
       groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
-          identifier: o_orderstatus
+          naked_identifier: o_orderstatus
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: o_orderstatus
+          naked_identifier: o_orderstatus
       - keyword: desc
 - statement_terminator: ;
 - statement:
@@ -334,10 +334,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: o_orderkey
+                  naked_identifier: o_orderkey
             - comma: ','
             - expression:
-                literal: "' '"
+                quoted_literal: "' '"
             - end_bracket: )
       from_clause:
         keyword: from
@@ -345,15 +345,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -368,10 +368,10 @@ file:
             - keyword: distinct
             - expression:
                 column_reference:
-                  identifier: o_orderstatus
+                  naked_identifier: o_orderstatus
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
       from_clause:
         keyword: from
@@ -379,15 +379,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -395,7 +395,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: o_orderstatus
+            naked_identifier: o_orderstatus
       - comma: ','
       - select_clause_element:
           function:
@@ -405,10 +405,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: o_clerk
+                  naked_identifier: o_clerk
             - comma: ','
             - expression:
-                literal: "', '"
+                quoted_literal: "', '"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -419,7 +419,7 @@ file:
                 - keyword: order
                 - keyword: by
                 - column_reference:
-                    identifier: o_totalprice
+                    naked_identifier: o_totalprice
                 - keyword: desc
                 end_bracket: )
       from_clause:
@@ -428,20 +428,20 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: o_totalprice
+            naked_identifier: o_totalprice
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '450000'
+          numeric_literal: '450000'
       groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
-          identifier: o_orderstatus
+          naked_identifier: o_orderstatus
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -455,10 +455,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: spanish_phrase
+                  naked_identifier: spanish_phrase
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -476,10 +476,10 @@ file:
                       - start_bracket: (
                       - expression:
                           column_reference:
-                            identifier: spanish_phrase
+                            naked_identifier: spanish_phrase
                       - comma: ','
                       - expression:
-                          literal: "'sp'"
+                          quoted_literal: "'sp'"
                       - end_bracket: )
                 end_bracket: )
       from_clause:
@@ -488,12 +488,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: collation_demo
+                naked_identifier: collation_demo
       groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
-          identifier: english_phrase
+          naked_identifier: english_phrase
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -507,10 +507,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: spanish_phrase
+                  naked_identifier: spanish_phrase
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -528,10 +528,10 @@ file:
                       - start_bracket: (
                       - expression:
                           column_reference:
-                            identifier: spanish_phrase
+                            naked_identifier: spanish_phrase
                       - comma: ','
                       - expression:
-                          literal: "'utf8'"
+                          quoted_literal: "'utf8'"
                       - end_bracket: )
                 end_bracket: )
       from_clause:
@@ -540,10 +540,10 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: collation_demo
+                naked_identifier: collation_demo
       groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
-          identifier: english_phrase
+          naked_identifier: english_phrase
 - statement_terminator: ;

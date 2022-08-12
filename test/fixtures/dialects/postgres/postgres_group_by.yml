@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84c3ac865a33240de092c065ef0809a0f2f08785229ad657bcca97c86812befa
+_hash: 56b23034c805ae31ef4c58c05d9cc32653cf2e88f088f4ee5556a59b8b864ad5
 file:
 - statement:
     select_statement:
@@ -11,11 +11,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: region
+            naked_identifier: region
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           function:
@@ -25,15 +25,15 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: region
+                  naked_identifier: region
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: city
+                  naked_identifier: city
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: grp_idx
+            naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
           function:
@@ -44,11 +44,11 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_total
+            naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
@@ -59,7 +59,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -67,11 +67,11 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_poi
+                  naked_identifier: is_poi
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_poi
+            naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
           function:
@@ -82,7 +82,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -90,18 +90,18 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_gov
+                  naked_identifier: is_gov
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_gov
+            naked_identifier: num_gov
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: location_data
+                naked_identifier: location_data
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -115,25 +115,25 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: region
+                    naked_identifier: region
                 end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: city
+                    naked_identifier: city
                 end_bracket: )
             - comma: ','
             - bracketed:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: region
+                    naked_identifier: region
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: city
+                    naked_identifier: city
               - end_bracket: )
             - comma: ','
             - bracketed:
@@ -147,11 +147,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: region
+            naked_identifier: region
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           function:
@@ -161,15 +161,15 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: region
+                  naked_identifier: region
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: city
+                  naked_identifier: city
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: grp_idx
+            naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
           function:
@@ -180,11 +180,11 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_total
+            naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
@@ -195,7 +195,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -203,11 +203,11 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_poi
+                  naked_identifier: is_poi
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_poi
+            naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
           function:
@@ -218,7 +218,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -226,18 +226,18 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_gov
+                  naked_identifier: is_gov
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_gov
+            naked_identifier: num_gov
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: location_data
+                naked_identifier: location_data
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -252,7 +252,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: region
+                      naked_identifier: region
                   end_bracket: )
             - comma: ','
             - expression:
@@ -260,7 +260,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: city
+                      naked_identifier: city
                   end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -270,11 +270,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: region
+            naked_identifier: region
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           function:
@@ -284,15 +284,15 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: region
+                  naked_identifier: region
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: city
+                  naked_identifier: city
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: grp_idx
+            naked_identifier: grp_idx
       - comma: ','
       - select_clause_element:
           function:
@@ -303,11 +303,11 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_total
+            naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
@@ -318,7 +318,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -326,11 +326,11 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_poi
+                  naked_identifier: is_poi
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_poi
+            naked_identifier: num_poi
       - comma: ','
       - select_clause_element:
           function:
@@ -341,7 +341,7 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -349,18 +349,18 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: is_gov
+                  naked_identifier: is_gov
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: num_gov
+            naked_identifier: num_gov
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: location_data
+                naked_identifier: location_data
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -375,7 +375,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: region
+                      naked_identifier: region
                   end_bracket: )
             - comma: ','
             - expression:
@@ -383,7 +383,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: city
+                      naked_identifier: city
                   end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

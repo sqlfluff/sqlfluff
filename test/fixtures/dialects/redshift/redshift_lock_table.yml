@@ -3,28 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f3e5675940cf08bda78dcc4e97a8d2a2d82e53cd8cbf89d06600dcbac2a7a352
+_hash: d695887ab9247049a3b4f0e904609c3e52b445016e429664b97e11c1758cbae7
 file:
 - statement:
     lock_table_statement:
     - keyword: lock
     - table_reference:
-        identifier: event
+        naked_identifier: event
     - comma: ','
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
 - statement_terminator: ;
 - statement:
     lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-      - identifier: schema_name
+      - naked_identifier: schema_name
       - dot: .
-      - identifier: table_name1
+      - naked_identifier: table_name1
     - comma: ','
     - table_reference:
-      - identifier: schema_name
+      - naked_identifier: schema_name
       - dot: .
-      - identifier: table_name2
+      - naked_identifier: table_name2
 - statement_terminator: ;

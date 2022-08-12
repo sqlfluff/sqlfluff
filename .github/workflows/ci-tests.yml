@@ -120,7 +120,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
+        dbt-version: [ 'dbt020', 'dbt021', 'dbt100', 'dbt130' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3

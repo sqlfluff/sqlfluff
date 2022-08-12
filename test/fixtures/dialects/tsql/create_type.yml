@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10e306045a4224847aac4e26618260a19aa19c83d672572df7fb53a76da30b74
+_hash: a2c1c31fefcb68ff28a78b97c46dd954b01b2f37fd35e738d24f403801789768
 file:
   batch:
   - statement:
@@ -11,28 +11,28 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-          identifier: person
+          naked_identifier: person
       - keyword: AS
       - keyword: TABLE
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: name
+            naked_identifier: name
             data_type:
               data_type_identifier: nvarchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '10'
+                  numeric_literal: '10'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: height
+            naked_identifier: height
             data_type:
               data_type_identifier: int
         - comma: ','
         - column_definition:
-            identifier: favorite_color
+            naked_identifier: favorite_color
             data_type:
               data_type_identifier: int
         - end_bracket: )
@@ -42,8 +42,8 @@ file:
       - keyword: CREATE
       - keyword: TYPE
       - object_reference:
-          identifier: weird_int
+          naked_identifier: weird_int
       - keyword: FROM
       - object_reference:
-          identifier: int
+          naked_identifier: int
   - statement_terminator: ;

@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5fd9dbf57bdeb48bcb10562eaa4c1302be701fbdb9c2c75b4728ca5a42c200cb
+_hash: a883a865ea068fef2ebbb05389eee862981840f9dd1ff7c602154440c7f9988d
 file:
 - statement:
     drop_consumer_group_statement:
     - keyword: DROP
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: CEO
+    - naked_identifier: CEO
 - statement_terminator: ;
 - statement:
     drop_consumer_group_statement:
     - keyword: DROP
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: '"ADMIN"'
+    - quoted_identifier: '"ADMIN"'
 - statement_terminator: ;

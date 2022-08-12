@@ -3,164 +3,164 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f54637958703d3b817943a9355d7b1ba06801ef83b58c6cac0b341ccf781fea9
+_hash: a155b30a76ea8dc167ff827e171f4c86fd931ab6e3365743f68cef6e793efd02
 file:
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: staff
+        naked_identifier: staff
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: salary
+            naked_identifier: salary
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: salary
+              naked_identifier: salary
             binary_operator: '*'
-            literal: '1.1'
+            numeric_literal: '1.1'
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'SMITH'"
+          quoted_literal: "'SMITH'"
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: staff
+        naked_identifier: staff
       alias_expression:
         keyword: AS
-        identifier: U
+        naked_identifier: U
       set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: salary
+          - naked_identifier: salary
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-            - identifier: U
+            - naked_identifier: U
             - dot: .
-            - identifier: salary
+            - naked_identifier: salary
             binary_operator: /
-            literal: '1.95583'
+            numeric_literal: '1.95583'
       - comma: ','
       - set_clause:
           column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: currency
+          - naked_identifier: currency
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-            literal: "'EUR'"
+            quoted_literal: "'EUR'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: currency
+          - naked_identifier: currency
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'DM'"
+          quoted_literal: "'DM'"
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: staff
+        naked_identifier: staff
       alias_expression:
         keyword: AS
-        identifier: U
+        naked_identifier: U
       set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: salary
+          - naked_identifier: salary
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-            - identifier: V
+            - naked_identifier: V
             - dot: .
-            - identifier: salary
+            - naked_identifier: salary
       - comma: ','
       - set_clause:
           column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: currency
+          - naked_identifier: currency
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-            - identifier: V
+            - naked_identifier: V
             - dot: .
-            - identifier: currency
+            - naked_identifier: currency
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: staff
+                naked_identifier: staff
             alias_expression:
               keyword: AS
-              identifier: U
+              naked_identifier: U
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: staff_updates
+                naked_identifier: staff_updates
             alias_expression:
               keyword: AS
-              identifier: V
+              naked_identifier: V
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: U
+          - naked_identifier: U
           - dot: .
-          - identifier: name
+          - naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: V
+          - naked_identifier: V
           - dot: .
-          - identifier: name
+          - naked_identifier: name
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: order_pos
+        naked_identifier: order_pos
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: stocks
+            naked_identifier: stocks
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-              identifier: stocks
+              naked_identifier: stocks
             binary_operator: '*'
-            literal: '10'
+            numeric_literal: '10'
       preferring_clause:
         keyword: PREFERRING
         preference_term:
@@ -171,7 +171,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: order_date
+                  naked_identifier: order_date
               end_bracket: )
         partitionby_clause:
         - keyword: PARTITION
@@ -180,87 +180,87 @@ file:
           - start_bracket: (
           - expression:
               column_reference:
-                identifier: shop_id
+                naked_identifier: shop_id
           - comma: ','
           - expression:
               column_reference:
-                identifier: order_id
+                naked_identifier: order_id
           - end_bracket: )
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: t1
+        naked_identifier: t1
       set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier: x
+            naked_identifier: x
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-            - identifier: t2
+            - naked_identifier: t2
             - dot: .
-            - identifier: c1
+            - naked_identifier: c1
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: w
+            naked_identifier: w
           comparison_operator:
             raw_comparison_operator: '='
           expression:
             column_reference:
-            - identifier: t4
+            - naked_identifier: t4
             - dot: .
-            - identifier: c2
+            - naked_identifier: c2
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: t2
+                naked_identifier: t2
         - join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t3
+                  naked_identifier: t3
               alias_expression:
-                identifier: g
+                naked_identifier: g
             join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: c1
+                - naked_identifier: c1
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t3
+                - naked_identifier: t3
                 - dot: .
-                - identifier: c2
+                - naked_identifier: c2
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t4
+                  naked_identifier: t4
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t4
+                - naked_identifier: t4
                 - dot: .
-                - identifier: c3
+                - naked_identifier: c3
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t3
+                - naked_identifier: t3
                 - dot: .
-                - identifier: c1
+                - naked_identifier: c1
 - statement_terminator: ;

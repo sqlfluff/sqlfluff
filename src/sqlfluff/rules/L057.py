@@ -74,7 +74,7 @@ class Rule_L057(BaseRule):
         self.ignore_words_regex: str
 
         # Exit early if not a single identifier.
-        if context.segment.name not in ("naked_identifier", "quoted_identifier"):
+        if not context.segment.is_type("naked_identifier", "quoted_identifier"):
             return None
 
         # Get the ignore_words_list configuration.
@@ -101,7 +101,7 @@ class Rule_L057(BaseRule):
             return LintResult(memory=context.memory)
 
         # Do some extra processing for quoted identifiers.
-        if context.segment.name == "quoted_identifier":
+        if context.segment.is_type("quoted_identifier"):
 
             # Update the default policy to quoted
             policy = self.quoted_identifiers_policy
@@ -128,7 +128,7 @@ class Rule_L057(BaseRule):
             if (
                 context.dialect.name in ["bigquery"]
                 and context.parent_stack
-                and context.parent_stack[-1].name == "TableReferenceSegment"
+                and context.parent_stack[-1].is_type("table_reference")
             ):
                 if identifier[-1] == "*":
                     identifier = identifier[:-1]
@@ -153,7 +153,7 @@ class Rule_L057(BaseRule):
                 # Path Glob Filters (done inline for SQL direct file query)
                 # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
                 #
-                if context.parent_stack[-1].name == "FileReferenceSegment":
+                if context.parent_stack[-1].is_type("file_reference"):
                     return None
 
                 # SparkSQL properties keys used for setting table and runtime
@@ -164,7 +164,7 @@ class Rule_L057(BaseRule):
                 # Example configurations for table:
                 # https://spark.apache.org/docs/latest/sql-data-sources-parquet.html#configuration
                 #
-                if context.parent_stack[-1].name == "PropertyNameSegment":
+                if context.parent_stack[-1].is_type("property_name_identifier"):
                     identifier = identifier.replace(".", "")
 
             # Strip spaces if allowed (note a separate config as only valid for quoted
@@ -180,7 +180,7 @@ class Rule_L057(BaseRule):
             context.dialect.name == "redshift"
             and identifier[0] == "#"
             and context.parent_stack
-            and context.parent_stack[-1].name == "TableReferenceSegment"
+            and context.parent_stack[-1].is_type("table_reference")
         ):
             identifier = identifier[1:]
 

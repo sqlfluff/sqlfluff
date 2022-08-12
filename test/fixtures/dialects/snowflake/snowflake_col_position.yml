@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96ceeb5e867c924794c291945a2a581e7019d2731d8e769fc9fed894e7f6e5d8
+_hash: 95d14acd4175343665bf2cb17faba06d9a89c63d26a57226aa84afa4f22c302e
 file:
   statement:
     select_statement:
@@ -11,17 +11,17 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: $1
+            column_index_identifier_segment: $1
           alias_expression:
             keyword: as
-            identifier: type
+            naked_identifier: type
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: $2
+            column_index_identifier_segment: $2
           alias_expression:
             keyword: as
-            identifier: price
+            naked_identifier: price
       from_clause:
         keyword: from
         from_expression:
@@ -34,27 +34,27 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'toffee'"
+                      quoted_literal: "'toffee'"
                   - comma: ','
                   - expression:
-                      literal: '5'
+                      numeric_literal: '5'
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'starburst'"
+                      quoted_literal: "'starburst'"
                   - comma: ','
                   - expression:
-                      literal: '8'
+                      numeric_literal: '8'
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'flying_saucer'"
+                      quoted_literal: "'flying_saucer'"
                   - comma: ','
                   - expression:
-                      literal: '1'
+                      numeric_literal: '1'
                   - end_bracket: )
               end_bracket: )

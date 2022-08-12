@@ -3,44 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c96003b194c7e8288805b9a83bfeb59acccc799f4199ad2f9b2f60def4eada04
+_hash: 117afb5bf8f20db6b3c88fad946fdd821caf02a19e8dd624360f772c770b6fe0
 file:
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - identifier: salesdb
+      - naked_identifier: salesdb
       - dot: .
-      - identifier: customer
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: state
+          naked_identifier: state
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CA'"
+      - quoted_literal: "'CA'"
       - comma: ','
       - column_reference:
-          identifier: city
+          naked_identifier: city
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'Fremont'"
+      - quoted_literal: "'Fremont'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,15 +48,15 @@ file:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: state
+          naked_identifier: state
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'CA'"
+        quoted_literal: "'CA'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -64,14 +64,14 @@ file:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: city
+          naked_identifier: city
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'San Jose'"
+        quoted_literal: "'San Jose'"
         end_bracket: )
 - statement_terminator: ;

@@ -61,7 +61,7 @@ def get_select_statement_info(
         for join_clause in fc.recursive_crawl("join_clause"):
             seen_using = False
             for seg in join_clause.iter_segments():
-                if seg.is_type("keyword") and seg.name == "using":
+                if seg.is_type("keyword") and seg.raw_upper == "USING":
                     seen_using = True
                 elif seg.is_type("join_on_condition"):
                     for on_seg in seg.segments:

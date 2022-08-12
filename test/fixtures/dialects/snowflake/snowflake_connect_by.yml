@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67410c4480e51931d3b1588b2791e616646f74e4df59b6b2a0972eace550dda7
+_hash: b2ea3dbc494b78abe541194309260d24ae0a2a77bf63f9da74da0b73cdb74e19
 file:
 - statement:
     select_statement:
@@ -11,45 +11,45 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: manager_id
+            naked_identifier: manager_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: title
+            naked_identifier: title
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
           connectby_clause:
           - keyword: start
           - keyword: with
           - expression:
               column_reference:
-                identifier: title
+                naked_identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
-              identifier: manager_id
+              naked_identifier: manager_id
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: prior
           - column_reference:
-              identifier: employee_id
+              naked_identifier: employee_id
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: employee_id
+          naked_identifier: employee_id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -63,53 +63,53 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: title
+                  naked_identifier: title
             - comma: ','
             - expression:
-                literal: "' -> '"
+                quoted_literal: "' -> '"
             - end_bracket: )
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: manager_id
+            naked_identifier: manager_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: title
+            naked_identifier: title
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
           connectby_clause:
           - keyword: start
           - keyword: with
           - expression:
               column_reference:
-                identifier: title
+                naked_identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
-              identifier: manager_id
+              naked_identifier: manager_id
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: prior
           - column_reference:
-              identifier: employee_id
+              naked_identifier: employee_id
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: employee_id
+          naked_identifier: employee_id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -117,19 +117,19 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: description
+            naked_identifier: description
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: quantity
+            naked_identifier: quantity
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: component_id
+            naked_identifier: component_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: parent_component_id
+            naked_identifier: parent_component_id
       - comma: ','
       - select_clause_element:
           function:
@@ -139,44 +139,44 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: component_id
+                  naked_identifier: component_id
             - comma: ','
             - expression:
-                literal: "' -> '"
+                quoted_literal: "' -> '"
             - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: path
+            naked_identifier: path
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: components
+                naked_identifier: components
           connectby_clause:
           - keyword: start
           - keyword: with
           - expression:
               column_reference:
-                identifier: component_id
+                naked_identifier: component_id
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '1'
+              numeric_literal: '1'
           - keyword: connect
           - keyword: by
           - column_reference:
-              identifier: parent_component_id
+              naked_identifier: parent_component_id
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: prior
           - column_reference:
-              identifier: component_id
+              naked_identifier: component_id
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: path
+          naked_identifier: path
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -184,51 +184,51 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: manager_id
+            naked_identifier: manager_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: title
+            naked_identifier: title
       - comma: ','
       - select_clause_element:
           keyword: connect_by_root
           column_reference:
-            identifier: title
+            naked_identifier: title
           alias_expression:
             keyword: as
-            identifier: root_title
+            naked_identifier: root_title
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
           connectby_clause:
           - keyword: start
           - keyword: with
           - expression:
               column_reference:
-                identifier: title
+                naked_identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
-              identifier: manager_id
+              naked_identifier: manager_id
           - comparison_operator:
               raw_comparison_operator: '='
           - keyword: prior
           - column_reference:
-              identifier: employee_id
+              naked_identifier: employee_id
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: employee_id
+          naked_identifier: employee_id
 - statement_terminator: ;

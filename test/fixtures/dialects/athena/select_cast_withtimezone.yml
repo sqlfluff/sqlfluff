@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f7585818633f497d44057aba7dd054c8b1da72a8d95991fdaa6a1b4a8c9d0980
+_hash: 335468b5c467677aabed89e846c2fc395ae5ecce235e2c57ea8630f3817ff611
 file:
   statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: field_1
+                  naked_identifier: field_1
               keyword: as
               data_type:
               - keyword: time
@@ -34,7 +34,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: field_2
+                  naked_identifier: field_2
               keyword: as
               data_type:
               - keyword: timestamp
@@ -48,5 +48,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
   statement_terminator: ;
