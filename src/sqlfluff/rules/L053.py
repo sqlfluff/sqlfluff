@@ -74,7 +74,7 @@ class Rule_L053(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Top-level statements should not be wrapped in brackets."""
-        # Because of the root_only_crawler, this can control it's own
+        # Because of the root_only_crawler, this can control its own
         # crawling behaviour.
         results = []
         for parent, bracketed_segment in self._iter_bracketed_statements(

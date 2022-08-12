@@ -26,7 +26,7 @@ class BaseCrawler(ABC):
 class RootOnlyCrawler(BaseCrawler):
     """A crawler that doesn't crawl.
 
-    This just yields one context on the parent segment of the file.
+    This just yields one context on the root-level (topmost) segment of the file.
     """
 
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:

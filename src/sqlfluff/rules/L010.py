@@ -146,7 +146,7 @@ class Rule_L010(BaseRule):
         if cap_policy == "consistent":
             possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
             self.logger.debug(
-                f"Possible cases after segment '{segment.raw}': " "{possible_cases}"
+                f"Possible cases after segment '{segment.raw}': {possible_cases}"
             )
             if possible_cases:
                 # Save the latest possible case and skip

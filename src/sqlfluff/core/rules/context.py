@@ -30,7 +30,7 @@ class RuleContext:
     path: Optional[pathlib.Path]
 
     # These change within a file.
-    # segment: The segment in quesions
+    # segment: The segment in question
     segment: BaseSegment
     # parent_stack: A tuple of the path from the root to this segment.
     parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
@@ -76,7 +76,7 @@ class RuleContext:
 
     @property
     def functional(self):
-        """Returns a Surrogates object that simplifies writing rules."""
+        """Returns a surrogate object that simplifies writing rules."""
         return FunctionalRuleContext(self)
 
 
