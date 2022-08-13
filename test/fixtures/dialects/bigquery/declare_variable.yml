@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f8dd62bbc3aa635110e8d2a40c829daf27d53b2a9cde8bcc410f08249d4619d
+_hash: a7344a57c0e59ce697ccfabc4e78ada5ea7a5f53123ec3a8839bca556863d42d
 file:
 - statement:
     declare_segment:
@@ -46,10 +46,10 @@ file:
       naked_identifier: var6
       data_type:
         data_type_identifier: string
-      bracketed:
-        start_bracket: (
-        numeric_literal: '10'
-        end_bracket: )
+        bracketed:
+          start_bracket: (
+          numeric_literal: '10'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -57,12 +57,12 @@ file:
       naked_identifier: var7
       data_type:
         data_type_identifier: numeric
-      bracketed:
-      - start_bracket: (
-      - numeric_literal: '5'
-      - comma: ','
-      - numeric_literal: '2'
-      - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '5'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -123,10 +123,10 @@ file:
         start_angle_bracket: <
         data_type:
           data_type_identifier: string
-        bracketed:
-          start_bracket: (
-          numeric_literal: '10'
-          end_bracket: )
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
         end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
@@ -224,18 +224,18 @@ file:
         - parameter: f1
         - data_type:
             data_type_identifier: string
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
         - comma: ','
         - parameter: f2
         - data_type:
             data_type_identifier: string
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
         - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:

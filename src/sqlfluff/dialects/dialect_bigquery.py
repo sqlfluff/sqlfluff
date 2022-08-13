@@ -200,10 +200,7 @@ bigquery_dialect.replace(
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(
-            Sequence(
-                Ref("DatatypeSegment"),
-                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
-            ),
+            Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
@@ -963,7 +960,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
     """
 
     match_grammar = OneOf(  # Parameter type
-        Ref("DatatypeIdentifierSegment"),  # Simple type
+        Sequence(
+            Ref("DatatypeIdentifierSegment"),  # Simple type
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_data_types
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
+        ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
         Ref("StructTypeSegment"),
@@ -982,18 +983,10 @@ class StructTypeSegment(ansi.StructTypeSegment):
                         # ParameterNames can look like Datatypes so can't use
                         # Optional=True here and instead do a OneOf in order
                         # with DataType only first, followed by both.
-                        Sequence(
-                            Ref("DatatypeSegment"),
-                            Bracketed(
-                                Delimited(Ref("NumericLiteralSegment")), optional=True
-                            ),
-                        ),
+                        Ref("DatatypeSegment"),
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Ref("DatatypeSegment"),
-                            Bracketed(
-                                Delimited(Ref("NumericLiteralSegment")), optional=True
-                            ),
                         ),
                     ),
                     Ref("OptionsSegment", optional=True),
@@ -1276,14 +1269,10 @@ class DeclareStatementSegment(BaseSegment):
         "DECLARE",
         Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
-            Sequence(
-                Ref("DatatypeSegment"),
-                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
-            ),
+            Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
                 Ref("DefaultDeclareOptionsGrammar"),
             ),
         ),
@@ -1387,7 +1376,6 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
