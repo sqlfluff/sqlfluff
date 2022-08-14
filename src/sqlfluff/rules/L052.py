@@ -66,7 +66,7 @@ class Rule_L052(BaseRule):
 
     @staticmethod
     def _handle_preceding_inline_comments(
-        before_segment: Sequence[RawSegment], anchor_segment: RawSegment
+        before_segment: Sequence[RawSegment], anchor_segment: BaseSegment
     ):
         """Adjust segments to not move preceding inline comments.
 
@@ -82,7 +82,10 @@ class Rule_L052(BaseRule):
                 if s.is_comment
                 and s.name != "block_comment"
                 and s.pos_marker.working_line_no
-                == anchor_segment.pos_marker.working_line_no
+                # We don't need to handle the case where raw_segments is empty
+                # because it never is. It's either a segment with raw children
+                # or a raw segment which returns [self] as raw_segments.
+                == anchor_segment.raw_segments[-1].pos_marker.working_line_no
             ),
             None,
         )
