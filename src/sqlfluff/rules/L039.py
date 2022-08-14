@@ -38,14 +38,36 @@ class Rule_L039(BaseRule):
 
     @staticmethod
     def _check_diff_idx_for_casting_operator(segments, idx: int, diff: int) -> bool:
+        """Check whether the this segment adjoins a casting operator.
+
+        Args:
+            segments: A sequence of segments containing the segment
+                we're evaluating.
+            idx (int): The index of the segment we care about within
+                `segments`.
+            diff (int): Either 1 or -1 to indicate whether we want
+                to check for casting operators before (-1) or after
+                (+1).
+
+        Returns:
+            bool: The return value. True for casting operator
+                detected, False otherwise.
+
+        """
         ref_idx = idx + diff
+        # Do we have a long enough sequence to check?
         if ref_idx < 0 or ref_idx >= len(segments):
             return False
+        # Get the reference segment to check against
         ref_seg = segments[ref_idx]
+        # Is it a casting operator?
         if ref_seg.is_type("casting_operator"):
             return True
+        # Does it contain raw segments?
         if not ref_seg.raw_segments:
             return False  # pragma: no cover
+        # Does the reference segment start or end with
+        # a casting operator as a child?
         if diff == -1:
             child_raw = ref_seg.raw_segments[-1]
         elif diff == 1:

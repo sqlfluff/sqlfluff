@@ -45,6 +45,8 @@ class Rule_L005(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them."""
+        if not context.raw_stack:
+            return None  # pragma: no cover
         anchor: Optional[RawSegment] = context.raw_stack[-1]
         if (
             # We need at least one segment previous segment for this to work.

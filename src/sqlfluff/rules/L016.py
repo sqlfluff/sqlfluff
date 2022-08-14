@@ -504,7 +504,20 @@ class Rule_L016(Rule_L003):
                 root = context.parent_stack[0]
 
                 def is_in_comment(seg):
+                    """This evaluates whether the parent segment is a comment.
+
+                    We use path_to to get the stack of segments from the root
+                    to the given segment. The last element of that stack is the
+                    given segment (`seg` in this function), the second last
+                    is the parent of that segment: i.e. path[-2].
+                    """
                     path = root.path_to(seg)
+                    # It's unlikely that the path will be less than 2 segments
+                    # long. That would imply that we've passed the root segment
+                    # itself - but in that case - we should conclude it's not
+                    # in a comment.
+                    if len(path) < 2:
+                        return False  # pragma: no cover
                     parent = path[-2]
                     return parent.is_type("comment_clause", "comment_equals_clause")
 

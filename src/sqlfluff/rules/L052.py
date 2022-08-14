@@ -1,9 +1,9 @@
 """Implementation of Rule L052."""
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Sequence, cast
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
-from sqlfluff.core.parser.segments.raw import NewlineSegment
+from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -18,7 +18,7 @@ from sqlfluff.core.rules.functional import Segments, sp
 class SegmentMoveContext(NamedTuple):
     """Context information for moving a segment."""
 
-    anchor_segment: BaseSegment
+    anchor_segment: RawSegment
     is_one_line: bool
     before_segment: Segments
     whitespace_deletions: Segments
@@ -65,7 +65,9 @@ class Rule_L052(BaseRule):
     crawl_behaviour = RootOnlyCrawler()
 
     @staticmethod
-    def _handle_preceding_inline_comments(before_segment, anchor_segment):
+    def _handle_preceding_inline_comments(
+        before_segment: Sequence[RawSegment], anchor_segment: RawSegment
+    ):
         """Adjust segments to not move preceding inline comments.
 
         We don't want to move inline comments that are on the same line
@@ -77,10 +79,9 @@ class Rule_L052(BaseRule):
             (
                 s
                 for s in before_segment
-                if s.is_comment
-                and s.name != "block_comment"
+                if s.is_comment and s.name != "block_comment"
                 and s.pos_marker.working_line_no
-                == anchor_segment.raw_segments[-1].pos_marker.working_line_no
+                == anchor_segment.pos_marker.working_line_no
             ),
             None,
         )
@@ -135,7 +136,7 @@ class Rule_L052(BaseRule):
         return False
 
     def _get_segment_move_context(
-        self, target_segment: BaseSegment, parent_segment: BaseSegment
+        self, target_segment: RawSegment, parent_segment: BaseSegment
     ) -> SegmentMoveContext:
         # Locate the segment to be moved (i.e. context.segment) and search back
         # over the raw stack to find the end of the preceding statement.
@@ -144,7 +145,11 @@ class Rule_L052(BaseRule):
             loop_while=sp.not_(sp.is_code()), start_seg=target_segment
         )
         before_segment = before_code.select(sp.not_(sp.is_meta()))
-        anchor_segment = before_code[-1] if before_code else target_segment
+        # We're selecting from the raw stack, so we know that before_code is
+        # made of RawSegment elements.
+        anchor_segment = (
+            cast(RawSegment, before_code[-1]) if before_code else target_segment
+        )
         first_code = reversed_raw_stack.select(
             sp.is_code(), start_seg=target_segment
         ).first()
@@ -164,7 +169,7 @@ class Rule_L052(BaseRule):
         )
 
     def _handle_semicolon(
-        self, target_segment: BaseSegment, parent_segment: BaseSegment
+        self, target_segment: RawSegment, parent_segment: BaseSegment
     ) -> Optional[LintResult]:
         info = self._get_segment_move_context(target_segment, parent_segment)
         semicolon_newline = self.multiline_newline if not info.is_one_line else False
@@ -181,7 +186,7 @@ class Rule_L052(BaseRule):
 
     def _handle_semicolon_same_line(
         self,
-        target_segment: BaseSegment,
+        target_segment: RawSegment,
         parent_segment: BaseSegment,
         info: SegmentMoveContext,
     ) -> Optional[LintResult]:
@@ -207,7 +212,7 @@ class Rule_L052(BaseRule):
 
     def _handle_semicolon_newline(
         self,
-        target_segment: BaseSegment,
+        target_segment: RawSegment,
         parent_segment: BaseSegment,
         info: SegmentMoveContext,
     ) -> Optional[LintResult]:
@@ -382,6 +387,8 @@ class Rule_L052(BaseRule):
             res = None
             # First we can simply handle the case of existing semi-colon alignment.
             if seg.is_type("statement_terminator"):
+                # If it's a terminator then we know it's a raw.
+                seg = cast(RawSegment, seg)
                 self.logger.debug("Handling semi-colon: %s", seg)
                 res = self._handle_semicolon(seg, context.segment)
             # Otherwise handle the end of the file seperately.
