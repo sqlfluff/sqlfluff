@@ -38,7 +38,7 @@ class Rule_L039(BaseRule):
 
     @staticmethod
     def _check_diff_idx_for_casting_operator(segments, idx: int, diff: int) -> bool:
-        """Check whether the this segment adjoins a casting operator.
+        """Check whether this segment adjoins a casting operator.
 
         Args:
             segments: A sequence of segments containing the segment
