@@ -79,7 +79,8 @@ class Rule_L052(BaseRule):
             (
                 s
                 for s in before_segment
-                if s.is_comment and s.name != "block_comment"
+                if s.is_comment
+                and s.name != "block_comment"
                 and s.pos_marker.working_line_no
                 == anchor_segment.pos_marker.working_line_no
             ),
