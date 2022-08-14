@@ -960,7 +960,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
     """
 
     match_grammar = OneOf(  # Parameter type
-        Ref("DatatypeIdentifierSegment"),  # Simple type
+        Sequence(
+            Ref("DatatypeIdentifierSegment"),  # Simple type
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_data_types
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
+        ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
         Ref("StructTypeSegment"),
@@ -1372,7 +1376,6 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
