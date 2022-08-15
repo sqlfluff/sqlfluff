@@ -5,7 +5,7 @@ from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.rules.L006 import Rule_L006
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 CorrectionListType = List[Union[WhitespaceSegment, KeywordSegment]]
@@ -61,7 +61,7 @@ class Rule_L049(Rule_L006):
         if context.segment.is_type("set_clause_list", "execute_script_statement"):
             return None
 
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         # Iterate through children of this segment looking for equals or "not
         # equals". Once found, check if the next code segment is a NULL literal.
 

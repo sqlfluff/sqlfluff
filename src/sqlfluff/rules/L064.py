@@ -11,7 +11,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import rsp
+from sqlfluff.utils.functional import rsp, FunctionalContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.dialects.dialect_ansi import LiteralSegment
 
@@ -110,7 +110,7 @@ class Rule_L064(BaseRule):
         # This rule can also cover quoted literals that are partially templated.
         # I.e. when the quotes characters are _not_ part of the template we can
         # meaningfully apply this rule.
-        templated_raw_slices = context.functional.segment.raw_slices.select(
+        templated_raw_slices = FunctionalContext(context).segment.raw_slices.select(
             rsp.is_slice_type("templated")
         )
         for raw_slice in templated_raw_slices:

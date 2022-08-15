@@ -6,7 +6,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -57,7 +57,7 @@ class Rule_L008(BaseRule):
         # newline, and comment, which are all raw. Using the
         # raw_segments allows us to account for possible unexpected
         # parse tree structures resulting from other rule fixes.
-        raw_segments = context.functional.raw_segments
+        raw_segments = FunctionalContext(context).raw_segments
         # Start after the current comma within the list. Get all the
         # following whitespace.
         following_segments = raw_segments.select(

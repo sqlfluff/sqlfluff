@@ -1,7 +1,7 @@
 """Implementation of Rule L065."""
 from typing import List, Optional, Iterable
 
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
@@ -46,7 +46,7 @@ class Rule_L065(BaseRule):
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
 
         expression = segment.children()
         set_operator_segments = segment.children(sp.is_type(*self._target_elems))
@@ -135,7 +135,7 @@ class Rule_L065(BaseRule):
 
 
 def _generate_fixes(
-    whitespace_segment: BaseSegment,
+    whitespace_segment: Optional[BaseSegment],
 ) -> Optional[List[LintFix]]:
 
     if whitespace_segment:

@@ -33,4 +33,4 @@ elif sys.version_info[1] < 7:
     )
 
 # Register helper functions to support variable introspection on failure.
-pytest.register_assert_rewrite("sqlfluff.testing")
+pytest.register_assert_rewrite("sqlfluff.utils.testing")

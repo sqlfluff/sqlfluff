@@ -5,8 +5,8 @@ from typing import cast, List, Set
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments import BaseSegment
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
-from sqlfluff.core.rules.analysis.select_crawler import (
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
@@ -19,7 +19,7 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp
 from sqlfluff.core.dialects.common import AliasInfo
 
 

@@ -6,7 +6,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -45,7 +45,7 @@ class Rule_L015(BaseRule):
         """
         # We trigger on `select_clause` and look for `select_clause_modifier`
         assert context.segment.is_type("select_clause")
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         modifier = children.select(sp.is_type("select_clause_modifier"))
         first_element = children.select(sp.is_type("select_clause_element")).first()
         if not modifier or not first_element:

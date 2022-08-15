@@ -22,20 +22,20 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import (
+from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
     is_name,
     is_type,
     is_whitespace,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
@@ -112,8 +112,8 @@ class Rule_L042(BaseRule):
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
         self.forbid_subquery_in: str
         parent_types = self._config_mapping[self.forbid_subquery_in]
-        segment = context.functional.segment
-        parent_stack = context.functional.parent_stack
+        segment = FunctionalContext(context).segment
+        parent_stack = FunctionalContext(context).parent_stack
         is_select_child = parent_stack.any(is_type(*_SELECT_TYPES))
         if is_select_child:
             # Nothing to do.

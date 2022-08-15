@@ -8,7 +8,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -76,16 +76,18 @@ class Rule_L047(BaseRule):
             == "COUNT"
         ):
             # Get bracketed content
-            f_content = context.functional.segment.children(
-                sp.is_type("bracketed")
-            ).children(
-                sp.and_(
-                    sp.not_(sp.is_meta()),
-                    sp.not_(
-                        sp.is_type(
-                            "start_bracket", "end_bracket", "whitespace", "newline"
-                        )
-                    ),
+            f_content = (
+                FunctionalContext(context)
+                .segment.children(sp.is_type("bracketed"))
+                .children(
+                    sp.and_(
+                        sp.not_(sp.is_meta()),
+                        sp.not_(
+                            sp.is_type(
+                                "start_bracket", "end_bracket", "whitespace", "newline"
+                            )
+                        ),
+                    )
                 )
             )
             if len(f_content) != 1:  # pragma: no cover
