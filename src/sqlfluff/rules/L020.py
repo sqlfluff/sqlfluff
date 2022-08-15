@@ -7,6 +7,7 @@ from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, EvalResultType
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -61,6 +62,7 @@ class Rule_L020(BaseRule):
     """
 
     groups: Tuple[str, ...] = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _lint_references_and_aliases(
         self,
@@ -105,26 +107,25 @@ class Rule_L020(BaseRule):
         Subclasses of this rule should override the
         `_lint_references_and_aliases` method.
         """
-        if context.segment.is_type("select_statement"):
-            select_info = get_select_statement_info(context.segment, context.dialect)
-            if not select_info:
-                return None
+        assert context.segment.is_type("select_statement")
+        select_info = get_select_statement_info(context.segment, context.dialect)
+        if not select_info:
+            return None
 
-            # Work out if we have a parent select function
-            parent_select = None
-            for seg in reversed(context.parent_stack):
-                if seg.is_type("select_statement"):
-                    parent_select = seg
-                    break
+        # Work out if we have a parent select function
+        parent_select = None
+        for seg in reversed(context.parent_stack):
+            if seg.is_type("select_statement"):
+                parent_select = seg
+                break
 
-            # Pass them all to the function that does all the work.
-            # NB: Subclasses of this rules should override the function below
-            return self._lint_references_and_aliases(
-                select_info.table_aliases,
-                select_info.standalone_aliases,
-                select_info.reference_buffer,
-                select_info.col_aliases,
-                select_info.using_cols,
-                parent_select,
-            )
-        return None
+        # Pass them all to the function that does all the work.
+        # NB: Subclasses of this rules should override the function below
+        return self._lint_references_and_aliases(
+            select_info.table_aliases,
+            select_info.standalone_aliases,
+            select_info.reference_buffer,
+            select_info.col_aliases,
+            select_info.using_cols,
+            parent_select,
+        )

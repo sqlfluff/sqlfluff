@@ -6,6 +6,7 @@ import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -86,6 +87,7 @@ class Rule_L059(BaseRule):
         "ignore_words_regex",
         "force_enable",
     ]
+    crawl_behaviour = SegmentSeekerCrawler({"quoted_identifier", "naked_identifier"})
     _dialects_allowing_quotes_in_column_names = ["postgres", "snowflake"]
 
     # Ignore "password_auth" type to allow quotes around passwords within

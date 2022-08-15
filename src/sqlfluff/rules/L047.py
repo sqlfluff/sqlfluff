@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -61,6 +62,7 @@ class Rule_L047(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["prefer_count_1", "prefer_count_0"]
+    crawl_behaviour = SegmentSeekerCrawler({"function"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes."""
@@ -69,8 +71,9 @@ class Rule_L047(BaseRule):
         self.prefer_count_1: bool
 
         if (
-            context.segment.is_type("function")
-            and context.segment.get_child("function_name").raw_upper == "COUNT"
+            # We already know we're in a function because of the crawl_behaviour
+            context.segment.get_child("function_name").raw_upper
+            == "COUNT"
         ):
             # Get bracketed content
             f_content = context.functional.segment.children(

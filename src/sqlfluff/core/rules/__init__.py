@@ -5,10 +5,10 @@ from sqlfluff.core.rules.base import (
     BaseRule,
     LintResult,
     LintFix,
-    RuleContext,
     RuleGhost,
     EvalResultType,
 )
+from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.plugin.host import get_plugin_manager
 

@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 import sqlfluff.core.rules.functional.raw_file_slice_predicates as rsp
@@ -69,8 +70,8 @@ class Rule_L050(BaseRule):
 
     groups = ("all",)
     targets_templated = True
-    # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
-    recurse_into = False
+    # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.
+    crawl_behaviour = RootOnlyCrawler()
     lint_phase = "post"
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

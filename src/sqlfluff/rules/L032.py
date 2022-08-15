@@ -7,6 +7,7 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.functional.segments import Segments
@@ -60,14 +61,14 @@ class Rule_L032(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Look for USING in a join clause."""
         segment = context.functional.segment
         parent_stack = context.functional.parent_stack
         # We are not concerned with non join clauses
-        if not segment.all(sp.is_type("join_clause")):
-            return None
+        assert context.segment.is_type("join_clause")
 
         using_anchor = segment.children(sp.is_keyword("using")).first()
         # If there is no evidence of a USING then we exit

@@ -1,5 +1,6 @@
 """Implementation of Rule L001."""
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.functional import segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -35,7 +36,7 @@ class Rule_L001(BaseRule):
     """
 
     groups = ("all", "core")
-    needs_raw_stack = True
+    crawl_behaviour = SegmentSeekerCrawler({"newline"}, provide_raw_stack=True)
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Unnecessary trailing whitespace.

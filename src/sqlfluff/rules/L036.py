@@ -7,6 +7,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -79,27 +80,28 @@ class Rule_L036(BaseRule):
 
     groups = ("all",)
     config_keywords = ["wildcard_policy"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
 
     def _eval(self, context: RuleContext):
         self.wildcard_policy: str
-        if context.segment.is_type("select_clause"):
-            select_targets_info = self._get_indexes(context)
-            select_clause = context.functional.segment
-            wildcards = select_clause.children(
-                sp.is_type("select_clause_element")
-            ).children(sp.is_type("wildcard_expression"))
-            has_wildcard = bool(wildcards)
-            if len(select_targets_info.select_targets) == 1 and (
-                not has_wildcard or self.wildcard_policy == "single"
-            ):
-                return self._eval_single_select_target_element(
-                    select_targets_info,
-                    context,
-                )
-            elif len(select_targets_info.select_targets):
-                return self._eval_multiple_select_target_elements(
-                    select_targets_info, context.segment
-                )
+        assert context.segment.is_type("select_clause")
+        select_targets_info = self._get_indexes(context)
+        select_clause = context.functional.segment
+        wildcards = select_clause.children(
+            sp.is_type("select_clause_element")
+        ).children(sp.is_type("wildcard_expression"))
+        has_wildcard = bool(wildcards)
+        if len(select_targets_info.select_targets) == 1 and (
+            not has_wildcard or self.wildcard_policy == "single"
+        ):
+            return self._eval_single_select_target_element(
+                select_targets_info,
+                context,
+            )
+        elif len(select_targets_info.select_targets):
+            return self._eval_multiple_select_target_elements(
+                select_targets_info, context.segment
+            )
 
     @staticmethod
     def _get_indexes(context: RuleContext):

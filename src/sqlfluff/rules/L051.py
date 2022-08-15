@@ -3,6 +3,7 @@ from typing import Optional
 from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -47,6 +48,7 @@ class Rule_L051(BaseRule):
 
     groups = ("all",)
     config_keywords = ["fully_qualify_join_types"]
+    crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Fully qualify JOINs."""
@@ -54,8 +56,7 @@ class Rule_L051(BaseRule):
         self.fully_qualify_join_types: str
 
         # We are only interested in JOIN clauses.
-        if not context.segment.is_type("join_clause"):
-            return None
+        assert context.segment.is_type("join_clause")
 
         join_clause_keywords = [
             segment for segment in context.segment.segments if segment.type == "keyword"

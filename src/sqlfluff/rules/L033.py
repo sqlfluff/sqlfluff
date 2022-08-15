@@ -5,6 +5,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -41,6 +42,7 @@ class Rule_L033(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
@@ -60,39 +62,39 @@ class Rule_L033(BaseRule):
         ]:
             return LintResult()
 
-        if context.segment.is_type("set_operator"):
-            if "union" in context.segment.raw and not (
-                "ALL" in context.segment.raw.upper()
-                or "DISTINCT" in context.segment.raw.upper()
-            ):
-                return LintResult(
-                    anchor=context.segment,
-                    fixes=[
-                        LintFix.replace(
-                            context.segment.segments[0],
-                            [
-                                KeywordSegment("union"),
-                                WhitespaceSegment(),
-                                KeywordSegment("distinct"),
-                            ],
-                        )
-                    ],
-                )
-            elif "UNION" in context.segment.raw.upper() and not (
-                "ALL" in context.segment.raw.upper()
-                or "DISTINCT" in context.segment.raw.upper()
-            ):
-                return LintResult(
-                    anchor=context.segment,
-                    fixes=[
-                        LintFix.replace(
-                            context.segment.segments[0],
-                            [
-                                KeywordSegment("UNION"),
-                                WhitespaceSegment(),
-                                KeywordSegment("DISTINCT"),
-                            ],
-                        )
-                    ],
-                )
+        assert context.segment.is_type("set_operator")
+        if "union" in context.segment.raw and not (
+            "ALL" in context.segment.raw.upper()
+            or "DISTINCT" in context.segment.raw.upper()
+        ):
+            return LintResult(
+                anchor=context.segment,
+                fixes=[
+                    LintFix.replace(
+                        context.segment.segments[0],
+                        [
+                            KeywordSegment("union"),
+                            WhitespaceSegment(),
+                            KeywordSegment("distinct"),
+                        ],
+                    )
+                ],
+            )
+        elif "UNION" in context.segment.raw.upper() and not (
+            "ALL" in context.segment.raw.upper()
+            or "DISTINCT" in context.segment.raw.upper()
+        ):
+            return LintResult(
+                anchor=context.segment,
+                fixes=[
+                    LintFix.replace(
+                        context.segment.segments[0],
+                        [
+                            KeywordSegment("UNION"),
+                            WhitespaceSegment(),
+                            KeywordSegment("DISTINCT"),
+                        ],
+                    )
+                ],
+            )
         return LintResult()
