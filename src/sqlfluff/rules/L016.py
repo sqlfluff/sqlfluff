@@ -10,14 +10,13 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules import LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, Segments
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.rules.L003 import Rule_L003
 
 

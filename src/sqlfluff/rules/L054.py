@@ -4,7 +4,7 @@ from typing import Optional, List
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -97,7 +97,7 @@ class Rule_L054(BaseRule):
         assert context.segment.is_type("groupby_clause", "orderby_clause")
 
         # Ignore Windowing clauses
-        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
 
         # Look at child segments and map column references to either the implicit or

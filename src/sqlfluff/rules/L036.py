@@ -13,8 +13,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 class SelectTargetsInfo(NamedTuple):
@@ -86,7 +85,7 @@ class Rule_L036(BaseRule):
         self.wildcard_policy: str
         assert context.segment.is_type("select_clause")
         select_targets_info = self._get_indexes(context)
-        select_clause = context.functional.segment
+        select_clause = FunctionalContext(context).segment
         wildcards = select_clause.children(
             sp.is_type("select_clause_element")
         ).children(sp.is_type("wildcard_expression"))
@@ -105,7 +104,7 @@ class Rule_L036(BaseRule):
 
     @staticmethod
     def _get_indexes(context: RuleContext):
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
         selects = children.select(sp.is_keyword("select"))
@@ -138,7 +137,7 @@ class Rule_L036(BaseRule):
             )
             first_whitespace_idx = children.find(segments_after_first_line.get())
 
-        siblings_post = context.functional.siblings_post
+        siblings_post = FunctionalContext(context).siblings_post
         from_segment = siblings_post.first(sp.is_type("from_clause")).first().get()
         pre_from_whitespace = siblings_post.select(
             sp.is_type("whitespace"), stop_seg=from_segment
@@ -210,7 +209,7 @@ class Rule_L036(BaseRule):
     def _eval_single_select_target_element(
         self, select_targets_info, context: RuleContext
     ):
-        select_clause = context.functional.segment
+        select_clause = FunctionalContext(context).segment
         parent_stack = context.parent_stack
 
         if (

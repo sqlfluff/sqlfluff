@@ -5,7 +5,7 @@ from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -54,7 +54,7 @@ class Rule_L038(BaseRule):
         # Config type hints
         self.select_clause_trailing_comma: str
 
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         children = segment.children()
         # Iterate content to find last element
         last_content: BaseSegment = children.last(sp.is_code())[0]

@@ -5,7 +5,7 @@ from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import Segments, sp, tsp
+from sqlfluff.utils.functional import Segments, sp, tsp, FunctionalContext
 
 
 def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
@@ -120,7 +120,7 @@ class Rule_L009(BaseRule):
 
         """
         # We only care about the final segment of the parse tree.
-        parent_stack, segment = get_last_segment(context.functional.segment)
+        parent_stack, segment = get_last_segment(FunctionalContext(context).segment)
 
         trailing_newlines = Segments(*get_trailing_newlines(context.segment))
         trailing_literal_newlines = trailing_newlines

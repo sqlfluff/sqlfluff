@@ -11,7 +11,7 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 @document_groups
@@ -134,7 +134,7 @@ class Rule_L043(BaseRule):
         # Look for CASE expression.
         if context.segment.segments[0].raw_upper == "CASE":
             # Find all 'WHEN' clauses and the optional 'ELSE' clause.
-            children = context.functional.segment.children()
+            children = FunctionalContext(context).segment.children()
             when_clauses = children.select(sp.is_type("when_clause"))
             else_clauses = children.select(sp.is_type("else_clause"))
 

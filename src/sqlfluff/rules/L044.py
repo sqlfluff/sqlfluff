@@ -6,7 +6,7 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
@@ -141,7 +141,7 @@ class Rule_L044(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if not context.functional.parent_stack.any(sp.is_type(*_START_TYPES)):
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             crawler = SelectCrawler(context.segment, context.dialect)
 
             # Begin analysis at the outer query.

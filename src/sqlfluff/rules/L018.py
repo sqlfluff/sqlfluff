@@ -15,7 +15,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -80,9 +80,11 @@ class Rule_L018(BaseRule):
         # Find the end brackets for the CTE *query* (i.e. ignore optional
         # list of CTE columns).
         cte_end_brackets = IdentitySet()
-        for cte in context.functional.segment.children(
-            sp.is_type("common_table_expression")
-        ).iterate_segments():
+        for cte in (
+            FunctionalContext(context)
+            .segment.children(sp.is_type("common_table_expression"))
+            .iterate_segments()
+        ):
             cte_end_bracket = (
                 cte.children()
                 .last(sp.is_type("bracketed"))

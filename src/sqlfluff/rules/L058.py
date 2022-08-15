@@ -4,7 +4,7 @@ from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -48,7 +48,7 @@ class Rule_L058(BaseRule):
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Nested CASE statement in ELSE clause could be flattened."""
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         assert segment.select(sp.is_type("case_expression"))
         case1_children = segment.children()
         case1_last_when = case1_children.last(sp.is_type("when_clause"))

@@ -3,9 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.core.rules.functional import Segments
-import sqlfluff.core.rules.functional.segment_predicates as sp
-import sqlfluff.core.rules.functional.raw_file_slice_predicates as rsp
+from sqlfluff.utils.functional import Segments, sp, rsp
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 

@@ -11,7 +11,7 @@ from sqlfluff.utils.analysis.select import (
     get_select_statement_info,
     SelectStatementColumnsAndTables,
 )
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp
 
 
 class QueryType(Enum):

@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, Iterator, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
+from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 
 
 PredicateType = Callable[[BaseSegment], bool]

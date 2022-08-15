@@ -8,6 +8,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_groups,
 )
+from sqlfluff.utils.functional import FunctionalContext
 
 
 @document_groups
@@ -62,7 +63,7 @@ class Rule_L066(BaseRule):
         self.max_alias_length: Optional[int]
 
         assert context.segment.is_type("select_statement")
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         from_expression_elements = children.recursive_crawl("from_expression_element")
 
         return self._lint_aliases(from_expression_elements) or None

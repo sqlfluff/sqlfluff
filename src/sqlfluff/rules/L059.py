@@ -12,7 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -113,7 +113,7 @@ class Rule_L059(BaseRule):
             return LintResult()
 
         # Ignore some segment types
-        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return None
 
         if self.prefer_quoted_identifiers:
