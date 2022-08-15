@@ -11,11 +11,13 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.rules import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.functional import sp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.rules.L003 import Rule_L003
 
 
@@ -26,7 +28,7 @@ class Rule_L016(Rule_L003):
     """Line is too long."""
 
     groups = ("all", "core")
-    needs_raw_stack = True
+    crawl_behaviour = SegmentSeekerCrawler({"newline"}, provide_raw_stack=True)
     _adjust_anchors = True
     _check_docstring = False
 
@@ -427,12 +429,15 @@ class Rule_L016(Rule_L003):
             return len(segment.raw)
 
     def _compute_source_length(
-        self, segments: Sequence[BaseSegment], memory: dict
+        self,
+        segments: Sequence[BaseSegment],
+        literals_in_comments: Sequence[BaseSegment],
     ) -> int:
         line_len = 0
         seen_slices = set()
         for segment in segments:
-            if self.ignore_comment_clauses and segment in memory["comment_clauses"]:
+            if segment in literals_in_comments:
+                self.logger.debug("Not counting literal in comment: %s", segment)
                 continue
 
             assert segment.pos_marker
@@ -481,28 +486,50 @@ class Rule_L016(Rule_L003):
         self.ignore_comment_lines: bool
         self.ignore_comment_clauses: bool
 
-        if not context.memory:
-            memory: dict = {"comment_clauses": set()}
-        else:
-            memory = context.memory
-        if context.segment.is_type("newline"):
-            # iterate to buffer the whole line up to this point
-            this_line = self._gen_line_so_far(context.raw_stack)
-        else:
-            if self.ignore_comment_clauses and context.segment.is_type(
-                "comment_clause", "comment_equals_clause"
-            ):
-                comment_segment = context.functional.segment.children().first(
-                    sp.is_type("quoted_literal")
-                )
-                if comment_segment:
-                    memory["comment_clauses"].add(comment_segment.get())
+        assert context.segment.is_type("newline")
 
-            # Otherwise we're all good
-            return LintResult(memory=memory)
+        # iterate to buffer the whole line up to this point
+        this_line = self._gen_line_so_far(context.raw_stack)
+
+        # Do any literals on this line belong to a comment?
+        literals_in_comments: Sequence[BaseSegment] = []
+        if self.ignore_comment_clauses:
+            quoted_literals = Segments(*this_line).select(
+                select_if=sp.is_type("quoted_literal")
+            )
+            if quoted_literals:
+                self.logger.debug(
+                    "Comment Checking: Found quoted literals: %s", quoted_literals
+                )
+                root = context.parent_stack[0]
+
+                def is_in_comment(seg):
+                    """This evaluates whether the parent segment is a comment.
+
+                    We use path_to to get the stack of segments from the root
+                    to the given segment. The last element of that stack is the
+                    given segment (`seg` in this function), the second last
+                    is the parent of that segment: i.e. path[-2].
+                    """
+                    path = root.path_to(seg)
+                    # It's unlikely that the path will be less than 2 segments
+                    # long. That would imply that we've passed the root segment
+                    # itself - but in that case - we should conclude it's not
+                    # in a comment.
+                    if len(path) < 2:
+                        return False  # pragma: no cover
+                    parent = path[-2]
+                    return parent.is_type("comment_clause", "comment_equals_clause")
+
+                literals_in_comments = quoted_literals.select(select_if=is_in_comment)
+                if literals_in_comments:
+                    self.logger.debug(
+                        "Comment Checking: Literals in comments: %s",
+                        literals_in_comments,
+                    )
 
         # Now we can work out the line length and deal with the content
-        line_len = self._compute_source_length(this_line, memory)
+        line_len = self._compute_source_length(this_line, literals_in_comments)
         if line_len > self.max_line_length:
             # Problem, we'll be reporting a violation. The
             # question is, can we fix it?
@@ -525,9 +552,9 @@ class Rule_L016(Rule_L003):
                     or not self.ignore_comment_clauses
                 ):
                     self.logger.info("Unfixable template segment: %s", this_line[-1])
-                    return LintResult(anchor=context.segment, memory=memory)
+                    return LintResult(anchor=context.segment)
                 else:
-                    return LintResult(memory=memory)
+                    return LintResult()
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].is_type("inline_comment"):
@@ -541,9 +568,9 @@ class Rule_L016(Rule_L003):
                         "Unfixable inline comment, alone on line: %s", this_line[-1]
                     )
                     if self.ignore_comment_lines:
-                        return LintResult(memory=memory)
+                        return LintResult()
                     else:
-                        return LintResult(anchor=context.segment, memory=memory)
+                        return LintResult(anchor=context.segment)
 
                 self.logger.info(
                     "Attempting move of inline comment at end of line: %s",
@@ -565,7 +592,7 @@ class Rule_L016(Rule_L003):
                     cast(RawSegment, context.segment),
                 ]
                 if (
-                    self._compute_source_length(create_elements, memory)
+                    self._compute_source_length(create_elements, literals_in_comments)
                     > self.max_line_length
                 ):
                     # The inline comment is NOT on a line by itself, but even if
@@ -579,9 +606,9 @@ class Rule_L016(Rule_L003):
                         this_line[-1],
                     )
                     if self.ignore_comment_lines:
-                        return LintResult(memory=memory)
+                        return LintResult()
                     else:
-                        return LintResult(anchor=context.segment, memory=memory)
+                        return LintResult(anchor=context.segment)
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
@@ -589,11 +616,10 @@ class Rule_L016(Rule_L003):
                 return LintResult(
                     anchor=context.segment,
                     fixes=delete_buffer + create_buffer,
-                    memory=memory,
                 )
 
             fixes = self._eval_line_for_breaks(this_line)
             if fixes:
-                return LintResult(anchor=context.segment, fixes=fixes, memory=memory)
-            return LintResult(anchor=context.segment, memory=memory)
-        return LintResult(memory=memory)
+                return LintResult(anchor=context.segment, fixes=fixes)
+            return LintResult(anchor=context.segment)
+        return LintResult()

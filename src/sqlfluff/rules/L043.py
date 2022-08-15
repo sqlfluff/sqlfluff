@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments, sp
 
@@ -78,6 +79,7 @@ class Rule_L043(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
 
     @staticmethod
     def _coalesce_fix_list(
@@ -130,10 +132,7 @@ class Rule_L043(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary CASE statement."""
         # Look for CASE expression.
-        if (
-            context.segment.is_type("case_expression")
-            and context.segment.segments[0].name == "case"
-        ):
+        if context.segment.segments[0].raw_upper == "CASE":
             # Find all 'WHEN' clauses and the optional 'ELSE' clause.
             children = context.functional.segment.children()
             when_clauses = children.select(sp.is_type("when_clause"))

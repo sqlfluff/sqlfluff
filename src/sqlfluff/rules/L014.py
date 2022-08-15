@@ -4,6 +4,7 @@ from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -71,10 +72,9 @@ class Rule_L014(Rule_L010):
 
     groups = ("all", "core")
     lint_phase = "post"
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "naked_identifier"),
-        ("type", "properties_naked_identifier"),
-    ]
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"naked_identifier", "properties_naked_identifier"}
+    )
     config_keywords = [
         "extended_capitalisation_policy",
         "unquoted_identifiers_policy",
@@ -83,10 +83,10 @@ class Rule_L014(Rule_L010):
     ]
     _description_elem = "Unquoted identifiers"
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         if identifiers_policy_applicable(
             self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
         ):
             return super()._eval(context=context)
         else:
-            return LintResult(memory=context.memory)
+            return [LintResult(memory=context.memory)]

@@ -41,6 +41,7 @@ class Rule_L049(Rule_L006):
     """
 
     groups = ("all", "core")
+    # Inherit crawl behaviour from L006
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Relational operators should not be used to check for NULL values."""
@@ -48,7 +49,7 @@ class Rule_L049(Rule_L006):
         # https://news.ycombinator.com/item?id=28772289
         # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
         if len(context.segment.segments) <= 2:
-            return None
+            return None  # pragma: no cover
 
         # Allow assignments in SET clauses
         if context.parent_stack and context.parent_stack[-1].is_type(
@@ -77,7 +78,7 @@ class Rule_L049(Rule_L006):
             after_op_list = children.select(start_seg=operator)
             # If nothing comes after operator then skip
             if not after_op_list:
-                continue
+                continue  # pragma: no cover
             null_literal = after_op_list.first(sp.is_code())
             # if the next bit of code isnt a NULL then we are good
             if not null_literal.all(sp.is_type("null_literal")):

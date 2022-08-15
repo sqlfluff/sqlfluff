@@ -17,6 +17,7 @@ from sqlfluff.core.rules import (
     RuleContext,
     EvalResultType,
 )
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments, sp
 from sqlfluff.core.dialects.common import AliasInfo
@@ -63,6 +64,7 @@ class Rule_L025(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_requiring_alias_for_values_clause = [
         "snowflake",
         "tsql",
@@ -70,32 +72,30 @@ class Rule_L025(BaseRule):
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         violations: List[LintResult] = []
-        if context.segment.is_type("select_statement"):
-            # Exit early if the SELECT does not define any aliases.
-            select_info = get_select_statement_info(context.segment, context.dialect)
-            if not select_info or not select_info.table_aliases:
-                return None
+        assert context.segment.is_type("select_statement")
+        # Exit early if the SELECT does not define any aliases.
+        select_info = get_select_statement_info(context.segment, context.dialect)
+        if not select_info or not select_info.table_aliases:
+            return None
 
-            # Analyze the SELECT.
-            crawler = SelectCrawler(
-                context.segment, context.dialect, query_class=L025Query
-            )
-            query: L025Query = cast(L025Query, crawler.query_tree)
-            self._analyze_table_aliases(query, context.dialect)
+        # Analyze the SELECT.
+        crawler = SelectCrawler(context.segment, context.dialect, query_class=L025Query)
+        query: L025Query = cast(L025Query, crawler.query_tree)
+        self._analyze_table_aliases(query, context.dialect)
 
-            alias: AliasInfo
-            for alias in query.aliases:
+        alias: AliasInfo
+        for alias in query.aliases:
 
-                # Skip alias if it's required (some dialects require aliases for
-                # VALUES clauses).
-                if alias.from_expression_element and self.is_alias_required(
-                    alias.from_expression_element, context.dialect.name
-                ):
-                    continue
+            # Skip alias if it's required (some dialects require aliases for
+            # VALUES clauses).
+            if alias.from_expression_element and self.is_alias_required(
+                alias.from_expression_element, context.dialect.name
+            ):
+                continue
 
-                if alias.aliased and alias.ref_str not in query.tbl_refs:
-                    # Unused alias. Report and fix.
-                    violations.append(self._report_unused_alias(alias))
+            if alias.aliased and alias.ref_str not in query.tbl_refs:
+                # Unused alias. Report and fix.
+                violations.append(self._report_unused_alias(alias))
         return violations or None
 
     @classmethod

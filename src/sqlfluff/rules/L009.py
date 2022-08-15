@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments, sp, tsp
 
@@ -107,8 +108,8 @@ class Rule_L009(BaseRule):
     groups = ("all", "core")
 
     targets_templated = True
-    # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
-    recurse_into = False
+    # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.
+    crawl_behaviour = RootOnlyCrawler()
     lint_phase = "post"
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

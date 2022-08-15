@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
@@ -40,6 +41,7 @@ class Rule_L008(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
     def _get_subsequent_whitespace(
         self,
@@ -78,8 +80,7 @@ class Rule_L008(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # We only care about commas.
-        if not context.segment.is_type("comma"):
-            return None
+        assert context.segment.is_type("comma")
 
         # Get subsequent whitespace segment and the first non-whitespace segment.
         subsequent_whitespace, first_non_whitespace = self._get_subsequent_whitespace(

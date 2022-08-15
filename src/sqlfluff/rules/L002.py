@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -45,6 +46,7 @@ class Rule_L002(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["tab_space_size"]
+    crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Mixed Tabs and Spaces in single whitespace.
@@ -57,9 +59,7 @@ class Rule_L002(BaseRule):
 
         if context.segment.is_type("whitespace"):
             if " " in context.segment.raw and "\t" in context.segment.raw:
-                if context.raw_segment_pre is None or context.raw_segment_pre.is_type(
-                    "newline"
-                ):
+                if not context.raw_stack or context.raw_stack[-1].is_type("newline"):
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces

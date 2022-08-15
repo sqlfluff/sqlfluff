@@ -4,6 +4,7 @@ from typing import Optional
 
 import regex
 
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -67,6 +68,7 @@ class Rule_L064(BaseRule):
 
     groups = ("all",)
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler({"literal"})
     targets_templated = True
     _dialects_with_double_quoted_strings = [
         "bigquery",

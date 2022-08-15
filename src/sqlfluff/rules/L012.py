@@ -38,6 +38,7 @@ class Rule_L012(Rule_L011):
 
     groups = ("all", "core")
     config_keywords = ["aliasing"]
+    # NB: crawl_behaviour is the same as Rule L011
 
     _target_elems = [
         ("type", "select_clause_element"),
@@ -49,9 +50,6 @@ class Rule_L012(Rule_L011):
         # instead of
         # select value as alias
         # Recognise this and exit early
-        if (
-            context.segment.is_type("alias_expression")
-            and context.functional.segment.children()[-1].raw == "="
-        ):
+        if context.functional.segment.children()[-1].raw == "=":
             return None
         return super()._eval(context)
