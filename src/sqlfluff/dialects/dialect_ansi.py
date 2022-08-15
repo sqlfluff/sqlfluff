@@ -988,9 +988,10 @@ class ShorthandCastSegment(BaseSegment):
                 Ref("CastOperatorSegment"),
                 Ref("DatatypeSegment"),
                 Ref("TimeZoneGrammar", optional=True),
-                allow_gaps=True
+                allow_gaps=True,
             ),
-        ), allow_gaps=True
+        ),
+        allow_gaps=True,
     )
 
 
@@ -1791,7 +1792,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-        AnyNumberOf(Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
     ),
