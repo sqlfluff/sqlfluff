@@ -2,29 +2,29 @@ rule: L069
 
 test_pass_cast:
   pass_str: |
-    SELECT CAST(1 AS varchar) AS bar,
+    SELECT CAST(1 AS varchar) AS bar
     FROM foo;
 
 test_fail_convert:
   fail_str: |
-    SELECT convert(varchar, 1) AS bar,
+    SELECT CONVERT(varchar, 1) AS bar
     FROM foo;
   fix_str: |
-    SELECT CAST(1 AS varchar) AS bar,
+    SELECT CAST(1 AS varchar) AS bar
     FROM foo;
 
 test_fail_casting_operator:
   fail_str: |
-    SELECT 1::varchar AS bar,
+    SELECT 1::varchar AS bar
     FROM foo;
   fix_str: |
-    SELECT CAST(1 AS varchar) AS bar,
+    SELECT CAST(1 AS varchar) AS bar
     FROM foo;
 
 test_fail_multi_casting_operator:
   fail_str: |
-    SELECT 1::int::varchar AS bar,
+    SELECT 1::int::varchar AS bar
     FROM foo;
   fix_str: |
-    SELECT CAST(CAST(1 AS int) AS varchar) AS bar,
+    SELECT CAST(CAST(1 AS int) AS varchar) AS bar
     FROM foo;

@@ -37,7 +37,7 @@ class Rule_L069(BaseRule):
     """
 
     groups = ("all",)
-    crawl_behaviour = SegmentSeekerCrawler({"function_name", "cast_expression"})
+    crawl_behaviour = SegmentSeekerCrawler({"function", "cast_expression"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``CAST`` instead of ``CONVERT`` or ``::``."""
