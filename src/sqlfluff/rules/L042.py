@@ -22,7 +22,7 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
