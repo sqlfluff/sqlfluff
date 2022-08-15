@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6516297807ea02447c003c12cfdba79eb76ffd1aafcd4f953bb361f79a5acd8d
+_hash: 0edddefa88485c2eef616da694d0bdf265eac65a122823622dc8b26f3a003e96
 file:
 - statement:
     select_statement:
@@ -18,6 +18,13 @@ file:
         keyword: SELECT
         select_clause_element:
           bare_function: sysdate
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          bare_function: current_timestamp
 - statement_terminator: ;
 - statement:
     select_statement:
