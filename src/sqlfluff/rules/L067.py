@@ -1,8 +1,6 @@
 """Implementation of Rule L067."""
 
-from typing import Optional, cast, TypeVar, Type
-
-from sqlfluff.core.parser.segments.base import BaseSegment
+from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -41,7 +39,7 @@ class Rule_L067(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``CAST`` instead of ``CONVERT`` or ``::``."""
-        # Limit scope to CONVERT and casting_operator
+        # Limit scope to CONVERT and casting_operator(::)
         # CONVERT
         if (
             context.segment.is_type("function")
@@ -55,7 +53,11 @@ class Rule_L067(BaseRule):
                     sp.not_(sp.is_meta()),
                     sp.not_(
                         sp.is_type(
-                            "start_bracket", "end_bracket", "whitespace", "newline", "comma",
+                            "start_bracket",
+                            "end_bracket",
+                            "whitespace",
+                            "newline",
+                            "comma",
                         )
                     ),
                 )
@@ -80,20 +82,23 @@ class Rule_L067(BaseRule):
             return LintResult(
                 anchor=context.segment,
                 fixes=[fix],
-                description=f"Use 'CAST' instead of '{context.segment.get_child('function_name').raw_upper}'.",
+                description=f"Use 'CAST' instead of \n"
+                f"'{context.segment.get_child('function_name').raw_upper}'.",
             )
 
-        # casting_operator
-        if (
-            context.segment.is_type("cast_expression")
-        ):
+        # casting_operator(::)
+        if context.segment.is_type("cast_expression"):
             # get the datatype and the expression segment
             datatype_expression_segment = context.functional.segment.children(
                 sp.and_(
                     sp.not_(sp.is_meta()),
                     sp.not_(
                         sp.is_type(
-                            "start_bracket", "end_bracket", "whitespace", "newline", "casting_operator",
+                            "start_bracket",
+                            "end_bracket",
+                            "whitespace",
+                            "newline",
+                            "casting_operator",
                         )
                     ),
                 )
@@ -118,7 +123,8 @@ class Rule_L067(BaseRule):
             return LintResult(
                 anchor=context.segment,
                 fixes=[fix],
-                description=f"Use 'CAST' instead of '{context.segment.get_child('casting_operator').raw}'.",
+                description=f"Use 'CAST' instead of \n"
+                f"'{context.segment.get_child('casting_operator').raw}'.",
             )
 
         return None
