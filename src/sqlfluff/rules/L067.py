@@ -114,8 +114,8 @@ class Rule_L067(BaseRule):
                 datatype_level = datatype_level + 1
                 # update new_segment to include datatype
                 # as well as accommodate multicast
-                new_segment = f"CAST({new_segment} AS \n"
-                f"{expression_datatype_segment[datatype_level].raw})"
+                new_datatype = expression_datatype_segment[datatype_level].raw
+                new_segment = f"CAST({new_segment} AS {new_datatype})"
 
             # create fix to replace ``::`` with ``CAST``.
             fix = LintFix.replace(
