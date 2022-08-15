@@ -1,8 +1,8 @@
 SELECT current_date;
 
-SELECT current_timestamp;
-
 SELECT sysdate;
+
+SELECT current_timestamp;
 
 SELECT TRUNC(sysdate);
 
