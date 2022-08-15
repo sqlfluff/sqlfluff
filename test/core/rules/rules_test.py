@@ -14,7 +14,7 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.testing.rules import get_rule_from_set
+from sqlfluff.utils.testing.rules import get_rule_from_set
 
 from test.fixtures.rules.custom.L000 import Rule_L000
 from test.fixtures.rules.custom.S000 import Rule_S000

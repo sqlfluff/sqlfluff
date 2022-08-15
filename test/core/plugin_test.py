@@ -6,13 +6,15 @@ from sqlfluff.core.config import FluffConfig
 def test__plugin_manager_registers_example_plugin():
     """Test that the example plugin is registered."""
     plugin_manager = get_plugin_manager()
-    # The plugin import order is non-deterministic
-    assert sorted(
-        [plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()]
-    ) == [
+    # The plugin import order is non-deterministic.
+    # Use sets in case the dbt plugin (or other plugins) are
+    # already installed too.
+    assert set(
+        plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
+    ) >= {
         "example.rules",
         "sqlfluff.core.plugin.lib",
-    ]
+    }
 
 
 def test__plugin_example_rules_returned():

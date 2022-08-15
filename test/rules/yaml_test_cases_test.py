@@ -2,7 +2,7 @@
 import os
 import logging
 import pytest
-from sqlfluff.testing.rules import (
+from sqlfluff.utils.testing.rules import (
     load_test_cases,
     rules__test_helper,
     get_rule_from_set,
