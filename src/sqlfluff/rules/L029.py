@@ -1,8 +1,9 @@
 """Implementation of Rule L029."""
 import regex
-from typing import Optional, Tuple, List
+from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
@@ -44,12 +45,7 @@ class Rule_L029(BaseRule):
     """
 
     groups = ("all",)
-    # Binary operators behave like keywords too.
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "naked_identifier"),
-        ("type", "quoted_identifier"),
-    ]
-
+    crawl_behaviour = SegmentSeekerCrawler({"naked_identifier", "quoted_identifier"})
     config_keywords = [
         "unquoted_identifiers_policy",
         "quoted_identifiers_policy",
@@ -61,10 +57,6 @@ class Rule_L029(BaseRule):
         """Keywords should not be used as identifiers."""
         # Config type hints
         self.ignore_words_regex: str
-
-        # Skip if not an element of the specified type/name
-        if not self.matches_target_tuples(context.segment, self._target_elems):
-            return LintResult(memory=context.memory)
 
         # Skip 1 letter identifiers. These can be datepart keywords
         # (e.g. "d" for Snowflake) but most people expect to be able to use them.

@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -54,16 +55,16 @@ class Rule_L056(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"create_procedure_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         r"""``SP_`` prefix should not be used for user-defined stored procedures."""
         # Rule only applies to T-SQL syntax.
         if context.dialect.name != "tsql":
-            return None
+            return None  # pragma: no cover
 
         # We are only interested in CREATE PROCEDURE statements.
-        if context.segment.type != "create_procedure_statement":
-            return None
+        assert context.segment.is_type("create_procedure_statement")
 
         # Find the object reference for the stored procedure.
         object_reference_segment = next(

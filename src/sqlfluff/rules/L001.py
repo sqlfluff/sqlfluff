@@ -1,6 +1,7 @@
 """Implementation of Rule L001."""
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.functional import segment_predicates as sp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
@@ -35,7 +36,7 @@ class Rule_L001(BaseRule):
     """
 
     groups = ("all", "core")
-    needs_raw_stack = True
+    crawl_behaviour = SegmentSeekerCrawler({"newline"}, provide_raw_stack=True)
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Unnecessary trailing whitespace.
@@ -50,9 +51,14 @@ class Rule_L001(BaseRule):
             and context.raw_stack[-1].is_type("whitespace")
         ):
             # If we find a newline, which is preceded by whitespace, then bad
-            deletions = context.functional.raw_stack.reversed().select(
-                loop_while=sp.is_type("whitespace")
+            deletions = (
+                FunctionalContext(context)
+                .raw_stack.reversed()
+                .select(loop_while=sp.is_type("whitespace"))
             )
+            # We should be able to rely on the segments all having a pos_marker
+            # at this stage in the process.
+            assert deletions[-1].pos_marker
             last_deletion_slice = deletions[-1].pos_marker.source_slice
 
             # Check the raw source (before template expansion) immediately

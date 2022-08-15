@@ -1,11 +1,15 @@
 """Implementation of Rule L044."""
 from typing import Optional
 
-from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
+
+
+_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 class RuleFailure(Exception):
@@ -65,7 +69,7 @@ class Rule_L044(BaseRule):
     """
 
     groups = ("all",)
-    _works_on_unparsable = False
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
 
     def _handle_alias(self, selectable, alias_info, query):
         select_info_target = SelectCrawler.get(
@@ -137,10 +141,7 @@ class Rule_L044(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        start_types = ["select_statement", "set_expression", "with_compound_statement"]
-        if context.segment.is_type(
-            *start_types
-        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             crawler = SelectCrawler(context.segment, context.dialect)
 
             # Begin analysis at the outer query.

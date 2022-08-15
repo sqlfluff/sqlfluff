@@ -1,19 +1,19 @@
 """Implementation of Rule L036."""
 
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Sequence
 
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 class SelectTargetsInfo(NamedTuple):
@@ -24,7 +24,7 @@ class SelectTargetsInfo(NamedTuple):
     first_select_target_idx: int
     first_whitespace_idx: int
     comment_after_select_idx: int
-    select_targets: List[BaseSegment]
+    select_targets: Sequence[BaseSegment]
     from_segment: Optional[BaseSegment]
     pre_from_whitespace: List[BaseSegment]
 
@@ -79,31 +79,32 @@ class Rule_L036(BaseRule):
 
     groups = ("all",)
     config_keywords = ["wildcard_policy"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
 
     def _eval(self, context: RuleContext):
         self.wildcard_policy: str
-        if context.segment.is_type("select_clause"):
-            select_targets_info = self._get_indexes(context)
-            select_clause = context.functional.segment
-            wildcards = select_clause.children(
-                sp.is_type("select_clause_element")
-            ).children(sp.is_type("wildcard_expression"))
-            has_wildcard = bool(wildcards)
-            if len(select_targets_info.select_targets) == 1 and (
-                not has_wildcard or self.wildcard_policy == "single"
-            ):
-                return self._eval_single_select_target_element(
-                    select_targets_info,
-                    context,
-                )
-            elif len(select_targets_info.select_targets):
-                return self._eval_multiple_select_target_elements(
-                    select_targets_info, context.segment
-                )
+        assert context.segment.is_type("select_clause")
+        select_targets_info = self._get_indexes(context)
+        select_clause = FunctionalContext(context).segment
+        wildcards = select_clause.children(
+            sp.is_type("select_clause_element")
+        ).children(sp.is_type("wildcard_expression"))
+        has_wildcard = bool(wildcards)
+        if len(select_targets_info.select_targets) == 1 and (
+            not has_wildcard or self.wildcard_policy == "single"
+        ):
+            return self._eval_single_select_target_element(
+                select_targets_info,
+                context,
+            )
+        elif len(select_targets_info.select_targets):
+            return self._eval_multiple_select_target_elements(
+                select_targets_info, context.segment
+            )
 
     @staticmethod
     def _get_indexes(context: RuleContext):
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
         selects = children.select(sp.is_keyword("select"))
@@ -136,7 +137,7 @@ class Rule_L036(BaseRule):
             )
             first_whitespace_idx = children.find(segments_after_first_line.get())
 
-        siblings_post = context.functional.siblings_post
+        siblings_post = FunctionalContext(context).siblings_post
         from_segment = siblings_post.first(sp.is_type("from_clause")).first().get()
         pre_from_whitespace = siblings_post.select(
             sp.is_type("whitespace"), stop_seg=from_segment
@@ -208,7 +209,7 @@ class Rule_L036(BaseRule):
     def _eval_single_select_target_element(
         self, select_targets_info, context: RuleContext
     ):
-        select_clause = context.functional.segment
+        select_clause = FunctionalContext(context).segment
         parent_stack = context.parent_stack
 
         if (

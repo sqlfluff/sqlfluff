@@ -12,6 +12,7 @@ from sqlfluff.core.rules import (
     RuleContext,
     EvalResultType,
 )
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -43,6 +44,7 @@ class Rule_L006(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
     # L006 works on operators so requires three operators.
     # However some rules that inherit from here (e.g. L048) do not.
     # So allow this to be configurable.
@@ -109,7 +111,7 @@ class Rule_L006(BaseRule):
         # to have at least three children.
 
         if self._require_three_children and len(context.segment.segments) <= 2:
-            return LintResult()
+            return LintResult()  # pragma: no cover
 
         violations = []
 
@@ -140,21 +142,21 @@ class Rule_L006(BaseRule):
                     leading = raw_list[0]
                     trailing = raw_list[-1]
                     if self.matches_target_tuples(leading, self._target_elems):
-                        before_anchor = leading
-                        self.logger.debug(
+                        before_anchor = leading  # pragma: no cover
+                        self.logger.debug(  # pragma: no cover
                             "Found Target [leading] @%s: %r",
                             before_anchor.pos_marker,
                             before_anchor.raw,
                         )
-                        check_before = True
+                        check_before = True  # pragma: no cover
                     if self.matches_target_tuples(trailing, self._target_elems):
-                        after_anchor = trailing
-                        self.logger.debug(
+                        after_anchor = trailing  # pragma: no cover
+                        self.logger.debug(  # pragma: no cover
                             "Found Target [trailing] @%s: %r",
                             after_anchor.pos_marker,
                             after_anchor.raw,
                         )
-                        check_after = True
+                        check_after = True  # pragma: no cover
 
             if check_before:
                 prev_seg = self._find_segment(

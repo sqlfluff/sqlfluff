@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from sqlfluff.core.parser import RawSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -54,8 +55,10 @@ class Rule_L019(BaseRule):
     """
 
     groups = ("all", "core")
-    _works_on_unparsable = False
-    needs_raw_stack = True
+    # Crawling all raw is expensive, but this rule triggers on a lot
+    # including whitespace, newline and final segments, which means
+    # there isn't much benefit to being more specific.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"}, provide_raw_stack=True)
     config_keywords = ["comma_style"]
 
     @staticmethod

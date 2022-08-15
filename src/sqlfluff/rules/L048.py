@@ -3,6 +3,7 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 from sqlfluff.rules.L006 import Rule_L006
@@ -37,6 +38,9 @@ class Rule_L048(Rule_L006):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = ParentOfSegmentCrawler(
+        {"quoted_literal", "date_constructor_literal"}
+    )
     _require_three_children: bool = False
 
     _target_elems: List[Tuple[str, str]] = [

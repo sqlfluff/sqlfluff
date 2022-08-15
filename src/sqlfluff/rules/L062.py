@@ -4,6 +4,7 @@ import regex
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 
 
@@ -48,6 +49,8 @@ class Rule_L062(BaseRule):
     """
 
     groups = ("all",)
+    # It's a broad selector, but only trigger on raw segments.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"})
     config_keywords = [
         "blocked_words",
         "blocked_regex",
@@ -69,12 +72,6 @@ class Rule_L062(BaseRule):
             # First-time only, read the settings from configuration.
             # So we can cache them for next time for speed.
             blocked_words_list = self._init_blocked_words()
-
-        # Only look at child elements
-        # Note: we do not need to ignore comments or meta types
-        # or the like as they will not have single word raws
-        if context.segment.segments:
-            return None
 
         if context.segment.raw_upper in blocked_words_list:
             return LintResult(

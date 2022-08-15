@@ -5,7 +5,7 @@ from typing import Iterator, List, Optional, Set
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import SymbolSegment
-from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
@@ -13,13 +13,17 @@ from sqlfluff.core.rules import (
     EvalResultType,
     RuleContext,
 )
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment
+
+
+_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 @document_groups
@@ -72,6 +76,7 @@ class Rule_L028(BaseRule):
         "single_table_references",
         "force_enable",
     ]
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
@@ -92,10 +97,7 @@ class Rule_L028(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        start_types = ["select_statement", "set_expression", "with_compound_statement"]
-        if context.segment.is_type(
-            *start_types
-        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             crawler = SelectCrawler(context.segment, context.dialect)
             if crawler.query_tree:
                 # Recursively visit and check each query in the tree.

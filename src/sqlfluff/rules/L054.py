@@ -2,8 +2,9 @@
 from typing import Optional, List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -84,6 +85,7 @@ class Rule_L054(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["group_by_and_order_by_style"]
+    crawl_behaviour = SegmentSeekerCrawler({"groupby_clause", "orderby_clause"})
     _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -92,11 +94,10 @@ class Rule_L054(BaseRule):
         self.group_by_and_order_by_style: str
 
         # We only care about GROUP BY/ORDER BY clauses.
-        if not context.segment.is_type("groupby_clause", "orderby_clause"):
-            return None
+        assert context.segment.is_type("groupby_clause", "orderby_clause")
 
         # Ignore Windowing clauses
-        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
 
         # Look at child segments and map column references to either the implicit or

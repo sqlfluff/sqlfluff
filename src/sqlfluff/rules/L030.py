@@ -1,6 +1,7 @@
 """Implementation of Rule L030."""
 
 from typing import List, Tuple
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -42,10 +43,9 @@ class Rule_L030(Rule_L010):
 
     groups = ("all", "core")
     lint_phase = "post"
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "function_name_identifier"),
-        ("type", "bare_function"),
-    ]
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"function_name_identifier", "bare_function"}
+    )
     _exclude_elements: List[Tuple[str, str]] = []
     config_keywords = [
         "extended_capitalisation_policy",

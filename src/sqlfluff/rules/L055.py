@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -39,12 +40,12 @@ class Rule_L055(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use LEFT JOIN instead of RIGHT JOIN."""
         # We are only interested in JOIN clauses.
-        if context.segment.type != "join_clause":
-            return None
+        assert context.segment.is_type("join_clause")
 
         # Identify if RIGHT JOIN is present.
         if {"right", "join"}.issubset(
