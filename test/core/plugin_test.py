@@ -11,10 +11,10 @@ def test__plugin_manager_registers_example_plugin():
     # already installed too.
     assert set(
         plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
-    ) >= {
+    ).issuperset({
         "example.rules",
         "sqlfluff.core.plugin.lib",
-    }
+    })
 
 
 def test__plugin_example_rules_returned():
