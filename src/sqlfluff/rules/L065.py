@@ -135,7 +135,7 @@ class Rule_L065(BaseRule):
 
 
 def _generate_fixes(
-    whitespace_segment: BaseSegment,
+    whitespace_segment: Optional[BaseSegment],
 ) -> Optional[List[LintFix]]:
 
     if whitespace_segment:

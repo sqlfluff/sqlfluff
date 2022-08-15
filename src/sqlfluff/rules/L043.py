@@ -156,8 +156,8 @@ class Rule_L043(BaseRule):
                     and (else_expression.raw_upper in upper_bools)
                     and (then_expression.raw_upper != else_expression.raw_upper)
                 ):
-                    coalesce_arg_1 = condition_expression
-                    coalesce_arg_2 = KeywordSegment("false")
+                    coalesce_arg_1: BaseSegment = condition_expression
+                    coalesce_arg_2: BaseSegment = KeywordSegment("false")
                     preceding_not = then_expression.raw_upper == "FALSE"
 
                     fixes = self._coalesce_fix_list(

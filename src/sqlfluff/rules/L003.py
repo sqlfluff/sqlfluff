@@ -12,7 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.utils.functional import Segments, rsp, sp, FunctionalContext
+from sqlfluff.utils.functional import Segments, rsp, sp
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
 

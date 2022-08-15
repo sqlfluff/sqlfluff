@@ -51,7 +51,7 @@ class Rule_L058(BaseRule):
         segment = FunctionalContext(context).segment
         assert segment.select(sp.is_type("case_expression"))
         case1_children = segment.children()
-        case1_last_when = case1_children.last(sp.is_type("when_clause"))
+        case1_last_when = case1_children.last(sp.is_type("when_clause")).get()
         case1_else_clause = case1_children.select(sp.is_type("else_clause"))
         case1_else_expressions = case1_else_clause.children(sp.is_type("expression"))
         expression_children = case1_else_expressions.children()
@@ -67,9 +67,16 @@ class Rule_L058(BaseRule):
         ):
             return LintResult()
 
+        # We can assert that this exists because of the previous check.
+        assert case1_last_when
+        # We can also assert that we'll also have an else clause because
+        # otherwise the case2 check above would fail.
+        case1_else_clause_seg = case1_else_clause.get()
+        assert case1_else_clause_seg
+
         # Delete stuff between the last "WHEN" clause and the "ELSE" clause.
         case1_to_delete = case1_children.select(
-            start_seg=case1_last_when.get(), stop_seg=case1_else_clause.get()
+            start_seg=case1_last_when, stop_seg=case1_else_clause_seg
         )
 
         # Delete the nested "CASE" expression.
@@ -79,7 +86,7 @@ class Rule_L058(BaseRule):
         # and "ELSE" clauses, based on the indentation of case1_last_when.
         # If no whitespace segments found, use default indent.
         indent = (
-            case1_children.select(stop_seg=case1_last_when.get())
+            case1_children.select(stop_seg=case1_last_when)
             .reversed()
             .select(sp.is_type("whitespace"))
         )
@@ -92,10 +99,8 @@ class Rule_L058(BaseRule):
             lambda seg: [NewlineSegment(), WhitespaceSegment(indent_str), seg]
         )
         segments = [item for sublist in create_after_last_when for item in sublist]
-        fixes.append(
-            LintFix.create_after(case1_last_when.get(), segments, source=segments)
-        )
+        fixes.append(LintFix.create_after(case1_last_when, segments, source=segments))
 
         # Delete the outer "else" clause.
-        fixes.append(LintFix.delete(case1_else_clause.get()))
+        fixes.append(LintFix.delete(case1_else_clause_seg))
         return LintResult(case2[0], fixes=fixes)

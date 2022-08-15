@@ -56,6 +56,9 @@ class Rule_L001(BaseRule):
                 .raw_stack.reversed()
                 .select(loop_while=sp.is_type("whitespace"))
             )
+            # We should be able to rely on the segments all having a pos_marker
+            # at this stage in the process.
+            assert deletions[-1].pos_marker
             last_deletion_slice = deletions[-1].pos_marker.source_slice
 
             # Check the raw source (before template expansion) immediately

@@ -1,6 +1,6 @@
 """Implementation of Rule L036."""
 
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Sequence
 
 from sqlfluff.core.parser import WhitespaceSegment
 
@@ -24,7 +24,7 @@ class SelectTargetsInfo(NamedTuple):
     first_select_target_idx: int
     first_whitespace_idx: int
     comment_after_select_idx: int
-    select_targets: List[BaseSegment]
+    select_targets: Sequence[BaseSegment]
     from_segment: Optional[BaseSegment]
     pre_from_whitespace: List[BaseSegment]
 
