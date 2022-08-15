@@ -3,8 +3,9 @@
 from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -36,6 +37,7 @@ class Rule_L069(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"function_name", "cast_expression"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``CAST`` instead of ``CONVERT`` or ``::``."""
@@ -46,20 +48,22 @@ class Rule_L069(BaseRule):
             and context.segment.get_child("function_name").raw_upper == "CONVERT"
         ):
             # Get the content of CONVERT
-            convert_content = context.functional.segment.children(
-                sp.is_type("bracketed")
-            ).children(
-                sp.and_(
-                    sp.not_(sp.is_meta()),
-                    sp.not_(
-                        sp.is_type(
-                            "start_bracket",
-                            "end_bracket",
-                            "whitespace",
-                            "newline",
-                            "comma",
-                        )
-                    ),
+            convert_content = (
+                FunctionalContext(context)
+                .segment.children(sp.is_type("bracketed"))
+                .children(
+                    sp.and_(
+                        sp.not_(sp.is_meta()),
+                        sp.not_(
+                            sp.is_type(
+                                "start_bracket",
+                                "end_bracket",
+                                "whitespace",
+                                "newline",
+                                "comma",
+                            )
+                        ),
+                    )
                 )
             )
 
@@ -89,7 +93,7 @@ class Rule_L069(BaseRule):
         # casting_operator(::)
         if context.segment.is_type("cast_expression"):
             # get the expression and the datatype segment
-            expression_datatype_segment = context.functional.segment.children(
+            expression_datatype_segment = FunctionalContext(context).segment.children(
                 sp.and_(
                     sp.not_(sp.is_meta()),
                     sp.not_(
