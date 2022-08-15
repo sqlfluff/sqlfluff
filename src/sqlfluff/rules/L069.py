@@ -1,4 +1,4 @@
-"""Implementation of Rule L067."""
+"""Implementation of Rule L069."""
 
 from typing import Optional
 
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 
 @document_groups
 @document_fix_compatible
-class Rule_L067(BaseRule):
+class Rule_L069(BaseRule):
     """Use ``CAST`` instead of ``CONVERT`` or ``::``.
 
     **Anti-pattern**
