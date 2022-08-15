@@ -88,8 +88,8 @@ class Rule_L067(BaseRule):
 
         # casting_operator(::)
         if context.segment.is_type("cast_expression"):
-            # get the datatype and the expression segment
-            datatype_expression_segment = context.functional.segment.children(
+            # get the expression and the datatype segment
+            expression_datatype_segment = context.functional.segment.children(
                 sp.and_(
                     sp.not_(sp.is_meta()),
                     sp.not_(
@@ -104,18 +104,25 @@ class Rule_L067(BaseRule):
                 )
             )
 
-            # get the expression
-            expression = datatype_expression_segment[0].raw
+            # we can have multicast e.g 1::int::text
+            # in that case, we need to introduce multiple CAST()
+            # start off new_segment as the expression
+            new_segment = expression_datatype_segment[0].raw
 
-            # get the data type
-            datatype = datatype_expression_segment[1].raw
+            for datatype_level in range(len(expression_datatype_segment[1:])):
+                # skip the first element(the expression)
+                datatype_level = datatype_level + 1
+                # update new_segment to include datatype
+                # as well as accommodate multicast
+                new_segment = f"CAST({new_segment} AS \n"
+                f"{expression_datatype_segment[datatype_level].raw})"
 
             # create fix to replace ``::`` with ``CAST``.
             fix = LintFix.replace(
                 context.segment,
                 [
                     CodeSegment(
-                        raw=f"CAST({expression} AS {datatype})",
+                        raw=new_segment,
                     )
                 ],
             )
