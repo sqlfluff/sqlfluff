@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2130a673b93939acf16d2977dc0d32dc85df5a6c4578d4de7e376ae7b0d63156
+_hash: 6571d63bee7a840364cfc9dcc69baad6ce37f3b03876af1532d5469fdab84aa2
 file:
 - statement:
     select_statement:
@@ -61,9 +61,9 @@ file:
         keyword: select
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: col1
             cast_expression:
+              column_reference:
+                naked_identifier: col1
               casting_operator: '::'
               data_type:
                 keyword: integer
@@ -133,9 +133,9 @@ file:
         keyword: select
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: col1
             cast_expression:
+              column_reference:
+                naked_identifier: col1
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -216,9 +216,9 @@ file:
         keyword: select
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: col1
             cast_expression:
+              column_reference:
+                naked_identifier: col1
               casting_operator: '::'
               data_type:
                 keyword: decimal
@@ -292,9 +292,9 @@ file:
         keyword: select
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: col1
             cast_expression:
+              column_reference:
+                naked_identifier: col1
               casting_operator: '::'
               data_type:
                 keyword: interval

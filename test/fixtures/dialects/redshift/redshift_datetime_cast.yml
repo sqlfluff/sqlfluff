@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c84076e9d4b74a2bfdccf350264599791e8750ca4e230ed265eaa28feec7fb2d
+_hash: a7a430e8fe01ea1f720b3f335943a897687687be69eacecddf6a3c67a4230915
 file:
 - statement:
     select_statement:
@@ -11,9 +11,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -32,9 +32,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -53,9 +53,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -63,9 +63,9 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: c
             cast_expression:
+              column_reference:
+                naked_identifier: c
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -76,9 +76,9 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: d
             cast_expression:
+              column_reference:
+                naked_identifier: d
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -100,9 +100,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -121,9 +121,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -131,9 +131,9 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: c
             cast_expression:
+              column_reference:
+                naked_identifier: c
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -144,9 +144,9 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: d
             cast_expression:
+              column_reference:
+                naked_identifier: d
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -168,9 +168,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: b
             cast_expression:
+              column_reference:
+                naked_identifier: b
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -189,11 +189,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            column_reference:
-            - naked_identifier: raw_data
-            - dot: .
-            - naked_identifier: status
             cast_expression:
+              column_reference:
+              - naked_identifier: raw_data
+              - dot: .
+              - naked_identifier: status
               casting_operator: '::'
               data_type:
                 keyword: VARCHAR
@@ -203,83 +203,83 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-            - naked_identifier: raw_data
-            - dot: .
-            - naked_identifier: start
             cast_expression:
+              column_reference:
+              - naked_identifier: raw_data
+              - dot: .
+              - naked_identifier: start
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
             naked_identifier: started_at
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: raw_data
-              dot: .
-              quoted_identifier: '"end"'
             cast_expression:
+              column_reference:
+                naked_identifier: raw_data
+                dot: .
+                quoted_identifier: '"end"'
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
             naked_identifier: ended_at
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-            - naked_identifier: raw_data
-            - dot: .
-            - naked_identifier: created
             cast_expression:
+              column_reference:
+              - naked_identifier: raw_data
+              - dot: .
+              - naked_identifier: created
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
             naked_identifier: created_at
       - comma: ','
       - select_clause_element:
           expression:
-          - column_reference:
-            - naked_identifier: raw_data
+            cast_expression:
+            - column_reference:
+              - naked_identifier: raw_data
+              - dot: .
+              - naked_identifier: identifier
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
             - dot: .
-            - naked_identifier: identifier
-          - array_accessor:
-              start_square_bracket: '['
-              numeric_literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - column_reference:
-              naked_identifier: value
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - column_reference:
+                naked_identifier: value
+            - casting_operator: '::'
+            - data_type:
                 keyword: VARCHAR
           alias_expression:
             keyword: AS

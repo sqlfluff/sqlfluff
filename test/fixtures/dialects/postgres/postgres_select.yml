@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: beb61c1eb1b60969bb801f17c7f11c9c65e9124f5c743c444410ebd6565cd5f6
+_hash: d6880cc6b5b12a791d3b0e258410ad4b4d37331250e9650447f5a0df2e059c39
 file:
 - statement:
     select_statement:
@@ -69,8 +69,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            numeric_literal: '1.0'
             cast_expression:
+              numeric_literal: '1.0'
               casting_operator: '::'
               data_type:
                 keyword: int
@@ -81,8 +81,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -94,18 +94,18 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMP
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,8 +113,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -129,8 +129,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -138,12 +138,12 @@ file:
                 - keyword: WITH
                 - keyword: TIME
                 - keyword: ZONE
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -151,8 +151,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -167,8 +167,8 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -180,18 +180,18 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-            time_zone_grammar:
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - expression:
-                quoted_literal: "'UTC'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -347,19 +347,19 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: c_timestamp
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    quoted_literal: "'Africa/Cairo'"
-              end_bracket: )
             cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: c_timestamp
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      quoted_literal: "'Africa/Cairo'"
+                end_bracket: )
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -378,9 +378,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: a
             cast_expression:
+              column_reference:
+                naked_identifier: a
               casting_operator: '::'
               data_type:
               - keyword: double

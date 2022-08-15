@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 21ae31d6864a60991639f495431fcdcc300c07ffb4b8f3d733a08930c8f7a713
+_hash: aba2f3f0a365ff71ee9b1e4e8f15c6529a208eed45bf272d26fd63097de2c522
 file:
 - statement:
     with_compound_statement:
@@ -29,8 +29,8 @@ file:
                 quoted_literal: "'08RIX0'"
             - comma: ','
             - expression:
-                numeric_literal: '0.435'
                 cast_expression:
+                  numeric_literal: '0.435'
                   casting_operator: '::'
                   data_type:
                     keyword: NUMERIC

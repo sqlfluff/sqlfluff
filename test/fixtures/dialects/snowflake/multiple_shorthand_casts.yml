@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f70ced90ddde991c5132d4605f18b6a96909b327e337e6c17e86a6b7ba0acfb4
+_hash: d4da930e99a348f0e3aedda22c084498cab4794b1c3d2620880d13ea47cfe5b4
 file:
 - statement:
     select_statement:
@@ -11,14 +11,13 @@ file:
         keyword: select
         select_clause_element:
           expression:
-          - quoted_literal: "'1'"
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            cast_expression:
+            - quoted_literal: "'1'"
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: int
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: boolean
           alias_expression:
             keyword: as
@@ -37,8 +36,8 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-            bare_function: CURRENT_TIMESTAMP
             cast_expression:
+              bare_function: CURRENT_TIMESTAMP
               casting_operator: '::'
               data_type:
                 data_type_identifier: TIMESTAMP_TZ
@@ -49,13 +48,12 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-          - quoted_literal: "'1'"
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            cast_expression:
+            - quoted_literal: "'1'"
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: int
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: boolean
 - statement_terminator: ;

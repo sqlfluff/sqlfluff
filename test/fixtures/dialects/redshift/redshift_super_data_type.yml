@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ccb74adc863fb3c44a010173d8b64666c6b05513e690fa1a1e5ca91460a3092
+_hash: a7684dcd2ac5602ba0259c66279edf969adcc2cfe043507eb1a3d0abe1579023
 file:
 - statement:
     select_statement:
@@ -121,23 +121,23 @@ file:
                 quoted_literal: "'string'"
             - keyword: THEN
             - expression:
-              - column_reference:
-                  naked_identifier: c_orders
-              - array_accessor:
-                  start_square_bracket: '['
-                  numeric_literal: '0'
-                  end_square_bracket: ']'
-              - dot: .
-              - column_reference:
-                  naked_identifier: o_orderstatus
-              - cast_expression:
-                  casting_operator: '::'
-                  data_type:
+                cast_expression:
+                - column_reference:
+                    naked_identifier: c_orders
+                - array_accessor:
+                    start_square_bracket: '['
+                    numeric_literal: '0'
+                    end_square_bracket: ']'
+                - dot: .
+                - column_reference:
+                    naked_identifier: o_orderstatus
+                - casting_operator: '::'
+                - data_type:
                     keyword: VARCHAR
-              - comparison_operator:
+                comparison_operator:
                 - raw_comparison_operator: <
                 - raw_comparison_operator: '='
-              - quoted_literal: "'P'"
+                quoted_literal: "'P'"
           - else_clause:
               keyword: ELSE
               expression:

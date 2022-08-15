@@ -88,7 +88,6 @@ class Rule_L067(BaseRule):
             context.segment.is_type("cast_expression")
         ):
             # get the datatype and the expression segment
-            print(context.segment.type)
             datatype_expression_segment = context.functional.segment.children(
                 sp.and_(
                     sp.not_(sp.is_meta()),

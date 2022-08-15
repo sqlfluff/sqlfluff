@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 432e899a0e895fb09959978e6d2096acc2b27d4f57221754a46426bdae669b85
+_hash: 7a43b2f5826601acc62ee22325fdf43e46e5e328fdaf51b66d952c81c0a78018
 file:
 - statement:
     select_statement:
@@ -26,12 +26,12 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value
-            snowflake_semi_structured_expression:
-              colon: ':'
-              semi_structured_element: id
             cast_expression:
+              column_reference:
+                naked_identifier: value
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: id
               casting_operator: '::'
               data_type:
                 data_type_identifier: bigint
@@ -41,12 +41,12 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value
-            snowflake_semi_structured_expression:
-              colon: ':'
-              semi_structured_element: value
             cast_expression:
+              column_reference:
+                naked_identifier: value
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: value
               casting_operator: '::'
               data_type:
                 data_type_identifier: STRING
@@ -73,26 +73,26 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value
-            snowflake_semi_structured_expression:
-            - colon: ':'
-            - semi_structured_element: thing
-            - array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '4'
-                end_square_bracket: ']'
-            - dot: .
-            - semi_structured_element: bar
-            - dot: .
-            - semi_structured_element: baz
-            - array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '0'
-                end_square_bracket: ']'
-            - dot: .
-            - semi_structured_element: foo
             cast_expression:
+              column_reference:
+                naked_identifier: value
+              snowflake_semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: thing
+              - array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '4'
+                  end_square_bracket: ']'
+              - dot: .
+              - semi_structured_element: bar
+              - dot: .
+              - semi_structured_element: baz
+              - array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '0'
+                  end_square_bracket: ']'
+              - dot: .
+              - semi_structured_element: foo
               casting_operator: '::'
               data_type:
                 data_type_identifier: bigint
@@ -144,16 +144,16 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value
-            snowflake_semi_structured_expression:
-            - colon: ':'
-            - semi_structured_element: point
-            - colon: ':'
-            - semi_structured_element: from
-            - colon: ':'
-            - semi_structured_element: latitude
             cast_expression:
+              column_reference:
+                naked_identifier: value
+              snowflake_semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: point
+              - colon: ':'
+              - semi_structured_element: from
+              - colon: ':'
+              - semi_structured_element: latitude
               casting_operator: '::'
               data_type:
                 data_type_identifier: NUMBER
@@ -171,16 +171,16 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value
-            snowflake_semi_structured_expression:
-            - colon: ':'
-            - semi_structured_element: point
-            - colon: ':'
-            - semi_structured_element: from
-            - colon: ':'
-            - semi_structured_element: longitude
             cast_expression:
+              column_reference:
+                naked_identifier: value
+              snowflake_semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: point
+              - colon: ':'
+              - semi_structured_element: from
+              - colon: ':'
+              - semi_structured_element: longitude
               casting_operator: '::'
               data_type:
                 data_type_identifier: NUMBER

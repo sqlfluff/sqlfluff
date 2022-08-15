@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1c71be10afb88d4c7412bb82152520a33ddb68b1ecfa93cc246aa691da1c93a
+_hash: d5ef8ab2bf5f59b5c80fe0a3ee4f940897e862a70812baedecc8ebe4d202f7e8
 file:
 - statement:
     create_table_statement:
@@ -20,12 +20,12 @@ file:
           keyword: select
           select_clause_element:
             expression:
-              column_reference:
-                naked_identifier: VALUE
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: id
               cast_expression:
+                column_reference:
+                  naked_identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: id
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: TEXT
@@ -487,48 +487,48 @@ file:
         - keyword: select
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_custkey
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_custkey
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: number
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderdate
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_orderdate
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: date
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderstatus
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_orderstatus
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: text
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_totalprice
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_totalprice
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: text

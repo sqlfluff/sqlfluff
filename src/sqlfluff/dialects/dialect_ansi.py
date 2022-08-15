@@ -974,88 +974,24 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-# class ShorthandCastSegment(BaseSegment):
-#     """A casting operation using '::'."""
-
-#     type = "cast_expression"
-#     match_grammar: Matchable = Sequence(
-#         AnyNumberOf(  # we need to return oneof but casestatement needs anynumberof
-#             OneOf(
-#                 Ref("QuotedLiteralSegment"),
-#                 Ref("NumericLiteralSegment"),
-#                 Ref("ColumnReferenceSegment"),
-#             ),
-#             Ref("Expression_D_Grammar"),
-#             Ref("CaseExpressionSegment"),
-#             # Ref("CaseExpressionSegment"),
-#             Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
-#         ), #AnyNumberOf(Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True, optional=True)
-#     )
-
-
-# class ShorthandCastSegment(BaseSegment):
-#     """A casting operation using '::'."""
-
-#     type = "cast_expression"
-#     match_grammar: Matchable = Sequence(
-#         Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
-#     )
-
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
     type = "cast_expression"
     match_grammar: Matchable = Sequence(
-        # Sequence(
-        # Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
-        # ),  Sequence(
         OneOf(
-                Ref("Expression_D_Grammar"),
-                Ref("CaseExpressionSegment"),
-                Ref("ColumnReferenceSegment"),
-                Ref("NumericLiteralSegment"),
-                Ref("QuotedLiteralSegment"),
-                Ref("CastOperatorSegment"), Ref("DatatypeSegment")
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
         ),
-        # Sequence(
-        #     OneOf(
-        #         # Ref("CaseExpressionSegment"),
-        #         # Ref("QuotedLiteralSegment"),
-        #         # Ref("NumericLiteralSegment"),
-        #         # Ref("ColumnReferenceSegment"),
-        #     #     # Ref("Expression_D_Grammar"),
-        #     #     # Ref("CaseExpressionSegment")
-        #     # ),)
-        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True)
-    #     Sequence(
-    #     OneOf(
-    #         # Ref("CaseExpressionSegment", optional=True),
-    #         # Ref("QuotedLiteralSegment"),
-    #         # Ref("NumericLiteralSegment"),
-    #         Ref("ColumnReferenceSegment", optional=True),
-    #         # Ref("Expression_D_Grammar"),
-    #         # optional=True
-    #         # Ref("Expression_D_Grammar"),
-    #         # Ref("CaseExpressionSegment")
-    #     ),
-    #     # AnyNumberOf(  # we need to return oneof but casestatement needs anynumberof
-    #     #     # OneOf(
-    #     #     #     Ref("QuotedLiteralSegment"),
-    #     #     #     Ref("NumericLiteralSegment"),
-    #     #     #     Ref("ColumnReferenceSegment"),
-    #     #     #     # Ref("Expression_D_Grammar"),
-    #     #     #     # Ref("CaseExpressionSegment")
-    #     #     # ),
-    #     #     # Ref("Expression_D_Grammar"),
-    #     #     #Ref("QuotedLiteralSegment"),
-    #     #     # Ref("NumericLiteralSegment"),
-    #     #     # Ref("ColumnReferenceSegment"),
-    #     #     Ref("CaseExpressionSegment"),
-    #     #     # Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True,
-    #     # ),
-    #     AnyNumberOf(Sequence(Ref("CastOperatorSegment"), Ref("DatatypeSegment"))), allow_gaps=True
-    # )
-    #)
+        AnyNumberOf(
+            Sequence(
+                Ref("CastOperatorSegment"),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+                allow_gaps=True
+            ),
+        ), allow_gaps=True
+    )
 
 
 class QualifiedNumericLiteralSegment(BaseSegment):
@@ -1850,12 +1786,14 @@ ansi_dialect.add(
     Expression_C_Grammar=OneOf(
         Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
         # should be first priority, otherwise EXISTS() would be matched as a function
-        # AnyNumberOf(Ref("ShorthandCastSegment")),
-        Ref("Expression_D_Grammar"),
-        Ref("CaseExpressionSegment"),
-        AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
-        # AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
+        Sequence(
+            OneOf(
+                Ref("Expression_D_Grammar"),
+                Ref("CaseExpressionSegment"),
+            ),
+        AnyNumberOf(Ref("TimeZoneGrammar")),
+        ),
+        Ref("ShorthandCastSegment"),
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -3311,7 +3249,6 @@ class SetClauseSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             "DEFAULT",
         ),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
     )
 
 
