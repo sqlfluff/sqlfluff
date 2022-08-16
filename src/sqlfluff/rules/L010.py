@@ -63,7 +63,7 @@ class Rule_L010(BaseRule):
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be

@@ -1,6 +1,6 @@
 """Implementation of Rule L014."""
 
-from typing import Tuple, List, Optional
+from typing import Tuple, Optional, List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
@@ -83,7 +83,7 @@ class Rule_L014(Rule_L010):
     ]
     _description_elem = "Unquoted identifiers"
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         # Return None if identifer is case-sensitive property to enable Change Data Feed
         # https://docs.delta.io/2.0.0/delta-change-data-feed.html#enable-change-data-feed
         if (
