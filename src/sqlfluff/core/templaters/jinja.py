@@ -427,9 +427,11 @@ class JinjaTemplater(PythonTemplater):
                 else:
                     # When ignoring=templating is configured, provide a
                     # "reasonable" default for undefined variables, rather than
-                    # trying to force them to fail. This won't always work
-                    # (i.e. there's no "universal default" value that will) work
-                    # in all cases, but this will probably work 90% of the time.
+                    # trying to force them to fail. This won't always work --
+                    # i.e. there's no "universal default" value that will work
+                    # in all cases, but this strategy, combined with
+                    # implementing the magic methods (such as __eq__, see
+                    # above), works well in practice.
                     templater_logger.debug("Providing dummy value for undefined Jinja variable: %s", val)
                     live_context[val] = Undefined("a")
 
