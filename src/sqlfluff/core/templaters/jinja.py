@@ -14,6 +14,7 @@ from jinja2 import (
     meta,
 )
 from jinja2.environment import Template
+from jinja2.exceptions import UndefinedError
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -57,11 +58,17 @@ class JinjaTemplater(PythonTemplater):
         context = {}
         macro_template = env.from_string(template, globals=ctx)
         # This is kind of low level and hacky but it works
-        for k in macro_template.module.__dict__:
-            attr = getattr(macro_template.module, k)
-            # Is it a macro? If so install it at the name of the macro
-            if isinstance(attr, Macro):
-                context[k] = attr
+        try:
+            for k in macro_template.module.__dict__:
+                attr = getattr(macro_template.module, k)
+                # Is it a macro? If so install it at the name of the macro
+                if isinstance(attr, Macro):
+                    context[k] = attr
+        except UndefinedError:
+            # This occurs if any file in the macro path references an
+            # undefined Jinja variable. It's safe to ignore this. Any
+            # meaningful issues will surface later at linting time.
+            pass
         # Return the context
         return context
 

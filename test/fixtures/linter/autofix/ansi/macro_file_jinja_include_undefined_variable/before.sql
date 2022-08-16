@@ -1,0 +1,3 @@
+SELECT
+id
+FROM records
