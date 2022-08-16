@@ -376,7 +376,7 @@ class JinjaTemplater(PythonTemplater):
 
         undefined_variables = set()
 
-        class Undefined:
+        class Undefined(str):
             """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
             def __init__(self, name):
@@ -391,6 +391,28 @@ class JinjaTemplater(PythonTemplater):
                 undefined_variables.add(self.name)
                 return Undefined(f"{self.name}.{item}")
 
+            def _self_impl(self, *args, **kwargs):
+                return self
+
+            def _bool_impl(self, *args, **kwargs):
+                return True
+
+            if config and "templating" in config.get("ignore"):
+                # Implement the most common magic methods. This helps avoid
+                # templating errors for undefined variables.
+                __add__ = _self_impl
+                __sub__ = _self_impl
+                __mul__ = _self_impl
+                __floordiv__ = _self_impl
+                __truediv__ = _self_impl
+                __mod__ = _self_impl
+                __pow__ = _self_impl
+                __lt__ = _bool_impl
+                __le__ = _bool_impl
+                __eq__ = _bool_impl
+                __ne__ = _bool_impl
+                __ge__ = _bool_impl
+
         for val in potentially_undefined_variables:
             if val not in live_context:
                 if not config or "templating" not in config.get("ignore"):
@@ -401,7 +423,8 @@ class JinjaTemplater(PythonTemplater):
                     # trying to force them to fail. This won't always work
                     # (i.e. there's no "universal default" value that will) work
                     # in all cases, but this will probably work 90% of the time.
-                    live_context[val] = "a"
+                    templater_logger.debug("Providing dummy value for undefined Jinja variable: %s", val)
+                    live_context[val] = Undefined("a")
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.

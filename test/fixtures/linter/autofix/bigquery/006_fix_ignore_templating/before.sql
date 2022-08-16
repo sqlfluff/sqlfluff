@@ -8,4 +8,6 @@ select * except(rnk) from
     and tbl1.run_id = tbl2.run_id
     where run_rnk = 1
   )
+{% if level + level >= 0 %}
 where rnk = 1
+{% endif %}
