@@ -398,15 +398,15 @@ class JinjaTemplater(PythonTemplater):
                 undefined_variables.add(self.name)
                 return Undefined(f"{self.name}.{item}")
 
-            def _self_impl(self, *args, **kwargs):
-                return self
-
-            def _bool_impl(self, *args, **kwargs):
-                return True
-
             if config and "templating" in config.get("ignore"):
                 # Implement the most common magic methods. This helps avoid
                 # templating errors for undefined variables.
+                def _self_impl(self, *args, **kwargs):
+                    return self
+
+                def _bool_impl(self, *args, **kwargs):
+                    return True
+
                 __add__ = _self_impl
                 __sub__ = _self_impl
                 __mul__ = _self_impl
