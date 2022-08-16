@@ -23,7 +23,6 @@ import regex
 from typing import (
     cast,
     Iterable,
-    Iterator,
     Optional,
     List,
     Set,
@@ -32,7 +31,6 @@ from typing import (
     Any,
 )
 from collections import namedtuple
-from dataclasses import dataclass, field
 
 from sqlfluff.core.cached_property import cached_property
 
@@ -40,7 +38,8 @@ from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.rules.functional import Segments
+from sqlfluff.core.rules.context import RuleContext
+from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -98,6 +97,15 @@ class LintResult:
         self.memory = memory
         # store a description_override for later
         self.description = description
+
+    def __repr__(self):
+        if not self.anchor:
+            return "LintResult(<empty>)"
+        # The "F" at the end is short for "fixes", to indicate how many there are.
+        fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
+        if self.description:
+            return f"LintResult({self.description}: {self.anchor}{fix_coda})"
+        return f"LintResult({self.anchor}{fix_coda})"
 
     def to_linting_error(self, rule) -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
@@ -379,162 +387,6 @@ class LintFix:
 EvalResultType = Union[LintResult, List[LintResult], None]
 
 
-@dataclass
-class RuleContext:
-    """Class for holding the context passed to rule eval functions."""
-
-    # These don't change within a file.
-    dialect: Dialect
-    fix: bool
-    templated_file: Optional[TemplatedFile]
-    path: Optional[pathlib.Path]
-
-    # These change within a file.
-    segment: BaseSegment
-    parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
-    raw_segment_pre: Optional[RawSegment] = field(default=None)
-    raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
-    memory: Any = field(default_factory=dict)
-    segment_idx: int = field(default=0)
-
-    @property
-    def siblings_pre(self) -> Tuple[BaseSegment, ...]:  # pragma: no cover
-        """Return sibling segments prior to self.segment."""
-        if self.parent_stack:
-            return self.parent_stack[-1].segments[: self.segment_idx]
-        else:
-            return tuple()
-
-    @property
-    def siblings_post(self) -> Tuple[BaseSegment, ...]:
-        """Return sibling segments after self.segment."""
-        if self.parent_stack:
-            return self.parent_stack[-1].segments[self.segment_idx + 1 :]
-        else:
-            return tuple()
-
-    @cached_property
-    def final_segment(self) -> BaseSegment:
-        """Returns rightmost & lowest descendant.
-
-        Similar in spirit to BaseRule.is_final_segment(), but:
-        - Much faster
-        - Does not allow filtering out meta segments
-        """
-        last_segment: BaseSegment = (
-            self.parent_stack[0] if self.parent_stack else self.segment
-        )
-        while True:
-            try:
-                last_segment = last_segment.segments[-1]
-            except IndexError:
-                return last_segment
-
-    @property
-    def functional(self):
-        """Returns a Surrogates object that simplifies writing rules."""
-        return FunctionalRuleContext(self)
-
-
-class FunctionalRuleContext:
-    """RuleContext written in a "functional" style; simplifies writing rules."""
-
-    def __init__(self, context: RuleContext):
-        self.context = context
-
-    @property
-    def segment(self) -> "Segments":
-        """Returns a Segments object for context.segment."""
-        return Segments(
-            self.context.segment, templated_file=self.context.templated_file
-        )
-
-    @property
-    def parent_stack(self) -> "Segments":  # pragma: no cover
-        """Returns a Segments object for context.parent_stack."""
-        return Segments(
-            *self.context.parent_stack, templated_file=self.context.templated_file
-        )
-
-    @property
-    def siblings_pre(self) -> "Segments":  # pragma: no cover
-        """Returns a Segments object for context.siblings_pre."""
-        return Segments(
-            *self.context.siblings_pre, templated_file=self.context.templated_file
-        )
-
-    @property
-    def siblings_post(self) -> "Segments":  # pragma: no cover
-        """Returns a Segments object for context.siblings_post."""
-        return Segments(
-            *self.context.siblings_post, templated_file=self.context.templated_file
-        )
-
-    @property
-    def raw_stack(self) -> "Segments":
-        """Returns a Segments object for context.raw_stack."""
-        return Segments(
-            *self.context.raw_stack, templated_file=self.context.templated_file
-        )
-
-    @property
-    def raw_segments(self):
-        """Returns a Segments object for all the raw segments in the file."""
-        file_segment = self.context.parent_stack[0]
-        return Segments(
-            *file_segment.get_raw_segments(), templated_file=self.context.templated_file
-        )
-
-
-class CrawlBehavior:
-    """Implements how a lint rule traverses the parse tree."""
-
-    def __init__(
-        self, works_on_unparsable: bool, recurse_into: bool, needs_raw_stack: bool
-    ):
-        self.works_on_unparsable = works_on_unparsable
-        self.recurse_into = recurse_into
-        self.raw_stack: Optional[List[RawSegment]] = [] if needs_raw_stack else None
-
-    def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
-        """Yields a RuleContext for each segment the rule should process."""
-        # First, check whether we're looking at an unparsable and whether
-        # this rule will still operate on that.
-        if not self.works_on_unparsable and context.segment.is_type("unparsable"):
-            # Abort here if it doesn't. Otherwise we'll get odd results.
-            return
-
-        assert (
-            self.raw_stack is None
-            or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
-            or context.raw_stack[-1] is context.raw_segment_pre
-        )
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children.
-        yield context
-
-        if self.recurse_into:
-            # The raw stack only keeps track of the previous *raw* segments.
-            if len(context.segment.segments) == 0:
-                context.raw_segment_pre = cast(RawSegment, context.segment)
-                # Tracking raw_stack is expensive, so it's optional per rule.
-                if self.raw_stack is not None:
-                    self.raw_stack.append(context.raw_segment_pre)
-                    context.raw_stack = tuple(self.raw_stack)
-            base_parent_stack = context.parent_stack
-            new_parent_stack = base_parent_stack + (context.segment,)
-            for idx, child in enumerate(context.segment.segments):
-                # For performance reasons, don't create a new RuleContext for
-                # each segment; just modify the existing one in place. This
-                # requires some careful bookkeeping, but it avoids creating a
-                # HUGE number of short-lived RuleContext objects
-                # (#linter loops x #rules x #segments).
-                context.segment = child
-                context.parent_stack = new_parent_stack
-                context.segment_idx = idx
-                yield from self.crawl(context)
-
-
 class BaseRule:
     """The base class for a rule.
 
@@ -553,24 +405,7 @@ class BaseRule:
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
-    recurse_into = True
-    # "needs_raw_stack" defaults to False because rules run faster that way, and
-    # most rules don't need it. Rules that use it are usually those that look
-    # at the surroundings of a segment, e.g. "is there whitespace preceding this
-    # segment?" In the long run, it would be good to review rules that use
-    # raw_stack to try and eliminate its use. These rules will often be good
-    # candidates for one of the following:
-    # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
-    #   "raw_stack", but it's only the ONE raw segment prior to the current
-    #   one.
-    # - Rewriting to use "BaseRule.recurse_into = False" and traversing the
-    #   parse tree directly.
-    # - Using "RuleContext.memory" to implement custom, lighter weight tracking
-    #   of just the MINIMUM required state across calls to _eval().  Reason:
-    #   "raw_stack" becomes very large for large files (thousands or more
-    #   segments!). In practice, most rules only need to look at a few adjacent
-    #   segments, e.g. others on the same line or in the same statement.
-    needs_raw_stack = False
+    crawl_behaviour: BaseCrawler
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
     # They run on two occasions:
@@ -655,11 +490,8 @@ class BaseRule:
 
         # Propagates memory from one rule _eval() to the next.
         memory: Any = root_context.memory
-        context = None
-        crawl_behavior = CrawlBehavior(
-            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
-        )
-        for context in crawl_behavior.crawl(root_context):
+        context = root_context
+        for context in self.crawl_behaviour.crawl(root_context):
             try:
                 context.memory = memory
                 res = self._eval(context=context)
@@ -765,35 +597,6 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext, filter_meta: bool = True) -> bool:
-        """Is the current segment the final segment in the parse tree."""
-        siblings_post = context.siblings_post
-        if filter_meta:
-            siblings_post = self.filter_meta(siblings_post)
-        if len(siblings_post) > 0:
-            # This can only fail on the last segment
-            return False
-        elif len(context.segment.segments) > 0:
-            # This can only fail on the last base segment
-            return False
-        elif filter_meta and context.segment.is_meta:
-            return False
-        else:
-            # We know we are at a leaf of the tree but not necessarily at the end of the
-            # tree. Therefore we look backwards up the parent stack and ask if any of
-            # the parent segments have another non-meta child segment after the current
-            # one.
-            child_segment = context.segment
-            for parent_segment in context.parent_stack[::-1]:
-                possible_children = parent_segment.segments
-                if filter_meta:
-                    possible_children = [s for s in possible_children if not s.is_meta]
-                if len(possible_children) > possible_children.index(child_segment) + 1:
-                    return False
-                child_segment = parent_segment
-
-        return True
-
     @staticmethod
     def filter_meta(segments, keep_meta=False):
         """Filter the segments to non-meta.
@@ -860,7 +663,10 @@ class BaseRule:
                 *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
             )
         ):
-            return True
+            # TODO: This clause is much less used post crawler migration.
+            # Consider whether this should be removed once that migration
+            # is complete.
+            return True  # pragma: no cover
         return False
 
     @staticmethod
@@ -923,12 +729,12 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
-                    context, fix.edit_type, fix.anchor
+                    context.parent_stack[0], fix.edit_type, fix.anchor
                 )
 
     @staticmethod
     def _choose_anchor_segment(
-        context: RuleContext,
+        root_segment: BaseSegment,
         edit_type: str,
         segment: BaseSegment,
         filter_meta: bool = False,
@@ -950,8 +756,9 @@ class BaseRule:
 
         anchor: BaseSegment = segment
         child: BaseSegment = segment
-        parent: BaseSegment = context.parent_stack[0]
-        path: Optional[List[BaseSegment]] = parent.path_to(segment) if parent else None
+        path: Optional[List[BaseSegment]] = (
+            root_segment.path_to(segment) if root_segment else None
+        )
         inner_path: Optional[List[BaseSegment]] = path[1:-1] if path else None
         if inner_path:
             for seg in inner_path[::-1]:

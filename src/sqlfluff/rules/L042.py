@@ -22,25 +22,33 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import (
+from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
     is_name,
     is_type,
     is_whitespace,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
     TableReferenceSegment,
     WithCompoundStatementSegment,
 )
+
+
+_SELECT_TYPES = [
+    "with_compound_statement",
+    "set_expression",
+    "select_statement",
+]
 
 
 class _NestedSubQuerySummary(NamedTuple):
@@ -92,6 +100,7 @@ class Rule_L042(BaseRule):
 
     groups = ("all",)
     config_keywords = ["forbid_subquery_in"]
+    crawl_behaviour = SegmentSeekerCrawler(set(_SELECT_TYPES))
 
     _config_mapping = {
         "join": ["join_clause"],
@@ -101,24 +110,18 @@ class Rule_L042(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
-        select_types = [
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
-        ]
         self.forbid_subquery_in: str
         parent_types = self._config_mapping[self.forbid_subquery_in]
-        segment = context.functional.segment
-        parent_stack = context.functional.parent_stack
-        is_select = segment.all(is_type(*select_types))
-        is_select_child = parent_stack.any(is_type(*select_types))
-        if not is_select or is_select_child:
+        segment = FunctionalContext(context).segment
+        parent_stack = FunctionalContext(context).parent_stack
+        is_select_child = parent_stack.any(is_type(*_SELECT_TYPES))
+        if is_select_child:
             # Nothing to do.
             return None
 
         # Gather all possible offending Elements in one crawl
         nested_subqueries: List[_NestedSubQuerySummary] = []
-        selects = segment.recursive_crawl(*select_types, recurse_into=True)
+        selects = segment.recursive_crawl(*_SELECT_TYPES, recurse_into=True)
         for select in selects.iterate_segments():
             for res in _find_nested_subqueries(select, context.dialect):
                 if res.parent_clause_type not in parent_types:

@@ -205,6 +205,7 @@ def core_options(f: Callable) -> Callable:
     # that supports it
     if shell_completion_enabled:
         f = click.option(
+            "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
@@ -212,11 +213,13 @@ def core_options(f: Callable) -> Callable:
         )(f)
     else:  # pragma: no cover
         f = click.option(
+            "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
         )(f)
     f = click.option(
+        "-t",
         "--templater",
         default=None,
         help="The templater to use (default=jinja)",
@@ -230,6 +233,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-r",
         "--rules",
         default=None,
         help=(
@@ -241,6 +245,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-e",
         "--exclude-rules",
         default=None,
         help=(
@@ -284,6 +289,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-i",
         "--ignore",
         default=None,
         help=(
@@ -673,7 +679,10 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
+    "-x",
+    "--fixed-suffix",
+    default=None,
+    help="An optional suffix to add to fixed files.",
 )
 @click.option(
     "-p",

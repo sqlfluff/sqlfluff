@@ -289,7 +289,8 @@ def test__cli__command_lint_stdin(command):
                 "L051",
             ],
         ),
-        # Test basic linting with specific logger
+        # Test basic linting with specific logger.
+        # Also test short rule exclusion.
         (
             lint,
             [
@@ -298,7 +299,7 @@ def test__cli__command_lint_stdin(command):
                 "-vvv",
                 "--logger",
                 "parser",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
@@ -311,7 +312,7 @@ def test__cli__command_lint_stdin(command):
                 "-n",
                 "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
@@ -658,7 +659,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate {{ condition }}
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -671,7 +673,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3  -- noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -780,7 +783,9 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
                 fix_args
                 + [
                     "-f",
-                    "--dialect=ansi",
+                    # Use the short dialect option
+                    "-d",
+                    "ansi",
                 ]
             )
         assert exit_code == e.value.code

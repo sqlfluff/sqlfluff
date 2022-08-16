@@ -3,7 +3,7 @@ import pytest
 
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
 
 @pytest.mark.parametrize(

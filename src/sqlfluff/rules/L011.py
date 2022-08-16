@@ -7,6 +7,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -47,6 +48,7 @@ class Rule_L011(BaseRule):
 
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
+    crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
 
     _target_elems: List[Tuple[str, str]] = [
         ("type", "from_expression_element"),
@@ -62,59 +64,57 @@ class Rule_L011(BaseRule):
         # Config type hints
         self.aliasing: str
         fixes = []
+        raw_segment_pre = context.raw_stack[-1] if context.raw_stack else None
 
-        if context.segment.is_type("alias_expression"):
-            # if context.parent_stack[-1].is_type(*self._target_elems):
-            if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
-                if any(e.name.lower() == "as" for e in context.segment.segments):
-                    if self.aliasing == "implicit":
-                        if context.segment.segments[0].name.lower() == "as":
+        assert context.segment.is_type("alias_expression")
+        if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
+            if any(e.name.lower() == "as" for e in context.segment.segments):
+                if self.aliasing == "implicit":
+                    if context.segment.segments[0].name.lower() == "as":
 
-                            # Remove the AS as we're using implict aliasing
-                            fixes.append(LintFix.delete(context.segment.segments[0]))
-                            anchor = context.raw_segment_pre
+                        # Remove the AS as we're using implict aliasing
+                        fixes.append(LintFix.delete(context.segment.segments[0]))
+                        anchor = raw_segment_pre
 
-                            # Remove whitespace before (if exists) or after (if not)
-                            if (
-                                context.raw_segment_pre is not None
-                                and context.raw_segment_pre.type == "whitespace"
-                            ):
-                                fixes.append(LintFix.delete(context.raw_segment_pre))
-                            elif (
-                                len(context.segment.segments) > 0
-                                and context.segment.segments[1].type == "whitespace"
-                            ):
-                                fixes.append(
-                                    LintFix.delete(context.segment.segments[1])
-                                )
+                        # Remove whitespace before (if exists) or after (if not)
+                        if (
+                            raw_segment_pre is not None
+                            and raw_segment_pre.type == "whitespace"
+                        ):
+                            fixes.append(LintFix.delete(raw_segment_pre))
+                        elif (
+                            len(context.segment.segments) > 0
+                            and context.segment.segments[1].type == "whitespace"
+                        ):
+                            fixes.append(LintFix.delete(context.segment.segments[1]))
 
-                            return LintResult(anchor=anchor, fixes=fixes)
+                        return LintResult(anchor=anchor, fixes=fixes)
 
-                elif self.aliasing != "implicit":
-                    insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
+            elif self.aliasing != "implicit":
+                insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
 
-                    # Add initial whitespace if we need to...
-                    assert context.raw_segment_pre
-                    if not context.raw_segment_pre.is_type("whitespace", "newline"):
-                        insert_buff.append(WhitespaceSegment())
+                # Add initial whitespace if we need to...
+                assert raw_segment_pre
+                if not raw_segment_pre.is_type("whitespace", "newline"):
+                    insert_buff.append(WhitespaceSegment())
 
-                    # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(KeywordSegment("AS"))
+                # Add an AS (Uppercase for now, but could be corrected later)
+                insert_buff.append(KeywordSegment("AS"))
 
-                    # Add a trailing whitespace if we need to
-                    if not context.segment.segments[0].is_type(
-                        "whitespace",
-                        "newline",
-                    ):
-                        insert_buff.append(WhitespaceSegment())
+                # Add a trailing whitespace if we need to
+                if not context.segment.segments[0].is_type(
+                    "whitespace",
+                    "newline",
+                ):
+                    insert_buff.append(WhitespaceSegment())
 
-                    return LintResult(
-                        anchor=context.segment,
-                        fixes=[
-                            LintFix.create_before(
-                                context.segment.segments[0],
-                                insert_buff,
-                            )
-                        ],
-                    )
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[
+                        LintFix.create_before(
+                            context.segment.segments[0],
+                            insert_buff,
+                        )
+                    ],
+                )
         return None

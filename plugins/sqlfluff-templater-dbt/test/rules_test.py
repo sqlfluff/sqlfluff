@@ -3,7 +3,7 @@ import pytest
 import os
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
