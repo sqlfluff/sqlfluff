@@ -401,6 +401,7 @@ class JinjaTemplater(PythonTemplater):
             if config and "templating" in config.get("ignore"):
                 # Implement the most common magic methods. This helps avoid
                 # templating errors for undefined variables.
+                # https://www.tutorialsteacher.com/python/magic-methods-in-python
                 def _self_impl(self, *args, **kwargs):
                     return self
 
