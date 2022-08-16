@@ -6,6 +6,18 @@ test_pass_one_line_subquery:
     FROM (SELECT B FROM D GROUP BY 1) AS A
 
 # The fix of indentation relies on L003
+test_pass_two_line_subquery:
+  fail_str: |
+    SELECT A.SOMETHING
+    FROM (SELECT B
+        FROM D GROUP BY 1) AS A
+  fix_str: |
+    SELECT A.SOMETHING
+    FROM (
+    SELECT B
+        FROM D GROUP BY 1
+    ) AS A
+
 test_fail_example_in_description:
   fail_str: |
     SELECT A.SOMETHING
@@ -16,7 +28,7 @@ test_fail_example_in_description:
   fix_str: |
     SELECT A.SOMETHING
     FROM (
-        SELECT
+    SELECT
             B,
             C
         FROM D GROUP BY 1
@@ -26,12 +38,12 @@ test_fail_open_bracket:
   fail_str: |
     SELECT A.SOMETHING
     FROM (SELECT B
-    FROM D
+        FROM D
     ) AS A
   fix_str: |
     SELECT A.SOMETHING
     FROM (
-        SELECT B
+    SELECT B
         FROM D
     ) AS A
 
@@ -39,7 +51,7 @@ test_fail_end_bracket:
   fail_str: |
     SELECT A.SOMETHING
     FROM (
-    SELECT B FROM D) AS A
+        SELECT B FROM D) AS A
   fix_str: |
     SELECT A.SOMETHING
     FROM (
@@ -54,7 +66,7 @@ test_fail_extra_whitespace_in_open:
   fix_str: |
     SELECT A.SOMETHING
     FROM (
-        SELECT B FROM D
+    SELECT B FROM D
     ) AS A
 
 test_fail_extra_whitespace_in_end:
