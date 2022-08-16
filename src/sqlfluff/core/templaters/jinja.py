@@ -237,16 +237,18 @@ class JinjaTemplater(PythonTemplater):
         macros_path = self._get_macros_path(config)
         ignore_templating = config and "templating" in config.get("ignore")
         if ignore_templating:
+
             class SafeFileSystemLoader(FileSystemLoader):
-                def get_source(
-                    self, *args, **kwargs
-                ):
+                def get_source(self, environment, name, *args, **kwargs):
                     try:
-                        return super().get_source(*args, **kwargs)
-                    except TemplateNotFound:
+                        return super().get_source(environment, name, *args, **kwargs)
+                    except (TemplateNotFound, UndefinedError):
                         # When ignore=templating is set, treat missing files as
                         # empty rather than just failing.
-                        return "", "a.sql", lambda: True
+                        templater_logger.debug(
+                            "Providing dummy contents for Jinja macro file: %s", name
+                        )
+                        return "a", "a.sql", lambda: True
 
             loader = SafeFileSystemLoader(macros_path or [])
         else:
@@ -437,6 +439,7 @@ class JinjaTemplater(PythonTemplater):
                 __eq__ = _bool_impl
                 __ne__ = _bool_impl
                 __ge__ = _bool_impl
+
                 def __hash__(self):
                     return 0
 
@@ -452,7 +455,9 @@ class JinjaTemplater(PythonTemplater):
                     # in all cases, but this strategy, combined with
                     # implementing the magic methods (such as __eq__, see
                     # above), works well in practice.
-                    templater_logger.debug("Providing dummy value for undefined Jinja variable: %s", val)
+                    templater_logger.debug(
+                        "Providing dummy value for undefined Jinja variable: %s", val
+                    )
                     live_context[val] = Undefined("a")
 
         try:
