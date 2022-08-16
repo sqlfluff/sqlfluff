@@ -57,8 +57,8 @@ class Rule_L067(BaseRule):
         assert context.segment.is_type("bracketed")
 
         expressions = FunctionalContext(context).segment.children()
-        start_bracket = context.segment.start_bracket[0] # Tuple of length 1
-        end_bracket = context.segment.end_bracket[0]
+        start_bracket = expressions.select(sp.is_type("start_bracket")).first().get()
+        end_bracket = expressions.reversed().select(sp.is_type("end_bracket")).first().get()
 
         # Check whether there is any subquery found inside the brackets
         select_targets = expressions.select(sp.is_type("select_statement"))
