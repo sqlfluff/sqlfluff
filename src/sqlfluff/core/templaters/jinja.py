@@ -243,8 +243,9 @@ class JinjaTemplater(PythonTemplater):
                     try:
                         return super().get_source(environment, name, *args, **kwargs)
                     except (TemplateNotFound, UndefinedError):
-                        # When ignore=templating is set, treat missing files as
-                        # empty rather than just failing.
+                        # When ignore=templating is set, treat missing files
+                        # or attempts to load an "Undefined" file as empty
+                        # rather than just failing.
                         templater_logger.debug(
                             "Providing dummy contents for Jinja macro file: %s", name
                         )
@@ -445,7 +446,8 @@ class JinjaTemplater(PythonTemplater):
                 __ne__ = _bool_impl
                 __ge__ = _bool_impl
 
-                def __hash__(self):
+                def __hash__(self):  # pragma: no cov
+                    # This is called by the "in" operator, among other things.
                     return 0
 
         for val in potentially_undefined_variables:
