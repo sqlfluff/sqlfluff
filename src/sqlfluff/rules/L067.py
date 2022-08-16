@@ -12,11 +12,11 @@ from sqlfluff.utils.functional import sp, FunctionalContext
 @document_groups
 @document_fix_compatible
 class Rule_L067(BaseRule):
-
     """A subquery inside parentheses should start on a new line.
-        For brackets, if there are any subqueries inside, the subqueries
-        should begin on the next line after the starting bracket, and the
-        ending bracket should go on the next line after the subquery.
+
+    For brackets, if there are any subqueries inside, the subqueries
+    should begin on the next line after the starting bracket, and the
+    ending bracket should go on the next line after the subquery.
 
     **Anti-pattern**
 
@@ -30,8 +30,6 @@ class Rule_L067(BaseRule):
                 B,
                 C
             FROM D GROUP BY 1) AS A
-
-
 
     **Best practice**
 
@@ -49,6 +47,7 @@ class Rule_L067(BaseRule):
         ) AS A
 
     """
+
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"bracketed"})
 
@@ -58,7 +57,9 @@ class Rule_L067(BaseRule):
 
         expressions = FunctionalContext(context).segment.children()
         start_bracket = expressions.select(sp.is_type("start_bracket")).first().get()
-        end_bracket = expressions.reversed().select(sp.is_type("end_bracket")).first().get()
+        end_bracket = (
+            expressions.reversed().select(sp.is_type("end_bracket")).first().get()
+        )
 
         # Check whether there is any subquery found inside the brackets
         select_targets = expressions.select(sp.is_type("select_statement"))
@@ -90,13 +91,10 @@ class Rule_L067(BaseRule):
                 whitespace_after_start_bracket = expressions.select(
                     sp.is_type("whitespace"),
                     start_seg=start_bracket,
-                    stop_seg=select_targets[0]
+                    stop_seg=select_targets[0],
                 )
                 fixes.extend(
-                    [
-                        LintFix.delete(ws)
-                        for ws in whitespace_after_start_bracket
-                    ]
+                    [LintFix.delete(ws) for ws in whitespace_after_start_bracket]
                 )
                 fixes.append(
                     LintFix.create_after(
@@ -114,7 +112,7 @@ class Rule_L067(BaseRule):
                                 "and subquery."
                             )
                         ),
-                        fixes=fixes
+                        fixes=fixes,
                     )
                 )
 
@@ -130,13 +128,10 @@ class Rule_L067(BaseRule):
                 whitespace_before_end_bracket = expressions.select(
                     sp.is_type("whitespace"),
                     start_seg=select_targets[-1],
-                    stop_seg=end_bracket
+                    stop_seg=end_bracket,
                 )
                 fixes.extend(
-                    [
-                        LintFix.delete(ws)
-                        for ws in whitespace_before_end_bracket
-                    ]
+                    [LintFix.delete(ws) for ws in whitespace_before_end_bracket]
                 )
                 fixes.append(
                     LintFix.create_before(
@@ -149,12 +144,12 @@ class Rule_L067(BaseRule):
                         anchor=end_bracket,
                         description=(
                             (
-                                "The ending bracket after a subquery should go on a new "
-                                "line. No newline between the subquery and ending "
+                                "The ending bracket after a subquery should go on a "
+                                "new line. No newline between the subquery and ending "
                                 f"bracket {end_bracket.raw}."
                             )
                         ),
-                        fixes=fixes
+                        fixes=fixes,
                     )
                 )
             if results:
