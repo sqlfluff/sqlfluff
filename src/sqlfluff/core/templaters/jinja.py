@@ -14,7 +14,7 @@ from jinja2 import (
     meta,
 )
 from jinja2.environment import Template
-from jinja2.exceptions import UndefinedError
+from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -235,12 +235,29 @@ class JinjaTemplater(PythonTemplater):
         """Get a properly configured jinja environment."""
         # We explicitly want to preserve newlines.
         macros_path = self._get_macros_path(config)
+        ignore_templating = config and "templating" in config.get("ignore")
+        if ignore_templating:
+            class SafeFileSystemLoader(FileSystemLoader):
+                def get_source(
+                    self, *args, **kwargs
+                ):
+                    try:
+                        return super().get_source(*args, **kwargs)
+                    except TemplateNotFound:
+                        # When ignore=templating is set, treat missing files as
+                        # empty rather than just failing.
+                        return "", "a.sql", lambda: True
+
+            loader = SafeFileSystemLoader(macros_path or [])
+        else:
+            loader = FileSystemLoader(macros_path) if macros_path else None
+
         return SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False,
             extensions=["jinja2.ext.do"],
-            loader=FileSystemLoader(macros_path) if macros_path else None,
+            loader=loader,
         )
 
     def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
@@ -420,6 +437,8 @@ class JinjaTemplater(PythonTemplater):
                 __eq__ = _bool_impl
                 __ne__ = _bool_impl
                 __ge__ = _bool_impl
+                def __hash__(self):
+                    return 0
 
         for val in potentially_undefined_variables:
             if val not in live_context:
@@ -463,7 +482,7 @@ class JinjaTemplater(PythonTemplater):
                 violations,
             )
         except (TemplateError, TypeError) as err:
-            templater_logger.info("Unrecoverable Jinja Error: %s", err)
+            templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             template_err: SQLBaseError = SQLTemplaterError(
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "

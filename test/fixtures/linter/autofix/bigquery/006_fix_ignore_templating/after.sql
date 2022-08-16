@@ -1,3 +1,4 @@
+{% include query %}
 SELECT * EXCEPT(rnk) FROM
     (
         SELECT

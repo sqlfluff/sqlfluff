@@ -1,3 +1,4 @@
+{% include query %}
 select * except(rnk) from
   (
     select tbl1.*,
