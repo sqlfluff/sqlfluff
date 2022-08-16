@@ -3,7 +3,7 @@
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -42,7 +42,7 @@ class Rule_L017(BaseRule):
         Look for Function Segment with anything other than the
         function name before brackets
         """
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         # We only trigger on start_bracket (open parenthesis)
         assert segment.all(sp.is_type("function"))
         children = segment.children()

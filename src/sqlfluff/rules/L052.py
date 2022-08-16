@@ -12,7 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp
 
 
 class SegmentMoveContext(NamedTuple):

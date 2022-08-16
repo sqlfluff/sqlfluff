@@ -11,8 +11,8 @@ as regular functions, `lambda`, etc.
 from typing import Callable, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
-from sqlfluff.core.rules.functional.templated_file_slices import TemplatedFileSlices
+from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
+from sqlfluff.utils.functional.templated_file_slices import TemplatedFileSlices
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,

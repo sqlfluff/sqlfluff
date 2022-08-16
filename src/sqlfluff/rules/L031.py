@@ -12,7 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_groups,
 )
 
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 class TableAliasInfo(NamedTuple):
@@ -115,7 +115,7 @@ class Rule_L031(BaseRule):
 
         assert context.segment.is_type("select_statement")
 
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         from_clause_segment = children.select(sp.is_type("from_clause")).first()
         base_table = (
             from_clause_segment.children(sp.is_type("from_expression"))

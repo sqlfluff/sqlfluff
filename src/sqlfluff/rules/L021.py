@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -41,7 +41,7 @@ class Rule_L021(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         # We know it's a select_statement from the seeker crawler
         assert segment.all(sp.is_type("select_statement"))
         # Do we have a group by clause

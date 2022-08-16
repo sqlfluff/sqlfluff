@@ -6,7 +6,7 @@ from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -45,8 +45,10 @@ class Rule_L061(BaseRule):
             return None
 
         # Get the comparison operator children
-        raw_comparison_operators = context.functional.segment.children().select(
-            select_if=sp.is_type("raw_comparison_operator")
+        raw_comparison_operators = (
+            FunctionalContext(context)
+            .segment.children()
+            .select(select_if=sp.is_type("raw_comparison_operator"))
         )
 
         # Only care about ``<>``
