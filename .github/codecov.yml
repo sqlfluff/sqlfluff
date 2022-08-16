@@ -7,11 +7,11 @@ codecov:
   ci:
     - "github.com"
   max_report_age: 24
-  disable_default_path_fixes: no
-  require_ci_to_pass: yes
+  disable_default_path_fixes: no  # yamllint disable-line rule:truthy
+  require_ci_to_pass: yes  # yamllint disable-line rule:truthy
   notify:
-    after_n_builds: 10
-    wait_for_ci: yes
+    after_n_builds: 9
+    wait_for_ci: yes  # yamllint disable-line rule:truthy
 
 coverage:
   precision: 2

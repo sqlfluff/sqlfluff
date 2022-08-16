@@ -1,0 +1,64 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 37b97d6e332473f78947f58784c940e24a02c75218973d039b289b1c103668e5
+file:
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: my_index
+- statement_terminator: ;
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: broken_db
+- statement_terminator: ;
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: TABLE
+    - keyword: CONCURRENTLY
+    - table_reference:
+        naked_identifier: my_broken_table
+- statement_terminator: ;
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+        start_bracket: (
+        keyword: CONCURRENTLY
+        boolean_literal: 'FALSE'
+        end_bracket: )
+    - keyword: SYSTEM
+    - database_reference:
+        naked_identifier: mydb
+- statement_terminator: ;
+- statement:
+    reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+      - start_bracket: (
+      - keyword: TABLESPACE
+      - tablespace_reference:
+          naked_identifier: my_tablespace
+      - comma: ','
+      - keyword: VERBOSE
+      - boolean_literal: 'TRUE'
+      - end_bracket: )
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;

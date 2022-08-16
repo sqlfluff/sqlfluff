@@ -3,25 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 264cddb2818c93bf82d95c4cd2a9ad35998aea040cba3ce7ec840dd50c3ad71b
+_hash: 41dfc3fcb84393e15f3b50236490fe3e599c6ddb098c8aa1b70ecfeccf168bf1
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            numeric_literal: '30'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -29,12 +28,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: measurements
+        naked_identifier: measurements
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: mtime
+          naked_identifier: mtime
       - data_type:
           datetime_type_identifier:
           - keyword: timestamp
@@ -55,44 +54,42 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: transactions
+        naked_identifier: transactions
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: status
+          naked_identifier: status
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            numeric_literal: '30'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
-          literal: "'old'"
+          quoted_literal: "'old'"
     - comma: ','
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: status
+          naked_identifier: status
       - keyword: SET
       - keyword: default
-      - expression:
-          literal: "'current'"
+      - quoted_literal: "'current'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -100,33 +97,31 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '80'
+            numeric_literal: '80'
             end_bracket: )
     - comma: ','
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '100'
+            numeric_literal: '100'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,12 +129,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: foo_timestamp
+          naked_identifier: foo_timestamp
       - keyword: SET
       - keyword: DATA
       - keyword: TYPE
@@ -157,27 +152,27 @@ file:
             - keyword: with
             - keyword: time
             - keyword: zone
-            literal: "'epoch'"
+            quoted_literal: "'epoch'"
         - binary_operator: +
         - column_reference:
-            identifier: foo_timestamp
+            naked_identifier: foo_timestamp
         - binary_operator: '*'
         - datetime_literal:
             datetime_type_identifier:
               keyword: interval
-            literal: "'1 second'"
+            quoted_literal: "'1 second'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: foo_timestamp
+          naked_identifier: foo_timestamp
       - keyword: DROP
       - keyword: DEFAULT
     - comma: ','
@@ -185,7 +180,7 @@ file:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: foo_timestamp
+          naked_identifier: foo_timestamp
       - keyword: TYPE
       - data_type:
           datetime_type_identifier:
@@ -198,62 +193,373 @@ file:
         - datetime_literal:
             datetime_type_identifier:
               keyword: timestamp
-            literal: "'epoch'"
+            quoted_literal: "'epoch'"
         - binary_operator: +
         - column_reference:
-            identifier: foo_timestamp
+            naked_identifier: foo_timestamp
         - binary_operator: '*'
         - datetime_literal:
             datetime_type_identifier:
               keyword: interval
-            literal: "'1 second'"
+            quoted_literal: "'1 second'"
     - comma: ','
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: foo_timestamp
+          naked_identifier: foo_timestamp
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: now
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: date_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: NOW
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: int_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: text_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: bool_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
       - keyword: SET
       - keyword: DEFAULT
       - expression:
-          function:
-            function_name:
-              function_name_identifier: now
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+          column_reference:
+            naked_identifier: other_value
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: DROP
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: date_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: NOW
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: int_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: text_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: bool_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+          column_reference:
+            naked_identifier: other_value
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: DROP
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - keyword: TO
     - column_reference:
-        identifier: city
+        naked_identifier: city
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: suppliers
+        naked_identifier: suppliers
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - keyword: RENAME
     - keyword: CONSTRAINT
     - parameter: zipchk
@@ -265,12 +571,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: street
+          naked_identifier: street
       - keyword: SET
       - keyword: NOT
       - keyword: 'NULL'
@@ -280,12 +586,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: street
+          naked_identifier: street
       - keyword: DROP
       - keyword: NOT
       - keyword: 'NULL'
@@ -295,13 +601,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: zipchk
+            naked_identifier: zipchk
         - keyword: CHECK
         - bracketed:
             start_bracket: (
@@ -313,10 +619,11 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: zipcode
+                      naked_identifier: zipcode
                   end_bracket: )
-              comparison_operator: '='
-              literal: '5'
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '5'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -324,13 +631,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: zipchk
+            naked_identifier: zipchk
         - keyword: CHECK
         - bracketed:
             start_bracket: (
@@ -342,10 +649,11 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: zipcode
+                      naked_identifier: zipcode
                   end_bracket: )
-              comparison_operator: '='
-              literal: '5'
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '5'
             end_bracket: )
         - keyword: 'NO'
         - keyword: INHERIT
@@ -355,11 +663,22 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
       - parameter: zipchk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_table_action_segment:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - parameter: '"zipchk"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -367,7 +686,7 @@ file:
     - keyword: TABLE
     - keyword: ONLY
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -378,27 +697,27 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: distfk
+            naked_identifier: distfk
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: address
+              naked_identifier: address
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
-            identifier: addresses
+        - table_reference:
+            naked_identifier: addresses
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: address
+              naked_identifier: address
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -406,27 +725,91 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
-      - keyword: ADD
-      - table_constraint_segment:
+        keyword: ADD
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: distfk
+            naked_identifier: distfk
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: address
+              naked_identifier: address
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
-            identifier: addresses
+        - table_reference:
+            naked_identifier: addresses
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: address
+              naked_identifier: address
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: FULL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: distfk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_table_action_segment:
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: distfk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: address
             end_bracket: )
       - keyword: NOT
       - keyword: VALID
@@ -436,7 +819,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: VALIDATE
       - keyword: CONSTRAINT
@@ -447,21 +830,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: dist_id_zipcode_key
+            naked_identifier: dist_id_zipcode_key
         - keyword: UNIQUE
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: dist_id
+              naked_identifier: dist_id
           - comma: ','
           - column_reference:
-              identifier: zipcode
+              naked_identifier: zipcode
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -469,16 +852,16 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: dist_id
+              naked_identifier: dist_id
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -486,31 +869,85 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: SET
       - keyword: TABLESPACE
-      - parameter: fasttablespace
+      - tablespace_reference:
+          naked_identifier: fasttablespace
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: myschema
+        naked_identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+          start_bracket: (
+          parameter: parameter_1
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'value'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+          start_bracket: (
+          parameter: parameter_1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+        - start_bracket: (
+        - parameter: parameter_1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+        - comma: ','
+        - parameter: parameter_2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'value'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
       - dot: .
-      - identifier: distributors
+      - naked_identifier: distributors
     - keyword: SET
     - keyword: SCHEMA
     - schema_reference:
-        identifier: yourschema
+        naked_identifier: yourschema
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -518,39 +955,40 @@ file:
     - comma: ','
     - alter_table_action_segment:
         keyword: ADD
-        base:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: distributors_pkey
+            naked_identifier: distributors_pkey
         - keyword: PRIMARY
         - keyword: KEY
         - keyword: USING
         - keyword: INDEX
-        - parameter: dist_id_temp_idx
+        - index_reference:
+            naked_identifier: dist_id_temp_idx
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: measurement
+        naked_identifier: measurement
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: measurement_y2016m07
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
           start_bracket: (
           expression:
-            literal: "'2016-07-01'"
+            quoted_literal: "'2016-07-01'"
           end_bracket: )
       - keyword: TO
       - bracketed:
           start_bracket: (
           expression:
-            literal: "'2016-08-01'"
+            quoted_literal: "'2016-08-01'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -558,21 +996,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: cities
+        naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: cities_ab
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: IN
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'a'"
+            quoted_literal: "'a'"
         - comma: ','
         - expression:
-            literal: "'b'"
+            quoted_literal: "'b'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -580,21 +1018,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: orders
+        naked_identifier: orders
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: orders_p4
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '3'
+        - numeric_literal: '3'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -602,7 +1040,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: cities
+        naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: cities_partdef
@@ -613,7 +1051,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: measurement
+        naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
     - parameter: measurement_y2015m12
@@ -623,7 +1061,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: measurement
+        naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
     - parameter: measurement_y2021m10
@@ -635,31 +1073,31 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: landing
+      - naked_identifier: landing
       - dot: .
-      - identifier: workorderhistory
+      - naked_identifier: workorderhistory
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: workorder_id_foreign_key
+            naked_identifier: workorder_id_foreign_key
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: workorderid
+              naked_identifier: workorderid
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
-          - identifier: landing
+        - table_reference:
+          - naked_identifier: landing
           - dot: .
-          - identifier: workorder
+          - naked_identifier: workorder
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              naked_identifier: id
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -667,7 +1105,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -675,18 +1113,18 @@ file:
       - keyword: NOT
       - keyword: EXISTS
       - column_reference:
-          identifier: foo
+          naked_identifier: foo
       - data_type:
-          data_type_identifier: TEXT
+          keyword: TEXT
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: obm_buildings
+      - naked_identifier: obm_buildings
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: to
@@ -697,12 +1135,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: street
+          naked_identifier: street
       - keyword: ADD
       - keyword: GENERATED
       - keyword: ALWAYS
@@ -712,7 +1150,7 @@ file:
         - start_bracket: (
         - alter_sequence_options_segment:
             keyword: INCREMENT
-            literal: '4'
+            numeric_literal: '4'
         - alter_sequence_options_segment:
           - keyword: 'NO'
           - keyword: MAXVALUE
@@ -723,30 +1161,30 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: street
+          naked_identifier: street
       - keyword: SET
       - alter_sequence_options_segment:
         - keyword: RESTART
         - keyword: WITH
-        - literal: '3'
+        - numeric_literal: '3'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: distributors
+        naked_identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
         column_reference:
-          identifier: my_column
+          naked_identifier: my_column
         data_type:
-          data_type_identifier: int
+          keyword: int
         column_constraint_segment:
         - keyword: GENERATED
         - keyword: BY
@@ -757,13 +1195,84 @@ file:
           - start_bracket: (
           - alter_sequence_options_segment:
               keyword: CACHE
-              literal: '3'
+              numeric_literal: '3'
           - alter_sequence_options_segment:
               keyword: MAXVALUE
-              literal: '63'
+              numeric_literal: '63'
           - alter_sequence_options_segment:
             - keyword: OWNED
             - keyword: BY
             - keyword: NONE
           - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: '"ID"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: ID
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: history
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: id
+      - keyword: ADD
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - keyword: IDENTITY
+      - bracketed:
+          start_bracket: (
+          alter_sequence_options_segment:
+          - keyword: SEQUENCE
+          - keyword: NAME
+          - sequence_reference:
+            - naked_identifier: public
+            - dot: .
+            - naked_identifier: history_id_seq
+          end_bracket: )
 - statement_terminator: ;

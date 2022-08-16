@@ -1,0 +1,277 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0d9ed9cabb7b1dedcb113c5b3e1e927f2224ba7002a18e9108d5c67388db5f05
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: a_column
+              - keyword: IS
+              - keyword: DISTINCT
+              - keyword: FROM
+              - column_reference:
+                  naked_identifier: b_column
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: b_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: DISTINCT
+              - keyword: FROM
+              - column_reference:
+                  naked_identifier: c_column
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: a_column
+        - keyword: IS
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+            naked_identifier: b_column
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: a_column
+        - keyword: IS
+        - keyword: NOT
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+            naked_identifier: b_column
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: t_table_1
+          - dot: .
+          - naked_identifier: a_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table_1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t_table_2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t_table_1
+                - dot: .
+                - naked_identifier: a_column
+              - keyword: IS
+              - keyword: DISTINCT
+              - keyword: FROM
+              - column_reference:
+                - naked_identifier: t_table_2
+                - dot: .
+                - naked_identifier: a_column
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: t_table_1
+          - dot: .
+          - naked_identifier: a_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table_1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t_table_2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t_table_1
+                - dot: .
+                - naked_identifier: a_column
+              - keyword: IS
+              - keyword: NOT
+              - keyword: DISTINCT
+              - keyword: FROM
+              - column_reference:
+                - naked_identifier: t_table_2
+                - dot: .
+                - naked_identifier: a_column
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t_table_1
+    - keyword: USING
+    - table_reference:
+        naked_identifier: t_table_2
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t_table_1
+          - dot: .
+          - naked_identifier: a_column
+        - keyword: IS
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+          - naked_identifier: t_table_2
+          - dot: .
+          - naked_identifier: a_column
+    - merge_match:
+        not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: a
+              end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t_table_1
+    - keyword: USING
+    - table_reference:
+        naked_identifier: t_table_2
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: t_table_1
+          - dot: .
+          - naked_identifier: a_column
+        - keyword: IS
+        - keyword: NOT
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+          - naked_identifier: t_table_2
+          - dot: .
+          - naked_identifier: a_column
+    - merge_match:
+        not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: a
+              end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;

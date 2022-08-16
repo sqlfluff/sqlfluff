@@ -3,29 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8a45c0adfb7b9bc2b8d71cce561ec224086d168a43af6ed3e2045833a8ddc5c
+_hash: 6aa7cecf1e4e9c9564e77ea114924339272ff388cb0dcfe19c4a71bed8c87193
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: '"1"'
+          quoted_literal: '"1"'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: y
-          comparison_operator: '='
+            naked_identifier: y
+          comparison_operator:
+            raw_comparison_operator: '='
           parameterized_expression:
-            literal: '@z_test1'
+            at_sign_literal: '@z_test1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -39,7 +40,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@z2'
+                  at_sign_literal: '@z2'
               comma: ','
               date_part: week
               end_bracket: )
@@ -56,7 +57,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@_ab'
+                  at_sign_literal: '@_ab'
               comma: ','
               date_part: week
               end_bracket: )
@@ -73,7 +74,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@a'
+                  at_sign_literal: '@a'
               comma: ','
               date_part: week
               end_bracket: )
@@ -83,20 +84,37 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: '"1"'
+          function:
+            function_name:
+              function_name_identifier: parse_date
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: '"%Y%m"'
+              comma: ','
+              date_part: year
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          quoted_literal: '"1"'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: y
-          comparison_operator: '='
+            naked_identifier: y
+          comparison_operator:
+            raw_comparison_operator: '='
           parameterized_expression:
             question_mark: '?'
 - statement_terminator: ;
@@ -111,10 +129,87 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '"1"'
+                quoted_literal: '"1"'
             - comma: ','
             - expression:
                 parameterized_expression:
                   question_mark: '?'
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: datetime_trunc
+            bracketed:
+              start_bracket: (
+              expression:
+                parameterized_expression:
+                  at_sign_literal: '@z2'
+              comma: ','
+              date_part: week
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: something
+              end_bracket: )
+            over_clause:
+              keyword: over
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        naked_identifier: some_id
+                  orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                      naked_identifier: some_date
+                  frame_clause:
+                  - keyword: rows
+                  - keyword: BETWEEN
+                  - parameterized_expression:
+                      at_sign_literal: '@query_parameter'
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: some_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: some_table
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: some_column
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            at_sign_literal: '@query_parameter2'
 - statement_terminator: ;

@@ -6,15 +6,16 @@ from sqlfluff.core import Linter
 from sqlfluff.core.dialects import dialect_selector
 
 
-# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/dialects/snowflake`.
+# Deprecated: All new tests should be added as .sql and .yml files under
+# `test/fixtures/dialects/snowflake`.
 # See test/fixtures/dialects/README.md for more details.
 @pytest.mark.parametrize(
     "segment_cls,raw",
     [
         (
             "CreateCloneStatementSegment",
-            "create table orders_clone_restore clone orders at (timestamp => to_timestamp_tz('04/05/2013 01:02:03', "
-            "'mm/dd/yyyy hh24:mi:ss'));",
+            "create table orders_clone_restore clone orders at (timestamp => "
+            "to_timestamp_tz('04/05/2013 01:02:03', 'mm/dd/yyyy hh24:mi:ss'));",
         ),
         ("ShowStatementSegment", "SHOW GRANTS ON ACCOUNT;"),
         ("ShowStatementSegment", "show tables history in tpch.public;"),
@@ -25,7 +26,8 @@ from sqlfluff.core.dialects import dialect_selector
         ),
         (
             "ShowStatementSegment",
-            "SHOW TERSE SCHEMAS HISTORY LIKE '%META%' IN DATABASE MYDB STARTS WITH 'INT' LIMIT 10 FROM 'LAST_SCHEMA';",
+            "SHOW TERSE SCHEMAS HISTORY LIKE '%META%' IN DATABASE MYDB STARTS WITH "
+            "'INT' LIMIT 10 FROM 'LAST_SCHEMA';",
         ),
         ("ShowStatementSegment", "SHOW GRANTS TO ROLE SECURITYADMIN;"),
         ("ShowStatementSegment", "SHOW GRANTS OF SHARE MY_SHARE;"),
@@ -34,7 +36,7 @@ from sqlfluff.core.dialects import dialect_selector
             "SemiStructuredAccessorSegment",
             "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
         ),
-        ("DropStatementSegment", "DROP USER my_user;"),
+        ("DropUserStatementSegment", "DROP USER my_user;"),
         ("AlterSessionStatementSegment", "ALTER SESSION SET TIMEZONE = 'UTC'"),
         (
             "AlterSessionStatementSegment",

@@ -9,7 +9,6 @@
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
 [![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
-[![Requirements Status](https://img.shields.io/requires/github/sqlfluff/sqlfluff.svg?style=flat-square)](https://requires.io/github/sqlfluff/sqlfluff/requirements/?branch=main)
 [![CI Tests](https://github.com/sqlfluff/sqlfluff/workflows/CI%20Tests/badge.svg)](https://github.com/sqlfluff/sqlfluff/actions?query=workflow%3A%22CI+Tests%22)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
@@ -21,13 +20,20 @@
 Although SQL is reasonably consistent in its implementations, there are several different dialects available with variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
+- [Athena](https://aws.amazon.com/athena/)
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [ClickHouse](https://clickhouse.com/)
+- [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
+- [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
+- [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)
+- [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
+- [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
@@ -53,14 +59,16 @@ To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
 ```shell
 $ pip install sqlfluff
 $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
-$ sqlfluff lint test.sql
+$ sqlfluff lint test.sql --dialect ansi
 == [test.sql] FAIL
-L:   1 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4
-L:   1 | P:  14 | L006 | Operators should be surrounded by a single space unless at the start/end of a line
-L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
+L:   1 | P:   1 | L050 | Files must not begin with newlines or whitespace.
+L:   1 | P:   3 | L003 | First line has unexpected indent
+L:   1 | P:  11 | L039 | Unnecessary whitespace found.
+L:   1 | P:  14 | L039 | Unnecessary whitespace found.
+L:   1 | P:  27 | L001 | Unnecessary trailing whitespace.
 ```
 
-You can also have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
+Alternatively, you can use the [**Official SQLFluff Docker Image**](https://hub.docker.com/r/sqlfluff/sqlfluff) or have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
 
 For full [CLI usage](https://docs.sqlfluff.com/en/stable/cli.html) and [rules reference](https://docs.sqlfluff.com/en/stable/rules.html), see [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
@@ -70,7 +78,10 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 # Releases
 
-**SQLFluff** is in beta phase - expect the tool to change significantly with potentially non-backwards compatible API and configuration changes in future releases. If you would like to join in please consider [contributing](CONTRIBUTING.md).
+**SQLFluff** adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), so breaking changes
+should be restricted to major versions releases. Some elements (such as the python API) are in a less
+stable state and may see more significant changes more often. See the [changelog](CHANGELOG.md) for more details.
+If you would like to join in please consider [contributing](CONTRIBUTING.md).
 
 New releases are made monthly. For more information, visit [Releases](https://github.com/sqlfluff/sqlfluff/releases).
 

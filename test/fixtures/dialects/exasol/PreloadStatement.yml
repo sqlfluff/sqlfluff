@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fc832df27cdfa5ec9952229ae0d8730944f1a63d0b6f92f57cd1649af6cd98f3
+_hash: 748f74032b62b60eec6d0fc4fb7e71b6d26c0659bdacca0f33b22f1e64425b84
 file:
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: TABLE
-    - object_reference:
-        identifier: t
+    - table_reference:
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: i
+          naked_identifier: i
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -26,28 +26,28 @@ file:
     preload_statement:
     - keyword: PRELOAD
     - keyword: TABLES
-    - object_reference:
-        identifier: t1
+    - table_reference:
+        naked_identifier: t1
     - comma: ','
-    - object_reference:
-        identifier: t2
+    - table_reference:
+        naked_identifier: t2
 - statement_terminator: ;
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: SCHEMAS
-    - object_reference:
-        identifier: s1
+    - schema_reference:
+        naked_identifier: s1
     - comma: ','
-    - object_reference:
-        identifier: s2
+    - schema_reference:
+        naked_identifier: s2
 - statement_terminator: ;
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: SCHEMA
-    - object_reference:
-        identifier: s1
+    - schema_reference:
+        naked_identifier: s1
 - statement_terminator: ;
 - statement:
     truncate_audit_logs_statement:
@@ -71,5 +71,5 @@ file:
     - keyword: LOGS
     - keyword: KEEP
     - keyword: FROM
-    - literal: "'2019-01-01'"
+    - quoted_literal: "'2019-01-01'"
 - statement_terminator: ;

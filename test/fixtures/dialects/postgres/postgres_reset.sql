@@ -1,0 +1,2 @@
+RESET timezone;
+RESET ALL;

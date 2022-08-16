@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 51c15c89e4dc6b04a76d423156b4a5be282cdf103af91fa0a316e8cd51725770
+file:
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: TO
+    - quoted_literal: "'mysql-bin.010'"
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: DATETIME
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: TIMESTAMP
+    - date_constructor_literal: "'2019-04-02 22:46:26'"
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: DATETIME
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+    purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: TIMESTAMP
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;

@@ -2,8 +2,6 @@
 ## GitHub Actions CI Tests ##
 #############################
 #
-# Based on our old CircleCI config
-#
 # This can be kicked off manually in the Actions tab of GitHub
 # It will also run nightly at 2pm
 # It will run on any pull request, except non-code changes
@@ -25,14 +23,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
     name: ${{ matrix.jobs }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -43,25 +41,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
         pip install tox
-    - name: Set Tox Python Param
-      run: |
-        echo 'TOXENV<<EOF' >> $GITHUB_ENV
-        echo "${{ matrix.python-version }}" | sed "s/\.//" | sed "s/^/py/" >> $GITHUB_ENV
-        echo 'EOF' >> $GITHUB_ENV
     - name: Run the tests
       run: |
-        tox -e ${{ env.TOXENV }}
+        tox -e py -- -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -70,36 +63,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'bench', 'mypy' ]
+        jobs: [ 'bench', 'mypy', 'doctests' ]
     name: ${{ matrix.jobs }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
-    - name: Set Tox Params
-      run: |
-        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
     - name: Run the tests
+      env:
+        SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
-        tox -e ${{ env.TOXENV }}
+        tox -e ${{ matrix.jobs }}
   examples:
     runs-on: ubuntu-latest
     name: example tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install -e .
-        pip install tox
+        pip install tqdm
     - name: Test the example files
       run: |
         for file in examples/*
@@ -109,14 +101,31 @@ jobs:
         done
   dbt-tests:
     runs-on: ubuntu-latest
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
     strategy:
       matrix:
-        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
+        dbt-version: [ 'dbt020', 'dbt021', 'dbt100', 'dbt130' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.8'
     - name: Install dependencies
@@ -137,9 +146,9 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.8'
     - name: List Env
@@ -157,7 +166,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy
+        python -m tox -e winpy -- -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -166,13 +175,21 @@ jobs:
     runs-on: windows-latest
     name: DBT Plugin Python 3.8 Windows tests
     steps:
+    - name: Start PostgreSQL on Windows
+      run: |
+        $pgService = Get-Service -Name postgresql*
+        Set-Service -InputObject $pgService -Status running -StartupType automatic
+        Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+    - name: Set postgres user password
+      run: |
+        & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.8'
     - name: Install dependencies
@@ -184,9 +201,38 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
-
+  pip-test-pull-request:
+    # Test that using pip install works as we've missed
+    # some dependencies in the past - see #1842
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    name: pip install tests
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        pip install .
+    - name: Run the version test
+      run: |
+        sqlfluff --version
+    - name: Run a simple select parse test via stdin
+      run: |
+        echo "select 1" | sqlfluff parse --dialect=ansi -
+    - name: Run a simple select lint test via stdin
+      run: |
+        echo "select 1" | sqlfluff lint --dialect=ansi -
+    - name: Run a simple select parse test via file
+      run: |
+        sqlfluff parse --dialect=ansi <(echo "select 1")
+    - name: Run a simple select lint test via file
+      run: |
+        sqlfluff lint --dialect=ansi <(echo "select 1")

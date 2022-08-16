@@ -21,10 +21,22 @@ For best test coverage, add both a `.sql` and `.yml` file. The easiest way to
 add a `.yml` file is to run:
 
 ```
-python test/generate_parse_fixture_yml.py
+python test/generate_parse_fixture_yml.py [--dialect <dialect>] [--f <glob_filter>] [--new-only]
 ```
 
-which will regenerate all the parsed structure yml files.
+Or via `tox`:
+
+```
+tox generate-fixture-yml
+```
+
+Or via `tox` with arguments:
+
+```
+tox generate-fixture-yml -- --dialect <dialect>
+```
+
+This will regenerate all the parsed structure yml files, or a subset based on the given filters.
 
 ## Running parser tests
 

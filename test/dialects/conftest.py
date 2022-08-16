@@ -8,10 +8,10 @@ from sqlfluff.core.parser import (
     Lexer,
     BaseSegment,
     RawSegment,
-    StringParser,
 )
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.matchable import Matchable
 
 
 def lex(raw, config):
@@ -30,7 +30,7 @@ def lex(raw, config):
 def validate_segment(segmentref, config):
     """Get and validate segment for tests below."""
     Seg = config.get("dialect_obj").ref(segmentref)
-    if isinstance(Seg, StringParser):
+    if isinstance(Seg, Matchable):
         return Seg
     try:
         if issubclass(Seg, BaseSegment):
@@ -38,7 +38,7 @@ def validate_segment(segmentref, config):
     except TypeError:
         pass
     raise TypeError(
-        "{} is not of type Segment or StringParser. Test is invalid.".format(segmentref)
+        "{} is not of type Segment or Matchable. Test is invalid.".format(segmentref)
     )
 
 
@@ -56,7 +56,7 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
 
     # This test is different if we're working with RawSegment
     # derivatives or not.
-    if isinstance(Seg, StringParser) or issubclass(Seg, RawSegment):
+    if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):
         print("Raw/Parser route...")
         with RootParseContext.from_config(config) as ctx:
             with caplog.at_level(logging.DEBUG):
@@ -80,7 +80,6 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     # Check we get a good response
     print(parsed)
     print(type(parsed))
-    # print(type(parsed._reconstruct()))
     print(type(parsed.raw))
     # Check we're all there.
     assert parsed.raw == raw
@@ -109,7 +108,8 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
 def _validate_dialect_specific_statements(dialect, segment_cls, raw, stmt_count):
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     lnt = Linter(dialect=dialect)
     parsed = lnt.parse_string(raw)
@@ -136,7 +136,7 @@ def dialect_specific_segment_parses():
 
 @pytest.fixture()
 def dialect_specific_segment_not_match():
-    """Fixture to check specific segments of a dialect which will not match to a segment."""
+    """Check specific segments of a dialect which will not match to a segment."""
     return _dialect_specific_segment_not_match
 
 
@@ -144,6 +144,7 @@ def dialect_specific_segment_not_match():
 def validate_dialect_specific_statements():
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     return _validate_dialect_specific_statements

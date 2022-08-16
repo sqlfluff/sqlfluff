@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffda7e929e697d8f9ddb7d2f9bb8066c111cc0d4269f515e232f99951930ebea
+_hash: f2fb5fb05c3e7ceb6b6a57dfc12deb57436ef6b10fcd70a331bb98656d31b995
 file:
   statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           function:
@@ -28,32 +28,34 @@ file:
                   - expression:
                       case_expression:
                       - keyword: case
-                      - keyword: when
-                      - expression:
-                          column_reference:
-                            identifier: a
-                      - keyword: then
-                      - expression:
-                          column_reference:
-                            identifier: b
-                      - keyword: else
-                      - expression:
-                          literal: 'null'
+                      - when_clause:
+                        - keyword: when
+                        - expression:
+                            column_reference:
+                              naked_identifier: a
+                        - keyword: then
+                        - expression:
+                            column_reference:
+                              naked_identifier: b
+                      - else_clause:
+                          keyword: else
+                          expression:
+                            null_literal: 'null'
                       - keyword: end
                   - keyword: ignore
                   - keyword: nulls
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: 'false'
+                boolean_literal: 'false'
             - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: d
+                naked_identifier: d

@@ -3,61 +3,62 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83ace62ee3511844b7a45f4449c5281ae5476a8226d730b44790b64edddd53f5
+_hash: 8c737b887f0cc0a2ed626c137c319ee67d66df336b93e89e4e91409110cba744
 file:
   statement:
     create_udf_script:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
-    - identifier: PYTHON3
+    - naked_identifier: PYTHON3
     - keyword: SCALAR
     - keyword: SCRIPT
     - script_reference:
-      - identifier: MYSCHEMA
+      - naked_identifier: MYSCHEMA
       - dot: .
-      - identifier: MYPYTHONSCRIPT
+      - naked_identifier: MYPYTHONSCRIPT
     - bracketed:
       - start_bracket: (
       - column_datatype_definition:
-          identifier: JSON_STR
+          naked_identifier: JSON_STR
           data_type:
             keyword: VARCHAR
             bracketed:
               start_bracket: (
-              literal: '2000000'
+              numeric_literal: '2000000'
               end_bracket: )
       - comma: ','
       - column_datatype_definition:
-          identifier: LANGUAGE_KEY
+          naked_identifier: LANGUAGE_KEY
           data_type:
             keyword: VARCHAR
             bracketed:
               start_bracket: (
-              literal: '50'
+              numeric_literal: '50'
               end_bracket: )
       - comma: ','
       - column_datatype_definition:
-          identifier: TXT_KEY
+          naked_identifier: TXT_KEY
           data_type:
             keyword: VARCHAR
             bracketed:
               start_bracket: (
-              literal: '50'
+              numeric_literal: '50'
               end_bracket: )
       - end_bracket: )
-    - keyword: EMITS
-    - bracketed:
-        start_bracket: (
-        column_datatype_definition:
-          identifier: X
-          data_type:
-            keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              literal: '2000000'
-              end_bracket: )
-        end_bracket: )
+    - emits_segment:
+        keyword: EMITS
+        bracketed:
+          start_bracket: (
+          column_datatype_definition:
+            naked_identifier: X
+            data_type:
+              keyword: VARCHAR
+              bracketed:
+                start_bracket: (
+                numeric_literal: '2000000'
+                end_bracket: )
+          end_bracket: )
     - keyword: AS
     - script_content:
       - raw: "\"\"\"\n/*====================================================================\n\

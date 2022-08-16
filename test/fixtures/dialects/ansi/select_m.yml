@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68a356b25bcde6bc7a3311cd6b3f29457ecbde13998e971b94e639f55f4fe8e8
+_hash: 2eea1fa41db10c8151633f3fd9f63f4bd1c2849ca484e69fc3eefaccdfcd08b2
 file:
 - statement:
     select_statement:
@@ -11,33 +11,34 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: zendesk
+                naked_identifier: zendesk
           join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: ticket
+                  naked_identifier: ticket
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk
                 - dot: .
-                - identifier: ticket_id
-              - comparison_operator: '='
+                - naked_identifier: ticket_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: ticket
+                - naked_identifier: ticket
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -45,20 +46,20 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: low_user_counts
+            naked_identifier: low_user_counts
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: acceptable_buckets
+                naked_identifier: acceptable_buckets
           join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: small_buckets
+                  naked_identifier: small_buckets
             join_on_condition:
               keyword: 'ON'
               expression:
@@ -66,25 +67,28 @@ file:
                   start_bracket: (
                   expression:
                   - column_reference:
-                      identifier: business_type
-                  - comparison_operator: '='
+                      naked_identifier: business_type
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                      identifier: low_business_type
+                      naked_identifier: low_business_type
                   end_bracket: )
               - binary_operator: AND
               - bracketed:
                   start_bracket: (
                   expression:
                   - column_reference:
-                      identifier: business_type
-                  - comparison_operator: '='
+                      naked_identifier: business_type
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                      identifier: low_business_type
+                      naked_identifier: low_business_type
                   - binary_operator: OR
                   - column_reference:
-                      identifier: size_label
-                  - comparison_operator: '='
+                      naked_identifier: size_label
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                      identifier: low_size_label
+                      naked_identifier: low_size_label
                   end_bracket: )
 - statement_terminator: ;

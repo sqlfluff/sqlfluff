@@ -1,16 +1,24 @@
 """Implementation of Rule L034."""
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules import (
+    BaseRule,
+    EvalResultType,
+    LintFix,
+    LintResult,
+    RuleContext,
+)
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L034(BaseRule):
-    """Use wildcards then simple targets before calculations and aggregates in select statements.
+    """Select wildcards then simple targets before calculations and aggregates.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -22,8 +30,9 @@ class Rule_L034(BaseRule):
         from x
 
 
-    | **Best practice**
-    |  Order "select" targets in ascending complexity
+    **Best practice**
+
+    Order ``select`` targets in ascending complexity
 
     .. code-block:: sql
 
@@ -36,6 +45,9 @@ class Rule_L034(BaseRule):
 
     """
 
+    groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already
         if self.seen_band_elements[i + 1 : :] != [[]] * len(
@@ -47,8 +59,7 @@ class Rule_L034(BaseRule):
         self.current_element_band: Optional[int] = i
         self.seen_band_elements[i].append(segment)
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        self.violation_buff = []
+    def _eval(self, context: RuleContext) -> EvalResultType:
         self.violation_exists = False
         # Bands of select targets in order to be enforced
         select_element_order_preference = (
@@ -62,114 +73,139 @@ class Rule_L034(BaseRule):
             ),
         )
 
-        # Track which bands have been seen, with additional empty list for the non-matching elements
-        # If we find a matching target element, we append the element to the corresponding index
-        self.seen_band_elements: List[List[BaseSegment]] = [[] for _ in select_element_order_preference] + [[]]  # type: ignore
+        # Track which bands have been seen, with additional empty list for the
+        # non-matching elements. If we find a matching target element, we append the
+        # element to the corresponding index.
+        self.seen_band_elements: List[List[BaseSegment]] = [
+            [] for _ in select_element_order_preference
+        ] + [
+            []
+        ]  # type: ignore
 
-        if context.segment.is_type("select_clause"):
-            # Ignore select clauses which belong to:
-            # - set expression, which is most commonly a union
-            # - insert_statement
-            # - create table statement
-            #
-            # In each of these contexts, the order of columns in a select should
-            # be preserved.
-            if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
-                "insert_statement", "set_expression"
+        assert context.segment.is_type("select_clause")
+        # Ignore select clauses which belong to:
+        # - set expression, which is most commonly a union
+        # - insert_statement
+        # - create table statement
+        #
+        # In each of these contexts, the order of columns in a select should
+        # be preserved.
+        if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
+            "insert_statement", "set_expression"
+        ):
+            return None
+        if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
+            "create_table_statement", "merge_statement"
+        ):
+            return None
+
+        select_clause_segment = context.segment
+        select_target_elements = context.segment.get_children("select_clause_element")
+        if not select_target_elements:
+            return None
+
+        # Iterate through all the select targets to find any order violations
+        for segment in select_target_elements:
+            # The band index of the current segment in
+            # select_element_order_preference
+            self.current_element_band = None
+
+            # Compare the segment to the bands in select_element_order_preference
+            for i, band in enumerate(select_element_order_preference):
+                for e in band:
+                    # Identify simple select target
+                    if segment.get_child(e):
+                        self._validate(i, segment)
+
+                    # Identify function
+                    elif type(e) == tuple and e[0] == "function":
+                        try:
+                            if (
+                                segment.get_child("function")
+                                .get_child("function_name")
+                                .raw
+                                == e[1]
+                            ):
+                                self._validate(i, segment)
+                        except AttributeError:
+                            # If the segment doesn't match
+                            pass
+
+                    # Identify simple expression
+                    elif type(e) == tuple and e[0] == "expression":
+                        try:
+                            if (
+                                segment.get_child("expression").get_child(e[1])
+                                and segment.get_child("expression").segments[0].type
+                                in (
+                                    "column_reference",
+                                    "object_reference",
+                                    "literal",
+                                )
+                                # len == 2 to ensure the expression is 'simple'
+                                and len(segment.get_child("expression").segments) == 2
+                            ):
+                                self._validate(i, segment)
+                        except AttributeError:
+                            # If the segment doesn't match
+                            pass
+
+            # If the target doesn't exist in select_element_order_preference then it
+            # is 'complex' and must go last
+            if self.current_element_band is None:
+                self.seen_band_elements[-1].append(segment)
+
+        if self.violation_exists:
+            if len(context.parent_stack) and any(
+                self._implicit_column_references(context.parent_stack[-1])
             ):
-                return None
-            if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
-                "create_table_statement"
-            ):
-                return None
+                # If there are implicit column references (i.e. column
+                # numbers), warn but don't fix, because it's much more
+                # complicated to autofix.
+                return LintResult(anchor=select_clause_segment)
+            # Create a list of all the edit fixes
+            # We have to do this at the end of iterating through all the
+            # select_target_elements to get the order correct. This means we can't
+            # add a lint fix to each individual LintResult as we go
+            ordered_select_target_elements = [
+                segment for band in self.seen_band_elements for segment in band
+            ]
+            # TODO: The "if" in the loop below compares corresponding items
+            # to avoid creating "do-nothing" edits. A potentially better
+            # approach would leverage difflib.SequenceMatcher.get_opcodes(),
+            # which generates a list of edit actions (similar to the
+            # command-line "diff" tool in Linux). This is more complex to
+            # implement, but minimizing the number of LintFixes makes the
+            # final application of patches (in "sqlfluff fix") more robust.
+            fixes = [
+                LintFix.replace(
+                    initial_select_target_element,
+                    [replace_select_target_element],
+                )
+                for initial_select_target_element, replace_select_target_element in zip(  # noqa: E501
+                    select_target_elements, ordered_select_target_elements
+                )
+                if initial_select_target_element is not replace_select_target_element
+            ]
+            # Anchoring on the select statement segment ensures that
+            # select statements which include macro targets are ignored
+            # when ignore_templated_areas is set
+            return LintResult(anchor=select_clause_segment, fixes=fixes)
 
-            select_clause_segment = context.segment
-            select_target_elements = context.segment.get_children(
-                "select_clause_element"
-            )
-            if not select_target_elements:
-                return None
+        return None
 
-            # Iterate through all the select targets to find any order violations
-            for segment in select_target_elements:
-                # The band index of the current segment in select_element_order_preference
-                self.current_element_band = None
+    @classmethod
+    def _implicit_column_references(cls, segment: BaseSegment) -> Iterator[BaseSegment]:
+        """Yield any implicit ORDER BY or GROUP BY column references.
 
-                # Compare the segment to the bands in select_element_order_preference
-                for i, band in enumerate(select_element_order_preference):
-                    for e in band:
-                        # Identify simple select target
-                        if segment.get_child(e):
-                            self._validate(i, segment)
-
-                        # Identify function
-                        elif type(e) == tuple and e[0] == "function":
-                            try:
-                                if (
-                                    segment.get_child("function")
-                                    .get_child("function_name")
-                                    .raw
-                                    == e[1]
-                                ):
-                                    self._validate(i, segment)
-                            except AttributeError:
-                                # If the segment doesn't match
-                                pass
-
-                        # Identify simple expression
-                        elif type(e) == tuple and e[0] == "expression":
-                            try:
-                                if (
-                                    segment.get_child("expression").get_child(e[1])
-                                    and segment.get_child("expression").segments[0].type
-                                    in (
-                                        "column_reference",
-                                        "object_reference",
-                                        "literal",
-                                    )
-                                    # len == 2 to ensure the expression is 'simple'
-                                    and len(segment.get_child("expression").segments)
-                                    == 2
-                                ):
-                                    self._validate(i, segment)
-                            except AttributeError:
-                                # If the segment doesn't match
-                                pass
-
-                # If the target doesn't exist in select_element_order_preference then it is 'complex' and must go last
-                if self.current_element_band is None:
-                    self.seen_band_elements[-1].append(segment)
-
-            if self.violation_exists:
-                # Create a list of all the edit fixes
-                # We have to do this at the end of iterating through all the select_target_elements to get the order correct
-                # This means we can't add a lint fix to each individual LintResult as we go
-                ordered_select_target_elements = [
-                    segment for band in self.seen_band_elements for segment in band
-                ]
-                # TODO: The "if" in the loop below compares corresponding items
-                # to avoid creating "do-nothing" edits. A potentially better
-                # approach would leverage difflib.SequenceMatcher.get_opcodes(),
-                # which generates a list of edit actions (similar to the
-                # command-line "diff" tool in Linux). This is more complex to
-                # implement, but minimizing the number of LintFixes makes the
-                # final application of patches (in "sqlfluff fix") more robust.
-                fixes = [
-                    LintFix(
-                        "edit",
-                        initial_select_target_element,
-                        replace_select_target_element,
-                    )
-                    for initial_select_target_element, replace_select_target_element in zip(
-                        select_target_elements, ordered_select_target_elements
-                    )
-                    if initial_select_target_element
-                    is not replace_select_target_element
-                ]
-                # Anchoring on the select statement segment ensures that
-                # select statements which include macro targets are ignored
-                # when ignore_templated_areas is set
-                lint_result = LintResult(anchor=select_clause_segment, fixes=fixes)
-                self.violation_buff = [lint_result]
-
-        return self.violation_buff or None
+        This function was adapted from similar code in L054.
+        """
+        _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
+        if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses
+            if segment.is_type("groupby_clause", "orderby_clause"):
+                for seg in segment.segments:
+                    if seg.is_type("numeric_literal"):
+                        yield segment
+            else:
+                for seg in segment.segments:
+                    yield from cls._implicit_column_references(seg)

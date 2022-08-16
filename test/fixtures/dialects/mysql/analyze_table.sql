@@ -1,0 +1,39 @@
+ANALYZE TABLE some_table;
+
+ANALYZE TABLE some_table1, some_table2;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table1, some_table2;
+
+ANALYZE LOCAL TABLE some_table;
+
+ANALYZE LOCAL TABLE some_table1, some_table2;
+
+ANALYZE TABLE some_table UPDATE HISTOGRAM ON some_col;
+
+ANALYZE TABLE some_table UPDATE HISTOGRAM ON some_col1, some_col2;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table UPDATE HISTOGRAM ON some_col;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table UPDATE HISTOGRAM ON some_col1, some_col2;
+
+ANALYZE LOCAL TABLE some_table UPDATE HISTOGRAM ON some_col;
+
+ANALYZE LOCAL TABLE some_table UPDATE HISTOGRAM ON some_col1, some_col2;
+
+ANALYZE TABLE some_table UPDATE HISTOGRAM ON some_col WITH 10 BUCKETS;
+
+ANALYZE TABLE some_table UPDATE HISTOGRAM ON some_col1, some_col2 WITH 10 BUCKETS;
+
+ANALYZE TABLE some_table DROP HISTOGRAM ON some_col;
+
+ANALYZE TABLE some_table DROP HISTOGRAM ON some_col1, some_col2;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table DROP HISTOGRAM ON some_col;
+
+ANALYZE NO_WRITE_TO_BINLOG TABLE some_table DROP HISTOGRAM ON some_col1, some_col2;
+
+ANALYZE LOCAL TABLE some_table DROP HISTOGRAM ON some_col;
+
+ANALYZE LOCAL TABLE some_table DROP HISTOGRAM ON some_col1, some_col2;

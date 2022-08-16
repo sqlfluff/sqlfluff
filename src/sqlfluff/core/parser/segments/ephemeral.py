@@ -1,10 +1,14 @@
 """Ephemeral segment definitions."""
 
 import copy
+import logging
 from typing import Optional
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
+
+
+parser_logger = logging.getLogger("sqlfluff.parser")
 
 
 class EphemeralSegment(BaseSegment):
@@ -69,10 +73,14 @@ def allow_ephemeral(func):
             # Reset the ephemeral name on the new version of the grammar otherwise
             # we get infinite recursion.
             new_grammar.ephemeral_name = None
-            # We shouldn't allow nested ephemerals. If they're present, don't create another.
-            # This can happen when grammars call super() on their match method.
+            # We shouldn't allow nested ephemerals. If they're present, don't create
+            # another. This can happen when grammars call super() on their match method.
             if len(segments) == 1 and segments[0].is_type("ephemeral"):
-                return MatchResult.from_matched(segments)
+                parser_logger.debug(
+                    "Developer Note: Nested ephemeral segments found. This "
+                    "is an anti-pattern: Consider alternative implementation."
+                )  # pragma: no cover
+                return MatchResult.from_matched(segments)  # pragma: no cover
             else:
                 return MatchResult.from_matched(
                     (

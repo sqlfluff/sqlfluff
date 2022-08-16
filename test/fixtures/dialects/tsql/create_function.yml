@@ -1,0 +1,354 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e8d6e7c005fdc570dc9a08ccd787476aa3adff9797cdb618e173430f4e60b207
+file:
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ISOweek
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@DATE'
+            data_type:
+              data_type_identifier: datetime
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          data_type_identifier: int
+      - function_option_segment:
+          keyword: WITH
+          execute_as_clause:
+          - keyword: EXECUTE
+          - keyword: AS
+          - keyword: CALLER
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@ISOweek'
+                  data_type:
+                    data_type_identifier: int
+                  statement_terminator: ;
+            - statement:
+                set_segment:
+                  keyword: SET
+                  parameter: '@ISOweek'
+                  assignment_operator:
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: DATEPART
+                      bracketed:
+                        start_bracket: (
+                        date_part: wk
+                        comma: ','
+                        expression:
+                          parameter: '@DATE'
+                        end_bracket: )
+                  - binary_operator: +
+                  - numeric_literal: '1'
+                  - binary_operator: '-'
+                  - function:
+                      function_name:
+                        function_name_identifier: DATEPART
+                      bracketed:
+                        start_bracket: (
+                        date_part: wk
+                        comma: ','
+                        expression:
+                          function:
+                            function_name:
+                              keyword: CAST
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: DATEPART
+                                  bracketed:
+                                    start_bracket: (
+                                    date_part: yy
+                                    comma: ','
+                                    expression:
+                                      parameter: '@DATE'
+                                    end_bracket: )
+                              keyword: as
+                              data_type:
+                                data_type_identifier: CHAR
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    numeric_literal: '4'
+                                  end_bracket: )
+                              end_bracket: )
+                          binary_operator: +
+                          quoted_literal: "'0104'"
+                        end_bracket: )
+                  statement_terminator: ;
+            - statement:
+                if_then_statement:
+                  if_clause:
+                    keyword: IF
+                    expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          parameter: '@ISOweek'
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '0'
+                        end_bracket: )
+                  statement:
+                    set_segment:
+                      keyword: SET
+                      parameter: '@ISOweek'
+                      assignment_operator:
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                      expression:
+                        function:
+                          function_name:
+                            naked_identifier: dbo
+                            dot: .
+                            function_name_identifier: ISOweek
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                            - function:
+                                function_name:
+                                  keyword: CAST
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    function:
+                                      function_name:
+                                        function_name_identifier: DATEPART
+                                      bracketed:
+                                        start_bracket: (
+                                        date_part: yy
+                                        comma: ','
+                                        expression:
+                                          parameter: '@DATE'
+                                        end_bracket: )
+                                    binary_operator: '-'
+                                    numeric_literal: '1'
+                                  keyword: AS
+                                  data_type:
+                                    data_type_identifier: CHAR
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        numeric_literal: '4'
+                                      end_bracket: )
+                                  end_bracket: )
+                            - binary_operator: +
+                            - quoted_literal: "'12'"
+                            - binary_operator: +
+                            - function:
+                                function_name:
+                                  keyword: CAST
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    numeric_literal: '24'
+                                    binary_operator: +
+                                    function:
+                                      function_name:
+                                        function_name_identifier: DATEPART
+                                      bracketed:
+                                        start_bracket: (
+                                        date_part: DAY
+                                        comma: ','
+                                        expression:
+                                          parameter: '@DATE'
+                                        end_bracket: )
+                                  keyword: AS
+                                  data_type:
+                                    data_type_identifier: CHAR
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        numeric_literal: '2'
+                                      end_bracket: )
+                                  end_bracket: )
+                            end_bracket: )
+                        binary_operator: +
+                        numeric_literal: '1'
+                      statement_terminator: ;
+            - statement:
+                if_then_statement:
+                  if_clause:
+                    keyword: IF
+                    expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - bracketed:
+                            start_bracket: (
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: DATEPART
+                                bracketed:
+                                  start_bracket: (
+                                  date_part: mm
+                                  comma: ','
+                                  expression:
+                                    parameter: '@DATE'
+                                  end_bracket: )
+                              comparison_operator:
+                                raw_comparison_operator: '='
+                              numeric_literal: '12'
+                            end_bracket: )
+                        - binary_operator: AND
+                        - bracketed:
+                            start_bracket: (
+                            expression:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                - function:
+                                    function_name:
+                                      function_name_identifier: DATEPART
+                                    bracketed:
+                                      start_bracket: (
+                                      date_part: dd
+                                      comma: ','
+                                      expression:
+                                        parameter: '@DATE'
+                                      end_bracket: )
+                                - binary_operator: '-'
+                                - function:
+                                    function_name:
+                                      function_name_identifier: DATEPART
+                                    bracketed:
+                                      start_bracket: (
+                                      date_part: dw
+                                      comma: ','
+                                      expression:
+                                        parameter: '@DATE'
+                                      end_bracket: )
+                                end_bracket: )
+                              comparison_operator:
+                              - raw_comparison_operator: '>'
+                              - raw_comparison_operator: '='
+                              numeric_literal: '28'
+                            end_bracket: )
+                        end_bracket: )
+                  statement:
+                    set_segment:
+                      keyword: SET
+                      parameter: '@ISOweek'
+                      assignment_operator:
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                      expression:
+                        numeric_literal: '1'
+                      statement_terminator: ;
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        parameter: '@ISOweek'
+                      end_bracket: )
+                  statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: f
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+      - keyword: RETURNS
+      - parameter: '@t'
+      - keyword: TABLE
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: i
+            data_type:
+              data_type_identifier: int
+          end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                insert_statement:
+                - keyword: INSERT
+                - keyword: INTO
+                - table_reference:
+                    parameter: '@t'
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        numeric_literal: '1'
+                    statement_terminator: ;
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: F
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@DATE'
+            keyword: as
+            data_type:
+              data_type_identifier: datetime
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          data_type_identifier: INT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    numeric_literal: '0'
+            - keyword: END
+          statement_terminator: ;
+- go_statement:
+    keyword: GO

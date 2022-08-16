@@ -3,20 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d95372acd0391b558f5f42fb82014fd52b471d5a70f38686b47b71e79f5e658e
+_hash: e305bc89e96ea473198a1c092d3f15dd7764269593bfdb0e6b826e7d17f77649
 file:
-  statement:
+- statement:
     create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
     - index_reference:
-        identifier: transaction_updated
+        naked_identifier: transaction_updated
     - keyword: 'ON'
     - table_reference:
-        identifier: transaction_master
+        naked_identifier: transaction_master
     - bracketed:
         start_bracket: (
         index_column_definition:
-          identifier: last_updated
+          naked_identifier: last_updated
         end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: transaction_updated
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: transaction_master
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: last_updated
+        end_bracket: )
+- statement_terminator: ;

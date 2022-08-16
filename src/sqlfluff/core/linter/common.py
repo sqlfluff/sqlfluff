@@ -42,6 +42,7 @@ class RenderedFile(NamedTuple):
     time_dict: Dict[str, float]
     fname: str
     encoding: str
+    source_str: str
 
 
 class ParsedString(NamedTuple):
@@ -65,21 +66,4 @@ class ParsedString(NamedTuple):
     templated_file: TemplatedFile
     config: FluffConfig
     fname: str
-
-
-class EnrichedFixPatch(NamedTuple):
-    """An edit patch for a source file."""
-
-    source_slice: slice
-    templated_slice: slice
-    fixed_raw: str
-    # The patch category, functions mostly for debugging and explanation
-    # than for function. It allows traceability of *why* this patch was
-    # generated.
-    patch_category: str
-    templated_str: str
     source_str: str
-
-    def dedupe_tuple(self):
-        """Generate a tuple of this fix for deduping."""
-        return (self.source_slice, self.fixed_raw)

@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab23f21475f5822f74b8ffd695889df1caca90e117e269ae66f6094449e0c6e2
+_hash: cef3c0ce8f899b9aaf73447c99616ef7b20cee593d5599461084a48820e0b34a
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: y
+            naked_identifier: y
           alias_expression:
             keyword: AS
-            identifier: woy
+            naked_identifier: woy
       from_clause:
         keyword: FROM
         from_expression:
@@ -32,12 +32,85 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '1'
+                          numeric_literal: '1'
                       - comma: ','
                       - expression:
-                          literal: '53'
+                          numeric_literal: '53'
                       - end_bracket: )
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: y
+              naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+          - table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - numeric_literal: '3'
+                    - end_square_bracket: ']'
+                  end_bracket: )
+          - alias_expression:
+              naked_identifier: id
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+              naked_identifier: pos1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+          - table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: "'a'"
+                    - comma: ','
+                    - quoted_literal: "'b'"
+                    - comma: ','
+                    - quoted_literal: "'c'"
+                    - end_square_bracket: ']'
+                  end_bracket: )
+          - alias_expression:
+              naked_identifier: name
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+              naked_identifier: pos2
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: pos1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: pos2
+- statement_terminator: ;

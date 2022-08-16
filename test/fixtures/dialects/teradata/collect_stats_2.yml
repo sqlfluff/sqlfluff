@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a2e233acba5f10ade6ac0972f5f273025a1720e49bd93100d7aca133614ba94
+_hash: 4addc1b374fb1f0cc38c57b6cf399fc8b72cf7d1403b7d5b2cbf510d7e4cf0c4
 file:
   statement:
     collect_statistics_statement:
@@ -13,77 +13,77 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Org_Unit_Type
+          naked_identifier: Org_Unit_Type
       - comma: ','
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - end_bracket: )
     - keyword: as
     - object_reference:
-        identifier: Org_Descendant_NUPI
+        naked_identifier: Org_Descendant_NUPI
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Org_Unit_Type
+          naked_identifier: Org_Unit_Type
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Entity_Code
+          naked_identifier: Entity_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Code
+          naked_identifier: Parent_Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Type
+          naked_identifier: Parent_Org_Unit_Type
       - end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Org_Unit_Code
+          naked_identifier: Org_Unit_Code
         end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Parent_Org_Unit_Code
+          naked_identifier: Parent_Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Type
+          naked_identifier: Parent_Org_Unit_Type
       - comma: ','
       - column_reference:
-          identifier: Parent_Entity_Code
+          naked_identifier: Parent_Entity_Code
       - end_bracket: )
     - keyword: 'on'
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
   statement_terminator: ;

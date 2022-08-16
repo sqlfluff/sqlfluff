@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 071da03f4f171ca7bdb6fdced6ce3479cff3b97f7890bb4f1e7e017f95267b99
+_hash: 6fb0ffbafdc168dc91f61b1dc45a6ae2bb23726da0391e6a2bb85fb0c72e481d
 file:
   statement:
     deallocate_segment:
     - keyword: DROP
     - keyword: PREPARE
-    - identifier: dynam
+    - naked_identifier: dynam
   statement_terminator: ;

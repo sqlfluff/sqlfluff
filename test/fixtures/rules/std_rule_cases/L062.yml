@@ -1,0 +1,135 @@
+rule: L062
+
+test_pass_default_none:
+  pass_str: |
+    SELECT col1 FROM None
+
+test_fail_deny_word:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table
+
+test_fail_deny_word_case_difference1:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      L062:
+        blocked_words: Deprecated_Table
+
+test_fail_deny_word_case_difference2:
+  fail_str: |
+    SELECT col1 FROM Deprecated_Table
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table
+
+test_fail_multiple_deny_words1:
+  fail_str: |
+    SELECT myOldFunction(col1) FROM table1
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table,myoldFunction
+
+test_fail_multiple_deny_words2:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table,myoldFunction
+
+test_pass_not_complete_match:
+  pass_str: |
+    SELECT col1 FROM deprecated_table1
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table
+
+test_pass_is_comment:
+  pass_str: |
+    -- deprecated_table
+    SELECT col1 FROM new_table
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table
+
+test_pass_in_comment:
+  pass_str: |
+    -- This used to use the deprecated_table
+    SELECT col1 FROM new_table
+  configs:
+    rules:
+      L062:
+        blocked_words: deprecated_table
+
+test_fail_bool:
+  fail_str: |
+    CREATE TABLE myschema.t1 (a BOOL);
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      L062:
+        blocked_words: bool
+
+test_pass_bool:
+  pass_str: |
+    CREATE TABLE myschema.t1 (a BOOLEAN);
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      L062:
+        blocked_words: bool
+
+test_pass_bigquery:
+  pass_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_07_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery2:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: .*(2022_06_01|2022_05_01).*
+
+test_fail_bigquery3:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: (2022_06_01|2022_05_01)

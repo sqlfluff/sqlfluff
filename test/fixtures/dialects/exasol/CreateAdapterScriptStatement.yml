@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c9a0016a05391d0b1aeb51de5473e40834f6b97376d0cf3296566b31bf53bfe5
+_hash: b87f121a3a332ea493e2fd8ad1ea6fe664730e1e893f755596b80e59f4831d9e
 file:
-  statement:
+- statement:
     create_adapter_script:
     - keyword: CREATE
     - keyword: JAVA
     - keyword: ADAPTER
     - keyword: SCRIPT
     - script_reference:
-        identifier: my_script
+        naked_identifier: my_script
     - keyword: AS
     - script_content:
       - raw: '%'
@@ -21,4 +21,52 @@ file:
       - raw: .
       - raw: jar
       - raw: ;
-  function_script_terminator: /
+- function_script_terminator: /
+- statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PYTHON
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: adapter_dummy
+    - keyword: AS
+    - script_content:
+      - raw: def
+      - raw: adapter_call
+      - bracketed:
+          start_bracket: (
+          raw: in_json
+          end_bracket: )
+      - raw: ':'
+      - raw: return
+      - raw: '"BLABLA"'
+- function_script_terminator: /
+- statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: adapter_dummy
+    - keyword: AS
+    - script_content:
+      - raw: function
+      - raw: adapter_call
+      - bracketed:
+          start_bracket: (
+          raw: in_json
+          end_bracket: )
+      - raw: ':'
+      - raw: return
+      - raw: "'BLABLA'"
+- function_script_terminator: /

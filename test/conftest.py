@@ -4,10 +4,11 @@ import io
 import os
 
 import pytest
-import oyaml
+import yaml
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
+from sqlfluff.core.linter import Linter
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
@@ -18,11 +19,13 @@ from sqlfluff.core.parser.segments import (
     SymbolSegment,
     CommentSegment,
     CodeSegment,
+    BaseSegment,
 )
+from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
 
 # When writing YAML files, double quotes string values needing escapes.
-oyaml.add_representer(str, quoted_presenter)
+yaml.add_representer(str, quoted_presenter)
 
 
 def get_parse_fixtures(fail_on_missing_yml=False):
@@ -55,7 +58,8 @@ def get_parse_fixtures(fail_on_missing_yml=False):
                 if not has_yml and fail_on_missing_yml:
                     raise (
                         Exception(
-                            f"Missing .yml file for {os.path.join(d, f)}. Run the test/generate_parse_fixture_yml.py script!"
+                            f"Missing .yml file for {os.path.join(d, f)}. Run the "
+                            "test/generate_parse_fixture_yml.py script!"
                         )
                     )
     return parse_success_examples, parse_structure_examples
@@ -94,7 +98,7 @@ def process_struct(obj):
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
 
 
-def parse_example_file(dialect, sqlfile):
+def parse_example_file(dialect: str, sqlfile: str):
     """Parse example SQL file, return parse tree."""
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
@@ -111,7 +115,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            oyaml.dump(r, r_io)
+            yaml.dump(r, r_io, sort_keys=False)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             return result
     return None
@@ -123,7 +127,7 @@ def load_yaml(fpath):
     with open(fpath) as f:
         raw = f.read()
     # Parse the yaml
-    obj = oyaml.safe_load(raw)
+    obj = yaml.safe_load(raw)
     # Return the parsed and structured object
     _hash = None
     if obj:
@@ -220,3 +224,48 @@ def generate_test_segments():
 
     # Return the function
     return generate_test_segments_func
+
+
+@pytest.fixture
+def raise_critical_errors_after_fix(monkeypatch):
+    """Raises errors that break the Fix process.
+
+    These errors are otherwise swallowed to allow the lint messages to reach
+    the end user.
+    """
+
+    @staticmethod
+    def _log_critical_errors(error: Exception):
+        raise error
+
+    monkeypatch.setattr(BaseRule, "_log_critical_errors", _log_critical_errors)
+
+
+@pytest.fixture(autouse=True)
+def fail_on_parse_error_after_fix(monkeypatch):
+    """Cause tests to fail if a lint fix introduces a parse error.
+
+    In production, we have a couple of functions that, upon detecting a bug in
+    a lint rule, just log a warning. To catch bugs in new or modified rules, we
+    want to be more strict during dev and CI/CD testing. Here, we patch in
+    different functions which raise runtime errors, causing tests to fail if
+    this happens.
+    """
+
+    @staticmethod
+    def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
+        raise ValueError(message % args)
+
+    @staticmethod
+    def raise_error_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+        raise ValueError(message)
+
+    monkeypatch.setattr(
+        BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
+    )
+
+    monkeypatch.setattr(
+        Linter,
+        "_report_conflicting_fixes_same_anchor",
+        raise_error_conflicting_fixes_same_anchor,
+    )

@@ -5,6 +5,14 @@ test_fail_table_alias_not_referenced_1:
   fail_str: SELECT * FROM my_tbl AS foo
   fix_str: SELECT * FROM my_tbl
 
+test_fail_table_alias_not_referenced_1_subquery:
+  # Aliases not referenced.
+  fail_str: SELECT * FROM (SELECT * FROM my_tbl AS foo)
+  fix_str: SELECT * FROM (SELECT * FROM my_tbl)
+
+test_pass_table_alias_referenced_subquery:
+  pass_str: SELECT * FROM (SELECT foo.bar FROM my_tbl AS foo)
+
 test_pass_table_alias_referenced:
   pass_str: SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x
 
@@ -12,7 +20,7 @@ test_pass_unaliased_table_referenced:
   # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/449
   pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
 
-test_ignore_value_table_functions:
+test_ignore_bigquery_value_table_functions:
   # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/356
   pass_str: |
     select *
@@ -22,14 +30,43 @@ test_ignore_value_table_functions:
     core:
       dialect: bigquery
 
+test_ignore_postgres_value_table_functions:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/3051
+  pass_str: |
+    SELECT json_build_object(
+        'name', 'ticket_status',
+        'type', 'enum',
+        'values', json_agg(status_name)
+    )
+    FROM unnest(enum_range(NULL::my_enum)) AS status_name;
+  configs:
+    core:
+      dialect: postgres
+
+test_ignore_postgres_value_table_functions_generate_series:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/3462
+  pass_str: |
+    SELECT
+      date_trunc('day', dd):: timestamp with time zone
+    FROM generate_series (
+        '2022-02-01'::timestamp , NOW()::timestamp , '1 day'::interval
+    ) dd ;
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
   fix_str: SELECT * FROM my_tbl
 
-test_fail_subquery_alias_not_referenced:
-  fail_str: select * from (select 1 as a) subquery
-  fix_str: select * from (select 1 as a)
+test_fail_table_alias_not_referenced_2_subquery:
+  # Aliases not referenced.
+  fail_str: SELECT * FROM (SELECT * FROM my_tbl foo)
+  fix_str: SELECT * FROM (SELECT * FROM my_tbl)
+
+test_pass_subquery_alias_not_referenced:
+  pass_str: select * from (select 1 as a) subquery
 
 test_pass_bigquery_unaliased_table_with_hyphens:
   # Test non-quoted table name containing hyphens: https://github.com/sqlfluff/sqlfluff/issues/895
@@ -62,3 +99,241 @@ test_pass_tsql_object_reference_override:
   configs:
     core:
       dialect: tsql
+
+test_pass_subselect_uses_alias_1:
+  pass_str: |
+    SELECT
+        col1,
+        (
+            SELECT count(*)
+            FROM base
+            WHERE a.col2 = base.col2
+        )
+    FROM
+        without_dup AS a
+
+test_pass_subselect_uses_alias_2:
+  pass_str: |
+    select
+      COL_A
+      , COL_B
+    from INSERTS INS
+    where COL_B != (select max(COL_B) from INSERTS X where INS.COL_A = X.COL_A)
+
+test_pass_subselect_uses_alias_3:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+
+test_ansi_function_not_table_parameter:
+  fail_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table AS t
+  fix_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table
+
+test_bigquery_function_takes_tablealias_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_struct_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c.structure)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_snowflake_delete_cte:
+  fail_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3 AS MT3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  fix_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_exasol_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_exasol_values_clause:
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_sparksql_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_sparksql_values_clause:
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_snowflake_values:
+  # Tests a fix for issue 3301.
+  pass_str: |
+    SELECT
+      thing_1
+      , thing_2
+    FROM VALUES
+      ( 'foo', 'bar')
+      , ( 'foo', 'bar')
+      my_table_alias(thing_1, thing_2)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_tsql_values_clause_in_parentheses:
+  # Tests a fix for issue 3522. In tsql, the parentheses surrouding "values" are
+  # required (otherwise syntax error). SQLFluff was incorrectly complaining that
+  # the alias 't' was unused.
+  pass_str: |
+    SELECT *
+    FROM (VALUES
+        ('a1', 'b1'),
+        ('a2', 'b2'),
+        ('a3', 'b3')) t(a,b)
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_join_on_expression_in_parentheses:
+  pass_str: |
+    SELECT table1.c1
+    FROM
+        table1 AS tbl1
+    INNER JOIN table2 AS tbl2 ON (tbl2.col2 = tbl1.col2)
+    INNER JOIN table3 AS tbl3 ON (tbl3.col3 = tbl2.col3)
+
+test_pass_bigquery_qualify_clause:
+  pass_str: |
+    SELECT *
+    FROM
+        table1 AS tbl1
+    INNER JOIN tbl2 AS tbl2
+    WHERE TRUE
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY tbl1.col1
+        ORDER BY tbl2.col3
+        ) = 1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_nested_inner_join:
+  pass_str: |
+    with abh as (
+        select
+            ceb.emailaddresskey,
+            dac.accountkey
+        from table2 as dac
+        inner join table3 as ceb
+            on ceb.col2 = dac.col2
+    )
+    select col1
+    from table1 as abg
+    inner join  abh
+    on abg.col1 = abh.col1
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_snowflake_flatten_function:
+  # Tests a fix for issue 3178.
+  fail_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  fix_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_derived_query_requires_alias_1:
+  # Case 1: Simple derived query
+  pass_str: |
+    SELECT * FROM (
+        SELECT 1
+    )  as a
+
+test_pass_derived_query_requires_alias_2:
+  # Case 2: Derived query uses set operation (UNION)
+  pass_str: |
+    SELECT * FROM (
+        SELECT col FROM dbo.tab
+        UNION
+        SELECT -1 AS col
+    ) AS a
+
+test_pass_derived_query_requires_alias_3:
+  # Case 3: Derived query includes a WITH statement
+  pass_str: |
+    SELECT * FROM (
+        WITH foo AS (
+            SELECT col FROM dbo.tab
+        )
+        SELECT * FROM foo
+    ) AS a

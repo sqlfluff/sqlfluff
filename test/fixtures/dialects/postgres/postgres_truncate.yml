@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5b3af45b738a10f8b39d63c9d068e8931c6b259b24bda06e49e1797314c99d7f
+file:
+- statement:
+    truncate_table:
+      keyword: TRUNCATE
+      table_reference:
+        naked_identifier: bigtable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+      keyword: TRUNCATE
+      table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: bigtable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bigtable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: bigtable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: bigtable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+      keyword: TRUNCATE
+      table_reference:
+        naked_identifier: bigtable
+      star: '*'
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bigtable
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - table_reference:
+        naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+        naked_identifier: fattable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+        naked_identifier: fattable
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+        naked_identifier: fattable
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - table_reference:
+        naked_identifier: bigtable
+    - keyword: RESTART
+    - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - table_reference:
+        naked_identifier: bigtable
+    - keyword: CONTINUE
+    - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - table_reference:
+        naked_identifier: bigtable
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - table_reference:
+        naked_identifier: bigtable
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    truncate_table:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+        naked_identifier: fattable
+    - star: '*'
+    - comma: ','
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: slimtable
+    - keyword: CONTINUE
+    - keyword: IDENTITY
+    - keyword: CASCADE
+- statement_terminator: ;

@@ -3,22 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cba98b746d617d60343630ba140761c80b7f1caf085a1b7c8245e34fa970920
+_hash: 71ca19bc76efe01ca9e35dc44c5928a1c78c212052692f7afef805ff82836b62
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: new_foo
+        naked_identifier: new_foo
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
+      - quoted_literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
     - keyword: STORED
     - keyword: AS
-    - keyword: RCFile
+    - file_format: RCFile
     - keyword: AS
     - select_statement:
         select_clause:
@@ -29,12 +29,12 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: col1
+                    naked_identifier: col1
                   binary_operator: '%'
-                  literal: '1024'
+                  numeric_literal: '1024'
                 end_bracket: )
             alias_expression:
-              identifier: col
+              naked_identifier: col
         - comma: ','
         - select_clause_element:
             function:
@@ -44,19 +44,19 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: col1
+                    naked_identifier: col1
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: col2
+                    naked_identifier: col2
               - end_bracket: )
             alias_expression:
-              identifier: col12
+              naked_identifier: col12
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: foo
+                  naked_identifier: foo
   statement_terminator: ;

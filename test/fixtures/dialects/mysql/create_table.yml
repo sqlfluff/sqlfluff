@@ -3,50 +3,63 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f423eff91e9a35194b8dbdbccf129cb9630492fde4d509c3bb5dab34139e631
+_hash: aefbc327ea54f5ebca58050d3670b6029b61a43b5be55b05c2d3680fc3843bf3
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+        quoted_identifier: '`foo`'
     - bracketed:
-        start_bracket: (
-        column_definition:
-        - identifier: '`id`'
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '255'
+              end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`id`'
         - data_type:
             data_type_identifier: int
             bracketed:
               start_bracket: (
               expression:
-                literal: '11'
+                numeric_literal: '11'
               end_bracket: )
-        - column_constraint_segment:
             keyword: unsigned
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint_segment:
             keyword: AUTO_INCREMENT
-        comma: ','
-        table_constraint_segment:
+      - comma: ','
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: '`id`'
+              quoted_identifier: '`id`'
             end_bracket: )
-        end_bracket: )
+      - end_bracket: )
     - parameter: ENGINE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - parameter: InnoDB
     - keyword: DEFAULT
     - parameter: CHARSET
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - parameter: utf8mb4
     - parameter: COLLATE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - parameter: utf8mb4_unicode_ci
   statement_terminator: ;

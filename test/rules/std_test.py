@@ -3,7 +3,7 @@ import pytest
 
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
 
 @pytest.mark.parametrize(
@@ -22,7 +22,8 @@ from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
             [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
-        # NB The newline before the comma, should report on the comma, not the newline for clarity.
+        # NB The newline before the comma, should report on the comma, not the newline
+        # for clarity.
         ("L005", "whitespace_errors.sql", [(2, 9)]),
         ("L019", "whitespace_errors.sql", [(4, 1)]),
         # Check we get comma (with incorrect trailing space) whitespace errors,
@@ -93,7 +94,7 @@ def test__rules__std_file(rule, path, violations):
         rule=rule,
         fpath="test/fixtures/linter/" + path,
         violations=violations,
-        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+        fluff_config=FluffConfig(overrides=dict(rules=rule, dialect="ansi")),
     )
 
 
@@ -116,6 +117,8 @@ def test__rules__std_file(rule, path, violations):
 )
 def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
-    config = FluffConfig(configs={"rules": rule_config_dict})
+    config = FluffConfig(
+        configs={"rules": rule_config_dict}, overrides={"dialect": "ansi"}
+    )
     with pytest.raises(ValueError):
         get_ruleset().get_rulelist(config)

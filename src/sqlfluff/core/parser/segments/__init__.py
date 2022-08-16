@@ -1,11 +1,13 @@
 """Definitions of the segment classes."""
 
-# flake8: noqa: F401
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
     BaseFileSegment,
     UnparsableSegment,
     BracketedSegment,
+    IdentitySet,
+    FixPatch,
+    SourceFix,
 )
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.core.parser.segments.raw import (
@@ -24,4 +26,29 @@ from sqlfluff.core.parser.segments.meta import (
     Indent,
     Dedent,
     TemplateSegment,
+)
+
+__all__ = (
+    "BaseSegment",
+    "BaseFileSegment",
+    "UnparsableSegment",
+    "BracketedSegment",
+    "SegmentGenerator",
+    "RawSegment",
+    "CodeSegment",
+    "UnlexableSegment",
+    "CommentSegment",
+    "WhitespaceSegment",
+    "NewlineSegment",
+    "KeywordSegment",
+    "SymbolSegment",
+    "EphemeralSegment",
+    "allow_ephemeral",
+    "MetaSegment",
+    "Indent",
+    "Dedent",
+    "TemplateSegment",
+    "IdentitySet",
+    "FixPatch",
+    "SourceFix",
 )

@@ -13,7 +13,7 @@ the :ref:`cliref`.
 
 For file based configuration *SQLFluff* will look for the following
 files in order. Later files will (if found) will be used to overwrite
-any vales read from earlier files.
+any values read from earlier files.
 
 - :code:`setup.cfg`
 - :code:`tox.ini`
@@ -21,23 +21,44 @@ any vales read from earlier files.
 - :code:`.sqlfluff`
 - :code:`pyproject.toml`
 
-Within these files, the first four will be read like an `cfg file`_, and
-*SQLFluff* will look for sections which start with *SQLFluff*, and where
+Within these files, the first four will be read like a `cfg file`_, and
+*SQLFluff* will look for sections which start with :code:`sqlfluff`, and where
 subsections are delimited by a semicolon. For example the *jinjacontext*
 section will be indicated in the section started with
-*[sqlfluff:jinjacontext]*.
+:code:`[sqlfluff:jinjacontext]`.
 
-For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
-and subsections are delimited by a dot. For example the *jinjacontext* section
-will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+For example, a snippet from a :code:`.sqlfluff` file (as well as any of the
+supported cfg file types):
 
-For example
+.. code-block:: cfg
 
-.. code-block:: toml
+    [sqlfluff]
+    templater = jinja
+    sql_file_exts = .sql,.sql.j2,.dml,.ddl
+
+    [sqlfluff:indentation]
+    indented_joins = false
+    indented_using_on = true
+    template_blocks_indent = false
+
+    [sqlfluff:templater]
+    unwrap_wrapped_queries = true
+
+    [sqlfluff:templater:jinja]
+    apply_dbt_builtins = true
+
+For the `pyproject.toml file`_, all valid sections start with
+:code:`tool.sqlfluff` and subsections are delimited by a dot. For example the
+*jinjacontext* section will be indicated in the section started with
+:code:`[tool.sqlfluff.jinjacontext]`.
+
+For example, a snippet from a :code:`pyproject.toml` file:
+
+.. code-block:: cfg
 
     [tool.sqlfluff.core]
-    templater = "jinja"
-    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
+    templater = jinja
+    sql_file_exts = .sql,.sql.j2,.dml,.ddl
 
     [tool.sqlfluff.indentation]
     indented_joins = false
@@ -86,6 +107,92 @@ steps overriding those from earlier:
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
 
+.. _ruleconfig:
+
+Rule Configuration
+------------------
+
+Rules can be configured with the :code:`.sqlfluff` config files.
+
+Common rule configurations can be set in the :code:`[sqlfluff:rules]` section.
+
+For example:
+
+.. code-block:: cfg
+
+   [sqlfluff:rules]
+   tab_space_size = 4
+   max_line_length = 80
+   indent_unit = space
+   comma_style = trailing
+   allow_scalar = True
+   single_table_references = consistent
+   unquoted_identifiers_policy = all
+
+Rule specific configurations are set in rule specific subsections.
+
+For example, enforce that keywords are upper case by configuring the rule
+:class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+
+.. code-block:: cfg
+
+    [sqlfluff:rules:L010]
+    # Keywords
+    capitalisation_policy = upper
+
+All possible options for rule sections are documented in :ref:`ruleref`.
+
+For an overview of the most common rule configurations that you may want to
+tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
+available alternatives).
+
+Enabling and Disabling Rules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To disable individual rules, set :code:`exclude_rules` in the top level section
+of sqlfluff configuration. The value is a comma separated list of rule ids.
+
+For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
+and :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    exclude_rules = L022, L027
+
+To enable individual rules, configure :code:`rules`, respectively.
+
+For example, to enable :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    rules = L027
+
+If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
+excluded rules are removed from the rules list. This allows for example
+enabling common rules on top level but excluding some on subdirectory level.
+
+Rules can also be enabled/disabled by their grouping. Right now, the only
+rule grouping is :code:`core`. This will enable (or disable) a select group
+of rules that have been deemed 'core rules'.
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    rules = core
+
+More information about 'core rules' can be found in the :ref:`ruleref`.
+
+Additionally, some rules have a special :code:`force_enable` configuration
+option, which allows to enable the given rule even for dialects where it is
+disabled by default. The rules that support this can be found in the
+:ref:`ruleref`.
+
+The default values can be seen in `Default Configuration`_.
+
+See also: `Ignoring Errors & Files`_.
+
 .. _templateconfig:
 
 Jinja Templating Configuration
@@ -99,13 +206,14 @@ of the templaters.
 Variable Templating
 ^^^^^^^^^^^^^^^^^^^
 
-Variables are available in the *jinja* and *python* templaters. By default
-the templating engine will expect variables for templating to be available
-in the config, and the templater will be look in the section corresponding
-to the context for that templater. By convention, the config for the *jinja*
-templater is found in the *sqlfluff:templater:jinja:context* section and the
-config for the *python* templater is found in the
-*sqlfluff:templater:python:context* section.
+Variables are available in the *jinja*, *python* and *placeholder* templaters.
+By default the templating engine will expect variables for templating to be
+available in the config, and the templater will be look in the section
+corresponding to the context for that templater. By convention, the config for
+the *jinja* templater is found in the *sqlfluff:templater:jinja:context
+section, the config for the *python* templater is found in the
+*sqlfluff:templater:python:context* section, the one for the *placeholder*
+templater is found in the *sqlfluff:templater:placeholder:context* section
 
 For example, if passed the following *.sql* file:
 
@@ -134,6 +242,106 @@ For example, if passed the following *.sql* file:
     and this will appear as a violation without a line number, quoting
     the name of the variable that couldn't be found.
 
+Placeholder templating
+^^^^^^^^^^^^^^^^^^^^^^
+
+Libraries such as SQLAlchemy or Psycopg use different parameter placeholder
+styles to mark where a parameter has to be inserted in the query.
+
+For example a query in SQLAlchemy can look like this:
+
+.. code-block:: sql
+
+    SELECT * FROM table WHERE id = :myid
+
+At runtime `:myid` will be replace by a value provided by the application and
+escaped as needed, but this is not standard SQL and cannot be parsed as is.
+
+In order to parse these queries is then necessary to replace these
+placeholders with sample values, and this is done with the placeholder
+templater.
+
+Placeholder templating can be enabled in the config using:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = placeholder
+
+A few common styles are supported:
+
+.. code-block:: sql
+   :force:
+
+    -- colon
+    WHERE bla = :my_name
+
+    -- colon_nospaces
+    -- (use with caution as more prone to false positives)
+    WHERE bla = table:my_name
+
+    -- numeric_colon
+    WHERE bla = :2
+
+    -- pyformat
+    WHERE bla = %(my_name)s
+
+    -- dollar
+    WHERE bla = $my_name or WHERE bla = ${my_name}
+
+    -- question_mark
+    WHERE bla = ?
+
+    -- numeric_dollar
+    WHERE bla = $3 or WHERE bla = ${3}
+
+    -- percent
+    WHERE bla = %s
+
+    -- ampersand
+    WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARK_{ENV}
+
+These can be configured by setting `param_style` to the names above:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    param_style = colon
+    my_name = 'john'
+
+then it is necessary to set sample values for each parameter, like `my_name`
+above. Notice that the value needs to be escaped as it will be replaced as a
+string during parsing.
+
+When parameters are positional, like `question_mark`, then their name is
+simply the order in which they appear, starting with `1`.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    param_style = question_mark
+    1 = 'john'
+
+In case you need a parameter style different from the ones above, you can pass
+a custom regex.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    param_regex = __(?P<param_name>[\w_]+)__
+    my_name = 'john'
+
+N.B. quotes around `param_regex` in the config are
+interpreted literally by the templater.
+e.g. `param_regex='__(?P<param_name>[\w_]+)__'` matches
+`'__some_param__'` not `__some_param__`
+
+the named parameter `param_name` will be used as the key to replace, if
+missing, the parameter is assumed to be positional and numbers are used insead.
+
+Also consider making a pull request to the project to have your style added,
+it may be useful to other people and simplify your configuration.
+
 Complex Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -143,9 +351,9 @@ and *native python types*. Both are illustrated in the following example:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:context]
-    my_list=['a', 'b', 'c']
-    MY_LIST=("d", "e", "f")
-    my_where_dict={"field_1": 1, "field_2": 2}
+    my_list = ['a', 'b', 'c']
+    MY_LIST = ("d", "e", "f")
+    my_where_dict = {"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -193,7 +401,7 @@ the tight control of whitespace):
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:macros]
-    a_macro_def = {% macro my_macro(something) %}{{something}} + {{something * 2}}{% endmacro %}
+    a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
 
 ...then before parsing, the sql will be transformed to:
 
@@ -209,34 +417,48 @@ this introduces the idea of config *blocks* which could be selectively
 overwritten by other configuration files downstream as required.
 
 In addition to macros specified in the config file, macros can also be
-loaded from a file or folder. The path to this macros folder must be
-specified in the config file to function as below:
+loaded from files or folders. This is specified in the config file:
 
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path=my_macros
+    load_macros_from_path = my_macros
 
-In this case, SQLFluff will load macros from any :code:`.sql` file found at the
-path specified on this variable. The path is interpreted *relative to the
-config file*, and therefore if the config file above was found at
-:code:`/home/my_project/.sqlfluff` then SQLFluff will look for macros in the
-folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
-be a :code:`.sql` itself. Any macros defined in the config will always take
+``load_macros_from_path`` is a comma-separated list of :code:`.sql` files or
+folders. Locations are *relative to the config file*. For example, if the
+config file above was found at :code:`/home/my_project/.sqlfluff`, then
+SQLFluff will look for macros in the folder :code:`/home/my_project/my_macros/`
+(but not subfolders). Any macros defined in the config will always take
 precedence over a macro defined in the path.
 
+* :code:`.sql` files: Macros in these files are available in every :code:`.sql`
+  file without requiring a Jinja :code:`include` or :code:`import`.
+* Folders: To use macros from the :code:`.sql` files in folders, use Jinja
+  :code:`include` or :code:`import` as explained below.
+
+**Note:** The :code:`load_macros_from_path` setting also defines the search
+path for Jinja
+`include <https://jinja.palletsprojects.com/en/3.0.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.0.x/templates/#import>`_.
+Unlike with macros (as noted above), subdirectories are supported. For example,
+if :code:`load_macros_from_path` is set to :code:`my_macros`, and there is a
+file :code:`my_macros/subdir/my_file.sql`, you can do:
+
+.. code-block:: jinja
+
+   {% include 'subdir/include_comment.sql' %}
 
 .. note::
 
     Throughout the templating process **whitespace** will still be treated
     rigorously, and this includes **newlines**. In particular you may choose
-    to provide your *dummy* macros in your configuration with different to
-    the actual macros you may be using in production.
+    to provide *dummy* macros in your configuration different from the actual
+    macros used in production.
 
-    **REMEMBER:** The purpose of providing the option of macros is to *enable*
-    the parsing of templated sql without it being a blocker. It shouldn't
-    be a requirement that the *templating* is accurate - only so far as that
-    is required to enable the *parsing* and *linting* to be helpful.
+    **REMEMBER:** The reason SQLFluff supports macros is to *enable* it to parse
+    templated sql without it being a blocker. It shouldn't be a requirement that
+    the *templating* is accurate - it only needs to work well enough that
+    *parsing* and *linting* are helpful.
 
 Builtin Macro Blocks
 ^^^^^^^^^^^^^^^^^^^^
@@ -247,8 +469,8 @@ repositories of sql files which could potentially benefit from some linting.
 
 .. note::
     *SQLFluff* has now a tighter integration with dbt through the "dbt" templater.
-    It is the recommended templater for dbt projects and removes the need for the
-    overwrites described in this section.
+    It is the recommended templater for dbt projects. If used, it eliminates the
+    need for the overrides described in this section.
 
     To use the dbt templater, go to `dbt Project Configuration`_.
 
@@ -286,10 +508,10 @@ config option:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    library_path=sqlfluff_libs
+    library_path = sqlfluff_libs
 
 This will pull in any python modules from that directory and allow sqlfluff
-to use them for templated. In the above example, you might define a file at
+to use them in templates. In the above example, you might define a file at
 `sqlfluff_libs/dbt_utils.py` as:
 
 .. code-block:: python
@@ -298,27 +520,55 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
+If an `__init__.py` is detected, it will be loaded alongside any modules and
+submodules found within the library path.
+
+.. code-block:: jinja
+
+   SELECT
+      {{ custom_sum('foo', 'bar') }},
+      {{ foo.bar.another_sum('foo', 'bar') }}
+   FROM
+      baz
+
+`sqlfluff_libs/__init__.py`:
+
+.. code-block:: python
+
+    def custom_sum(a: str, b: str) -> str:
+        return a + b
+
+`sqlfluff_libs/foo/__init__.py`:
+
+.. code-block:: python
+
+    # empty file
+
+`sqlfluff_libs/foo/bar.py`:
+
+.. code-block:: python
+
+     def another_sum(a: str, b: str) -> str:
+        return a + b
+
 dbt Project Configuration
 -------------------------
 
 .. note::
     From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
-    to a separate plugin and python package. You may find that projects
-    already using the templater may initially fail after an upgrade to
-    0.7.0+. See install instructions below to install the dbt templater.
+    to a separate plugin and python package. Projects that were already using
+    the dbt templater may initially fail after an upgrade to 0.7.0+. See the
+    installation instructions below to install the dbt templater.
 
     dbt templating is still a relatively new feature added in 0.4.0 and
     is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
 
-dbt is not the default templater for *SQLFluff* (it is Jinja). For using
-*SQLFluff* with a dbt project, users can either use the `jinja` templater
-(which may be slightly faster, but will not support the full spectrum of
-macros) or the `dbt` templater, which uses dbt itself to render the
-sql (meaning that there is a much more reliable representation of macros,
-but a potential performance hit accordingly). At this stage we recommend
-that users try both approaches and choose according to the method that
-they intend to use *SQLFluff*.
+:code:`dbt` is not the default templater for *SQLFluff* (it is :code:`jinja`).
+:code:`dbt` is a complex tool, so using the default :code:`jinja` templater
+will be simpler. You should be aware when using the :code:`dbt` templater that
+you will be exposed to some of the complexity of :code:`dbt`. Users may wish to
+try both templaters and choose according to how they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
@@ -329,14 +579,38 @@ A simple rule of thumb might be:
   of response may be more important, then the `jinja` templater may
   be more appropriate.
 
+Pros:
+
+* Most (potentially all) macros will work
+
+Cons:
+
+* More complex, e.g. using it successfully may require deeper
+  understanding of your models and/or macros (including third-party macros)
+
+  * More configuration decisions to make
+  * Best practices are not yet established or documented
+
+* If your :code:`dbt` model files access a database at compile time, using
+  SQLFluff with the :code:`dbt` templater will **also** require access to a
+  database.
+
+  * Note that you can often point SQLFluff and the :code:`dbt` templater at a
+    test database (i.e. it doesn't have to be the production database).
+
+* Runs slower
+
 Installation & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to get started using *SQLFluff* with a dbt project you will
-first need to install the :code:`sqlfluff-templater-dbt` package using
+first need to install the relevant `dbt adapter`_ for your dialect
+and the :code:`sqlfluff-templater-dbt` package using
 your package manager of choice (e.g.
-:code:`pip install sqlfluff-templater-dbt`) and then will need the
+:code:`pip install dbt-postgres sqlfluff-templater-dbt`) and then will need the
 following configuration:
+
+.. _`dbt adapter`: https://docs.getdbt.com/docs/available-adapters
 
 In *.sqlfluff*:
 
@@ -347,20 +621,67 @@ In *.sqlfluff*:
 
 In *.sqlfluffignore*:
 
-.. code-block::
+.. code-block:: text
 
     target/
+    # dbt <1.0.0
     dbt_modules/
+    # dbt >=1.0.0
+    dbt_packages/
     macros/
 
 You can set the dbt project directory, profiles directory and profile with:
 
-.. code-block::
+.. code-block:: cfg
 
     [sqlfluff:templater:dbt]
     project_dir = <relative or absolute path to dbt_project directory>
     profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
     profile = <dbt profile>
+    target = <dbt target>
+
+.. note::
+
+    If the `profiles_dir` setting is omitted, SQLFluff will look for the profile
+    in the default location, which varies by operating system. On Unix-like
+    operating systems (e.g. Linux or macOS), the default profile directory is
+    `~/.dbt/`. On Windows, you can determine your default profile directory by
+    running `dbt debug --config-dir`.
+
+To use builtin dbt Jinja functions SQLFluff provides a configuration option
+that enables usage withing templates.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    apply_dbt_builtins = True
+
+This will provide dbt macros like `ref`, `var`, `is_incremental()`. If the need
+arises builtin dbt macros can be customised via Jinja macros in `.sqlfluff`
+configuration file.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja:macros]
+    # Macros provided as builtins for dbt projects
+    dbt_ref = {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
+    dbt_source = {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
+    dbt_config = {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
+    dbt_var = {% macro var(variable, default='') %}item{% endmacro %}
+    dbt_is_incremental = {% macro is_incremental() %}True{% endmacro %}
+
+If your project requires that you pass variables to dbt through command line,
+you can specify them in `template:dbt:context` section of `.sqlfluff`.
+See below configuration and its equivalent dbt command:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:dbt:context]
+    my_variable = 1
+
+.. code-block:: text
+
+    dbt run --vars '{"my_variable": 1}'
 
 Known Caveats
 ^^^^^^^^^^^^^
@@ -383,7 +704,7 @@ You already know you can pass arguments (:code:`--verbose`,
 :code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
-.. code-block:: console
+.. code-block:: text
 
     $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
@@ -400,7 +721,8 @@ Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
 because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
-more details about the available CLI arguments.
+more details about the available CLI arguments. For more details about rule
+exclusion, see `Enabling and Disabling Rules`_.
 
 Ignoring Errors & Files
 -----------------------
@@ -436,18 +758,29 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 .. code-block:: sql
 
     -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo --noqa: disable=L012
+    SELECT col_a a FROM foo -- noqa: disable=L012
 
     -- Ignore all rules from this line forward
-    SELECT col_a a FROM foo --noqa: disable=all
+    SELECT col_a a FROM foo -- noqa: disable=all
 
     -- Enforce all rules from this line forward
-    SELECT col_a a FROM foo --noqa: enable=all
+    SELECT col_a a FROM foo -- noqa: enable=all
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
 
 .. _sqlfluffignore:
+
+Ignoring types of errors
+^^^^^^^^^^^^^^^^^^^^^^^^
+General *categories* of errors can be ignored using the ``--ignore`` command
+line option or the ``ignore`` setting in ``.sqlfluffignore``. Types of errors
+that can be ignored include:
+
+* ``lexing``
+* ``linting``
+* ``parsing``
+* ``templating``
 
 .sqlfluffignore
 ^^^^^^^^^^^^^^^
@@ -465,7 +798,7 @@ project would be:
     # Comments start with a hash.
 
     # Ignore anything in the "temp" path
-    /path/
+    /temp/
 
     # Ignore anything called "testing.sql"
     testing.sql

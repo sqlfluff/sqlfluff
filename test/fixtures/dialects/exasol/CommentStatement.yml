@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ef749549d6fa01ea926682b2bcc71414102af4c0da7315d3e8c0e617baff326
+_hash: 15da5ea0970e7931416e4cf4927a4a3556b20193c95dff5a6bbc958475813059
 file:
 - statement:
     comment_statement:
@@ -11,9 +11,9 @@ file:
     - keyword: 'ON'
     - keyword: SCHEMA
     - object_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: IS
-    - literal: "'My first schema'"
+    - quoted_literal: "'My first schema'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -21,27 +21,27 @@ file:
     - keyword: 'ON'
     - keyword: TABLE
     - table_reference:
-      - identifier: a_schema
+      - naked_identifier: a_schema
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - keyword: IS
-    - literal: "'My first table'"
+    - quoted_literal: "'My first table'"
 - statement_terminator: ;
 - statement:
     comment_statement:
     - keyword: COMMENT
     - keyword: 'ON'
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
-      - identifier: id
+      - naked_identifier: id
       - keyword: IS
-      - literal: "'Identity column'"
+      - quoted_literal: "'Identity column'"
       - comma: ','
-      - identifier: zip
+      - naked_identifier: zip
       - keyword: IS
-      - literal: "'Zip code'"
+      - quoted_literal: "'Zip code'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,9 +50,9 @@ file:
     - keyword: 'ON'
     - keyword: SCRIPT
     - object_reference:
-        identifier: script1
+        naked_identifier: script1
     - keyword: IS
-    - literal: "'My first script'"
+    - quoted_literal: "'My first script'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -61,7 +61,7 @@ file:
     - keyword: CONSUMER
     - keyword: GROUP
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: IS
-    - literal: "'VERY important!!!'"
+    - quoted_literal: "'VERY important!!!'"
 - statement_terminator: ;

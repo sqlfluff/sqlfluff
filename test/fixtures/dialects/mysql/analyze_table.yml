@@ -1,0 +1,265 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: da31a67c607ae72d4f415cdc0446249963c84a488dfa30c0355b264bc81d221c
+file:
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+    - keyword: WITH
+    - numeric_literal: '10'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: UPDATE
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+    - keyword: WITH
+    - numeric_literal: '10'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: DROP
+    - keyword: HISTOGRAM
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: some_col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: some_col2
+- statement_terminator: ;

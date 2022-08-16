@@ -1,1 +1,1 @@
-select STRAIGHT_JOIN * from table;
+select STRAIGHT_JOIN * from table1;

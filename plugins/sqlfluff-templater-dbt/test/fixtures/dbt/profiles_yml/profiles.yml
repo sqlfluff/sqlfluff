@@ -1,0 +1,15 @@
+default:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      user: postgres
+      pass: password
+      port: 5432
+      dbname: postgres
+      schema: dbt_alice
+      threads: 4
+
+config:
+  send_anonymous_usage_stats: false

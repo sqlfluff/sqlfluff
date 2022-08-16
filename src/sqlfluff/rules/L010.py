@@ -1,22 +1,27 @@
 """Implementation of Rule L010."""
 
-import re
-from typing import Tuple, List
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+import regex
+from typing import Tuple, List, Optional
+from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L010(BaseRule):
     """Inconsistent capitalisation of keywords.
 
-    | **Anti-pattern**
-    | In this example, 'select 'is in lower-case whereas 'FROM' is in upper-case.
+    **Anti-pattern**
+
+    In this example, ``select`` is in lower-case whereas ``FROM`` is in upper-case.
 
     .. code-block:: sql
 
@@ -24,8 +29,9 @@ class Rule_L010(BaseRule):
             a
         FROM foo
 
-    | **Best practice**
-    | Make all keywords either in upper-case or in lower-case
+    **Best practice**
+
+    Make all keywords either in upper-case or in lower-case.
 
     .. code-block:: sql
 
@@ -40,16 +46,24 @@ class Rule_L010(BaseRule):
         from foo
     """
 
+    groups: Tuple[str, ...] = ("all", "core")
+    lint_phase = "post"
     # Binary operators behave like keywords too.
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "keyword"),
-        ("type", "binary_operator"),
+    crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
+    # Skip boolean and null literals (which are also keywords)
+    # as they have their own rule (L040)
+    _exclude_elements: List[Tuple[str, str]] = [
+        ("type", "null_literal"),
+        ("type", "boolean_literal"),
+        ("parenttype", "data_type"),
+        ("parenttype", "datetime_type_identifier"),
+        ("parenttype", "primitive_type"),
     ]
-    config_keywords = ["capitalisation_policy"]
+    config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be
@@ -58,40 +72,73 @@ class Rule_L010(BaseRule):
 
         """
         # Skip if not an element of the specified type/name
-        if not self.matches_target_tuples(context.segment, self._target_elems):
-            return LintResult(memory=context.memory)
+        parent: Optional[BaseSegment] = (
+            context.parent_stack[-1] if context.parent_stack else None
+        )
+        if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
+            return [LintResult(memory=context.memory)]
+
+        return [self._handle_segment(context.segment, context.memory)]
+
+    def _handle_segment(self, segment, memory) -> LintResult:
+        # NOTE: this mutates the memory field.
+        self.logger.info("_handle_segment: %s, %s", segment, segment.get_type())
+        # Config type hints
+        self.ignore_words_regex: str
 
         # Get the capitalisation policy configuration.
         try:
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
+            ignore_words_list = self.ignore_words_list
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
-            cap_policy, cap_policy_opts = self._init_capitalisation_policy()
+            (
+                cap_policy,
+                cap_policy_opts,
+                ignore_words_list,
+            ) = self._init_capitalisation_policy()
 
-        memory = context.memory
+        # Skip if in ignore list
+        if ignore_words_list and segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=memory)
+
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.search(
+            self.ignore_words_regex, segment.raw
+        ):
+            return LintResult(memory=memory)
+
+        # Skip if templated.
+        if segment.is_templated:
+            return LintResult(memory=memory)
+
+        # Skip if empty.
+        if not segment.raw:
+            return LintResult(memory=memory)
+
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
-        if context.segment.raw[0] != context.segment.raw[0].upper():
+        if segment.raw[0] != segment.raw[0].upper():
             refuted_cases.update(["upper", "capitalise", "pascal"])
-            if context.segment.raw != context.segment.raw.lower():
+            if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
         else:
             refuted_cases.update(["lower"])
-            if context.segment.raw != context.segment.raw.upper():
+            if segment.raw != segment.raw.upper():
                 refuted_cases.update(["upper"])
-            if context.segment.raw != context.segment.raw.capitalize():
+            if segment.raw != segment.raw.capitalize():
                 refuted_cases.update(["capitalise"])
-            if not context.segment.raw.isalnum():
+            if not segment.raw.isalnum():
                 refuted_cases.update(["pascal"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
 
         self.logger.debug(
-            f"Refuted cases after segment '{context.segment.raw}': {refuted_cases}"
+            f"Refuted cases after segment '{segment.raw}': {refuted_cases}"
         )
 
         # Skip if no inconsistencies, otherwise compute a concrete policy
@@ -99,7 +146,7 @@ class Rule_L010(BaseRule):
         if cap_policy == "consistent":
             possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
             self.logger.debug(
-                f"Possible cases after segment '{context.segment.raw}': {possible_cases}"
+                f"Possible cases after segment '{segment.raw}': {possible_cases}"
             )
             if possible_cases:
                 # Save the latest possible case and skip
@@ -128,7 +175,7 @@ class Rule_L010(BaseRule):
                 )
 
         # Set the fixed to same as initial in case any of below don't match
-        fixed_raw = context.segment.raw
+        fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
             if concrete_policy == "upper":
@@ -143,17 +190,17 @@ class Rule_L010(BaseRule):
             # words. This does mean we allow all UPPERCASE and also don't
             # correct Pascalcase to PascalCase, but there's only so much we can
             # do. We do correct underscore_words to Underscore_Words.
-            fixed_raw = re.sub(
+            fixed_raw = regex.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
-                context.segment.raw,
+                segment.raw,
             )
 
-        if fixed_raw == context.segment.raw:
+        if fixed_raw == segment.raw:
             # No need to fix
             self.logger.debug(
-                f"Capitalisation of segment '{context.segment.raw}' already OK with policy "
-                f"'{concrete_policy}', returning with memory {memory}"
+                f"Capitalisation of segment '{segment.raw}' already OK with "
+                f"policy '{concrete_policy}', returning with memory {memory}"
             )
             return LintResult(memory=memory)
         else:
@@ -169,13 +216,12 @@ class Rule_L010(BaseRule):
 
             # Return the fixed segment
             self.logger.debug(
-                f"INCONSISTENT Capitalisation of segment '{context.segment.raw}', fixing to "
-                f"'{fixed_raw}' and returning with memory {memory}"
+                f"INCONSISTENT Capitalisation of segment '{segment.raw}', "
+                f"fixing to '{fixed_raw}' and returning with memory {memory}"
             )
-
             return LintResult(
-                anchor=context.segment,
-                fixes=[self._get_fix(context.segment, fixed_raw)],
+                anchor=segment,
+                fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
                 description=f"{self._description_elem} must be {consistency}{policy}",
             )
@@ -186,7 +232,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix("edit", segment, segment.edit(fixed_raw))
+        return LintFix.replace(segment, [segment.edit(fixed_raw)])
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""
@@ -199,10 +245,19 @@ class Rule_L010(BaseRule):
             for opt in get_config_info()[cap_policy_name]["validation"]
             if opt != "consistent"
         ]
+        # Use str() as L040 uses bools which might otherwise be read as bool
+        ignore_words_config = str(getattr(self, "ignore_words"))
+        if ignore_words_config and ignore_words_config != "None":
+            self.ignore_words_list = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            self.ignore_words_list = []
         self.logger.debug(
             f"Selected '{cap_policy_name}': '{self.cap_policy}' from options "
             f"{self.cap_policy_opts}"
         )
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
-        return cap_policy, cap_policy_opts
+        ignore_words_list = self.ignore_words_list
+        return cap_policy, cap_policy_opts, ignore_words_list

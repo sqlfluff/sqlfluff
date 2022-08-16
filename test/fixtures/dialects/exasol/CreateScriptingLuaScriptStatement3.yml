@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db2d3263e557aa79b15730dbff10eca20415dd10963a31c5940cdd6f6ed2f749
+_hash: 124fc0cc13b05035fc4a4b352ad313a161fca0b96aee1596947fa29f06977ae6
 file:
   statement:
     create_scripting_lua_script:
     - keyword: CREATE
     - keyword: SCRIPT
     - script_reference:
-        identifier: insert_low_high
+        naked_identifier: insert_low_high
     - bracketed:
       - start_bracket: (
-      - identifier: param1
+      - naked_identifier: param1
       - comma: ','
-      - identifier: param2
+      - naked_identifier: param2
       - comma: ','
-      - identifier: param3
+      - naked_identifier: param3
       - end_bracket: )
     - keyword: AS
     - script_content:

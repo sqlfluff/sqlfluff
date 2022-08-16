@@ -21,11 +21,13 @@ def test__rules__std_L019_unparseable():
           SPLIT(intents, ",") AS intent_list,
           {% for feature in readability_features_numeric %}
             CAST(JSON_EXTRACT(readability_scores,
-            '$.data.{{feature}}') AS float64) AS {{feature}} {% if not loop.last %} , {% endif %}
+            '$.data.{{feature}}') AS float64) AS {{feature}} {% if not loop.last %} ,
+            {% endif %}
           {% endfor %},
           {% for feature in readability_features_count_list %}
             CAST(JSON_EXTRACT(asset_structure,
-            '$.{{feature}}') AS float64) AS {{feature}}_count {% if not loop.last %} , {% endif %}
+            '$.{{feature}}') AS float64) AS {{feature}}_count {% if not loop.last %} ,
+            {% endif %}
           {% endfor %},
             track_clicks_text,
             track_clicks_html

@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja:context]
+table_name=bar

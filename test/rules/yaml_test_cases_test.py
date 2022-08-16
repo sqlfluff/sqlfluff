@@ -2,7 +2,7 @@
 import os
 import logging
 import pytest
-from sqlfluff.testing.rules import (
+from sqlfluff.utils.testing.rules import (
     load_test_cases,
     rules__test_helper,
     get_rule_from_set,
@@ -25,7 +25,8 @@ def test__rule_test_case(test_case, caplog):
             rule = get_rule_from_set(test_case.rule, config=cfg)
             assert is_fix_compatible(
                 rule
-            ), f'Rule {test_case.rule} returned fixes but does not specify "@document_fix_compatible".'
+            ), f"Rule {test_case.rule} returned fixes but does not specify "
+            '"@document_fix_compatible".'
 
 
 def test__rule_test_global_config():

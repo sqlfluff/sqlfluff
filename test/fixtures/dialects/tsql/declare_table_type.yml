@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 82f903b527bab32939d1faabb97886364d5cc3ad173215ad572f30e922c54460
+file:
+  batch:
+    statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@MyTableVar'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: EmpID
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: OldVacationHours
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: NewVacationHours
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: ModifiedDate
+            data_type:
+              data_type_identifier: DATETIME
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: EmpID
+                end_bracket: )
+        - end_bracket: )
+      - statement_terminator: ;

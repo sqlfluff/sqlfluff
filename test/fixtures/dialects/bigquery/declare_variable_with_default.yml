@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecfb4efbfe87fb634c571f328fa2324ab7de5c78f81c0cf38a353de93b7f1ec5
+_hash: e0275969793cbdfd1540f5baec30ac3f9a0e7db84056b4d58905b363b6d40e6e
 file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var5
-    - data_type_identifier: date
+    - naked_identifier: var5
+    - data_type:
+        data_type_identifier: date
     - keyword: default
     - function:
         function_name:
@@ -21,16 +22,18 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var4
-    - data_type_identifier: int64
+    - naked_identifier: var4
+    - data_type:
+        data_type_identifier: int64
     - keyword: default
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var3
-    - data_type_identifier: string
+    - naked_identifier: var3
+    - data_type:
+        data_type_identifier: string
     - keyword: default
     - bracketed:
         start_bracket: (
@@ -38,6 +41,6 @@ file:
           select_clause:
             keyword: SELECT
             select_clause_element:
-              literal: '"x"'
+              quoted_literal: '"x"'
         end_bracket: )
 - statement_terminator: ;

@@ -5,22 +5,25 @@ from typing import Tuple, List
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     LintFix,
     RuleContext,
     EvalResultType,
 )
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 
-    | **Anti-pattern**
-    | In this example, there is a space missing space between the operator and 'b'.
+    **Anti-pattern**
+
+    In this example, there is a space missing between the operator and ``b``.
 
     .. code-block:: sql
 
@@ -29,8 +32,9 @@ class Rule_L006(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | Keep a single space.
+    **Best practice**
+
+    Keep a single space.
 
     .. code-block:: sql
 
@@ -38,6 +42,13 @@ class Rule_L006(BaseRule):
             a + b
         FROM foo
     """
+
+    groups = ("all", "core")
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
+    # L006 works on operators so requires three operators.
+    # However some rules that inherit from here (e.g. L048) do not.
+    # So allow this to be configurable.
+    _require_three_children: bool = True
 
     _target_elems: List[Tuple[str, str]] = [
         ("type", "binary_operator"),
@@ -54,8 +65,9 @@ class Rule_L006(BaseRule):
         if seg.is_whitespace:
             return False
         # And it's not an opening/closing bracket
-        if seg.name.endswith("_bracket"):
-            if seg.name.startswith("start_" if before else "end_"):
+        seg_type = seg.get_type()
+        if seg_type.endswith("_bracket"):
+            if seg_type.startswith("start_" if before else "end_"):
                 return False
         if seg.is_meta:  # pragma: no cover
             if before:
@@ -98,8 +110,8 @@ class Rule_L006(BaseRule):
         # be dealt with by the parent segment. That also means that we need
         # to have at least three children.
 
-        if len(context.segment.segments) <= 2:
-            return LintResult()
+        if self._require_three_children and len(context.segment.segments) <= 2:
+            return LintResult()  # pragma: no cover
 
         violations = []
 
@@ -125,26 +137,26 @@ class Rule_L006(BaseRule):
             # Is it a compound segment ending or starting with the target?
             elif sub_seg.segments:
                 # Get first and last raw segments.
-                raw_list = list(sub_seg.iter_raw_seg())
+                raw_list = list(sub_seg.get_raw_segments())
                 if len(raw_list) > 1:
                     leading = raw_list[0]
                     trailing = raw_list[-1]
                     if self.matches_target_tuples(leading, self._target_elems):
-                        before_anchor = leading
-                        self.logger.debug(
+                        before_anchor = leading  # pragma: no cover
+                        self.logger.debug(  # pragma: no cover
                             "Found Target [leading] @%s: %r",
                             before_anchor.pos_marker,
                             before_anchor.raw,
                         )
-                        check_before = True
+                        check_before = True  # pragma: no cover
                     if self.matches_target_tuples(trailing, self._target_elems):
-                        after_anchor = trailing
-                        self.logger.debug(
+                        after_anchor = trailing  # pragma: no cover
+                        self.logger.debug(  # pragma: no cover
                             "Found Target [trailing] @%s: %r",
                             after_anchor.pos_marker,
                             after_anchor.raw,
                         )
-                        check_after = True
+                        check_after = True  # pragma: no cover
 
             if check_before:
                 prev_seg = self._find_segment(
@@ -160,14 +172,14 @@ class Rule_L006(BaseRule):
                         LintResult(
                             anchor=before_anchor,
                             description="Missing whitespace before {}".format(
-                                before_anchor.raw[:10]
+                                before_anchor.raw
                             ),
                             fixes=[
-                                LintFix(
-                                    "create",
-                                    # NB the anchor here is always in the parent and not anchor
-                                    anchor=sub_seg,
-                                    edit=WhitespaceSegment(raw=" "),
+                                LintFix.create_before(
+                                    # NB the anchor here is always in the parent and not
+                                    # anchor
+                                    anchor_segment=sub_seg,
+                                    edit_segments=[WhitespaceSegment(raw=" ")],
                                 )
                             ],
                         )
@@ -187,14 +199,14 @@ class Rule_L006(BaseRule):
                         LintResult(
                             anchor=after_anchor,
                             description="Missing whitespace after {}".format(
-                                after_anchor.raw[-10:]
+                                after_anchor.raw
                             ),
                             fixes=[
-                                LintFix(
-                                    "create",
-                                    # NB the anchor here is always in the parent and not anchor
-                                    anchor=next_seg,
-                                    edit=WhitespaceSegment(raw=" "),
+                                LintFix.create_before(
+                                    # NB the anchor here is always in the parent and not
+                                    # anchor
+                                    anchor_segment=next_seg,
+                                    edit_segments=[WhitespaceSegment(raw=" ")],
                                 )
                             ],
                         )

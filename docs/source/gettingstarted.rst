@@ -25,19 +25,19 @@ You can confirm that python is working as expected by heading to
 your terminal or console of choice and typing :code:`python --version`
 which should give you a sensible read out and not an error.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ python --version
-    Python 3.6.7
+    Python 3.9.1
 
 For most people, their installation of python will come with
 :code:`pip` (the python package manager) preinstalled. To confirm
 this you can type :code:`pip --version` similar to python above.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ pip --version
-    pip 10.0.1 from ...
+    pip 21.3.1 from ...
 
 If however, you do have python installed but not :code:`pip`, then
 the best instructions for what to do next are `on the python website`_.
@@ -51,17 +51,17 @@ Installing SQLFluff
 Assuming that python and pip are already installed, then installing
 *SQLFluff* is straight forward.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ pip install sqlfluff
 
 You can confirm its installation by getting *SQLFluff* to show its
 version number.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff version
-    0.3.1
+    1.2.1
 
 Basic Usage
 -----------
@@ -76,22 +76,22 @@ same folder that you're currently in with the following content:
     SELECT a+b  AS foo,
     c AS bar from my_table
 
-You can then run :code:`sqlfluff lint test.sql` to lint this file.
+You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this
+file.
 
-.. code-block:: bash
+.. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:   9 | L006 | Missing whitespace before +
     L:   1 | P:   9 | L006 | Missing whitespace after +
     L:   1 | P:  11 | L039 | Unnecessary whitespace found.
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
 
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
@@ -112,18 +112,17 @@ looks like this:
 Rerun the same command as before, and you'll see that the original
 error (violation of *L006*) no longer shows up.
 
-.. code-block:: bash
+.. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -135,22 +134,21 @@ it's a good place to start.
 
 For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 
-.. code-block:: bash
+.. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010
+    $ sqlfluff fix test.sql --rules L003,L009,L010 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
     ==== fixing violations ====
-    3 fixable linting violations found
+    2 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
 
 ...at this point you'll have to confirm that you want to make the
 changes by pressing :code:`y` on your keyboard...
 
-.. code-block:: bash
+.. code-block:: text
 
     Are you sure you wish to attempt to fix these? [Y/n] ...
     Attempting fixes...
@@ -178,15 +176,15 @@ In particular:
 We could also fix *all* of the fixable errors by not
 specifying :code:`--rules`.
 
-.. code-block:: bash
+.. code-block:: text
 
-    $ sqlfluff fix test.sql
+    $ sqlfluff fix test.sql --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     ==== fixing violations ====
     3 fixable linting violations found
@@ -203,7 +201,8 @@ been updated again.
 
     SELECT
         c AS bar,
-        a + b AS foo FROM my_table
+        a + b AS foo
+    FROM my_table
 
 The SQL statement is now well formatted according to all the
 rules defined in SQLFluff.
@@ -227,7 +226,10 @@ To achieve this we create a configuration file named :code:`.sqlfluff`
 and place it in the same directory as the current file. In that file
 put the following content:
 
-.. code-block:: ini
+.. code-block:: cfg
+
+    [sqlfluff]
+    dialect = ansi
 
     [sqlfluff:rules]
     tab_space_size = 2
@@ -237,7 +239,7 @@ put the following content:
 
 Then rerun the same command as before.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
 
@@ -247,8 +249,9 @@ file has been fixed accordingly.
 .. code-block:: sql
 
     select
-        c as bar,
-        a + b as foo from my_table
+    c as bar,
+    a + b as foo
+    from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.
 To see how these options apply to specific rules check out the

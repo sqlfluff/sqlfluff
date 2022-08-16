@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17f73969bbd1a396f88dddb195a4ff53f2593c5f381a79ffb0d63e99176ccd1c
+_hash: 6cecbb7ede0ff8bce72a86691b5b2d4883afc280921f2f35fb7c28392b1ef09e
 file:
 - statement:
     alter_default_privileges_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -23,8 +23,8 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -34,11 +34,11 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -48,8 +48,8 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -59,7 +59,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -69,8 +69,8 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -80,14 +80,14 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -97,8 +97,8 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - keyword: WITH
       - keyword: GRANT
       - keyword: OPTION
@@ -111,10 +111,10 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - comma: ','
     - object_reference:
-        identifier: your_user
+        naked_identifier: your_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -125,8 +125,8 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -136,7 +136,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -148,8 +148,8 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: PUBLIC
+          role_reference:
+            naked_identifier: PUBLIC
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -159,7 +159,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -170,13 +170,13 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: your_group
+          role_reference:
+            naked_identifier: your_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -186,7 +186,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -196,8 +196,8 @@ file:
           keyword: ROUTINES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -214,8 +214,8 @@ file:
           keyword: FUNCTIONS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -225,10 +225,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -238,13 +238,13 @@ file:
           keyword: TYPES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: your_group
+          role_reference:
+            naked_identifier: your_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -254,7 +254,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -264,8 +264,8 @@ file:
           keyword: SCHEMAS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -275,7 +275,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -285,8 +285,8 @@ file:
           keyword: SCHEMAS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -296,17 +296,17 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - comma: ','
     - object_reference:
-        identifier: your_user
+        naked_identifier: your_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -329,12 +329,12 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: PUBLIC
+          role_reference:
+            naked_identifier: PUBLIC
       - keyword: WITH
       - keyword: GRANT
       - keyword: OPTION
@@ -347,7 +347,7 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -357,8 +357,8 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -368,11 +368,11 @@ file:
     - keyword: FOR
     - keyword: USER
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -383,8 +383,8 @@ file:
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -394,14 +394,14 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -411,8 +411,8 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: PUBLIC
+          role_reference:
+            naked_identifier: PUBLIC
       - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -423,11 +423,11 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -445,8 +445,8 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: PUBLIC
+          role_reference:
+            naked_identifier: PUBLIC
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -457,10 +457,10 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - comma: ','
     - object_reference:
-        identifier: your_user
+        naked_identifier: your_user
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -471,8 +471,8 @@ file:
           keyword: SEQUENCES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -482,7 +482,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -492,8 +492,8 @@ file:
           keyword: FUNCTIONS
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -509,8 +509,8 @@ file:
           keyword: ROUTINES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -520,10 +520,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -533,13 +533,13 @@ file:
           keyword: TYPES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: your_group
+          role_reference:
+            naked_identifier: your_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -549,7 +549,7 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -561,8 +561,8 @@ file:
           keyword: TYPES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
 - statement_terminator: ;
 - statement:
     alter_default_privileges_statement:
@@ -572,17 +572,17 @@ file:
     - keyword: FOR
     - keyword: ROLE
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - comma: ','
     - object_reference:
-        identifier: your_user
+        naked_identifier: your_user
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - comma: ','
     - schema_reference:
-        identifier: your_schema
+        naked_identifier: your_schema
     - alter_default_privileges_revoke:
       - keyword: REVOKE
       - alter_default_privileges_object_privilege:
@@ -605,11 +605,11 @@ file:
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
-            identifier: my_group
+          role_reference:
+            naked_identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
-          object_reference:
-            identifier: PUBLIC
+          role_reference:
+            naked_identifier: PUBLIC
       - keyword: CASCADE
 - statement_terminator: ;

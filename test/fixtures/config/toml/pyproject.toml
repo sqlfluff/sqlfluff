@@ -1,4 +1,6 @@
 [tool.sqlfluff.core]
+nocolor = true
+verbose = 2
 testing_int = 5
 testing_bar = 7.698
 testing_bool = false

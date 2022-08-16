@@ -1,7 +1,8 @@
 """Indent and Dedent classes."""
 
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments.raw import RawSegment
+from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
 from typing import Optional, List
 
@@ -14,6 +15,10 @@ class MetaSegment(RawSegment):
     _template = "<unset>"
     indent_val = 0
     is_meta = True
+
+    def __init__(self, is_template=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_template = is_template
 
     @staticmethod
     def _suffix():
@@ -34,7 +39,7 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -89,14 +94,20 @@ class TemplateSegment(MetaSegment):
 
     type = "placeholder"
 
-    def __init__(self, pos_marker=None, source_str="", block_type=""):
+    def __init__(
+        self,
+        pos_marker: Optional[PositionMarker] = None,
+        source_str: str = "",
+        block_type: str = "",
+        source_fixes: Optional[List[SourceFix]] = None,
+    ):
         """Initialise a placeholder with the source code embedded."""
         if not source_str:  # pragma: no cover
             raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
         # Call the super of the pos_marker.
-        super().__init__(pos_marker=pos_marker)
+        super().__init__(pos_marker=pos_marker, source_fixes=source_fixes)
 
     def _suffix(self):
         """Also output what it's a placeholder for."""
@@ -113,3 +124,27 @@ class TemplateSegment(MetaSegment):
             return (self.get_type(), self.source_str)
         else:  # pragma: no cover TODO?
             return (self.get_type(), self.raw)
+
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
+        """Create a new segment, with exactly the same position but different content.
+
+        Returns:
+            A copy of this object with new contents.
+
+        Used mostly by fixes.
+
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+
+        """
+        if raw:
+            raise ValueError(
+                "Cannot set raw of a template placeholder!"
+            )  # pragma: no cover
+        return self.__class__(
+            pos_marker=self.pos_marker,
+            source_str=self.source_str,
+            block_type=self.block_type,
+            source_fixes=source_fixes or self.source_fixes,
+        )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40776a3244a7816c6ea515052ba922643a91946bdbe9033bdcfa9d0b6abb77ea
+_hash: e732f199c35d7d056737115f5c25e5d67eed421078d895de6eaf9ad58da24e51
 file:
 - statement:
     access_statement:
@@ -12,24 +12,24 @@ file:
     - keyword: 'ON'
     - keyword: SCHEMA
     - object_reference:
-      - identifier: MY_DATABASE
+      - naked_identifier: MY_DATABASE
       - dot: .
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
-        identifier: MY_ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
 - statement_terminator: ;
 - statement:
     access_statement:
     - keyword: GRANT
     - keyword: ROLE
     - object_reference:
-        identifier: MY_ROLE
+        naked_identifier: MY_ROLE
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
-        identifier: MY_OTHER_ROLE
+    - role_reference:
+        naked_identifier: MY_OTHER_ROLE
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -38,10 +38,10 @@ file:
     - keyword: 'on'
     - keyword: integration
     - object_reference:
-        identifier: external_oauth_1
+        naked_identifier: external_oauth_1
     - keyword: to
-    - object_reference:
-        identifier: role1
+    - role_reference:
+        naked_identifier: role1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -50,13 +50,13 @@ file:
     - keyword: 'on'
     - keyword: table
     - object_reference:
-      - identifier: myschema
+      - naked_identifier: myschema
       - dot: .
-      - identifier: mytable
+      - naked_identifier: mytable
     - keyword: to
     - keyword: role
-    - object_reference:
-        identifier: analyst
+    - role_reference:
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -68,11 +68,11 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-        identifier: public
+        naked_identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
-        identifier: analyst
+    - role_reference:
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -84,13 +84,13 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-      - identifier: mydb
+      - naked_identifier: mydb
       - dot: .
-      - identifier: public
+      - naked_identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
-        identifier: analyst
+    - role_reference:
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -102,13 +102,13 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-      - identifier: mydb
+      - naked_identifier: mydb
       - dot: .
-      - identifier: public
+      - naked_identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
-        identifier: analyst
+    - role_reference:
+        naked_identifier: analyst
     - keyword: copy
     - keyword: current
     - keyword: grants
@@ -118,16 +118,14 @@ file:
     - keyword: GRANT
     - keyword: ROLE
     - object_reference:
-        identifier: ROLENAME
+        naked_identifier: ROLENAME
     - keyword: TO
     - keyword: ROLE
-    - function:
-        function_name:
-          function_name_identifier: IDENTIFIER
+    - role_reference:
+        keyword: IDENTIFIER
         bracketed:
           start_bracket: (
-          expression:
-            variable: $THIS_ROLE
+          variable: $THIS_ROLE
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -137,22 +135,22 @@ file:
     - keyword: 'ON'
     - keyword: ROLE
     - object_reference:
-        identifier: TEST_ROLE
+        naked_identifier: TEST_ROLE
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
-        identifier: DIFFERENT_ROLE
+    - role_reference:
+        naked_identifier: DIFFERENT_ROLE
 - statement_terminator: ;
 - statement:
     access_statement:
     - keyword: revoke
     - keyword: role
     - object_reference:
-        identifier: analyst
+        naked_identifier: analyst
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: sysadmin
+        naked_identifier: sysadmin
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -166,13 +164,13 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-      - identifier: mydb
+      - naked_identifier: mydb
       - dot: .
-      - identifier: myschema
+      - naked_identifier: myschema
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: role1
+        naked_identifier: role1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -182,8 +180,8 @@ file:
     - keyword: 'on'
     - keyword: function
     - object_reference:
-        identifier: add5
-    - base:
+        naked_identifier: add5
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -192,7 +190,7 @@ file:
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: analyst
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -204,11 +202,11 @@ file:
     - keyword: 'on'
     - keyword: warehouse
     - object_reference:
-        identifier: report_wh
+        naked_identifier: report_wh
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: analyst
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -220,13 +218,13 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-      - identifier: mydb
+      - naked_identifier: mydb
       - dot: .
-      - identifier: myschema
+      - naked_identifier: myschema
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: analyst
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -235,11 +233,11 @@ file:
     - keyword: 'on'
     - keyword: warehouse
     - object_reference:
-        identifier: report_wh
+        naked_identifier: report_wh
     - keyword: from
     - keyword: role
     - object_reference:
-        identifier: analyst
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -248,11 +246,11 @@ file:
     - keyword: 'on'
     - keyword: database
     - object_reference:
-        identifier: database2
+        naked_identifier: database2
     - keyword: from
     - keyword: share
     - object_reference:
-        identifier: share1
+        naked_identifier: share1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -261,9 +259,9 @@ file:
     - keyword: 'ON'
     - keyword: ROLE
     - object_reference:
-        identifier: TEST_ROLE
+        naked_identifier: TEST_ROLE
     - keyword: FROM
     - keyword: ROLE
     - object_reference:
-        identifier: DIFFERENT_ROLE
+        naked_identifier: DIFFERENT_ROLE
 - statement_terminator: ;

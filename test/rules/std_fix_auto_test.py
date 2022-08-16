@@ -1,9 +1,10 @@
 """Automated tests for fixing violations.
 
-Any files in the /tests/fixtures/linter/autofix directoy will be picked up
+Any files in the test/fixtures/linter/autofix directory will be picked up
 and automatically tested against the appropriate dialect.
 """
 
+from typing import Optional
 import pytest
 import os
 import tempfile
@@ -75,7 +76,9 @@ def auto_fix_test(dialect, folder, caplog):
     with open(test_conf_filepath) as cfg_file:
         cfg = yaml.safe_load(cfg_file)
     print("## Config: ", cfg)
-    rules = ",".join(cfg["test-config"]["rules"])
+    rules: Optional[str] = ",".join(cfg["test-config"].get("rules")).upper()
+    if "ALL" in rules:
+        rules = None
     raise_on_non_linting_violations = cfg["test-config"].get(
         "raise_on_non_linting_violations", True
     )
@@ -108,7 +111,10 @@ def auto_fix_test(dialect, folder, caplog):
         violations = None
 
     # Run the fix command
-    cfg = FluffConfig.from_root(overrides=dict(rules=rules, dialect=dialect))
+    overides = {"dialect": dialect}
+    if rules:
+        overides["rules"] = rules
+    cfg = FluffConfig.from_root(overrides=overides)
     lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
 

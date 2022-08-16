@@ -1,0 +1,15 @@
+default:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: postgres
+      pass: password
+      port: 2345
+      dbname: postgres
+      schema: dbt_alice
+      threads: 4
+
+config:
+  send_anonymous_usage_stats: false

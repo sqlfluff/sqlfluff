@@ -3,12 +3,14 @@
 import os
 import sys
 
+from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
     PythonTemplater,
     JinjaTemplater,
+    PlaceholderTemplater,
 )
 
 from pathlib import Path
@@ -20,6 +22,11 @@ import pytest
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4},
     "bar": {"foo": "barbar"},
+}
+
+config_b = {
+    "core": {"rules": "L007", "dialect": "ansi"},
+    "rules": {"L007": {"operator_new_lines": "before"}},
 }
 
 
@@ -70,7 +77,7 @@ def test__config__load_file_f():
 
 
 def test__config__load_nested():
-    """Test nested overwrite and order of precedence of config files in the same directory."""
+    """Test nested overwrite and order of precedence of config files."""
     c = ConfigLoader()
     cfg = c.load_config_up_to_path(
         os.path.join(
@@ -78,7 +85,12 @@ def test__config__load_nested():
         )
     )
     assert cfg == {
-        "core": {"testing_val": "foobar", "testing_int": 1, "testing_bar": 7.698},
+        "core": {
+            "dialect": "ansi",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
@@ -93,6 +105,8 @@ def test__config__load_toml():
     )
     assert cfg == {
         "core": {
+            "nocolor": True,
+            "verbose": 2,
             "testing_int": 5,
             "testing_bar": 7.698,
             "testing_bool": False,
@@ -142,7 +156,9 @@ def test__config__nested_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules="L002")))
+    lntr = Linter(
+        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+    )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -199,15 +215,127 @@ def test__config__load_user_appdir_config(
 )
 def test__config__split_comma_separated_string(raw_str, expected):
     """Tests that comma separated string config is handled correctly."""
-    assert FluffConfig._split_comma_separated_string(raw_str) == expected
+    assert config._split_comma_separated_string(raw_str) == expected
 
 
 def test__config__templater_selection():
     """Test template selection by name."""
-    cfg = FluffConfig()
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
     assert cfg.get_templater().__class__ is JinjaTemplater
     assert cfg.get_templater("raw").__class__ is RawTemplater
     assert cfg.get_templater("python").__class__ is PythonTemplater
     assert cfg.get_templater("jinja").__class__ is JinjaTemplater
+    assert cfg.get_templater("placeholder").__class__ is PlaceholderTemplater
+
     with pytest.raises(ValueError):
         cfg.get_templater("afefhlsakufe")
+
+
+def test__config__glob_exclude_config_tests():
+    """Test linting with a glob pattern in exclude_rules.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_exclude"))
+    lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L044", 10, 1) in violations[k]
+        assert "L027" not in [c[0] for c in violations[k]]
+        assert "L050" not in [c[0] for c in violations[k]]
+        assert "L051" not in [c[0] for c in violations[k]]
+        assert "L052" not in [c[0] for c in violations[k]]
+
+
+def test__config__glob_include_config_tests():
+    """Test linting with a glob pattern in rules.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_include"))
+    lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L050", 1, 1) in violations[k]
+        assert ("L051", 12, 1) in violations[k]
+        assert ("L052", 12, 9) in violations[k]
+        assert ("L027", 10, 8) in violations[k]
+        assert "L044" not in [c[0] for c in violations[k]]
+
+
+def test__config__rules_set_to_none():
+    """Test linting when rules are set to 'None'.
+
+    Ensure that all rules are still run.
+    """
+    lntr = Linter(
+        config=FluffConfig.from_path("test/fixtures/config/rules_set_to_none")
+    )
+    lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L050", 1, 1) in violations[k]
+        assert ("L044", 12, 1) in violations[k]
+        assert ("L010", 12, 10) in violations[k]
+
+
+def test__config__rules_group_with_exclude():
+    """Test linting when a rules group is selected and rules are excluded."""
+    lntr = Linter(
+        config=FluffConfig.from_path("test/fixtures/config/rules_group_with_exclude")
+    )
+    lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L010", 15, 1) in violations[k]
+        assert "L019" not in [c[0] for c in violations[k]]
+
+
+def test__config__get_section():
+    """Test FluffConfig.get_section method."""
+    cfg = FluffConfig(config_b)
+
+    assert cfg.get_section("core").get("rules", None) == "L007"
+    assert cfg.get_section(["rules", "L007"]) == {"operator_new_lines": "before"}
+    assert cfg.get_section("non_existent") is None
+
+
+def test__config__get():
+    """Test FluffConfig.get method."""
+    cfg = FluffConfig(config_b)
+
+    assert cfg.get("rules") == "L007"
+    assert cfg.get("rulez") is None
+    assert cfg.get("rulez", section="core", default=123) == 123
+    assert (
+        cfg.get("operator_new_lines", section=["rules", "L007"], default=None)
+        == "before"
+    )
+    assert (
+        cfg.get("operator_new_lines", section=["rules", "ASDFSDG007"], default=None)
+        is None
+    )
+
+
+def test__config__from_kwargs():
+    """Test from_kwargs method of FluffConfig."""
+    # Instantiate config object.
+    cfg = FluffConfig.from_kwargs(
+        dialect="snowflake",
+        rules=["L001", "L002"],
+        exclude_rules=["L010", "L011"],
+    )
+
+    # Verify we can later retrieve the config values.
+    assert cfg.get("dialect") == "snowflake"
+    assert cfg.get("rules") == "L001,L002"
+    assert cfg.get("exclude_rules") == "L010,L011"
+
+
+def test__config_missing_dialect():
+    """Verify an exception is thrown if no dialect was specified."""
+    with pytest.raises(SQLFluffUserError) as e:
+        FluffConfig.from_kwargs()
+    assert "must configure a dialect" in str(e.value)

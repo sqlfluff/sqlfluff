@@ -1,6 +1,6 @@
 -- Single replace
 select
-  * replace 'thing' as foo
+  * replace ('thing' as foo)
 from some_table;
 
 -- Multi replace

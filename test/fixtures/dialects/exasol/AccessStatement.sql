@@ -11,11 +11,16 @@ GRANT role1 TO user1, user2 WITH ADMIN OPTION;
 GRANT role2 TO role1;
 -- Impersonation
 GRANT IMPERSONATION ON user2 TO user1;
+GRANT IMPERSONATION ON "user2" TO user1;
+GRANT IMPERSONATION ON user2 TO "user1";
 -- Connection
 GRANT CONNECTION my_connection TO user1;
+GRANT CONNECTION my_connection TO "ADMIN";
 -- Access to connection details for certain script
 GRANT ACCESS ON CONNECTION my_connection
 FOR SCRIPT script1 TO user1;
+GRANT ACCESS ON CONNECTION "my_connection"
+FOR SCRIPT "script1" TO "user1";
 
 REVOKE CREATE SCHEMA FROM role1,user3;
 -- Object privileges
@@ -27,3 +32,4 @@ REVOKE role1 FROM user1, user2;
 REVOKE IMPERSONATION ON user2 FROM user1;
 -- Connections
 REVOKE CONNECTION my_connection FROM user1;
+REVOKE CONNECTION my_connection FROM "ADMIN";

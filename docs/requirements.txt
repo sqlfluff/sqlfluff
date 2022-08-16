@@ -2,3 +2,4 @@
 sphinx>=2.4.1
 sphinx-click
 doc8
+tqdm

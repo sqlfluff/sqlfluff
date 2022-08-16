@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 77dfeed770d7d6ba167bd221b10d00dfcb9e2c78a9c3b38975352b733f9e00d3
+file:
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: args
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'on'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: args
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: bar
+    - comma: ','
+    - column_reference:
+        naked_identifier: baz
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: args
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: baz
+    - keyword: DEFERRABLE
+    - keyword: INITIALLY
+    - keyword: IMMEDIATE
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: args
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: WHEN
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: a
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: b
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: args
+        end_bracket: )
+- statement_terminator: ;

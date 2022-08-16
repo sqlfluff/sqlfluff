@@ -41,13 +41,17 @@ and is meant to categorize rules; you could use the
 letter 'S' to denote rules that enforce security checks
 for example.
 
+An important thing to note when running custom implemented rules:
+Run ``pip install -e .``, inside the plugin folder so custom rules in linting
+are included.
+
 A plugin Rule code includes the PluginName,
 so a rule "Rule_L000" in core will have code "L000",
 while "Rule_PluginName_L000" will have code "PluginName_L000".
 Codes are used to display errors, they are also used as configuration keys.
 
 We make it easy for plugin developers to test their rules by
-exposing a testing library in *sqlfluff.testing*.
+exposing a testing library in *sqlfluff.utils.testing*.
 
 .. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
 .. _`sqlfluff/plugins/sqlfluff-templater-dbt`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-templater-dbt

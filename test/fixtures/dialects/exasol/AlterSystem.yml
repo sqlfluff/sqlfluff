@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ac1b1e339be03b5295ca45944a59d3c4347560fa48ee88794eb22ebe62e5338
+_hash: a1439fe14d3633a0a6010879e8f07aef5f4dccfb13b299b4825c224eec080f9e
 file:
 - statement:
     alter_system_statement:
@@ -11,8 +11,9 @@ file:
     - keyword: SYSTEM
     - keyword: SET
     - system_parameter: NLS_DATE_LANGUAGE
-    - comparison_operator: '='
-    - literal: "'DEU'"
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'DEU'"
 - statement_terminator: ;
 - statement:
     alter_system_statement:
@@ -20,6 +21,37 @@ file:
     - keyword: SYSTEM
     - keyword: SET
     - system_parameter: NLS_FIRST_DAY_OF_WEEK
-    - comparison_operator: '='
-    - literal: '1'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SYSTEM TABLES'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: USER_TEMP_DB_RAM_LIMIT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'50G'"
 - statement_terminator: ;

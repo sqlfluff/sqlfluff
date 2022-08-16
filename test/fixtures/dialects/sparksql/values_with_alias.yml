@@ -1,0 +1,240 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8e85de7ad1e5b742def684191888d8c22871e3198b5a8925a436368514d2088f
+file:
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        keyword: as
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;

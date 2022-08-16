@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11620d26f973a9c426a88c1cd58fe5487ffcc3acb51e858bd86e72f7b16beeba
+_hash: 264ee2e99d6b6cbf570585634d2a9951d01685e48da47c447d54eb33ea4e5c5f
 file:
 - statement:
     alter_warehouse_statement:
@@ -11,187 +11,203 @@ file:
     - keyword: warehouse
     - keyword: if
     - keyword: exists
-    - identifier: wh1
+    - naked_identifier: wh1
     - keyword: rename
     - keyword: to
-    - identifier: wh2
+    - naked_identifier: wh2
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: my_wh
+    - naked_identifier: my_wh
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
-        comparison_operator: '='
-        identifier: medium
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: medium
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
-        comparison_operator: '='
-        identifier: XXLARGE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: XXLARGE
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: WAIT_FOR_COMPLETION
-        comparison_operator: '='
-        literal: 'TRUE'
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CLUSTER_COUNT
-        comparison_operator: '='
-        literal: '5'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MIN_CLUSTER_COUNT
-        comparison_operator: '='
-        literal: '1'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
       - keyword: SCALING_POLICY
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: STANDARD
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_SUSPEND
-        comparison_operator: '='
-        literal: '1'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_RESUME
-        comparison_operator: '='
-        literal: 'FALSE'
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: RESOURCE_MONITOR
-        comparison_operator: '='
-        identifier: monitor_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        naked_identifier: monitor_name
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
-    - comment_clause:
+    - comment_equals_clause:
         keyword: COMMENT
-        comparison_operator: '='
-        literal: "'This is a comment'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'This is a comment'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
-        comparison_operator: '='
-        literal: '1'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
-        comparison_operator: '='
-        literal: '300'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_TIMEOUT_IN_SECONDS
-        comparison_operator: '='
-        literal: '300'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
-    - warehouse_object_properties:
+    - tag_equals:
         keyword: TAG
-        identifier: thetag
-        comparison_operator: '='
-        literal: "'tag1'"
+        naked_identifier: thetag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'tag1'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: set
-    - warehouse_object_properties:
+    - tag_equals:
       - keyword: TAG
-      - identifier: thetag1
-      - comparison_operator: '='
-      - literal: "'tag1'"
+      - naked_identifier: thetag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag1'"
       - comma: ','
-      - identifier: thetag2
-      - comparison_operator: '='
-      - literal: "'tag2'"
+      - naked_identifier: thetag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag2'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: RESUME
     - keyword: IF
     - keyword: SUSPENDED
@@ -200,7 +216,7 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: ABORT
     - keyword: ALL
     - keyword: QUERIES
@@ -209,45 +225,46 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: RENAME
     - keyword: TO
-    - identifier: LOAD_WH2
+    - naked_identifier: LOAD_WH2
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: SET
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
-        comparison_operator: '='
-        literal: '1'
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: UNSET
-    - identifier: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
+    - naked_identifier: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: UNSET
-    - identifier: WAREHOUSE_SIZE
+    - naked_identifier: WAREHOUSE_SIZE
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - identifier: LOAD_WH
+    - naked_identifier: LOAD_WH
     - keyword: UNSET
-    - identifier: WAREHOUSE_SIZE
+    - naked_identifier: WAREHOUSE_SIZE
     - comma: ','
-    - identifier: WAIT_FOR_COMPLETION
+    - naked_identifier: WAIT_FOR_COMPLETION
 - statement_terminator: ;

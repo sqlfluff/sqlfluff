@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e53719c9a38eb0112c74b63b68a96a9464329a57c4136e8a85c19fbbc443abdb
+_hash: 18bb8898c12b56df1d5444a075784ef943a500aa96652408f8047750fa26cd2e
 file:
 - statement:
     access_statement:
@@ -12,10 +12,10 @@ file:
     - keyword: 'ON'
     - keyword: SCHEMA
     - object_reference:
-        identifier: api
+        naked_identifier: api
     - keyword: TO
-    - object_reference:
-        identifier: web_anon
+    - role_reference:
+        naked_identifier: web_anon
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -24,21 +24,21 @@ file:
     - keyword: 'ON'
     - keyword: FUNCTION
     - object_reference:
-      - identifier: api
+      - naked_identifier: api
       - dot: .
-      - identifier: test
+      - naked_identifier: test
     - keyword: TO
-    - object_reference:
-        identifier: web_anon
+    - role_reference:
+        naked_identifier: web_anon
 - statement_terminator: ;
 - statement:
     access_statement:
     - keyword: GRANT
     - object_reference:
-        identifier: web_anon
+        naked_identifier: web_anon
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -53,10 +53,10 @@ file:
     - keyword: 'ON'
     - keyword: DATABASE
     - object_reference:
-        identifier: my_db
+        naked_identifier: my_db
     - keyword: TO
-    - object_reference:
-        identifier: app
+    - role_reference:
+        naked_identifier: app
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -68,10 +68,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - object_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: TO
-    - object_reference:
-        identifier: app
+    - role_reference:
+        naked_identifier: app
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -80,10 +80,10 @@ file:
     - keyword: 'ON'
     - keyword: DOMAIN
     - object_reference:
-        identifier: my_domain
+        naked_identifier: my_domain
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -94,10 +94,10 @@ file:
     - keyword: DATA
     - keyword: WRAPPER
     - object_reference:
-        identifier: my_fdw
+        naked_identifier: my_fdw
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -107,10 +107,10 @@ file:
     - keyword: FOREIGN
     - keyword: SERVER
     - object_reference:
-        identifier: fs
+        naked_identifier: fs
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -119,10 +119,10 @@ file:
     - keyword: 'ON'
     - keyword: PROCEDURE
     - object_reference:
-        identifier: fn
+        naked_identifier: fn
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -131,10 +131,10 @@ file:
     - keyword: 'ON'
     - keyword: ROUTINE
     - object_reference:
-        identifier: fn
+        naked_identifier: fn
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -146,10 +146,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - object_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -161,10 +161,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - object_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -176,10 +176,10 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - object_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -188,10 +188,10 @@ file:
     - keyword: 'ON'
     - keyword: LANGUAGE
     - object_reference:
-        identifier: my_lang
+        naked_identifier: my_lang
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -200,10 +200,10 @@ file:
     - keyword: 'ON'
     - keyword: LARGE
     - keyword: OBJECT
-    - literal: '564182'
+    - numeric_literal: '564182'
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -212,10 +212,10 @@ file:
     - keyword: 'ON'
     - keyword: TABLESPACE
     - object_reference:
-        identifier: my_tblspc
+        naked_identifier: my_tblspc
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -224,19 +224,19 @@ file:
     - keyword: 'ON'
     - keyword: TYPE
     - object_reference:
-        identifier: my_type
+        naked_identifier: my_type
     - keyword: TO
-    - object_reference:
-        identifier: my_role
+    - role_reference:
+        naked_identifier: my_role
 - statement_terminator: ;
 - statement:
     access_statement:
     - keyword: GRANT
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: TO
-    - object_reference:
-        identifier: my_group
+    - role_reference:
+        naked_identifier: my_group
     - keyword: WITH
     - keyword: ADMIN
     - keyword: OPTION
@@ -248,10 +248,10 @@ file:
     access_statement:
     - keyword: GRANT
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: TO
-    - object_reference:
-        identifier: my_group
+    - role_reference:
+        naked_identifier: my_group
     - keyword: GRANTED
     - keyword: BY
     - keyword: SESSION_USER
@@ -260,17 +260,17 @@ file:
     access_statement:
     - keyword: GRANT
     - object_reference:
-        identifier: my_user
+        naked_identifier: my_user
     - keyword: TO
-    - object_reference:
-        identifier: my_group
+    - role_reference:
+        naked_identifier: my_group
     - keyword: WITH
     - keyword: ADMIN
     - keyword: OPTION
     - keyword: GRANTED
     - keyword: BY
     - object_reference:
-        identifier: my_new_role
+        naked_identifier: my_new_role
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -285,10 +285,10 @@ file:
     - keyword: 'ON'
     - keyword: DATABASE
     - object_reference:
-        identifier: my_db
+        naked_identifier: my_db
     - keyword: TO
-    - object_reference:
-        identifier: xyz
+    - role_reference:
+        naked_identifier: xyz
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -303,13 +303,13 @@ file:
     - keyword: 'ON'
     - keyword: DATABASE
     - object_reference:
-        identifier: my_db
+        naked_identifier: my_db
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
     - comma: ','
-    - object_reference:
-        identifier: my_other_user
+    - role_reference:
+        naked_identifier: my_other_user
     - keyword: WITH
     - keyword: GRANT
     - keyword: OPTION
@@ -320,13 +320,13 @@ file:
     - keyword: SELECT
     - keyword: 'ON'
     - object_reference:
-        identifier: abc
+        naked_identifier: abc
     - keyword: TO
-    - object_reference:
-        identifier: xyz
+    - role_reference:
+        naked_identifier: xyz
     - comma: ','
-    - object_reference:
-        identifier: mno
+    - role_reference:
+        naked_identifier: mno
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -338,11 +338,11 @@ file:
     - keyword: IN
     - keyword: SCHEMA
     - object_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: TO
-    - object_reference:
-        identifier: my_user
+    - role_reference:
+        naked_identifier: my_user
     - comma: ','
-    - object_reference:
-        identifier: my_other_user
+    - role_reference:
+        naked_identifier: my_other_user
 - statement_terminator: ;

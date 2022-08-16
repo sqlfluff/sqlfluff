@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: efc636b3e2f222c55594cffa0a9b92dcd46b638e75b569f42b811b623ca58a53
+_hash: 035e5deaa786c505125b234894eff38e45deeaebc72d8dd2b29c345d09871420
 file:
   statement:
     select_statement:
@@ -19,30 +19,31 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '"my_table2"'
+                quoted_identifier: '"my_table2"'
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: '"my_database"'
+                - quoted_identifier: '"my_database"'
                 - dot: .
-                - identifier: '"my_schema"'
+                - quoted_identifier: '"my_schema"'
                 - dot: .
-                - identifier: '"my_table"'
+                - quoted_identifier: '"my_table"'
           - join_on_condition:
               keyword: 'ON'
               bracketed:
                 start_bracket: (
                 expression:
                 - column_reference:
-                  - identifier: '"my_table2"'
-                  - dot: .
-                  - identifier: foo
-                - comparison_operator: '='
+                    quoted_identifier: '"my_table2"'
+                    dot: .
+                    naked_identifier: foo
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: '"my_table"'
-                  - dot: .
-                  - identifier: foo
+                    quoted_identifier: '"my_table"'
+                    dot: .
+                    naked_identifier: foo
                 end_bracket: )

@@ -3,46 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e2966a5f7a0a4bc4d409403766b4fa67853f1cf4c14da1176e220621a216f2d
+_hash: 29c161ba9d29e26de948798d51b1dad7de41234157559a2a09dd76e9f31456a9
 file:
   statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: pipe
     - object_reference:
-        identifier: mypipe_s3
+        naked_identifier: mypipe_s3
     - keyword: auto_ingest
-    - comparison_operator: '='
-    - literal: 'true'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
     - keyword: aws_sns_topic
-    - comparison_operator: '='
-    - literal: "'arn:aws:blablabla..0:s3_mybucket'"
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:blablabla..0:s3_mybucket'"
     - keyword: as
     - copy_into_statement:
       - keyword: copy
       - keyword: into
-      - object_reference:
-        - identifier: snowpipe_db
+      - table_reference:
+        - naked_identifier: snowpipe_db
         - dot: .
-        - identifier: public
+        - naked_identifier: public
         - dot: .
-        - identifier: mytable
+        - naked_identifier: mytable
       - keyword: from
-      - internal_external_stage:
-        - literal: '@'
-        - identifier: snowpipe_db
-        - dot: .
-        - identifier: public
-        - dot: .
-        - identifier: mystage
+      - storage_location:
+          stage_path: '@snowpipe_db.public.mystage'
       - keyword: file_format
-      - comparison_operator: '='
-      - bracketed:
-          start_bracket: (
-          keyword: type
-          comparison_operator: '='
-          literal: "'JSON'"
-          end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_format_segment:
+          bracketed:
+            start_bracket: (
+            json_file_format_type_parameters:
+              keyword: type
+              comparison_operator:
+                raw_comparison_operator: '='
+              file_type: "'JSON'"
+            end_bracket: )
   statement_terminator: ;

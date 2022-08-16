@@ -1,0 +1,118 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9412d5773862ec85a0ca1370edef125b7c70bf59d502b73cf9419c88241353e6
+file:
+- statement:
+    drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: do_db_maintenance
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: insert_actor
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: insert_actor
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: varchar
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: insert_actor
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - data_type:
+            keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: delete_actor
+    - comma: ','
+    - function_name:
+        function_name_identifier: update_actor
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: delete_actor
+    - comma: ','
+    - function_name:
+        function_name_identifier: update_actor
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: delete_actor
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          keyword: in
+          parameter: id
+          data_type:
+            keyword: varchar
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: insert_actor
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - data_type:
+            keyword: varchar
+        - end_bracket: )
+    - comma: ','
+    - function_name:
+        function_name_identifier: insert_actor2
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - data_type:
+            keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;

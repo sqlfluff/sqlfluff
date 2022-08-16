@@ -1,0 +1,266 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 51bbf5a827b5e2ba4aefdea69bee7821d3755ed83bf2761759a9ef850ac21bee
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - naked_identifier: b
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - naked_identifier: c
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: BOOLEAN
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: STRING
+            comma: ','
+            data_type:
+              primitive_type:
+                keyword: BOOLEAN
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: STRING
+            end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - naked_identifier: b
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - keyword: COMMENT
+          - quoted_literal: "'struct_comment'"
+          - comma: ','
+          - naked_identifier: c
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: BOOLEAN
+          - end_angle_bracket: '>'
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col_comment'"
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: STRING
+            comma: ','
+            data_type:
+              primitive_type:
+                keyword: BOOLEAN
+            end_angle_bracket: '>'
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col_comment'"
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: STRING
+            end_angle_bracket: '>'
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'col_comment'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - naked_identifier: b
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - naked_identifier: c
+          - colon: ':'
+          - data_type:
+              keyword: MAP
+              start_angle_bracket: <
+              primitive_type:
+                keyword: STRING
+              comma: ','
+              data_type:
+                primitive_type:
+                  keyword: BOOLEAN
+              end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: STRING
+            comma: ','
+            data_type:
+            - keyword: STRUCT
+            - start_angle_bracket: <
+            - naked_identifier: e
+            - colon: ':'
+            - data_type:
+                primitive_type:
+                  keyword: STRING
+            - comma: ','
+            - naked_identifier: f
+            - colon: ':'
+            - data_type:
+                keyword: MAP
+                start_angle_bracket: <
+                primitive_type:
+                  keyword: STRING
+                comma: ','
+                data_type:
+                  primitive_type:
+                    keyword: BOOLEAN
+                end_angle_bracket: '>'
+            - end_angle_bracket: '>'
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+            - keyword: STRUCT
+            - start_angle_bracket: <
+            - naked_identifier: h
+            - colon: ':'
+            - data_type:
+                primitive_type:
+                  keyword: STRING
+            - comma: ','
+            - naked_identifier: i
+            - colon: ':'
+            - data_type:
+                keyword: MAP
+                start_angle_bracket: <
+                primitive_type:
+                  keyword: STRING
+                comma: ','
+                data_type:
+                  primitive_type:
+                    keyword: BOOLEAN
+                end_angle_bracket: '>'
+            - end_angle_bracket: '>'
+            end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - quoted_identifier: '`b`'
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - naked_identifier: c
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: BOOLEAN
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`d`'
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: STRING
+            comma: ','
+            data_type:
+              primitive_type:
+                keyword: BOOLEAN
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: STRING
+            end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;

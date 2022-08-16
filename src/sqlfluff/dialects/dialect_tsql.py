@@ -3,33 +3,32 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    AnySetOf,
+    BaseFileSegment,
     BaseSegment,
-    Sequence,
-    OneOf,
     Bracketed,
-    Ref,
-    Anything,
-    Nothing,
-    RegexLexer,
     CodeSegment,
-    RegexParser,
+    CommentSegment,
+    Conditional,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     NamedParser,
+    Nothing,
+    OneOf,
     OptionallyBracketed,
-    Dedent,
-    BaseFileSegment,
-    Indent,
-    AnyNumberOf,
-    CommentSegment,
-    StringParser,
-    SymbolSegment,
+    Ref,
+    RegexLexer,
+    RegexParser,
     SegmentGenerator,
+    Sequence,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
-
+from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -38,1390 +37,15 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
-# Should really clear down the old keywords but some are needed by certain segments
-# tsql_dialect.sets("reserved_keywords").clear()
-# tsql_dialect.sets("unreserved_keywords").clear()
+tsql_dialect.sets("reserved_keywords").clear()
+tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-tsql_dialect.insert_lexer_matchers(
+# Set the datetime units
+tsql_dialect.sets("datetime_units").clear()
+tsql_dialect.sets("datetime_units").update(
     [
-        RegexLexer(
-            "atsign",
-            r"[@][a-zA-Z0-9_]+",
-            CodeSegment,
-        ),
-        RegexLexer(
-            "square_quote",
-            r"\[([^\[\]]*)*\]",
-            CodeSegment,
-        ),
-        # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
-        RegexLexer(
-            "hash_prefix",
-            r"[#][#]?[a-zA-Z0-9_]+",
-            CodeSegment,
-        ),
-    ],
-    before="back_quote",
-)
-
-tsql_dialect.patch_lexer_matchers(
-    [
-        # Patching single_quote to allow for TSQL-style escaped quotes
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
-        # Patching comments to remove hash comments
-        RegexLexer(
-            "inline_comment",
-            r"(--)[^\n]*",
-            CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
-        ),
-        # Patching to add !<, !>
-        RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
-        RegexLexer("less_than_or_equal", "<=|!>", CodeSegment),
-        RegexLexer(
-            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
-        ),  # overriding to allow hash mark and at-sign in code
-    ]
-)
-
-tsql_dialect.add(
-    BracketedIdentifierSegment=NamedParser(
-        "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
-    ),
-    HashIdentifierSegment=NamedParser(
-        "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
-    ),
-    BatchDelimiterSegment=Ref("GoStatementSegment"),
-    QuotedLiteralSegmentWithN=NamedParser(
-        "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
-    ),
-    NotGreaterThanSegment=StringParser(
-        "!>", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
-    ),
-    NotLessThanSegment=StringParser(
-        "!<", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
-    ),
-)
-
-tsql_dialect.replace(
-    # Overriding to cover TSQL allowed identifier name characters
-    # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver15
-    NakedIdentifierSegment=SegmentGenerator(
-        # Generate the anti template from the set of reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z_][A-Z0-9_@$#]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
-        )
-    ),
-    ComparisonOperatorGrammar=OneOf(
-        Ref("EqualsSegment"),
-        Ref("GreaterThanSegment"),
-        Ref("LessThanSegment"),
-        Ref("GreaterThanOrEqualToSegment"),
-        Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
-        Ref("LikeOperatorSegment"),
-        Ref("NotGreaterThanSegment"),
-        Ref("NotLessThanSegment"),
-    ),
-    SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
-        Ref("BracketedIdentifierSegment"),
-        Ref("HashIdentifierSegment"),
-        Ref("ParameterNameSegment"),
-    ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("QuotedLiteralSegmentWithN"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-    ),
-    ParameterNameSegment=RegexParser(
-        r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
-    ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-    ),
-    DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
-    PrimaryKeyGrammar=Sequence(
-        "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
-    ),
-    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes statements have been delimited
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("SelectClauseElementSegment"),
-                Ref("CommaSegment"),
-            ),
-        ),
-        Ref("SelectClauseElementSegment"),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
-    FromClauseTerminatorGrammar=OneOf(
-        "WHERE",
-        "LIMIT",
-        Sequence("GROUP", "BY"),
-        Sequence("ORDER", "BY"),
-        "HAVING",
-        "PIVOT",
-        "UNPIVOT",
-        Ref("SetOperatorSegment"),
-        Ref("WithNoSchemaBindingClauseSegment"),
-        Ref("DelimiterSegment"),
-    ),
-    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
-)
-
-
-@tsql_dialect.segment(replace=True)
-class AliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause.
-
-    The optional AS keyword allows both implicit and explicit aliasing.
-    Overriding ANSI to remove QuotedLiteralSegment
-    """
-
-    type = "alias_expression"
-    match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
-        OneOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                # Column alias in VALUES clause
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
-    """Overriding StatementSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[
-            Ref("IfExpressionStatement"),
-            Ref("DeclareStatementSegment"),
-            Ref("SetStatementSegment"),
-            Ref("AlterTableSwitchStatementSegment"),
-            Ref("PrintStatementSegment"),
-            Ref(
-                "CreateTableAsSelectStatementSegment"
-            ),  # Azure Synapse Analytics specific
-            Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
-            Ref("ExecuteScriptSegment"),
-            Ref("DropStatisticsStatementSegment"),
-            Ref("UpdateStatisticsStatementSegment"),
-        ],
-    )
-
-    parse_grammar = match_grammar
-
-
-@tsql_dialect.segment(replace=True)
-class SelectClauseElementSegment(BaseSegment):
-    """An element in the targets of a select statement.
-
-    Overriding ANSI to remove GreedyUntil logic which assumes statements have been delimited
-    """
-
-    type = "select_clause_element"
-    # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class SelectClauseModifierSegment(BaseSegment):
-    """Things that come after SELECT but before the columns."""
-
-    type = "select_clause_modifier"
-    match_grammar = OneOf(
-        "DISTINCT",
-        "ALL",
-        Sequence(
-            "TOP",
-            OptionallyBracketed(Ref("ExpressionSegment")),
-            Sequence("PERCENT", optional=True),
-            Sequence("WITH", "TIES", optional=True),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class SelectClauseSegment(BaseSegment):
-    """A group of elements in a select target statement.
-
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
-    """
-
-    type = "select_clause"
-    match_grammar = Ref("SelectClauseSegmentGrammar")
-
-
-@tsql_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
-    """A `SELECT` statement without any ORDER clauses or later.
-
-    We need to change ANSI slightly to remove LimitClauseSegment
-    and NamedWindowSegment which don't exist in T-SQL.
-
-    We also need to get away from ANSI's use of StartsWith.
-    There's not a clean list of terminators that can be used
-    to identify the end of a TSQL select statement.  Semi-colon is optional.
-    """
-
-    type = "select_statement"
-    match_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoTableSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("PivotUnpivotStatementSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
-    """A `SELECT` statement.
-
-    We need to change ANSI slightly to remove LimitClauseSegment
-    and NamedWindowSegment which don't exist in T-SQL.
-
-    We also need to get away from ANSI's use of StartsWith.
-    There's not a clean list of terminators that can be used
-    to identify the end of a TSQL select statement.  Semi-colon is optional.
-    """
-
-    type = "select_statement"
-    # Remove the Limit and Window statements from ANSI
-    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[
-            Ref("OrderByClauseSegment", optional=True),
-            Ref("OptionClauseSegment", optional=True),
-            Ref("DelimiterSegment", optional=True),
-        ]
-    )
-
-
-@tsql_dialect.segment()
-class IntoTableSegment(BaseSegment):
-    """`INTO` clause within `SELECT`.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver15
-    """
-
-    type = "into_table_clause"
-    match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
-
-
-@tsql_dialect.segment(replace=True)
-class WhereClauseSegment(BaseSegment):
-    """A `WHERE` clause like in `SELECT` or `INSERT`.
-
-    Overriding ANSI in order to get away from the use of
-    StartsWith. There's not a clean list of terminators that can be used
-    to identify the end of a TSQL select statement.  Semi-colon is optional.
-    """
-
-    type = "where_clause"
-    match_grammar = Sequence(
-        "WHERE",
-        Indent,
-        OptionallyBracketed(Ref("ExpressionSegment")),
-        Dedent,
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class CreateIndexStatementSegment(BaseSegment):
-    """A `CREATE INDEX` or `CREATE STATISTICS` statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-statistics-transact-sql?view=sql-server-ver15
-    """
-
-    type = "create_index_statement"
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Sequence("UNIQUE", optional=True),
-        OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
-        OneOf("INDEX", "STATISTICS"),
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment"),
-        "ON",
-        Ref("TableReferenceSegment"),
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Ref("IndexColumnDefinitionSegment"),
-                ),
-            )
-        ),
-        Sequence(
-            "INCLUDE",
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        Ref("IndexColumnDefinitionSegment"),
-                    ),
-                )
-            ),
-            optional=True,
-        ),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class DropIndexStatementSegment(BaseSegment):
-    """A `DROP INDEX` statement.
-
-    Overriding ANSI to include required ON clause.
-    """
-
-    type = "drop_statement"
-    match_grammar = Sequence(
-        "DROP",
-        "INDEX",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment"),
-        "ON",
-        Ref("TableReferenceSegment"),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment()
-class DropStatisticsStatementSegment(BaseSegment):
-    """A `DROP STATISTICS` statement."""
-
-    type = "drop_statement"
-    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
-    match_grammar = Sequence(
-        "DROP",
-        OneOf("STATISTICS"),
-        Ref("IndexReferenceSegment"),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment()
-class UpdateStatisticsStatementSegment(BaseSegment):
-    """An `UPDATE STATISTICS` statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
-    """
-
-    type = "update_statistics_statement"
-    match_grammar = Sequence(
-        "UPDATE",
-        "STATISTICS",
-        Ref("ObjectReferenceSegment"),
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            Bracketed(
-                Delimited(
-                    Ref("SingleIdentifierGrammar"),
-                ),
-            ),
-            optional=True,
-        ),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class ObjectReferenceSegment(BaseSegment):
-    """A reference to an object.
-
-    Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifiers can be matched.
-    """
-
-    type = "object_reference"
-    # match grammar (allow whitespace)
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),
-        AnyNumberOf(
-            Sequence(
-                Ref("DotSegment"),
-                Ref("SingleIdentifierGrammar", optional=True),
-            ),
-            min_times=0,
-            max_times=3,
-        ),
-    )
-
-    ObjectReferencePart = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferencePart
-
-    _iter_reference_parts = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    )._iter_reference_parts
-
-    iter_raw_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).iter_raw_references
-
-    is_qualified = ansi_dialect.get_segment("ObjectReferenceSegment").is_qualified
-
-    qualification = ansi_dialect.get_segment("ObjectReferenceSegment").qualification
-
-    ObjectReferenceLevel = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferenceLevel
-
-    extract_possible_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).extract_possible_references
-
-    _level_to_int = staticmethod(
-        ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class TableReferenceSegment(ObjectReferenceSegment):
-    """A reference to an table, CTE, subquery or alias.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "table_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class SchemaReferenceSegment(ObjectReferenceSegment):
-    """A reference to a schema.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "schema_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class DatabaseReferenceSegment(ObjectReferenceSegment):
-    """A reference to a database.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "database_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class IndexReferenceSegment(ObjectReferenceSegment):
-    """A reference to an index.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "index_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class ExtensionReferenceSegment(ObjectReferenceSegment):
-    """A reference to an extension.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "extension_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class ColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to column, field or alias.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "column_reference"
-
-
-@tsql_dialect.segment(replace=True)
-class SequenceReferenceSegment(ObjectReferenceSegment):
-    """A reference to a sequence.
-
-    Overriding to capture TSQL's override of ObjectReferenceSegment
-    """
-
-    type = "sequence_reference"
-
-
-@tsql_dialect.segment()
-class PivotColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to a PIVOT column to differentiate it from a regular column reference."""
-
-    type = "pivot_column_reference"
-
-
-@tsql_dialect.segment()
-class PivotUnpivotStatementSegment(BaseSegment):
-    """Declaration of a variable.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
-    """
-
-    type = "from_pivot_expression"
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(
-                "PIVOT",
-                OptionallyBracketed(
-                    Sequence(
-                        OptionallyBracketed(Ref("FunctionSegment")),
-                        "FOR",
-                        Ref("ColumnReferenceSegment"),
-                        "IN",
-                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
-                    )
-                ),
-            ),
-            Sequence(
-                "UNPIVOT",
-                OptionallyBracketed(
-                    Sequence(
-                        OptionallyBracketed(Ref("ColumnReferenceSegment")),
-                        "FOR",
-                        Ref("ColumnReferenceSegment"),
-                        "IN",
-                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
-                    )
-                ),
-            ),
-        ),
-        "AS",
-        Ref("TableReferenceSegment"),
-    )
-
-
-@tsql_dialect.segment()
-class DeclareStatementSegment(BaseSegment):
-    """Declaration of a variable.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-local-variable-transact-sql?view=sql-server-ver15
-    """
-
-    type = "declare_segment"
-    match_grammar = Sequence(
-        "DECLARE",
-        Ref("ParameterNameSegment"),
-        Sequence("AS", optional=True),
-        Ref("DatatypeSegment"),
-        Sequence(
-            Ref("EqualsSegment"),
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
-            Ref("ParameterNameSegment"),
-            Ref("DatatypeSegment"),
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-                optional=True,
-            ),
-        ),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment()
-class GoStatementSegment(BaseSegment):
-    """GO signals the end of a batch of Transact-SQL statements to the SQL Server utilities.
-
-    GO statements are not part of the TSQL language. They are used to signal batch statements
-    so that clients know in how batches of statements can be executed.
-    """
-
-    type = "go_statement"
-    match_grammar = Sequence("GO")
-
-
-@tsql_dialect.segment(replace=True)
-class DatatypeSegment(BaseSegment):
-    """A data type segment.
-
-    Updated for Transact-SQL to allow bracketed data types with bracketed schemas.
-    """
-
-    type = "data_type"
-    match_grammar = Sequence(
-        # Some dialects allow optional qualification of data types with schemas
-        Sequence(
-            Ref("SingleIdentifierGrammar"),
-            Ref("DotSegment"),
-            allow_gaps=False,
-            optional=True,
-        ),
-        OneOf(
-            Ref("DatatypeIdentifierSegment"),
-            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
-        ),
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
-        Ref("CharCharacterSetSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment()
-class NextValueSequenceSegment(BaseSegment):
-    """Segment to get next value from a sequence."""
-
-    type = "sequence_next_value"
-    match_grammar = Sequence(
-        "NEXT",
-        "VALUE",
-        "FOR",
-        Ref("ObjectReferenceSegment"),
-    )
-
-
-@tsql_dialect.segment()
-class IfExpressionStatement(BaseSegment):
-    """IF-ELSE statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
-    """
-
-    type = "if_then_statement"
-
-    match_grammar = Sequence(
-        OneOf(
-            Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence("IF", Ref("ExpressionSegment")),
-        ),
-        Indent,
-        OneOf(
-            Ref("BeginEndSegment"),
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
-        ),
-        Dedent,
-        Sequence(
-            "ELSE",
-            Indent,
-            OneOf(
-                Ref("BeginEndSegment"),
-                Sequence(
-                    Ref("StatementSegment"),
-                    Ref("DelimiterSegment", optional=True),
-                ),
-            ),
-            Dedent,
-            optional=True,
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class ColumnConstraintSegment(BaseSegment):
-    """A column option; each CREATE TABLE column can have 0 or more."""
-
-    type = "column_constraint_segment"
-    # Column constraint from
-    # https://www.postgresql.org/docs/12/sql-createtable.html
-    match_grammar = Sequence(
-        Sequence(
-            "CONSTRAINT",
-            Ref("ObjectReferenceSegment"),  # Constraint name
-            optional=True,
-        ),
-        OneOf(
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
-            Sequence(  # DEFAULT <value>
-                "DEFAULT",
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    # ?? Ref('IntervalExpressionSegment')
-                    OptionallyBracketed(Ref("NextValueSequenceSegment")),
-                ),
-            ),
-            Ref("PrimaryKeyGrammar"),
-            "UNIQUE",  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
-            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-            ),
-            Ref("CommentClauseSegment"),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class FunctionParameterListGrammar(BaseSegment):
-    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
-
-    Overriding ANSI (1) to optionally bracket and (2) remove Delimited
-    """
-
-    type = "function_parameter_list"
-    # Function parameter list
-    match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
-            Ref("FunctionParameterGrammar"),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class CreateFunctionStatementSegment(BaseSegment):
-    """A `CREATE FUNCTION` statement.
-
-    This version in the TSQL dialect should be a "common subset" of the
-    structure of the code for those dialects.
-
-    Updated to include AS after declaration of RETURNS. Might be integrated in ANSI though.
-
-    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
-    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
-    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
-    tsql/mssql : https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
-    """
-
-    type = "create_function_statement"
-
-    match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
-        "FUNCTION",
-        Anything(),
-    )
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
-        "FUNCTION",
-        Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar"),
-        Sequence(  # Optional function return type
-            "RETURNS",
-            Ref("DatatypeSegment"),
-            optional=True,
-        ),
-        Ref("FunctionDefinitionGrammar"),
-    )
-
-
-@tsql_dialect.segment()
-class SetStatementSegment(BaseSegment):
-    """A Set statement.
-
-    Setting an already declared variable or global variable.
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
-
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql?view=sql-server-ver15
-    """
-
-    type = "set_segment"
-    match_grammar = Sequence(
-        "SET",
-        OneOf(
-            Ref("ParameterNameSegment"),
-            "DATEFIRST",
-            "DATEFORMAT",
-            "DEADLOCK_PRIORITY",
-            "LOCK_TIMEOUT",
-            "CONCAT_NULL_YIELDS_NULL",
-            "CURSOR_CLOSE_ON_COMMIT",
-            "FIPS_FLAGGER",
-            "IDENTITY_INSERT",
-            "LANGUAGE",
-            "OFFSETS",
-            "QUOTED_IDENTIFIER",
-            "ARITHABORT",
-            "ARITHIGNORE",
-            "FMTONLY",
-            "NOCOUNT",
-            "NOEXEC",
-            "NUMERIC_ROUNDABORT",
-            "PARSEONLY",
-            "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT CACHING (Preview)",
-            "ROWCOUNT",
-            "TEXTSIZE",
-            "ANSI_DEFAULTS",
-            "ANSI_NULL_DFLT_OFF",
-            "ANSI_NULL_DFLT_ON",
-            "ANSI_NULLS",
-            "ANSI_PADDING",
-            "ANSI_WARNINGS",
-            "FORCEPLAN",
-            "SHOWPLAN_ALL",
-            "SHOWPLAN_TEXT",
-            "SHOWPLAN_XML",
-            "STATISTICS IO",
-            "STATISTICS XML",
-            "STATISTICS PROFILE",
-            "STATISTICS TIME",
-            "IMPLICIT_TRANSACTIONS",
-            "REMOTE_PROC_TRANSACTIONS",
-            "TRANSACTION ISOLATION LEVEL",
-            "XACT_ABORT",
-        ),
-        OneOf(
-            "ON",
-            "OFF",
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-            ),
-        ),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement.
-
-    Adjusted from ansi as Transact SQL does not seem to have the QuotedLiteralSegmentand Language.
-    Futhermore the body can contain almost anything like a function with table output.
-    """
-
-    type = "function_statement"
-    name = "function_statement"
-
-    match_grammar = Sequence("AS", Sequence(Anything()))
-
-
-@tsql_dialect.segment()
-class CreateProcedureStatementSegment(BaseSegment):
-    """A `CREATE OR ALTER PROCEDURE` statement.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
-    """
-
-    type = "create_procedure_statement"
-
-    match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
-        OneOf("PROCEDURE", "PROC"),
-        Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
-        "AS",
-        Ref("ProcedureDefinitionGrammar"),
-    )
-
-
-@tsql_dialect.segment()
-class ProcedureDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
-
-    type = "procedure_statement"
-    name = "procedure_statement"
-
-    match_grammar = AnyNumberOf(
-        OneOf(
-            Ref("BeginEndSegment"),
-            Ref("StatementSegment"),
-        ),
-        min_times=1,
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class CreateViewStatementSegment(BaseSegment):
-    """A `CREATE VIEW` statement.
-
-    Adjusted to allow CREATE OR ALTER instead of CREATE OR REPLACE.
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
-    """
-
-    type = "create_view_statement"
-    match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
-        "VIEW",
-        Ref("ObjectReferenceSegment"),
-        "AS",
-        Ref("SelectableGrammar"),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class IntervalExpressionSegment(BaseSegment):
-    """An interval expression segment.
-
-    Not present in T-SQL.
-    """
-
-    type = "interval_expression"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class CreateExtensionStatementSegment(BaseSegment):
-    """A `CREATE EXTENSION` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "create_extension_statement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class CreateModelStatementSegment(BaseSegment):
-    """A BigQuery `CREATE MODEL` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "create_model_statement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class DropModelStatementSegment(BaseSegment):
-    """A `DROP MODEL` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "drop_MODELstatement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class OverlapsClauseSegment(BaseSegment):
-    """An `OVERLAPS` clause like in `SELECT.
-
-    Not present in T-SQL.
-    """
-
-    type = "overlaps_clause"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment()
-class ConvertFunctionNameSegment(BaseSegment):
-    """CONVERT function name segment.
-
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
-
-    type = "function_name"
-    match_grammar = Sequence("CONVERT")
-
-
-@tsql_dialect.segment()
-class CastFunctionNameSegment(BaseSegment):
-    """CAST function name segment.
-
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
-
-    type = "function_name"
-    match_grammar = Sequence("CAST")
-
-
-@tsql_dialect.segment()
-class WithinGroupFunctionNameSegment(BaseSegment):
-    """WITHIN GROUP function name segment.
-
-    For aggregation functions that use the WITHIN GROUP clause.
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql?view=sql-server-ver15
-
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
-
-    type = "function_name"
-    match_grammar = OneOf(
-        "STRING_AGG",
-        "PERCENTILE_CONT",
-        "PERCENTILE_DISC",
-    )
-
-
-@tsql_dialect.segment()
-class WithinGroupClause(BaseSegment):
-    """WITHIN GROUP clause.
-
-    For a small set of aggregation functions.
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
-    """
-
-    type = "within_group_clause"
-    match_grammar = Sequence(
-        "WITHIN",
-        "GROUP",
-        Bracketed(
-            Ref("OrderByClauseSegment"),
-        ),
-        Sequence(
-            "OVER",
-            Bracketed(Ref("PartitionByClause")),
-            optional=True,
-        ),
-    )
-
-
-@tsql_dialect.segment()
-class PartitionByClause(BaseSegment):
-    """PARTITION BY clause.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
-    """
-
-    type = "partition_by_clause"
-    match_grammar = Sequence(
-        "PARTITION",
-        "BY",
-        Ref("ColumnReferenceSegment"),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
-    """
-
-    type = "function"
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatePartClause"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                Ref("ConvertFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatatypeSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                Ref("CastFunctionNameSegment"),
-                Bracketed(
-                    Ref("ExpressionSegment"),
-                    "AS",
-                    Ref("DatatypeSegment"),
-                ),
-            ),
-        ),
-        Sequence(
-            Sequence(
-                Ref("WithinGroupFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    ),
-                ),
-                Ref("WithinGroupClause", optional=True),
-            )
-        ),
-        Sequence(
-            Sequence(
-                OneOf(
-                    Ref("FunctionNameSegment"),
-                    exclude=OneOf(
-                        # List of special functions handled differently
-                        Ref("CastFunctionNameSegment"),
-                        Ref("ConvertFunctionNameSegment"),
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("WithinGroupFunctionNameSegment"),
-                    ),
-                ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
-                ),
-            ),
-            Ref("PostFunctionGrammar", optional=True),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement."""
-
-    type = "create_table_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=aps-pdw-2016-au7
-    match_grammar = Sequence(
-        "CREATE",
-        "TABLE",
-        Ref("TableReferenceSegment"),
-        OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                        ),
-                    )
-                ),
-                Ref("CommentClauseSegment", optional=True),
-            ),
-            # Create AS syntax:
-            Sequence(
-                "AS",
-                OptionallyBracketed(Ref("SelectableGrammar")),
-            ),
-            # Create like syntax
-            Sequence("LIKE", Ref("TableReferenceSegment")),
-        ),
-        Ref(
-            "TableDistributionIndexClause", optional=True
-        ),  # Azure Synapse Analytics specific
-        Ref("FilegroupClause", optional=True),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-    parse_grammar = match_grammar
-
-
-@tsql_dialect.segment()
-class FilegroupClause(BaseSegment):
-    """Filegroup Clause segment.
-
-    https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-files-and-filegroups?view=sql-server-ver15
-    """
-
-    type = "filegroup_clause"
-    match_grammar = Sequence(
-        "ON",
-        Ref("SingleIdentifierGrammar"),
-    )
-
-
-@tsql_dialect.segment()
-class TableDistributionIndexClause(BaseSegment):
-    """`CREATE TABLE` distribution / index clause.
-
-    This is specific to Azure Synapse Analytics.
-    """
-
-    type = "table_distribution_index_clause"
-
-    match_grammar = Sequence(
-        "WITH",
-        Bracketed(
-            Delimited(
-                Ref("TableDistributionClause"),
-                Ref("TableIndexClause"),
-                Ref("TableLocationClause"),
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment()
-class TableDistributionClause(BaseSegment):
-    """`CREATE TABLE` distribution clause.
-
-    This is specific to Azure Synapse Analytics.
-    """
-
-    type = "table_distribution_clause"
-
-    match_grammar = Sequence(
-        "DISTRIBUTION",
-        Ref("EqualsSegment"),
-        OneOf(
-            "REPLICATE",
-            "ROUND_ROBIN",
-            Sequence(
-                "HASH",
-                Bracketed(Ref("ColumnReferenceSegment")),
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment()
-class TableIndexClause(BaseSegment):
-    """`CREATE TABLE` table index clause.
-
-    This is specific to Azure Synapse Analytics.
-    """
-
-    type = "table_index_clause"
-
-    match_grammar = Sequence(
-        OneOf(
-            "HEAP",
-            Sequence(
-                "CLUSTERED",
-                "COLUMNSTORE",
-                "INDEX",
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment()
-class TableLocationClause(BaseSegment):
-    """`CREATE TABLE` location clause.
-
-    This is specific to Azure Synapse Analytics (deprecated) or to an external table.
-    """
-
-    type = "table_location_clause"
-
-    match_grammar = Sequence(
-        "LOCATION",
-        Ref("EqualsSegment"),
-        OneOf(
-            "USER_DB",  # Azure Synapse Analytics specific
-            Ref("QuotedLiteralSegment"),  # External Table
-        ),
-    )
-
-
-@tsql_dialect.segment()
-class AlterTableSwitchStatementSegment(BaseSegment):
-    """An `ALTER TABLE SWITCH` statement."""
-
-    type = "alter_table_switch_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
-    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar to merit its own definition
-    match_grammar = Sequence(
-        "ALTER",
-        "TABLE",
-        Ref("ObjectReferenceSegment"),
-        "SWITCH",
-        Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
-        "TO",
-        Ref("ObjectReferenceSegment"),
-        Sequence(  # Azure Synapse Analytics specific
-            "WITH",
-            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
-            optional=True,
-        ),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment()
-class CreateTableAsSelectStatementSegment(BaseSegment):
-    """A `CREATE TABLE AS SELECT` statement.
-
-    This is specific to Azure Synapse Analytics.
-    """
-
-    type = "create_table_as_select_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
-    match_grammar = Sequence(
-        "CREATE",
-        "TABLE",
-        Ref("TableReferenceSegment"),
-        Ref("TableDistributionIndexClause"),
-        "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
-        Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartClause(BaseSegment):
-    """DatePart clause for use within DATEADD() or related functions."""
-
-    type = "date_part"
-
-    match_grammar = OneOf(
         "D",
         "DAY",
         "DAYOFYEAR",
@@ -1457,37 +81,2549 @@ class DatePartClause(BaseSegment):
         "Y",
         "YY",
         "YYYY",
+    ]
+)
+
+tsql_dialect.sets("date_part_function_name").clear()
+tsql_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
+)
+
+tsql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "atsign",
+            r"[@][a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "var_prefix",
+            r"[$][a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "square_quote",
+            r"\[([^\[\]]*)*\]",
+            CodeSegment,
+        ),
+        # T-SQL unicode strings
+        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
+        RegexLexer(
+            "hash_prefix",
+            r"[#][#]?[a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
+    ],
+    before="back_quote",
+)
+
+tsql_dialect.patch_lexer_matchers(
+    [
+        # Patching single_quote to allow for TSQL-style escaped quotes
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
+        # Patching comments to remove hash comments
+        RegexLexer(
+            "inline_comment",
+            r"(--)[^\n]*",
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--")},
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recusively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[^\S\r\n]+",
+                WhitespaceSegment,
+            ),
+        ),
+        RegexLexer(
+            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
+        ),  # overriding to allow hash mark and at-sign in code
+    ]
+)
+
+tsql_dialect.add(
+    BracketedIdentifierSegment=NamedParser(
+        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
+    ),
+    HashIdentifierSegment=NamedParser(
+        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
+    ),
+    VariableIdentifierSegment=NamedParser(
+        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
+    ),
+    BatchDelimiterGrammar=Ref("GoStatementSegment"),
+    QuotedLiteralSegmentWithN=NamedParser(
+        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
+    ),
+    QuotedLiteralSegmentOptWithN=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentWithN"),
+    ),
+    TransactionGrammar=OneOf(
+        "TRANSACTION",
+        "TRAN",
+    ),
+    SystemVariableSegment=RegexParser(
+        r"@@[A-Za-z0-9_]+", CodeSegment, type="system_variable"
+    ),
+    StatementAndDelimiterGrammar=Sequence(
+        Ref("StatementSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    ),
+    OneOrMoreStatementsGrammar=AnyNumberOf(
+        Ref("StatementAndDelimiterGrammar"),
+        min_times=1,
+    ),
+    TopPercentGrammar=Sequence(
+        "TOP",
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Ref.keyword("PERCENT", optional=True),
+    ),
+    CursorNameGrammar=OneOf(
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
+        Ref("ParameterNameSegment"),
+    ),
+    CollationSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Za-z0-9_]*[A-Za-z0-9_]",
+            CodeSegment,
+            type="collation",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+)
+
+tsql_dialect.replace(
+    # Overriding to cover TSQL allowed identifier name characters
+    # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver15
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z_][A-Z0-9_@$#]*",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        remove=[
+            Ref("IntervalExpressionSegment"),
+        ]
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BracketedIdentifierSegment"),
+        Ref("HashIdentifierSegment"),
+        Ref("ParameterNameSegment"),
+        Ref("VariableIdentifierSegment"),
+    ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
+    .copy(
+        insert=[
+            Ref("QuotedLiteralSegmentWithN"),
+        ],
+        before=Ref("NumericLiteralSegment"),
+        remove=[
+            Ref("ArrayLiteralSegment"),
+            Ref("ObjectLiteralSegment"),
+        ],
+    )
+    .copy(
+        insert=[
+            Ref("ParameterNameSegment"),
+            Ref("SystemVariableSegment"),
+        ],
+    ),
+    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Sequence("AS", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
+    FunctionNameIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        # minus the function names that are reserved words.
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            type="function_name_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
+    IsClauseGrammar=OneOf(
+        "NULL",
+        Ref("BooleanLiteralGrammar"),
+    ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            type="data_type_identifier",
+            # anti_template=r"^(NOT)$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            # TODO - this is a stopgap until we implement explicit data types
+        ),
+    ),
+    PrimaryKeyGrammar=Sequence(
+        OneOf(
+            Sequence(
+                "PRIMARY",
+                "KEY",
+            ),
+            "UNIQUE",
+        ),
+        OneOf(
+            "CLUSTERED",
+            "NONCLUSTERED",
+            optional=True,
+        ),
+    ),
+    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes
+    # statements have been delimited
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("DelimiterGrammar"),
+    ),
+    # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
+    LikeGrammar=Sequence(
+        "LIKE",
+    ),
+    # Replace ANSI FunctionContentsGrammar to remove TSQL non-keyword Separator
+    # TODO: fully represent TSQL functionality
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # An extract-like or substring-like function
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref("OrderByClauseSegment"),
+        # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)...
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+    ),
+    JoinTypeKeywordsGrammar=OneOf(
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        optional=True,
+    ),
+    JoinKeywordsGrammar=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    NestedJoinGrammar=Sequence(
+        Indent,
+        Ref("JoinClauseSegment"),
+        Dedent,
+    ),
+    # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Bracketed(
+                OneOf(
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
+                    Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                    ),
+                    ephemeral_name="BracketedExpression",
+                ),
+            ),
+            # Allow potential select statement without brackets
+            Ref("SelectStatementSegment"),
+            Ref("LiteralGrammar"),
+            Ref("ColumnReferenceSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+        ),
+        Ref("Accessor_Grammar", optional=True),
+        allow_gaps=True,
+    ),
+    MergeIntoLiteralGrammar=Sequence(
+        "MERGE",
+        Ref("TopPercentGrammar", optional=True),
+        Ref.keyword("INTO", optional=True),
+    ),
+    TrimParametersGrammar=Nothing(),
+    TemporaryGrammar=Nothing(),
+    JoinLikeClauseGrammar=AnySetOf(
+        Ref("PivotUnpivotStatementSegment"),
+        min_times=1,
+    ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationSegment")),
+)
+
+
+class StatementSegment(ansi.StatementSegment):
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.StatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("IfExpressionStatement"),
+            Ref("DeclareStatementSegment"),
+            Ref("DeclareCursorStatementSegment"),
+            Ref("SetStatementSegment"),
+            Ref("AlterTableSwitchStatementSegment"),
+            Ref("PrintStatementSegment"),
+            Ref(
+                "CreateTableAsSelectStatementSegment"
+            ),  # Azure Synapse Analytics specific
+            Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
+            Ref("ExecuteScriptSegment"),
+            Ref("DropStatisticsStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("UpdateStatisticsStatementSegment"),
+            Ref("BeginEndSegment"),
+            Ref("TryCatchSegment"),
+            Ref("MergeStatementSegment"),
+            Ref("ThrowStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
+            Ref("ReturnStatementSegment"),
+            Ref("GotoStatement"),
+            Ref("LabelStatementSegment"),
+            Ref("DisableTriggerStatementSegment"),
+            Ref("WhileExpressionStatement"),
+            Ref("BreakStatement"),
+            Ref("ContinueStatement"),
+            Ref("WaitForStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
+        ],
+        remove=[
+            Ref("CreateModelStatementSegment"),
+            Ref("DropModelStatementSegment"),
+            Ref("DescribeStatementSegment"),
+        ],
+    )
+
+    parse_grammar = match_grammar
+
+
+class GreaterThanOrEqualToSegment(BaseSegment):
+    """Greater than or equal to operator.
+
+    N.B. Patching to add !< and
+    to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "greater_than_equal_to"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawGreaterThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawLessThanSegment"),
+        ),
     )
 
 
-@tsql_dialect.segment(replace=True)
+class LessThanOrEqualToSegment(BaseSegment):
+    """Greater than or equal to operator.
+
+    N.B. Patching to add !> and
+    to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "less_than_equal_to"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawLessThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawGreaterThanSegment"),
+        ),
+    )
+
+
+class NotEqualToSegment(BaseSegment):
+    """Not equal to operator.
+
+    N.B. Patching to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "not_equal_to"
+    match_grammar = OneOf(
+        Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
+        Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """An element in the targets of a select statement.
+
+    Overriding ANSI to remove GreedyUntil logic which assumes statements have been
+    delimited
+    """
+
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("AltAliasExpressionSegment"),
+            Ref("BaseExpressionElementGrammar"),
+        ),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
+    )
+
+    parse_grammar = None
+
+
+class AltAliasExpressionSegment(BaseSegment):
+    """An alternative alias clause as used by tsql using `=`."""
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Ref("RawEqualsSegment"),
+    )
+
+
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = OneOf(
+        "DISTINCT",
+        "ALL",
+        Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver15
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Sequence("PERCENT", optional=True),
+            Sequence("WITH", "TIES", optional=True),
+        ),
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
+    """
+
+    type = "select_clause"
+    match_grammar = Ref("SelectClauseSegmentGrammar")
+
+
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+
+    We also need to get away from ANSI's use of StartsWith.
+    There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
+    """
+
+    type = "select_statement"
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("IntoTableSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+    )
+
+
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional
+    delimitation well.
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        Ref.keyword("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("OutputClauseSegment", optional=True),
+        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
+    )
+
+
+class WithCompoundStatementSegment(BaseSegment):
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+
+    Overriding ANSI to remove the greedy matching of StartsWith().
+    """
+
+    type = "with_compound_statement"
+    # match grammar
+    match_grammar = Sequence(
+        "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            terminator=Ref.keyword("SELECT"),
+        ),
+        Conditional(Dedent, indented_ctes=True),
+        OneOf(
+            Ref("NonWithSelectableGrammar"),
+            Ref("NonWithNonSelectableGrammar"),
+            Ref("MergeStatementSegment"),
+        ),
+    )
+
+
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+
+    We also need to get away from ANSI's use of StartsWith.
+    There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
+    """
+
+    type = "select_statement"
+    # Remove the Limit and Window statements from ANSI
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("OptionClauseSegment", optional=True),
+            Ref("DelimiterGrammar", optional=True),
+            Ref("ForXmlSegment", optional=True),
+        ]
+    )
+
+
+class IntoTableSegment(BaseSegment):
+    """`INTO` clause within `SELECT`.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "into_table_clause"
+    match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
+
+
+class WhereClauseSegment(BaseSegment):
+    """A `WHERE` clause like in `SELECT` or `INSERT`.
+
+    Overriding ANSI in order to get away from the use of
+    StartsWith. There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
+    """
+
+    type = "where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` or `CREATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-statistics-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Indent,
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("UNIQUE", optional=True),
+        OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+        OneOf("INDEX", "STATISTICS"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedIndexColumnListGrammar"),
+        Sequence(
+            "INCLUDE",
+            Ref("BracketedColumnReferenceListGrammar"),
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("RelationalIndexOptionsSegment", optional=True),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+        Dedent,
+    )
+
+
+class OnPartitionOrFilegroupOptionSegment(BaseSegment):
+    """ON partition scheme or filegroup option.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "on_partition_or_filegroup_statement"
+    match_grammar = OneOf(
+        Ref("PartitionSchemeClause"),
+        Ref("FilegroupClause"),
+        Ref("LiteralGrammar"),  # for "default" value
+    )
+
+
+class FilestreamOnOptionSegment(BaseSegment):
+    """FILESTREAM_ON index option in `CREATE INDEX` and 'CREATE TABLE' statements.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "filestream_on_option_statement"
+    match_grammar = Sequence(
+        "FILESTREAM_ON",
+        OneOf(
+            Ref("FilegroupNameSegment"),
+            Ref("PartitionSchemeNameSegment"),
+            OneOf(
+                "NULL",
+                Ref("LiteralGrammar"),  # for "default" value
+            ),
+        ),
+    )
+
+
+class TextimageOnOptionSegment(BaseSegment):
+    """TEXTIMAGE ON option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "textimage_on_option_statement"
+    match_grammar = Sequence(
+        "TEXTIMAGE_ON",
+        OneOf(
+            Ref("FilegroupNameSegment"),
+            Ref("LiteralGrammar"),  # for "default" value
+        ),
+    )
+
+
+class ReferencesConstraintGrammar(BaseSegment):
+    """REFERENCES constraint option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "references_constraint_grammar"
+    match_grammar = Sequence(
+        # REFERENCES reftable [ ( refcolumn) ]
+        "REFERENCES",
+        Ref("TableReferenceSegment"),
+        # Foreign columns making up FOREIGN KEY constraint
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence(
+            "ON",
+            "DELETE",
+            OneOf(
+                Sequence("NO", "ACTION"),
+                "CASCADE",
+                Sequence("SET", "NULL"),
+                Sequence("SET", "DEFAULT"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ON",
+            "UPDATE",
+            OneOf(
+                Sequence("NO", "ACTION"),
+                "CASCADE",
+                Sequence("SET", "NULL"),
+                Sequence("SET", "DEFAULT"),
+            ),
+            optional=True,
+        ),
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+    )
+
+
+class CheckConstraintGrammar(BaseSegment):
+    """CHECK constraint option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "check_constraint_grammar"
+    match_grammar = Sequence(
+        "CHECK",
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+        Bracketed(
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class RelationalIndexOptionsSegment(BaseSegment):
+    """A relational index options in `CREATE INDEX` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "relational_index_options"
+    match_grammar = Sequence(
+        "WITH",
+        OptionallyBracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            "PAD_INDEX",
+                            "FILLFACTOR",
+                            "SORT_IN_TEMPDB",
+                            "IGNORE_DUP_KEY",
+                            "STATISTICS_NORECOMPUTE",
+                            "STATISTICS_INCREMENTAL",
+                            "DROP_EXISTING",
+                            "RESUMABLE",
+                            "ALLOW_ROW_LOCKS",
+                            "ALLOW_PAGE_LOCKS",
+                            "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+                            "MAXDOP",
+                        ),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "ON",
+                            "OFF",
+                            Ref("LiteralGrammar"),
+                        ),
+                    ),
+                    Ref("MaxDurationSegment"),
+                    Sequence(
+                        "ONLINE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "OFF",
+                            Sequence(
+                                "ON",
+                                Bracketed(
+                                    Sequence(
+                                        "WAIT_AT_LOW_PRIORITY",
+                                        Bracketed(
+                                            Delimited(
+                                                Ref("MaxDurationSegment"),
+                                                Sequence(
+                                                    "ABORT_AFTER_WAIT",
+                                                    Ref("EqualsSegment"),
+                                                    OneOf(
+                                                        "NONE",
+                                                        "SELF",
+                                                        "BLOCKERS",
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                    # for table constrains
+                    Sequence(
+                        "COMPRESSION_DELAY",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Sequence(
+                            "MINUTES",
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_COMPRESSION",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "NONE",
+                            "ROW",
+                            "PAGE",
+                            "COLUMNSTORE",  # for table constrains
+                            "COLUMNSTORE_ARCHIVE",  # for table constrains
+                        ),
+                        Ref("OnPartitionsSegment", optional=True),
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
+    )
+
+
+class MaxDurationSegment(BaseSegment):
+    """A `MAX DURATION` clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "max_duration"
+    match_grammar = Sequence(
+        "MAX_DURATION",
+        Ref("EqualsSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            "MINUTES",
+            optional=True,
+        ),
+    )
+
+
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    Overriding ANSI to include required ON clause.
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DropStatisticsStatementSegment(BaseSegment):
+    """A `DROP STATISTICS` statement."""
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("STATISTICS"),
+        Ref("IndexReferenceSegment"),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class UpdateStatisticsStatementSegment(BaseSegment):
+    """An `UPDATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
+    """
+
+    type = "update_statistics_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        "STATISTICS",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object.
+
+    Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
+    So Square Bracketed identifiers can be matched.
+    """
+
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=3,
+        ),
+    )
+
+
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "table_reference"
+
+
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "schema_reference"
+
+
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "database_reference"
+
+
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "index_reference"
+
+
+class ExtensionReferenceSegment(ObjectReferenceSegment):
+    """A reference to an extension.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "extension_reference"
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "column_reference"
+
+
+class SequenceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a sequence.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "sequence_reference"
+
+
+class PivotColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to a PIVOT column.
+
+    Used to differentiate it from a regular column reference.
+    """
+
+    type = "pivot_column_reference"
+
+
+class PivotUnpivotStatementSegment(BaseSegment):
+    """Declaration of a variable.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    """
+
+    type = "from_pivot_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "PIVOT",
+                OptionallyBracketed(
+                    Sequence(
+                        OptionallyBracketed(Ref("FunctionSegment")),
+                        "FOR",
+                        Ref("ColumnReferenceSegment"),
+                        "IN",
+                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
+                    )
+                ),
+            ),
+            Sequence(
+                "UNPIVOT",
+                OptionallyBracketed(
+                    Sequence(
+                        OptionallyBracketed(Ref("ColumnReferenceSegment")),
+                        "FOR",
+                        Ref("ColumnReferenceSegment"),
+                        "IN",
+                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
+                    )
+                ),
+            ),
+        ),
+        Sequence("AS", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DeclareStatementSegment(BaseSegment):
+    """Declaration of a variable.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-local-variable-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = Sequence(
+        "DECLARE",
+        Indent,
+        Delimited(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Sequence("AS", optional=True),
+                OneOf(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "TABLE",
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Ref("TableConstraintSegment"),
+                                    Ref("ColumnDefinitionSegment"),
+                                ),
+                                allow_trailing=True,
+                            )
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        Dedent,
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DeclareCursorStatementSegment(BaseSegment):
+    """Declaration of a cursor.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-cursor-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("NakedIdentifierSegment"),
+        "CURSOR",
+        OneOf("LOCAL", "GLOBAL", optional=True),
+        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+        Sequence("TYPE_WARNING", optional=True),
+        "FOR",
+        Ref("SelectStatementSegment"),
+    )
+
+
+class GoStatementSegment(BaseSegment):
+    """GO signals the end of a batch of Transact-SQL statements.
+
+    GO statements are not part of the TSQL language. They are used to signal batch
+    statements so that clients know in how batches of statements can be executed.
+    """
+
+    type = "go_statement"
+    match_grammar = Ref.keyword("GO")
+
+
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Updated for Transact-SQL to allow bracketed data types with bracketed schemas.
+    """
+
+    type = "data_type"
+    match_grammar = Sequence(
+        # Some dialects allow optional qualification of data types with schemas
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        OneOf(
+            Ref("DatatypeIdentifierSegment"),
+            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+        ),
+        Bracketed(
+            OneOf(
+                "MAX",
+                Delimited(Ref("ExpressionSegment")),
+                # The brackets might be empty for some cases...
+                optional=True,
+            ),
+            # There may be no brackets for some data types
+            optional=True,
+        ),
+        Ref("CharCharacterSetGrammar", optional=True),
+    )
+
+
+class CreateSequenceOptionsSegment(BaseSegment):
+    """Options for Create Sequence statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-sequence-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Sequence("START", "WITH", Ref("NumericLiteralSegment")),
+        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MINVALUE"),
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MAXVALUE"),
+        Sequence(
+            Sequence("NO", optional=True),
+            "CYCLE",
+        ),
+        Sequence(
+            "CACHE",
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "NO",
+            "CACHE",
+        ),
+    )
+
+
+class NextValueSequenceSegment(BaseSegment):
+    """Segment to get next value from a sequence."""
+
+    type = "sequence_next_value"
+    match_grammar = Sequence(
+        "NEXT",
+        "VALUE",
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class IfExpressionStatement(BaseSegment):
+    """IF-ELSE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
+    """
+
+    type = "if_then_statement"
+
+    match_grammar = Sequence(
+        Ref("IfClauseSegment"),
+        Indent,
+        Ref("StatementAndDelimiterGrammar"),
+        Dedent,
+        AnyNumberOf(
+            # ELSE IF included explicitly to allow for correct indentation
+            Sequence(
+                "ELSE",
+                Ref("IfClauseSegment"),
+                Indent,
+                Ref("StatementAndDelimiterGrammar"),
+                Dedent,
+            ),
+        ),
+        Sequence(
+            "ELSE",
+            Indent,
+            Ref("StatementAndDelimiterGrammar"),
+            Dedent,
+            optional=True,
+        ),
+    )
+
+
+class IfClauseSegment(BaseSegment):
+    """IF clause."""
+
+    type = "if_clause"
+
+    match_grammar = Sequence(
+        "IF",
+        Indent,
+        Ref("ExpressionSegment"),
+        Dedent,
+    )
+
+
+class WhileExpressionStatement(BaseSegment):
+    """WHILE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/while-transact-sql?view=sql-server-ver15
+    """
+
+    type = "while_statement"
+
+    match_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        Indent,
+        Ref("StatementAndDelimiterGrammar"),
+        Dedent,
+    )
+
+
+class BreakStatement(BaseSegment):
+    """BREAK statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/break-transact-sql?view=sql-server-ver15
+    """
+
+    type = "break_statement"
+
+    match_grammar = Sequence(
+        "BREAK",
+    )
+
+
+class ContinueStatement(BaseSegment):
+    """CONTINUE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/continue-transact-sql?view=sql-server-ver15
+    """
+
+    type = "continue_statement"
+
+    match_grammar = Sequence(
+        "CONTINUE",
+    )
+
+
+class WaitForStatementSegment(BaseSegment):
+    """WAITFOR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/waitfor-transact-sql?view=sql-server-ver15
+    Partially implemented, lacking Receive and Get Conversation Group statements for
+    now.
+    """
+
+    type = "waitfor_statement"
+
+    match_grammar = Sequence(
+        "WAITFOR",
+        OneOf(
+            Sequence("DELAY", Ref("ExpressionSegment")),
+            Sequence("TIME", Ref("ExpressionSegment")),
+        ),
+        Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+class ColumnConstraintSegment(BaseSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    type = "column_constraint_segment"
+    # Column constraint from
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    match_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),  # Constraint name
+            optional=True,
+        ),
+        OneOf(
+            "FILESTREAM",
+            Sequence(
+                "COLLATE", Ref("ObjectReferenceSegment")
+            ),  # [COLLATE collation_name]
+            "SPARSE",
+            Sequence(
+                "MASKED",
+                "WITH",
+                Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
+            ),
+            Sequence(
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),  # Constraint name
+                    optional=True,
+                ),
+                # DEFAULT <value>
+                "DEFAULT",
+                OptionallyBracketed(
+                    OneOf(
+                        OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                        Ref("FunctionSegment"),
+                        Ref("NextValueSequenceSegment"),
+                    ),
+                ),
+            ),
+            Ref("IdentityGrammar"),
+            Sequence("NOT", "FOR", "REPLICATION"),
+            Sequence(
+                Sequence("GENERATED", "ALWAYS", "AS"),
+                OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
+                OneOf("START", "END"),
+                Ref.keyword("HIDDEN", optional=True),
+            ),
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            "ROWGUIDCOL",
+            Ref("EncryptedWithGrammar"),
+            Ref("PrimaryKeyGrammar"),
+            Ref("RelationalIndexOptionsSegment"),
+            Ref("OnPartitionOrFilegroupOptionSegment"),
+            "UNIQUE",  # UNIQUE #can be removed as included in PrimaryKeyGrammar?
+            Ref("ForeignKeyGrammar"),
+            Ref("ReferencesConstraintGrammar"),
+            Ref("CheckConstraintGrammar"),
+            Ref("FilestreamOnOptionSegment", optional=True),
+            # column_index
+            Sequence(
+                "INDEX",
+                Ref("ObjectReferenceSegment"),  # index name
+                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                # other optional blocks (RelationalIndexOptionsSegment,
+                # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
+            ),
+            # computed_column_definition
+            Sequence("AS", Ref("ExpressionSegment")),
+            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True))
+            # other optional blocks (RelationalIndexOptionsSegment,
+            # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
+            # are mentioned above
+        ),
+    )
+
+
+class FunctionParameterListGrammar(BaseSegment):
+    """The parameters for a function ie.
+
+    `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
+
+    Overriding ANSI (1) to optionally bracket and (2) remove Delimited
+    """
+
+    type = "function_parameter_list"
+    # Function parameter list
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("FunctionParameterGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the TSQL dialect should be a "common subset" of the
+    structure of the code for those dialects.
+
+    Updated to include AS after declaration of RETURNS. Might be integrated in ANSI
+    though.
+
+    https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            OneOf(
+                Ref("DatatypeSegment"),
+                "TABLE",
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("FunctionOptionSegment", optional=True),
+        "AS",
+        Ref("ProcedureDefinitionGrammar"),
+    )
+
+
+class FunctionOptionSegment(BaseSegment):
+    """A function option segment."""
+
+    type = "function_option_segment"
+    match_grammar = Sequence(
+        "WITH",
+        AnyNumberOf(
+            "ENCRYPTION",
+            "SCHEMABINDING",
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "RETURNS",
+                        "NULL",
+                    ),
+                    "CALLED",
+                ),
+                "ON",
+                "NULL",
+                "INPUT",
+            ),
+            Ref("ExecuteAsClauseSegment"),
+            Sequence(
+                "INLINE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "ON",
+                    "OFF",
+                ),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("FunctionNameSegment")),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A RETURN statement."""
+
+    type = "return_segment"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ExecuteAsClauseSegment(BaseSegment):
+    """An EXECUTE AS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "execute_as_clause"
+    match_grammar = Sequence(
+        OneOf("EXEC", "EXECUTE"),
+        "AS",
+        OneOf(
+            "CALLER",
+            "SELF",
+            "OWNER",
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class SetStatementSegment(BaseSegment):
+    """A Set statement.
+
+    Setting an already declared variable or global variable.
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql?view=sql-server-ver15
+    """
+
+    type = "set_segment"
+    match_grammar = Sequence(
+        "SET",
+        Indent,
+        Delimited(
+            OneOf(
+                Sequence(
+                    "TRANSACTION",
+                    "ISOLATION",
+                    "LEVEL",
+                    OneOf(
+                        "SNAPSHOT",
+                        "SERIALIZABLE",
+                        Sequence(
+                            "REPEATABLE",
+                            "READ",
+                        ),
+                        Sequence(
+                            "READ",
+                            OneOf(
+                                "COMMITTED",
+                                "UNCOMMITTED",
+                            ),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    OneOf(
+                        "DATEFIRST",
+                        "DATEFORMAT",
+                        "DEADLOCK_PRIORITY",
+                        "LOCK_TIMEOUT",
+                        "CONCAT_NULL_YIELDS_NULL",
+                        "CURSOR_CLOSE_ON_COMMIT",
+                        "FIPS_FLAGGER",
+                        Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
+                        "LANGUAGE",
+                        "OFFSETS",
+                        "QUOTED_IDENTIFIER",
+                        "ARITHABORT",
+                        "ARITHIGNORE",
+                        "FMTONLY",
+                        "NOCOUNT",
+                        "NOEXEC",
+                        "NUMERIC_ROUNDABORT",
+                        "PARSEONLY",
+                        "QUERY_GOVERNOR_COST_LIMIT",
+                        "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
+                        "ROWCOUNT",
+                        "TEXTSIZE",
+                        "ANSI_DEFAULTS",
+                        "ANSI_NULL_DFLT_OFF",
+                        "ANSI_NULL_DFLT_ON",
+                        "ANSI_NULLS",
+                        "ANSI_PADDING",
+                        "ANSI_WARNINGS",
+                        "FORCEPLAN",
+                        "SHOWPLAN_ALL",
+                        "SHOWPLAN_TEXT",
+                        "SHOWPLAN_XML",
+                        Sequence(
+                            "STATISTICS",
+                            OneOf(
+                                "IO",
+                                "PROFILE",
+                                "TIME",
+                                "XML",
+                            ),
+                        ),
+                        "IMPLICIT_TRANSACTIONS",
+                        "REMOTE_PROC_TRANSACTIONS",
+                        "XACT_ABORT",
+                    ),
+                    OneOf(
+                        "ON",
+                        "OFF",
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("AssignmentOperatorSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        Dedent,
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class AssignmentOperatorSegment(BaseSegment):
+    """One of the assignment operators.
+
+    Includes simpler equals but also +=, -=, etc.
+    """
+
+    type = "assignment_operator"
+    match_grammar = OneOf(
+        Ref("EqualsSegment"),
+        Sequence(
+            OneOf(
+                Ref("PlusSegment"),
+                Ref("MinusSegment"),
+                Ref("DivideSegment"),
+                Ref("MultiplySegment"),
+                Ref("ModuloSegment"),
+                Ref("BitwiseAndSegment"),
+                Ref("BitwiseOrSegment"),
+                Ref("BitwiseXorSegment"),
+            ),
+            Ref("EqualsSegment"),
+            allow_gaps=False,
+        ),
+    )
+
+
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a procedure ie.
+
+    `@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`.
+    """
+
+    type = "procedure_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Delimited(
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                OneOf("OUT", "OUTPUT", "READONLY", optional=True),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE OR ALTER PROCEDURE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        OneOf("PROCEDURE", "PROC"),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
+        "AS",
+        Ref("ProcedureDefinitionGrammar"),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-procedure-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("PROCEDURE", "PROC"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class ProcedureDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement.
+
+    This also handles the body of a `CREATE FUNCTION AS` statement.
+    """
+
+    type = "procedure_statement"
+    name = "procedure_statement"
+
+    match_grammar = Ref("OneOrMoreStatementsGrammar")
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    Adjusted to allow CREATE OR ALTER instead of CREATE OR REPLACE.
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    """
+
+    type = "create_view_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        "VIEW",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Delimited("ENCRYPTION", "SCHEMABINDING", "VIEW_METADATA"),
+            optional=True,
+        ),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Sequence("WITH", "CHECK", "OPTION", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class MLTableExpressionSegment(BaseSegment):
+    """An ML table expression.
+
+    Not present in T-SQL.
+    TODO: Consider whether this segment can be used to represent a PREDICT statement.
+    """
+
+    type = "ml_table_expression"
+    match_grammar = Nothing()
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("CONVERT", "TRY_CONVERT")
+
+
+class CastFunctionNameSegment(BaseSegment):
+    """CAST function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CAST")
+
+
+class RankFunctionNameSegment(BaseSegment):
+    """Rank function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("DENSE_RANK", "NTILE", "RANK", "ROW_NUMBER")
+
+
+class ReservedKeywordFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are also functions.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "COALESCE",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LEFT",
+        "NULLIF",
+        "RIGHT",
+        "SESSION_USER",
+        "SYSTEM_USER",
+    )
+
+
+class WithinGroupFunctionNameSegment(BaseSegment):
+    """WITHIN GROUP function name segment.
+
+    For aggregation functions that use the WITHIN GROUP clause.
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql?view=sql-server-ver15
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "STRING_AGG",
+        "PERCENTILE_CONT",
+        "PERCENTILE_DISC",
+    )
+
+
+class WithinGroupClause(BaseSegment):
+    """WITHIN GROUP clause.
+
+    For a small set of aggregation functions.
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
+    """
+
+    type = "within_group_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(
+            Ref("OrderByClauseSegment"),
+        ),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("PartitionClauseSegment")),
+            optional=True,
+        ),
+    )
+
+
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
+    """PARTITION BY clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
+    """
+
+    type = "partitionby_clause"
+    match_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        Delimited(
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Bracketed(
+                        Ref("SelectStatementSegment"),
+                    ),
+                    Ref("FunctionSegment"),
+                    Ref("VariableIdentifierSegment"),
+                ),
+            ),
+        ),
+    )
+    parse_grammar = None
+
+
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "on_partitions_clause"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
+                    ),
+                )
+            )
+        ),
+    )
+
+
+class PartitionSchemeNameSegment(BaseSegment):
+    """Partition Scheme Name."""
+
+    type = "partition_scheme_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+class PartitionSchemeClause(BaseSegment):
+    """Partition Scheme Clause segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "partition_scheme_clause"
+    match_grammar = Sequence(
+        "ON",
+        Ref("PartitionSchemeNameSegment"),
+        Bracketed(Ref("ColumnReferenceSegment")),
+    )
+
+
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Ref("DatePartFunctionNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("DatetimeUnitSegment"),
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
+                )
+            ),
+        ),
+        Sequence(
+            Ref("RankFunctionNameSegment"),
+            Bracketed(
+                Ref("NumericLiteralSegment", optional=True),
+            ),
+            "OVER",
+            Bracketed(
+                Ref("PartitionClauseSegment", optional=True),
+                Ref("OrderByClauseSegment"),
+            ),
+        ),
+        Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver15
+            Ref("ConvertFunctionNameSegment"),
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                Sequence(
+                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                ),
+            ),
+        ),
+        Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver15
+            Ref("CastFunctionNameSegment"),
+            Bracketed(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+            ),
+        ),
+        Sequence(
+            Ref("WithinGroupFunctionNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
+                ),
+            ),
+            Ref("WithinGroupClause", optional=True),
+        ),
+        Sequence(
+            OneOf(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                        # List of special functions handled differently
+                        Ref("CastFunctionNameSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("WithinGroupFunctionNameSegment"),
+                        Ref("RankFunctionNameSegment"),
+                    ),
+                ),
+                Ref("ReservedKeywordFunctionNameSegment"),
+            ),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=aps-pdw-2016-au7
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("TableIndexSegment"),
+                        ),
+                        allow_trailing=True,
+                    )
+                ),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+        Ref(
+            "TableDistributionIndexClause", optional=True
+        ),  # Azure Synapse Analytics specific
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+        Ref("TextimageOnOptionSegment", optional=True),
+        # need to add table options here
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+    parse_grammar = match_grammar
+
+
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    Overriding ANSI to remove TSQL non-keywords MODIFY, FIRST
+    TODO: Flesh out TSQL-specific functionality
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                ),
+                Sequence(
+                    OneOf(
+                        "ADD",
+                        "ALTER",
+                    ),
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                ),
+                Sequence(
+                    "ADD",
+                    Ref("ColumnConstraintSegment"),
+                    "FOR",
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Sequence(
+                        "WITH",
+                        "CHECK",
+                        optional=True,
+                    ),
+                    "ADD",
+                    Ref("TableConstraintSegment"),
+                ),
+                Sequence(
+                    OneOf(
+                        "CHECK",
+                        "DROP",
+                    ),
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class TableConstraintSegment(BaseSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+
+    type = "table_constraint"
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedIndexColumnListGrammar"),
+                Ref("RelationalIndexOptionsSegment", optional=True),
+                Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
+                Ref("ReferencesConstraintGrammar"),
+            ),
+            Ref("CheckConstraintGrammar", optional=True),
+        ),
+    )
+
+
+class TableIndexSegment(BaseSegment):
+    """A table index, e.g. for CREATE TABLE."""
+
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+
+    type = "table_index_segment"
+    match_grammar = Sequence(
+        Sequence("INDEX", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                Sequence("UNIQUE", optional=True),
+                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                Ref("BracketedIndexColumnListGrammar"),
+            ),
+            Sequence("CLUSTERED", "COLUMNSTORE"),
+            Sequence(
+                Sequence("NONCLUSTERED", optional=True),
+                "COLUMNSTORE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+        ),
+        Ref("RelationalIndexOptionsSegment", optional=True),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+    )
+
+
+class BracketedIndexColumnListGrammar(BaseSegment):
+    """list of columns used for CREATE INDEX, constraints."""
+
+    type = "bracketed_index_column_list_grammar"
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            )
+        )
+    )
+
+
+class FilegroupNameSegment(BaseSegment):
+    """Filegroup Name Segment."""
+
+    type = "filegroup_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+class FilegroupClause(BaseSegment):
+    """Filegroup Clause segment.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-files-and-filegroups?view=sql-server-ver15
+    """
+
+    type = "filegroup_clause"
+    match_grammar = Sequence(
+        "ON",
+        Ref("FilegroupNameSegment"),
+    )
+
+
+class IdentityGrammar(BaseSegment):
+    """`IDENTITY (1,1)` in table schemas.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql-identity-property?view=sql-server-ver15
+    """
+
+    type = "identity_grammar"
+    match_grammar = Sequence(
+        "IDENTITY",
+        # optional (seed, increment) e.g. (1, 1)
+        Bracketed(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class EncryptedWithGrammar(BaseSegment):
+    """ENCRYPTED WITH in table schemas.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql-identity-property?view=sql-server-ver15
+    """
+
+    type = "encrypted_with_grammar"
+    match_grammar = Sequence(
+        "ENCRYPTED",
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    "COLUMN_ENCRYPTION_KEY",
+                    Ref("EqualsSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                Sequence(
+                    "ENCRYPTION_TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("DETERMINISTIC", "RANDOMIZED"),
+                ),
+                Sequence(
+                    "ALGORITHM",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            )
+        ),
+    )
+
+
+class TableDistributionIndexClause(BaseSegment):
+    """`CREATE TABLE` distribution / index clause.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "table_distribution_index_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Ref("TableDistributionClause"),
+                Ref("TableIndexClause"),
+                Ref("TableLocationClause"),
+            ),
+        ),
+    )
+
+
+class TableDistributionClause(BaseSegment):
+    """`CREATE TABLE` distribution clause.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "table_distribution_clause"
+
+    match_grammar = Sequence(
+        "DISTRIBUTION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "REPLICATE",
+            "ROUND_ROBIN",
+            Sequence(
+                "HASH",
+                Bracketed(Ref("ColumnReferenceSegment")),
+            ),
+        ),
+    )
+
+
+class TableIndexClause(BaseSegment):
+    """`CREATE TABLE` table index clause.
+
+    This is specific to Azure Synapse Analytics.
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=aps-pdw-2016-au7#TableOptions
+    """
+
+    type = "table_index_clause"
+
+    match_grammar = Sequence(
+        OneOf(
+            "HEAP",
+            Sequence(
+                "CLUSTERED",
+                "COLUMNSTORE",
+                "INDEX",
+                Sequence(
+                    "ORDER",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "CLUSTERED",
+                "INDEX",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        OneOf(
+                            "ASC",
+                            "DESC",
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class TableLocationClause(BaseSegment):
+    """`CREATE TABLE` location clause.
+
+    This is specific to Azure Synapse Analytics (deprecated) or to an external table.
+    """
+
+    type = "table_location_clause"
+
+    match_grammar = Sequence(
+        "LOCATION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "USER_DB",  # Azure Synapse Analytics specific
+            Ref("QuotedLiteralSegment"),  # External Table
+        ),
+    )
+
+
+class AlterTableSwitchStatementSegment(BaseSegment):
+    """An `ALTER TABLE SWITCH` statement."""
+
+    type = "alter_table_switch_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar
+    # to merit its own definition
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        "SWITCH",
+        Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
+        "TO",
+        Ref("ObjectReferenceSegment"),
+        Sequence(  # Azure Synapse Analytics specific
+            "WITH",
+            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+            optional=True,
+        ),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class CreateTableAsSelectStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS SELECT` statement.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "create_table_as_select_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("TableDistributionIndexClause"),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("OptionClauseSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # BEGIN | SAVE TRANSACTION
-        # COMMIT [ TRANSACTION | WORK ]
-        # ROLLBACK [ TRANSACTION | WORK ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ] [ <Name> | <Variable> ]
+        # COMMIT [ TRANSACTION | TRAN | WORK ]
+        # ROLLBACK [ TRANSACTION | TRAN | WORK ] [ <Name> | <Variable> ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
             Sequence("DISTRIBUTED", optional=True),
-            "TRANSACTION",
+            Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
             Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
-            Ref("DelimiterSegment", optional=True),
+            Ref("DelimiterGrammar", optional=True),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
-            OneOf("TRANSACTION", "WORK", optional=True),
-            Ref("DelimiterSegment", optional=True),
+            Ref("TransactionGrammar", optional=True),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
+            Ref("DelimiterGrammar", optional=True),
         ),
-        Sequence("SAVE", "TRANSACTION", Ref("DelimiterSegment", optional=True)),
+        Sequence(
+            OneOf("COMMIT", "ROLLBACK"),
+            Sequence("WORK", optional=True),
+            Ref("DelimiterGrammar", optional=True),
+        ),
+        Sequence(
+            "SAVE",
+            Ref("TransactionGrammar"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
+            Ref("DelimiterGrammar", optional=True),
+        ),
     )
 
 
-@tsql_dialect.segment()
 class BeginEndSegment(BaseSegment):
     """A `BEGIN/END` block.
 
@@ -1498,41 +2634,53 @@ class BeginEndSegment(BaseSegment):
     type = "begin_end_block"
     match_grammar = Sequence(
         "BEGIN",
-        Ref("DelimiterSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
         Indent,
-        AnyNumberOf(
-            OneOf(
-                Ref("BeginEndSegment"),
-                Ref("StatementSegment"),
-            ),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
-        Ref("DelimiterSegment", optional=True),
     )
 
 
-@tsql_dialect.segment()
+class TryCatchSegment(BaseSegment):
+    """A `TRY/CATCH` block pair.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "try_catch"
+    match_grammar = Sequence(
+        "BEGIN",
+        "TRY",
+        Ref("DelimiterGrammar", optional=True),
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
+        "END",
+        "TRY",
+        "BEGIN",
+        "CATCH",
+        Ref("DelimiterGrammar", optional=True),
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
+        "END",
+        "CATCH",
+    )
+
+
 class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     type = "batch"
     match_grammar = OneOf(
         # Things that can be bundled
-        AnyNumberOf(
-            OneOf(
-                Ref("BeginEndSegment"),
-                Ref("StatementSegment"),
-            ),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         # Things that can't be bundled
         Ref("CreateProcedureStatementSegment"),
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -1547,20 +2695,139 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=Ref("BatchDelimiterSegment"),
-        allow_gaps=True,
-        allow_trailing=True,
+    parse_grammar = Sequence(
+        AnyNumberOf(Ref("BatchDelimiterGrammar")),
+        Delimited(
+            Ref("BatchSegment"),
+            delimiter=AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+                ),
+                min_times=1,
+            ),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
     )
 
 
-@tsql_dialect.segment(replace=True)
+class OpenRowSetSegment(BaseSegment):
+    """A `OPENROWSET` segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql?view=sql-server-ver15
+    """
+
+    type = "openrowset_segment"
+    match_grammar = Sequence(
+        "OPENROWSET",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("DelimiterGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("DelimiterGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("TableReferenceSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+                Sequence(
+                    "BULK",
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Sequence(
+                            "FORMATFILE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                            Ref("CommaSegment"),
+                            Delimited(
+                                AnyNumberOf(
+                                    Sequence(
+                                        "DATASOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "ERRORFILE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "ERRORFILE_DATA_SOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "MAXERRORS",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FIRSTROW",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "LASTROW",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "CODEPAGE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FORMAT",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FIELDQUOTE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "FORMATFILE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "FORMATFILE_DATA_SOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        "SINGLE_BLOB",
+                        "SINGLE_CLOB",
+                        "SINGLE_NCLOB",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
-    DELETE FROM <table name> [ WHERE <search condition> ]
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
     type = "delete_statement"
@@ -1568,13 +2835,63 @@ class DeleteStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = Sequence(
         "DELETE",
-        Ref("FromClauseSegment"),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("DelimiterSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("TopPercentGrammar", optional=True),
+                Ref.keyword("FROM", optional=True),
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "OPENDATASOURCE",
+                            Bracketed(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("CommaSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Ref("DotSegment"),
+                            optional=True,
+                        ),
+                        Ref("TableReferenceSegment"),
+                        Ref("PostTableExpressionGrammar", optional=True),
+                    ),
+                    Sequence(
+                        "OPENQUERY",
+                        Bracketed(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("CommaSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Ref("OpenRowSetSegment"),
+                ),
+                Ref("OutputClauseSegment", optional=True),
+                Ref("FromClauseSegment", optional=True),
+                OneOf(
+                    Ref("WhereClauseSegment"),
+                    Sequence(
+                        "WHERE",
+                        "CURRENT",
+                        "OF",
+                        Ref("CursorNameGrammar"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # Azure Synapse Analytics-specific
+            Sequence(
+                "FROM",
+                Ref("TableReferenceSegment"),
+                "JOIN",
+                Ref("TableReferenceSegment"),
+                Ref("JoinOnConditionSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+        ),
+        Ref("OptionClauseSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
@@ -1588,32 +2905,53 @@ class FromClauseSegment(BaseSegment):
     FROM a JOIN b, c JOIN d
     ```
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    Overriding ANSI to remove Delimited logic which assumes statements have been
+    delimited
     """
 
     type = "from_clause"
     match_grammar = Sequence(
         "FROM",
-        AnyNumberOf(
-            Sequence(
-                Ref("FromExpressionSegment"),
-                Ref("CommaSegment"),
-            ),
-        ),
-        Ref("FromExpressionSegment"),
-        Ref("DelimiterSegment", optional=True),
+        Delimited(Ref("FromExpressionSegment")),
+        Ref("DelimiterGrammar", optional=True),
     )
 
-    get_eventual_aliases = ansi_dialect.get_segment(
-        "FromClauseSegment"
-    ).get_eventual_aliases
+    get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
-@tsql_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
+    standard) can also be join tables, optionally bracketed, allowing for nested joins.
+    """
+
+    type = "table_expression"
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("OpenRowSetSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+        Bracketed(
+            Sequence(
+                Ref("TableExpressionSegment"),
+                Conditional(Dedent, indented_joins=False),
+                OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                Conditional(Dedent, indented_joins=True),
+            )
+        ),
+    )
+
+
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    Overriding ANSI to remove Delimited logic which assumes statements have been
+    delimited
     """
 
     type = "groupby_clause"
@@ -1642,7 +2980,6 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`.
 
@@ -1658,11 +2995,11 @@ class HavingClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
     """
 
     type = "orderby_clause"
@@ -1670,38 +3007,22 @@ class OrderByClauseSegment(BaseSegment):
         "ORDER",
         "BY",
         Indent,
-        Sequence(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `ORDER BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can order by an expression
-                Ref("ExpressionSegment"),
-            ),
-            OneOf("ASC", "DESC", optional=True),
-        ),
-        AnyNumberOf(
+        Delimited(
             Sequence(
-                Ref("CommaSegment"),
-                Sequence(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        # Can `ORDER BY 1`
-                        Ref("NumericLiteralSegment"),
-                        # Can order by an expression
-                        Ref("ExpressionSegment"),
-                    ),
-                    OneOf("ASC", "DESC", optional=True),
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
                 ),
+                OneOf("ASC", "DESC", optional=True),
             ),
         ),
         Dedent,
     )
 
-    parse_grammar = None
 
-
-@tsql_dialect.segment()
 class RenameStatementSegment(BaseSegment):
     """`RENAME` statement.
 
@@ -1716,26 +3037,49 @@ class RenameStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "TO",
         Ref("SingleIdentifierGrammar"),
-        Ref("DelimiterSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-@tsql_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement.
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
+    """A `DROP TABLE` statement.
 
     Overriding ANSI to add optional delimiter.
     """
 
-    type = "drop_statement"
-    match_grammar = ansi_dialect.get_segment("DropStatementSegment").match_grammar.copy(
+    match_grammar = ansi.DropTableStatementSegment.match_grammar.copy(
         insert=[
-            Ref("DelimiterSegment", optional=True),
+            Ref("DelimiterGrammar", optional=True),
         ],
     )
 
 
-@tsql_dialect.segment(replace=True)
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("DelimiterGrammar", optional=True),
+        ],
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    match_grammar = ansi.DropUserStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("DelimiterGrammar", optional=True),
+        ],
+    )
+
+
 class UpdateStatementSegment(BaseSegment):
     """An `Update` statement.
 
@@ -1746,16 +3090,19 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
+        Dedent,
+        Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
-        Ref("DelimiterSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetClauseListSegment(BaseSegment):
     """set clause list.
 
@@ -1775,7 +3122,6 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetClauseSegment(BaseSegment):
     """Set clause.
 
@@ -1786,23 +3132,11 @@ class SetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"),
-        Ref("EqualsSegment"),
+        Ref("AssignmentOperatorSegment"),
         Ref("ExpressionSegment"),
     )
 
 
-@tsql_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
-
-
-@tsql_dialect.segment()
 class PrintStatementSegment(BaseSegment):
     """PRINT statement segment."""
 
@@ -1810,11 +3144,10 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
-        Ref("DelimiterSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-@tsql_dialect.segment()
 class OptionClauseSegment(BaseSegment):
     """Query Hint clause.
 
@@ -1823,18 +3156,13 @@ class OptionClauseSegment(BaseSegment):
 
     type = "option_clause"
     match_grammar = Sequence(
-        Sequence("OPTION", optional=True),
+        "OPTION",
         Bracketed(
-            Ref("QueryHintSegment"),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Ref("QueryHintSegment"),
-            ),
+            Delimited(Ref("QueryHintSegment")),
         ),
     )
 
 
-@tsql_dialect.segment()
 class QueryHintSegment(BaseSegment):
     """Query Hint segment.
 
@@ -1846,7 +3174,7 @@ class QueryHintSegment(BaseSegment):
         Sequence(  # Azure Synapse Analytics specific
             "LABEL",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
         ),
         Sequence(
             OneOf("HASH", "ORDER"),
@@ -1920,28 +3248,24 @@ class QueryHintSegment(BaseSegment):
         Sequence(
             "USE",
             "PLAN",
-            OneOf(Ref("QuotedLiteralSegment"), Ref("QuotedLiteralSegmentWithN")),
+            Ref("QuotedLiteralSegmentOptWithN"),
         ),
         Sequence(
             "TABLE",
             "HINT",
             Ref("ObjectReferenceSegment"),
-            Ref("TableHintSegment"),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Ref("TableHintSegment"),
-            ),
+            Delimited(Ref("TableHintSegment")),
         ),
     )
 
 
-@tsql_dialect.segment(replace=True)
 class PostTableExpressionGrammar(BaseSegment):
     """Table Hint clause.  Overloading the PostTableExpressionGrammar to implement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
     """
 
+    type = "post_table_expression"
     match_grammar = Sequence(
         Sequence("WITH", optional=True),
         Bracketed(
@@ -1954,7 +3278,6 @@ class PostTableExpressionGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableHintSegment(BaseSegment):
     """Table Hint segment.
 
@@ -1967,13 +3290,8 @@ class TableHintSegment(BaseSegment):
         Sequence(
             "INDEX",
             Bracketed(
-                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
-                AnyNumberOf(
-                    Ref("CommaSegment"),
-                    OneOf(
-                        Ref("IndexReferenceSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
+                Delimited(
+                    OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
                 ),
             ),
         ),
@@ -2024,7 +3342,20 @@ class TableHintSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
+class SetOperatorSegment(BaseSegment):
+    """A set operator such as Union, Except or Intersect.
+
+    Override ANSI to remove TSQL non-keyword MINUS.
+    """
+
+    type = "set_operator"
+    match_grammar = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        "INTERSECT",
+        "EXCEPT",
+    )
+
+
 class SetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect.
 
@@ -2044,11 +3375,10 @@ class SetExpressionSegment(BaseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterSegment", optional=True),
+        Ref("DelimiterGrammar", optional=True),
     )
 
 
-@tsql_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
@@ -2059,7 +3389,9 @@ class ExecuteScriptSegment(BaseSegment):
     type = "execute_script_statement"
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
-        Ref("ObjectReferenceSegment"),
+        Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
+        OptionallyBracketed(Ref("ObjectReferenceSegment")),
+        Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
             OneOf(
@@ -2084,5 +3416,697 @@ class ExecuteScriptSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("DelimiterSegment", optional=True),
+        Dedent,
+        Ref("DelimiterGrammar", optional=True),
     )
+
+
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    Overriding ANSI to allow for AUTHORIZATION clause
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
+
+    Not yet implemented: proper schema_element parsing.
+    Once we have an AccessStatementSegment that works for TSQL, this definition should
+    be tweaked to include schema elements.
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref(
+            "DelimiterGrammar",
+            optional=True,
+        ),
+    )
+
+
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
+
+    type = "merge_match"
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Ref("MergeMatchedClauseSegment"),
+            Ref("MergeNotMatchedClauseSegment"),
+            min_times=1,
+        ),
+        Ref("OutputClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
+    )
+
+
+class MergeMatchedClauseSegment(BaseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_matched_clause"
+
+    match_grammar = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence(
+            "AND",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        Indent,
+        "THEN",
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+class MergeNotMatchedClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            "WHEN",
+            "NOT",
+            "MATCHED",
+            Sequence("BY", "TARGET", optional=True),
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
+            Indent,
+            "THEN",
+            Ref("MergeInsertClauseSegment"),
+            Dedent,
+        ),
+        Sequence(
+            "WHEN",
+            "NOT",
+            "MATCHED",
+            "BY",
+            "SOURCE",
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
+            Indent,
+            "THEN",
+            OneOf(
+                Ref("MergeUpdateClauseSegment"),
+                Ref("MergeDeleteClauseSegment"),
+            ),
+            Dedent,
+        ),
+    )
+
+
+class MergeInsertClauseSegment(BaseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        "VALUES",
+        Indent,
+        OneOf(
+            Bracketed(
+                Delimited(
+                    AnyNumberOf(
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "DEFAULT",
+                "VALUES",
+            ),
+        ),
+        Dedent,
+    )
+
+
+class OutputClauseSegment(BaseSegment):
+    """OUTPUT Clause used within DELETE, INSERT, UPDATE, MERGE.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "output_clause"
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "OUTPUT",
+            Indent,
+            Delimited(
+                AnyNumberOf(
+                    Ref("WildcardExpressionSegment"),
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            Dedent,
+            Sequence(
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
+        ),
+    )
+
+
+class ThrowStatementSegment(BaseSegment):
+    """A THROW statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/throw-transact-sql?view=sql-server-ver15
+    """
+
+    type = "throw_statement"
+    match_grammar = Sequence(
+        "THROW",
+        Sequence(
+            OneOf(
+                # error_number
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+            Ref("CommaSegment"),
+            OneOf(
+                # message
+                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegmentWithN"),
+                Ref("ParameterNameSegment"),
+            ),
+            Ref("CommaSegment"),
+            OneOf(
+                # state
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class RaiserrorStatementSegment(BaseSegment):
+    """RAISERROR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver15
+    """
+
+    type = "raiserror_statement"
+    match_grammar = Sequence(
+        "RAISERROR",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("QuotedLiteralSegmentWithN"),
+                    Ref("ParameterNameSegment"),
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
+                ),
+                AnyNumberOf(
+                    Ref("LiteralGrammar"),
+                    Ref("ParameterNameSegment"),
+                    min_times=0,
+                    max_times=20,
+                ),
+            ),
+        ),
+        Sequence(
+            "WITH",
+            Delimited(
+                "LOG",
+                "NOWAIT",
+                "SETERROR",
+            ),
+            optional=True,
+        ),
+    )
+
+
+class WindowSpecificationSegment(BaseSegment):
+    """Window specification within OVER(...).
+
+    Overriding ANSI to remove window name option not supported by TSQL
+    """
+
+    type = "window_specification"
+    match_grammar = Sequence(
+        Ref("PartitionClauseSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("FrameClauseSegment", optional=True),
+        optional=True,
+        ephemeral_name="OverClauseContent",
+    )
+
+
+class GotoStatement(BaseSegment):
+    """GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "goto_statement"
+    match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
+
+
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Sequence("ALL", "SERVER"),
+            "DATABASE",
+        ),
+        Sequence(
+            "WITH",
+            OneOf(
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("NATIVE_COMPILATION", optional=True),
+                    Ref.keyword("SCHEMABINDING", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("FOR", Delimited(Ref("SingleIdentifierGrammar"), optional=True)),
+            "AFTER",
+            Sequence("INSTEAD", "OF"),
+            optional=True,
+        ),
+        Delimited(
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            optional=True,
+        ),
+        Sequence("WITH", "APPEND", optional=True),
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+        "AS",
+        Ref("OneOrMoreStatementsGrammar"),
+        # TODO: EXTERNAL NAME
+    )
+
+
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TriggerReferenceSegment")),
+        Sequence("ON", OneOf("DATABASE", Sequence("ALL", "SERVER")), optional=True),
+    )
+
+
+class DisableTriggerStatementSegment(BaseSegment):
+    """Disable Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/disable-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "disable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DISABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
+    )
+
+
+class LabelStatementSegment(BaseSegment):
+    """Label Statement, for a GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "label_segment"
+
+    match_grammar: Matchable = Sequence(
+        Ref("NakedIdentifierSegment"), Ref("ColonSegment"), allow_gaps=False
+    )
+
+
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql?view=sql-server-ver15
+    """
+
+    type = "access_statement"
+
+    # Privileges that can be set on the account (specific to snowflake)
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        "EXECUTE",
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "FUNCTION",
+        "PROCEDURE",
+        "SEQUENCE",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+    # We reuse the object names above and simply append an `S` to the end of them to get
+    # plurals
+    _schema_object_types_plural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            "ALTER",
+            "CONTROL",
+            "DELETE",
+            "EXECUTE",
+            "INSERT",
+            "RECEIVE",
+            "REFERENCES",
+            "SELECT",
+            Sequence("TAKE", "OWNERSHIP"),
+            "UPDATE",
+            Sequence("VIEW", "CHANGE", "TRACKING"),
+            Sequence("VIEW", "DEFINITION"),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    # All of the object types that we can grant permissions on.
+    # This list will contain ansi sql objects as well as dialect specific ones.
+    _objects = Sequence(
+        OneOf(
+            "DATABASE",
+            "LANGUAGE",
+            "SCHEMA",
+            "ROLE",
+            "TYPE",
+            Sequence(
+                "FOREIGN",
+                OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+            ),
+            Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+            _schema_object_types,
+            Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+            optional=True,
+        ),
+        Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
+        Ref("FunctionParameterListGrammar", optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        # Based on https://www.postgresql.org/docs/13/sql-grant.html
+        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+        Sequence(
+            "GRANT",
+            OneOf(
+                Sequence(
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        terminator="ON",
+                    ),
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            "TO",
+            Delimited(
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
+            ),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DENY",
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO"),
+            Delimited(
+                Ref("RoleReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "REVOKE",
+            Sequence("GRANT", "OPTION", "FOR", optional=True),
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO", "FROM"),
+            Delimited(
+                Ref("RoleReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class OpenCursorStatementSegment(BaseSegment):
+    """An `OPEN` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
+    """
+
+    type = "open_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        Ref("CursorNameGrammar"),
+    )
+
+
+class CloseCursorStatementSegment(BaseSegment):
+    """A `CLOSE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
+    """
+
+    type = "close_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "CLOSE",
+        Ref("CursorNameGrammar"),
+    )
+
+
+class DeallocateCursorStatementSegment(BaseSegment):
+    """A `DEALLOCATE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
+    """
+
+    type = "deallocate_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "DEALLOCATE",
+        Ref("CursorNameGrammar"),
+    )
+
+
+class FetchCursorStatementSegment(BaseSegment):
+    """A `FETCH` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "fetch_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
+        "FROM",
+        Ref("CursorNameGrammar"),
+        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+    )
+
+
+class ForXmlSegment(BaseSegment):
+    """A segment for `FOR XML` in `SELECT` statements.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
+    """
+
+    type = "for_xml_segment"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "XML",
+        OneOf(
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
+    )
+
+
+class ConcatSegment(BaseSegment):
+    """Concat operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar: Matchable = Ref("PlusSegment")

@@ -1,0 +1,181 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 25c9fd6dd10711ed57f7bed499adc04d5252f92e27b212ed9ade578c0bd5e6d1
+file:
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - keyword: USING
+    - keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"1"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"2"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"user"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"a person"'
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - keyword: USING
+    - keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'/tmp/destination'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"1"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"2"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - keyword: USING
+    - keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: path
+      - quoted_literal: "'/tmp/destination'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - keyword: USING
+    - keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;

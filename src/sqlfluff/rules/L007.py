@@ -1,17 +1,31 @@
 """Implementation of Rule L007."""
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+import copy
+from typing import List
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
+
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+    document_groups,
+)
+from sqlfluff.utils.functional import Segments, FunctionalContext, sp
 
 after_description = "Operators near newlines should be after, not before the newline"
 before_description = "Operators near newlines should be before, not after the newline"
 
 
+@document_groups
+@document_fix_compatible
+@document_configuration
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
-    | In this example, the operator '+' should not be at the end of the second line.
+    **Anti-pattern**
+
+    In this example, if ``operator_new_lines = after`` (or unspecified, as is the
+    default), then the operator ``+`` should not be at the end of the second line.
 
     .. code-block:: sql
 
@@ -21,9 +35,10 @@ class Rule_L007(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
-    | Place the operator after the newline.
+    **Best practice**
+
+    If ``operator_new_lines = after`` (or unspecified, as this is the default),
+    place the operator after the newline.
 
     .. code-block:: sql
 
@@ -32,8 +47,7 @@ class Rule_L007(BaseRule):
             + b
         FROM foo
 
-    | If ``operator_new_lines = before``
-    | Place the operator before the newline.
+    If ``operator_new_lines = before``, place the operator before the newline.
 
     .. code-block:: sql
 
@@ -43,9 +57,11 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
+    groups = ("all",)
     config_keywords = ["operator_new_lines"]
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -56,50 +72,93 @@ class Rule_L007(BaseRule):
         before the next meaningful code segment.
 
         """
-        anchor = None
-        memory = context.memory
-        description = after_description
-        if self.operator_new_lines == "before":  # type: ignore
-            description = before_description
+        relevent_types = ["binary_operator", "comparison_operator"]
+        segment = FunctionalContext(context).segment
+        # bring var to this scope so as to only have one type ignore
+        operator_new_lines: str = self.operator_new_lines  # type: ignore
+        expr = segment.children()
+        operator_segments = segment.children(sp.is_type(*relevent_types))
+        results: List[LintResult] = []
+        # If len(operator_segments) == 0 this will essentially not run
+        for operator in operator_segments:
+            start = expr.reversed().select(start_seg=operator).first(sp.is_code())
+            end = expr.select(start_seg=operator).first(sp.is_code())
+            res = [
+                expr.select(start_seg=start.get(), stop_seg=operator),
+                expr.select(start_seg=operator, stop_seg=end.get()),
+            ]
+            # anchor and change els are reversed in the before case
+            if operator_new_lines == "before":
+                res = [els.reversed() for els in reversed(res)]
 
-        # The parent stack tells us whether we're in an expression or not.
-        if context.parent_stack and context.parent_stack[-1].is_type("expression"):
-            if context.segment.is_code:
-                # This is code, what kind?
-                if context.segment.is_type("binary_operator", "comparison_operator"):
-                    # If it's an operator, then check if in "before" mode
-                    if self.operator_new_lines == "before":  # type: ignore
-                        # If we're in "before" mode, then check if newline since last code
-                        for s in memory["since_code"]:
-                            if s.name == "newline":
-                                # Had a newline - so mark this operator as a fail
-                                anchor = context.segment
-                                # TODO: Work out a nice fix for this failure.
-                elif memory["last_code"] and memory["last_code"].is_type(
-                    "binary_operator", "comparison_operator"
-                ):
-                    # It's not an operator, but the last code was.
-                    if self.operator_new_lines != "before":  # type: ignore
-                        # If in "after" mode, then check to see
-                        # there is a newline between us and the last operator.
-                        for s in memory["since_code"]:
-                            if s.name == "newline":
-                                # Had a newline - so mark last operator as a fail
-                                anchor = memory["last_code"]
-                                # TODO: Work out a nice fix for this failure.
-                # Prepare memory for later
-                memory["last_code"] = context.segment
-                memory["since_code"] = []
-            else:
-                # This isn't a code segment...
-                # Prepare memory for later
-                memory["since_code"].append(context.segment)
-        else:
-            # Reset the memory if we're not in an expression
-            memory = {"last_code": None, "since_code": []}
+            change_list, anchor_list = res
+            # If the anchor side of the list has no newline
+            # then everything is ok already
+            if not anchor_list.any(
+                sp.and_(sp.is_type("newline"), sp.not_(sp.is_templated()))
+            ):
+                continue
 
-        # Anchor is our signal as to whether there's a problem
-        if anchor:
-            return LintResult(anchor=anchor, memory=memory, description=description)
-        else:
-            return LintResult(memory=memory)
+            # If the operator is on a line by itself, that's okay regardless of
+            # the 'operator_new_lines' setting.
+            newline_after_operator = expr.select(
+                sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator
+            ).first(sp.is_type("newline"))
+            newline_before_operator = (
+                expr.reversed()
+                .select(sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator)
+                .first(sp.is_type("newline"))
+            )
+            if newline_after_operator and newline_before_operator:
+                continue
+
+            insert_anchor = anchor_list.last().get()
+            assert insert_anchor, "Insert Anchor must be present"
+            lint_res = _generate_fixes(
+                operator_new_lines,
+                change_list,
+                operator,
+                insert_anchor,
+            )
+            results.append(lint_res)
+
+        return results
+
+
+def _generate_fixes(
+    operator_new_lines: str,
+    change_list: Segments,
+    operator: BaseSegment,
+    insert_anchor: BaseSegment,
+) -> LintResult:
+    # Duplicate the change list and append the operator
+    inserts: List[BaseSegment] = [
+        *change_list,
+        operator,
+    ]
+
+    if operator_new_lines == "before":
+        # We do yet another reverse here,
+        # This could be avoided but makes all "changes" relate to "before" config state
+        inserts = [*reversed(inserts)]
+
+    # ensure to insert in the right place
+    edit_type = "create_before" if operator_new_lines == "before" else "create_after"
+    fixes = [
+        # Insert elements reversed
+        LintFix(
+            edit_type=edit_type,
+            edit=map(lambda el: copy.deepcopy(el), reversed(inserts)),
+            anchor=insert_anchor,
+        ),
+        # remove the Op
+        LintFix.delete(operator),
+        # Delete the original elements (related to insert)
+        *change_list.apply(LintFix.delete),
+    ]
+    desc = before_description if operator_new_lines == "before" else after_description
+    return LintResult(
+        anchor=operator,
+        description=desc,
+        fixes=fixes,
+    )

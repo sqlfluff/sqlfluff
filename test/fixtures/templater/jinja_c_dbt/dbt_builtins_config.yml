@@ -1,0 +1,7 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          boolean_literal: 'TRUE'

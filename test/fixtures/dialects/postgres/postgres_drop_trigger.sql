@@ -1,0 +1,9 @@
+DROP TRIGGER foo ON bar;
+
+DROP TRIGGER IF EXISTS foo ON bar;
+
+DROP TRIGGER foo ON bar CASCADE;
+
+DROP TRIGGER IF EXISTS foo ON bar RESTRICT;
+
+DROP TRIGGER if_dist_exists ON films;

@@ -1,6 +1,8 @@
 """The Test file for The New Parser (Grammar Classes)."""
 
 import logging
+from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.linter.linter import Linter
 
 from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything, StringParser
 from sqlfluff.core.parser.context import RootParseContext
@@ -54,9 +56,22 @@ def test__parser__parse_expand(seg_list):
         # Remind ourselves that this should be tuple containing a BasicSegment
         assert isinstance(segments[0], BasicSegment)
 
-        # Now expand those segments, using the base class version (not that it should matter)
+        # Now expand those segments, using the base class version (not that it should
+        # matter)
         res = BasicSegment.expand(segments, parse_context=ctx)
         # Check we get an iterable containing a BasicSegment
         assert isinstance(res[0], BasicSegment)
         # Check that we now have a keyword inside
         assert isinstance(res[0].segments[0], KeywordSegment)
+
+
+def test__parser__parse_error():
+    """Test that SQLParseError is raised for unparsable section."""
+    in_str = "SELECT ;"
+    lnt = Linter(dialect="ansi")
+    parsed = lnt.parse_string(in_str)
+
+    assert len(parsed.violations) == 1
+    violation = parsed.violations[0]
+    assert isinstance(violation, SQLParseError)
+    assert violation.desc() == "Line 1, Position 1: Found unparsable section: 'SELECT'"

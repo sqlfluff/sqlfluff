@@ -1,45 +1,91 @@
 """The simple public API methods."""
 
-from sqlfluff.core import Linter
+from typing import Any, Dict, List, Optional
+from sqlfluff.core import (
+    dialect_selector,
+    FluffConfig,
+    Linter,
+    SQLBaseError,
+    SQLFluffUserError,
+)
+
+
+def get_simple_config(
+    dialect: Optional[str] = None,
+    rules: Optional[List[str]] = None,
+    exclude_rules: Optional[List[str]] = None,
+    config_path: Optional[str] = None,
+) -> FluffConfig:
+    """Get a config object from simple API arguments."""
+    # Create overrides for simple API arguments.
+    overrides = {}
+    if dialect is not None:
+        # Check the requested dialect exists and is valid.
+        try:
+            dialect_selector(dialect)
+        except SQLFluffUserError as err:  # pragma: no cover
+            raise SQLFluffUserError(f"Error loading dialect '{dialect}': {str(err)}")
+        except KeyError:
+            raise SQLFluffUserError(f"Error: Unknown dialect '{dialect}'")
+
+        overrides["dialect"] = dialect
+    if rules is not None:
+        overrides["rules"] = ",".join(rules)
+    if exclude_rules is not None:
+        overrides["exclude_rules"] = ",".join(exclude_rules)
+
+    # Instantiate a config object.
+    try:
+        return FluffConfig.from_root(
+            extra_config_path=config_path,
+            ignore_local_config=True,
+            overrides=overrides,
+        )
+    except SQLFluffUserError as err:  # pragma: no cover
+        raise SQLFluffUserError(f"Error loading config: {str(err)}")
 
 
 class APIParsingError(ValueError):
     """An exception which holds a set of violations."""
 
-    def __init__(self, violations, **kwargs):
+    def __init__(self, violations: List[SQLBaseError], *args: Any):
         self.violations = violations
         self.msg = f"Found {len(violations)} issues while parsing string."
         for viol in violations:
             self.msg += f"\n{viol!s}"
-        super().__init__(self.msg, **kwargs)
+        super().__init__(self.msg, *args)
 
 
-def _unify_str_or_file(sql):
-    """Unify string and files in the same format."""
-    if not isinstance(sql, str):
-        try:
-            sql = sql.read()
-        except AttributeError:  # pragma: no cover
-            raise TypeError("Value passed as sql is not a string or a readable object.")
-    return sql
-
-
-def lint(sql, dialect="ansi", rules=None):
-    """Lint a sql string or file.
+def lint(
+    sql: str,
+    dialect: str = "ansi",
+    rules: Optional[List[str]] = None,
+    exclude_rules: Optional[List[str]] = None,
+    config_path: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Lint a SQL string.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
+        sql (:obj:`str`): The SQL to be linted.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
             to be linted. Defaults to `ansi`.
-        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
-            reference to lint for.
+        rules (:obj:`Optional[List[str]`, optional): A list of rule
+            references to lint for. Defaults to None.
+        exclude_rules (:obj:`Optional[List[str]`, optional): A list of rule
+            references to avoid linting for. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
-        :obj:`list` of :obj:`dict` for each violation found.
+        :obj:`List[Dict[str, Any]]` for each violation found.
     """
-    sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect, rules=rules)
+    cfg = get_simple_config(
+        dialect=dialect,
+        rules=rules,
+        exclude_rules=exclude_rules,
+        config_path=config_path,
+    )
+    linter = Linter(config=cfg)
 
     result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
@@ -47,44 +93,81 @@ def lint(sql, dialect="ansi", rules=None):
     return [] if not result_records else result_records[0]["violations"]
 
 
-def fix(sql, dialect="ansi", rules=None):
-    """Fix a sql string or file.
+def fix(
+    sql: str,
+    dialect: str = "ansi",
+    rules: Optional[List[str]] = None,
+    exclude_rules: Optional[List[str]] = None,
+    config_path: Optional[str] = None,
+    fix_even_unparsable: Optional[bool] = None,
+) -> str:
+    """Fix a SQL string.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
-            to be linted. Defaults to `ansi`.
-        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
-            reference to lint for.
+        sql (:obj:`str`): The SQL to be fixed.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+            to be fixed. Defaults to `ansi`.
+        rules (:obj:`Optional[List[str]`, optional): A subset of rule
+            references to fix for. Defaults to None.
+        exclude_rules (:obj:`Optional[List[str]`, optional): A subset of rule
+            references to avoid fixing for. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
-        :obj:`str` for the fixed sql if possible.
+        :obj:`str` for the fixed SQL if possible.
     """
-    sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect, rules=rules)
+    cfg = get_simple_config(
+        dialect=dialect,
+        rules=rules,
+        exclude_rules=exclude_rules,
+        config_path=config_path,
+    )
+    linter = Linter(config=cfg)
 
     result = linter.lint_string_wrapped(sql, fix=True)
-    fixed_string = result.paths[0].files[0].fix_string()[0]
-    return fixed_string
+    if fix_even_unparsable is None:
+        fix_even_unparsable = cfg.get("fix_even_unparsable")
+    should_fix = True
+    if not fix_even_unparsable:
+        # If fix_even_unparsable wasn't set, check for templating or parse
+        # errors and suppress fixing if there were any.
+        _, num_filtered_errors = result.count_tmp_prs_errors()
+        if num_filtered_errors > 0:
+            should_fix = False
+    if should_fix:
+        sql = result.paths[0].files[0].fix_string()[0]
+    return sql
 
 
-def parse(sql, dialect="ansi"):
-    """Parse a sql string or file.
+def parse(
+    sql: str,
+    dialect: str = "ansi",
+    config_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Parse a SQL string.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
-            to be linted. Defaults to `ansi`.
+        sql (:obj:`str`): The SQL to be parsed.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+            to be parsed. Defaults to `ansi`.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
-        :obj:`ParsedString` containing the parsed structure.
+        :obj:`Dict[str, Any]` JSON containing the parsed structure.
     """
-    sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect)
+    cfg = get_simple_config(
+        dialect=dialect,
+        config_path=config_path,
+    )
+    linter = Linter(config=cfg)
+
     parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise them in a combined issue.
     if parsed.violations:
         raise APIParsingError(parsed.violations)
-    return parsed
+    # Return a JSON representation of the parse tree.
+    if parsed.tree is None:  # pragma: no cover
+        return {}
+    return parsed.tree.as_record(show_raw=True)

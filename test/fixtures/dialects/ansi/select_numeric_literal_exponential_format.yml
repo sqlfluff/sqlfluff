@@ -3,41 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97680a544e8a22305b99f7a7561ef6d29e061f16f4c5072d9c14f8119f65f523
+_hash: e84987da703b2565d55268ce089edd8ec71b9e94963f4e7216f0c82dfe3d7107
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: 1e-9
+          numeric_literal: 1e-9
       - comma: ','
       - select_clause_element:
           numeric_literal:
-            binary_operator: '-'
-            literal: 12.345e12
+            sign_indicator: '-'
+            numeric_literal: 12.345e12
       - comma: ','
       - select_clause_element:
-          literal: '.0123E-6'
+          numeric_literal: '.0123E-6'
       - comma: ','
       - select_clause_element:
-          literal: '25'
-      - comma: ','
-      - select_clause_element:
-          numeric_literal:
-            binary_operator: +
-            literal: '6.34'
-      - comma: ','
-      - select_clause_element:
-          literal: '0.5'
-      - comma: ','
-      - select_clause_element:
-          literal: 25e-03
+          numeric_literal: '25'
       - comma: ','
       - select_clause_element:
           numeric_literal:
-            binary_operator: '-'
-            literal: '1'
+            sign_indicator: +
+            numeric_literal: '6.34'
       - comma: ','
       - select_clause_element:
-          literal: '25'
+          numeric_literal: '0.5'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: 25e-03
+      - comma: ','
+      - select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '1'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '25'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            sign_indicator: '-'
+            column_reference:
+              naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - sign_indicator: '-'
+          - sign_indicator: +
+          - sign_indicator: '-'
+          - column_reference:
+              naked_identifier: col2

@@ -16,9 +16,9 @@ def raw_seg_list(generate_test_segments):
 def test__parser__core_keyword(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
-    FooKeyword = StringParser("foo", KeywordSegment)
+    FooKeyword = StringParser("foo", KeywordSegment, type="bar")
     # Check it looks as expected
-    assert FooKeyword.template == "FOO"
+    assert FooKeyword.template.upper() == "FOO"
     with RootParseContext(dialect=None) as ctx:
         # Match it against a list and check it doesn't match
         assert not FooKeyword.match(raw_seg_list, parse_context=ctx)
@@ -35,6 +35,9 @@ def test__parser__core_keyword(raw_seg_list):
         assert FooKeyword.match([raw_seg_list[1]], parse_context=ctx)
         # Match it against a list slice and check it still works
         assert FooKeyword.match(raw_seg_list[1:], parse_context=ctx)
+        # Check that the types work right. Importantly that the "bar"
+        # type makes it in.
+        assert m.matched_segments[0].class_types == {"base", "keyword", "raw", "bar"}
 
 
 def test__parser__core_ephemeral_segment(raw_seg_list):

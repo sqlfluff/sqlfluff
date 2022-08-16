@@ -3,26 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b93dca6fa274ecbac51a7c8b48ab797c451a482caeccb3eff3e85f990fb43484
+_hash: 16714c14ab92e8d16180df1b9b8947ff24806a84991014788994ceba5835921f
 file:
   statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: a
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
-    - base:
-      - keyword: AS
-      - literal: "$$\n    SELECT 1;\n$$"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\n    SELECT 1;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
   statement_terminator: ;

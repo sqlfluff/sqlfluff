@@ -7,20 +7,23 @@ from typing import (
     List,
     Optional,
     overload,
+    Tuple,
 )
 from typing_extensions import Literal
 
+from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 
 from sqlfluff.core.errors import (
     CheckTuple,
+    SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
 )
 
 from sqlfluff.core.timing import TimingSummary
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
-
-
 from sqlfluff.core.linter.linted_dir import LintedDir
 
 
@@ -129,7 +132,9 @@ class LintingResult:
             all_stats["unclean rate"] = 0
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
-        all_stats["exit code"] = 65 if all_stats["violations"] > 0 else 0
+        all_stats["exit code"] = (
+            EXIT_FAIL if all_stats["violations"] > 0 else EXIT_SUCCESS
+        )
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
 
@@ -144,9 +149,9 @@ class LintingResult:
     def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.
 
-        Each record contains a key specifying the filepath, and a list of violations. This
-        method is useful for serialization as all objects will be builtin python types
-        (ints, strs).
+        Each record contains a key specifying the filepath, and a list of violations.
+        This method is useful for serialization as all objects will be builtin python
+        types (ints, strs).
         """
         return [
             {
@@ -177,6 +182,40 @@ class LintingResult:
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one path."
+                ".tree() cannot be called when a LintingResult contains more than one "
+                "path."
             )
         return self.paths[0].tree
+
+    TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
+
+    def count_tmp_prs_errors(self) -> Tuple[int, int]:
+        """Count templating or parse errors before and after filtering."""
+        total_errors = self.num_violations(
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+        )
+        num_filtered_errors = 0
+        for linted_dir in self.paths:
+            for linted_file in linted_dir.files:
+                num_filtered_errors += linted_file.num_violations(
+                    types=self.TMP_PRS_ERROR_TYPES
+                )
+        return total_errors, num_filtered_errors
+
+    def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        total_errors = self.num_violations(
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+        )
+        if total_errors:
+            for linted_dir in self.paths:
+                for linted_file in linted_dir.files:
+                    num_errors = linted_file.num_violations(
+                        types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+                    )
+                    if num_errors:
+                        # File has errors. Discard all the SQLLintError fixes:
+                        # they are potentially unsafe.
+                        for violation in linted_file.violations:
+                            if isinstance(violation, SQLLintError):
+                                violation.fixes = []

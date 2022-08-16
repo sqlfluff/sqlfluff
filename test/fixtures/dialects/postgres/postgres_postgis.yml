@@ -3,25 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf422399c294273732c90493883d5657060c0c3e5d028d2a660650d9bbd31509
+_hash: c10308e95f79279d0b35450b6a45cea25fea6d3f47481659ccb09343bc63dca2
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: quadkey
+          naked_identifier: quadkey
       - data_type:
-          data_type_identifier: TEXT
+          keyword: TEXT
       - comma: ','
       - column_reference:
-          identifier: my_geometry_column
+          naked_identifier: my_geometry_column
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRY
@@ -29,42 +29,42 @@ file:
               start_bracket: (
               keyword: GEOMETRY
               comma: ','
-              literal: '4326'
+              numeric_literal: '4326'
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_point
+          naked_identifier: my_point
       - data_type:
           wkt_geometry_type:
             keyword: POINT
             bracketed:
             - start_bracket: (
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_linestring
+          naked_identifier: my_linestring
       - data_type:
           wkt_geometry_type:
             keyword: LINESTRING
             bracketed:
             - start_bracket: (
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
-            - literal: '1'
+            - numeric_literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '2'
-            - literal: '1'
+            - numeric_literal: '2'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '2'
-            - literal: '2'
+            - numeric_literal: '2'
+            - numeric_literal: '2'
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_simple_polygon
+          naked_identifier: my_simple_polygon
       - data_type:
           wkt_geometry_type:
             keyword: POLYGON
@@ -72,25 +72,25 @@ file:
               start_bracket: (
               bracketed:
               - start_bracket: (
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '1'
-              - literal: '0'
+              - numeric_literal: '1'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '1'
-              - literal: '1'
+              - numeric_literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '0'
-              - literal: '1'
+              - numeric_literal: '0'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - end_bracket: )
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_complex_polygon
+          naked_identifier: my_complex_polygon
       - data_type:
           wkt_geometry_type:
             keyword: POLYGON
@@ -98,43 +98,43 @@ file:
             - start_bracket: (
             - bracketed:
               - start_bracket: (
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '10'
-              - literal: '0'
+              - numeric_literal: '10'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '10'
-              - literal: '10'
+              - numeric_literal: '10'
+              - numeric_literal: '10'
               - comma: ','
-              - literal: '0'
-              - literal: '10'
+              - numeric_literal: '0'
+              - numeric_literal: '10'
               - comma: ','
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - end_bracket: )
             - comma: ','
             - bracketed:
               - start_bracket: (
-              - literal: '1'
-              - literal: '1'
+              - numeric_literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '1'
-              - literal: '2'
+              - numeric_literal: '1'
+              - numeric_literal: '2'
               - comma: ','
-              - literal: '2'
-              - literal: '2'
+              - numeric_literal: '2'
+              - numeric_literal: '2'
               - comma: ','
-              - literal: '2'
-              - literal: '1'
+              - numeric_literal: '2'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '1'
-              - literal: '1'
+              - numeric_literal: '1'
+              - numeric_literal: '1'
               - end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_geometry_collection
+          naked_identifier: my_geometry_collection
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRYCOLLECTION
@@ -144,8 +144,8 @@ file:
                 keyword: POINT
                 bracketed:
                 - start_bracket: (
-                - literal: '2'
-                - literal: '0'
+                - numeric_literal: '2'
+                - numeric_literal: '0'
                 - end_bracket: )
             - comma: ','
             - wkt_geometry_type:
@@ -154,46 +154,46 @@ file:
                   start_bracket: (
                   bracketed:
                   - start_bracket: (
-                  - literal: '0'
-                  - literal: '0'
+                  - numeric_literal: '0'
+                  - numeric_literal: '0'
                   - comma: ','
-                  - literal: '1'
-                  - literal: '0'
+                  - numeric_literal: '1'
+                  - numeric_literal: '0'
                   - comma: ','
-                  - literal: '1'
-                  - literal: '1'
+                  - numeric_literal: '1'
+                  - numeric_literal: '1'
                   - comma: ','
-                  - literal: '0'
-                  - literal: '1'
+                  - numeric_literal: '0'
+                  - numeric_literal: '1'
                   - comma: ','
-                  - literal: '0'
-                  - literal: '0'
+                  - numeric_literal: '0'
+                  - numeric_literal: '0'
                   - end_bracket: )
                   end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_3d_linestring
+          naked_identifier: my_3d_linestring
       - data_type:
           wkt_geometry_type:
             keyword: LINESTRINGZ
             bracketed:
             - start_bracket: (
-            - literal: '0'
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '1'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
-            - literal: '1'
-            - literal: '2'
+            - numeric_literal: '1'
+            - numeric_literal: '1'
+            - numeric_literal: '2'
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_geography_column
+          naked_identifier: my_geography_column
       - data_type:
           wkt_geometry_type:
             keyword: GEOGRAPHY
@@ -201,27 +201,27 @@ file:
               start_bracket: (
               keyword: GEOGRAPHY
               comma: ','
-              literal: '6679'
+              numeric_literal: '6679'
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_4d_point
+          naked_identifier: my_4d_point
       - data_type:
           wkt_geometry_type:
             keyword: POINTZM
             bracketed:
             - start_bracket: (
-            - literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_multicurve
+          naked_identifier: my_multicurve
       - data_type:
           wkt_geometry_type:
             keyword: MULTICURVE
@@ -229,30 +229,30 @@ file:
               start_bracket: (
               bracketed:
               - start_bracket: (
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '5'
-              - literal: '5'
+              - numeric_literal: '5'
+              - numeric_literal: '5'
               - end_bracket: )
               comma: ','
               wkt_geometry_type:
                 keyword: CIRCULARSTRING
                 bracketed:
                 - start_bracket: (
-                - literal: '4'
-                - literal: '0'
+                - numeric_literal: '4'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '4'
-                - literal: '4'
+                - numeric_literal: '4'
+                - numeric_literal: '4'
                 - comma: ','
-                - literal: '8'
-                - literal: '4'
+                - numeric_literal: '8'
+                - numeric_literal: '4'
                 - end_bracket: )
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_tin
+          naked_identifier: my_tin
       - data_type:
           wkt_geometry_type:
             keyword: TIN
@@ -262,21 +262,21 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -284,27 +284,27 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_triangle
+          naked_identifier: my_triangle
       - data_type:
           wkt_geometry_type:
             keyword: TRIANGLE
@@ -312,22 +312,22 @@ file:
               start_bracket: (
               bracketed:
               - start_bracket: (
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '0'
-              - literal: '9'
+              - numeric_literal: '0'
+              - numeric_literal: '9'
               - comma: ','
-              - literal: '9'
-              - literal: '0'
+              - numeric_literal: '9'
+              - numeric_literal: '0'
               - comma: ','
-              - literal: '0'
-              - literal: '0'
+              - numeric_literal: '0'
+              - numeric_literal: '0'
               - end_bracket: )
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_polyhedral_surface
+          naked_identifier: my_polyhedral_surface
       - data_type:
           wkt_geometry_type:
             keyword: POLYHEDRALSURFACE
@@ -337,25 +337,25 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -363,25 +363,25 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -389,25 +389,25 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -415,25 +415,25 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -441,25 +441,25 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
                 - end_bracket: )
                 end_bracket: )
             - comma: ','
@@ -467,31 +467,31 @@ file:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '1'
                 - end_bracket: )
                 end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_3d_geometry_collection
+          naked_identifier: my_3d_geometry_collection
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRYCOLLECTIONM
@@ -501,27 +501,27 @@ file:
                 keyword: POINTM
                 bracketed:
                 - start_bracket: (
-                - literal: '2'
-                - literal: '3'
-                - literal: '9'
+                - numeric_literal: '2'
+                - numeric_literal: '3'
+                - numeric_literal: '9'
                 - end_bracket: )
             - comma: ','
             - wkt_geometry_type:
                 keyword: LINESTRINGM
                 bracketed:
                 - start_bracket: (
-                - literal: '2'
-                - literal: '3'
-                - literal: '4'
+                - numeric_literal: '2'
+                - numeric_literal: '3'
+                - numeric_literal: '4'
                 - comma: ','
-                - literal: '3'
-                - literal: '4'
-                - literal: '5'
+                - numeric_literal: '3'
+                - numeric_literal: '4'
+                - numeric_literal: '5'
                 - end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_curve_polygon
+          naked_identifier: my_curve_polygon
       - data_type:
           wkt_geometry_type:
             keyword: CURVEPOLYGON
@@ -531,40 +531,40 @@ file:
                 keyword: CIRCULARSTRING
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '4'
-                - literal: '0'
+                - numeric_literal: '4'
+                - numeric_literal: '0'
                 - comma: ','
-                - literal: '4'
-                - literal: '4'
+                - numeric_literal: '4'
+                - numeric_literal: '4'
                 - comma: ','
-                - literal: '0'
-                - literal: '4'
+                - numeric_literal: '0'
+                - numeric_literal: '4'
                 - comma: ','
-                - literal: '0'
-                - literal: '0'
+                - numeric_literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
               comma: ','
               bracketed:
               - start_bracket: (
-              - literal: '1'
-              - literal: '1'
+              - numeric_literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '3'
-              - literal: '3'
+              - numeric_literal: '3'
+              - numeric_literal: '3'
               - comma: ','
-              - literal: '3'
-              - literal: '1'
+              - numeric_literal: '3'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '1'
-              - literal: '1'
+              - numeric_literal: '1'
+              - numeric_literal: '1'
               - end_bracket: )
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_multisurface
+          naked_identifier: my_multisurface
       - data_type:
           wkt_geometry_type:
             keyword: MULTISURFACE
@@ -578,35 +578,35 @@ file:
                     keyword: CIRCULARSTRING
                     bracketed:
                     - start_bracket: (
-                    - literal: '0'
-                    - literal: '0'
+                    - numeric_literal: '0'
+                    - numeric_literal: '0'
                     - comma: ','
-                    - literal: '4'
-                    - literal: '0'
+                    - numeric_literal: '4'
+                    - numeric_literal: '0'
                     - comma: ','
-                    - literal: '4'
-                    - literal: '4'
+                    - numeric_literal: '4'
+                    - numeric_literal: '4'
                     - comma: ','
-                    - literal: '0'
-                    - literal: '4'
+                    - numeric_literal: '0'
+                    - numeric_literal: '4'
                     - comma: ','
-                    - literal: '0'
-                    - literal: '0'
+                    - numeric_literal: '0'
+                    - numeric_literal: '0'
                     - end_bracket: )
                   comma: ','
                   bracketed:
                   - start_bracket: (
-                  - literal: '1'
-                  - literal: '1'
+                  - numeric_literal: '1'
+                  - numeric_literal: '1'
                   - comma: ','
-                  - literal: '3'
-                  - literal: '3'
+                  - numeric_literal: '3'
+                  - numeric_literal: '3'
                   - comma: ','
-                  - literal: '3'
-                  - literal: '1'
+                  - numeric_literal: '3'
+                  - numeric_literal: '1'
                   - comma: ','
-                  - literal: '1'
-                  - literal: '1'
+                  - numeric_literal: '1'
+                  - numeric_literal: '1'
                   - end_bracket: )
                   end_bracket: )
               comma: ','
@@ -614,66 +614,66 @@ file:
               - start_bracket: (
               - bracketed:
                 - start_bracket: (
-                - literal: '10'
-                - literal: '10'
+                - numeric_literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '14'
-                - literal: '12'
+                - numeric_literal: '14'
+                - numeric_literal: '12'
                 - comma: ','
-                - literal: '11'
-                - literal: '10'
+                - numeric_literal: '11'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '10'
-                - literal: '10'
+                - numeric_literal: '10'
+                - numeric_literal: '10'
                 - end_bracket: )
               - comma: ','
               - bracketed:
                 - start_bracket: (
-                - literal: '11'
-                - literal: '11'
+                - numeric_literal: '11'
+                - numeric_literal: '11'
                 - comma: ','
-                - literal: '11.5'
-                - literal: '11'
+                - numeric_literal: '11.5'
+                - numeric_literal: '11'
                 - comma: ','
-                - literal: '11'
-                - literal: '11.5'
+                - numeric_literal: '11'
+                - numeric_literal: '11.5'
                 - comma: ','
-                - literal: '11'
-                - literal: '11'
+                - numeric_literal: '11'
+                - numeric_literal: '11'
                 - end_bracket: )
               - end_bracket: )
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_circularstring
+          naked_identifier: my_circularstring
       - data_type:
           wkt_geometry_type:
             keyword: CIRCULARSTRING
             bracketed:
             - start_bracket: (
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '4'
-            - literal: '0'
+            - numeric_literal: '4'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '4'
-            - literal: '4'
+            - numeric_literal: '4'
+            - numeric_literal: '4'
             - comma: ','
-            - literal: '0'
-            - literal: '4'
+            - numeric_literal: '0'
+            - numeric_literal: '4'
             - comma: ','
-            - literal: '0'
-            - literal: '0'
+            - numeric_literal: '0'
+            - numeric_literal: '0'
             - end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: quadkey
+              naked_identifier: quadkey
             end_bracket: )
       - end_bracket: )
   statement_terminator: ;

@@ -18,11 +18,18 @@ at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
 in the [docs](./docs/) folder of the repo). Pull requests are always welcome
 with documentation improvements. Keep in mind that there are linting checks in
 place for good formatting so keep an eye on the tests whenever submitting a PR.
+We also have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) for
+longer tutorials. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
 
 :star2: **Fifth** - if you are so inclined - pull requests on the core codebase
-are always welcome. Bear in mind that all the tests should pass, and test
-coverage should not decrease unduly as part of the changes which you make.
-You may find it useful to familiarise yourself with the
+are always welcome. Dialect additions are often a good entry point for new
+contributors, and we have
+[a wiki page](https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes)
+to help you through your first contribution. Bear in mind that all the tests
+should pass, and test coverage should not decrease unduly as part of the
+changes which you make. You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
@@ -75,36 +82,44 @@ changes.
 
 ### Developing and Running SQLFluff Locally
 
-To use your local development branch of SQLFluff, I recommend you use a virtual
-environment. e.g:
+#### Requirements
 
+The simplest way to set up a development environment is to use `tox`.
+First ensure that you have tox installed:
 ```shell
-python3 -m venv .venv
+python3.8 -m pip install -U tox
+```
+**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as the `mypy` checks are incompatible with 3.7. Those using newer versions of Python may replace `python3.8` as necessary (the test suite runs primarily under 3.10 for example).
+
+Note: Unfortunately tox does not currently support setting just a minimum Python version (though this may be be coming in tox 4!).
+
+#### Creating a virtual environment
+
+A virtual environment can then be created and activated by running (check the [requirements](#requirements) before running this):
+```shell
+tox -e dbt021-py38 --devenv .venv
 source .venv/bin/activate
 ```
+(The `dbt021-py38` environment is a good default choice.
+However any version can be installed by replacing `dbt021-py38` with
+`py`, `py37`, `py39`, `dbt020-py38`, etc.
+`py` defaults to the python version that was used to install tox.
+However, to be able to run all tests including the dbt templater,
+choose one of the dbt environments.)
 
-> `python3 -m venv .venv` creates a new virtual environment (in current working
-> directory) called `.venv`.
-> `source .venv/bin/activate` activates the virtual environment so that packages
-> can be installed/uninstalled into it. [More info on venv](https://docs.python.org/3/library/venv.html).
+Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
 
-Once you are in a virtual environment, run:
+This virtual environment will already have the package installed in editable mode for you, as well as
+`requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
+was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 
-```shell
-pip install -U tox
-pip install -Ur requirements.txt -Ur requirements_dev.txt
-pip install -e .
-```
+### Wiki
 
-> `pip install tox` installs the `tox` testing package. It is not part of the project
-> dependencies as the test suite runs through `tox`.
-
-> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
-> as well as the dependencies needed to run linting, formatting, and testing commands. This will
-> install the most up-to-date package versions for all dependencies (-U).
-
-> `pip install -e .` installs the package using a link to the source code so that any changes
-> which you make will immediately be available for use.
+We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some
+more long form tutorials for contributors, particualrly those new to SQLFluff
+or contributing to open source. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
 
 ### Developing plugins
 
@@ -122,10 +137,9 @@ pip install -e plugins/sqlfluff-templater-dbt/.
 
 ### Testing
 
-To test locally, SQLFluff uses `tox`, which means you can build locally using...
+To test locally, SQLFluff uses `tox` (check the [requirements](#requirements)!). The test suite can be run via:
 
 ```shell
-pip install tox
 tox
 ```
 
@@ -135,32 +149,42 @@ Python version, so you can always specify a particular environment. For example,
 if you are developing in Python 3.8 you might call...
 
 ```shell
-tox -e generate-fixture-yml,py38,linting
+tox -e generate-fixture-yml,py38,linting,mypy
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e generate-fixture-yml,cov-init,py38,cov-report,linting
+tox -e generate-fixture-yml,cov-init,py38,cov-report,linting,mypy
 ```
 
-> NB: The `cov-init` task clears the previous test results, the `py36` environment
-> generates the results for tests in that Python version and the `cov-report-nobt`
+> NB: The `cov-init` task clears the previous test results, the `py38` environment
+> generates the results for tests in that Python version and the `cov-report`
 > environment reports those results out to you (excluding dbt).
 
-You can also run specific tests only by making use of `pytest -k` to match test.
-For example below will only run the tests for rule L012 which is much faster while
-working on an issue, before running full tests at the end:
+`tox` accepts `posargs` to allow you to refine your test run, which is much
+faster while working on an issue, before running full tests at the end.
+For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-pytest -k L012 -v test
+tox -e py38 -- -k L012 test
 ```
 
-Alternatively, you can also run tests from specific directory or file only:
+Alternatively, you can also run tests from a specific directory or file only:
 ```
-pytest test/cli
-pytest test/cli/commands_test.py
+tox -e py38 -- test/cli
+tox -e py38 -- test/cli/commands_test.py
 ```
+
+You can also manually test your updated code against a SQL file via:
+```shell
+sqlfluff parse test.sql
+```
+(ensure your virtual environment is activated first).
+
+#### dbt templater tests
+
+The dbt templater tests require a locally running Postgres instance. See the required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`. We recommend using https://postgresapp.com/.
 
 To run the dbt-related tests you will have to explicitly include these tests:
 
@@ -169,6 +193,35 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
+
+#### Running dbt templater tests in Docker Compose
+
+NOTE: If you prefer, you can develop and debug the dbt templater using a
+Docker Compose environment. It's a simple two-container configuration:
+* `app`: Hosts the SQLFluff development environment. The host's source
+  directory is mounted into the container, so you can iterate on code
+  changes without having to constantly rebuild and restart the container.
+* `postgres`: Hosts a transient Postgres database instance.
+
+Steps to use the Docker Compose environment:
+* Install Docker on your machine.
+* Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
+* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
+
+Inside the container, run:
+```
+py.test -v plugins/sqlfluff-templater-dbt/test/
+```
+
+### Pre-Commit Config
+
+For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks by running (check the [requirements](#requirements) before running this):
+
+```
+tox -e pre-commit -- install
+```
+
+These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
 
 ### Documentation Website
 
@@ -181,27 +234,57 @@ New versions of SQLFluff will be published to PyPI automatically via
 [GitHub Actions](.github/workflows/publish-release-to-pypi.yaml)
 whenever a new release is published to GitHub.
 
-A new release can be published with a tag in GitHub by navigating to the
-[releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
-already exist with merged Pull Requests automatically added since the last release.
-Copy the text from the draft release into a new, version-numbered section of the [CHANGELOG.md](CHANGELOG.md) file and update the
-[src/sqlfluff/config.ini](src/sqlfluff/config.ini) file to the new version.
-Once both changes are done, open a new Pull Request for these changes.
+#### Release checklist:
+
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
+
+A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml).
+
+As further PRs are merged, we may need to rerun the release script again (or alternatively just manually updating the branch). This can only be rerun locally (the GitHub Action will exit error if the branch already exists to prevent overwriting it).
+
+Check out the release branch created by the GitHub Action locally and run the script. It will preserve any `Highlights` you have added and update the other sections with new contributions. It can be run as follows (you will need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
+
+```shell
+source .venv/bin/activate
+export GITHUB_REPOSITORY_OWNER=sqlfluff
+export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
+python util.py prepare-release --new_version_num=0.13.4 # Change to your release number
+```
+
+Below is the old list of release steps, but many are automated by the process described above.
+
+- [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
+- [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
+- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created by a GitHub Action on each PR merge.
+- [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release Notes", then it will basically recreate these notes (though in a slightly different format), but also add a nice "First contributors" section, so can copy that "First contributors" section too and then abandon that new draft ([an issues](https://github.com/release-drafter/release-drafter/issues/1001) has been raised to ask for this in Release Drafter GitHub Action).
+- [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically when displaying Markdown files, like it does for comments. You can use regex in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`, or if using the GitHub generated release notes then can replace `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
+- [ ] For the new contributors section, you can replace `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
+- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). We also don't use [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/) (e.g. `feat`) so make them more English readible. Make same edits locally in [CHANGELOG.md](CHANGELOG.md).
+- [ ] Add a comment at the top to highlight the main things in this release.
+- [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added that made this a non-patch release.
+- [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.
+- [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR in GitHub to give them time to merge their work before the new release
+- [ ] Comment in #contributing slack channel about release candidate.
+- [ ] Update the draft PR as more changes get merged.
+- [ ] Get another contributor to approve the PR.
+- [ ] Merge the PR when looks like we've got all we’re gonna get for this release.
+- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your release PR which doesn’t need to go in this). Add version tag and a title and click “Publish release”.
+- [ ] Announce the release in the #general channel, with shout outs to those who contributed many, or big items.
+- [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your Twitter handle if you want access to Tweet on SQLFluff’s behalf).
 
 :warning: **Before creating a new release, ensure that
-[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up-to-date with a new version** :warning:.
+[setup.cfg](setup.cfg) is up-to-date with a new version** :warning:.
 If this is not done, PyPI will reject the package. Also, ensure you have used that
 version as a part of the tag and have described the changes accordingly.
 
-#### Manually
+#### Releasing Manually
 
 If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
 You will need to be an admin to submit this to PyPI, and you will need a properly
 formatted `.pypirc` file. If you have managed all that then you can run:
 
 ```shell
-python setup.py sdist
-twine upload dist/*
+tox -e publish-dist
 ```
 
 ... and the most recent version will be uploaded to PyPI.

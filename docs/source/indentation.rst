@@ -49,7 +49,7 @@ So, without further ado, here are the principles we think apply to indentation:
 
 2. **Line Length**. Long lines are hard to read and many SQL guidelines
    include a line length restriction. This is (of course) configurable, but
-   the default is 80 characters (in line with the `Fishtown SQL style guide`_.)
+   the default is 80 characters (in line with the `dbt Labs SQL style guide`_.)
 
 3. **Bracket behaviour**. For brackets there are three accepted ways:
 
@@ -158,15 +158,26 @@ of the :code:`JOIN` expression.
 
 Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
 and therefore would be expected to be indented. However according to many
-of the most common SQL style guides (including the `Fishtown SQL style guide`_
+of the most common SQL style guides (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_) the :code:`JOIN` keyword is expected to at
 the same indent as the :code:`FROM` keyword. By default, *SQLFluff* sides with
 the current consensus, which is to *not* indent the :code:`JOIN` keyword,
 however this is one element which is configurable.
 
 By setting values in the :code:`sqlfluff:indentation` section of your config
-file you can control how this is parsed, for example you may work with an
-indentation similar to that of `Baron Schwartz`_.
+file you can control how this is parsed.
+
+For example, the default indentation would be as follows:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      b
+   FROM my_table
+   JOIN another_table
+      ON condition1
+         AND condition2
 
 By setting your config file to:
 
@@ -180,39 +191,78 @@ Then the expected indentation will be:
 .. code-block:: sql
 
    SELECT
-      a, b, c
+      a,
+      b
    FROM my_table
       JOIN another_table
-         USING(a)
+         ON condition1
+            AND condition2
 
-However if no value for :code:`indented_joins` is set, or if it is set to
-:code:`false` then then following indentation will be expected:
-
-.. code-block:: sql
-
-   SELECT
-      a, b, c
-   FROM my_table
-   JOIN another_table
-      USING(a)
-
-There is a similar :code:`indented_using_on` config (defaulted to :code:`true`)
-which can be set to :code:`false` to prevent the :code:`using` clause from
-being indented, in which case above SQL would become:
+There is a similar :code:`indented_using_on` config (defaulted to :code:`True`)
+which can be set to :code:`False` to prevent the :code:`USING` or :code:`ON`
+clause from being indented, in which case the original SQL would become:
 
 .. code-block:: sql
 
    SELECT
-      a, b, c
+      a,
+      b
    FROM my_table
    JOIN another_table
-   USING(a)
+   ON condition1
+      AND condition2
+
+There is also a similar :code:`indented_on_contents` config (defaulted to
+:code:`True`) which can be set to :code:`False` to align any :code:`AND`
+subsections of an :code:`ON` block with each other. If set to :code:`False`
+the original SQL would become:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      b
+   FROM my_table
+   JOIN another_table
+      ON condition1
+      AND condition2
+
+These can also be combined, so if :code:`indented_using_on` config is set to
+:code:`False`, and :code:`indented_on_contents` is also set to :code:`False`
+then the SQL would become:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      b
+   FROM my_table
+   JOIN another_table
+   ON condition1
+   AND condition2
+
+There is also a similar :code:`indented_ctes` config (defaulted to
+:code:`False`) which can be set to :code:`True` to enforce CTEs to be
+indented within the :code:`WITH` clause:
+
+.. code-block:: sql
+
+   WITH
+      some_cte AS (
+         SELECT 1 FROM table1
+      ),
+
+      some_other_cte AS (
+         SELECT 1 FROM table1
+      )
+
+   SELECT 1 FROM some_cte
 
 By default, *SQLFluff* aims to follow the indentation most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
-.. _`Fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
+.. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
-.. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/
+.. _`Rule L018`: ./rules.html#sqlfluff.core.rules.Rule_L018

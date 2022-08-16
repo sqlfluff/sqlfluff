@@ -3,174 +3,624 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e96e904a863c121e05868d36181faed96219162fc10dfb3432527bac5acd292f
+_hash: 039c55eb113779324abffb5d04be4857968710630bd0e260478a0ca41c3aaf1d
 file:
 - statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: t1
-    - keyword: alter
-    - keyword: column
-    - identifier: c1
-    - keyword: drop
-    - keyword: not
-    - keyword: 'null'
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: t1
-    - keyword: modify
-    - identifier: c2
-    - keyword: drop
-    - keyword: default
-    - comma: ','
-    - identifier: c3
-    - keyword: set
-    - keyword: default
-    - identifier: seq5
-    - dot: .
-    - keyword: nextval
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: t1
-    - keyword: alter
-    - identifier: c4
-    - keyword: set
-    - keyword: data
-    - keyword: type
-    - data_type:
-        data_type_identifier: varchar
-        bracketed:
-          start_bracket: (
-          expression:
-            literal: '50'
-          end_bracket: )
-    - comma: ','
-    - keyword: column
-    - identifier: c4
-    - keyword: drop
-    - keyword: default
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: t1
-    - keyword: alter
-    - identifier: c5
-    - keyword: comment
-    - literal: "'50 character column'"
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: xxxx
-      - dot: .
-      - identifier: example_table
-    - keyword: MODIFY
-    - keyword: COLUMN
-    - identifier: employeeCode
-    - keyword: SET
-    - keyword: MASKING
-    - keyword: POLICY
-    - function_name_identifier: example_MASKING_POLICY
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_id
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_definition:
+          naked_identifier: my_column
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5000'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_id
-    - comma: ','
-    - keyword: column
-    - identifier: empl_dob
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_dob
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: DEFAULT
+      - expression:
+          numeric_literal: '1'
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
-    - comma: ','
-    - keyword: column
-    - identifier: empl_dob
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '10000'
+        - comma: ','
+        - numeric_literal: '1'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+      - keyword: START
+      - numeric_literal: '10000'
+      - keyword: INCREMENT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: adatabase
+        - dot: .
+        - naked_identifier: aschema
+        - dot: .
+        - function_name_identifier: apolicy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: my_column
+          comma: ','
+          expression:
+            column_reference:
+              naked_identifier: my_column
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: reporting_tbl
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: reporting_group
+      - data_type:
+          data_type_identifier: VARCHAR
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'internal reporting group defined by DE team'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          naked_identifier: new_col_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: test_table
-    - parameter: column
-    - identifier: test_column
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c1
+      - keyword: drop
+      - keyword: not
+      - keyword: 'null'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - identifier: test_schema
+        naked_identifier: t1
+    - alter_table_table_column_action:
+        keyword: alter
+        column_reference:
+          naked_identifier: c5
+        comment_clause:
+          keyword: comment
+          quoted_literal: "'50 character column'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: modify
+      - column_reference:
+          naked_identifier: c2
+      - keyword: drop
+      - keyword: default
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - keyword: set
+      - keyword: default
+      - naked_identifier: seq5
       - dot: .
-      - identifier: test_table
-    - parameter: column
-    - identifier: test_column
+      - keyword: nextval
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: alter
+      - column_reference:
+          naked_identifier: c4
+      - keyword: set
+      - keyword: data
+      - keyword: type
+      - data_type:
+          data_type_identifier: varchar
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '50'
+            end_bracket: )
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: c4
+      - keyword: drop
+      - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: xxxx
+      - dot: .
+      - naked_identifier: example_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: employeeCode
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: example_MASKING_POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: aschema
+      - dot: .
+      - naked_identifier: atable
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: acolumn
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: adatabase
+        - dot: .
+        - naked_identifier: aschema
+        - dot: .
+        - function_name_identifier: apolicy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+      - keyword: using
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: empl_id
+          comma: ','
+          expression:
+            column_reference:
+              naked_identifier: empl_id
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_dob
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_dob
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_dob
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_3
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          naked_identifier: new_col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - keyword: drop
+    - keyword: PRIMARY
+    - keyword: KEY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - alter_table_table_column_action:
+        keyword: add
+        column_definition:
+          naked_identifier: PRIMARY
+          data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: TABLE_ID
+              end_bracket: )
 - statement_terminator: ;

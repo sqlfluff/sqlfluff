@@ -1,17 +1,20 @@
-"""Implementation of Rule L040."""
+"""Implementation of Rule L041."""
 from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L041(BaseRule):
-    """SELECT clause modifiers such as DISTINCT must be on the same line as SELECT.
+    """``SELECT`` modifiers (e.g. ``DISTINCT``) must be on the same line as ``SELECT``.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -21,7 +24,7 @@ class Rule_L041(BaseRule):
         from x
 
 
-    | **Best practice**
+    **Best practice**
 
     .. code-block:: sql
 
@@ -32,52 +35,105 @@ class Rule_L041(BaseRule):
 
     """
 
+    groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
-        if context.segment.is_type("select_clause"):
-            # Does the select clause have modifiers?
-            select_modifier = context.segment.get_child("select_clause_modifier")
-            if not select_modifier:
-                return None  # No. We're done.
-            select_modifier_idx = context.segment.segments.index(select_modifier)
+        # We only care about select_clause.
+        assert context.segment.is_type("select_clause")
 
-            # Does the select clause contain a newline?
-            newline = context.segment.get_child("newline")
-            if not newline:
-                return None  # No. We're done.
-            newline_idx = context.segment.segments.index(newline)
+        # Get children of select_clause and the corresponding select keyword.
+        child_segments = FunctionalContext(context).segment.children()
+        select_keyword = child_segments[0]
 
-            # Is there a newline before the select modifier?
-            if newline_idx > select_modifier_idx:
-                return None  # No, we're done.
+        # See if we have a select_clause_modifier.
+        select_clause_modifier_seg = child_segments.first(
+            sp.is_type("select_clause_modifier")
+        )
 
-            # Yes to all the above. We found an issue.
+        # Rule doesn't apply if there's no select clause modifier.
+        if not select_clause_modifier_seg:
+            return None
 
-            # E.g.: " DISTINCT\n"
-            replace_newline_with = [
-                WhitespaceSegment(),
-                select_modifier,
-                NewlineSegment(),
-            ]
-            fixes = [
-                # E.g. "\n" -> " DISTINCT\n.
-                LintFix("edit", newline, replace_newline_with),
-                # E.g. "DISTINCT" -> X
-                LintFix("delete", select_modifier),
-            ]
+        select_clause_modifier = select_clause_modifier_seg[0]
 
-            # E.g. " " after "DISTINCT"
-            ws_to_delete = context.segment.select_children(
-                start_seg=select_modifier,
-                select_if=lambda s: s.is_type("whitespace"),
-                loop_while=lambda s: s.is_type("whitespace") or s.is_meta,
+        # Are there any newlines between the select keyword
+        # and the select clause modifier.
+        leading_newline_segments = child_segments.select(
+            select_if=sp.is_type("newline"),
+            loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+            start_seg=select_keyword,
+        )
+
+        # Rule doesn't apply if select clause modifier
+        # is already on the same line as the select keyword.
+        if not leading_newline_segments:
+            return None
+
+        # We should check if there is whitespace before the select clause modifier
+        # and remove this during the lint fix.
+        leading_whitespace_segments = child_segments.select(
+            select_if=sp.is_type("whitespace"),
+            loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+            start_seg=select_keyword,
+        )
+
+        # We should also check if the following select clause element
+        # is on the same line as the select clause modifier.
+        trailing_newline_segments = child_segments.select(
+            select_if=sp.is_type("newline"),
+            loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+            start_seg=select_clause_modifier,
+        )
+
+        # We will insert these segments directly after the select keyword.
+        edit_segments = [
+            WhitespaceSegment(),
+            select_clause_modifier,
+        ]
+        if not trailing_newline_segments:
+            # if the first select clause element is on the same line
+            # as the select clause modifier then also insert a newline.
+            edit_segments.append(NewlineSegment())
+
+        fixes = []
+        # Move select clause modifier after select keyword.
+        fixes.append(
+            LintFix.create_after(
+                anchor_segment=select_keyword,
+                edit_segments=edit_segments,
             )
+        )
 
-            # E.g. " " -> X
-            fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-            return LintResult(
-                anchor=context.segment,
-                fixes=fixes,
+        # Delete original newlines and whitespace between select keyword
+        # and select clause modifier.
+
+        # If there is not a newline after the select clause modifier then delete
+        # newlines between the select keyword and select clause modifier.
+        if not trailing_newline_segments:
+            fixes.extend(LintFix.delete(s) for s in leading_newline_segments)
+        # If there is a newline after the select clause modifier then delete both the
+        # newlines and whitespace between the select keyword and select clause modifier.
+        else:
+            fixes.extend(
+                LintFix.delete(s)
+                for s in leading_newline_segments + leading_whitespace_segments
             )
+        # Delete the original select clause modifier.
+        fixes.append(LintFix.delete(select_clause_modifier))
 
-        return None
+        # If there is whitespace (on the same line) after the select clause modifier
+        # then also delete this.
+        trailing_whitespace_segments = child_segments.select(
+            select_if=sp.is_whitespace(),
+            loop_while=sp.or_(sp.is_type("whitespace"), sp.is_meta()),
+            start_seg=select_clause_modifier,
+        )
+        if trailing_whitespace_segments:
+            fixes.extend((LintFix.delete(s) for s in trailing_whitespace_segments))
+
+        return LintResult(
+            anchor=context.segment,
+            fixes=fixes,
+        )

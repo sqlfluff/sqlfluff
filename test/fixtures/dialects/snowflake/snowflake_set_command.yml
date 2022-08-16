@@ -3,23 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9495c06d581b86d04c89e3244fb20c301265bf4764f20c0c1631fb952c229752
+_hash: b6a01ccb10ee6afc5a2fd0c802d14c70616fa9cfb74a0541f04ea5e4034e88f1
 file:
 - statement:
     set_statement:
       keyword: set
       variable: v1
-      comparison_operator: '='
+      comparison_operator:
+        raw_comparison_operator: '='
       expression:
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     set_statement:
       keyword: set
       variable: v2
-      comparison_operator: '='
+      comparison_operator:
+        raw_comparison_operator: '='
       expression:
-        literal: "'example'"
+        quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -30,21 +32,23 @@ file:
       - comma: ','
       - variable: v2
       - end_bracket: )
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '10'
+          numeric_literal: '10'
       - comma: ','
       - expression:
-          literal: "'example'"
+          quoted_literal: "'example'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
     set_statement:
       keyword: set
       variable: id_threshold
-      comparison_operator: '='
+      comparison_operator:
+        raw_comparison_operator: '='
       expression:
         bracketed:
           start_bracket: (
@@ -66,10 +70,10 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: table1
+                        naked_identifier: table1
           end_bracket: )
         binary_operator: /
-        literal: '2'
+        numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -80,14 +84,15 @@ file:
       - comma: ','
       - variable: max
       - end_bracket: )
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '40'
+          numeric_literal: '40'
       - comma: ','
       - expression:
-          literal: '70'
+          numeric_literal: '70'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,14 +104,15 @@ file:
       - comma: ','
       - variable: max
       - end_bracket: )
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '50'
+          numeric_literal: '50'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
           binary_operator: '*'
           variable: $min
       - end_bracket: )
@@ -115,7 +121,8 @@ file:
     set_statement:
       keyword: SET
       variable: THIS_ROLE
-      comparison_operator: '='
+      comparison_operator:
+        raw_comparison_operator: '='
       expression:
         function:
           function_name:

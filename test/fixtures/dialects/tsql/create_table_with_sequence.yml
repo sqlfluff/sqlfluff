@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30c51a84e37fb29765e95720842f3376aa80a94548d01d41085519295e7afbf6
+_hash: 458cd9df734d33511ad60a3b8b9118650d0e83500c9b115cec616230efc3041c
 file:
   batch:
     statement:
@@ -11,15 +11,15 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: DEST
+        - naked_identifier: DEST
         - dot: .
-        - identifier: MELDER
+        - naked_identifier: MELDER
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - identifier: '[ID]'
+          - quoted_identifier: '[ID]'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -33,35 +33,35 @@ file:
               - keyword: VALUE
               - keyword: FOR
               - object_reference:
-                - identifier: '[dbo]'
+                - quoted_identifier: '[dbo]'
                 - dot: .
-                - identifier: '[SEQ_MELDER]'
+                - quoted_identifier: '[SEQ_MELDER]'
         - comma: ','
         - column_definition:
-            identifier: '[DOWNLOADED_TOTAL]'
+            quoted_identifier: '[DOWNLOADED_TOTAL]'
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: '[WARNED_DAILY]'
+            quoted_identifier: '[WARNED_DAILY]'
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: '[DATE_OF_REPORT]'
+            quoted_identifier: '[DATE_OF_REPORT]'
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATE_LAST_INSERTED
+            naked_identifier: DATE_LAST_INSERTED
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:

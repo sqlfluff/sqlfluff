@@ -1,0 +1,92 @@
+rule: L056
+
+test_fail_sp_prefix_1:
+  fail_str: |
+    CREATE PROCEDURE dbo.sp_pull_data
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_sp_prefix_2:
+  fail_str: |
+    CREATE PROCEDURE dbo.[sp_pull_data]
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_sp_prefix_3:
+  fail_str: |
+    CREATE PROCEDURE dbo."sp_pull_data"
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_non_sp_prefix_1:
+  pass_str: |
+    CREATE PROCEDURE dbo.pull_data
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_non_sp_prefix_2:
+  pass_str: |
+    CREATE PROCEDURE dbo.usp_pull_data
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_non_sp_prefix_3:
+  pass_str: |
+    CREATE PROCEDURE dbo.[usp_pull_data]
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_non_sp_prefix_4:
+  pass_str: |
+    CREATE PROCEDURE dbo."usp_pull_data"
+    AS
+    SELECT
+        ID,
+        DataDate,
+        CaseOutput
+    FROM table1
+  configs:
+    core:
+      dialect: tsql

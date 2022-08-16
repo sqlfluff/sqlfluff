@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c9a76927e80bccab53ba77a8883aad2d675c1b103ad386b24a1b11eb01bf9945
+_hash: 3634f62eee0607dad56faa2de91f83077f514dd94ddbb22de9c6cb3e5e9cff0f
 file:
   statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
     - index_reference:
-        identifier: transaction_updated
+        naked_identifier: transaction_updated
   statement_terminator: ;

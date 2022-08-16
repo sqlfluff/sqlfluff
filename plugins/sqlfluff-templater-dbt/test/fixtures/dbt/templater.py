@@ -11,8 +11,12 @@ DBT_FLUFF_CONFIG = {
     },
     "templater": {
         "dbt": {
-            "profiles_dir": "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
-            "project_dir": "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project",
+            "profiles_dir": (
+                "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml"
+            ),
+            "project_dir": (
+                "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
+            ),
         },
     },
 }
@@ -27,4 +31,4 @@ def project_dir():
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
-    return FluffConfig().get_templater("dbt")
+    return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")

@@ -42,11 +42,6 @@ test_fail_line_too_long_with_comments_4:
     c1
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
-  fix_str: |
-    SELECT
-    c1
-    ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
-    c2
   configs:
     rules:
       max_line_length: 80
@@ -62,7 +57,7 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 test_fail_line_too_long_only_comments:
   # Check long lines that are only comments are linted correctly
@@ -86,7 +81,7 @@ test_pass_line_too_long_ignore_comments_true:
     rules:
       max_line_length: 10
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 test_pass_line_too_long_ignore_comments_false:
   # Check we still pick up long comments if we don't want to ignore
@@ -95,7 +90,7 @@ test_pass_line_too_long_ignore_comments_false:
     rules:
       max_line_length: 10
       L016:
-        ignore_comment_lines: False
+        ignore_comment_lines: false
 
 test_compute_line_length_before_template_expansion_1:
   # Line 3 is fine before expansion. Too long after expansion is NOT considered
@@ -141,7 +136,7 @@ test_long_jina_comment:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: False
+        ignore_comment_lines: false
 
 
 test_long_jina_comment_ignore:
@@ -155,7 +150,7 @@ test_long_jina_comment_ignore:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 
 test_for_loop:
@@ -230,3 +225,115 @@ test_set_statement:
   configs:
     rules:
       max_line_length: 80
+
+
+test_issue_1666_line_too_long_unfixable_jinja:
+  # Note the trailing space at the end of line 1. This is a necessary part of
+  # the test, because the space (which is passed through to the output) was
+  # "tricking" L016 into trying to split the line, then encountering an internal
+  # error.
+  fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"
+
+test_fail_ignore_comment_clauses_1:
+  # Too long, comment clause not ignored
+  fail_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        col2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+
+test_fail_ignore_comment_clauses_2:
+  # Too long even after ignoring comment clause
+  fail_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        colaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbcccccccccccccccddddddddddddddddeeeeeeeeeeeeeee2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+  configs:
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses:
+  pass_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        col2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+  configs:
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses_teradata:
+  pass_str: |
+    comment on table sandbox_db.Org_Descendant is 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: teradata
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses_exasol:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS SCHEM.TAB (
+        ID DECIMAL(18, 0) IDENTITY CONSTRAINT PRIMARY KEY DISABLE COMMENT IS 'without constraint name'
+    ) COMMENT IS 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses_snowflake:
+  pass_str: |
+    CREATE TABLE foo_table (bar INTEGER) COMMENT = 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length'
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses_postgres:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS foo
+    ( id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      name TEXT NOT NULL
+    );
+
+    COMMENT ON TABLE foo IS 'Windows Phone 8, however, was never able to overcome a long string of disappointments for Microsoft. ';
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L016:
+        ignore_comment_clauses: True
+
+test_fail_templated_comment_clause:
+  fail_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    templater:
+      jinja:
+        context: {}
+
+test_pass_ignore_templated_comment_clause:
+  pass_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      L016:
+        ignore_comment_clauses: True
+    templater:
+      jinja:
+        context: {}

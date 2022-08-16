@@ -1,0 +1,368 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c84076e9d4b74a2bfdccf350264599791e8750ca4e230ed265eaa28feec7fb2d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: DATETIME
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: DATE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIME
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIME
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: d
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIME
+                - keyword: WITHOUT
+                - keyword: TIME
+                - keyword: ZONE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMETZ
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMP
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIMESTAMP
+                - keyword: WITHOUT
+                - keyword: TIME
+                - keyword: ZONE
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: d
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIMESTAMP
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: raw_data
+            - dot: .
+            - naked_identifier: status
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            keyword: AS
+            naked_identifier: status
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: raw_data
+            - dot: .
+            - naked_identifier: start
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: started_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: raw_data
+              dot: .
+              quoted_identifier: '"end"'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: ended_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: raw_data
+            - dot: .
+            - naked_identifier: created
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: created_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: raw_data
+            - dot: .
+            - naked_identifier: identifier
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+          - dot: .
+          - column_reference:
+              naked_identifier: value
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            keyword: AS
+            naked_identifier: communication_request_fhir_reference_origin
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: extension_extraction
+          - dot: .
+          - naked_identifier: database_reference
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: GETDATE
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'UTC'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GETDATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    quoted_literal: "'UTC'"
+              end_bracket: )
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'AEST'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                    time_zone_grammar:
+                    - keyword: AT
+                    - keyword: TIME
+                    - keyword: ZONE
+                    - expression:
+                        quoted_literal: "'UTC'"
+                  end_bracket: )
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    quoted_literal: "'AEST'"
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: raw_data

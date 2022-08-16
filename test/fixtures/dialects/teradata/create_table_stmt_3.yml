@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5423f73fdb22441b10f220bba67b26182d75c743fc558d3a106079a488ba4cc1
+_hash: cc9bccf721c6d09124f8c79fd96de34843bf86e3b284efbb28b9ac693134579a
 file:
   statement:
     create_table_statement:
@@ -11,23 +11,23 @@ file:
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: NUM_LTR_DESVINCULADOS_ADH
+        naked_identifier: NUM_LTR_DESVINCULADOS_ADH
     - bracketed:
       - start_bracket: (
       - column_definition:
         - column_reference:
-            identifier: DES_EVENTO
-        - td_internal_data_type:
+            naked_identifier: DES_EVENTO
+        - data_type:
             data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
-          - identifier: LATIN
+          - naked_identifier: LATIN
         - td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
@@ -35,15 +35,15 @@ file:
             keyword: COMPRESS
             bracketed:
             - start_bracket: (
-            - literal: "'Cambio de bandera'"
+            - quoted_literal: "'Cambio de bandera'"
             - comma: ','
-            - literal: "'Cierre'"
+            - quoted_literal: "'Cierre'"
             - end_bracket: )
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: IND_CONTINUA
-          td_internal_data_type:
+            naked_identifier: IND_CONTINUA
+          data_type:
             data_type_identifier: BYTEINT
           td_column_attribute_constraint:
             keyword: COMPRESS
@@ -53,13 +53,13 @@ file:
       - keyword: INDEX
       - bracketed:
         - start_bracket: (
-        - identifier: COD_TARJETA
+        - naked_identifier: COD_TARJETA
         - comma: ','
-        - identifier: COD_EST
+        - naked_identifier: COD_EST
         - comma: ','
-        - identifier: FEC_CIERRE_EST
+        - naked_identifier: FEC_CIERRE_EST
         - comma: ','
-        - identifier: IND_TIPO_TARJETA
+        - naked_identifier: IND_TIPO_TARJETA
         - end_bracket: )
       - keyword: PARTITION
       - keyword: BY
@@ -87,10 +87,10 @@ file:
           - end_bracket: )
       - keyword: INDEX
       - object_reference:
-          identifier: HOPR_TRN_TRAV_SIN_MP_I
+          naked_identifier: HOPR_TRN_TRAV_SIN_MP_I
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: IND_TIPO_TARJETA
+            naked_identifier: IND_TIPO_TARJETA
           end_bracket: )
   statement_terminator: ;

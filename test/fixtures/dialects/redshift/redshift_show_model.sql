@@ -1,0 +1,3 @@
+SHOW MODEL ALL;
+
+SHOW MODEL mdl;

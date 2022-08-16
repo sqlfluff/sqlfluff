@@ -16,3 +16,99 @@ test_simple_fix:
     select
         1 + 2 + 3 + 4        -- Comment
     from foo
+
+test_identifier_fix:
+  fail_str: |
+    SELECT [thistable] . [col]
+    FROM [thisdatabase] . [thisschema]
+            . [thistable]
+  fix_str: |
+    SELECT [thistable].[col]
+    FROM [thisdatabase].[thisschema].[thistable]
+  configs:
+    core:
+      dialect: tsql
+
+test_comparison_operator_fix:
+  fail_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz > = 10;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
+test_comparison_operator_pass:
+  pass_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
+test_casting_operator_fix:
+  fail_str: |
+    SELECT '1' :: INT;
+  fix_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_casting_operator_pass:
+  pass_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_tsql_spaced_chars:
+  fail_str: |
+    SELECT col1 FROM table1 WHERE 1 > = 1
+  fix_str: |
+    SELECT col1 FROM table1 WHERE 1 >= 1
+  configs:
+    core:
+      dialect: tsql
+
+# Check CASE Statment parses with newlines properly
+# See https://github.com/sqlfluff/sqlfluff/issues/2495
+test_pass_postgres_case_statement:
+  pass_str: |
+    SELECT
+        a,
+        CASE
+            WHEN 1 THEN 'one'
+            WHEN 2 THEN 'two'
+            ELSE 'other'
+        END AS b
+    FROM test;
+  configs:
+    core:
+      dialect: postgres
+
+test_excess_space_cast:
+  fail_str: |
+    select
+        '1'    ::   INT as id1,
+        '2'::int as id2
+    from table_a
+  fix_str: |
+    select
+        '1'::INT as id1,
+        '2'::int as id2
+    from table_a
+
+test_redshift_at_time_zone:
+  pass_str: |
+    SELECT
+    date_w_tz [0] AT TIME ZONE 'Etc/UTC' AS bar
+    FROM foo
+  configs:
+    core:
+      dialect: redshift

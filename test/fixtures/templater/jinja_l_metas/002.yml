@@ -8,13 +8,13 @@ file:
       - whitespace: '    '
       - select_clause_element:
           column_reference:
-            identifier: foo
+            naked_identifier: foo
       - newline: "\n"
       - whitespace: ' '
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: bar
+            naked_identifier: bar
       - newline: "\n"
       - whitespace: '    '
       - placeholder: '{% for action in actions %}'
@@ -25,14 +25,14 @@ file:
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: open_a
+            naked_identifier: open_a
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: campaign_count_a
+            naked_identifier: campaign_count_a
       - newline: "\n"
       - whitespace: '    '
       - newline: "\n"
@@ -41,14 +41,14 @@ file:
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: open_b
+            naked_identifier: open_b
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: campaign_count_b
+            naked_identifier: campaign_count_b
       - newline: "\n"
       - whitespace: '    '
       - newline: "\n"
@@ -57,14 +57,14 @@ file:
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: open_c
+            naked_identifier: open_c
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
       - whitespace: ' '
       - select_clause_element:
           column_reference:
-            identifier: campaign_count_c
+            naked_identifier: campaign_count_c
     - newline: "\n"
     - whitespace: '    '
     - dedent: ''
@@ -88,16 +88,17 @@ file:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: a_raw_effect_sizes
+                naked_identifier: a_raw_effect_sizes
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
-        - placeholder: '{% else %}'
-        - indent: ''
+        - placeholder: '{% else %}... [103 unused template characters] ...{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
+        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
+        - indent: ''
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
@@ -109,7 +110,7 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: b_raw_effect_sizes
+                  naked_identifier: b_raw_effect_sizes
           - newline: "\n"
           - whitespace: '        '
           - keyword: USING
@@ -119,22 +120,25 @@ file:
           - bracketed:
             - start_bracket: (
             - indent: ''
-            - identifier: foo
+            - naked_identifier: foo
             - newline: "\n"
             - whitespace: ' '
             - comma: ','
-            - identifier: bar
+            - naked_identifier: bar
             - dedent: ''
             - end_bracket: )
           - dedent: ''
           - dedent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}{% else %}{% endif %}'
+        - dedent: ''
+        - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
+        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
+        - indent: ''
         - newline: "\n"
         - whitespace: '        '
         - join_clause:
@@ -145,7 +149,7 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: c_raw_effect_sizes
+                  naked_identifier: c_raw_effect_sizes
           - newline: "\n"
           - whitespace: '        '
           - keyword: USING
@@ -155,11 +159,11 @@ file:
           - bracketed:
             - start_bracket: (
             - indent: ''
-            - identifier: foo
+            - naked_identifier: foo
             - newline: "\n"
             - whitespace: ' '
             - comma: ','
-            - identifier: bar
+            - naked_identifier: bar
             - dedent: ''
             - end_bracket: )
           - dedent: ''
@@ -182,6 +186,6 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: action_states
+                  naked_identifier: action_states
           - dedent: ''
   newline: "\n"

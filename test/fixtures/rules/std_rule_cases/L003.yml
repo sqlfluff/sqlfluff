@@ -1,12 +1,12 @@
 rule: L003
 
 test_fail_reindent_first_line_1:
-  fail_str: '     SELECT 1'
+  fail_str: "     SELECT 1"
   fix_str: SELECT 1
 
 test_fail_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing L003
-  fail_str: '  select 1 from tbl;'
+  fail_str: "  select 1 from tbl;"
   fix_str: select 1 from tbl;
 
 test_pass_indentation_of_comments_1:
@@ -158,7 +158,7 @@ test_fail_indented_using_on_false:
       indented_joins: true
       indented_using_on: false
 
-test_fail_indented_joins_using_on_false:
+test_fail_indented_joins_using_on_true:
   # 2.e) specific True, and failing
   fail_str: |
     SELECT a, b, c
@@ -191,6 +191,107 @@ test_fail_indented_joins_using_on_false:
     indentation:
       indented_joins: false
       indented_using_on: false
+
+test_fail_indented_using_on_merge_statment_default:
+  # indented_using_on also covers MERGE INTO statements
+  fail_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  fix_str: |
+    MERGE INTO t
+    USING u
+        ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+
+test_pass_indented_using_on_merge_statment_false:
+  # indented_using_on also covers MERGE INTO statements
+  pass_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  configs:
+    indentation:
+      indented_using_on: false
+
+test_pass_indented_on_contents_default:
+  # Test indented_on_contents when default (true)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+
+test_pass_indented_on_contents_true:
+  # Test indented_on_contents when true (default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+  configs:
+    indentation:
+      indented_on_contents: true
+
+test_pass_indented_on_contents_false:
+  # Test indented_on_contents when false (non-default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+test_fail_indented_on_contents_default_fix:
+  # Default config for indented_on_contents is true
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+            AND true
+
+test_fail_indented_on_contents_false_fix:
+  fail_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
 
 test_pass_indented_from_with_comment:
   pass_str: |
@@ -236,6 +337,19 @@ test_fail_indented_multi_line_comment:
     FROM
         global_actions_states
 
+test_jinja_with_disbalanced_pairs:
+  # The range(3) -%} results in swallowing the \n
+  # N.B. The way L003 handles this is questionable,
+  # and this test seals in that behaviour.
+  pass_str: |
+    SELECT
+        cohort_month
+        {% for i in range(3) -%}
+            , {{ i }} AS index_{{ i }}
+        {% endfor -%}
+        , TRUE AS overall
+    FROM orders
+
 test_fail_attempted_hanger_fix:
   # It's almost a hanger and so should be corrected to one.
   fail_str: |
@@ -280,7 +394,6 @@ test_fail_consecutive_hangers:
           and e like 'e%'
           and f like 'f%'
 
-
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the
@@ -321,7 +434,6 @@ test_pass_indent_indent_bigquery:
     core:
       dialect: bigquery
 
-
 test_jinja_indent_templated_table_name_a:
   fail_str: |
     -- This file combines product data from individual brands into a staging table
@@ -339,15 +451,15 @@ test_jinja_indent_templated_table_name_a:
   fix_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
-    SELECT
-        brand,
-        country_code,
-        category,
-        name,
-        id
-    FROM
-        {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
+        {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
 
 # Like test_jinja_indent_1_a but "FROM" table not initially
@@ -369,19 +481,44 @@ test_jinja_indent_templated_table_name_b:
   fix_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
-    SELECT
-        brand,
-        country_code,
-        category,
-        name,
-        id
-    FROM
-        {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
+        {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
 
-# LIMIT and QUALIFY both indent
-test_limit_and_qualify_indent:
+test_jinja_nested_blocks:
+  fail_str: |
+    WITH
+    raw_effect_sizes AS (
+    SELECT
+    {% for action in ['a'] %}
+    {% if True %}
+    rate_su_{{action}},
+    {% endif %}
+    {% endfor %}
+    )
+    SELECT 1
+
+  fix_str: |
+    WITH
+    raw_effect_sizes AS (
+        SELECT
+            {% for action in ['a'] %}
+                {% if True %}
+                    rate_su_{{action}},
+                {% endif %}
+            {% endfor %}
+    )
+    SELECT 1
+
+# LIMIT, QUALIFY, and WINDOW both indent
+test_limit_and_qualify_and_window_indent:
   fail_str: |
     SELECT
         a,
@@ -392,6 +529,8 @@ test_limit_and_qualify_indent:
     1
     LIMIT
     1
+    WINDOW
+    some_window AS (PARTITION BY 1)
   fix_str: |
     SELECT
         a,
@@ -402,12 +541,14 @@ test_limit_and_qualify_indent:
         1
     LIMIT
         1
+    WINDOW
+        some_window AS (PARTITION BY 1)
   configs:
     core:
       dialect: bigquery
 
-# LIMIT and QUALIFY both acceptable on single line
-test_limit_and_qualify_single_line:
+# LIMIT, QUALIFY and WINDOW both acceptable on single line
+test_limit_and_qualify_and_window_single_line:
   pass_str: |
     SELECT
         a,
@@ -416,9 +557,57 @@ test_limit_and_qualify_single_line:
         my_tbl
     QUALIFY 1
     LIMIT 1
+    WINDOW some_window AS (PARTITION BY 1)
   configs:
     core:
       dialect: bigquery
+
+# By default CTEs should not be indented
+test_pass_cte:
+  pass_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+# CTEs can be configured to be indented
+test_fail_indented_cte:
+  fail_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  fix_str: |
+    WITH
+        some_cte AS (
+            SELECT 1 FROM table1
+        ),
+
+        some_other_cte AS (
+            SELECT 1 FROM table1
+        )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+    indentation:
+      indented_ctes: true
 
 # Exasol LUA script
 test_exasol_script:
@@ -434,3 +623,529 @@ test_exasol_script:
   configs:
     core:
       dialect: exasol
+
+test_pass_tsql_else_if:
+  pass_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if:
+  fail_str: |
+    IF (1 > 1)
+      PRINT 'A';
+     ELSE IF (2 > 2)
+         PRINT 'B';
+    ELSE IF (3 > 3)
+     PRINT 'C';
+    ELSE
+            PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if_successive:
+  fail_str: |
+    IF (1 > 1)
+        PRINT 'A';
+        ELSE IF (2 > 2)
+            PRINT 'B';
+            ELSE IF (3 > 3)
+                PRINT 'C';
+                ELSE
+                    PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+# TSQL function
+test_tsql_function:
+  fail_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET @ISOweek = DATEPART(wk, @DATE) + 1
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+    --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
+                AS char(4)
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+    --Special case Dec 29-31 may belong to the next year
+        IF ((DATEPART(mm, @DATE) = 12)
+        AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+        SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  fix_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET @ISOweek = DATEPART(wk, @DATE) + 1
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+        --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
+                AS char(4)
+                ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+        --Special case Dec 29-31 may belong to the next year
+        IF ((DATEPART(mm, @DATE) = 12)
+            AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+            SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_ignore_templated_whitespace:
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_1:
+  fail_str: |
+    SELECT
+        c1,
+    d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_2:
+  fail_str: |
+    SELECT
+        c1,
+      d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_3:
+  fail_str: |
+    SELECT
+        c1,
+          d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_pass_ignore_templated_whitespace_4:
+  # Note the newline after c2. This causes "AS other_id" to be on a different
+  # line in templated space, but not raw space. L003 should ignore lines like
+  # this.
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2\n" }} AS other_id
+    FROM my_table
+
+test_pass_ignore_templated_newline_not_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+    inner join
+        my_table2
+        using (id)
+
+test_pass_ignore_templated_newline_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+
+test_fail_fix_template_indentation_1:
+  fail_str: |
+    SELECT
+        c1,
+    {{ "c2" }}
+  fix_str: |
+    SELECT
+        c1,
+        {{ "c2" }}
+
+test_fail_fix_template_indentation_2:
+  fail_str: |
+    with
+    first_join as (
+        select
+    {{ "c1" }},
+            c2
+        from helper
+    {{ "group by 1" }}
+    )
+
+    select * from first_join
+  fix_str: |
+    with
+    first_join as (
+        select
+            {{ "c1" }},
+            c2
+        from helper
+        {{ "group by 1" }}
+    )
+
+    select * from first_join
+
+test_pass_tsql_update_indent:
+  pass_str: |
+    update Extracts.itt_parm_base
+        set DateF = convert(varchar, @from_date, 112),
+            DateT = convert(varchar, @to_date, 112)
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_declare_indent:
+  pass_str: |
+    DECLARE @prv_qtr_1st_dt DATETIME,
+            @last_qtr INT,
+            @last_qtr_first_mn INT,
+            @last_qtr_yr INT;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent:
+  pass_str: |
+    SET @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR(4)) + '-' +
+        CAST(@last_qtr_first_mn AS VARCHAR(2)) + '-01'
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent_multiple_params:
+  pass_str: |
+    SET @param1 = 1,
+        @param2 = 2
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_if_indent:
+  pass_str: |
+    IF 1 > 1 AND
+        2 < 2
+        SELECT 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_exasol_func_indent:
+  pass_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6),
+        p2 VARCHAR(10)
+    ) RETURN VARCHAR (20)
+    IS
+        res VARCHAR(20);
+
+    BEGIN
+
+        IF p1 IS NOT NULL AND p2 IS NOT NULL THEN
+            IF p1 = 1 THEN
+                res:= 'Hello World';
+            ELSE
+                IF p2 = 3 THEN
+                    res:= 'ABC';
+                END IF;
+                res:= 'WOHOOOO';
+            END IF;
+        END IF;
+        RETURN res;
+    END schem.func;
+    /
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_fix_exa_func_format:
+  fail_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+    res VARCHAR(20);
+    BEGIN
+    IF p1 = 1 THEN
+      res:= 'Hello World';
+        END IF;
+    RETURN res;
+    END schem.func;
+    /
+  fix_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+        res VARCHAR(20);
+    BEGIN
+        IF p1 = 1 THEN
+            res:= 'Hello World';
+        END IF;
+        RETURN res;
+    END schem.func;
+    /
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_tsql_index_indent:
+  pass_str: |
+    CREATE UNIQUE INDEX AK_UnitMeasure_Name
+        ON Production.UnitMeasure(Name);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_statistics_indent:
+  pass_str: |
+    CREATE STATISTICS [stat_ccode]
+        ON [dbo].[CodeValues]([ccode]);
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_snowflake_merge_statement:
+  fail_str: |
+    merge into foo.bar as tgt
+    using (
+    select
+      foo::date as bar
+    from foo.bar
+    where
+    split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+    OR
+    foo IN ('BAR','FOO')
+    ) as src
+    on
+      src.foo = tgt.foo
+    when matched then
+    update set
+      tgt.foo = src.foo
+    ;
+  fix_str: |
+    merge into foo.bar as tgt
+    using (
+        select
+            foo::date as bar
+        from foo.bar
+        where
+            split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+            OR
+            foo IN ('BAR','FOO')
+    ) as src
+    on
+        src.foo = tgt.foo
+    when matched then
+        update set
+            tgt.foo = src.foo
+    ;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_hanging_indents_allowed_in_default:
+  pass_str: |
+    SELECT
+        a.line + (a.with
+                  + a.hanging_indent) as actually_ok,
+    FROM tbl as a
+
+test_fail_hanging_indents_convert_to_normal_indent:
+  fail_str: |
+    SELECT
+        a.line + (a.with
+                  + a.hanging_indent) as actually_not_ok,
+    FROM tbl as a
+  fix_str: |
+    SELECT
+        a.line + (a.with
+            + a.hanging_indent) as actually_not_ok,
+    FROM tbl as a
+  configs:
+    rules:
+      L003:
+        hanging_indents: False
+
+test_fail_hanging_indents_fix_mixed_indents:
+  fail_str: |
+    SELECT
+        a.line + (
+            a.something_indented_well
+            + least(
+            	  a.good_example, -- there is a tab here
+        a.bad_example,
+         a.really_bad_example,
+                a.nother_good_example
+            )
+        ) as some_harder_problems
+    FROM tbl as a
+  fix_str: |
+    SELECT
+        a.line + (
+            a.something_indented_well
+            + least(
+                a.good_example, -- there is a tab here
+                a.bad_example,
+                a.really_bad_example,
+                a.nother_good_example
+            )
+        ) as some_harder_problems
+    FROM tbl as a
+  configs:
+    rules:
+      L003:
+        hanging_indents: False
+
+test_pass_indented_procedure_parameters:
+  pass_str: |
+    CREATE OR ALTER PROCEDURE some_procedure
+        @param1 int
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_unindented_procedure_parameters:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+    @param1 nvarchar(100),
+    @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  fix_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+        @param1 nvarchar(100),
+        @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_bubble_up_newline_after_fix:
+  # Tests issue 3303, where an L003 fix leaves a newline as the final child
+  # segment that has to be "bubbled up" two levels to avoid violating the
+  # _is_code_or_meta() check in core/parser/segments/base.py.
+  fail_str: |
+    create procedure name as
+    begin
+    drop table if exists #something
+      end
+  fix_str: |
+    create procedure name as
+    begin
+        drop table if exists #something
+    end
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_apply_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS APPLY (
+        VALUES ((1), (2))
+    ) AS table2(col)
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_join_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS JOIN table2
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_nested_join:
+  # Test for behavior prior to issue #3672
+  fail_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+    INNER JOIN table3
+        ON table1.col = table2.col AND table1.col = table3.col;
+  fix_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+        INNER JOIN table3
+            ON table1.col = table2.col AND table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql

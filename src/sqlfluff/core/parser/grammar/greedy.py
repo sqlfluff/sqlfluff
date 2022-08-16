@@ -43,7 +43,9 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
             include_terminator=False,
         )
 
@@ -60,7 +62,9 @@ class GreedyUntil(BaseGrammar):
         seg_buff = segments
         seg_bank = ()  # Empty tuple
         # If no terminators then just return the whole thing.
-        if matchers == [None]:
+        # Shouldn't really happen as GreedyMatch is everything
+        # and StartsWith has mandatory terminator
+        if matchers == [None]:  # pragma: no cover
             return MatchResult.from_matched(segments)
 
         while True:
@@ -114,7 +118,7 @@ class GreedyUntil(BaseGrammar):
                     # a requirement, then we can't use it. Carry on...
                     if not allowable_match:
                         # Update our buffers and continue onward
-                        seg_bank = pre + mat.matched_segments
+                        seg_bank = seg_bank + pre + mat.matched_segments
                         seg_buff = mat.unmatched_segments
                         # Loop around, don't return yet
                         continue
@@ -159,15 +163,19 @@ class StartsWith(GreedyUntil):
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)
+
+        # StartsWith should only be used with a terminator
+        assert self.terminator
+
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         `StartsWith` is simple, if the thing it starts with is also simple.
         """
-        return self.target.simple(parse_context=parse_context)
+        return self.target.simple(parse_context=parse_context, crumbs=crumbs)
 
     @match_wrapper()
     def match(self, segments, parse_context):
@@ -204,7 +212,9 @@ class StartsWith(GreedyUntil):
             match.unmatched_segments,
             parse_context,
             matchers=[self.terminator],
-            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
             include_terminator=self.include_terminator,
         )
 

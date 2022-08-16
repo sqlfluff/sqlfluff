@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2f5fbf257ef1ab0490d88f2c0a9840283f4ea5595471e662572591e7fb25dd6b
+file:
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COPY
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: COPY
+- statement_terminator: ;

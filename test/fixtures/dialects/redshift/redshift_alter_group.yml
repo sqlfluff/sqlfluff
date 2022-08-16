@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dea9d3bfed3f28f59a598e1495b52b9a2051aa4609ca86239a161077c46b3f33
+file:
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+        naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+        naked_identifier: dwuser1
+    - comma: ','
+    - object_reference:
+        naked_identifier: dwuser2
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: drop
+    - keyword: user
+    - object_reference:
+        naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: drop
+    - keyword: user
+    - object_reference:
+        naked_identifier: dwuser1
+    - comma: ','
+    - object_reference:
+        naked_identifier: dwuser2
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: rename
+    - keyword: to
+    - object_reference:
+        naked_identifier: administrators
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+        quoted_identifier: '"test.user"'
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        quoted_identifier: '"admin_group"'
+    - keyword: add
+    - keyword: user
+    - object_reference:
+        quoted_identifier: '"test.user"'
+- statement_terminator: ;

@@ -2,10 +2,10 @@
 
 import logging
 from bisect import bisect_left
-from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
+from sqlfluff.core.config import FluffConfig
 
-from cached_property import cached_property
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -23,13 +23,41 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
+def large_file_check(func):
+    """Raise an exception if the file is over a defined size.
+
+    Designed to be implemented as a decorator on `.process()` methods.
+
+    If no config is provided or the relevant config value is set
+    to zero then the check is skipped.
+    """
+
+    def _wrapped(
+        self, *, in_str: str, fname: str, config: FluffConfig = None, **kwargs
+    ):
+        if config:
+            limit = config.get("large_file_skip_char_limit")
+            if limit and len(in_str) > limit:
+                raise SQLTemplaterSkipFile(
+                    f"Length of file {fname!r} is over {limit} characters. "
+                    "Skipping to avoid parser lock. Users can increase this limit "
+                    "in their config by setting the 'large_file_skip_char_limit' "
+                    "value, or disable by setting it to zero."
+                )
+        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+
+    return _wrapped
+
+
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
-    raw: str
+    raw: str  # Source string
     slice_type: str
-    source_idx: int
+    source_idx: int  # Offset from beginning of source string
     slice_subtype: Optional[str] = None
+    # Block index, incremented on start or end block tags, e.g. "if", "for"
+    block_idx: int = 0
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
@@ -38,6 +66,10 @@ class RawFileSlice(NamedTuple):
     def source_slice(self):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
+
+    def is_source_only_slice(self):
+        """Based on its slice_type, does it only appear in the *source*?"""
+        return self.slice_type in ("comment", "block_end", "block_start", "block_mid")
 
 
 class TemplatedFileSlice(NamedTuple):
@@ -76,6 +108,7 @@ class TemplatedFile:
         templated_str: Optional[str] = None,
         sliced_file: Optional[List[TemplatedFileSlice]] = None,
         raw_sliced: Optional[List[RawFileSlice]] = None,
+        check_consistency=True,
     ):
         """Initialise the TemplatedFile.
 
@@ -106,6 +139,51 @@ class TemplatedFile:
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
+
+        # NOTE: The "check_consistency" flag should always be True when using
+        # SQLFluff in real life. This flag was only added because some legacy
+        # templater tests in test/core/templaters/jinja_test.py use hardcoded
+        # test data with issues that will trigger errors here. It would be cool
+        # to fix that data someday. I (Barry H.) started looking into it, but
+        # it was much trickier than I expected, because bits of the same data
+        # are shared across multiple tests.
+        if check_consistency:
+            # Sanity check raw string and slices.
+            pos = 0
+            rfs: RawFileSlice
+            for idx, rfs in enumerate(self.raw_sliced):
+                assert rfs.source_idx == pos
+                pos += len(rfs.raw)
+            assert pos == len(self.source_str)
+
+            # Sanity check templated string and slices.
+            previous_slice = None
+            tfs: Optional[TemplatedFileSlice] = None
+            for idx, tfs in enumerate(self.sliced_file):
+                if previous_slice:
+                    if tfs.templated_slice.start != previous_slice.templated_slice.stop:
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
+                            "Templated slices found to be non contigious. "
+                            f"{tfs.templated_slice} (starting"
+                            f" {self.templated_str[tfs.templated_slice]!r})"
+                            f" does not follow {previous_slice.templated_slice} "
+                            "(starting "
+                            f"{self.templated_str[previous_slice.templated_slice]!r}"
+                            ")"
+                        )
+                else:
+                    if tfs.templated_slice.start != 0:
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
+                            "First Templated slice not started at index 0 "
+                            f"(found slice {tfs.templated_slice})"
+                        )
+                previous_slice = tfs
+            if self.sliced_file and templated_str is not None:
+                if tfs.templated_slice.stop != len(templated_str):
+                    raise SQLTemplaterSkipFile(  # pragma: no cover
+                        "Length of templated file mismatch with final slice: "
+                        f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                    )
 
     @classmethod
     def from_string(cls, raw):
@@ -180,41 +258,14 @@ class TemplatedFile:
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
-    @cached_property
-    def raw_slice_block_info(self) -> RawSliceBlockInfo:
-        """Returns a dict with a unique ID for each template block."""
-        block_ids = {}
-        block_content_types = defaultdict(set)
-        loops = set()
-        blocks = []
-        block_id = 0
-        for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type != "block_end":
-                block_content_types[block_id].add(raw_slice.slice_type)
-            if raw_slice.slice_type == "block_start":
-                blocks.append(raw_slice)
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-                block_id += 1
-                if raw_slice.slice_subtype == "loop":
-                    loops.add(block_id)
-            elif raw_slice.slice_type == "block_end":
-                blocks.pop()
-                block_id += 1
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-            else:
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-        literal_only_loops = [
-            block_id
-            for block_id in set(block_ids.values())
-            if block_id in loops and block_content_types[block_id] == {"literal"}
-        ]
-        return RawSliceBlockInfo(block_ids, literal_only_loops)
-
-    def raw_slices_spanning_source_slice(self, source_slice: slice):
+    def raw_slices_spanning_source_slice(
+        self, source_slice: slice
+    ) -> List[RawFileSlice]:
         """Return a list of the raw slices spanning a set of indices."""
+        # Special case: The source_slice is at the end of the file.
+        last_raw_slice = self.raw_sliced[-1]
+        if source_slice.start >= last_raw_slice.source_idx + len(last_raw_slice.raw):
+            return []
         # First find the start index
         raw_slice_idx = 0
         # Move the raw pointer forward to the start of this patch
@@ -278,7 +329,7 @@ class TemplatedFile:
                         ts_start_subsliced_file[0][1].start + offset,
                     )
                 else:
-                    raise ValueError(
+                    raise ValueError(  # pragma: no cover
                         "Attempting a single length slice within a templated section!"
                     )
 
@@ -307,7 +358,7 @@ class TemplatedFile:
             if ts_start_sf_start > len(self.sliced_file):  # pragma: no cover
                 # We should never get here
                 raise ValueError("Starting position higher than sliced file position")
-            if ts_start_sf_start < len(self.sliced_file):
+            if ts_start_sf_start < len(self.sliced_file):  # pragma: no cover
                 return self.sliced_file[1].source_slice
             else:
                 return self.sliced_file[-1].source_slice  # pragma: no cover
@@ -359,17 +410,17 @@ class TemplatedFile:
         if source_slice.start == source_slice.stop:
             return True
         is_literal = True
-        for _, seg_type, seg_idx, _ in self.raw_sliced:
+        for raw_slice in self.raw_sliced:
             # Reset if we find a literal and we're up to the start
             # otherwise set false.
-            if seg_idx <= source_slice.start:
-                is_literal = seg_type == "literal"
-            elif seg_idx >= source_slice.stop:
+            if raw_slice.source_idx <= source_slice.start:
+                is_literal = raw_slice.slice_type == "literal"
+            elif raw_slice.source_idx >= source_slice.stop:
                 # We've gone past the end. Break and Return.
                 break
             else:
                 # We're in the middle. Check type
-                if seg_type != "literal":
+                if raw_slice.slice_type != "literal":
                     is_literal = False
         return is_literal
 
@@ -383,7 +434,7 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
+            if elem.is_source_only_slice():
                 ret_buff.append(elem)
         return ret_buff
 
@@ -401,21 +452,22 @@ class RawTemplater:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
-        function shouldn't take any arguments at this stage as we assume that it will load
-        its own config. Maybe at this stage we might allow override parameters to be passed
-        to the linter at runtime from the cli - that would be the only time we would pass
-        arguments in here.
+        function shouldn't take any arguments at this stage as we assume that it will
+        load its own config. Maybe at this stage we might allow override parameters to
+        be passed to the linter at runtime from the cli - that would be the only time we
+        would pass arguments in here.
         """
 
     def sequence_files(
-        self, fnames: List[str], config=None, formatter=None
+        self, fnames: List[str], config: FluffConfig = None, formatter=None
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
         return fnames
 
+    @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self, *, in_str: str, fname: str, config: FluffConfig = None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 

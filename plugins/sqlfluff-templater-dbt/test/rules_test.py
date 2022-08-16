@@ -3,7 +3,7 @@ import pytest
 import os
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
+from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
@@ -17,10 +17,12 @@ from test.fixtures.dbt.templater import (  # noqa
     [
         # Group By
         ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
+        # Multiple trailing newline
+        ("L009", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
 )
 def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
-    """Test the linter finds the given errors in (and only in) the right places (DBT)."""
+    """Test linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
         fpath=os.path.join(project_dir, path),

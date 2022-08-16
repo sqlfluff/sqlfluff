@@ -3,96 +3,96 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be9fb04dae55e497359a66308352420f1be32e598756edffeb4c8d17ec224bc5
+_hash: 45da3e37ea8947db3458800b70ff413f4f91f92fc0b62d6df43b7f9611fc1d9e
 file:
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - keyword: DROP
       - keyword: DISTRIBUTION
       - keyword: KEYS
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - keyword: DROP
       - keyword: DISTRIBUTION
-      - binary_operator: AND
+      - keyword: AND
       - keyword: PARTITION
       - keyword: KEYS
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - table_distribution_partition_clause:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
-            identifier: shop_id
+            naked_identifier: shop_id
         - comma: ','
         - keyword: PARTITION
         - keyword: BY
         - column_reference:
-            identifier: order_date
+            naked_identifier: order_date
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - table_distribution_partition_clause:
         - keyword: PARTITION
         - keyword: BY
         - column_reference:
-            identifier: order_date
+            naked_identifier: order_date
         - comma: ','
         - column_reference:
-            identifier: DISTRIBUTE
+            naked_identifier: DISTRIBUTE
         - raw: BY
         - raw: shop_id
         - comma: ','
         - raw: branch_no
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - table_distribution_partition_clause:
         - keyword: PARTITION
         - keyword: BY
         - column_reference:
-            identifier: order_date
+            naked_identifier: order_date
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: my_table
+          naked_identifier: my_table
       - table_distribution_partition_clause:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
-            identifier: shop_id
+            naked_identifier: shop_id
         - comma: ','
         - column_reference:
-            identifier: branch_no
+            naked_identifier: branch_no
 - statement_terminator: ;

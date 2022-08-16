@@ -81,7 +81,7 @@ SELECT date'2021-09-21' FROM dual;
 ----
 SELECT INVALID PRIMARY KEY (first_name) from T1;
 ----
-SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()') 
+SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()')
         EMITS
         (
             id VARCHAR(2000),
@@ -90,3 +90,59 @@ SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()')
 FROM t;
 ----
 SELECT 10 / 2;
+----
+select count(*) as a, local.a*10 from x;
+----
+SELECT ABS(x) AS x FROM t WHERE local.x>10;
+----
+SELECT c1 as cx, count(*) as cc FROM x GROUP BY local.cx;
+----
+SELECT c1 as cx FROM x ORDER BY local.cx;
+----
+SELECT c1, count(*) as c FROM x GROUP BY 1 HAVING local.c > 1;
+----
+SELECT S_ID, C_ID, PRICE, ROW_NUMBER() OVER (PARTITION BY C_ID ORDER BY PRICE DESC) NUM FROM SALES QUALIFY local.NUM = 1;
+SELECT [day] FROM T;
+----
+SELECT "day" FROM T;
+----
+SELECT * FROM T PREFERRING HIGH LOCAL.ranking PARTITION BY local.c1;
+----
+SELECT * FROM T PREFERRING HIGH LOCAL.ranking PRIOR TO LOW LOCAL.budget PARTITION BY local.c1;
+----
+SELECT * FROM T PREFERRING HIGH LOCAL.ranking PLUS LOW LOCAL.budget PARTITION BY local.c1;
+----
+SELECT * FROM T PREFERRING HIGH LOCAL.ranking PRIOR TO LOW LOCAL.budget INVERSE col20 PARTITION BY local.c1;
+----
+SELECT * FROM T WHERE (LOCAL.c1, LOCAL.c2) NOT IN  (SELECT c1,c2 FROM  b);
+----
+SELECT 'ABC' as c1 FROM dual WHERE local.c1 = 'ABC';
+SELECT a, b, c FROM x
+union
+SELECT a, b, c FROM y
+ORDER BY a;
+----
+SELECT -1 * row_number() OVER() AS nummer
+FROM sys.exa_sql_keywords
+CROSS JOIN sys.exa_sql_keywords
+UNION ALL
+SELECT 0;
+--
+SELECT
+	INTERVAL '5' MONTH,
+	INTERVAL '130' MONTH (3),
+	INTERVAL '27' YEAR,
+	INTERVAL '100-1' YEAR(3) TO MONTH,
+	INTERVAL '2-1' YEAR TO MONTH,
+	INTERVAL '10:20' HOUR TO MINUTE,
+	INTERVAL '2 23:10:59' DAY TO SECOND,
+	INTERVAL '6' MINUTE,
+	INTERVAL '5' DAY ,
+	INTERVAL '100' HOUR(3) ,
+	INTERVAL '1.99999' SECOND(2,2) ,
+	INTERVAL '23:10:59.123' HOUR(2) TO SECOND(3);
+--
+SELECT v,
+       DATE'2020-10-26' + v * INTERVAL'7'DAY AS late_2020_mondays,
+       5 * v AS five_times_table
+FROM VALUES BETWEEN 1 AND 9 AS v(v);

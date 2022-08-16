@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 763db78c08a0b4630b4226060c1f95d4c9396cf3f44e9f92054895fbc665158e
+_hash: 951d51cf8b09c685fcd1dd86f94137588be1f2bda875d0bee4c132f58f7035a6
 file:
   batch:
     statement:
@@ -11,23 +11,24 @@ file:
       - keyword: CREATE
       - keyword: VIEW
       - object_reference:
-          identifier: vwCTE
+          naked_identifier: vwCTE
       - keyword: AS
       - with_compound_statement:
           keyword: WITH
           common_table_expression:
-          - identifier: cte
-          - bracketed:
-              start_bracket: (
-              identifier_list:
-              - identifier: EmployeeID
-              - comma: ','
-              - identifier: ManagerID
-              - comma: ','
-              - identifier: Title
-              end_bracket: )
-          - keyword: AS
-          - bracketed:
+            naked_identifier: cte
+            cte_column_list:
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: EmployeeID
+                - comma: ','
+                - naked_identifier: ManagerID
+                - comma: ','
+                - naked_identifier: Title
+                end_bracket: )
+            keyword: AS
+            bracketed:
               start_bracket: (
               set_expression:
               - select_statement:
@@ -35,29 +36,29 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: EmployeeID
+                        naked_identifier: EmployeeID
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: ManagerID
+                        naked_identifier: ManagerID
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: Title
+                        naked_identifier: Title
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                          - identifier: HumanResources
+                          - naked_identifier: HumanResources
                           - dot: .
-                          - identifier: Employee
+                          - naked_identifier: Employee
                   where_clause:
                     keyword: WHERE
                     expression:
                     - column_reference:
-                        identifier: ManagerID
+                        naked_identifier: ManagerID
                     - keyword: IS
                     - keyword: NOT
                     - keyword: 'NULL'
@@ -69,72 +70,73 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                      - identifier: cte
+                      - naked_identifier: cte
                       - dot: .
-                      - identifier: EmployeeID
+                      - naked_identifier: EmployeeID
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                      - identifier: cte
+                      - naked_identifier: cte
                       - dot: .
-                      - identifier: ManagerID
+                      - naked_identifier: ManagerID
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                      - identifier: cte
+                      - naked_identifier: cte
                       - dot: .
-                      - identifier: Title
+                      - naked_identifier: Title
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: cte
+                            naked_identifier: cte
                       join_clause:
                         keyword: JOIN
                         from_expression_element:
                           table_expression:
                             table_reference:
-                            - identifier: HumanResources
+                            - naked_identifier: HumanResources
                             - dot: .
-                            - identifier: Employee
+                            - naked_identifier: Employee
                           alias_expression:
                             keyword: AS
-                            identifier: e
+                            naked_identifier: e
                         join_on_condition:
                           keyword: 'ON'
                           expression:
                           - column_reference:
-                            - identifier: cte
+                            - naked_identifier: cte
                             - dot: .
-                            - identifier: ManagerID
-                          - comparison_operator: '='
+                            - naked_identifier: ManagerID
+                          - comparison_operator:
+                              raw_comparison_operator: '='
                           - column_reference:
-                            - identifier: e
+                            - naked_identifier: e
                             - dot: .
-                            - identifier: EmployeeID
+                            - naked_identifier: EmployeeID
               end_bracket: )
           select_statement:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: EmployeeID
+                  naked_identifier: EmployeeID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: ManagerID
+                  naked_identifier: ManagerID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: Title
+                  naked_identifier: Title
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: cte
+                      naked_identifier: cte
   go_statement:
     keyword: GO

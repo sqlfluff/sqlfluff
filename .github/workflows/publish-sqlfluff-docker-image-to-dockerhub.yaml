@@ -1,0 +1,70 @@
+# Create and push Docker image of latest release to DockerHub.
+name: Publish SQLFluff DockerHub Version
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+# Create tag for integration test.
+env:
+  TEST_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:test
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      # Get the version of latest release in
+      # order to tag published Docker image.
+      - name: Get latest release name
+        id: latest_release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+
+      # Setup QEMU and Buildx to allow for multi-platform builds.
+      - name: Set up QEMU
+        id: docker_qemu
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        id: docker_buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Authenticate with DockerHub.
+      - name: Login to DockerHub
+        id: docker_login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build amd64 image to use in the integration test.
+      - name: Build and export to Docker
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          tags: ${{ env.TEST_TAG }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+          cache-to: type=inline
+
+      # Integration test to validate newly created image is working.
+      - name: Test Docker image
+        id: docker_test
+        run: |
+          echo "SELECT 1" > test.sql
+          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint --dialect ansi /sql/test.sql
+
+      # Build arm64 image (amd64 is cached from docker_build step) and export to DockerHub.
+      # N.B. We tag this image as both latest and with its version number.
+      - name: Build and push
+        id: docker_build_push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+          cache-to: type=inline

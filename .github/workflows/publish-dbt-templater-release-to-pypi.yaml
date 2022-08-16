@@ -4,26 +4,25 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
 
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.7"
 
       - name: Install Dependencies
         run: |
-          pip install --upgrade pip
-          pip install twine wheel --upgrade
-      
+          pip install --upgrade pip tox
+
       - name: Build Distribution (dbt plugin)
-        # Run this in the right directory so that we get the right Manifest
-        working-directory: plugins/sqlfluff-templater-dbt
-        run: python setup.py sdist bdist_wheel
-      
+        # tox commands run relative to the repo root.
+        run: tox -e build-dist -- plugins/sqlfluff-templater-dbt
+
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them
         run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/

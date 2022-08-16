@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3320d5e7297b6df478a33c196587cc260df20eb0bd0955e7a8df98a5961e732
+_hash: 9a1622e165a454bcedc9eab2e974496e441c538bb14c13433e87435932355b34
 file:
   statement:
     with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-        identifier: age_buckets_bit_array
+        naked_identifier: age_buckets_bit_array
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,23 +18,22 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: bucket_id
+                  naked_identifier: bucket_id
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: num_ranges
+                  naked_identifier: num_ranges
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: min_age
+                  naked_identifier: min_age
             - comma: ','
             - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: ARRAY
-                  bracketed:
-                    start_bracket: (
-                    expression:
+                expression:
+                  typeless_array:
+                    keyword: ARRAY
+                    bracketed:
+                      start_bracket: (
                       select_statement:
                         select_clause:
                           keyword: SELECT
@@ -46,7 +45,7 @@ file:
                                 start_bracket: (
                                 expression:
                                   column_reference:
-                                    identifier: num
+                                    naked_identifier: num
                                 keyword: AS
                                 data_type:
                                   data_type_identifier: INT64
@@ -69,34 +68,34 @@ file:
                                         - start_bracket: (
                                         - expression:
                                             column_reference:
-                                              identifier: binary
+                                              naked_identifier: binary
                                         - comma: ','
                                         - expression:
-                                            literal: "''"
+                                            quoted_literal: "''"
                                         - end_bracket: )
                                     end_bracket: )
                               alias_expression:
                                 keyword: AS
-                                identifier: num
-                    end_bracket: )
+                                naked_identifier: num
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: bits
+                  naked_identifier: bits
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: age_label
+                  naked_identifier: age_label
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: age_buckets
+                      naked_identifier: age_buckets
           end_bracket: )
     - comma: ','
     - common_table_expression:
-        identifier: bucket_abundance
+        naked_identifier: bucket_abundance
         keyword: AS
         bracketed:
           start_bracket: (
@@ -112,10 +111,10 @@ file:
                       start_bracket: (
                       expression:
                       - column_reference:
-                          identifier: count_18_24
+                          naked_identifier: count_18_24
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -125,15 +124,15 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '0'
+                                  numeric_literal: '0'
                                 end_bracket: )
                           end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_25_34
+                          naked_identifier: count_25_34
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -143,15 +142,15 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '1'
+                                  numeric_literal: '1'
                                 end_bracket: )
                           end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_35_44
+                          naked_identifier: count_35_44
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -161,15 +160,15 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '2'
+                                  numeric_literal: '2'
                                 end_bracket: )
                           end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_45_54
+                          naked_identifier: count_45_54
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -179,15 +178,15 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '3'
+                                  numeric_literal: '3'
                                 end_bracket: )
                           end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_55_64
+                          naked_identifier: count_55_64
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -197,15 +196,15 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '4'
+                                  numeric_literal: '4'
                                 end_bracket: )
                           end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_65_plus
+                          naked_identifier: count_65_plus
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                          naked_identifier: bits
                       - array_accessor:
                           start_square_bracket: '['
                           expression:
@@ -215,30 +214,30 @@ file:
                               bracketed:
                                 start_bracket: (
                                 expression:
-                                  literal: '5'
+                                  numeric_literal: '5'
                                 end_bracket: )
                           end_square_bracket: ']'
                       end_bracket: )
                   binary_operator: /
                   column_reference:
-                    identifier: audience_size
+                    naked_identifier: audience_size
                 alias_expression:
                   keyword: AS
-                  identifier: relative_abundance
+                  naked_identifier: relative_abundance
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: audience_counts_gender_age
+                      naked_identifier: audience_counts_gender_age
                 join_clause:
                 - keyword: CROSS
                 - keyword: JOIN
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: age_buckets_bit_array
+                        naked_identifier: age_buckets_bit_array
           end_bracket: )
     - select_statement:
         select_clause:
@@ -253,15 +252,15 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: age_buckets_bit_array
+                  naked_identifier: age_buckets_bit_array
             join_clause:
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: bucket_abundance
+                    naked_identifier: bucket_abundance
             - keyword: USING
             - bracketed:
                 start_bracket: (
-                identifier: bucket_id
+                naked_identifier: bucket_id
                 end_bracket: )

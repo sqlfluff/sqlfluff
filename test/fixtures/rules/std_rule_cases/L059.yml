@@ -1,0 +1,382 @@
+rule: L059
+
+test_pass_column_reference:
+  pass_str: |
+    SELECT 123 AS foo;
+
+test_fail_column_reference:
+  fail_str: |
+    SELECT 123 AS "foo";
+  fix_str: |
+    SELECT 123 AS foo;
+
+test_pass_table_reference:
+  pass_str: |
+    SELECT foo
+    FROM bar;
+
+test_fail_table_reference:
+  fail_str: |
+    SELECT foo
+    FROM "bar";
+  fix_str: |
+    SELECT foo
+    FROM bar;
+
+test_pass_multiple_references:
+  pass_str: |
+    SELECT foo
+    FROM bar.baz;
+
+test_fail_multiple_references:
+  fail_str: |
+    SELECT foo
+    FROM "bar"."baz";
+  fix_str: |
+    SELECT foo
+    FROM bar.baz;
+
+test_pass_whitespace:
+  pass_str: |
+    SELECT 123 AS "I cannot be unquoted"
+
+test_pass_special_symbols:
+  pass_str: |
+    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+
+test_pass_reserved_keyword:
+  pass_str: |
+    SELECT 123 AS "SELECT"
+
+test_pass_column_reference_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_column_reference_prefer_quoted_ansi:
+  fail_str: |
+    SELECT 123 AS foo;
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_table_reference_prefer_quoted_ansi:
+  pass_str: |
+    SELECT "foo"
+    FROM "bar";
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_table_reference_prefer_quoted_ansi:
+  fail_str: |
+    SELECT "foo"
+    FROM bar;
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_multiple_references_prefer_quoted_ansi:
+  pass_str: |
+    SELECT "foo"
+    FROM "bar"."baz";
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_multiple_references_prefer_quoted_ansi:
+  fail_str: |
+    SELECT "foo"
+    FROM bar.baz;
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_whitespace_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "I cannot be unquoted"
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_special_symbols_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_reserved_keyword_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "SELECT"
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_column_reference_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `foo`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_column_reference_prefer_quoted_backticks:
+  fail_str: |
+    SELECT 123 AS foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_table_reference_prefer_quoted_backticks:
+  pass_str: |
+    SELECT `foo`
+    FROM `bar`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_table_reference_prefer_quoted_backticks:
+  fail_str: |
+    SELECT `foo`
+    FROM bar;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_multiple_references_prefer_quoted_backticks:
+  pass_str: |
+    SELECT `foo`
+    FROM `bar`.`baz`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_multiple_references_prefer_quoted_backticks:
+  fail_str: |
+    SELECT `foo`
+    FROM bar.baz;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_whitespace_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `I cannot be unquoted`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_special_symbols_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `I-c@nn0t-be~un-quoted`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_reserved_keyword_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `SELECT`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_pass_datetime_redshift:
+  pass_str: |
+    SELECT "datetime"
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_uppivot_bigquery:
+  pass_str: |
+    SELECT
+        *
+    FROM model
+    UNPIVOT(
+        (A, B)
+        FOR year
+        IN ((C, D) AS 'year_2011', (E, F) AS 'year_2012'));
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_quoted_identifier_keyword_tsql:
+  pass_str: |
+    SET QUOTED_IDENTIFIER ON
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_create_user_quoted_password_exasol:
+  pass_str: |
+    CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_create_quoted_user_exasol:
+  fail_str: |
+    CREATE USER "USER1" IDENTIFIED BY "h12_xhz";
+  fix_str: |
+    CREATE USER USER1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
+
+test_pass_ignore_words_regex:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^fo
+
+test_pass_ignore_words_regex_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^Fo
+
+test_pass_ignore_if:
+  pass_str:
+    DROP TABLE IF EXISTS "example";
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_insert_overwrite_directory:
+  fail_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS ("col1" = "1", "col2" = "2", "col3" = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  fix_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_insert_overwrite_directory:
+  pass_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_quoted_column_ansi:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+
+test_pass_quoted_column_snowflake:
+  # The rule is disabled by default in Snowflake.
+  pass_str: |
+    SELECT d."date"
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_quoted_column_snowflake_force_enable:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L059:
+        force_enable: true
+
+test_pass_quoted_column_postgres:
+  # The rule is disabled by default in Postgres.
+  pass_str: |
+    SELECT d."date"
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_quoted_column_postgres_force_enable:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L059:
+        force_enable: true

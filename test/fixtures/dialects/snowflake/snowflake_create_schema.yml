@@ -3,23 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fc249f495a50bbcef86d1ec639688b5323646e0b4873d2ee8f31b28c68c7e4a
+_hash: eed3060f41e8069e3a69783e69a256fa4efb6e75648ea0daca4b4aee76a48bea
 file:
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: schema
-    - identifier: mytestschema_clone_restore
+    - object_reference:
+        naked_identifier: mytestschema_clone_restore
     - keyword: clone
-    - identifier: testschema
+    - object_reference:
+        naked_identifier: testschema
 - statement_terminator: ;
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: schema
-    - identifier: mytestschema_clone_restore
+    - object_reference:
+      - naked_identifier: mytestdatabase1
+      - dot: .
+      - naked_identifier: mytestschema_clone_restore
     - keyword: clone
-    - identifier: testschema
+    - object_reference:
+      - naked_identifier: mytestdatabase2
+      - dot: .
+      - naked_identifier: testschema
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: create
+    - keyword: schema
+    - object_reference:
+        naked_identifier: mytestschema_clone_restore
+    - keyword: clone
+    - object_reference:
+        naked_identifier: testschema
     - from_before_expression:
         keyword: before
         bracketed:
@@ -33,11 +51,71 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                - literal: '40'
+                - numeric_literal: '40'
                 - binary_operator: '*'
-                - literal: '365'
+                - numeric_literal: '365'
                 - binary_operator: '*'
-                - literal: '86400'
+                - numeric_literal: '86400'
                 end_bracket: )
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: mytestschema
+    - schema_object_properties:
+        comment_equals_clause:
+          keyword: comment
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'My test schema.'"
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: mytestschema
+    - tag_bracketed_equals:
+        keyword: tag
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: tag1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - naked_identifier: tag2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: mytestschema
+    - keyword: with
+    - keyword: managed
+    - keyword: access
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: transient
+    - keyword: schema
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - schema_reference:
+        naked_identifier: mytestschema
+    - schema_object_properties:
+        keyword: default_ddl_collation
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'de_DE'"
 - statement_terminator: ;

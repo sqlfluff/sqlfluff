@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 168212a4776fea6c1b3d1776a43f08559d4acaf9230fd1555568c871978b8d1c
+_hash: bd605eda6485ce2c878fd84d2fee268e9c78b528e1204357ba90dd575035ebcb
 file:
   statement:
-    drop_statement:
+    drop_view_statement:
     - keyword: drop
     - keyword: view
     - table_reference:
-        identifier: a
+        naked_identifier: a
     - keyword: restrict

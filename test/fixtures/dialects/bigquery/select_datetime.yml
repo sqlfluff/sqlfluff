@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7af2ae425ce98abe713b808a25a382d475f11f1e20a0fa65b0c2d15f1fa6855f
+_hash: f6ebeb0f2e31eb62b7cbec5f29559737c406d958eabb7334ce5f9c6d66b20700
 file:
   statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: _merchant_key
+          - naked_identifier: _merchant_key
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: order_created_at
+          - naked_identifier: order_created_at
       - comma: ','
       - select_clause_element:
           function:
@@ -27,35 +27,37 @@ file:
               function_name_identifier: EXTRACT
             bracketed:
               start_bracket: (
-              date_part: DATE
+              date_part: DAY
               keyword: FROM
               expression:
                 column_reference:
-                - identifier: gmv
+                - naked_identifier: gmv
                 - dot: .
-                - identifier: order_created_at
+                - naked_identifier: order_created_at
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: order_dt
+            naked_identifier: order_day
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
             alias_expression:
               keyword: as
-              identifier: gmv
+              naked_identifier: gmv
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: datetime
-          comparison_operator: '>='
+          - naked_identifier: datetime
+          comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
           function:
             function_name:
               function_name_identifier: DATE_TRUNC
@@ -79,7 +81,7 @@ file:
                       interval_expression:
                         keyword: INTERVAL
                         expression:
-                          literal: '2'
+                          numeric_literal: '2'
                         date_part: YEAR
                   - end_bracket: )
               comma: ','
@@ -87,4 +89,4 @@ file:
               end_bracket: )
       limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'

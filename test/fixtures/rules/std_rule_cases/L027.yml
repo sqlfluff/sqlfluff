@@ -1,5 +1,44 @@
 rule: L027
 
+test_pass_qualified_references_multi_table_statements:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+
+test_fail_unqualified_references_multi_table_statements:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+
+test_pass_qualified_references_multi_table_statements_subquery:
+  pass_str: |
+    SELECT a
+    FROM (
+        SELECT foo.a, vee.b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+
+test_fail_unqualified_references_multi_table_statements_subquery:
+  fail_str: |
+    SELECT a
+    FROM (
+        SELECT a, b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+
+test_pass_qualified_references_multi_table_statements_subquery_mix:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM (
+        SELECT c
+        FROM bar
+    ) AS foo
+    LEFT JOIN vee ON vee.a = foo.a
+
 test_allow_date_parts_as_function_parameter_bigquery:
   # Allow use of BigQuery date parts (which are not quoted and were previously
   # mistaken for column references and flagged by this rule).
@@ -34,3 +73,279 @@ test_ignore_value_table_functions:
   configs:
     core:
       dialect: bigquery
+
+test_fail_column_and_alias_same_name:
+  # See issue #2169
+  fail_str: |
+    SELECT
+        foo AS foo,
+        bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+
+test_pass_column_and_alias_same_name_1:
+  pass_str: |
+    SELECT
+        a.foo AS foo,
+        b.bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+
+test_pass_column_and_alias_same_name_2:
+  # Possible for unqualified columns if
+  # it is actually an alias of another column.
+  pass_str: |
+    SELECT
+        a.bar AS baz,
+        baz
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+
+test_pass_qualified_references_multi_table_statements_mysql:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_unqualified_references_multi_table_statements_mysql:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_column_and_alias_same_name_mysql:
+  # See issue #2169
+  fail_str: |
+    SELECT
+        foo AS foo,
+        bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_column_and_alias_same_name_1_mysql:
+  pass_str: |
+    SELECT
+        a.foo AS foo,
+        b.bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_column_and_alias_same_name_2_mysql:
+  # Possible for unqualified columns if
+  # it is actually an alias of another column.
+  pass_str: |
+    SELECT
+        a.bar AS baz,
+        baz
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_qualified_references_multi_table_statements_tsql:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_unqualified_references_multi_table_statements_tsql:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_column_and_alias_same_name_tsql:
+  # See issue #2169
+  fail_str: |
+    SELECT
+        foo AS foo,
+        bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_column_and_alias_same_name_1_tsql:
+  pass_str: |
+    SELECT
+        a.foo AS foo,
+        b.bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_column_and_alias_same_name_2_tsql:
+  # Possible for unqualified columns if
+  # it is actually an alias of another column.
+  pass_str: |
+    SELECT
+        a.bar AS baz,
+        baz
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_rowtype_with_join:
+  # Check we don't wrongly interpret rowtype attributes
+  # as field alias when more than one tables in join
+  pass_str: |
+    select
+        cast(row(t1.attr, t2.attr) as row(fld1 double, fld2 double)) as flds
+    from sch.tab1 as t1
+    join sch.tab2 as t2 on t2.id = t1.id
+  configs:
+    core:
+      dialect: hive
+
+test_fail_table_plus_flatten_snowflake_1:
+  # FLATTEN() returns a table, thus there are two tables, thus lint failure.
+  fail_str: |
+    SELECT
+        r.rec:foo::string AS foo,
+        value:bar::string AS bar
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_table_plus_flatten_snowflake_2:
+  # FLATTEN() returns a table, thus there are two tables, thus lint failure,
+  # even though there's no alias provided for FLATTEN().
+  fail_str: |
+    SELECT
+        r.rec:foo::string AS foo,
+        value:bar::string AS bar
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_table_plus_flatten_snowflake_1:
+  # FLATTEN() returns a table, thus there are two tables. This one passes,
+  # unlike the above, because both aliases are used.
+  pass_str: |
+    SELECT
+        r.rec:foo::string AS foo,
+        x.value:bar::string AS bar
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_ignore_words_column_name:
+  pass_str: |
+    SELECT test1, test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words: test1,test2
+
+test_pass_ignore_words_regex_column_name:
+  pass_str: |
+    SELECT _test1, _test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words_regex: ^_
+
+test_pass_ignore_words_regex_bigquery_declare_example:
+  pass_str:
+    DECLARE _test INT64 DEFAULT 42;
+    SELECT _test
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L027:
+        ignore_words_regex: ^_
+
+test_pass_redshift:
+  # This was failing in issue 3380.
+  pass_str:
+    SELECT account.id
+    FROM salesforce_sd.account
+    INNER JOIN salesforce_sd."user" ON salesforce_sd."user".id = account.ownerid
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_tsql:
+  # This was failing in issue 3342.
+  pass_str:
+    select
+        psc.col1
+    from
+        tbl1 as psc
+    where
+        exists
+        (
+            select 1 as data
+            from
+                tbl2 as pr
+            join tbl2 as c on c.cid = pr.cid
+            where
+                c.col1 = 'x'
+                and pr.col2 <= convert(date, getdate())
+                and pr.pid = psc.pid
+        )
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_ansi:
+  # This was failing in issue 3055.
+  pass_str: |
+    SELECT my_col
+    FROM my_table
+    WHERE EXISTS (
+        SELECT 1
+        FROM other_table
+        INNER JOIN mapping_table ON (mapping_table.other_fk = other_table.id_pk)
+        WHERE mapping_table.kind = my_table.kind
+    )
+
+test_pass_redshift_convert:
+  # This was failing in issue 3651.
+  pass_str: |
+    SELECT
+        sellers.name,
+        CONVERT(integer, sales.pricepaid) AS price
+    FROM sales
+    LEFT JOIN sellers ON sales.sellerid = sellers.sellerid
+    WHERE sales.salesid = 100
+  configs:
+    core:
+      dialect: redshift

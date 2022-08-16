@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import Lexer, CodeSegment
+from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
 from sqlfluff.core.parser.lexer import (
     StringLexer,
     LexMatch,
@@ -57,7 +57,7 @@ def assert_matches(instring, matcher, matchstring):
 )
 def test__parser__lexer_obj(raw, res, caplog):
     """Test the lexer splits as expected in a selection of cases."""
-    lex = Lexer(config=FluffConfig())
+    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
     with caplog.at_level(logging.DEBUG):
         lexing_segments, _ = lex.lex(raw)
         assert [seg.raw for seg in lexing_segments] == res
@@ -83,9 +83,9 @@ def test__parser__lexer_string(raw, res):
         ("fsaljk", r"f", "f"),
         ("fsaljk", r"[fas]*", "fsa"),
         # Matching whitespace segments
-        ("   \t   fsaljk", r"[\t ]*", "   \t   "),
+        ("   \t   fsaljk", r"[^\S\r\n]*", "   \t   "),
         # Matching whitespace segments (with a newline)
-        ("   \t \n  fsaljk", r"[\t ]*", "   \t "),
+        ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
         # Matching quotes containing stuff
         ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
         (
@@ -117,7 +117,7 @@ def test__parser__lexer_lex_match(caplog):
 
 def test__parser__lexer_fail():
     """Test the how the lexer fails and reports errors."""
-    lex = Lexer(config=FluffConfig())
+    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
 
     _, vs = lex.lex("Select \u0394")
 
@@ -129,10 +129,36 @@ def test__parser__lexer_fail():
 
 def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
-    lexer = Lexer(config=FluffConfig())
+    lexer = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
     _, vs = lexer.lex("Select \u0394")
     assert vs
     assert len(vs) == 1
     err = vs[0]
     assert isinstance(err, SQLLexError)
     assert err.line_pos == 8
+
+
+def test__parser__lexer_trim_post_subdivide(caplog):
+    """Test a RegexLexer with a trim_post_subdivide function."""
+    matcher = [
+        RegexLexer(
+            "function_script_terminator",
+            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+            CodeSegment,
+            segment_kwargs={"type": "function_script_terminator"},
+            subdivider=StringLexer(
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+            ),
+            trim_post_subdivide=RegexLexer(
+                "newline",
+                r"(\n|\r\n)+",
+                NewlineSegment,
+            ),
+        )
+    ]
+    with caplog.at_level(logging.DEBUG):
+        res = Lexer.lex_match(";\n/\n", matcher)
+        assert res.elements[0].raw == ";"
+        assert res.elements[1].raw == "\n"
+        assert res.elements[2].raw == "/"
+        assert len(res.elements) == 3

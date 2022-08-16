@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8a15a79e1bb8bad0aef9997dc629b644f18b54cc23ea2e0b9bc1a078e763710
+_hash: 95d14acd4175343665bf2cb17faba06d9a89c63d26a57226aa84afa4f22c302e
 file:
   statement:
     select_statement:
@@ -11,46 +11,50 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: $1
+            column_index_identifier_segment: $1
           alias_expression:
             keyword: as
-            identifier: type
+            naked_identifier: type
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: $2
+            column_index_identifier_segment: $2
           alias_expression:
             keyword: as
-            identifier: price
+            naked_identifier: price
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
+            bracketed:
+              start_bracket: (
+              table_expression:
                 values_clause:
                 - keyword: values
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'toffee'"
+                      quoted_literal: "'toffee'"
                   - comma: ','
                   - expression:
-                      literal: '5'
+                      numeric_literal: '5'
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
-                  - literal: "'starburst'"
+                  - expression:
+                      quoted_literal: "'starburst'"
                   - comma: ','
-                  - literal: '8'
+                  - expression:
+                      numeric_literal: '8'
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
-                  - literal: "'flying_saucer'"
+                  - expression:
+                      quoted_literal: "'flying_saucer'"
                   - comma: ','
-                  - literal: '1'
+                  - expression:
+                      numeric_literal: '1'
                   - end_bracket: )
-                end_bracket: )
+              end_bracket: )

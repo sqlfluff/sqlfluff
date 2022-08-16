@@ -1,21 +1,54 @@
 """Implementation of Rule L026."""
+from dataclasses import dataclass, field
+from typing import cast, List, Optional, Tuple
 
-from sqlfluff.core.rules.analysis.select import get_aliases_from_select
-from sqlfluff.core.rules.base import EvalResultType, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.rules.L025 import Rule_L020
+from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.utils.analysis.select_crawler import (
+    Query as SelectCrawlerQuery,
+    SelectCrawler,
+)
+from sqlfluff.core.rules import (
+    BaseRule,
+    LintResult,
+    RuleContext,
+    EvalResultType,
+)
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
+from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.core.rules.reference import object_ref_matches_table
 
 
+_START_TYPES = [
+    "delete_statement",
+    "merge_statement",
+    "select_statement",
+    "update_statement",
+]
+
+
+@dataclass
+class L026Query(SelectCrawlerQuery):
+    """SelectCrawler Query with custom L026 info."""
+
+    aliases: List[AliasInfo] = field(default_factory=list)
+    standalone_aliases: List[str] = field(default_factory=list)
+
+
+@document_groups
 @document_configuration
-class Rule_L026(Rule_L020):
-    """References cannot reference objects not present in FROM clause.
+class Rule_L026(BaseRule):
+    """References cannot reference objects not present in ``FROM`` clause.
 
-    NB: This rule is disabled by default for BigQuery due to its use of
-    structs which trigger false positives. It can be enabled with the
-    `force_enable = True` flag.
+    .. note::
+       This rule is disabled by default for BigQuery, Hive, Redshift, SOQL, and SparkSQL
+       due to the support of things like structs and lateral views which trigger false
+       positives. It can be enabled with the ``force_enable = True`` flag.
 
-    | **Anti-pattern**
-    | In this example, the reference 'vee' has not been declared.
+    **Anti-pattern**
+
+    In this example, the reference ``vee`` has not been declared.
 
     .. code-block:: sql
 
@@ -23,8 +56,9 @@ class Rule_L026(Rule_L020):
             vee.a
         FROM foo
 
-    | **Best practice**
-    |  Remove the reference.
+    **Best practice**
+
+    Remove the reference.
 
     .. code-block:: sql
 
@@ -34,67 +68,169 @@ class Rule_L026(Rule_L020):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["force_enable"]
-
-    @staticmethod
-    def _is_bad_tbl_ref(table_aliases, parent_select, tbl_ref):
-        """Given a table reference, try to find what it's referring to."""
-        # Is it referring to one of the table aliases?
-        if tbl_ref[0] in [a.ref_str for a in table_aliases]:
-            # Yes. Therefore okay.
-            return False
-
-        # Not a table alias. It it referring to a correlated subquery?
-        if parent_select:
-            parent_aliases, _ = get_aliases_from_select(parent_select)
-            if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
-                # Yes. Therefore okay.
-                return False
-
-        # It's not referring to an alias or a correlated subquery. Looks like a
-        # bad reference (i.e. referring to something unknown.)
-        return True
-
-    def _lint_references_and_aliases(
-        self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
-        # A buffer to keep any violations.
-        violation_buff = []
-
-        # Check all the references that we have, do they reference present aliases?
-        for r in references:
-            tbl_refs = r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE)
-            if tbl_refs and all(
-                self._is_bad_tbl_ref(table_aliases, parent_select, tbl_ref)
-                for tbl_ref in tbl_refs
-            ):
-                violation_buff.append(
-                    LintResult(
-                        # Return the first segment rather than the string
-                        anchor=tbl_refs[0].segments[0],
-                        description=f"Reference {r.raw!r} refers to table/view "
-                        "not found in the FROM clause or found in parent "
-                        "subquery.",
-                    )
-                )
-        return violation_buff or None
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    _dialects_disabled_by_default = ["bigquery", "hive", "redshift", "soql", "sparksql"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Override Rule L020 for dialects that use structs.
-
-        Some dialects use structs (e.g. column.field) which look like
-        table references and so incorrectly trigger this rule.
-        """
         # Config type hints
         self.force_enable: bool
 
-        if context.dialect.name in ["bigquery"] and not self.force_enable:
+        if (
+            context.dialect.name in self._dialects_disabled_by_default
+            and not self.force_enable
+        ):
             return LintResult()
 
-        return super()._eval(context=context)
+        violations: List[LintResult] = []
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
+            dml_target_table: Optional[Tuple[str, ...]] = None
+            self.logger.debug("Trigger on: %s", context.segment)
+            if not context.segment.is_type("select_statement"):
+                # Extract first table reference. This will be the target
+                # table in a DML statement.
+                table_reference = next(
+                    context.segment.recursive_crawl("table_reference"), None
+                )
+                if table_reference:
+                    dml_target_table = self._table_ref_as_tuple(table_reference)
+
+            self.logger.debug("DML Reference Table: %s", dml_target_table)
+            # Verify table references in any SELECT statements found in or
+            # below context.segment in the parser tree.
+            crawler = SelectCrawler(
+                context.segment, context.dialect, query_class=L026Query
+            )
+            query: L026Query = cast(L026Query, crawler.query_tree)
+            if query:
+                self._analyze_table_references(
+                    query, dml_target_table, context.dialect, violations
+                )
+        return violations or None
+
+    @classmethod
+    def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> List[Tuple[str, ...]]:
+        result: List[Tuple[str, ...]] = []
+        if alias_info.aliased:
+            result.append((alias_info.ref_str,))
+        if alias_info.object_reference:
+            result.append(cls._table_ref_as_tuple(alias_info.object_reference))
+        return result
+
+    @staticmethod
+    def _table_ref_as_tuple(table_reference) -> Tuple[str, ...]:
+        return tuple(ref.part for ref in table_reference.iter_raw_references())
+
+    def _analyze_table_references(
+        self,
+        query: L026Query,
+        dml_target_table: Optional[Tuple[str, ...]],
+        dialect: Dialect,
+        violations: List[LintResult],
+    ):
+        # For each query...
+        for selectable in query.selectables:
+            select_info = selectable.select_info
+            self.logger.debug(
+                "Selectable: %s",
+                selectable,
+            )
+            if select_info:
+                # Record the available tables.
+                query.aliases += select_info.table_aliases
+                query.standalone_aliases += select_info.standalone_aliases
+                self.logger.debug(
+                    "Aliases: %s %s",
+                    [alias.ref_str for alias in select_info.table_aliases],
+                    select_info.standalone_aliases,
+                )
+
+                # Try and resolve each reference to a value in query.aliases (or
+                # in an ancestor query).
+                for r in select_info.reference_buffer:
+                    if not self._should_ignore_reference(r, selectable):
+                        # This function walks up the query's parent stack if necessary.
+                        violation = self._resolve_reference(
+                            r, self._get_table_refs(r, dialect), dml_target_table, query
+                        )
+                        if violation:
+                            violations.append(violation)
+
+        # Visit children.
+        for child in query.children:
+            self._analyze_table_references(
+                cast(L026Query, child), dml_target_table, dialect, violations
+            )
+
+    @staticmethod
+    def _should_ignore_reference(reference, selectable):
+        ref_path = selectable.selectable.path_to(reference)
+        # Ignore references occurring in an "INTO" clause:
+        # - They are table references, not column references.
+        # - They are the target table, similar to an INSERT or UPDATE
+        #   statement, thus not expected to match a table in the FROM
+        #   clause.
+        if ref_path:
+            return any(seg.is_type("into_table_clause") for seg in ref_path)
+        else:
+            return False  # pragma: no cover
+
+    @staticmethod
+    def _get_table_refs(ref, dialect):
+        """Given ObjectReferenceSegment, determine possible table references."""
+        tbl_refs = []
+        # First, handle any schema.table references.
+        for sr, tr in ref.extract_possible_multipart_references(
+            levels=[
+                ref.ObjectReferenceLevel.SCHEMA,
+                ref.ObjectReferenceLevel.TABLE,
+            ]
+        ):
+            tbl_refs.append((tr, (sr.part, tr.part)))
+        # Maybe check for simple table references. Two cases:
+        # - For most dialects, skip this if it's a schema+table reference -- the
+        #   reference was specific, so we shouldn't ignore that by looking
+        #   elsewhere.)
+        # - Always do this in BigQuery. BigQuery table references are frequently
+        #   ambiguous because BigQuery SQL supports structures, making some
+        #   multi-level "." references impossible to interpret with certainty.
+        #   We may need to genericize this code someday to support other
+        #   dialects. If so, this check should probably align somehow with
+        #   whether the dialect overrides
+        #   ObjectReferenceSegment.extract_possible_references().
+        if not tbl_refs or dialect.name in ["bigquery"]:
+            for tr in ref.extract_possible_references(
+                level=ref.ObjectReferenceLevel.TABLE
+            ):
+                tbl_refs.append((tr, (tr.part,)))
+        return tbl_refs
+
+    def _resolve_reference(
+        self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: L026Query
+    ):
+        # Does this query define the referenced table?
+        possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
+        targets = []
+        for alias in query.aliases:
+            targets += self._alias_info_as_tuples(alias)
+        for standalone_alias in query.standalone_aliases:
+            targets.append((standalone_alias,))
+        if not object_ref_matches_table(possible_references, targets):
+            # No. Check the parent query, if there is one.
+            if query.parent:
+                return self._resolve_reference(
+                    r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
+                )
+            # No parent query. If there's a DML statement at the root, check its
+            # target table or alias.
+            elif not dml_target_table or not object_ref_matches_table(
+                possible_references, [dml_target_table]
+            ):
+                return LintResult(
+                    # Return the first segment rather than the string
+                    anchor=tbl_refs[0][0].segments[0],
+                    description=f"Reference {r.raw!r} refers to table/view "
+                    "not found in the FROM clause or found in ancestor "
+                    "statement.",
+                )

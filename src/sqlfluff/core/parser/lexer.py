@@ -2,7 +2,7 @@
 
 import logging
 from typing import Optional, List, Tuple, Union, NamedTuple
-import re
+import regex
 
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -221,8 +221,8 @@ class RegexLexer(StringLexer):
         super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
-        flags = re.DOTALL
-        self._compiled_regex = re.compile(self.template, flags)
+        flags = regex.DOTALL
+        self._compiled_regex = regex.compile(self.template, flags)
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """Use regexes to match chunks."""
@@ -234,7 +234,8 @@ class RegexLexer(StringLexer):
                 return LexedElement(match_str, self)
             else:
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
@@ -247,7 +248,8 @@ class RegexLexer(StringLexer):
                 return match.span()
             else:  # pragma: no cover
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
@@ -401,6 +403,52 @@ class Lexer:
                 # only one of them.
                 if not placeholder_str:
                     placeholder_str = "".join(s.raw for s in so_slices)
+                # The Jinja templater sometimes returns source-only slices with
+                # gaps between. For example, in this section:
+                #
+                #   {% else %}
+                #   JOIN
+                #       {{action}}_raw_effect_sizes
+                #   USING
+                #       ({{ states }})
+                #   {% endif %}
+                #
+                # we might get {% else %} and {% endif %} slices, without the
+                # 4 lines between. This indicates those lines were not executed
+                # In this case, generate a placeholder where the skipped code is
+                # omitted but noted with a brief string, e.g.:
+                #
+                # "{% else %}... [103 unused template characters] ...{% endif %}".
+                #
+                # This is more readable -- it would be REALLY confusing for a
+                # placeholder to include code that wasn't even executed!!
+                if len(so_slices) >= 2:
+                    has_gap = False
+                    gap_placeholder_parts = []
+                    last_slice = None
+                    # For each slice...
+                    for so_slice in so_slices:
+                        # If it's not the first slice, was there a gap?
+                        if last_slice:
+                            end_last = last_slice.source_idx + len(last_slice.raw)
+                            chars_skipped = so_slice.source_idx - end_last
+                            if chars_skipped:
+                                # Yes, gap between last_slice and so_slice.
+                                has_gap = True
+
+                                # Generate a string documenting the gap.
+                                if chars_skipped >= 10:
+                                    gap_placeholder_parts.append(
+                                        f"... [{chars_skipped} unused template "
+                                        "characters] ..."
+                                    )
+                                else:
+                                    gap_placeholder_parts.append("...")
+                        # Now add the slice's source.
+                        gap_placeholder_parts.append(so_slice.raw)
+                        last_slice = so_slice
+                    if has_gap:
+                        placeholder_str = "".join(gap_placeholder_parts)
                 lexer_logger.debug(
                     "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
                     existing_len,
@@ -410,7 +458,7 @@ class Lexer:
                     templ_str,
                 )
 
-                # Caluculate potential indent/dedent
+                # Calculate potential indent/dedent
                 block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
                 block_balance = sum(
                     s.slice_type == "block_start" for s in so_slices
@@ -419,7 +467,8 @@ class Lexer:
                 trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
                 add_indents = self.config.get("template_blocks_indent", "indentation")
                 lexer_logger.debug(
-                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, Add: %s",
+                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, "
+                    "Add: %s",
                     block_slices,
                     block_balance,
                     lead_dedent,
@@ -458,19 +507,20 @@ class Lexer:
                     )
                 )
                 lexer_logger.debug(
-                    "      Placholder: %s, %r", segment_buffer[-1], placeholder_str
+                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
                 )
 
-                # Add a dedent if appropriate.
+                # Add an indent if appropriate.
                 if trail_indent and add_indents:
                     lexer_logger.debug("      INDENT")
                     segment_buffer.append(
                         Indent(
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 placeholder_slice.stop,
                                 element.template_slice.start,
                                 templated_file,
-                            )
+                            ),
                         )
                     )
 
@@ -484,6 +534,31 @@ class Lexer:
                     ),
                 )
             )
+
+            # Generate placeholders for any source-only slices that *follow*
+            # the last element. This happens, for example, if a Jinja templated
+            # file ends with "{% endif %}", and there's no trailing newline.
+            if idx == len(elements) - 1:
+                so_slices = [
+                    so
+                    for so in source_only_slices
+                    if so.source_idx >= source_slice.stop
+                ]
+                for so_slice in so_slices:
+                    segment_buffer.append(
+                        TemplateSegment(
+                            pos_marker=PositionMarker(
+                                slice(so_slice.source_idx, so_slice.end_source_idx()),
+                                slice(
+                                    element.template_slice.stop,
+                                    element.template_slice.stop,
+                                ),
+                                templated_file,
+                            ),
+                            source_str=so_slice.raw,
+                            block_type=so_slice.slice_type,
+                        )
+                    )
 
         # Convert to tuple before return
         return tuple(segment_buffer)
@@ -547,6 +622,7 @@ class Lexer:
             ):  # pragma: no cover
                 raise ValueError(
                     "Template and lexed elements do not match. This should never "
-                    f"happen {element.raw!r} != {template.templated_str[template_slice]!r}"
+                    f"happen {element.raw!r} != "
+                    f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff

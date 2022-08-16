@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1824db99cf6e9095c45e7bc35932a82720a315c2e06b231a373560177f29e6e
+_hash: 0df936d2bcdda936bef477103ec7616d96829041deedb0f20cee737779892555
 file:
   statement:
     select_statement:
@@ -19,25 +19,26 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
           join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
             join_on_condition:
               keyword: 'ON'
               bracketed:
                 start_bracket: (
                 expression:
                 - column_reference:
-                  - identifier: foo
+                  - naked_identifier: foo
                   - dot: .
-                  - identifier: a
-                - comparison_operator: '='
+                  - naked_identifier: a
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: bar
+                  - naked_identifier: bar
                   - dot: .
-                  - identifier: a
+                  - naked_identifier: a
                 end_bracket: )

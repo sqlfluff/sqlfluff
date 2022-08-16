@@ -3,47 +3,60 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48d8c348827f95622f0ace38bf1eec6f735ef098b5f96aecfdf763819c291c45
+_hash: 303a92979610a1d5c54d822f3cfe4eedc68c90f74610c7e955be8e2529e38421
 file:
   batch:
     statement:
       create_function_statement:
       - keyword: CREATE
-      - binary_operator: OR
+      - keyword: OR
       - keyword: ALTER
       - keyword: FUNCTION
       - object_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
       - function_parameter_list:
           bracketed:
           - start_bracket: (
           - parameter: '@year'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - comma: ','
           - parameter: '@week'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - end_bracket: )
       - keyword: RETURNS
       - data_type:
-          identifier: BIGINT
-      - function_statement:
-        - keyword: AS
-        - raw: BEGIN
-        - raw: DECLARE
-        - raw: '@result'
-        - raw: BIGINT
-        - raw: SET
-        - raw: '@result'
-        - raw: '='
-        - raw: '4'
-        - raw: RETURN
-        - raw: '@result'
-        - raw: +
-        - raw: '@year'
-        - raw: +
-        - raw: '@week'
-        - raw: END
+          data_type_identifier: BIGINT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@result'
+                  data_type:
+                    data_type_identifier: BIGINT
+            - statement:
+                set_segment:
+                  keyword: SET
+                  parameter: '@result'
+                  assignment_operator:
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                  expression:
+                    numeric_literal: '4'
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                  - parameter: '@result'
+                  - binary_operator: +
+                  - parameter: '@year'
+                  - binary_operator: +
+                  - parameter: '@week'
+            - keyword: END

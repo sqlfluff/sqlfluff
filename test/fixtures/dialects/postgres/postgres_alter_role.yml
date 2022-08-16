@@ -1,0 +1,221 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 13cb7d7e697ed0d1d7583c297ca51108f94d7f81d604da6e3f5634b2693f3951
+file:
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - quoted_literal: "'hu8jmn3'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: chris
+    - keyword: VALID
+    - keyword: UNTIL
+    - quoted_literal: "'May 4 12:00:00 2015 +1'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: fred
+    - keyword: VALID
+    - keyword: UNTIL
+    - quoted_literal: "'infinity'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: worker_bee
+    - keyword: SET
+    - object_reference:
+        naked_identifier: maintenance_work_mem
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'100000'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - object_reference:
+        naked_identifier: client_min_messages
+    - keyword: TO
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - object_reference:
+        naked_identifier: client_min_messages
+    - keyword: FROM
+    - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: miriam
+    - keyword: CREATEROLE
+    - keyword: CREATEDB
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - quoted_literal: "'hu8jmn3'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: chris
+    - keyword: VALID
+    - keyword: UNTIL
+    - quoted_literal: "'May 4 12:00:00 2015 +1'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: fred
+    - keyword: VALID
+    - keyword: UNTIL
+    - quoted_literal: "'infinity'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: worker_bee
+    - keyword: SET
+    - object_reference:
+        naked_identifier: maintenance_work_mem
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'100000'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - object_reference:
+        naked_identifier: client_min_messages
+    - keyword: TO
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - object_reference:
+        naked_identifier: client_min_messages
+    - keyword: FROM
+    - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: devel
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: miriam
+    - keyword: CREATEROLE
+    - keyword: CREATEDB
+- statement_terminator: ;

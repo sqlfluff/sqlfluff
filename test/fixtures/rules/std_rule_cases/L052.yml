@@ -1,0 +1,496 @@
+rule: L052
+
+test_pass_semi_colon_same_line_default:
+  pass_str: |
+    SELECT a FROM foo;
+
+test_pass_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_semi_colon_same_line_custom_newline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_pass_no_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo
+
+test_pass_no_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_no_semi_colon_custom_require:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_no_semi_colon_custom_require_oneline:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_no_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_pass_multi_statement_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_pass_multi_statement_semi_colon_custom_oneline:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_pass_multi_statement_no_trailing_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+
+test_pass_multi_statement_no_trailing_semi_colon_custom_require:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_space_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo  ;
+  fix_str: |
+    SELECT a FROM foo;
+
+test_fail_newline_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo
+    ;
+  fix_str: |
+    SELECT a FROM foo;
+
+test_pass_newline_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_multi_statement_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo
+
+    ;
+    SELECT b FROM bar    ;
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+
+    ;
+    SELECT b
+    FROM bar    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_multiple_newlines_semi_colon_custom_require_newline:
+  fail_str: |
+    SELECT a
+    FROM foo
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_final_semi_colon_same_line_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_final_semi_colon_same_line_inline_comment_custom_oneline:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_final_semi_colon_newline_inline_comment_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_same_line_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+
+test_fail_same_line_multiple_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment #1
+
+    -- inline comment #2
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment #1
+
+    -- inline comment #2
+
+test_pass_newline_inline_comment:
+  pass_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_inline_comment:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_multiple_inline_comments_custom_oneline:
+  fail_str: |
+    SELECT a FROM foo -- inline comment #1
+
+    -- inline comment #2
+
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment #1
+
+    -- inline comment #2
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_multiple_inline_comments_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+
+    -- inline comment #2
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+    ;
+
+    -- inline comment #2
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_trailing_inline_comment:
+  fail_str: |
+    SELECT a
+    FROM foo ; -- inline comment
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_preceding_block_comment_custom_oneline:
+  fail_str: |
+    SELECT foo FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo FROM bar; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_preceding_block_comment_custom_multiline:
+  fail_str: |
+    SELECT foo
+    FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_trailing_block_comment:
+  fail_str: |
+    SELECT foo
+    FROM bar; /* multiline
+    comment
+    */
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_block_comment_semi_colon_before:
+  fail_str: |
+    SELECT foo
+    FROM bar;
+    /* multiline
+    comment
+    */
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ;
+    /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_block_comment_semi_colon_after:
+  fail_str: |
+    SELECT foo
+    FROM bar
+    /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ;
+    /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_create_table:
+  # https://github.com/sqlfluff/sqlfluff/issues/2268
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    );
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    )
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_create_table_inline_comment:
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ); --inline comment
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ) --inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_whitespace_after_simple_select:
+  fail_str: |
+    SELECT 1 ;
+  fix_str: |
+    SELECT 1;
+
+test_fail_whitespace_after_snowflake_set:
+  fail_str: |
+    SET foo = (SELECT foo FROM foo.foo) ;
+  fix_str: |
+    SET foo = (SELECT foo FROM foo.foo);
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_templated_fix_crosses_block_boundary:
+  # The rule wants to move the semicolon to the same line as the SELECT, but
+  # the core linter prevents it because it crosses a template block boundary.
+  fail_str: |
+    {% if True %}
+    SELECT 1
+    {% else %}
+    SELECT 2
+    {% endif %}
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true

@@ -23,7 +23,7 @@ def generic_roundtrip_test(source_file, rulestring):
         with open(source_file) as f:
             source_file = StringIO(f.read())
 
-    filename = "tesing.sql"
+    filename = "testing.sql"
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
     filepath = os.path.join(tempdir_path, filename)
@@ -33,13 +33,15 @@ def generic_roundtrip_test(source_file, rulestring):
             dest_file.write(line)
     runner = CliRunner()
     # Check that we first detect the issue
-    result = runner.invoke(lint, ["--rules", rulestring, filepath])
-    assert result.exit_code == 65
+    result = runner.invoke(lint, ["--rules", rulestring, "--dialect=ansi", filepath])
+    assert result.exit_code == 1
     # Fix the file (in force mode)
-    result = runner.invoke(fix, ["--rules", rulestring, "-f", filepath])
+    result = runner.invoke(
+        fix, ["--rules", rulestring, "--dialect=ansi", "-f", filepath]
+    )
     assert result.exit_code == 0
     # Now lint the file and check for exceptions
-    result = runner.invoke(lint, ["--rules", rulestring, filepath])
+    result = runner.invoke(lint, ["--rules", rulestring, "--dialect=ansi", filepath])
     assert result.exit_code == 0
     shutil.rmtree(tempdir_path)
 
@@ -75,13 +77,19 @@ def jinja_roundtrip_test(
 
     runner = CliRunner()
     # Check that we first detect the issue
-    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
-    assert result.exit_code == 65
+    result = runner.invoke(
+        lint, ["--rules", rulestring, "--dialect=ansi", sql_filepath]
+    )
+    assert result.exit_code == 1
     # Fix the file (in force mode)
-    result = runner.invoke(fix, ["--rules", rulestring, "-f", sql_filepath])
+    result = runner.invoke(
+        fix, ["--rules", rulestring, "-f", "--dialect=ansi", sql_filepath]
+    )
     assert result.exit_code == 0
     # Now lint the file and check for exceptions
-    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
+    result = runner.invoke(
+        lint, ["--rules", rulestring, "--dialect=ansi", sql_filepath]
+    )
     if result.exit_code != 0:
         # Output the file content for debugging
         print("File content:")

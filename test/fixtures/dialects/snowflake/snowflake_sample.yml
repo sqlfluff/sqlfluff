@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8933c2834abd3b291b874993258fae463bfc7dd7bf9b27cbef197af1ae6fbf1
+_hash: 610f0f38ae8691ff03201c8adc2fed5bf086cb4cff72cbf2549432eceb3c23b8
 file:
   statement:
     select_statement:
@@ -19,10 +19,10 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: real_data
-          snowflake_sample_expression:
-            keyword: sample
-            bracketed:
-              start_bracket: (
-              literal: '20'
-              end_bracket: )
+                naked_identifier: real_data
+            sample_expression:
+              keyword: sample
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )

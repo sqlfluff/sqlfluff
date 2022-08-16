@@ -3,15 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a799194edad44255b723b20fd6c75874e67b505e8dff521d708404f996d4e56e
+_hash: 7cf6b2f6629057890ce653e7f421bdab2d9b541afed3344da33927c25e3f2d4e
 file:
 - statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        identifier: '`add`'
-    - base:
+        quoted_identifier: '`add`'
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: test
@@ -25,7 +25,7 @@ file:
       - keyword: DETERMINISTIC
       - keyword: 'NO'
       - keyword: SQL
-    - base:
+    - function_definition:
         transaction_statement:
           keyword: BEGIN
           statement:
@@ -34,9 +34,9 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   expression:
-                  - literal: '1'
+                  - numeric_literal: '1'
                   - binary_operator: +
-                  - literal: '2'
+                  - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     transaction_statement:
