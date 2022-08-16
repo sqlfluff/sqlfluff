@@ -403,27 +403,57 @@ class JinjaTemplater(PythonTemplater):
 
         undefined_variables = set()
 
-        class Undefined(str):
-            """Similar to jinja2.StrictUndefined.
+        if "templating" not in config.get("ignore"):
 
-            Key differences:
-            - In normal usage, remembers undefined variables rather than failing
-              immediately.
-            - In ignore=templating mode, takes on a dummy value and implements
-              magic methods, to minimize the likelihood template rendering
-              fails.
-            """
+            class Undefined:
+                """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
-            def __str__(self):
-                """Treat undefined vars as empty, but remember for later."""
-                undefined_variables.add(self.name)
-                return ""
+                @classmethod
+                def create(cls, name):
+                    return Undefined(name=name)
 
-            def __getattr__(self, item):
-                undefined_variables.add(self.name)
-                return Undefined(f"{self.name}.{item}")
+                def __init__(self, name):
+                    self.name = name
 
-            if "templating" in config.get("ignore"):
+                def __str__(self):
+                    """Treat undefined vars as empty, but remember for later."""
+                    undefined_variables.add(self.name)
+                    return ""
+
+                def __getattr__(self, item):
+                    undefined_variables.add(self.name)
+                    return Undefined(f"{self.name}.{item}")
+
+        else:
+
+            class Undefined(str):  # type: ignore
+                """Acts as a dummy value to try and avoid template failures."""
+
+                @classmethod
+                def create(cls, name):
+                    # When ignoring=templating is configured, provide a
+                    # "reasonable" default for undefined variables, rather than
+                    # trying to force them to fail. This won't always work --
+                    # i.e. there's no "universal default" value that will work
+                    # in all cases, but this strategy, combined with
+                    # implementing the magic methods (such as __eq__, see
+                    # above), works well in practice.
+                    templater_logger.debug(
+                        "Providing dummy value for undefined Jinja variable: %s", name
+                    )
+                    result = Undefined("a")
+                    result.name = name
+                    return result
+
+                def __str__(self):
+                    """Treat undefined vars as empty, but remember for later."""
+                    undefined_variables.add(self.name)
+                    return ""
+
+                def __getattr__(self, item):
+                    undefined_variables.add(self.name)
+                    return Undefined(f"{self.name}.{item}")
+
                 # Implement the most common magic methods. This helps avoid
                 # templating errors for undefined variables.
                 # https://www.tutorialsteacher.com/python/magic-methods-in-python
@@ -452,24 +482,7 @@ class JinjaTemplater(PythonTemplater):
 
         for val in potentially_undefined_variables:
             if val not in live_context:
-                if "templating" not in config.get("ignore"):
-                    u = Undefined("")
-                    u.name = val  # type: ignore
-                    live_context[val] = u
-                else:
-                    # When ignoring=templating is configured, provide a
-                    # "reasonable" default for undefined variables, rather than
-                    # trying to force them to fail. This won't always work --
-                    # i.e. there's no "universal default" value that will work
-                    # in all cases, but this strategy, combined with
-                    # implementing the magic methods (such as __eq__, see
-                    # above), works well in practice.
-                    templater_logger.debug(
-                        "Providing dummy value for undefined Jinja variable: %s", val
-                    )
-                    u = Undefined("a")
-                    u.name = val  # type: ignore
-                    live_context[val] = u
+                live_context[val] = Undefined.create(val)
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
