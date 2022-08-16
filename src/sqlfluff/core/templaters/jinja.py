@@ -393,7 +393,15 @@ class JinjaTemplater(PythonTemplater):
 
         for val in potentially_undefined_variables:
             if val not in live_context:
-                live_context[val] = Undefined(name=val)
+                if not config or "templating" not in config.get("ignore"):
+                    live_context[val] = Undefined(name=val)
+                else:
+                    # When ignoring=templating is configured, provide a
+                    # "reasonable" default for undefined variables, rather than
+                    # trying to force them to fail. This won't always work
+                    # (i.e. there's no "universal default" value that will) work
+                    # in all cases, but this will probably work 90% of the time.
+                    live_context[val] = "a"
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.

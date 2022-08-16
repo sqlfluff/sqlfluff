@@ -1,0 +1,8 @@
+test-config:
+  rules:
+    - L003
+    - L008
+    - L010
+    - L012
+    - L016
+    - L036
