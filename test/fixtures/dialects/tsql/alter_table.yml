@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6968f8db17a2cf4627b340995fc604f8ca1494be3782f1228d5ef423996f464
+_hash: b3e1a67e54d908d2151452a8aadd33d9fccc4e8456ebc4c460bac062745033c3
 file:
 - batch:
     statement:
@@ -93,6 +93,11 @@ file:
           - object_reference:
               naked_identifier: exb_unique
           - keyword: UNIQUE
+      - comma: ','
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_a
     statement_terminator: ;
 - go_statement:
     keyword: GO
