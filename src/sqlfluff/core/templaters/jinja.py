@@ -248,7 +248,7 @@ class JinjaTemplater(PythonTemplater):
                         templater_logger.debug(
                             "Providing dummy contents for Jinja macro file: %s", name
                         )
-                        return "a", "a.sql", lambda: True
+                        return "", "a.sql", lambda: True
 
             loader = SafeFileSystemLoader(macros_path or [])
         else:
