@@ -445,10 +445,6 @@ class JinjaTemplater(PythonTemplater):
                     result.name = name
                     return result
 
-                def __str__(self):
-                    """Treat undefined vars as empty, but remember for later."""
-                    return self
-
                 def __getattr__(self, item):
                     return self.create(f"{self.name}.{item}")
 
