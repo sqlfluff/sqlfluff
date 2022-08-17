@@ -54,6 +54,7 @@ class Rule_L069(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``CAST`` instead of ``CONVERT`` or ``::``."""
+        # Config type hints
         self.allow_non_standard_type_casting: bool
         if not self.allow_non_standard_type_casting:
             # Limit scope to CONVERT and casting_operator(::)
