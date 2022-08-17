@@ -465,6 +465,8 @@ class JinjaTemplater(PythonTemplater):
                 __truediv__ = _self_impl
                 __mod__ = _self_impl
                 __pow__ = _self_impl
+                __pos__ = _self_impl
+                __neg__ = _self_impl
                 __lt__ = _bool_impl
                 __le__ = _bool_impl
                 __eq__ = _bool_impl
