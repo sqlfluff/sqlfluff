@@ -19,9 +19,13 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L069(BaseRule):
     """Use ``CAST`` instead of ``CONVERT`` or ``::``.
 
-    This is only compatible with 2-arguments CONVERT as
-    some dialects allow an optional 3rd argument e.g TSQL,
-    which cannot be rewritten into CAST.
+    .. note::
+        This is only compatible with 2-arguments CONVERT as
+        some dialects allow an optional 3rd argument e.g TSQL,
+        which cannot be rewritten into CAST.
+        This rule is disabled by default for Teradata because it supports different
+        type casting apart from CONVERT and ::
+        e.g DATE '2007-01-01', '9999-12-31' (DATE).
 
     **Anti-pattern**
 
@@ -56,6 +60,11 @@ class Rule_L069(BaseRule):
         """Use ``CAST`` instead of ``CONVERT`` or ``::``."""
         # Config type hints
         self.allow_non_standard_type_casting: bool
+
+        # Rule disabled for teradata.
+        if context.dialect.name == "teradata":
+            return None
+
         if not self.allow_non_standard_type_casting:
             # Limit scope to CONVERT and casting_operator(::)
             # CONVERT
