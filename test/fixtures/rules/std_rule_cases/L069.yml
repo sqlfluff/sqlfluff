@@ -51,3 +51,11 @@ test_pass_casting_operator_when_allow_non_standard_type_casting:
     rules:
       L069:
         allow_non_standard_type_casting: true
+
+test_pass_when_dialect_is_teradata:
+  pass_str: |
+    SELECT CONVERT(varchar, 1, 126) AS bar
+    FROM foo;
+  configs:
+    core:
+      dialect: teradata
