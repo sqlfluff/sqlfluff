@@ -68,9 +68,14 @@ test_fail_select_statement_order_4:
   fix_str: |
     select
       *,
-      b::int,
-      row_number() over (partition by id order by date) as y
+      row_number() over (partition by id order by date) as y,
+      b::int
     from x
+  configs:
+    rules:
+      L069:
+        allow_non_standard_type_casting: true
+
 
 test_fail_select_statement_order_5:
   fail_str: |
@@ -89,6 +94,11 @@ test_fail_select_statement_order_5:
       row_number() over (partition by id order by date) as y,
       2::int + 4 as sum
     from x
+  configs:
+    rules:
+      L069:
+        allow_non_standard_type_casting: true
+
 
 test_union_statements_ignored:
   pass_str: |
