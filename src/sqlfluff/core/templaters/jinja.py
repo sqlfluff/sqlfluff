@@ -241,15 +241,19 @@ class JinjaTemplater(PythonTemplater):
             class SafeFileSystemLoader(FileSystemLoader):
                 def get_source(self, environment, name, *args, **kwargs):
                     try:
-                        return super().get_source(environment, name, *args, **kwargs)
-                    except (TemplateNotFound, UndefinedError):
+                        if not isinstance(name, DummyUndefined):
+                            return super().get_source(
+                                environment, name, *args, **kwargs
+                            )
+                        raise TemplateNotFound(str(name))
+                    except TemplateNotFound:
                         # When ignore=templating is set, treat missing files
                         # or attempts to load an "Undefined" file as empty
                         # rather than just failing.
                         templater_logger.debug(
                             "Providing dummy contents for Jinja macro file: %s", name
                         )
-                        return "", "a.sql", lambda: True
+                        return "", f"{str(name)}.sql", lambda: True
 
             loader = SafeFileSystemLoader(macros_path or [])
         else:
@@ -403,83 +407,33 @@ class JinjaTemplater(PythonTemplater):
 
         undefined_variables = set()
 
-        if "templating" not in config.get("ignore"):
+        class UndefinedRecorder:
+            """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
-            class Undefined:
-                """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+            @classmethod
+            def create(cls, name):
+                return UndefinedRecorder(name=name)
 
-                @classmethod
-                def create(cls, name):
-                    return Undefined(name=name)
+            def __init__(self, name):
+                self.name = name
 
-                def __init__(self, name):
-                    self.name = name
+            def __str__(self):
+                """Treat undefined vars as empty, but remember for later."""
+                undefined_variables.add(self.name)
+                return ""
 
-                def __str__(self):
-                    """Treat undefined vars as empty, but remember for later."""
-                    undefined_variables.add(self.name)
-                    return ""
+            def __getattr__(self, item):
+                undefined_variables.add(self.name)
+                return UndefinedRecorder(f"{self.name}.{item}")
 
-                def __getattr__(self, item):
-                    undefined_variables.add(self.name)
-                    return Undefined(f"{self.name}.{item}")
-
-        else:
-
-            class Undefined(str):  # type: ignore
-                """Acts as a dummy value to try and avoid template failures."""
-
-                @classmethod
-                def create(cls, name):
-                    templater_logger.debug(
-                        "Providing dummy value for undefined Jinja variable: %s", name
-                    )
-                    # When ignoring=templating is configured, provide a
-                    # "reasonable" default "a" for undefined variables, rather
-                    # than recording and reporting the undefined variable.
-                    # Providing a default value won't always work -- i.e.
-                    # there's no "universal default" value that will work in all
-                    # cases, but the value "a", combined with implementing the
-                    # magic methods (such as __eq__, see above), works well
-                    # enough in most cases.
-                    result = Undefined("a")
-                    result.name = name
-                    return result
-
-                def __getattr__(self, item):
-                    return self.create(f"{self.name}.{item}")
-
-                # Implement the most common magic methods. This helps avoid
-                # templating errors for undefined variables.
-                # https://www.tutorialsteacher.com/python/magic-methods-in-python
-                def _self_impl(self, *args, **kwargs):
-                    return self
-
-                def _bool_impl(self, *args, **kwargs):
-                    return True
-
-                __add__ = _self_impl
-                __sub__ = _self_impl
-                __mul__ = _self_impl
-                __floordiv__ = _self_impl
-                __truediv__ = _self_impl
-                __mod__ = _self_impl
-                __pow__ = _self_impl
-                __pos__ = _self_impl
-                __neg__ = _self_impl
-                __lt__ = _bool_impl
-                __le__ = _bool_impl
-                __eq__ = _bool_impl
-                __ne__ = _bool_impl
-                __ge__ = _bool_impl
-
-                def __hash__(self):  # pragma: no cov
-                    # This is called by the "in" operator, among other things.
-                    return 0
-
+        Undefined = (
+            UndefinedRecorder
+            if "templating" not in config.get("ignore")
+            else DummyUndefined
+        )
         for val in potentially_undefined_variables:
             if val not in live_context:
-                live_context[val] = Undefined.create(val)
+                live_context[val] = Undefined.create(val)  # type: ignore
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
@@ -547,3 +501,69 @@ class JinjaTemplater(PythonTemplater):
         tracer = analyzer.analyze(make_template)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
+
+
+class DummyUndefined(jinja2.Undefined):
+    """Acts as a dummy value to try and avoid template failures.
+
+    Inherits from jinja2.Undefined so Jinja's default() filter will
+    treat it as a missing value, even though it has a non-empty value
+    in normal contexts.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name.replace(".", "_")
+
+    @classmethod
+    def create(cls, name):
+        """Factory method.
+
+        When ignoring=templating is configured, use 'name' as the value for
+        undefined variables. We deliberately avoid recording and reporting
+        undefined variables as errors. Using 'name' as the value won't always
+        work, but using 'name', combined with implementing the magic methods
+        (such as __eq__, see above), works well in most cases.
+        """
+        templater_logger.debug(
+            "Providing dummy value for undefined Jinja variable: %s", name
+        )
+        result = DummyUndefined(name)
+        return result
+
+    def __getattr__(self, item):
+        return self.create(f"{self.name}.{item}")
+
+    # Implement the most common magic methods. This helps avoid
+    # templating errors for undefined variables.
+    # https://www.tutorialsteacher.com/python/magic-methods-in-python
+    def _self_impl(self, *args, **kwargs):
+        return self
+
+    def _bool_impl(self, *args, **kwargs):
+        return True
+
+    __add__ = _self_impl
+    __sub__ = _self_impl
+    __mul__ = _self_impl
+    __floordiv__ = _self_impl
+    __truediv__ = _self_impl
+    __mod__ = _self_impl
+    __pow__ = _self_impl
+    __pos__ = _self_impl
+    __neg__ = _self_impl
+    __getitem__ = _self_impl
+    __lt__ = _bool_impl
+    __le__ = _bool_impl
+    __eq__ = _bool_impl
+    __ne__ = _bool_impl
+    __ge__ = _bool_impl
+
+    def __hash__(self):  # pragma: no cov
+        # This is called by the "in" operator, among other things.
+        return 0
+
+    def __iter__(self):
+        return [self].__iter__()

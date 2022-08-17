@@ -8,12 +8,14 @@ SELECT * EXCEPT(rnk) FROM
                     tbl1.the_name, {{ context_columns | join(', ') }}
                 ORDER BY created_at DESC
             ) AS rnk
-        FROM tbl1
+            {% if context_columns | default("abc") == "abc" %}
+            FROM tbl1
+            {% endif %}
         INNER JOIN tbl2
             ON tbl1.the_name = tbl2.the_name
                 AND tbl1.run_id = tbl2.run_id
         WHERE {{ run_rnk }} = 1
     )
-{% if +level - -level + level.level + level + level["key"] + "abc"[level] >= 0 %}
+{% if +level - -level + level.level + level + level["key"] >= 0 %}
     WHERE rnk = 1
 {% endif %}
