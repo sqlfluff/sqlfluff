@@ -133,3 +133,79 @@ test_fail_bigquery3:
     rules:
       L062:
         blocked_regex: (2022_06_01|2022_05_01)
+
+test_pass_comment_word1:
+  pass_str: |
+    SELECT *
+    FROM table1
+    -- TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_word2:
+  pass_str: |
+    SELECT *
+    FROM table1
+    # TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_word3:
+  pass_str: |
+    SELECT *
+    FROM table1
+    /*
+    TABLESAMPLE SYSTEM (.05 PERCENT)
+    */
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_regex1:
+  pass_str: |
+    SELECT *
+    FROM table1
+    -- TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: (TABLESAMPLE)
+
+test_pass_comment_regex2:
+  pass_str: |
+    SELECT *
+    FROM table1
+    # TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: (TABLESAMPLE)
+
+test_pass_comment_regex3:
+  pass_str: |
+    SELECT *
+    FROM table1
+    /*
+    TABLESAMPLE SYSTEM (.05 PERCENT)
+    */
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: (TABLESAMPLE)
