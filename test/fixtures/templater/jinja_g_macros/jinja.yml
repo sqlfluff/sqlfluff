@@ -14,17 +14,17 @@ file:
           - end_bracket: )
       - select_clause_element:
           expression:
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  naked_identifier: json
-              - binary_operator: ->
-              - quoted_literal: "'type'"
-              - binary_operator: ->>
-              - quoted_literal: "'id'"
-              end_bracket: )
             cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: json
+                - binary_operator: ->
+                - quoted_literal: "'type'"
+                - binary_operator: ->>
+                - quoted_literal: "'id'"
+                end_bracket: )
               casting_operator: '::'
               data_type:
                 keyword: int
