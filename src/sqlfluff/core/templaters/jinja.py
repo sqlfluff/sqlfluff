@@ -248,12 +248,13 @@ class JinjaTemplater(PythonTemplater):
                         raise TemplateNotFound(str(name))
                     except TemplateNotFound:
                         # When ignore=templating is set, treat missing files
-                        # or attempts to load an "Undefined" file as empty
-                        # rather than just failing.
+                        # or attempts to load an "Undefined" file as the first
+                        # 'base' part of the name / filename rather than failing.
                         templater_logger.debug(
                             "Providing dummy contents for Jinja macro file: %s", name
                         )
-                        return "", f"{str(name)}.sql", lambda: True
+                        value = os.path.splitext(os.path.basename(str(name)))[0]
+                        return value, f"{value}.sql", lambda: False
 
             loader = SafeFileSystemLoader(macros_path or [])
         else:
