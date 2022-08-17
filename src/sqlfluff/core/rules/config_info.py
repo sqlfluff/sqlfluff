@@ -206,6 +206,13 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["single", "multiple"],
         "definition": "Treatment of wildcards. Defaults to ``single``.",
     },
+    "allow_non_standard_type_casting": {
+        "validation": [True, False],
+        "definition": (
+            "Whether or not to allow usage of non-standard "
+            "SQL type casting e.g ::, CONVERT instead of CAST."
+        ),
+    },
 }
 
 
