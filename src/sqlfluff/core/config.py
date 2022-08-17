@@ -542,7 +542,7 @@ class FluffConfig:
         del state["_plugin_manager"]
         return state
 
-    def __setstate__(self, state):  # pragma: no cover
+    def __setstate__(self, state):
         # Restore instance attributes
         self.__dict__.update(state)
         # NB: We don't reinstate the plugin manager, but this should only
