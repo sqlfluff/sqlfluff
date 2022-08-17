@@ -61,9 +61,7 @@ class Rule_L048(Rule_L006):
             and seg
             and (
                 seg.is_type("comma", "statement_terminator")
-                or (
-                    seg.is_type("cast_expression") and seg.get_child("casting_operator")
-                )
+                or seg.is_type("casting_operator")
             )
         ):
             return False
