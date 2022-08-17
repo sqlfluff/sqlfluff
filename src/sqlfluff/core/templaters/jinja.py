@@ -447,12 +447,10 @@ class JinjaTemplater(PythonTemplater):
 
                 def __str__(self):
                     """Treat undefined vars as empty, but remember for later."""
-                    undefined_variables.add(self.name)
-                    return ""
+                    return self
 
                 def __getattr__(self, item):
-                    undefined_variables.add(self.name)
-                    return Undefined(f"{self.name}.{item}")
+                    return self.create(f"{self.name}.{item}")
 
                 # Implement the most common magic methods. This helps avoid
                 # templating errors for undefined variables.

@@ -14,6 +14,6 @@ SELECT * EXCEPT(rnk) FROM
                 AND tbl1.run_id = tbl2.run_id
         WHERE run_rnk = 1
     )
-{% if level + level >= 0 %}
+{% if level.level + level >= 0 %}
     WHERE rnk = 1
 {% endif %}
