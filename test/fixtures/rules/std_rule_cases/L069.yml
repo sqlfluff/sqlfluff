@@ -13,6 +13,11 @@ test_fail_convert:
     SELECT CAST(1 AS varchar) AS bar
     FROM foo;
 
+test_pass_3_argument_convert:
+  pass_str: |
+    SELECT CONVERT(varchar, 1, 126) AS bar
+    FROM foo;
+
 test_fail_casting_operator:
   fail_str: |
     SELECT 1::varchar AS bar
@@ -28,3 +33,21 @@ test_fail_multi_casting_operator:
   fix_str: |
     SELECT CAST(CAST(1 AS int) AS varchar) AS bar
     FROM foo;
+
+test_pass_convert_when_allow_non_standard_type_casting:
+  pass_str: |
+    SELECT CONVERT(varchar, 1) AS bar
+    FROM foo;
+  configs:
+    rules:
+      L069:
+        allow_non_standard_type_casting: true
+
+test_pass_casting_operator_when_allow_non_standard_type_casting:
+  pass_str: |
+    SELECT 1::int::varchar AS bar
+    FROM foo;
+  configs:
+    rules:
+      L069:
+        allow_non_standard_type_casting: true
