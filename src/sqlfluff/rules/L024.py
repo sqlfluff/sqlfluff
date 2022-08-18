@@ -1,6 +1,7 @@
 """Implementation of Rule L024."""
 
 
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.rules.L023 import Rule_L023
 
@@ -32,7 +33,7 @@ class Rule_L024(Rule_L023):
     """
 
     groups = ("all", "core")
-    expected_mother_segment_type = "join_clause"
+    crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     pre_segment_identifier = ("raw_upper", "USING")
     post_segment_identifier = ("type", "bracketed")
     expand_children = None

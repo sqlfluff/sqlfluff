@@ -3,10 +3,12 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_groups,
 )
+from sqlfluff.utils.functional import FunctionalContext
 
 
 @document_groups
@@ -49,6 +51,7 @@ class Rule_L066(BaseRule):
 
     groups = ("all",)
     config_keywords = ["min_alias_length", "max_alias_length"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
@@ -59,16 +62,11 @@ class Rule_L066(BaseRule):
         self.min_alias_length: Optional[int]
         self.max_alias_length: Optional[int]
 
-        if context.segment.is_type("select_statement"):
-            children = context.functional.segment.children()
+        assert context.segment.is_type("select_statement")
+        children = FunctionalContext(context).segment.children()
+        from_expression_elements = children.recursive_crawl("from_expression_element")
 
-            from_expression_elements = children.recursive_crawl(
-                "from_expression_element"
-            )
-
-            return self._lint_aliases(from_expression_elements) or None
-
-        return None
+        return self._lint_aliases(from_expression_elements) or None
 
     def _lint_aliases(self, from_expression_elements):
         """Lint all table aliases."""

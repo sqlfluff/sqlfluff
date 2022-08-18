@@ -6,12 +6,13 @@ from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments, rsp, sp
+from sqlfluff.utils.functional import Segments, rsp, sp
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
 
@@ -194,9 +195,10 @@ class Rule_L003(BaseRule):
     """
 
     groups = ("all", "core")
+    # This rule is mostly a raw crawler, so not much performance gain to be
+    # had from being more specific.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"}, provide_raw_stack=True)
     targets_templated = True
-    _works_on_unparsable = False
-    needs_raw_stack = True
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit", "hanging_indents"]

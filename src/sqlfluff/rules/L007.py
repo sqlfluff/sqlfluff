@@ -3,14 +3,14 @@ import copy
 from typing import List
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, FunctionalContext, sp
 
 after_description = "Operators near newlines should be after, not before the newline"
 before_description = "Operators near newlines should be before, not after the newline"
@@ -59,6 +59,7 @@ class Rule_L007(BaseRule):
 
     groups = ("all",)
     config_keywords = ["operator_new_lines"]
+    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
@@ -72,7 +73,7 @@ class Rule_L007(BaseRule):
 
         """
         relevent_types = ["binary_operator", "comparison_operator"]
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         # bring var to this scope so as to only have one type ignore
         operator_new_lines: str = self.operator_new_lines  # type: ignore
         expr = segment.children()
