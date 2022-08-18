@@ -10,6 +10,8 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     OptionallyBracketed,
+    Bracketed,
+    Delimited,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -92,4 +94,52 @@ class InsertStatementSegment(BaseSegment):
             OptionallyBracketed(Ref("SelectableGrammar")),
             Sequence("DEFAULT", "VALUES"),
         ),
+    )
+
+
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
+    # https://www.postgresql.org/docs/12/sql-createtable.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    ),
+                    OneOf(
+                        "DEFERRABLE",
+                        Sequence("NOT", "DEFERRABLE"),
+                        optional=True,
+                    ),
+                    OneOf(
+                        Sequence("INITIALLY", "IMMEDIATE"),
+                        Sequence("INITIALLY", "DEFERRED"),
+                        optional=True,
+                    ),
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+        Ref("TableEndClauseSegment", optional=True),
     )
