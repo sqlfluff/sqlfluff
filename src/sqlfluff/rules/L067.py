@@ -41,12 +41,14 @@ class Rule_L067(BaseRule):
     groups = ("all", "core")
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """ Loops through each expression (and column_reference) in a select clause
-         * Finds the length of the longest expression using an Alias, max_len.
-         * Loop through all expressions again and pad each with max_len - len(expression) whitespace.
+        """
+        Loops through each select_clause_element in a select clause
+          * Sets max_len to the length of the longest expression using an Alias.
+        Loops through all select_clause_elements in the select clause again
+          * pads each expression with (max_len - len(expression)) whitespace.
 
         """
-        # We trigger on `select_clause` and loop over `select_clause_element`s
+        # We loop over `select_clause_element`s to find length of the longest expression
         children = context.functional.segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         max_len = 0
@@ -57,6 +59,7 @@ class Rule_L067(BaseRule):
                     max_len = max(max_len, expression_sub_segment.matched_length)
         fixes = []
 
+        # We loop over `select_clause_element`s again to pad each expression
         for expression_segment in select_targets:
             if expression_segment.is_type("select_clause_element"):
                 expression_sub_segments = expression_segment.segments
