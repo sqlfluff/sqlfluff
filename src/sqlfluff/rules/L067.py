@@ -48,27 +48,29 @@ class Rule_L067(BaseRule):
           * pads each expression with (max_len - len(expression)) whitespace.
 
         """
-        # We loop over `select_clause_element`s to find length of the longest expression
         children = context.functional.segment.children()
-        select_targets = children.select(sp.is_type("select_clause_element"))
+        select_clause_elements = children.select(sp.is_type("select_clause_element"))
         max_len = 0
-        for expression_segment in select_targets:
-            expression_sub_segments = expression_segment.segments
-            for expression_sub_segment in expression_sub_segments:
-                if expression_sub_segment.is_type("expression") or expression_sub_segment.is_type("column_reference"):
-                    max_len = max(max_len, expression_sub_segment.matched_length)
-        fixes = []
+        # We loop over `select_clause_element`s to find length of the longest expression
+        for element in select_clause_elements:
+            for expression_segment in element.segments:
+                if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
+                    max_len = max(max_len, expression_segment.matched_length)
 
-        # We loop over `select_clause_element`s again to pad each expression
-        for expression_segment in select_targets:
-            if expression_segment.is_type("select_clause_element"):
-                expression_sub_segments = expression_segment.segments
-                for expression_sub_segment in expression_sub_segments:
-                    if expression_sub_segment.is_type("expression") or expression_sub_segment.is_type("column_reference"):
-                        padding = max_len - expression_sub_segment.matched_length + 1
-                        old_white_space = expression_sub_segments[expression_sub_segments.index(expression_sub_segment) + 1]
+        fixes = []
+        # We loop over `select_clause_element`s again to pad each expression/apply fixes
+        for element in select_clause_elements:
+            if element.is_type("select_clause_element"):
+                for expression_segment in element.segments:
+                    if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
+                        # Determine how much padding is needed for expression
+                        padding = max_len - expression_segment.matched_length + 1
+                        # Fetch existing WhiteSpace element following this expression
+                        old_white_space = expression_segment[expression_segment.index(expression_segment) + 1]
+                        # Create new WhiteSpace element with correct padding
                         new_white_space = WhitespaceSegment(raw=" " * padding)
                         if old_white_space.matched_length < new_white_space.matched_length:
+                            # If existing WhiteSpace isn't long enough, replace it
                             fixes.append(
                                 LintFix.replace(
                                     old_white_space, [new_white_space]
