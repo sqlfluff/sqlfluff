@@ -132,3 +132,45 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("CommentClauseSegment"),
         ),
     )
+
+
+class TableConstraintSegment(BaseSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    type = "table_constraint"
+
+    # Later add support for CHECK constraint, others?
+    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+    match_grammar: Matchable = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+                Ref("PrimaryKeyGrammar"),
+                # Columns making up PRIMARY KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
+            ),
+        ),
+        OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+        OneOf(
+            Sequence("INITIALLY", "DEFERRED"),
+            Sequence("INITIALLY", "IMMEDIATE"),
+            optional=True,
+        ),
+    )
