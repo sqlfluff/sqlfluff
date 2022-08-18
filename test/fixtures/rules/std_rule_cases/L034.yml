@@ -68,8 +68,8 @@ test_fail_select_statement_order_4:
   fix_str: |
     select
       *,
-      row_number() over (partition by id order by date) as y,
-      b::int
+      b::int,
+      row_number() over (partition by id order by date) as y
     from x
 
 test_fail_select_statement_order_5:
