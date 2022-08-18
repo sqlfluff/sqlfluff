@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0dd3f64e989c97569d59d32c51ce25487334ebfef4fe94bb445a8c72b495eb63
+_hash: 6e373b0b173b978216c503a8d1ee985e251e73d4e1557edd64ca3529fa8c3a4a
 file:
 - statement:
     create_table_statement:
@@ -23,23 +23,27 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: DEFERRABLE
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: DEFERRABLE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -60,25 +64,30 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: DEFERRABLE
-      - keyword: INITIALLY
-      - keyword: DEFERRED
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: DEFERRABLE
+        - column_constraint_segment:
+          - keyword: INITIALLY
+          - keyword: DEFERRED
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,25 +108,30 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: DEFERRABLE
-      - keyword: INITIALLY
-      - keyword: IMMEDIATE
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: DEFERRABLE
+        - column_constraint_segment:
+          - keyword: INITIALLY
+          - keyword: IMMEDIATE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -138,24 +152,28 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: NOT
-      - keyword: DEFERRABLE
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: DEFERRABLE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -176,26 +194,31 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: NOT
-      - keyword: DEFERRABLE
-      - keyword: INITIALLY
-      - keyword: DEFERRED
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: DEFERRABLE
+        - column_constraint_segment:
+          - keyword: INITIALLY
+          - keyword: DEFERRED
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -216,25 +239,30 @@ file:
           data_type:
             data_type_identifier: TEXT
       - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: parent
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            naked_identifier: users
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              naked_identifier: id
-            end_bracket: )
-      - keyword: NOT
-      - keyword: DEFERRABLE
-      - keyword: INITIALLY
-      - keyword: IMMEDIATE
+      - column_definition:
+        - naked_identifier: FOREIGN
+        - data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: parent_id
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: REFERENCES
+            table_reference:
+              naked_identifier: users
+            bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: DEFERRABLE
+        - column_constraint_segment:
+          - keyword: INITIALLY
+          - keyword: IMMEDIATE
       - end_bracket: )
 - statement_terminator: ;

@@ -11,7 +11,6 @@ from sqlfluff.core.parser import (
     Sequence,
     OptionallyBracketed,
     Bracketed,
-    Delimited,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -97,49 +96,39 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement."""
+class ColumnConstraintSegment(BaseSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "create_table_statement"
-    # https://crate.io/docs/sql-99/en/latest/chapters/18.html
+    type = "column_constraint_segment"
+    # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar: Matchable = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryTransientGrammar", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                        ),
-                    ),
-                    OneOf(
-                        "DEFERRABLE",
-                        Sequence("NOT", "DEFERRABLE"),
-                        optional=True,
-                    ),
-                    OneOf(
-                        Sequence("INITIALLY", "IMMEDIATE"),
-                        Sequence("INITIALLY", "DEFERRED"),
-                        optional=True,
-                    ),
-                ),
-                Ref("CommentClauseSegment", optional=True),
-            ),
-            # Create AS syntax:
-            Sequence(
-                "AS",
-                OptionallyBracketed(Ref("SelectableGrammar")),
-            ),
-            # Create like syntax
-            Sequence("LIKE", Ref("TableReferenceSegment")),
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),  # Constraint name
+            optional=True,
         ),
-        Ref("TableEndClauseSegment", optional=True),
+        OneOf(
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
+            Sequence(  # DEFAULT <value>
+                "DEFAULT",
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                ),
+            ),
+            Ref("PrimaryKeyGrammar"),
+            Ref("UniqueKeyGrammar"),  # UNIQUE
+            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+            OneOf(
+                Sequence("INITIALLY", "DEFERRED"),
+                Sequence("INITIALLY", "IMMEDIATE"),
+                optional=True,
+            ),
+            Ref("CommentClauseSegment"),
+        ),
     )
