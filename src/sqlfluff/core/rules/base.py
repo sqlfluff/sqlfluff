@@ -64,7 +64,7 @@ class LintResult:
 
     Args:
         anchor (:obj:`BaseSegment`, optional): A segment which represents
-            the *position* of the a problem. NB: Each fix will also hold
+            the *position* of the problem. NB: Each fix will also hold
             its own reference to position, so this position is mostly for
             alerting the user to where the *problem* is.
         fixes (:obj:`list` of :obj:`LintFix`, optional): An array of any
