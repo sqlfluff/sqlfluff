@@ -95,6 +95,16 @@ class Rule_L039(BaseRule):
             non_meta_segs = [seg for seg in context.segment.segments if not seg.is_meta]
             for idx, seg in enumerate(non_meta_segs):
                 if seg.is_type("whitespace"):
+                    # Let L067 handle spacing in select clause
+                    if context.segment.is_type("select_clause_element"):
+                        seg_index = context.segment.segments.index(seg)
+                        prev_seg = context.segment.segments[seg_index - 1]
+                        next_seg = None
+                        if len(context.segment.segments) > seg_index + 1:
+                            next_seg = context.segment.segments[seg_index + 1]
+                        if prev_seg.is_type("expression") or prev_seg.is_type("column_reference"):
+                            if hasattr(next_seg, "is_type") and next_seg.is_type("alias_expression"):
+                                continue
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
