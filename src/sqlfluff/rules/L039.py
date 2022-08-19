@@ -60,14 +60,17 @@ class Rule_L039(BaseRule):
         # Do we have a long enough sequence to check?
         if ref_idx < 0 or ref_idx >= len(segments):
             return False
+
         # Get the reference segment to check against
         ref_seg = segments[ref_idx]
         # Is it a casting operator?
         if ref_seg.is_type("casting_operator"):
             return True
+
         # Does it contain raw segments?
         if not ref_seg.raw_segments:
             return False  # pragma: no cover
+
         # Does the reference segment start or end with
         # a casting operator as a child?
         if diff == -1:
@@ -76,6 +79,7 @@ class Rule_L039(BaseRule):
             child_raw = ref_seg.raw_segments[0]
         else:
             raise ValueError("Diff should be 1 or -1")  # pragma: no cover
+
         return child_raw.is_type("casting_operator")
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
@@ -89,16 +93,12 @@ class Rule_L039(BaseRule):
             align_violation = self._align_aliases(context)
             if align_violation:
                 violations.append(align_violation)
-
         # For some segments, strip all whitespace.
         if context.segment.is_type("object_reference", "comparison_operator"):
             for child_seg in context.segment.get_raw_segments():
                 if child_seg.is_whitespace:
                     violations.append(
-                        LintResult(
-                            anchor=child_seg,
-                            fixes=[LintFix.delete(child_seg)],
-                        )
+                        LintResult(anchor=child_seg, fixes=[LintFix.delete(child_seg)])
                     )
         # Otherwise handle normally
         else:
@@ -107,6 +107,7 @@ class Rule_L039(BaseRule):
                 if seg.is_type("whitespace"):
                     if self.align_alias and self._skip_aliases(context, seg):
                         continue
+
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
@@ -129,9 +130,11 @@ class Rule_L039(BaseRule):
                     # from a fix, so leave it be. It otherwise shouldn't be there.
                     elif idx == 0:
                         continue
+
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
+
                     # And whitespace before comments is.
                     # Whitespace before newlines isn't allowed but for now that's
                     # a different rule.
@@ -140,17 +143,13 @@ class Rule_L039(BaseRule):
                         idx + 1
                     ].is_type("comment", "newline"):
                         continue
+
                     # But otherwise it should be a single space.
                     elif seg.raw != " ":
                         violations.append(
                             LintResult(
                                 anchor=seg,
-                                fixes=[
-                                    LintFix.replace(
-                                        seg,
-                                        [WhitespaceSegment()],
-                                    )
-                                ],
+                                fixes=[LintFix.replace(seg, [WhitespaceSegment()])],
                             )
                         )
         return violations
@@ -163,11 +162,13 @@ class Rule_L039(BaseRule):
             if len(segments) > segment_index + 1:
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
-                prev_is_col_expression = prev_seg.is_type("expression") \
-                    or prev_seg.is_type("column_reference")
+                prev_is_col_expression = prev_seg.is_type(
+                    "expression"
+                ) or prev_seg.is_type("column_reference")
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
                     return True
+
         return False
 
     def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
@@ -184,7 +185,8 @@ class Rule_L039(BaseRule):
                         padding = max_len - expression_segment.matched_length + 1
                         # Fetch existing WhiteSpace element following this expression
                         old_white_space = element.segments[
-                            element.segments.index(expression_segment) + 1]
+                            element.segments.index(expression_segment) + 1
+                        ]
                         # Create new WhiteSpace element with correct padding
                         new_white_space = WhitespaceSegment(raw=" " * padding)
                         # If existing WhiteSpace isn't long enough, replace it
@@ -192,9 +194,7 @@ class Rule_L039(BaseRule):
                         new_white_space_len = new_white_space.matched_length
                         if old_white_space_len < new_white_space_len:
                             fixes.append(
-                                LintFix.replace(
-                                    old_white_space, [new_white_space]
-                                ),
+                                LintFix.replace(old_white_space, [new_white_space]),
                             )
         return fixes
 
@@ -216,14 +216,12 @@ class Rule_L039(BaseRule):
                 if is_expression or is_column:
                     max_len = max(max_len, expression_segment.matched_length)
         fixes = self._pad_unaligned_aliases(
-            elements=select_clause_elements,
-            max_len=max_len
+            elements=select_clause_elements, max_len=max_len
         )
         if fixes:
             description = "Aliases are not aligned in the Select statement."
             return LintResult(
-                anchor=fixes[0].anchor,
-                fixes=fixes,
-                description=description
+                anchor=fixes[0].anchor, fixes=fixes, description=description
             )
+
         return None
