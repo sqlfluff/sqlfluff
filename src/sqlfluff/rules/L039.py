@@ -107,7 +107,6 @@ class Rule_L039(BaseRule):
                 if seg.is_type("whitespace"):
                     if self.align_alias and self._skip_aliases(context, seg):
                         continue
-
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
@@ -130,11 +129,9 @@ class Rule_L039(BaseRule):
                     # from a fix, so leave it be. It otherwise shouldn't be there.
                     elif idx == 0:
                         continue
-
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
-
                     # And whitespace before comments is.
                     # Whitespace before newlines isn't allowed but for now that's
                     # a different rule.
@@ -143,7 +140,6 @@ class Rule_L039(BaseRule):
                         idx + 1
                     ].is_type("comment", "newline"):
                         continue
-
                     # But otherwise it should be a single space.
                     elif seg.raw != " ":
                         violations.append(
@@ -168,7 +164,6 @@ class Rule_L039(BaseRule):
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
                     return True
-
         return False
 
     def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
