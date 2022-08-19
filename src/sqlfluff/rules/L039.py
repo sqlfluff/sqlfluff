@@ -5,6 +5,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.functional import sp
 
 
 @document_groups
@@ -82,7 +83,6 @@ class Rule_L039(BaseRule):
         self.align_alias: bool
         # For the given segment, lint whitespace directly within it.
         violations = []
-        segments = context.segment.segments
         # If align_alias is true, then collect related violations.
         if self.align_alias:
             align_violation = self._align_aliases(context)
@@ -104,17 +104,8 @@ class Rule_L039(BaseRule):
             non_meta_segs = [seg for seg in context.segment.segments if not seg.is_meta]
             for idx, seg in enumerate(non_meta_segs):
                 if seg.is_type("whitespace"):
-                    if self.align_alias:
-                        # If segment is part of select_clause, then _align_aliases() already formatted it.
-                        if context.segment.is_type("select_clause_element"):
-                            segment_index = segments.index(seg)
-                            if len(segments) > segment_index + 1:
-                                prev_seg = segments[segment_index - 1]
-                                next_seg = segments[segment_index + 1]
-                                prev_is_col_expression = prev_seg.is_type("expression") or prev_seg.is_type("column_reference")
-                                next_is_alias = next_seg.is_type("alias_expression")
-                                if prev_is_col_expression and next_is_alias:
-                                    continue
+                    if self.align_alias and self._skip_aliases(context, seg):
+                        continue
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
@@ -163,6 +154,51 @@ class Rule_L039(BaseRule):
                         )
         return violations
 
+    def _skip_aliases(self, context: RuleContext, seg) -> bool:
+        """
+         Checks whether segment formatting was handled by _align_aliases.
+
+         """
+        segments = context.segment.segments
+        if context.segment.is_type("select_clause_element"):
+            segment_index = segments.index(seg)
+            if len(segments) > segment_index + 1:
+                prev_seg = segments[segment_index - 1]
+                next_seg = segments[segment_index + 1]
+                prev_is_col_expression = prev_seg.is_type("expression") \
+                    or prev_seg.is_type("column_reference")
+                next_is_alias = next_seg.is_type("alias_expression")
+                if prev_is_col_expression and next_is_alias:
+                    return True
+        return False
+
+    def _find_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
+
+        fixes = []
+        # We loop over `select_clause_element`s again to pad each expression/apply fixes
+        for element in elements:
+            if element.is_type("select_clause_element"):
+                for expression_segment in element.segments:
+                    is_expression = expression_segment.is_type("expression")
+                    is_column = expression_segment.is_type("column_reference")
+                    if is_expression or is_column:
+                        # Determine how much padding is needed for expression
+                        padding = max_len - expression_segment.matched_length + 1
+                        # Fetch existing WhiteSpace element following this expression
+                        old_white_space = element.segments[
+                            element.segments.index(expression_segment) + 1]
+                        # Create new WhiteSpace element with correct padding
+                        new_white_space = WhitespaceSegment(raw=" " * padding)
+                        # If existing WhiteSpace isn't long enough, replace it
+                        old_white_space_len = old_white_space.matched_length
+                        new_white_space_len = new_white_space.matched_length
+                        if old_white_space_len < new_white_space_len:
+                            fixes.append(
+                                LintFix.replace(
+                                    old_white_space, [new_white_space]
+                                ),
+                            )
+        return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
         """
@@ -178,29 +214,19 @@ class Rule_L039(BaseRule):
         # We loop over `select_clause_element`s to find length of the longest expression
         for element in select_clause_elements:
             for expression_segment in element.segments:
-                if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
+                is_expression = expression_segment.is_type("expression")
+                is_column = expression_segment.is_type("column_reference")
+                if is_expression or is_column:
                     max_len = max(max_len, expression_segment.matched_length)
-
-        fixes = []
-        # We loop over `select_clause_element`s again to pad each expression/apply fixes
-        for element in select_clause_elements:
-            if element.is_type("select_clause_element"):
-                for expression_segment in element.segments:
-                    if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
-                        # Determine how much padding is needed for expression
-                        padding = max_len - expression_segment.matched_length + 1
-                        # Fetch existing WhiteSpace element following this expression
-                        old_white_space = element.segments[element.segments.index(expression_segment) + 1]
-                        # Create new WhiteSpace element with correct padding
-                        new_white_space = WhitespaceSegment(raw=" " * padding)
-                        if old_white_space.matched_length < new_white_space.matched_length:
-                            # If existing WhiteSpace isn't long enough, replace it
-                            fixes.append(
-                                LintFix.replace(
-                                    old_white_space, [new_white_space]
-                                ),
-                            )
+        fixes = self._find_unaligned_aliases(
+            elements=select_clause_elements,
+            max_len=max_len
+        )
         if fixes:
             description = "Aliases are not aligned in the Select statement."
-            return LintResult(anchor=fixes[0].anchor, fixes=fixes, description=description)
+            return LintResult(
+                anchor=fixes[0].anchor,
+                fixes=fixes,
+                description=description
+            )
         return None
