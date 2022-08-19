@@ -505,10 +505,10 @@ some users.
 
 Here's how it works:
 
-* Within the expanded SQL, undefined variables are _automatically *replaced*
+* Within the expanded SQL, undefined variables are automatically *replaced*
   with the corresponding string value.
-* If you do ``{% include query %}``, and the variable ``query`` is not defined,
-  it returns a “file” containing the string ``query``.
+* If you do: ``{% include query %}``, and the variable ``query`` is not
+  defined, it returns a “file” containing the string ``query``.
 * If you do: ``{% include "query_file.sql" %}``, and that file does not exist
   or you haven’t configured a setting for ``load_macros_from_path``, it
   returns a “file” containing the text ``query_file``.
