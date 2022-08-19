@@ -6,6 +6,7 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import sp
+from sqlfluff.utils.functional.context import FunctionalContext
 
 
 @document_groups
@@ -155,8 +156,7 @@ class Rule_L039(BaseRule):
         return violations
 
     def _skip_aliases(self, context: RuleContext, seg) -> bool:
-        """
-         Checks whether segment formatting was handled by _align_aliases.
+        """Checks whether segment formatting was handled by _align_aliases.
 
          """
         segments = context.segment.segments
@@ -172,8 +172,11 @@ class Rule_L039(BaseRule):
                     return True
         return False
 
-    def _find_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
+    def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
+        """
+        Finds expressions before aliases, and ensures they are padded to line up.
 
+        """
         fixes = []
         # We loop over `select_clause_element`s again to pad each expression/apply fixes
         for element in elements:
@@ -201,14 +204,13 @@ class Rule_L039(BaseRule):
         return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
-        """
-        Loops through each select_clause_element in a select clause
+        """Loops through each select clause and pads all aliases evenly.
+
           * Sets max_len to the length of the longest expression using an Alias.
         Loops through all select_clause_elements in the select clause again
           * pads each expression with (max_len - len(expression)) whitespace.
-
         """
-        children = context.functional.segment.children()
+        children = FunctionalContext(context).segment.children()
         select_clause_elements = children.select(sp.is_type("select_clause_element"))
         max_len = 0
         # We loop over `select_clause_element`s to find length of the longest expression
@@ -218,7 +220,7 @@ class Rule_L039(BaseRule):
                 is_column = expression_segment.is_type("column_reference")
                 if is_expression or is_column:
                     max_len = max(max_len, expression_segment.matched_length)
-        fixes = self._find_unaligned_aliases(
+        fixes = self._pad_unaligned_aliases(
             elements=select_clause_elements,
             max_len=max_len
         )
