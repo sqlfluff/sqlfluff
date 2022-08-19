@@ -34,6 +34,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "indentation of a file."
         ),
     },
+    "align_alias": {
+        "validation": [True, False],
+        "definition": (
+            "Whether to add padding before each alias to align aliases with "
+            "respect to the longest expression."
+        ),
+    },
     "comma_style": {
         "validation": ["leading", "trailing"],
         "definition": "The comma style to enforce.",

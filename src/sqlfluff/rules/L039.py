@@ -78,8 +78,17 @@ class Rule_L039(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
+        # Config type hints
+        self.align_alias: bool
         # For the given segment, lint whitespace directly within it.
         violations = []
+        segments = context.segment.segments
+        # If align_alias is true, then collect related violations.
+        if self.align_alias:
+            align_violation = self._align_aliases(context)
+            if align_violation:
+                violations.append(align_violation)
+
         # For some segments, strip all whitespace.
         if context.segment.is_type("object_reference", "comparison_operator"):
             for child_seg in context.segment.get_raw_segments():
@@ -95,16 +104,17 @@ class Rule_L039(BaseRule):
             non_meta_segs = [seg for seg in context.segment.segments if not seg.is_meta]
             for idx, seg in enumerate(non_meta_segs):
                 if seg.is_type("whitespace"):
-                    # Let L067 handle spacing in select clause
-                    if context.segment.is_type("select_clause_element"):
-                        seg_index = context.segment.segments.index(seg)
-                        prev_seg = context.segment.segments[seg_index - 1]
-                        next_seg = None
-                        if len(context.segment.segments) > seg_index + 1:
-                            next_seg = context.segment.segments[seg_index + 1]
-                        if prev_seg.is_type("expression") or prev_seg.is_type("column_reference"):
-                            if hasattr(next_seg, "is_type") and next_seg.is_type("alias_expression"):
-                                continue
+                    if self.align_alias:
+                        # If segment is part of select_clause, then _align_aliases() already formatted it.
+                        if context.segment.is_type("select_clause_element"):
+                            segment_index = segments.index(seg)
+                            if len(segments) > segment_index + 1:
+                                prev_seg = segments[segment_index - 1]
+                                next_seg = segments[segment_index + 1]
+                                prev_is_col_expression = prev_seg.is_type("expression") or prev_seg.is_type("column_reference")
+                                next_is_alias = next_seg.is_type("alias_expression")
+                                if prev_is_col_expression and next_is_alias:
+                                    continue
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
@@ -152,3 +162,45 @@ class Rule_L039(BaseRule):
                             )
                         )
         return violations
+
+
+    def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
+        """
+        Loops through each select_clause_element in a select clause
+          * Sets max_len to the length of the longest expression using an Alias.
+        Loops through all select_clause_elements in the select clause again
+          * pads each expression with (max_len - len(expression)) whitespace.
+
+        """
+        children = context.functional.segment.children()
+        select_clause_elements = children.select(sp.is_type("select_clause_element"))
+        max_len = 0
+        # We loop over `select_clause_element`s to find length of the longest expression
+        for element in select_clause_elements:
+            for expression_segment in element.segments:
+                if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
+                    max_len = max(max_len, expression_segment.matched_length)
+
+        fixes = []
+        # We loop over `select_clause_element`s again to pad each expression/apply fixes
+        for element in select_clause_elements:
+            if element.is_type("select_clause_element"):
+                for expression_segment in element.segments:
+                    if expression_segment.is_type("expression") or expression_segment.is_type("column_reference"):
+                        # Determine how much padding is needed for expression
+                        padding = max_len - expression_segment.matched_length + 1
+                        # Fetch existing WhiteSpace element following this expression
+                        old_white_space = element.segments[element.segments.index(expression_segment) + 1]
+                        # Create new WhiteSpace element with correct padding
+                        new_white_space = WhitespaceSegment(raw=" " * padding)
+                        if old_white_space.matched_length < new_white_space.matched_length:
+                            # If existing WhiteSpace isn't long enough, replace it
+                            fixes.append(
+                                LintFix.replace(
+                                    old_white_space, [new_white_space]
+                                ),
+                            )
+        if fixes:
+            description = "Aliases are not aligned in the Select statement."
+            return LintResult(anchor=fixes[0].anchor, fixes=fixes, description=description)
+        return None
