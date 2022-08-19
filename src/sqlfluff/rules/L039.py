@@ -190,12 +190,7 @@ class Rule_L039(BaseRule):
         return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
-        """Loops through each select clause and pads all aliases evenly.
-
-          * Sets max_len to the length of the longest expression using an Alias.
-        Loops through all select_clause_elements in the select clause again
-          * pads each expression with (max_len - len(expression)) whitespace.
-        """
+        """Loops through each select clause and pads all aliases evenly."""
         children = FunctionalContext(context).segment.children()
         select_clause_elements = children.select(sp.is_type("select_clause_element"))
         max_len = 0
