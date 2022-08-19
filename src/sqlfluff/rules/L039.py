@@ -156,9 +156,7 @@ class Rule_L039(BaseRule):
         return violations
 
     def _skip_aliases(self, context: RuleContext, seg) -> bool:
-        """Checks whether segment formatting was handled by _align_aliases.
-
-         """
+        """Checks whether segment formatting was handled by _align_aliases."""
         segments = context.segment.segments
         if context.segment.is_type("select_clause_element"):
             segment_index = segments.index(seg)
@@ -173,9 +171,7 @@ class Rule_L039(BaseRule):
         return False
 
     def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
-        """Finds expressions before aliases, and ensures they are padded to line up.
-
-        """
+        """Finds expressions before aliases, and ensures they are padded to line up."""
         fixes = []
         # We loop over `select_clause_element`s again to pad each expression/apply fixes
         for element in elements:
