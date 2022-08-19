@@ -173,8 +173,7 @@ class Rule_L039(BaseRule):
         return False
 
     def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
-        """
-        Finds expressions before aliases, and ensures they are padded to line up.
+        """Finds expressions before aliases, and ensures they are padded to line up.
 
         """
         fixes = []
