@@ -60,17 +60,14 @@ class Rule_L039(BaseRule):
         # Do we have a long enough sequence to check?
         if ref_idx < 0 or ref_idx >= len(segments):
             return False
-
         # Get the reference segment to check against
         ref_seg = segments[ref_idx]
         # Is it a casting operator?
         if ref_seg.is_type("casting_operator"):
             return True
-
         # Does it contain raw segments?
         if not ref_seg.raw_segments:
             return False  # pragma: no cover
-
         # Does the reference segment start or end with
         # a casting operator as a child?
         if diff == -1:
@@ -79,7 +76,6 @@ class Rule_L039(BaseRule):
             child_raw = ref_seg.raw_segments[0]
         else:
             raise ValueError("Diff should be 1 or -1")  # pragma: no cover
-
         return child_raw.is_type("casting_operator")
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
