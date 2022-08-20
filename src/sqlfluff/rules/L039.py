@@ -147,16 +147,26 @@ class Rule_L039(BaseRule):
         return violations
 
     def _skip_aliases(self, context: RuleContext, seg) -> bool:
-        """Checks whether segment formatting was handled by _align_aliases."""
+        """Checks whether segment formatting was handled by _align_aliases.
+
+        Args:
+            seg: A whitespace segment.
+
+        Return:
+            bool: whether seg is part of a select clause element containing an alias.
+        """
         segments = context.segment.segments
         if context.segment.is_type("select_clause_element"):
             segment_index = segments.index(seg)
+            # If seg is last segment, we know it cant be before an alias
             if len(segments) > segment_index + 1:
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
+                # Check to see if previous segment is column reference or expression
                 prev_is_col_expression = prev_seg.is_type(
                     "expression"
                 ) or prev_seg.is_type("column_reference")
+                # Check to see if next segment is alias expression
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
                     return True
@@ -165,7 +175,7 @@ class Rule_L039(BaseRule):
     def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
         """Finds expressions before aliases, and ensures they are padded to line up."""
         fixes = []
-        # We loop over `select_clause_element`s again to pad each expression/apply fixes
+        # Loop over `select_clause_element`s again to pad each expression/apply fixes
         for element in elements:
             if element.is_type("select_clause_element"):
                 for expression_segment in element.segments:
@@ -194,16 +204,18 @@ class Rule_L039(BaseRule):
         children = FunctionalContext(context).segment.children()
         select_clause_elements = children.select(sp.is_type("select_clause_element"))
         max_len = 0
-        # We loop over `select_clause_element`s to find length of the longest expression
+        # Loop over `select_clause_element`s to find length of the longest expression
         for element in select_clause_elements:
             for expression_segment in element.segments:
                 is_expression = expression_segment.is_type("expression")
                 is_column = expression_segment.is_type("column_reference")
                 if is_expression or is_column:
                     max_len = max(max_len, expression_segment.matched_length)
+        # Generate padding for all aliases in select clause, based off max_len
         fixes = self._pad_unaligned_aliases(
             elements=select_clause_elements, max_len=max_len
         )
+        # Apply padding for all aliases in select clause
         if fixes:
             description = "Aliases are not aligned in the Select statement."
             return LintResult(

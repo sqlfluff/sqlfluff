@@ -76,7 +76,7 @@ test_fix_tsql_spaced_chars:
     core:
       dialect: tsql
 
-# Check CASE Statment parses with newlines properly
+# Check CASE Statement parses with newlines properly
 # See https://github.com/sqlfluff/sqlfluff/issues/2495
 test_pass_postgres_case_statement:
   pass_str: |
@@ -112,3 +112,39 @@ test_redshift_at_time_zone:
   configs:
     core:
       dialect: redshift
+
+test_excess_space_without_align_alias:
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a AS first_column,
+        b AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    rules:
+      L039:
+        align_alias: False
+
+test_excess_space_with_align_alias:
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    rules:
+      L039:
+        align_alias: True
