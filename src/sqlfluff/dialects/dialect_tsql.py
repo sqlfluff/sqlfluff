@@ -2256,7 +2256,7 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    Ref.keyword("COLUMN"),
+                    "COLUMN",
                     Ref("IfExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                 ),
