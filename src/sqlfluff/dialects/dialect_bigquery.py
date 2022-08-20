@@ -424,6 +424,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LeaveStatementSegment"),
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
         ],
     )
 
@@ -1487,6 +1490,65 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_statement
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """A `ALTER MATERIALIZED VIEW SET OPTIONS` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_materialized_view_set_options_statement
+    """
+
+    type = "alter_materialized_view_set_options_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_materialized_view_statement
+    """
+
+    type = "drop_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )
 
 
