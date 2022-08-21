@@ -75,7 +75,10 @@ class _LineSummary:
         # Generate our final line summary based on the current state
         is_comment_line = all(
             seg.is_type(
-                "whitespace", "comment", "indent"  # dedent is a subtype of indent
+                "whitespace",
+                "comment",
+                "indent",  # dedent is a subtype of indent
+                "end_of_file",
             )
             for seg in copied_line_buffer
         )
@@ -415,14 +418,12 @@ class Rule_L003(BaseRule):
             memory.in_indent = True
         elif memory.in_indent:
             has_children = bool(segment.segments)
-            is_placeholder = segment.is_meta and segment.indent_val != 0  # type: ignore
-            if not (segment.is_whitespace or has_children or is_placeholder):
+            if not (segment.is_whitespace or has_children or segment.is_type("indent")):
                 memory.in_indent = False
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = context.segment is context.final_segment
-        if not segment.is_type("newline") and not is_last:
+        if not segment.is_type("newline", "end_of_file"):
             # Process on line ends or file end
             return LintResult(memory=memory)
 
@@ -471,6 +472,13 @@ class Rule_L003(BaseRule):
             # Comment line, deal with it later.
             memory.comment_lines.add(this_line_no)
             self.logger.debug("    Comment Line. #%s", this_line_no)
+            return LintResult(memory=memory)
+
+        if this_line.line_buffer and this_line.line_buffer[0].is_type(
+            "end_of_file"
+        ):  # pragma: no cover
+            # This is just the end of the file.
+            self.logger.debug("    Just end of file. #%s", this_line_no)
             return LintResult(memory=memory)
 
         previous_line_numbers = sorted(line_summaries.keys(), reverse=True)

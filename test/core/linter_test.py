@@ -813,9 +813,9 @@ def test_linter_noqa_tmp():
         )
     )
     sql = """
-    SELECT {{ col_a }} AS a -- noqa: TMP,PRS
-    FROM foo;
-        """
+SELECT {{ col_a }} AS a -- noqa: TMP,PRS
+FROM foo;
+"""
     result = lntr.lint_string(sql)
     violations = result.get_violations()
     assert not violations

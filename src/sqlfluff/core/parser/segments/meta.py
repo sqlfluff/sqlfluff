@@ -49,6 +49,18 @@ class MetaSegment(RawSegment):
         return None
 
 
+class EndOfFile(MetaSegment):
+    """A meta segment to indicate the end of the file."""
+
+    type = "end_of_file"
+
+
+class LoopJump(MetaSegment):
+    """A meta segment to indicate the presence of a loop jump."""
+
+    type = "loop_jump"
+
+
 class Indent(MetaSegment):
     """A segment which is empty but indicates where an indent should be.
 
@@ -79,7 +91,7 @@ class Dedent(Indent):
 
 
 class TemplateSegment(MetaSegment):
-    """A segment which is empty but indicates something should be.
+    """A segment which is empty but indicates where something should be.
 
     This segment is always empty, i.e. its raw format is '', but it indicates
     the position of an element on a line which has been removed. This is used
