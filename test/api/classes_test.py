@@ -10,7 +10,8 @@ def test__api__lexer():
     tokens, violations = Lexer(dialect="ansi").lex(test_query)
     assert violations == []
     assert isinstance(tokens, tuple)
-    assert [elem.raw for elem in tokens] == ["SELECt", " ", "1"]
+    # The last element is the file end marker.
+    assert [elem.raw for elem in tokens] == ["SELECt", " ", "1", ""]
 
 
 def test__api__parser():
