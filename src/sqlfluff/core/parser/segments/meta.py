@@ -56,7 +56,16 @@ class EndOfFile(MetaSegment):
 
 
 class TemplateLoop(MetaSegment):
-    """A meta segment to indicate the presence of a loop jump."""
+    """A meta segment to indicate the presence of a backward template jump.
+
+    More specifically these indicate the presence of where there is a placeholder
+    in the source, but in the templated file we don't have one _yet_ because
+    we're going back for another pass around a loop.
+
+    These are particularly useful for any rules concernced with layout, because
+    and indented TemplateLoop is allowable, but without the marker we would just
+    see trailing whitespace.
+    """
 
     type = "template_loop"
 
