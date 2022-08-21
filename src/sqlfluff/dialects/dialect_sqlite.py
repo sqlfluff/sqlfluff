@@ -10,10 +10,10 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     OptionallyBracketed,
-    Bracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -96,81 +96,31 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-class ColumnConstraintSegment(BaseSegment):
-    """A column option; each CREATE TABLE column can have 0 or more."""
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """Overriding ColumnConstraintSegment to allow for additional segment parsing."""
 
-    type = "column_constraint_segment"
-    # Column constraint from
-    # https://www.postgresql.org/docs/12/sql-createtable.html
-    match_grammar: Matchable = Sequence(
-        Sequence(
-            "CONSTRAINT",
-            Ref("ObjectReferenceSegment"),  # Constraint name
-            optional=True,
-        ),
-        OneOf(
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
-            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
-            Sequence(  # DEFAULT <value>
-                "DEFAULT",
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
-            ),
-            Ref("PrimaryKeyGrammar"),
-            Ref("UniqueKeyGrammar"),  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
+    match_grammar = ansi.ColumnConstraintSegment.match_grammar.copy(
+        insert=[
             OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
             OneOf(
                 Sequence("INITIALLY", "DEFERRED"),
                 Sequence("INITIALLY", "IMMEDIATE"),
                 optional=True,
             ),
-            Ref("CommentClauseSegment"),
-        ),
+        ],
     )
 
 
-class TableConstraintSegment(BaseSegment):
-    """A table constraint, e.g. for CREATE TABLE."""
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """Overriding TableConstraintSegment to allow for additional segment parsing."""
 
-    type = "table_constraint"
-
-    # Later add support for CHECK constraint, others?
-    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
-    match_grammar: Matchable = Sequence(
-        Sequence(  # [ CONSTRAINT <Constraint name> ]
-            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
-        ),
-        OneOf(
-            Sequence(  # UNIQUE ( column_name [, ... ] )
-                "UNIQUE",
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
+    match_grammar = ansi.TableConstraintSegment.match_grammar.copy(
+        insert=[
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+            OneOf(
+                Sequence("INITIALLY", "DEFERRED"),
+                Sequence("INITIALLY", "IMMEDIATE"),
+                optional=True,
             ),
-            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                Ref("PrimaryKeyGrammar"),
-                # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
-            ),
-            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
-                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                Ref("ForeignKeyGrammar"),
-                # Local columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref(
-                    "ReferenceDefinitionGrammar"
-                ),  # REFERENCES reftable [ ( refcolumn) ]
-            ),
-        ),
-        OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
-        OneOf(
-            Sequence("INITIALLY", "DEFERRED"),
-            Sequence("INITIALLY", "IMMEDIATE"),
-            optional=True,
-        ),
+        ],
     )

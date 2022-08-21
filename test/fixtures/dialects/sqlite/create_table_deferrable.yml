@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4125be492bc9de1332be830ce14d8e18ca73009ed6efb45863f65ecdf48dd23d
+_hash: 5ceb51beba6740a7f80613179a15a4d2856cefa05e3b9b34ca1e11b4727c6973
 file:
 - statement:
     create_table_statement:
@@ -257,20 +257,19 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
-            keyword: DEFERRABLE
+          - keyword: DEFERRABLE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -292,21 +291,19 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
-            keyword: DEFERRABLE
-        - column_constraint_segment:
+          - keyword: DEFERRABLE
           - keyword: INITIALLY
           - keyword: DEFERRED
       - end_bracket: )
@@ -330,21 +327,19 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
-            keyword: DEFERRABLE
-        - column_constraint_segment:
+          - keyword: DEFERRABLE
           - keyword: INITIALLY
           - keyword: IMMEDIATE
       - end_bracket: )
@@ -368,19 +363,18 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
           - keyword: NOT
           - keyword: DEFERRABLE
       - end_bracket: )
@@ -404,22 +398,20 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
           - keyword: NOT
           - keyword: DEFERRABLE
-        - column_constraint_segment:
           - keyword: INITIALLY
           - keyword: DEFERRED
       - end_bracket: )
@@ -443,22 +435,20 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-        - naked_identifier: trackartist
-        - data_type:
+          naked_identifier: trackartist
+          data_type:
             data_type_identifier: INTEGER
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
               naked_identifier: artist
-            bracketed:
+          - bracketed:
               start_bracket: (
               column_reference:
                 naked_identifier: artistid
               end_bracket: )
-        - column_constraint_segment:
           - keyword: NOT
           - keyword: DEFERRABLE
-        - column_constraint_segment:
           - keyword: INITIALLY
           - keyword: IMMEDIATE
       - end_bracket: )
