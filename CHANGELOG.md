@@ -39,7 +39,7 @@ Other highlights:
   on "reasonable" default values rather than blank string (`""`). This can streamline initial
   rollout of SQLFluff by reducing or eliminating the need to configure templater variables.
 
-There are also a _ton_ of other features and bigfixes in this release, including first-time
+There are also a _ton_ of other features and bug fixes in this release, including first-time
 contributions from **11 new contributors**! 🎉
 
 ## What’s Changed
