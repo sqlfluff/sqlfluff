@@ -44,6 +44,7 @@ contributions from **11 new contributors**! 🎉
 
 ## What’s Changed
 
+* T-SQL: ALTER TABLE DROP COLUMN [#3749](https://github.com/sqlfluff/sqlfluff/pull/3749) [@greg-finley](https://github.com/greg-finley)
 * Add "# pragma: no cover" to work around sporadic, spurious coverage failure [#3767](https://github.com/sqlfluff/sqlfluff/pull/3767) [@barrywhart](https://github.com/barrywhart)
 * Add end_of_file and template_loop markers [#3766](https://github.com/sqlfluff/sqlfluff/pull/3766) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Provide usage examples for new users [#3765](https://github.com/sqlfluff/sqlfluff/pull/3765) [@sirlark](https://github.com/sirlark)
@@ -110,8 +111,8 @@ contributions from **11 new contributors**! 🎉
 * Dialect Crumbs [#3625](https://github.com/sqlfluff/sqlfluff/pull/3625) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Consistent return codes [#3608](https://github.com/sqlfluff/sqlfluff/pull/3608) [@alanmcruickshank](https://github.com/alanmcruickshank)
 
-## New Contributors
 
+## New Contributors
 * [@keyem4251](https://github.com/keyem4251) made their first contribution in [#3639](https://github.com/sqlfluff/sqlfluff/pull/3639)
 * [@ciwassano](https://github.com/ciwassano) made their first contribution in [#3624](https://github.com/sqlfluff/sqlfluff/pull/3624)
 * [@chronitis](https://github.com/chronitis) made their first contribution in [#3646](https://github.com/sqlfluff/sqlfluff/pull/3646)
