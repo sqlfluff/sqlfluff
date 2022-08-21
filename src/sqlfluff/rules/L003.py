@@ -502,8 +502,10 @@ class Rule_L003(BaseRule):
                 fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
             )
 
-        # Special handling for template end blocks on a line by themselves.
-        if this_line.templated_line_type == "end":
+        # Special handling for template end/mid blocks on a line by themselves.
+        # NOTE: Mid blocks (i.e. LoopJump segmets) behave like ends here, but
+        # don't otherwise have the same indent balance implications.
+        if this_line.templated_line_type in ("end", "mid"):
             return self._handle_template_blocks(
                 this_line=this_line,
                 trigger_segment=trigger_segment,
@@ -794,7 +796,7 @@ class Rule_L003(BaseRule):
         # matching block start on a line by itself. If there is one, match
         # its indentation. Question: Could we avoid treating this as a
         # special case? It has some similarities to the non-templated test
-        # case test/fixtures/linter/indentation_error_contained.sql, in tha
+        # case test/fixtures/linter/indentation_error_contained.sql, in that
         # both have lines where anchor_indent_balance drops 2 levels from one line
         # to the next, making it a bit unclear how to indent that line.
         template_line = _find_matching_start_line(previous_lines)
@@ -889,6 +891,14 @@ class _TemplateLineInterpreter:
                 count_placeholder += 1
 
         return count_placeholder == 1
+    
+    def is_loop_jump_line(self):
+        for seg in self.working_state:
+            if seg.is_code:
+                return False
+            if seg.is_type("loop_jump"):
+                return True
+        return False
 
     def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:
         """Yields the tuple of seg type and underlying type were applicable."""
@@ -922,6 +932,9 @@ class _TemplateLineInterpreter:
         """Return a block_type enum."""
         if not self.templated_file:
             return None
+
+        if self.is_loop_jump_line():
+            return "mid"
 
         if not self.is_single_placeholder_line():
             return None
