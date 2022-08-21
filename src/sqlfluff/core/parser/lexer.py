@@ -12,7 +12,7 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
     EndOfFile,
-    LoopJump,
+    TemplateLoop,
 )
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLexError
@@ -374,7 +374,7 @@ class Lexer:
                     "      Backward jump detected. Inserting Loop Marker"
                 )
                 segment_buffer.append(
-                    LoopJump(
+                    TemplateLoop(
                         pos_marker=PositionMarker.from_point(
                             last_source_slice.stop,
                             element.template_slice.start,

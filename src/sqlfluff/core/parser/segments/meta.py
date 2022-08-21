@@ -55,10 +55,10 @@ class EndOfFile(MetaSegment):
     type = "end_of_file"
 
 
-class LoopJump(MetaSegment):
+class TemplateLoop(MetaSegment):
     """A meta segment to indicate the presence of a loop jump."""
 
-    type = "loop_jump"
+    type = "template_loop"
 
 
 class Indent(MetaSegment):

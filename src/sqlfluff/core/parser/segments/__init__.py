@@ -27,7 +27,7 @@ from sqlfluff.core.parser.segments.meta import (
     Dedent,
     TemplateSegment,
     EndOfFile,
-    LoopJump,
+    TemplateLoop,
 )
 
 __all__ = (
@@ -51,7 +51,7 @@ __all__ = (
     "Dedent",
     "TemplateSegment",
     "EndOfFile",
-    "LoopJump",
+    "TemplateLoop",
     "IdentitySet",
     "FixPatch",
     "SourceFix",

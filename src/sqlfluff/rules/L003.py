@@ -503,7 +503,7 @@ class Rule_L003(BaseRule):
             )
 
         # Special handling for template end/mid blocks on a line by themselves.
-        # NOTE: Mid blocks (i.e. LoopJump segmets) behave like ends here, but
+        # NOTE: Mid blocks (i.e. TemplateLoop segmets) behave like ends here, but
         # don't otherwise have the same indent balance implications.
         if this_line.templated_line_type in ("end", "mid"):
             return self._handle_template_blocks(
@@ -892,11 +892,11 @@ class _TemplateLineInterpreter:
 
         return count_placeholder == 1
 
-    def is_loop_jump_line(self):
+    def is_template_loop_line(self):
         for seg in self.working_state:
             if seg.is_code:
                 return False
-            if seg.is_type("loop_jump"):
+            if seg.is_type("template_loop"):
                 return True
         return False
 
@@ -933,7 +933,7 @@ class _TemplateLineInterpreter:
         if not self.templated_file:
             return None
 
-        if self.is_loop_jump_line():
+        if self.is_template_loop_line():
             return "mid"
 
         if not self.is_single_placeholder_line():

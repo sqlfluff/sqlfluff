@@ -35,7 +35,7 @@ file:
             naked_identifier: campaign_count_a
       - newline: "\n"
       - whitespace: '    '
-      - loop_jump: ''
+      - template_loop: ''
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
@@ -52,7 +52,7 @@ file:
             naked_identifier: campaign_count_b
       - newline: "\n"
       - whitespace: '    '
-      - loop_jump: ''
+      - template_loop: ''
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
@@ -97,7 +97,7 @@ file:
         - placeholder: '{% else %}... [103 unused template characters] ...{% endif %}'
         - newline: "\n"
         - whitespace: '    '
-        - loop_jump: ''
+        - template_loop: ''
         - newline: "\n"
         - whitespace: '        '
         - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
@@ -138,7 +138,7 @@ file:
         - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
-        - loop_jump: ''
+        - template_loop: ''
         - newline: "\n"
         - whitespace: '        '
         - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
