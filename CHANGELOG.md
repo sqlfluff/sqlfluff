@@ -14,6 +14,25 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release brings several potentially breaking changes to the underlying parse tree. For
+users of the cli tool in a linting context you should notice no change. If however
+your application relies on the structure of the SQLFluff parse tree or the naming of certain
+elements within the yaml format, then this may not be a drop-in replacement. Specifically:
+- The addition of a new `end_of_file` meta segment at the end of the parse structure.
+- The addition of a `template_loop` meta segment to signify a jump backward in the source
+  file within a loop structure (e.g. a jinja for loop).
+- Much more specific types on some raw segments, in particular `identifier` and `literal`
+  type segments will now appear in the parse tree with their more specific type (which
+  used to be called `name`) e.g. `naked_identifier`, `quoted_identifier`, `numeric_literal` etc...
+
+If using the python api, the _parent_ type (such as `identifier`) will still register if
+you call `.is_type("identifier")`, as this function checks all inherited types. However the
+eventual type returned by `.get_type()` will now be (in most cases) what used to be accessible
+at `.name`. The `name` attribute will be deprecated in a future release.
+
+There are also a _ton_ of other features and bigfixes in this realease, including first-time
+contributions from **11 new contributors**! 🎉
+
 ## What’s Changed
 
 * Add "# pragma: no cover" to work around sporadic, spurious coverage failure [#3767](https://github.com/sqlfluff/sqlfluff/pull/3767) [@barrywhart](https://github.com/barrywhart)
