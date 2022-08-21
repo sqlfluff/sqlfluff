@@ -891,7 +891,7 @@ class _TemplateLineInterpreter:
                 count_placeholder += 1
 
         return count_placeholder == 1
-    
+
     def is_loop_jump_line(self):
         for seg in self.working_state:
             if seg.is_code:
