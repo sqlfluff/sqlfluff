@@ -150,6 +150,7 @@ class Rule_L039(BaseRule):
         """Checks whether segment formatting was handled by _align_aliases.
 
         Args:
+            context: Context passed to _eval function.
             seg: A whitespace segment.
 
         Return:
