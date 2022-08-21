@@ -1,11 +1,12 @@
 """Implementation of Rule L001."""
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from typing import List
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.utils.functional import FunctionalContext, sp
+from sqlfluff.utils.reflow.classes import ReflowSequence
 
 
 @document_groups
@@ -36,27 +37,15 @@ class Rule_L001(BaseRule):
     """
 
     groups = ("all", "core")
-    crawl_behaviour = SegmentSeekerCrawler(
-        {"newline", "end_of_file"}, provide_raw_stack=True
-    )
+    crawl_behaviour = RootOnlyCrawler()
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Unnecessary trailing whitespace.
 
         Look for newline segments, and then evaluate what
         it was preceded by.
         """
-        if len(context.raw_stack) > 0 and context.raw_stack[-1].is_type("whitespace"):
-            # Look for a newline (or file end), which is preceded by whitespace
-            deletions = (
-                FunctionalContext(context)
-                .raw_stack.reversed()
-                .select(loop_while=sp.is_type("whitespace"))
-            )
-            # NOTE: The presence of a loop marker should prevent false
-            # flagging of newlines before jinja loop tags.
-            return LintResult(
-                anchor=deletions[-1],
-                fixes=[LintFix.delete(d) for d in deletions],
-            )
-        return LintResult()
+        sequence = ReflowSequence.from_root(context.segment)
+        fixes = sequence.trailing_whitespace_fixes()
+        results = [LintResult(anchor=fix.anchor, fixes=[fix]) for fix in fixes]
+        return results
