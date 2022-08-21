@@ -30,6 +30,15 @@ you call `.is_type("identifier")`, as this function checks all inherited types. 
 eventual type returned by `.get_type()` will now be (in most cases) what used to be accessible
 at `.name`. The `name` attribute will be deprecated in a future release.
 
+Other highlights:
+* New command-line option `--show-lint-violations` to show details on unfixable errors when
+  running `sqlfluff fix`.
+* Improved consistency of process exit codes.
+* Short CLI options for many common options.
+* Jinja templater: When `--ignore=templating` is enabled, undefined Jinja variables now take
+  on "reasonable" default values rather than blank string (`""`). This can streamline initial
+  rollout of SQLFluff by reducing or eliminating the need to configure templater variables.
+
 There are also a _ton_ of other features and bigfixes in this release, including first-time
 contributions from **11 new contributors**! 🎉
 
