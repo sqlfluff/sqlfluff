@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -92,4 +93,34 @@ class InsertStatementSegment(BaseSegment):
             OptionallyBracketed(Ref("SelectableGrammar")),
             Sequence("DEFAULT", "VALUES"),
         ),
+    )
+
+
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """Overriding ColumnConstraintSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.ColumnConstraintSegment.match_grammar.copy(
+        insert=[
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+            OneOf(
+                Sequence("INITIALLY", "DEFERRED"),
+                Sequence("INITIALLY", "IMMEDIATE"),
+                optional=True,
+            ),
+        ],
+    )
+
+
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """Overriding TableConstraintSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.TableConstraintSegment.match_grammar.copy(
+        insert=[
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+            OneOf(
+                Sequence("INITIALLY", "DEFERRED"),
+                Sequence("INITIALLY", "IMMEDIATE"),
+                optional=True,
+            ),
+        ],
     )
