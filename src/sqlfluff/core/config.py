@@ -529,7 +529,8 @@ class FluffConfig:
 
             raise SQLFluffUserError(
                 "No dialect was specified. You must configure a dialect or "
-                "specify one on the command line. Available dialects:\n"
+                "specify one on the command line using --dialect after the "
+                "command. Available dialects:\n"
                 f"{', '.join([d.label for d in dialect_readout()])}"
             )
 

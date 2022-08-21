@@ -1,0 +1,455 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5ceb51beba6740a7f80613179a15a4d2856cefa05e3b9b34ca1e11b4727c6973
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: DEFERRABLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: DEFERRED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: IMMEDIATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: DEFERRABLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: DEFERRED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: messages
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: msg_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: parent_id
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: users
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: IMMEDIATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: DEFERRABLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: DEFERRED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: IMMEDIATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: NOT
+          - keyword: DEFERRABLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: NOT
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: DEFERRED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: track
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: trackid
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackname
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: trackartist
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+              naked_identifier: artist
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: artistid
+              end_bracket: )
+          - keyword: NOT
+          - keyword: DEFERRABLE
+          - keyword: INITIALLY
+          - keyword: IMMEDIATE
+      - end_bracket: )
+- statement_terminator: ;
