@@ -30,7 +30,7 @@ you call `.is_type("identifier")`, as this function checks all inherited types. 
 eventual type returned by `.get_type()` will now be (in most cases) what used to be accessible
 at `.name`. The `name` attribute will be deprecated in a future release.
 
-There are also a _ton_ of other features and bigfixes in this realease, including first-time
+There are also a _ton_ of other features and bigfixes in this release, including first-time
 contributions from **11 new contributors**! 🎉
 
 ## What’s Changed
