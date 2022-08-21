@@ -68,7 +68,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
-    print(f"Errors Found:")
+    print("Errors Found:")
     for e in lerrs:
         print(repr(e))
         if e.desc().startswith("Unexpected exception"):
