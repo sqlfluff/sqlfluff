@@ -11,6 +11,8 @@ from sqlfluff.core.parser.segments import (
     Dedent,
     TemplateSegment,
     UnlexableSegment,
+    EndOfFile,
+    TemplateLoop,
 )
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLexError
@@ -358,6 +360,29 @@ class Lexer:
                 templated_file.templated_str[element.template_slice],
             )
 
+            # Detect when we've gone backward in the source.
+            # NOTE: If it's the _same_ slice then don't insert a marker
+            # because we're probably just within a single templated
+            # section.
+            if (
+                last_source_slice
+                and last_source_slice.stop > source_slice.start
+                and last_source_slice != source_slice
+            ):
+                # If we have, insert a loop marker to reflect that.
+                lexer_logger.debug(
+                    "      Backward jump detected. Inserting Loop Marker"
+                )
+                segment_buffer.append(
+                    TemplateLoop(
+                        pos_marker=PositionMarker.from_point(
+                            last_source_slice.stop,
+                            element.template_slice.start,
+                            templated_file,
+                        )
+                    )
+                )
+
             # The calculated source slice will include any source only slices.
             # We should consider all of them in turn to see whether we can
             # insert them.
@@ -559,6 +584,15 @@ class Lexer:
                             block_type=so_slice.slice_type,
                         )
                     )
+
+        # Add an end of file marker
+        segment_buffer.append(
+            EndOfFile(
+                pos_marker=segment_buffer[-1].pos_marker.end_point_marker()
+                if segment_buffer
+                else PositionMarker.from_point(0, 0, templated_file)
+            )
+        )
 
         # Convert to tuple before return
         return tuple(segment_buffer)
