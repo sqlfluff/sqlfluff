@@ -97,7 +97,7 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
         assert f"over the limit of {filesize}" in str(excinfo.value)
     # If NOT raises, then we'll catch the raise an error and the test will fail.
 
-    # Then check that it either is or isn't linted appropriately.
+    # Then check that it either is or isn't linted appropriately via lint_paths.
     lntr = Linter(config)
     result = lntr.lint_paths(
         ("test/fixtures/linter/indentation_errors.sql",),
@@ -106,6 +106,17 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
         assert not result.get_violations()
     else:
         assert result.get_violations()
+
+    # Same again via parse_path, which is the other entry point.
+    result = list(
+        lntr.parse_path(
+            "test/fixtures/linter/indentation_errors.sql",
+        )
+    )
+    if raises_skip:
+        assert not result
+    else:
+        assert result
 
 
 def test__linter__path_from_paths__not_exist():
