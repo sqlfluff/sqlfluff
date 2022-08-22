@@ -169,7 +169,7 @@ class TemplatedFile:
                 if previous_slice:
                     if tfs.templated_slice.start != previous_slice.templated_slice.stop:
                         raise SQLFluffSkipFile(  # pragma: no cover
-                            "Templated slices found to be non contigious. "
+                            "Templated slices found to be non-contiguous. "
                             f"{tfs.templated_slice} (starting"
                             f" {self.templated_str[tfs.templated_slice]!r})"
                             f" does not follow {previous_slice.templated_slice} "
