@@ -41,7 +41,7 @@ def large_file_check(func):
                 templater_logger.warning(
                     "The config value large_file_skip_char_limit was found set. "
                     "This feature will be removed in a future release, please "
-                    "use the more efficient large_file_skip_byte_limit instead."
+                    "use the more efficient 'large_file_skip_byte_limit' instead."
                 )
             if limit and len(in_str) > limit:
                 raise SQLFluffSkipFile(
