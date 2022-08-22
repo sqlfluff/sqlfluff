@@ -979,6 +979,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
+            Ref("AlterFileFormatSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
@@ -3057,6 +3058,35 @@ class CreateFileFormatSegment(BaseSegment):
     )
 
 
+class AlterFileFormatSegment(BaseSegment):
+    """A snowflake `Alter FILE FORMAT` statement.
+    https://docs.snowflake.com/en/sql-reference/sql/alter-file-format.html
+    """
+
+    type = "alter_file_format_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        Sequence("FILE", "FORMAT"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("CsvFileFormatTypeParameters"),
+                    Ref("JsonFileFormatTypeParameters"),
+                    Ref("AvroFileFormatTypeParameters"),
+                    Ref("OrcFileFormatTypeParameters"),
+                    Ref("ParquetFileFormatTypeParameters"),
+                    Ref("XmlFileFormatTypeParameters"),
+                ),
+                Ref("CommentEqualsClauseSegment", optional=True)
+            )
+        )
+    )
+
+
 class CsvFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for CSV.
 
@@ -3122,6 +3152,16 @@ class CsvFileFormatTypeParameters(BaseSegment):
             OneOf("AUTO", Ref("QuotedLiteralSegment")),
         ),
         Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
+        Sequence(
+            "ESCAPE",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "ESCAPE_UNENCLOSED_FIELD",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "FIELD_OPTIONALLY_ENCLOSED_BY",
@@ -3134,7 +3174,10 @@ class CsvFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            OneOf(
+                Bracketed(),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment")))
+            ),
         ),
         Sequence(
             "ERROR_ON_COLUMN_COUNT_MISMATCH",
@@ -3218,7 +3261,10 @@ class JsonFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            OneOf(
+                Bracketed(),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment")))
+            ),
         ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
@@ -3357,6 +3403,7 @@ class ParquetFileFormatTypeParameters(BaseSegment):
         Sequence(
             "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
+        Sequence("BINARY_AS_TEXT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
