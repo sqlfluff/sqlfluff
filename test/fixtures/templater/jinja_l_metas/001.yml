@@ -78,3 +78,4 @@ file:
                   table_reference:
                     naked_identifier: cust
               dedent: ''
+  - end_of_file: ''

@@ -1526,11 +1526,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
+            # If there's an end of file segment or indent, ignore them just for the
+            # purposes of patch iteration.
+            # NOTE: This doesn't mutate the underlying `self.segments`.
+            segments = self.segments
+            while segments and segments[-1].is_type("end_of_file", "indent"):
+                segments = segments[:-1]
+
             # Iterate through the child segments
             source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
-            for seg_idx, segment in enumerate(self.segments):
+            for seg_idx, segment in enumerate(segments):
 
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated
