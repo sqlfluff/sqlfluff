@@ -65,6 +65,9 @@ class Rule_L062(BaseRule):
         if not self.blocked_words and not self.blocked_regex:
             return None
 
+        if context.segment.type == "comment":
+            return None
+
         # Get the ignore list configuration and cache it
         try:
             blocked_words_list = self.blocked_words_list

@@ -11,7 +11,7 @@ from unittest import mock
 import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
@@ -268,7 +268,7 @@ def test__templater_dbt_skips_file(
     path, reason, dbt_templater, project_dir  # noqa: F811
 ):
     """A disabled dbt model should be skipped."""
-    with pytest.raises(SQLTemplaterSkipFile, match=reason):
+    with pytest.raises(SQLFluffSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
