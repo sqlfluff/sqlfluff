@@ -18,6 +18,7 @@ import traceback
 from typing import Callable, List, Tuple, Iterator
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -41,7 +42,10 @@ class BaseRunner(ABC):
         for fname in self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
         ):
-            yield fname, self.linter.render_file(fname, self.config)
+            try:
+                yield fname, self.linter.render_file(fname, self.config)
+            except SQLFluffSkipFile as s:
+                linter_logger.warning(str(s))
 
     def iter_partials(
         self,
