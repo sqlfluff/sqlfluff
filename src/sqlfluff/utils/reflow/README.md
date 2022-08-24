@@ -18,7 +18,8 @@ elements of reflow logic:
 2. _Line Length_. This is concerned only with the total amount of
    characters on a line (including the amount of leading whitespace).
 3. _Spacing_. This is concerned only with the amount of whitespace
-   between elements on a line.
+   between elements on a line. **NB:** trailing whitespace is in
+   this understanding, a special case of _Spacing_.
 4. _Line Breaks_. This is concerned only with where line breaks are
    introduced within sequences of segments (usually, but not
    exclusively without reference to changes in indentation). This
