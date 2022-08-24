@@ -590,11 +590,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
-        terminator=OneOf(
-            "WINDOW",
-            Sequence("ORDER", "BY"),
-            "LIMIT"
-        ),
+        terminator=OneOf("WINDOW", Sequence("ORDER", "BY"), "LIMIT"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1475,11 +1471,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("QualifyClauseSegment", optional=True)
-        ],
+        insert=[Ref("QualifyClauseSegment", optional=True)],
         # Removing non-valid clauses that exist in ANSI dialect
-        remove=[Ref("OverlapsClauseSegment", optional=True)]
+        remove=[Ref("OverlapsClauseSegment", optional=True)],
     )
 
 
@@ -1497,10 +1491,8 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         ],
         before=Ref("LimitClauseSegment", optional=True),
     ).copy(
-        insert=[
-            Ref("QualifyClauseSegment", optional=True)
-        ],
-        before=Ref("OrderByClauseSegment", optional=True)
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
     )
 
 
