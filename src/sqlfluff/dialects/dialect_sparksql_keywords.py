@@ -197,6 +197,7 @@ UNRESERVED_KEYWORDS = [
     "PRINCIPALS",
     "PROPERTIES",
     "PURGE",
+    "QUALIFY",
     "QUERY",
     "RANGE",
     "RECORDREADER",
