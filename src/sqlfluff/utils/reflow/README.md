@@ -66,9 +66,12 @@ how widespread the impact we want to have is:
 As a rule of thumb:
 - If it's a rule about _Spacing_ it should only care about that
   in full knowledge that it may make lines too long. Unless the
-  user has _also_ enabled long line checking, this is fine.
+  user has _also_ enabled long line checking, this is fine, and
+  if they have enabled it - that rule will pick things up itself.
+  - This means we'll likely need a `.respace()` method.
 - If it's a rule about _Indentation_ we should also not check
   line length (for the same reasons).
+  - This means we'll likely need a `.reindent()` method.
 - If it's a rule about _Line Breaks_ in relation to other segments
   (e.g. around commas or operators), we should aim to keep the
   existing _Indentation_ and not reset that or consider any
@@ -76,8 +79,41 @@ As a rule of thumb:
   only around the elements moved (e.g. if we're shifting a trailing
   comma to be a leading one, then we should also correct it's spacing
   at the same time).
+  - This means in practice we should move the _Segment_ and not
+    move the _Line Break_. Once moved, we should use the `.respace()`
+    method to resolve the spacing.
 - If it's a rule about _Line Length_ we will also need to consider
   _Indentation_ and _Line Breaks_.
+  - This should use a more fully featured `.reflow()` method which
+    can use `.reindent()` and others under the hood, but limited
+    only to reflowing the offending line itself (TBC whether in
+    in practice this needs to be broader).
+
+### What about non-reflow rules?
+
+Some rules add, remove or rearrange segments and need to do so in
+a way which is reflow aware.
+- In general, rules which only _remove_ segments as part of a fix
+  should only readdress the _Spacing_ left in the gap. We should
+  not attempt to reflow and attempt to remove any _Line Breaks_
+  which could now be possible due to the remaining shorter lines.
+  - This should use the `.respace()` method.
+- For rules which _move_ an element (and not just a movement with
+  respect to _Line Breaks_ or _Spacing_, which would be covered
+  above), we should treat them as an addition and a removal. The
+  removal part should be done as above. The addition should be
+  handled just like a fix which is only concerned with addition.
+- For rules which _add_ segments:
+  - We should first add in the new segment, correct the _Spacing_
+    around it and then assess _Line Length_ of just the line
+    we inserted the segment on. If all is good then stop here.
+  - If however the addition of the new segment and associated
+    _Spacing_ means that the _Line Length_ is not over the limit,
+    we should reflow all the lines touched by the parent segment
+    we are inserting into.
+  - To handle the logic around this gracefully, we'll likely
+    need `.reflow_insert()` method (or similar) which wraps the
+    required background methods.
 
 ### How to apply in a file reflow context
 
@@ -102,6 +138,8 @@ Therefore the order of operations should be:
       convert `whitespace` to `newline`, that _Spacing_ should have
       no issues). Repeat step 4.
    b. If no lines are found too long, then we're good!
+
+All of this should be encompassed into the `.reflow()` method.
 
 ## Implications for configuration
 
@@ -175,3 +213,7 @@ spacing_before = False
 
 For now _Indentation_ control will stay where it is, but with _Spacing_ and
 _Line Break_ control in new `layout` sections.
+
+This configuration should be applied in the _creation_ of the `ReflowSequence`
+so that in application of the various methods, the effects area already
+pre-loaded.
