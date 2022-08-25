@@ -23,7 +23,7 @@ from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
@@ -399,10 +399,10 @@ class DbtTemplater(JinjaTemplater):
         if not results:
             skip_reason = self._find_skip_reason(fname)
             if skip_reason:
-                raise SQLTemplaterSkipFile(
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because it is {skip_reason}"
                 )
-            raise SQLTemplaterSkipFile(
+            raise SQLFluffSkipFile(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
@@ -491,7 +491,7 @@ class DbtTemplater(JinjaTemplater):
                     fname,
                 )
                 # Additional error logging in case we get a fatal dbt error.
-                raise SQLTemplaterSkipFile(  # pragma: no cover
+                raise SQLFluffSkipFile(  # pragma: no cover
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 ) from err

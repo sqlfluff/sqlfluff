@@ -10,7 +10,13 @@ import pytest
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.linter import runner
-from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.core.errors import (
+    SQLFluffSkipFile,
+    SQLLexError,
+    SQLBaseError,
+    SQLLintError,
+    SQLParseError,
+)
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult, NoQaDirective
@@ -73,6 +79,44 @@ def test__linter__path_from_paths__file():
     lntr = Linter()
     paths = lntr.paths_from_path("test/fixtures/linter/indentation_errors.sql")
     assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
+
+
+@pytest.mark.parametrize("filesize,raises_skip", [(0, False), (5, True), (2000, False)])
+def test__linter__skip_large_bytes(filesize, raises_skip):
+    """Test extracting paths from a file path."""
+    config = FluffConfig(
+        overrides={"large_file_skip_byte_limit": filesize, "dialect": "ansi"}
+    )
+    # First check the function directly
+    if raises_skip:
+        with pytest.raises(SQLFluffSkipFile) as excinfo:
+            Linter._load_raw_file_and_config(
+                "test/fixtures/linter/indentation_errors.sql", config
+            )
+        assert "Skipping" in str(excinfo.value)
+        assert f"over the limit of {filesize}" in str(excinfo.value)
+    # If NOT raises, then we'll catch the raise an error and the test will fail.
+
+    # Then check that it either is or isn't linted appropriately via lint_paths.
+    lntr = Linter(config)
+    result = lntr.lint_paths(
+        ("test/fixtures/linter/indentation_errors.sql",),
+    )
+    if raises_skip:
+        assert not result.get_violations()
+    else:
+        assert result.get_violations()
+
+    # Same again via parse_path, which is the other entry point.
+    result = list(
+        lntr.parse_path(
+            "test/fixtures/linter/indentation_errors.sql",
+        )
+    )
+    if raises_skip:
+        assert not result
+    else:
+        assert result
 
 
 def test__linter__path_from_paths__not_exist():
