@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b64b643c85caa9b20790dad10a2f0b075a9326e3cdfb1318fdb43057172b5e8
+_hash: b2d55ad5ee705b8170c77854e66b327f5c2ee32c6bde3af3880c7d580bd9a8a8
 file:
 - statement:
     create_statement:
@@ -37,6 +37,40 @@ file:
       - bucket_path: "'s3://mybucket1/path1/'"
       - comma: ','
       - bucket_path: "'s3://mybucket2/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - storage_integration_parameters:
+      - keyword: storage_provider
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: s3
+      - keyword: storage_aws_role_arn
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket1'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket2/'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
