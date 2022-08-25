@@ -37,6 +37,7 @@ class Rule_L027(Rule_L020):
     """
 
     groups = ("all",)
+    # Crawl behaviour is defined in L020
 
     def _lint_references_and_aliases(
         self,

@@ -529,7 +529,8 @@ class FluffConfig:
 
             raise SQLFluffUserError(
                 "No dialect was specified. You must configure a dialect or "
-                "specify one on the command line. Available dialects:\n"
+                "specify one on the command line using --dialect after the "
+                "command. Available dialects:\n"
                 f"{', '.join([d.label for d in dialect_readout()])}"
             )
 
@@ -542,7 +543,7 @@ class FluffConfig:
         del state["_plugin_manager"]
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state):  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
         # NB: We don't reinstate the plugin manager, but this should only

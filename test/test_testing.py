@@ -1,8 +1,8 @@
-"""Test the sqlfluff.testing module."""
+"""Test the sqlfluff.utils.testing module."""
 
 from _pytest.outcomes import Failed, Skipped
 import pytest
-from sqlfluff.testing.rules import (
+from sqlfluff.utils.testing.rules import (
     assert_rule_fail_in_sql,
     assert_rule_pass_in_sql,
     rules__test_helper,

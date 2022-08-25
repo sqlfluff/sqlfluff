@@ -9,7 +9,8 @@ from sqlfluff.core.rules import (
     LintFix,
     RuleContext,
 )
-from sqlfluff.core.rules.functional import rsp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import rsp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
@@ -42,6 +43,10 @@ class Rule_L046(BaseRule):
     """
 
     groups = ("all", "core")
+    # Crawling for "raw" isn't a great way of filtering but it will
+    # do for now. TODO: Make a more efficient crawler for templated
+    # sections.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"})
     targets_templated = True
 
     @staticmethod
@@ -97,7 +102,7 @@ class Rule_L046(BaseRule):
             # NOTE: We use this function because a single segment
             # may include multiple raw templated sections:
             # e.g. a single identifier with many templated tags.
-            templated_raw_slices = context.functional.segment.raw_slices.select(
+            templated_raw_slices = FunctionalContext(context).segment.raw_slices.select(
                 rsp.is_slice_type("templated", "block_start", "block_end")
             )
             result = []

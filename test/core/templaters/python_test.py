@@ -2,7 +2,7 @@
 
 import pytest
 import logging
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 
 from sqlfluff.core.templaters import PythonTemplater
 from sqlfluff.core import SQLTemplaterError, FluffConfig
@@ -485,7 +485,7 @@ def test__templater_python_large_file_check():
     # First check we can process the file normally without config.
     PythonTemplater().process(in_str="SELECT 1", fname="<string>")
     # Then check we raise a skip exception when config is set low.
-    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+    with pytest.raises(SQLFluffSkipFile) as excinfo:
         PythonTemplater().process(
             in_str="SELECT 1",
             fname="<string>",

@@ -6,12 +6,13 @@ from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments, rsp, sp
+from sqlfluff.utils.functional import Segments, rsp, sp
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
 
@@ -74,7 +75,10 @@ class _LineSummary:
         # Generate our final line summary based on the current state
         is_comment_line = all(
             seg.is_type(
-                "whitespace", "comment", "indent"  # dedent is a subtype of indent
+                "whitespace",
+                "comment",
+                "indent",  # dedent is a subtype of indent
+                "end_of_file",
             )
             for seg in copied_line_buffer
         )
@@ -194,9 +198,10 @@ class Rule_L003(BaseRule):
     """
 
     groups = ("all", "core")
+    # This rule is mostly a raw crawler, so not much performance gain to be
+    # had from being more specific.
+    crawl_behaviour = SegmentSeekerCrawler({"raw"}, provide_raw_stack=True)
     targets_templated = True
-    _works_on_unparsable = False
-    needs_raw_stack = True
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit", "hanging_indents"]
@@ -413,14 +418,12 @@ class Rule_L003(BaseRule):
             memory.in_indent = True
         elif memory.in_indent:
             has_children = bool(segment.segments)
-            is_placeholder = segment.is_meta and segment.indent_val != 0  # type: ignore
-            if not (segment.is_whitespace or has_children or is_placeholder):
+            if not (segment.is_whitespace or has_children or segment.is_type("indent")):
                 memory.in_indent = False
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = context.segment is context.final_segment
-        if not segment.is_type("newline") and not is_last:
+        if not segment.is_type("newline", "end_of_file"):
             # Process on line ends or file end
             return LintResult(memory=memory)
 
@@ -471,6 +474,13 @@ class Rule_L003(BaseRule):
             self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
+        if this_line.line_buffer and this_line.line_buffer[0].is_type(
+            "end_of_file"
+        ):  # pragma: no cover
+            # This is just the end of the file.
+            self.logger.debug("    Just end of file. #%s", this_line_no)
+            return LintResult(memory=memory)
+
         previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
         # we will iterate this more than once
         previous_lines = list(map(lambda k: line_summaries[k], previous_line_numbers))
@@ -492,8 +502,10 @@ class Rule_L003(BaseRule):
                 fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
             )
 
-        # Special handling for template end blocks on a line by themselves.
-        if this_line.templated_line_type == "end":
+        # Special handling for template end/mid blocks on a line by themselves.
+        # NOTE: Mid blocks (i.e. TemplateLoop segmets) behave like ends here, but
+        # don't otherwise have the same indent balance implications.
+        if this_line.templated_line_type in ("end", "mid"):
             return self._handle_template_blocks(
                 this_line=this_line,
                 trigger_segment=trigger_segment,
@@ -784,7 +796,7 @@ class Rule_L003(BaseRule):
         # matching block start on a line by itself. If there is one, match
         # its indentation. Question: Could we avoid treating this as a
         # special case? It has some similarities to the non-templated test
-        # case test/fixtures/linter/indentation_error_contained.sql, in tha
+        # case test/fixtures/linter/indentation_error_contained.sql, in that
         # both have lines where anchor_indent_balance drops 2 levels from one line
         # to the next, making it a bit unclear how to indent that line.
         template_line = _find_matching_start_line(previous_lines)
@@ -880,6 +892,14 @@ class _TemplateLineInterpreter:
 
         return count_placeholder == 1
 
+    def is_template_loop_line(self):
+        for seg in self.working_state:
+            if seg.is_code:
+                return False
+            if seg.is_type("template_loop"):
+                return True
+        return False
+
     def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:
         """Yields the tuple of seg type and underlying type were applicable."""
         for seg in self.working_state:
@@ -912,6 +932,9 @@ class _TemplateLineInterpreter:
         """Return a block_type enum."""
         if not self.templated_file:
             return None
+
+        if self.is_template_loop_line():
+            return "mid"
 
         if not self.is_single_placeholder_line():
             return None

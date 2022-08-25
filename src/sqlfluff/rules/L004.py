@@ -1,6 +1,7 @@
 """Implementation of Rule L004."""
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -48,6 +49,7 @@ class Rule_L004(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["indent_unit", "tab_space_size"]
+    crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     # TODO fix indents after text:
     # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
@@ -70,6 +72,7 @@ class Rule_L004(BaseRule):
             fixes = []
             description = "Incorrect indentation type found in file."
             edit_indent = context.segment.raw.replace(wrong_indent, correct_indent)
+            pre_seg = context.raw_stack[-1] if context.raw_stack else None
             # Ensure that the number of space indents is a multiple of tab_space_size
             # before attempting to convert spaces to tabs to avoid mixed indents
             # unless we are converted tabs to spaces (indent_unit = space)
@@ -79,10 +82,7 @@ class Rule_L004(BaseRule):
                     or context.segment.raw.count(space) % self.tab_space_size == 0
                 )
                 # Only attempt a fix at the start of a newline for now
-                and (
-                    context.raw_segment_pre is None
-                    or context.raw_segment_pre.is_type("newline")
-                )
+                and (pre_seg is None or pre_seg.is_type("newline"))
             ):
                 fixes = [
                     LintFix.replace(
@@ -92,10 +92,7 @@ class Rule_L004(BaseRule):
                         ],
                     )
                 ]
-            elif not (
-                context.raw_segment_pre is None
-                or context.raw_segment_pre.is_type("newline")
-            ):
+            elif not (pre_seg is None or pre_seg.is_type("newline")):
                 # give a helpful message if the wrong indent has been found and is not
                 # at the start of a newline
                 description += (
