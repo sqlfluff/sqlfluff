@@ -3060,6 +3060,7 @@ class CreateFileFormatSegment(BaseSegment):
 
 class AlterFileFormatSegment(BaseSegment):
     """A snowflake `Alter FILE FORMAT` statement.
+
     https://docs.snowflake.com/en/sql-reference/sql/alter-file-format.html
     """
 
