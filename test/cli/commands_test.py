@@ -1707,8 +1707,9 @@ def test__cli__fix_multiple_errors_show_errors():
         "select with more than" in result.output
     )
 
+
 def test__cli__multiple_files__fix_multiple_errors_show_errors():
-    """Basic checking of lint functionality that ensure with multiple files, filenames are listed in output"""
+    """Basic check of lint ensures with multiple files, filenames are listed."""
     result = invoke_assert_code(
         ret_code=1,
         args=[
@@ -1722,5 +1723,5 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
         ],
     )
 
-    assert "===== test/fixtures/linter/multiple_sql_errors.sql =====" in result.output
-    assert "===== test/fixtures/linter/indentation_errors.sql =====" in result.output
+    assert "== [test/fixtures/linter/multiple_sql_errors.sql] FAIL" in result.output
+    assert "== [test/fixtures/linter/indentation_errors.sql] PASS" in result.output
