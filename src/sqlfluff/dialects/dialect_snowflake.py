@@ -2803,6 +2803,12 @@ class CreateStatementSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "ERROR_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
                 "AWS_SNS_TOPIC",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
