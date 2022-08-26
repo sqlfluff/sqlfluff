@@ -4,7 +4,8 @@ from typing import Optional
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -46,35 +47,33 @@ class Rule_L038(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["select_clause_trailing_comma"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Trailing commas within select clause."""
         # Config type hints
         self.select_clause_trailing_comma: str
 
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         children = segment.children()
-        if segment.all(sp.is_type("select_clause")):
-            # Iterate content to find last element
-            last_content: BaseSegment = children.last(sp.is_code())[0]
+        # Iterate content to find last element
+        last_content: BaseSegment = children.last(sp.is_code())[0]
 
-            # What mode are we in?
-            if self.select_clause_trailing_comma == "forbid":
-                # Is it a comma?
-                if last_content.is_type("comma"):
-                    return LintResult(
-                        anchor=last_content,
-                        fixes=[LintFix.delete(last_content)],
-                        description="Trailing comma in select statement forbidden",
-                    )
-            elif self.select_clause_trailing_comma == "require":
-                if not last_content.is_type("comma"):
-                    new_comma = SymbolSegment(",", type="comma")
-                    return LintResult(
-                        anchor=last_content,
-                        fixes=[
-                            LintFix.replace(last_content, [last_content, new_comma])
-                        ],
-                        description="Trailing comma in select statement required",
-                    )
+        # What mode are we in?
+        if self.select_clause_trailing_comma == "forbid":
+            # Is it a comma?
+            if last_content.is_type("comma"):
+                return LintResult(
+                    anchor=last_content,
+                    fixes=[LintFix.delete(last_content)],
+                    description="Trailing comma in select statement forbidden",
+                )
+        elif self.select_clause_trailing_comma == "require":
+            if not last_content.is_type("comma"):
+                new_comma = SymbolSegment(",", type="comma")
+                return LintResult(
+                    anchor=last_content,
+                    fixes=[LintFix.replace(last_content, [last_content, new_comma])],
+                    description="Trailing comma in select statement required",
+                )
         return None

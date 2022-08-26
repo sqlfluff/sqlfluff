@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.parser import RawSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -40,10 +41,13 @@ class Rule_L005(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"comma"}, provide_raw_stack=True)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them."""
-        anchor: Optional[RawSegment] = context.raw_segment_pre
+        if not context.raw_stack:
+            return None  # pragma: no cover
+        anchor: Optional[RawSegment] = context.raw_stack[-1]
         if (
             # We need at least one segment previous segment for this to work.
             anchor is not None

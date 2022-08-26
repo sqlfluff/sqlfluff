@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.rules.L011 import Rule_L011
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.core.rules import LintResult, RuleContext
+from sqlfluff.utils.functional import FunctionalContext
 
 
 @document_groups
@@ -38,6 +39,7 @@ class Rule_L012(Rule_L011):
 
     groups = ("all", "core")
     config_keywords = ["aliasing"]
+    # NB: crawl_behaviour is the same as Rule L011
 
     _target_elems = [
         ("type", "select_clause_element"),
@@ -49,9 +51,6 @@ class Rule_L012(Rule_L011):
         # instead of
         # select value as alias
         # Recognise this and exit early
-        if (
-            context.segment.is_type("alias_expression")
-            and context.functional.segment.children()[-1].raw == "="
-        ):
+        if FunctionalContext(context).segment.children()[-1].raw == "=":
             return None
         return super()._eval(context)

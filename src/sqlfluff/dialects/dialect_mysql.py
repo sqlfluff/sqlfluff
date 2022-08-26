@@ -282,7 +282,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     Ref.keyword("DEFAULT", optional=True),
                     Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment"),
+                    Ref("EqualsSegment", optional=True),
                     OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
                 ),
             ),

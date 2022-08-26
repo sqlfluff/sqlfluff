@@ -3,6 +3,7 @@
 from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
@@ -41,12 +42,13 @@ class Rule_L060(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"function_name_identifier"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""
-        # We only care about function names.
-        if not context.segment.is_type("function_name_identifier"):
-            return None
+        # We only care about function names, and they should be the
+        # only things we get
+        assert context.segment.is_type("function_name_identifier")
 
         # Only care if the function is ``IFNULL`` or ``NVL``.
         if context.segment.raw_upper not in {"IFNULL", "NVL"}:

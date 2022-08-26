@@ -49,6 +49,27 @@ class MetaSegment(RawSegment):
         return None
 
 
+class EndOfFile(MetaSegment):
+    """A meta segment to indicate the end of the file."""
+
+    type = "end_of_file"
+
+
+class TemplateLoop(MetaSegment):
+    """A meta segment to indicate the presence of a backward template jump.
+
+    More specifically these indicate the presence of where there is a placeholder
+    in the source, but in the templated file we don't have one _yet_ because
+    we're going back for another pass around a loop.
+
+    These are particularly useful for any rules concernced with layout, because
+    and indented TemplateLoop is allowable, but without the marker we would just
+    see trailing whitespace.
+    """
+
+    type = "template_loop"
+
+
 class Indent(MetaSegment):
     """A segment which is empty but indicates where an indent should be.
 
@@ -79,7 +100,7 @@ class Dedent(Indent):
 
 
 class TemplateSegment(MetaSegment):
-    """A segment which is empty but indicates something should be.
+    """A segment which is empty but indicates where something should be.
 
     This segment is always empty, i.e. its raw format is '', but it indicates
     the position of an element on a line which has been removed. This is used

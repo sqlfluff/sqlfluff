@@ -46,6 +46,23 @@ def test__parser__base_segments_type():
     assert DummySegment.class_is_type("base", "foo", "bar")
 
 
+def test__parser__base_segments_class_types():
+    """Test the metaclass ._class_types attribute."""
+    assert DummySegment._class_types == {"dummy", "base"}
+
+
+def test__parser__base_segments_descendant_type_set(raw_seg_list):
+    """Test the .descendant_type_set () method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
+
+
+def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
+    """Test the .direct_descendant_type_set () method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
+
+
 def test__parser__base_segments_stubs():
     """Test stub methods that have no implementation in base class."""
     template = TemplatedFile.from_string("foobar")

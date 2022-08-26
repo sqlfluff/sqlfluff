@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, Iterator, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
+from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 
 
 PredicateType = Callable[[BaseSegment], bool]
@@ -80,8 +80,9 @@ class Segments(tuple):
             templated_file=self.templated_file
         )
 
+    # TODO:This method isn't used as at 2022-08-10. Consider removing in future.
     @property
-    def raw_segments(self) -> "Segments":
+    def raw_segments(self) -> "Segments":  # pragma: no cover
         """Get raw segments underlying the segments."""
         raw_segments_list = []
         for s in self:

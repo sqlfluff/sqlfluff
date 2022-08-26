@@ -60,6 +60,7 @@ def get_rule_from_set(code, config):
 
 def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     """Assert that a given rule does fail on the given sql."""
+    print("# Asserting Rule Fail in SQL")
     # Set up the config to only use the rule we are testing.
     overrides = {"rules": code}
     if configs is None or "core" not in configs or "dialect" not in configs["core"]:
@@ -68,8 +69,9 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
-    print(f"Errors Found: {lerrs}")
+    print("Errors Found:")
     for e in lerrs:
+        print("    " + repr(e))
         if e.desc().startswith("Unexpected exception"):
             pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
     parse_errors = list(
@@ -98,6 +100,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
 def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
+    print("# Asserting Rule Pass in SQL")
     if configs is None:
         configs = {}
     core = configs.setdefault("core", {})
@@ -123,8 +126,11 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     # line of code.
     lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
     lerrs = lint_result.violations
-    print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
+        print("Errors Found:")
+        for e in lerrs:
+            print("    " + repr(e))
+
         if msg:
             print(msg)  # pragma: no cover
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
@@ -150,6 +156,7 @@ def prep_violations(rule, violations):
 
 def assert_violations_before_fix(test_case, violations_before_fix):
     """Assert that the given violations are found in the given sql."""
+    print("# Asserting Violations Before Fix")
     violation_info = [e.get_info_dict() for e in violations_before_fix]
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
@@ -160,6 +167,7 @@ def assert_violations_before_fix(test_case, violations_before_fix):
 
 def assert_violations_after_fix(test_case):
     """Assert that the given violations are found in the fixed sql."""
+    print("# Asserting Violations After Fix")
     _, violations_after_fix = assert_rule_fail_in_sql(
         test_case.rule,
         test_case.fix_str,
