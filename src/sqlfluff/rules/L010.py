@@ -77,6 +77,13 @@ class Rule_L010(BaseRule):
         )
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
             return [LintResult(memory=context.memory)]
+        
+        # the parent element is a function_name in case there is more than one element
+        # below it, we ignore it because it is more likely a user defined function.
+        # SUM() should be modified by this rule. 
+        # However, dbo.myScalar() must not be modified.
+        if len(context.parent_stack[-1].segments) != 1:
+            return [LintResult(memory=context.memory)]
 
         return [self._handle_segment(context.segment, context.memory)]
 
@@ -119,7 +126,7 @@ class Rule_L010(BaseRule):
             return LintResult(memory=memory)
 
         refuted_cases = memory.get("refuted_cases", set())
-
+        
         # Which cases are definitely inconsistent with the segment?
         if segment.raw[0] != segment.raw[0].upper():
             refuted_cases.update(["upper", "capitalise", "pascal"])
