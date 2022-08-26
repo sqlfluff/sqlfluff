@@ -584,6 +584,24 @@ sparksql_dialect.insert_lexer_matchers(
 )
 
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = StartsWith(
+        "QUALIFY",
+        terminator=OneOf("WINDOW", Sequence("ORDER", "BY"), "LIMIT"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
 # Hive Segments
 class RowFormatClauseSegment(hive.RowFormatClauseSegment):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
@@ -1453,8 +1471,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
         # Removing non-valid clauses that exist in ANSI dialect
-        remove=[Ref("OverlapsClauseSegment", optional=True)]
+        remove=[Ref("OverlapsClauseSegment", optional=True)],
     )
 
 
@@ -1471,6 +1490,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("SortByClauseSegment", optional=True),
         ],
         before=Ref("LimitClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
     )
 
 
