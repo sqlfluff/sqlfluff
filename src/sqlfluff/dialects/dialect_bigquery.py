@@ -190,6 +190,7 @@ bigquery_dialect.replace(
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
+        Ref("DatePartWeekSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -266,13 +267,6 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
-        "MONDAY",
-        "TUESDAY",
-        "WEDNESDAY",
-        "THURSDAY",
-        "FRIDAY",
-        "SATURDAY",
-        "SUNDAY",
     ]
 )
 
@@ -292,7 +286,6 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
-        "WEEK",
     ]
 )
 
@@ -749,6 +742,32 @@ class ExtractFunctionNameSegment(BaseSegment):
     )
 
 
+class DatePartWeekSegment(BaseSegment):
+    """WEEK(<WEEKDAY>) in EXTRACT, DATE_DIFF, DATE_TRUNC, LAST_DAY.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_trunc
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#last_day
+    """
+
+    type = "date_part_week"
+    match_grammar: Matchable = Sequence(
+        "WEEK",
+        Bracketed(
+            OneOf(
+                "SUNDAY",
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+            ),
+        ),
+    )
+
+
 class NormalizeFunctionNameSegment(BaseSegment):
     """NORMALIZE function name segment.
 
@@ -792,6 +811,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     OneOf(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref("ExtendedDatetimeUnitSegment"),
                     ),
                     "FROM",
@@ -822,6 +842,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     Delimited(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             ephemeral_name="FunctionContentsGrammar",
