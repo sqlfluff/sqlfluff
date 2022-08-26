@@ -3174,10 +3174,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            OneOf(
-                Bracketed(),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment")))
-            ),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence(
             "ERROR_ON_COLUMN_COUNT_MISMATCH",
@@ -3261,10 +3258,7 @@ class JsonFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            OneOf(
-                Bracketed(),
-                Bracketed(Delimited(Ref("QuotedLiteralSegment")))
-            ),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
