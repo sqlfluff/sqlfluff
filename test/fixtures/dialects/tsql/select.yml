@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f14433f16770a941263b7c0cea9e103376dadf963aa05366c53f1c37c4379a69
+_hash: 0e8c1a1505ce8ce770033e0f800cc62cfe6e74294657ec3552a2839a9af4670d
 file:
   batch:
     statement:
@@ -693,6 +693,25 @@ file:
                     naked_identifier: Month
                 - keyword: ASC
                 end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - keyword: 'NULL'
+                  end_bracket: )
         - comma: ','
         - select_clause_element:
             alias_expression:
