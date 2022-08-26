@@ -1706,3 +1706,21 @@ def test__cli__fix_multiple_errors_show_errors():
         "L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in "
         "select with more than" in result.output
     )
+
+def test__cli__multiple_files__fix_multiple_errors_show_errors():
+    """Basic checking of lint functionality that ensure with multiple files, filenames are listed in output"""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--disable_progress_bar",
+                "--show-lint-violations",
+                "test/fixtures/linter/multiple_sql_errors.sql",
+                "test/fixtures/linter/indentation_errors.sql",
+            ],
+        ],
+    )
+
+    assert "===== test/fixtures/linter/multiple_sql_errors.sql =====" in result.output
+    assert "===== test/fixtures/linter/indentation_errors.sql =====" in result.output
