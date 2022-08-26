@@ -258,7 +258,7 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
         CodeSegment,
         type="bucket_path",
     ),
