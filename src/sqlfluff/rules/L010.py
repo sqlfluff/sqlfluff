@@ -126,7 +126,7 @@ class Rule_L010(BaseRule):
             return LintResult(memory=memory)
 
         refuted_cases = memory.get("refuted_cases", set())
- 
+
         # Which cases are definitely inconsistent with the segment?
         if segment.raw[0] != segment.raw[0].upper():
             refuted_cases.update(["upper", "capitalise", "pascal"])
