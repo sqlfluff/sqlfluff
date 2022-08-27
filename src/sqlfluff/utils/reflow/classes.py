@@ -4,13 +4,17 @@
 from itertools import chain
 import logging
 from dataclasses import dataclass
-from typing import List, Sequence, Union, Type
+from typing import Iterator, List, Optional, Sequence, Tuple, Union, Type, cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
 
 
-reflow_logger = logging.getLogger("sqlfluff.utils.reflow")
+# We're in the utils module, but users will expect reflow
+# logs to appear in the context of rules. Hence it's a subset
+# of the rules logger.
+reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
 @dataclass
@@ -72,6 +76,151 @@ class ReflowPoint(_ReflowElement):
     It holds no configuration and is influenced by the blocks either
     side.
     """
+
+    def respace(
+        self,
+        after: Optional[ReflowBlock] = None,
+        before: Optional[ReflowBlock] = None,
+        fixes: Optional[List[LintFix]] = None,
+    ) -> List[LintFix]:
+        """Respace a point based on given constraints.
+
+        NB: This effectively includes trailing whitespace fixes.
+
+        Deletion and edit fixes are generated immediately, but creations
+        are paused to the end and done in bulk so as not to generate conflicts.
+        """
+        new_fixes = []
+        last_whitespace: List[RawSegment] = []
+
+        reflow_logger.debug("Respacing: %s", self)
+        for idx, seg in enumerate(self.segments):
+            # If it's whitespace, store it.
+            if seg.is_type("whitespace"):
+                last_whitespace.append(seg)
+            # If it's a newline, check if we've just passed whitespace
+            elif seg.is_type("newline", "end_of_file"):
+                # If we have, remove it as trailing whitespace
+                if last_whitespace:
+                    for ws in last_whitespace:
+                        new_fixes.append(LintFix("delete", ws))
+                    reflow_logger.debug("    Removing trailing whitespace.")
+                # Regardless, unset last_whitespace.
+                # We either just deleted it, or it's not relevant for any future
+                # segments.
+                last_whitespace = []
+
+        if len(last_whitespace) >= 2:
+            reflow_logger.debug("   Removing adjoining whitespace.")
+            # If we find multiple sequential whitespaces, it's the sign
+            # that we've removed something. Only the first one should be
+            # a valid indent (or the one we consider for constraints).
+            # Remove all the following ones.
+            for ws in last_whitespace[1:]:
+                new_fixes.append(LintFix("delete", ws))
+
+        # Is this an inline case? (i.e. no newline)
+        if not self.class_types.intersection({"newline", "end_of_file"}):
+            # Do we at least have _some_ whitespace?
+            if last_whitespace:
+                # We do - is it the right size?
+                if (not after or after.after == "single") and (
+                    not before or before.before == "single"
+                ):
+                    if last_whitespace[0].raw != " ":
+                        new_fixes.append(
+                            LintFix(
+                                "edit",
+                                anchor=last_whitespace[0],
+                                edit=last_whitespace[0].edit(" "),
+                            )
+                        )
+                else:
+                    raise NotImplementedError(
+                        "Not set up to handle non-single whitespace rules."
+                    )
+            else:
+                # No. Should we insert some?
+                if (not after or after.after == "single") and (
+                    not before or before.before == "single"
+                ):
+                    # Insert a single whitespace.
+
+                    # So special handling here. If segments either side
+                    # already exist then we don't care which we anchor on
+                    # but if one is already an insertion (as shown by a lack)
+                    # of pos_marker, then we should piggy back on that pre-existing
+                    # fix.
+                    existing_fix = None
+                    insertion = None
+                    if after and not after.segments[-1].pos_marker:
+                        existing_fix = "after"
+                        insertion = after.segments[-1]
+                    elif before and not before.segments[0].pos_marker:
+                        existing_fix = "before"
+                        insertion = before.segments[0]
+
+                    if existing_fix:
+                        reflow_logger.debug("Detected existing fix %s", existing_fix)
+                        if not fixes:
+                            raise ValueError(
+                                "Fixes detected, but none passed to .respace(). "
+                                "This will cause conflicts."
+                            )
+                        # Find the fix
+                        for fix in fixes:
+                            # Does it contain the insertion?
+                            # TODO: This feels ugly - why is eq for BaseSegment defined so differently?!!?!???!? Shouldn't it all use uuids?
+                            if (
+                                insertion
+                                and fix.edit
+                                and insertion.uuid in [elem.uuid for elem in fix.edit]
+                            ):
+                                break
+                        else:
+                            reflow_logger.warning("Fixes %s", fixes)
+                            raise ValueError(f"Couldn't find insertion for {insertion}")
+                        # Mutate the existing fix
+                        assert fix
+                        assert (
+                            fix.edit
+                        )  # It's going to be an edit if we've picked it up.
+                        if existing_fix == "before":
+                            fix.edit = [
+                                cast(BaseSegment, WhitespaceSegment())
+                            ] + fix.edit
+                        elif existing_fix == "after":
+                            fix.edit = fix.edit + [
+                                cast(BaseSegment, WhitespaceSegment())
+                            ]
+                    else:
+                        reflow_logger.debug("Not Detected existing fix. Creating new")
+                        if after:
+                            new_fixes.append(
+                                LintFix(
+                                    "create_after",
+                                    anchor=after.segments[-1],
+                                    edit=[WhitespaceSegment()],
+                                )
+                            )
+                        elif before:
+                            new_fixes.append(
+                                LintFix(
+                                    "create_before",
+                                    anchor=before.segments[0],
+                                    edit=[WhitespaceSegment()],
+                                )
+                            )
+                        else:
+                            NotImplementedError(
+                                "Not set up to handle a missing _after_ and _before_."
+                            )
+                else:
+                    raise NotImplementedError(
+                        "Not set up to handle non-single whitespace rules."
+                    )
+
+        return (fixes or []) + new_fixes
 
     def trailing_whitespace_fixes(self) -> List[LintFix]:
         """Fix any trailing whitespace detected.
@@ -258,6 +407,130 @@ class ReflowSequence:
         )
         # Include the final index so +1
         return cls.from_raw_segments(segments, root_segment)
+
+    def _find_element_idx_with(self, target: BaseSegment) -> int:
+        for idx, elem in enumerate(self.elements):
+            if target in elem.segments:
+                return idx
+        raise ValueError(f"Target [{target}] not found in ReflowSequence.")
+
+    def without(self, target: BaseSegment) -> "ReflowSequence":
+        """Returns a new reflow sequence without the specified segment.
+
+        It's important to note that this doesn't itself remove the target
+        from the file. This just allows us to simulate a sequence without it
+        and work out what additional whitespace changes would be required
+        if we were to remove it.
+        """
+        removal_idx = self._find_element_idx_with(target)
+        if removal_idx == 0 or removal_idx == len(self.elements) - 1:
+            raise NotImplementedError(
+                "Unexpected removal at one end of a ReflowSequence."
+            )
+        if isinstance(self.elements[removal_idx], ReflowPoint):
+            raise NotImplementedError(
+                "Not expected removal of whitespace in ReflowSequence."
+            )
+        merged_point = ReflowPoint(
+            segments=list(self.elements[removal_idx - 1].segments)
+            + list(self.elements[removal_idx + 1].segments),
+            root_segment=self.root_segment,
+        )
+        return ReflowSequence(
+            elements=list(self.elements[: removal_idx - 1])
+            + [merged_point]
+            + list(self.elements[removal_idx + 2 :]),
+            root_segment=self.root_segment,
+        )
+
+    def insert(self, insertion: RawSegment, target: RawSegment, pos="before"):
+        """Returns a new reflow sequence with the new element inserted.
+
+        Insertion is always relative to an existing element. Either before
+        or after it as specified by `pos`.
+        """
+        assert pos in ("before", "after")
+        target_idx = self._find_element_idx_with(target)
+        # Are we inserting something whitespacey...
+        if insertion.is_type("whitespace", "indent", "newline"):
+            # ... into a point?
+            if isinstance(self.elements[target_idx], ReflowPoint):
+                # This is the easy case where we just append the new segment into the existing one.
+                point_idx = target_idx
+            # ... around a block?
+            else:
+                # We're inserting whitespace around a block
+                point_idx = target_idx + (1 if pos == "before" else -1)
+            new_segments = (
+                ([insertion] if pos == "before" else [])
+                + list(self.elements[point_idx].segments)
+                + ([insertion] if pos == "after" else [])
+            )
+            new_point = ReflowPoint(
+                segments=new_segments, root_segment=self.root_segment
+            )
+            return ReflowSequence(
+                elements=list(self.elements[:point_idx])
+                + [new_point]
+                + list(self.elements[point_idx + 1 :]),
+                root_segment=self.root_segment,
+            )
+        else:
+            # We're inserting something blocky. That means a new block AND a new point.
+            # It's possible we try to _split_ a point by targetting a whitespace element
+            # inside a larger point. For now this isn't supported.
+            new_block = ReflowBlock(
+                segments=[insertion], root_segment=self.root_segment
+            )
+            if isinstance(self.elements[target_idx], ReflowPoint):
+                raise NotImplementedError(
+                    "Can't insert relative to whitespace for now."
+                )
+            elif pos == "before":
+                return ReflowSequence(
+                    elements=list(self.elements[:target_idx])
+                    + [new_block, ReflowPoint([], root_segment=self.root_segment)]
+                    + list(self.elements[target_idx:]),
+                    root_segment=self.root_segment,
+                )
+            elif pos == "after":
+                return ReflowSequence(
+                    elements=list(self.elements[: target_idx + 1])
+                    + [ReflowPoint([], root_segment=self.root_segment), new_block]
+                    + list(self.elements[target_idx + 1 :]),
+                    root_segment=self.root_segment,
+                )
+
+    def _iter_points_with_constraints(
+        self,
+    ) -> Iterator[Tuple[ReflowPoint, Optional[ReflowBlock], Optional[ReflowBlock]]]:
+        for idx, elem in enumerate(self.elements):
+            # Only evaluate points.
+            if isinstance(elem, ReflowPoint):
+                pre = None
+                post = None
+                if idx > 0:
+                    pre = cast(ReflowBlock, self.elements[idx - 1])
+                if idx < len(self.elements) - 2:
+                    post = cast(ReflowBlock, self.elements[idx + 1])
+                yield elem, pre, post
+
+    def respace(self, fixes: Optional[List[LintFix]] = None) -> List[LintFix]:
+        """Respace a sequence.
+
+        This resets spacing in a ReflowSequence.
+
+        Args:
+            without (:obj:`BaseSegment`, optional): Optionally specify a segment
+                which is due to be removed, implying that the respace should be
+                done as though this segment is not there.
+        """
+        fixes = fixes or []
+        for point, pre, post in self._iter_points_with_constraints():
+            # Pass through the fixes because they may get mutated
+            # TODO: This feels a bit gross - can we do better?
+            fixes = point.respace(after=pre, before=post, fixes=fixes)
+        return fixes
 
     def trailing_whitespace_fixes(self) -> List[LintFix]:
         """Fix any trailing whitespace detected."""

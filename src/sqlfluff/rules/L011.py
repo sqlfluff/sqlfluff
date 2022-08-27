@@ -1,4 +1,5 @@
 """Implementation of Rule L011."""
+from multiprocessing.sharedctypes import Value
 from typing import List, Optional, Tuple, Union
 
 from sqlfluff.core.parser import (
@@ -13,6 +14,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.utils.reflow.classes import ReflowSequence
 
 
 @document_groups
@@ -68,53 +70,49 @@ class Rule_L011(BaseRule):
 
         assert context.segment.is_type("alias_expression")
         if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
-            if any(e.name.lower() == "as" for e in context.segment.segments):
+            if any(e.raw_upper == "AS" for e in context.segment.segments):
                 if self.aliasing == "implicit":
-                    if context.segment.segments[0].name.lower() == "as":
+                    if context.segment.segments[0].raw_upper == "AS":
+                        as_keyword = context.segment.segments[0]
+                        # Remove the AS as we're using implicit aliasing
+                        fixes.append(LintFix.delete(as_keyword))
 
-                        # Remove the AS as we're using implict aliasing
-                        fixes.append(LintFix.delete(context.segment.segments[0]))
-                        anchor = raw_segment_pre
-
-                        # Remove whitespace before (if exists) or after (if not)
-                        if (
-                            raw_segment_pre is not None
-                            and raw_segment_pre.type == "whitespace"
-                        ):
-                            fixes.append(LintFix.delete(raw_segment_pre))
-                        elif (
-                            len(context.segment.segments) > 0
-                            and context.segment.segments[1].type == "whitespace"
-                        ):
-                            fixes.append(LintFix.delete(context.segment.segments[1]))
-
-                        return LintResult(anchor=anchor, fixes=fixes)
+                        # Generate the respace fixes around the gap.
+                        fixes.extend(
+                            ReflowSequence.from_around_target(
+                                as_keyword, context.parent_stack[0]
+                            )
+                            .without(as_keyword)
+                            .respace()
+                        )
+                        return LintResult(anchor=as_keyword, fixes=fixes)
 
             elif self.aliasing != "implicit":
-                insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
-
-                # Add initial whitespace if we need to...
-                assert raw_segment_pre
-                if not raw_segment_pre.is_type("whitespace", "newline"):
-                    insert_buff.append(WhitespaceSegment())
-
-                # Add an AS (Uppercase for now, but could be corrected later)
-                insert_buff.append(KeywordSegment("AS"))
-
-                # Add a trailing whitespace if we need to
-                if not context.segment.segments[0].is_type(
-                    "whitespace",
-                    "newline",
-                ):
-                    insert_buff.append(WhitespaceSegment())
+                as_keyword = KeywordSegment("AS")
+                # Add the fix for adding the keyword.
+                # NOTE: It's important that this one comes first because
+                # it's likely that some of the reflow fixes will be created
+                # in relation to this one.
+                fixes.append(
+                    LintFix.create_before(
+                        context.segment.segments[0],
+                        [as_keyword],
+                    )
+                )
+                # Work out the reflow fixes.
+                # NOTE: respace may mutate existing fixes, hence assignment
+                fixes = (
+                    ReflowSequence.from_around_target(
+                        context.segment.segments[0], context.parent_stack[0]
+                    )
+                    .insert(
+                        as_keyword, target=context.segment.segments[0], pos="before"
+                    )
+                    .respace(fixes=fixes)
+                )
 
                 return LintResult(
                     anchor=context.segment,
-                    fixes=[
-                        LintFix.create_before(
-                            context.segment.segments[0],
-                            insert_buff,
-                        )
-                    ],
+                    fixes=fixes,
                 )
         return None
