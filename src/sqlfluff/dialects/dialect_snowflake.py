@@ -980,6 +980,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
             Ref("AlterFileFormatSegment"),
+            Ref("AlterPipeSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
@@ -3431,6 +3432,62 @@ class XmlFileFormatTypeParameters(BaseSegment):
 
     match_grammar = OneOf(
         Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class AlterPipeSegment(BaseSegment):
+    """A snowflake `Alter PIPE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-pipe.html
+    """
+
+    type = "alter_pipe_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        "PIPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "PIPE_EXECUTION_PAUSED",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PIPE_EXECUTION_PAUSED", "COMMENT"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "PREFIX",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "MODIFIED_AFTER",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("CommaSegment", optional=True),
     )
 
 
