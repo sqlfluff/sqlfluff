@@ -250,32 +250,6 @@ class ReflowPoint(_ReflowElement):
         reflow_logger.debug("New fixes: %s", new_fixes)
         return (fixes or []) + new_fixes
 
-    def trailing_whitespace_fixes(self) -> List[LintFix]:
-        """Fix any trailing whitespace detected.
-
-        Trailing whitespace is unique in that it can be detected
-        solely within the reflow point. It is any whitespace
-        preceeding a newline.
-        """
-        # NOTE: We will need an end_of_file marker to do file ends.
-        reflow_logger.debug("TW: Checking %s", self)
-        if not self.class_types.intersection({"newline", "end_of_file"}):
-            return []
-        fixes = []
-        for idx, seg in enumerate(self.segments):
-            if not (
-                seg.is_type("newline", "end_of_file")
-                and idx > 0
-                and self.segments[idx - 1].is_type("whitespace")
-            ):
-                continue
-            # NOTE: If there's a loop marker in the way, then this
-            # won't trigger. That way we avoid flagging in templated
-            # use cases where it's actually a loop.
-            fixes.append(LintFix("delete", self.segments[idx - 1]))
-            reflow_logger.debug("    !! TW: TRAILING WHITESPACE")
-        return fixes
-
 
 @dataclass
 class ReflowSequence:
