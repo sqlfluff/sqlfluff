@@ -256,6 +256,16 @@ snowflake_dialect.add(
         ansi.IdentifierSegment,
         type="stage_path",
     ),
+    TimeStampISO8601=RegexParser(
+        r"'(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})\-(\d{2})\:(\d{2})'",
+        CodeSegment,
+        type="timestamp_iso8601",
+    ),
+    PrefixPath=RegexParser(
+        r"'[a-z0-9\.-]*(?:/.*)?'",
+        CodeSegment,
+        type="prefix_path",
+    ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
@@ -980,6 +990,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
             Ref("AlterFileFormatSegment"),
+            Ref("AlterPipeSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
@@ -3431,6 +3442,62 @@ class XmlFileFormatTypeParameters(BaseSegment):
 
     match_grammar = OneOf(
         Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class AlterPipeSegment(BaseSegment):
+    """A snowflake `Alter PIPE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-pipe.html
+    """
+
+    type = "alter_pipe_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        "PIPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "PIPE_EXECUTION_PAUSED",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PIPE_EXECUTION_PAUSED", "COMMENT"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "PREFIX",
+                    Ref("EqualsSegment"),
+                    Ref("PrefixPath"),
+                    optional=True,
+                ),
+                Sequence(
+                    "MODIFIED_AFTER",
+                    Ref("EqualsSegment"),
+                    Ref("TimeStampISO8601"),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("CommaSegment", optional=True),
     )
 
 

@@ -1,0 +1,124 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c022f33dfbe9814f9c1e20fc43b521b48afd8076bcac96e4ec342f94d17b6a9f
+file:
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: refresh
+    - keyword: prefix
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - prefix_path: "'d1/'"
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: refresh
+    - keyword: prefix
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - prefix_path: "'d1/'"
+    - keyword: modified_after
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - timestamp_iso8601: "'2018-07-30T13:56:46-07:00'"
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - keyword: if
+    - keyword: exists
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: refresh
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Pipe for North American sales data'"
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: set
+    - keyword: pipe_execution_paused
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Pipe for North American sales data'"
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - naked_identifier: tag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - naked_identifier: tag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: unset
+    - keyword: pipe_execution_paused
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: unset
+    - keyword: comment
+- statement_terminator: ;
+- statement:
+    alter_pipe_segment:
+    - keyword: alter
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe
+    - keyword: unset
+    - keyword: tag
+    - naked_identifier: foo
+    - comma: ','
+    - naked_identifier: bar
+- statement_terminator: ;
