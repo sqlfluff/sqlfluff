@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68f7f1c49fdb8bd89e4701684c2edb13138ebaebf94143909a9f06ed69960d0e
+_hash: da0054010e44144fc453c616dacc58c6a075bb91364b9f45bb9fb901ed30bf84
 file:
   statement:
     select_statement:
@@ -198,10 +198,19 @@ file:
       - select_clause_element:
           function:
             function_name:
-              function_name_identifier: WEEK
+              function_name_identifier: EXTRACT
             bracketed:
               start_bracket: (
-              date_part: MONDAY
+              date_part_week:
+                keyword: WEEK
+                bracketed:
+                  start_bracket: (
+                  keyword: SUNDAY
+                  end_bracket: )
+              keyword: FROM
+              expression:
+                column_reference:
+                  naked_identifier: col1
               end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -253,6 +262,50 @@ file:
                     expression:
                       numeric_literal: '1651135778'
                     end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              comma: ','
+              date_part: MONTH
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              comma: ','
+              date_part: WEEK
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              comma: ','
+              date_part_week:
+                keyword: WEEK
+                bracketed:
+                  start_bracket: (
+                  keyword: SUNDAY
+                  end_bracket: )
               end_bracket: )
       - comma: ','
       from_clause:
