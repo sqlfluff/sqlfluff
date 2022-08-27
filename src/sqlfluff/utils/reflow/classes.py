@@ -119,8 +119,33 @@ class ReflowPoint(_ReflowElement):
             for ws in last_whitespace[1:]:
                 new_fixes.append(LintFix("delete", ws))
 
+        # Is there a newline?
+        if self.class_types.intersection({"newline", "end_of_file"}):
+            # Most of this section should be handled as _Indentation_.
+            # BUT: There is one case we should handle here.
+            # If we find that the last whitespace has a newline
+            # before it, and the position markers imply there was
+            # a removal between them. Remove the whitespace.
+            # This ensures a consistent indent.
+            # TODO: Check this doesn't duplicate indentation code
+            # once written.
+            if len(last_whitespace) == 1:
+                ws_seg = last_whitespace[0]
+                ws_idx = self.segments.index(ws_seg)
+                if ws_idx > 0:
+                    prev_seg = self.segments[ws_idx - 1]
+                    if (
+                        prev_seg.is_type("newline")
+                        and prev_seg.pos_marker.end_point_marker()
+                        != ws_seg.pos_marker.start_point_marker()
+                    ):
+                        reflow_logger.debug(
+                            "    Removing non-contiguous whitespace " "post removal."
+                        )
+                        new_fixes.append(LintFix("delete", ws_seg))
+
         # Is this an inline case? (i.e. no newline)
-        if not self.class_types.intersection({"newline", "end_of_file"}):
+        else:
             # Do we at least have _some_ whitespace?
             if last_whitespace:
                 # We do - is it the right size?
@@ -170,7 +195,8 @@ class ReflowPoint(_ReflowElement):
                         # Find the fix
                         for fix in fixes:
                             # Does it contain the insertion?
-                            # TODO: This feels ugly - why is eq for BaseSegment defined so differently?!!?!???!? Shouldn't it all use uuids?
+                            # TODO: This feels ugly - why is eq for BaseSegment defined
+                            # so differently?!!?!???!? Shouldn't it all use uuids?
                             if (
                                 insertion
                                 and fix.edit
@@ -220,6 +246,8 @@ class ReflowPoint(_ReflowElement):
                         "Not set up to handle non-single whitespace rules."
                     )
 
+        reflow_logger.debug("Old and Modified fixes: %s", fixes)
+        reflow_logger.debug("New fixes: %s", new_fixes)
         return (fixes or []) + new_fixes
 
     def trailing_whitespace_fixes(self) -> List[LintFix]:
@@ -323,12 +351,6 @@ class ReflowSequence:
             # NOTE: Can indents be in a reflow block? I assume not.
             # Placeholders certainly not because they also get indented.
 
-            reflow_logger.debug(
-                "    Evaluating %s. NextClass: %s, SeqClass: %s",
-                seg,
-                NextClass.__name__,
-                SeqClass.__name__ if SeqClass else None,
-            )
             if (
                 # Extend the buffer if we're the first segment.
                 not SeqClass
@@ -455,7 +477,8 @@ class ReflowSequence:
         if insertion.is_type("whitespace", "indent", "newline"):
             # ... into a point?
             if isinstance(self.elements[target_idx], ReflowPoint):
-                # This is the easy case where we just append the new segment into the existing one.
+                # This is the easy case where we just append the new segment
+                # into the existing one.
                 point_idx = target_idx
             # ... around a block?
             else:
@@ -521,9 +544,10 @@ class ReflowSequence:
         This resets spacing in a ReflowSequence.
 
         Args:
-            without (:obj:`BaseSegment`, optional): Optionally specify a segment
-                which is due to be removed, implying that the respace should be
-                done as though this segment is not there.
+            fixes (:obj:`list` of :obj:`BaseSegment`, optional): Optionally
+                provide a list of existing fixes to be applied so that we can
+                merge additional changes into those existing fixes and not
+                trigger issues with multiple fixes aimed at the same segment.
         """
         fixes = fixes or []
         for point, pre, post in self._iter_points_with_constraints():
@@ -536,6 +560,6 @@ class ReflowSequence:
         """Fix any trailing whitespace detected."""
         fixes = []
         for elem in self.elements:
-            if isinstance(elem, ReflowPoint):
-                fixes.extend(elem.trailing_whitespace_fixes())
+            if isinstance(elem, ReflowPoint) and any(seg.is_type('newline') for seg in elem.segments):
+                fixes.extend(elem.respace())
         return fixes

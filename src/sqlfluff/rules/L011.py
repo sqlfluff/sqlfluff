@@ -1,9 +1,7 @@
 """Implementation of Rule L011."""
-from multiprocessing.sharedctypes import Value
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
     KeywordSegment,
 )
 
@@ -66,7 +64,6 @@ class Rule_L011(BaseRule):
         # Config type hints
         self.aliasing: str
         fixes = []
-        raw_segment_pre = context.raw_stack[-1] if context.raw_stack else None
 
         assert context.segment.is_type("alias_expression")
         if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
