@@ -256,11 +256,6 @@ snowflake_dialect.add(
         ansi.IdentifierSegment,
         type="stage_path",
     ),
-    PrefixPath=RegexParser(
-        r"'[a-z0-9\.-]*(?:/.*)?'",
-        CodeSegment,
-        type="prefix_path",
-    ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
@@ -3481,7 +3476,7 @@ class AlterPipeSegment(BaseSegment):
                 Sequence(
                     "PREFIX",
                     Ref("EqualsSegment"),
-                    Ref("PrefixPath"),
+                    Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
                 Sequence(
