@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c022f33dfbe9814f9c1e20fc43b521b48afd8076bcac96e4ec342f94d17b6a9f
+_hash: dde9c83956e52cd9a9ce196e019c04310af7ba3be79a42fd755ebc5955284c58
 file:
 - statement:
     alter_pipe_segment:
@@ -31,7 +31,7 @@ file:
     - keyword: modified_after
     - comparison_operator:
         raw_comparison_operator: '='
-    - timestamp_iso8601: "'2018-07-30T13:56:46-07:00'"
+    - quoted_literal: "'2018-07-30T13:56:46-07:00'"
 - statement_terminator: ;
 - statement:
     alter_pipe_segment:

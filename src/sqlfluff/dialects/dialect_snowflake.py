@@ -256,11 +256,6 @@ snowflake_dialect.add(
         ansi.IdentifierSegment,
         type="stage_path",
     ),
-    TimeStampISO8601=RegexParser(
-        r"'(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})\-(\d{2})\:(\d{2})'",
-        CodeSegment,
-        type="timestamp_iso8601",
-    ),
     PrefixPath=RegexParser(
         r"'[a-z0-9\.-]*(?:/.*)?'",
         CodeSegment,
@@ -3492,7 +3487,7 @@ class AlterPipeSegment(BaseSegment):
                 Sequence(
                     "MODIFIED_AFTER",
                     Ref("EqualsSegment"),
-                    Ref("TimeStampISO8601"),
+                    Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
             ),
