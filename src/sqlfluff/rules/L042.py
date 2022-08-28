@@ -359,7 +359,7 @@ class _CTEBuilder:
 
     def create_cte_alias(self, aliases: List[AliasInfo]) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
-        if aliases and aliases[0].ref_str:
+        if aliases and aliases[0].aliased and aliases[0].ref_str:
             # If we know the name use it
             return aliases[0].ref_str, False
 
