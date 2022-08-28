@@ -2025,6 +2025,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
                     ),
                     Ref("FunctionSegment"),
                     Ref("VariableIdentifierSegment"),
+                    "NULL",
                 ),
             ),
         ),
