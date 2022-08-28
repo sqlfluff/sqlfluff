@@ -5,7 +5,7 @@ from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 from sqlfluff.core.config import FluffConfig
 
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -37,8 +37,14 @@ def large_file_check(func):
     ):
         if config:
             limit = config.get("large_file_skip_char_limit")
+            if limit:
+                templater_logger.warning(
+                    "The config value large_file_skip_char_limit was found set. "
+                    "This feature will be removed in a future release, please "
+                    "use the more efficient 'large_file_skip_byte_limit' instead."
+                )
             if limit and len(in_str) > limit:
-                raise SQLTemplaterSkipFile(
+                raise SQLFluffSkipFile(
                     f"Length of file {fname!r} is over {limit} characters. "
                     "Skipping to avoid parser lock. Users can increase this limit "
                     "in their config by setting the 'large_file_skip_char_limit' "
@@ -162,8 +168,8 @@ class TemplatedFile:
             for idx, tfs in enumerate(self.sliced_file):
                 if previous_slice:
                     if tfs.templated_slice.start != previous_slice.templated_slice.stop:
-                        raise SQLTemplaterSkipFile(  # pragma: no cover
-                            "Templated slices found to be non contigious. "
+                        raise SQLFluffSkipFile(  # pragma: no cover
+                            "Templated slices found to be non-contiguous. "
                             f"{tfs.templated_slice} (starting"
                             f" {self.templated_str[tfs.templated_slice]!r})"
                             f" does not follow {previous_slice.templated_slice} "
@@ -173,14 +179,14 @@ class TemplatedFile:
                         )
                 else:
                     if tfs.templated_slice.start != 0:
-                        raise SQLTemplaterSkipFile(  # pragma: no cover
+                        raise SQLFluffSkipFile(  # pragma: no cover
                             "First Templated slice not started at index 0 "
                             f"(found slice {tfs.templated_slice})"
                         )
                 previous_slice = tfs
             if self.sliced_file and templated_str is not None:
                 if tfs.templated_slice.stop != len(templated_str):
-                    raise SQLTemplaterSkipFile(  # pragma: no cover
+                    raise SQLFluffSkipFile(  # pragma: no cover
                         "Length of templated file mismatch with final slice: "
                         f"{len(templated_str)} != {tfs.templated_slice.stop}."
                     )

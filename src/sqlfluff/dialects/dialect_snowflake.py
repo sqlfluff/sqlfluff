@@ -258,7 +258,7 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
         CodeSegment,
         type="bucket_path",
     ),
@@ -979,6 +979,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
+            Ref("AlterFileFormatSegment"),
+            Ref("AlterPipeSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
@@ -2803,6 +2805,12 @@ class CreateStatementSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "ERROR_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
                 "AWS_SNS_TOPIC",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
@@ -3057,6 +3065,42 @@ class CreateFileFormatSegment(BaseSegment):
     )
 
 
+class AlterFileFormatSegment(BaseSegment):
+    """A snowflake `Alter FILE FORMAT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-file-format.html
+    """
+
+    type = "alter_file_format_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        Sequence("FILE", "FORMAT"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("CsvFileFormatTypeParameters"),
+                    Ref("JsonFileFormatTypeParameters"),
+                    Ref("AvroFileFormatTypeParameters"),
+                    Ref("OrcFileFormatTypeParameters"),
+                    Ref("ParquetFileFormatTypeParameters"),
+                    Ref("XmlFileFormatTypeParameters"),
+                ),
+            ),
+        ),
+        Sequence(
+            # Use a Sequence and include an optional CommaSegment here.
+            # This allows a preceding comma when above parameters are delimited.
+            Ref("CommaSegment", optional=True),
+            Ref("CommentEqualsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CsvFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for CSV.
 
@@ -3087,16 +3131,6 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             Ref("CompressionType"),
         ),
-        Sequence(
-            "RECORD_DELIMITER",
-            Ref("EqualsSegment"),
-            OneOf("NONE", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "FIELD_DELIMITER",
-            Ref("EqualsSegment"),
-            OneOf("NONE", Ref("QuotedLiteralSegment")),
-        ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence(
             "SKIP_HEADER",
@@ -3104,54 +3138,43 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("IntegerSegment"),
         ),
         Sequence(
-            "SKIP_BLANK_LINES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DATE_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf("AUTO", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "TIME_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf("AUTO", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "TIMESTAMP_FORMAT",
+            OneOf(
+                "DATE_FORMAT",
+                "TIME_FORMAT",
+                "TIMESTAMP_FORMAT",
+            ),
             Ref("EqualsSegment"),
             OneOf("AUTO", Ref("QuotedLiteralSegment")),
         ),
         Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
-            "FIELD_OPTIONALLY_ENCLOSED_BY",
-            Ref("EqualsSegment"),
             OneOf(
-                "NONE",
-                Ref("QuotedLiteralSegment"),
+                "RECORD_DELIMITER",
+                "FIELD_DELIMITER",
+                "ESCAPE",
+                "ESCAPE_UNENCLOSED_FIELD",
+                "FIELD_OPTIONALLY_ENCLOSED_BY",
             ),
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
         ),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence(
-            "ERROR_ON_COLUMN_COUNT_MISMATCH",
+            OneOf(
+                "SKIP_BLANK_LINES",
+                "ERROR_ON_COLUMN_COUNT_MISMATCH",
+                "REPLACE_INVALID_CHARACTERS",
+                "VALIDATE_UTF8",
+                "EMPTY_FIELD_AS_NULL",
+                "SKIP_BYTE_ORDER_MARK",
+                "TRIM_SPACE",
+            ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence(
-            "REPLACE_INVALID_CHARACTERS",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence("VALIDATE_UTF8", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "EMPTY_FIELD_AS_NULL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
         Sequence(
             "ENCODING",
@@ -3199,46 +3222,34 @@ class JsonFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "DATE_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
-        ),
-        Sequence(
-            "TIME_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
-        ),
-        Sequence(
-            "TIMESTAMP_FORMAT",
+            OneOf(
+                "DATE_FORMAT",
+                "TIME_FORMAT",
+                "TIMESTAMP_FORMAT",
+            ),
             Ref("EqualsSegment"),
             OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
         ),
         Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-        Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("ALLOW_DUPLICATE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
-            "STRIP_OUTER_ARRAY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "STRIP_NULL_VALUES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "REPLACE_INVALID_CHARACTERS",
+            OneOf(
+                "TRIM_SPACE",
+                "ENABLE_OCTAL",
+                "ALLOW_DUPLICATE",
+                "STRIP_OUTER_ARRAY",
+                "STRIP_NULL_VALUES",
+                "REPLACE_INVALID_CHARACTERS",
+                "IGNORE_UTF8_ERRORS",
+                "SKIP_BYTE_ORDER_MARK",
+            ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence(
-            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
     )
 
@@ -3355,9 +3366,14 @@ class ParquetFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            OneOf(
+                "SNAPPY_COMPRESSION",
+                "BINARY_AS_TEXT",
+                "TRIM_SPACE",
+            ),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
@@ -3401,25 +3417,77 @@ class XmlFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence("PRESERVE_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "STRIP_OUTER_ELEMENT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DISABLE_SNOWFLAKE_DATA", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DISABLE_AUTO_CONVERT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            OneOf(
+                "IGNORE_UTF8_ERRORS",
+                "PRESERVE_SPACE",
+                "STRIP_OUTER_ELEMENT",
+                "DISABLE_SNOWFLAKE_DATA",
+                "DISABLE_AUTO_CONVERT",
+                "SKIP_BYTE_ORDER_MARK",
+            ),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
     )
 
     match_grammar = OneOf(
         Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class AlterPipeSegment(BaseSegment):
+    """A snowflake `Alter PIPE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-pipe.html
+    """
+
+    type = "alter_pipe_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        "PIPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "PIPE_EXECUTION_PAUSED",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PIPE_EXECUTION_PAUSED", "COMMENT"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "PREFIX",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "MODIFIED_AFTER",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("CommaSegment", optional=True),
     )
 
 

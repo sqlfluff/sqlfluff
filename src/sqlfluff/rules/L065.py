@@ -1,9 +1,10 @@
 """Implementation of Rule L065."""
 from typing import List, Optional, Iterable
 
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -33,7 +34,9 @@ class Rule_L065(BaseRule):
 
     groups = ("all",)
 
+    # Still define target elems for functional steps later
     _target_elems = ("set_operator",)
+    crawl_behaviour = ParentOfSegmentCrawler({"set_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Set operators should be surrounded by newlines.
@@ -43,10 +46,12 @@ class Rule_L065(BaseRule):
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
 
         expression = segment.children()
         set_operator_segments = segment.children(sp.is_type(*self._target_elems))
+        # We should always find some as children because of the ParentOfSegmentCrawler
+        assert set_operator_segments
         results: List[LintResult] = []
 
         # If len(set_operator) == 0 this will essentially not run
@@ -130,7 +135,7 @@ class Rule_L065(BaseRule):
 
 
 def _generate_fixes(
-    whitespace_segment: BaseSegment,
+    whitespace_segment: Optional[BaseSegment],
 ) -> Optional[List[LintFix]]:
 
     if whitespace_segment:

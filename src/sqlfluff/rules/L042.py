@@ -4,6 +4,7 @@ import json
 from functools import partial
 from typing import (
     List,
+    NamedTuple,
     Optional,
     Set,
     Tuple,
@@ -23,29 +24,41 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
-from sqlfluff.core.rules.analysis.select_crawler import (
-    Query,
-    SelectCrawler,
-)
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import (
+from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
     is_name,
     is_type,
     is_whitespace,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
     TableReferenceSegment,
     WithCompoundStatementSegment,
 )
+
+
+_SELECT_TYPES = [
+    "with_compound_statement",
+    "set_expression",
+    "select_statement",
+]
+
+
+class _NestedSubQuerySummary(NamedTuple):
+    parent_clause_type: str
+    parent_select_segments: Segments
+    clause_segments: Segments
+    subquery: BaseSegment
 
 
 @document_groups
@@ -90,6 +103,7 @@ class Rule_L042(BaseRule):
 
     groups = ("all",)
     config_keywords = ["forbid_subquery_in"]
+    crawl_behaviour = SegmentSeekerCrawler(set(_SELECT_TYPES))
 
     _config_mapping = {
         "join": ["join_clause"],
@@ -99,17 +113,13 @@ class Rule_L042(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
-        select_types = [
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
-        ]
         self.forbid_subquery_in: str
         # parent_types = self._config_mapping[self.forbid_subquery_in]
-        segment = context.functional.segment
-        parent_stack = context.functional.parent_stack
-        is_select = segment.all(is_type(*select_types))
-        is_select_child = parent_stack.any(is_type(*select_types))
+        functional_context = FunctionalContext(context)
+        segment = functional_context.segment
+        parent_stack = functional_context.parent_stack
+        is_select = segment.all(is_type(*_SELECT_TYPES))
+        is_select_child = parent_stack.any(is_type(*_SELECT_TYPES))
         if not is_select or is_select_child:
             # Nothing to do.
             return None

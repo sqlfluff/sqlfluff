@@ -2025,6 +2025,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
                     ),
                     Ref("FunctionSegment"),
                     Ref("VariableIdentifierSegment"),
+                    "NULL",
                 ),
             ),
         ),
@@ -2253,6 +2254,12 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
+                ),
+                Sequence(
+                    "DROP",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
                 ),
                 Sequence(
                     "ADD",

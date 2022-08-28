@@ -4,13 +4,14 @@ from typing import Optional
 
 import regex
 
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import rsp
+from sqlfluff.utils.functional import rsp, FunctionalContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.dialects.dialect_ansi import LiteralSegment
 
@@ -67,6 +68,7 @@ class Rule_L064(BaseRule):
 
     groups = ("all",)
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler({"literal"})
     targets_templated = True
     _dialects_with_double_quoted_strings = [
         "bigquery",
@@ -108,7 +110,7 @@ class Rule_L064(BaseRule):
         # This rule can also cover quoted literals that are partially templated.
         # I.e. when the quotes characters are _not_ part of the template we can
         # meaningfully apply this rule.
-        templated_raw_slices = context.functional.segment.raw_slices.select(
+        templated_raw_slices = FunctionalContext(context).segment.raw_slices.select(
             rsp.is_slice_type("templated")
         )
         for raw_slice in templated_raw_slices:

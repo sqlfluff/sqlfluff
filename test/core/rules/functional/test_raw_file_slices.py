@@ -1,7 +1,7 @@
 """Tests for the raw_file_slices module."""
 import pytest
 
-from sqlfluff.core.rules.functional import raw_file_slices
+from sqlfluff.utils.functional import raw_file_slices
 from sqlfluff.core.templaters.base import RawFileSlice
 
 rs_templated_abc = RawFileSlice("{{abc}}", "templated", 0)

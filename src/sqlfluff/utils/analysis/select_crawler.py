@@ -7,11 +7,11 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.analysis.select import (
+from sqlfluff.utils.analysis.select import (
     get_select_statement_info,
     SelectStatementColumnsAndTables,
 )
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp
 
 
 class QueryType(Enum):

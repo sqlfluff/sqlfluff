@@ -3,9 +3,10 @@
 from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import SymbolSegment
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -33,16 +34,21 @@ class Rule_L061(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"comparison_operator"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""
-        # Only care about not_equal_to segments.
+        # Only care about not_equal_to segments. We should only get
+        # comparison operator types from the crawler, but not all will
+        # be "not_equal_to".
         if context.segment.name != "not_equal_to":
             return None
 
         # Get the comparison operator children
-        raw_comparison_operators = context.functional.segment.children().select(
-            select_if=sp.is_type("raw_comparison_operator")
+        raw_comparison_operators = (
+            FunctionalContext(context)
+            .segment.children()
+            .select(select_if=sp.is_type("raw_comparison_operator"))
         )
 
         # Only care about ``<>``

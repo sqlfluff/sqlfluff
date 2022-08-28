@@ -4,7 +4,7 @@ import logging
 from typing import List, NamedTuple
 
 import pytest
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -1218,7 +1218,7 @@ def test__templater_jinja_large_file_check():
         ),
     )
     # Finally check we raise a skip exception when config is set low.
-    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+    with pytest.raises(SQLFluffSkipFile) as excinfo:
         JinjaTemplater().process(
             in_str="SELECT 1",
             fname="<string>",

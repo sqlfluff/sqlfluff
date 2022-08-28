@@ -35,24 +35,31 @@ def assert_matches(instring, matcher, matchstring):
 @pytest.mark.parametrize(
     "raw,res",
     [
-        ("a b", ["a", " ", "b"]),
-        ("b.c", ["b", ".", "c"]),
-        ("abc \n \t def  ;blah", ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah"]),
+        # NOTE: The final empty string is the end of file marker
+        ("a b", ["a", " ", "b", ""]),
+        ("b.c", ["b", ".", "c", ""]),
+        (
+            "abc \n \t def  ;blah",
+            ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""],
+        ),
         # Test Quotes
-        ('abc\'\n "\t\' "de`f"', ["abc", "'\n \"\t'", " ", '"de`f"']),
+        ('abc\'\n "\t\' "de`f"', ["abc", "'\n \"\t'", " ", '"de`f"', ""]),
         # Test Comments
-        ("abc -- comment \nblah", ["abc", " ", "-- comment ", "\n", "blah"]),
-        ("abc # comment \nblah", ["abc", " ", "# comment ", "\n", "blah"]),
+        ("abc -- comment \nblah", ["abc", " ", "-- comment ", "\n", "blah", ""]),
+        ("abc # comment \nblah", ["abc", " ", "# comment ", "\n", "blah", ""]),
         # Note the more complicated parsing of block comments.
         # This tests subdivision and trimming (incl the empty case)
-        ("abc /* comment \nblah*/", ["abc", " ", "/* comment", " ", "\n", "blah*/"]),
-        ("abc /*\n\t\n*/", ["abc", " ", "/*", "\n", "\t", "\n", "*/"]),
+        (
+            "abc /* comment \nblah*/",
+            ["abc", " ", "/* comment", " ", "\n", "blah*/", ""],
+        ),
+        ("abc /*\n\t\n*/", ["abc", " ", "/*", "\n", "\t", "\n", "*/", ""]),
         # Test strings
-        ("*-+bd/", ["*", "-", "+", "bd", "/"]),
+        ("*-+bd/", ["*", "-", "+", "bd", "/", ""]),
         # Test Negatives and Minus
-        ("2+4 -5", ["2", "+", "4", " ", "-", "5"]),
-        ("when 'Spec\\'s 23' like", ["when", " ", "'Spec\\'s 23'", " ", "like"]),
-        ('when "Spec\\"s 23" like', ["when", " ", '"Spec\\"s 23"', " ", "like"]),
+        ("2+4 -5", ["2", "+", "4", " ", "-", "5", ""]),
+        ("when 'Spec\\'s 23' like", ["when", " ", "'Spec\\'s 23'", " ", "like", ""]),
+        ('when "Spec\\"s 23" like', ["when", " ", '"Spec\\"s 23"', " ", "like", ""]),
     ],
 )
 def test__parser__lexer_obj(raw, res, caplog):

@@ -27,5 +27,7 @@ ALTER DATABASE db SET parameter1 = 'some_value';
 ALTER DATABASE db SET parameter1 = DEFAULT;
 ALTER DATABASE db SET parameter1 FROM CURRENT;
 
+ALTER USER some_user SET default_transaction_read_only = ON;
+
 ALTER DATABASE db RESET parameter1;
 ALTER DATABASE db RESET ALL;
