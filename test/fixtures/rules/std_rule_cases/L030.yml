@@ -43,7 +43,7 @@ test_fail_capitalization_after_comma:
 
 test_fail_fully_qualified_function_mixed_functions:
   fail_str: SELECT COUNT(*), project1.foo(value1) AS value2
-  fix_str: SELECT COUNT(*), project1.FOO(value1) AS value2
+  fix_str: SELECT COUNT(*), project1.foo(value1) AS value2
 
 test_pass_fully_qualified_function_pascal_case:
   pass_str: SELECT project1.FoO(value1) AS value2
@@ -64,7 +64,7 @@ test_pass_ignore_templated_code:
 test_fail_func_name_templated_literal_mix:
   # Issue 3022. This was actually a bug in BaseSegment.iter_patches().
   fail_str: SELECT RO(), {{ "t" }}.func()
-  fix_str: SELECT RO(), {{ "t" }}.FUNC()
+  fix_str: SELECT RO(), {{ "t" }}.func()
 
 test_pass_ignore_words_regex_simple:
   pass_str: SELECT MAX(id), f_test_udf(id) FROM TABLE1

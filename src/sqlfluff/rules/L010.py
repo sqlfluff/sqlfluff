@@ -82,9 +82,11 @@ class Rule_L010(BaseRule):
         # below it, we ignore it because it is more likely a user defined function.
         # SUM() should be modified by this rule.
         # However, dbo.myScalar() must not be modified.
-        if (context.parent_stack[-1].get_type() == "function_name"
-            and len(context.parent_stack[-1].segments) != 1):
-                return [LintResult(memory=context.memory)]
+        if (
+            context.parent_stack[-1].get_type() == "function_name"
+            and len(context.parent_stack[-1].segments) != 1
+        ):
+            return [LintResult(memory=context.memory)]
 
         return [self._handle_segment(context.segment, context.memory)]
 
