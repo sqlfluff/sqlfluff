@@ -169,8 +169,8 @@ test_pass_ignore_false:
     WHERE 1
 
 test_fail_bigquery_week:
-  fail_str: SELECT WEEK(monday)
-  fix_str: SELECT WEEK(MONDAY)
+  fail_str: SELECT LAST_DAY(col, WEEK(monday))
+  fix_str: SELECT LAST_DAY(col, WEEK(MONDAY))
   configs:
     core:
       dialect: bigquery

@@ -739,6 +739,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
+        Indent,
         OneOf(
             # ALTER TABLE - RENAME TO `table_identifier`
             Sequence(
@@ -901,6 +902,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Dedent,
             ),
         ),
+        Dedent,
     )
 
 
@@ -1016,11 +1018,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
+        Indent,
         AnyNumberOf(
             Ref("LocationGrammar", optional=True),
             Ref("CommentGrammar", optional=True),
             Ref("TablePropertiesGrammar", optional=True),
         ),
+        Dedent,
         # Create AS syntax:
         Sequence(
             "AS",
