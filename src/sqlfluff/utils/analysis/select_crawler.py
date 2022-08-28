@@ -210,9 +210,15 @@ class Query:
                     "set_expression", "select_statement", "values_clause"
                 )
                 found_nested_select = True
-                crawler = SelectCrawler(
-                    seg if len(path) == 1 else path[-2], self.dialect, parent=self
-                )
+                seg_ = Segments(*path[1:]).first(
+                    sp.is_type(
+                        "from_expression_element",
+                        "set_expression",
+                        "select_statement",
+                        "values_clause",
+                    )
+                )[0]
+                crawler = SelectCrawler(seg_, self.dialect, parent=self)
                 # We know this will pass because we specified parent=self above.
                 assert crawler.query_tree
                 yield crawler.query_tree
@@ -298,7 +304,7 @@ class SelectCrawler:
                             query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
                         elif not any(
-                            seg.is_type("from_expression_element") for seg in path
+                            seg.is_type("from_expression_element") for seg in path[1:]
                         ):
                             # Ignore segments under a from_expression_element.
                             # Those will be nested queries, and we're only

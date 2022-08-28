@@ -207,61 +207,50 @@ def _calculate_fixes(
     lint_results = []
     for idx, selectable in enumerate(query.selectables):
         print(f"query selectable #{idx+1}: {selectable.as_str()}")
-        for idx2, child in enumerate(
-            query.crawl_sources(selectable.selectable, lookup_cte=False)
-        ):
-            if isinstance(child, Query):
+        for idx2, table_alias in enumerate(selectable.select_info.table_aliases):
+            sc = SelectCrawler(table_alias.from_expression_element, dialect)
+            if sc.query_tree:
+                child = sc.query_tree
                 print(f"selectable child query #{idx2+1}: {child.as_json()}")
-                # lint_results.extend(
-                #     _calculate_fixes(
-                #         dialect, child_query, ctes, case_preference, clone_map
-                #     )
-                # )
-                # if child.query_type != QueryType.WithCompound:
-                for selectable in child.selectables:
-                    alias_name, is_new_name = ctes.create_cte_alias(
-                        selectable.select_info.table_aliases
-                    )
-                    assert selectable.parent
-                    # import pdb; pdb.set_trace()
-                    new_cte = _create_cte_seg(
-                        alias_name=alias_name,
-                        subquery=clone_map[selectable.parent],
-                        case_preference=case_preference,
-                        dialect=dialect,
-                    )
-                    print(f"Creating new CTE: {new_cte.raw}")
-                    insert_position = ctes.insert_cte(new_cte)
-                    print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
-                    from_expression = _find_from_expression(
-                        query, selectable.selectable
-                    )
+                alias_name, is_new_name = ctes.create_cte_alias(table_alias)
+                selectable = child.selectables[0]
+                assert selectable.parent
+                new_cte = _create_cte_seg(
+                    alias_name=alias_name,
+                    subquery=clone_map[selectable.parent],
+                    case_preference=case_preference,
+                    dialect=dialect,
+                )
+                print(f"Creating new CTE: {new_cte.raw}")
+                insert_position = ctes.insert_cte(new_cte)
+                print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
+                from_expression = _find_from_expression(query, selectable.selectable)
 
-                    # this_seg_clone = clone_map[from_expression]
-                    # new_table_ref = _create_table_ref(alias_name, dialect)
-                    # this_seg_clone.segments = [new_table_ref]
-                    anchor = from_expression.get_child("table_expression")
-                    # Grab the first keyword or symbol in the subquery to use as the
-                    # anchor. This makes the lint warning less likely to be filtered out
-                    # if a bit of the subquery happens to be templated.
-                    for seg in anchor.recursive_crawl("keyword", "symbol"):
-                        anchor = seg
-                        break
-                    res = LintResult(
-                        anchor=anchor,
-                        description=f"{query.selectables[0].selectable.type} clauses "
-                        "should not contain subqueries. Use CTEs instead",
-                        fixes=[],
+                # this_seg_clone = clone_map[from_expression]
+                # new_table_ref = _create_table_ref(alias_name, dialect)
+                # this_seg_clone.segments = [new_table_ref]
+                anchor = from_expression.get_child("table_expression")
+                # Grab the first keyword or symbol in the subquery to use as the
+                # anchor. This makes the lint warning less likely to be filtered out
+                # if a bit of the subquery happens to be templated.
+                for seg in anchor.recursive_crawl("keyword", "symbol"):
+                    anchor = seg
+                    break
+                res = LintResult(
+                    anchor=anchor,
+                    description=f"{query.selectables[0].selectable.type} clauses "
+                    "should not contain subqueries. Use CTEs instead",
+                    fixes=[],
+                )
+                assert len(query.selectables) == 1
+                lint_results.append(
+                    (
+                        res,
+                        from_expression,
+                        alias_name,
+                        query.selectables[0].selectable,
                     )
-                    assert len(query.selectables) == 1
-                    lint_results.append(
-                        (
-                            res,
-                            from_expression,
-                            alias_name,
-                            query.selectables[0].selectable,
-                        )
-                    )
+                )
     return lint_results
 
 
@@ -357,17 +346,17 @@ class _CTEBuilder:
         print("\n\n".join(cte.raw for cte in self.ctes))
         return insert_position
 
-    def create_cte_alias(self, aliases: List[AliasInfo]) -> Tuple[str, bool]:
+    def create_cte_alias(self, alias: Optional[AliasInfo]) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
-        if aliases and aliases[0].aliased and aliases[0].ref_str:
+        if alias and alias.aliased and alias.ref_str:
             # If we know the name use it
-            return aliases[0].ref_str, False
+            return alias.ref_str, False
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
         if name in self.list_used_names():
             # corner case where prep_x exists in origin query
-            return self.create_cte_alias([])
+            return self.create_cte_alias(None)
         return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
