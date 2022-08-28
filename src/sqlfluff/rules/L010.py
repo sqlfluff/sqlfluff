@@ -81,10 +81,10 @@ class Rule_L010(BaseRule):
         # the parent element is a function_name in case there is more than one element
         # below it, we ignore it because it is more likely a user defined function.
         # SUM() should be modified by this rule.
-        # However, dbo.myScalar() must not be modified. function_name_identifier
-        if (context.parent_stack[-1].get_type() == "function_name" 
+        # However, dbo.myScalar() must not be modified.
+        if (context.parent_stack[-1].get_type() == "function_name"
             and len(context.parent_stack[-1].segments) != 1):
-            return [LintResult(memory=context.memory)]
+                return [LintResult(memory=context.memory)]
 
         return [self._handle_segment(context.segment, context.memory)]
 
