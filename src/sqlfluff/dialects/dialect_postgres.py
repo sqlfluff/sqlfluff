@@ -1286,7 +1286,12 @@ class AlterRoleStatementSegment(BaseSegment):
                         OneOf(
                             Sequence(
                                 OneOf("TO", Ref("EqualsSegment")),
-                                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+                                OneOf(
+                                    Ref("QuotedLiteralSegment"),
+                                    "DEFAULT",
+                                    "ON",
+                                    "OFF",
+                                ),
                             ),
                             Sequence(
                                 "FROM",
