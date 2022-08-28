@@ -78,10 +78,9 @@ class Rule_L010(BaseRule):
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
             return [LintResult(memory=context.memory)]
 
-        # the parent element is a function_name in case there is more than one element
-        # below it, we ignore it because it is more likely a user defined function.
-        # SUM() should be modified by this rule.
-        # However, dbo.myScalar() must not be modified.
+        # If the parent element is a function_name and there is more than one element
+        # below it, we ignore it because it is most likely a user defined function.
+        # SUM() should be modified. However, dbo.myScalar() must not be modified.
         if (
             context.parent_stack[-1].get_type() == "function_name"
             and len(context.parent_stack[-1].segments) != 1
