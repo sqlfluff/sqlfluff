@@ -258,7 +258,7 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
         CodeSegment,
         type="bucket_path",
     ),
@@ -979,6 +979,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
+            Ref("AlterFileFormatSegment"),
+            Ref("AlterPipeSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
@@ -2191,6 +2193,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
 
     match_grammar = AnySetOf(
         Sequence(
+            "WAREHOUSE_TYPE",
+            Ref("EqualsSegment"),
+            "STANDARD",
+        ),
+        Sequence(
             "WAREHOUSE_SIZE",
             Ref("EqualsSegment"),
             Ref("WarehouseSize"),
@@ -2746,6 +2753,28 @@ class CreateStatementSegment(BaseSegment):
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        # Next set are Notification Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
+        AnySetOf(
+            Sequence("TYPE", Ref("EqualsSegment"), "QUEUE"),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            OneOf(
+                Ref("S3NotificationIntegrationParameters"),
+                Ref("GCSNotificationIntegrationParameters"),
+                Ref("AzureNotificationIntegrationParameters"),
+            ),
+            Sequence(
+                "DIRECTION",
+                Ref("EqualsSegment"),
+                "OUTBOUND",
+                optional=True,
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
         AnySetOf(
@@ -2800,6 +2829,12 @@ class CreateStatementSegment(BaseSegment):
                 "AUTO_INGEST",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "ERROR_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
                 optional=True,
             ),
             Sequence(
@@ -3057,6 +3092,42 @@ class CreateFileFormatSegment(BaseSegment):
     )
 
 
+class AlterFileFormatSegment(BaseSegment):
+    """A snowflake `Alter FILE FORMAT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-file-format.html
+    """
+
+    type = "alter_file_format_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        Sequence("FILE", "FORMAT"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("CsvFileFormatTypeParameters"),
+                    Ref("JsonFileFormatTypeParameters"),
+                    Ref("AvroFileFormatTypeParameters"),
+                    Ref("OrcFileFormatTypeParameters"),
+                    Ref("ParquetFileFormatTypeParameters"),
+                    Ref("XmlFileFormatTypeParameters"),
+                ),
+            ),
+        ),
+        Sequence(
+            # Use a Sequence and include an optional CommaSegment here.
+            # This allows a preceding comma when above parameters are delimited.
+            Ref("CommaSegment", optional=True),
+            Ref("CommentEqualsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CsvFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for CSV.
 
@@ -3087,16 +3158,6 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             Ref("CompressionType"),
         ),
-        Sequence(
-            "RECORD_DELIMITER",
-            Ref("EqualsSegment"),
-            OneOf("NONE", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "FIELD_DELIMITER",
-            Ref("EqualsSegment"),
-            OneOf("NONE", Ref("QuotedLiteralSegment")),
-        ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence(
             "SKIP_HEADER",
@@ -3104,54 +3165,43 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("IntegerSegment"),
         ),
         Sequence(
-            "SKIP_BLANK_LINES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DATE_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf("AUTO", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "TIME_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf("AUTO", Ref("QuotedLiteralSegment")),
-        ),
-        Sequence(
-            "TIMESTAMP_FORMAT",
+            OneOf(
+                "DATE_FORMAT",
+                "TIME_FORMAT",
+                "TIMESTAMP_FORMAT",
+            ),
             Ref("EqualsSegment"),
             OneOf("AUTO", Ref("QuotedLiteralSegment")),
         ),
         Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
-            "FIELD_OPTIONALLY_ENCLOSED_BY",
-            Ref("EqualsSegment"),
             OneOf(
-                "NONE",
-                Ref("QuotedLiteralSegment"),
+                "RECORD_DELIMITER",
+                "FIELD_DELIMITER",
+                "ESCAPE",
+                "ESCAPE_UNENCLOSED_FIELD",
+                "FIELD_OPTIONALLY_ENCLOSED_BY",
             ),
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
         ),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence(
-            "ERROR_ON_COLUMN_COUNT_MISMATCH",
+            OneOf(
+                "SKIP_BLANK_LINES",
+                "ERROR_ON_COLUMN_COUNT_MISMATCH",
+                "REPLACE_INVALID_CHARACTERS",
+                "VALIDATE_UTF8",
+                "EMPTY_FIELD_AS_NULL",
+                "SKIP_BYTE_ORDER_MARK",
+                "TRIM_SPACE",
+            ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence(
-            "REPLACE_INVALID_CHARACTERS",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence("VALIDATE_UTF8", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "EMPTY_FIELD_AS_NULL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
         Sequence(
             "ENCODING",
@@ -3199,46 +3249,34 @@ class JsonFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "DATE_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
-        ),
-        Sequence(
-            "TIME_FORMAT",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
-        ),
-        Sequence(
-            "TIMESTAMP_FORMAT",
+            OneOf(
+                "DATE_FORMAT",
+                "TIME_FORMAT",
+                "TIMESTAMP_FORMAT",
+            ),
             Ref("EqualsSegment"),
             OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
         ),
         Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-        Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("ALLOW_DUPLICATE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
-            "STRIP_OUTER_ARRAY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "STRIP_NULL_VALUES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "REPLACE_INVALID_CHARACTERS",
+            OneOf(
+                "TRIM_SPACE",
+                "ENABLE_OCTAL",
+                "ALLOW_DUPLICATE",
+                "STRIP_OUTER_ARRAY",
+                "STRIP_NULL_VALUES",
+                "REPLACE_INVALID_CHARACTERS",
+                "IGNORE_UTF8_ERRORS",
+                "SKIP_BYTE_ORDER_MARK",
+            ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
-        ),
-        Sequence(
-            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
         ),
     )
 
@@ -3355,9 +3393,14 @@ class ParquetFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            OneOf(
+                "SNAPPY_COMPRESSION",
+                "BINARY_AS_TEXT",
+                "TRIM_SPACE",
+            ),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
-        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
@@ -3401,25 +3444,77 @@ class XmlFileFormatTypeParameters(BaseSegment):
             Ref("CompressionType"),
         ),
         Sequence(
-            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence("PRESERVE_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "STRIP_OUTER_ELEMENT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DISABLE_SNOWFLAKE_DATA", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "DISABLE_AUTO_CONVERT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            OneOf(
+                "IGNORE_UTF8_ERRORS",
+                "PRESERVE_SPACE",
+                "STRIP_OUTER_ELEMENT",
+                "DISABLE_SNOWFLAKE_DATA",
+                "DISABLE_AUTO_CONVERT",
+                "SKIP_BYTE_ORDER_MARK",
+            ),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
     )
 
     match_grammar = OneOf(
         Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class AlterPipeSegment(BaseSegment):
+    """A snowflake `Alter PIPE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-pipe.html
+    """
+
+    type = "alter_pipe_segment"
+    match_grammar = Sequence(
+        "ALTER",
+        "PIPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Sequence(
+                        "PIPE_EXECUTION_PAUSED",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Ref("CommentEqualsClauseSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PIPE_EXECUTION_PAUSED", "COMMENT"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "PREFIX",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "MODIFIED_AFTER",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        Ref("CommaSegment", optional=True),
     )
 
 
@@ -3692,6 +3787,83 @@ class AzureStorageIntegrationParameters(BaseSegment):
     match_grammar = AnySetOf(
         Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "AZURE"),
         Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+
+class S3NotificationIntegrationParameters(BaseSegment):
+    """Parameters for an S3 Notification Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
+    """
+
+    name = "s3_notification_integration_parameters"
+    type = "notification_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "AWS_SNS"),
+        Sequence(
+            "AWS_SNS_TOPIC_ARN",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "AWS_SNS_ROLE_ARN",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class GCSNotificationIntegrationParameters(BaseSegment):
+    """Parameters for a GCS Notification Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
+    """
+
+    name = "gcs_notification_integration_parameters"
+    type = "notification_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "GCP_PUBSUB"),
+        OneOf(
+            Sequence(
+                "GCP_PUBSUB_SUBSCRIPTION_NAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "GCP_PUBSUB_TOPIC_NAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class AzureNotificationIntegrationParameters(BaseSegment):
+    """Parameters for an Azure Notification Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
+    """
+
+    name = "azure_notification_integration_parameters"
+    type = "storage_notification_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "AZURE_EVENT_GRID"),
+        Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        OneOf(
+            Sequence(
+                "AZURE_STORAGE_QUEUE_PRIMARY_URI",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "AZURE_EVENT_GRID_TOPIC_ENDPOINT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     )
 
 
