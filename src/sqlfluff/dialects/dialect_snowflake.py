@@ -1964,7 +1964,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("FILE", "FORMAT"),
         Sequence("SESSION", "POLICY"),
         Sequence("MASKING", "POLICY"),
-        Sequence("ROW", "ACCESS", "POLICY")
+        Sequence("ROW", "ACCESS", "POLICY"),
     )
 
     # We reuse the object names above and simply append an `S` to the end of them to get
