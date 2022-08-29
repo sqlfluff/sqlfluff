@@ -2981,12 +2981,14 @@ class AccessStatementSegment(BaseSegment):
         "SEQUENCE",
         "STREAM",
         "TASK",
+        "PIPE",
     ]
 
     _schema_object_types = OneOf(
         *_schema_object_names,
         Sequence("MATERIALIZED", "VIEW"),
         Sequence("EXTERNAL", "TABLE"),
+        Sequence(OneOf("TEMP", "TEMPORARY"), "TABLE"),
         Sequence("FILE", "FORMAT"),
     )
 
@@ -3003,7 +3005,6 @@ class AccessStatementSegment(BaseSegment):
                 OneOf(
                     "SCHEMA",
                     Sequence("MASKING", "POLICY"),
-                    "PIPE",
                     _schema_object_types,
                 ),
             ),
@@ -3058,10 +3059,25 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
-                Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+                Sequence(
+                    "ALL",
+                    OneOf(
+                        _schema_object_types_plural,
+                        Sequence("MATERIALIZED", "VIEWS"),
+                        Sequence("EXTERNAL", "TABLES"),
+                        Sequence("FILE", "FORMATS"),
+                    ),
+                    "IN",
+                    OneOf("SCHEMA", "DATABASE"),
+                ),
                 Sequence(
                     "FUTURE",
-                    _schema_object_types_plural,
+                    OneOf(
+                        _schema_object_types_plural,
+                        Sequence("MATERIALIZED", "VIEWS"),
+                        Sequence("EXTERNAL", "TABLES"),
+                        Sequence("FILE", "FORMATS"),
+                    ),
                     "IN",
                     OneOf("DATABASE", "SCHEMA"),
                 ),

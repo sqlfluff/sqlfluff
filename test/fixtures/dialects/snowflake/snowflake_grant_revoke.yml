@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e732f199c35d7d056737115f5c25e5d67eed421078d895de6eaf9ad58da24e51
+_hash: 8313acbc529201760e8e88149c5f14d93f6e58042a1e848524bbfc710eeb8b41
 file:
 - statement:
     access_statement:
@@ -140,6 +140,237 @@ file:
     - keyword: ROLE
     - role_reference:
         naked_identifier: DIFFERENT_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: MATERIALIZED
+    - keyword: VIEWS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: FILE
+    - keyword: FORMATS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: FUTURE
+    - keyword: PIPES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: FUTURE
+    - keyword: FILE
+    - keyword: FORMATS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: FUTURE
+    - keyword: MATERIALIZED
+    - keyword: VIEWS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: FUTURE
+    - keyword: PIPES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: SEQUENCES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: MATERIALIZED
+    - keyword: VIEWS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: SEQUENCES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: FUNCTIONS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: FILE
+    - keyword: FORMATS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: STAGES
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: VIEWS
+    - keyword: IN
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
 - statement_terminator: ;
 - statement:
     access_statement:
