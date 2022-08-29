@@ -902,7 +902,10 @@ def fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        for file, violations in result.violation_dict(**num_violations_kwargs).items():
+        all_results = result.violation_dict(**num_violations_kwargs)
+        sorted_files = sorted(all_results.keys())
+        for file in sorted_files:
+            violations = all_results.get(file, [])
             click.echo(formatter.format_filename(file, success=(not violations)))
             for violation in violations:
                 click.echo(formatter.format_violation(violation))
