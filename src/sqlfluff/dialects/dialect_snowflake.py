@@ -2021,15 +2021,8 @@ class AccessStatementSegment(BaseSegment):
                 "DATABASE",
                 "DOMAIN",
                 "INTEGRATION",
-                # "LANGUAGE",
                 "SCHEMA",
                 "ROLE",
-                # "TABLESPACE",
-                # "TYPE",
-                # Sequence(
-                #     "FOREIGN",
-                #     OneOf("SERVER", Sequence("DATA", "WRAPPER")),
-                # ),
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -2060,7 +2053,6 @@ class AccessStatementSegment(BaseSegment):
             Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
             Ref("FunctionParameterListGrammar", optional=True),
         ),
-        # Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
     )
 
     match_grammar: Matchable = OneOf(
