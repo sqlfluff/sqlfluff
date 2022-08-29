@@ -1,3 +1,3 @@
 SELECT 56
-FROM {{ foo.schema }}.{{ foo.table("xyz") }}
+FROM {{ foo.schema }}.{{ table_proxy("xyz") }}
 WHERE {{ bar.equals("x", 23) }}

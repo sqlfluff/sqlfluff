@@ -286,6 +286,10 @@ class JinjaTemplater(PythonTemplater):
         live_context = super().get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
         if config:
+            # first make libraries available in the context
+            # so they can be used by the macros too
+            live_context.update(self._extract_libraries_from_config(config=config))
+
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
@@ -316,7 +320,6 @@ class JinjaTemplater(PythonTemplater):
                 )
             )
 
-            live_context.update(self._extract_libraries_from_config(config=config))
         return live_context
 
     def template_builder(
