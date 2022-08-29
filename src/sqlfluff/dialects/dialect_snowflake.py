@@ -2416,6 +2416,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
 
     match_grammar = AnySetOf(
         Sequence(
+            "WAREHOUSE_TYPE",
+            Ref("EqualsSegment"),
+            "STANDARD",
+        ),
+        Sequence(
             "WAREHOUSE_SIZE",
             Ref("EqualsSegment"),
             Ref("WarehouseSize"),
