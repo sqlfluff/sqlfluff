@@ -944,6 +944,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
+            Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateCloneStatementSegment"),
@@ -1897,6 +1898,228 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    Grant specific information:
+     * https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+
+    Revoke specific information:
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-role.html
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-privilege.html
+     * https://docs.snowflake.com/en/sql-reference/sql/revoke-privilege-share.html
+    """
+
+    type = "access_statement"
+
+    # Privileges that can be set on the account (specific to snowflake)
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ACCOUNT",
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+                "SHARE",
+                Sequence("DATA", "EXCHANGE", "LISTING"),
+                Sequence("NETWORK", "POLICY"),
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        Sequence("APPLY", "RAW", "ACCESS", "POLICY"),
+        Sequence("APPLY", "SESSION", "POLICY"),
+        Sequence("APPLY", "TAG"),
+        Sequence("ATTACH", "POLICY"),
+        Sequence("EXECUTE", "TASK"),
+        Sequence("IMPORT", "SHARE"),
+        Sequence("MANAGE", "GRANTS"),
+        Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
+        Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "STAGE",
+        "FUNCTION",
+        "PROCEDURE",
+        "ROUTINE",
+        "SEQUENCE",
+        "STREAM",
+        "TASK",
+        "PIPE",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("MATERIALIZED", "VIEW"),
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence(OneOf("TEMP", "TEMPORARY"), "TABLE"),
+        Sequence("FILE", "FORMAT"),
+        Sequence("SESSION", "POLICY"),
+        Sequence("MASKING", "POLICY"),
+        Sequence("ROW", "ACCESS", "POLICY"),
+    )
+
+    # We reuse the object names above and simply append an `S` to the end of them to get
+    # plurals
+    _schema_object_types_plural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            Sequence(
+                "CREATE",
+                OneOf(
+                    "SCHEMA",
+                    # Sequence("MASKING", "POLICY"),
+                    _schema_object_types,
+                ),
+            ),
+            Sequence("IMPORTED", "PRIVILEGES"),
+            "APPLY",
+            "CONNECT",
+            "CREATE",
+            "DELETE",
+            "EXECUTE",
+            "INSERT",
+            "MODIFY",
+            "MONITOR",
+            "OPERATE",
+            "OWNERSHIP",
+            "READ",
+            "REFERENCE_USAGE",
+            "REFERENCES",
+            "SELECT",
+            "TEMP",
+            "TEMPORARY",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE",
+            "USAGE",
+            "USE_ANY_ROLE",
+            "WRITE",
+            Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    # All of the object types that we can grant permissions on.
+    _objects = OneOf(
+        "ACCOUNT",
+        Sequence(
+            OneOf(
+                Sequence("RESOURCE", "MONITOR"),
+                "WAREHOUSE",
+                "DATABASE",
+                "DOMAIN",
+                "INTEGRATION",
+                "SCHEMA",
+                "ROLE",
+                Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+                Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
+                _schema_object_types,
+                Sequence(
+                    "ALL",
+                    OneOf(
+                        _schema_object_types_plural,
+                        Sequence("MATERIALIZED", "VIEWS"),
+                        Sequence("EXTERNAL", "TABLES"),
+                        Sequence("FILE", "FORMATS"),
+                    ),
+                    "IN",
+                    OneOf("SCHEMA", "DATABASE"),
+                ),
+                Sequence(
+                    "FUTURE",
+                    OneOf(
+                        _schema_object_types_plural,
+                        Sequence("MATERIALIZED", "VIEWS"),
+                        Sequence("EXTERNAL", "TABLES"),
+                        Sequence("FILE", "FORMATS"),
+                    ),
+                    "IN",
+                    OneOf("DATABASE", "SCHEMA"),
+                ),
+                optional=True,
+            ),
+            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
+            Ref("FunctionParameterListGrammar", optional=True),
+        ),
+    )
+
+    match_grammar: Matchable = OneOf(
+        # https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+        Sequence(
+            "GRANT",
+            OneOf(
+                Sequence(
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        terminator="ON",
+                    ),
+                    "ON",
+                    _objects,
+                ),
+                Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
+                # In the case where a role is granted non-explicitly,
+                # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
+                # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
+                Ref("ObjectReferenceSegment"),
+            ),
+            "TO",
+            OneOf("USER", "ROLE", "SHARE", optional=True),
+            Delimited(
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
+            ),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                Sequence("WITH", "ADMIN", "OPTION"),
+                Sequence(OneOf("REVOKE", "COPY"), "CURRENT", "GRANTS"),
+                optional=True,
+            ),
+            Sequence(
+                "GRANTED",
+                "BY",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        # https://docs.snowflake.com/en/sql-reference/sql/revoke-privilege.html
+        Sequence(
+            "REVOKE",
+            Sequence("GRANT", "OPTION", "FOR", optional=True),
+            OneOf(
+                Sequence(
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        terminator="ON",
+                    ),
+                    "ON",
+                    _objects,
+                ),
+                Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
+            ),
+            "FROM",
+            OneOf("USER", "ROLE", "SHARE", optional=True),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("DropBehaviorGrammar", optional=True),
+        ),
     )
 
 
