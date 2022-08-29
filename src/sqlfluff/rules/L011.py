@@ -70,6 +70,7 @@ class Rule_L011(BaseRule):
             if any(e.raw_upper == "AS" for e in context.segment.segments):
                 if self.aliasing == "implicit":
                     if context.segment.segments[0].raw_upper == "AS":
+                        self.logger.debug("Removing AS keyword and respacing.")
                         as_keyword = context.segment.segments[0]
                         # Remove the AS as we're using implicit aliasing
                         fixes.append(LintFix.delete(as_keyword))
@@ -85,6 +86,7 @@ class Rule_L011(BaseRule):
                         return LintResult(anchor=as_keyword, fixes=fixes)
 
             elif self.aliasing != "implicit":
+                self.logger.debug("Inserting AS keyword and respacing.")
                 as_keyword = KeywordSegment("AS")
                 # Add the fix for adding the keyword.
                 # NOTE: It's important that this one comes first because
@@ -100,7 +102,10 @@ class Rule_L011(BaseRule):
                 # NOTE: respace may mutate existing fixes, hence assignment
                 fixes = (
                     ReflowSequence.from_around_target(
-                        context.segment.segments[0], context.parent_stack[0]
+                        context.segment.segments[0],
+                        context.parent_stack[0],
+                        # Only reflow before, otherwise we catch too much.
+                        sides="before",
                     )
                     .insert(
                         as_keyword, target=context.segment.segments[0], pos="before"

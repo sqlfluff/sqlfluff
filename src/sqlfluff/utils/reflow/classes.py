@@ -4,7 +4,7 @@
 from itertools import chain
 import logging
 from dataclasses import dataclass
-from typing import Iterator, List, Optional, Sequence, Tuple, Union, Type, cast
+from typing import Iterator, List, Literal, Optional, Sequence, Tuple, Union, Type, cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
@@ -92,6 +92,7 @@ class ReflowPoint(_ReflowElement):
         """
         new_fixes = []
         last_whitespace: List[RawSegment] = []
+        edited = False
 
         reflow_logger.debug("Respacing: %s", self)
         for idx, seg in enumerate(self.segments):
@@ -136,11 +137,12 @@ class ReflowPoint(_ReflowElement):
                     prev_seg = self.segments[ws_idx - 1]
                     if (
                         prev_seg.is_type("newline")
-                        and prev_seg.pos_marker.end_point_marker()
-                        != ws_seg.pos_marker.start_point_marker()
+                        # Not just unequal. Must be actively _before_.
+                        # NOTE: Based on working locations
+                        and prev_seg.get_end_loc() < ws_seg.get_start_loc()
                     ):
                         reflow_logger.debug(
-                            "    Removing non-contiguous whitespace " "post removal."
+                            "    Removing non-contiguous whitespace post removal."
                         )
                         new_fixes.append(LintFix("delete", ws_seg))
 
@@ -170,6 +172,7 @@ class ReflowPoint(_ReflowElement):
                     not before or before.before == "single"
                 ):
                     # Insert a single whitespace.
+                    reflow_logger.debug("    Inserting Single Whitespace.")
 
                     # So special handling here. If segments either side
                     # already exist then we don't care which we anchor on
@@ -186,7 +189,9 @@ class ReflowPoint(_ReflowElement):
                         insertion = before.segments[0]
 
                     if existing_fix:
-                        reflow_logger.debug("Detected existing fix %s", existing_fix)
+                        reflow_logger.debug(
+                            "    Detected existing fix %s", existing_fix
+                        )
                         if not fixes:
                             raise ValueError(
                                 "Fixes detected, but none passed to .respace(). "
@@ -219,8 +224,11 @@ class ReflowPoint(_ReflowElement):
                             fix.edit = fix.edit + [
                                 cast(BaseSegment, WhitespaceSegment())
                             ]
+                        edited = True
                     else:
-                        reflow_logger.debug("Not Detected existing fix. Creating new")
+                        reflow_logger.debug(
+                            "    Not Detected existing fix. Creating new"
+                        )
                         if after:
                             new_fixes.append(
                                 LintFix(
@@ -246,12 +254,14 @@ class ReflowPoint(_ReflowElement):
                         "Not set up to handle non-single whitespace rules."
                     )
 
-        reflow_logger.debug("Old and Modified fixes: %s", fixes)
-        reflow_logger.debug("New fixes: %s", new_fixes)
+        # Only log if we actually made a change.
+        if new_fixes or edited:
+            reflow_logger.debug(
+                "    Fixes. Old & Changed: %s. New: %s", fixes, new_fixes
+            )
         return (fixes or []) + new_fixes
 
 
-@dataclass
 class ReflowSequence:
     """Class for keeping track of elements in a reflow operation.
 
@@ -262,12 +272,12 @@ class ReflowSequence:
     We assume points on each end because this is the case with a file.
     """
 
-    elements: Sequence[_ReflowElement]
-    root_segment: BaseSegment
-
-    def __post_init__(self):
-        """Validate integrity."""
-        self._validate_reflow_sequence(self.elements, self.root_segment)
+    def __init__(self, elements: Sequence[_ReflowElement], root_segment: BaseSegment):
+        # First validate integrity
+        self._validate_reflow_sequence(elements, root_segment)
+        # Then save
+        self.elements = elements
+        self.root_segment = root_segment
 
     @staticmethod
     def _validate_reflow_sequence(
@@ -335,28 +345,15 @@ class ReflowSequence:
                 SeqClass = NextClass
                 continue
 
-            reflow_logger.debug(
-                "Appending %s with %s elements: %s",
-                SeqClass.__name__,
-                len(seg_buff),
-                seg_buff,
-            )
             elem_buff.append(SeqClass(segments=seg_buff, root_segment=root_segment))
             # Then check whether this a second block and whether
             # we need to add empty point in between.
             if NextClass is ReflowBlock and SeqClass is ReflowBlock:
-                reflow_logger.debug("Appending Empty ReflowPoint")
                 elem_buff.append(ReflowPoint(segments=[], root_segment=root_segment))
             seg_buff = [seg]
             SeqClass = NextClass
 
         if seg_buff and SeqClass:
-            reflow_logger.debug(
-                "Appending %s with %s elements: %s",
-                SeqClass.__name__,
-                len(seg_buff),
-                seg_buff,
-            )
             elem_buff.append(SeqClass(segments=seg_buff, root_segment=root_segment))
 
         return cls(elements=elem_buff, root_segment=root_segment)
@@ -367,11 +364,26 @@ class ReflowSequence:
         return cls.from_raw_segments(root_segment.raw_segments, root_segment)
 
     @classmethod
-    def from_around_target(cls, target_segment: RawSegment, root_segment: BaseSegment):
+    def from_around_target(
+        cls,
+        target_segment: RawSegment,
+        root_segment: BaseSegment,
+        sides: Literal["before", "after", "both"] = "both",
+    ):
         """Generate a sequence around a target.
 
+        Args:
+            target_segment (:obj:`RawSegment`): The segment to center
+                around when considering the sequence to construct.
+            root_segment (:obj:`BaseSegment`): The relevant root
+                segment (usually the base :obj:`FileSegment`).
+            sides (:obj:`str`): Limit the reflow sequence to just one
+                side of the target. Default is two sided ("both"), but
+                set to "before" or "after" to limit to either side.
+
+
         To evaluate reflow around a specific target, we need
-        need to generate a sequence which goes for the preceeding
+        need to generate a sequence which goes for the preceding
         raw to the following raw.
         i.e. block - point - block - point - block
         (where the central block is the target).
@@ -383,16 +395,19 @@ class ReflowSequence:
         idx = all_raws.index(target_segment)
         pre_idx = idx - 1
         post_idx = idx + 1
-        while pre_idx > 0 and all_raws[pre_idx].is_type(
-            "whitespace", "newline", "indent"
-        ):
-            pre_idx -= 1
-        while post_idx < len(all_raws) and all_raws[post_idx].is_type(
-            "whitespace", "newline", "indent"
-        ):
-            # TODO: This isn't covered with tests yet.
-            post_idx += 1  # pragma: no cover
-        segments = all_raws[pre_idx : post_idx + 1]
+        if sides in ("both", "before"):
+            while pre_idx > 0 and all_raws[pre_idx].is_type(
+                "whitespace", "newline", "indent"
+            ):
+                pre_idx -= 1
+        if sides in ("both", "after"):
+            while post_idx + 1 < len(all_raws) and all_raws[post_idx + 1].is_type(
+                "whitespace", "newline", "indent"
+            ):
+                post_idx += 1
+            # Capture one more after the whitespace.
+            post_idx += 1
+        segments = all_raws[pre_idx:post_idx]
         reflow_logger.debug(
             "Generating ReflowSequence.from_around_target(). idx: %s. "
             "slice: %s:%s. segments: %s",
@@ -534,6 +549,8 @@ class ReflowSequence:
         """Fix any trailing whitespace detected."""
         fixes = []
         for elem in self.elements:
-            if isinstance(elem, ReflowPoint) and any(seg.is_type('newline') for seg in elem.segments):
+            if isinstance(elem, ReflowPoint) and any(
+                seg.is_type("newline", "end_of_file") for seg in elem.segments
+            ):
                 fixes.extend(elem.respace())
         return fixes

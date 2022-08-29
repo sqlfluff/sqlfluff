@@ -52,7 +52,7 @@ def assert_reflow_structure(sequence, StartClass, raw_elems):
 def test_reflow_sequence_from_segments(raw_sql, StartClass, raw_elems, caplog):
     """Test direct sequence contruction from segments."""
     root = parse_ansi_string(raw_sql)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.utils.reflow"):
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         result = ReflowSequence.from_raw_segments(root.raw_segments, root)
     assert_reflow_structure(result, StartClass, raw_elems)
 
@@ -99,7 +99,7 @@ def test_reflow_sequence_from_around_target(
     target = root.raw_segments[target_idx]
     # Check we're aiming at the right place
     assert target.raw == target_raw
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.utils.reflow"):
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         result = ReflowSequence.from_around_target(target, root)
     assert_reflow_structure(result, StartClass, raw_elems)
 
@@ -115,7 +115,7 @@ def test_reflow_sequence_from_around_target(
 def test_reflow_sequence_trailing_whitespace_fixes(raw_sql, delete_indices, caplog):
     """Test direct sequence contruction from a target."""
     root = parse_ansi_string(raw_sql)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.utils.reflow"):
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         sequence = ReflowSequence.from_root(root)
     fixes = sequence.trailing_whitespace_fixes()
     assert fixes == [

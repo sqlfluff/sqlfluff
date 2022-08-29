@@ -95,7 +95,7 @@ Some rules add, remove or rearrange segments and need to do so in
 a way which is reflow aware.
 - In general, rules which only _remove_ segments as part of a fix
   should only readdress the _Spacing_ left in the gap. We should
-  not attempt to reflow and attempt to remove any _Line Breaks_
+  not attempt to reflow and not attempt to remove any _Line Breaks_
   which could now be possible due to the remaining shorter lines.
   - This should use the `.respace()` method.
 - For rules which _move_ an element (and not just a movement with

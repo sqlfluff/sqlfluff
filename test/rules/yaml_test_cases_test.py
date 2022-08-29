@@ -19,7 +19,7 @@ ids, test_cases = load_test_cases(
 def test__rule_test_case(test_case, caplog):
     """Run the tests."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.utils.reflow"):
+        with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
             res = rules__test_helper(test_case)
             if res is not None and res != test_case.fail_str:
                 cfg = FluffConfig(configs=test_case.configs)
