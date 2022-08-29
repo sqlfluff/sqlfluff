@@ -525,7 +525,11 @@ class Linter:
                 def is_first_linter_pass():
                     return phase == phases[0] and loop == 0
 
-                linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
+                # Additional newlines are to assist in scanning linting loops
+                # during debugging.
+                linter_logger.info(
+                    f"\n\nEntering linter phase {phase}, loop {loop+1}/{loop_limit}\n"
+                )
                 changed = False
 
                 if is_first_linter_pass():
