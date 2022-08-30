@@ -1291,7 +1291,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
-                                "Matched fix against segment: %s -> %s", f, seg
+                                "Matched fix for %s against segment: %s -> %s",
+                                rule_code,
+                                f,
+                                seg,
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.

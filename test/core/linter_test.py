@@ -861,6 +861,7 @@ SELECT {{ col_a }} AS a -- noqa: TMP,PRS
 FROM foo;
 """
     result = lntr.lint_string(sql)
+    print(result.tree.stringify())
     violations = result.get_violations()
     assert not violations
 
