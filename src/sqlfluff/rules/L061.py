@@ -45,6 +45,10 @@ class Rule_L061(BaseRule):
             .select(select_if=sp.is_type("raw_comparison_operator"))
         )
 
+        # Only care about ``<>``
+        if [r.raw for r in raw_comparison_operators] != ["<", ">"]:
+            return None
+
         # Provide a fix and replace ``<>`` with ``!=``
         # As each symbol is a separate symbol this is done in two steps:
         # 1. Replace < with !
