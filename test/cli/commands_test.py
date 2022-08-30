@@ -1726,11 +1726,13 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
     unfixable_error_msg = "==== lint for unfixable violations ===="
     assert unfixable_error_msg in result.output
 
-    unfixable_errors_logging = result.output[result.output.index(unfixable_error_msg):]
+    unfixable_errors_logging = \
+        result.output[result.output.index(unfixable_error_msg):]
     indent_pass_msg = "== [test/fixtures/linter/indentation_errors.sql] PASS"
     multi_fail_msg = "== [test/fixtures/linter/multiple_sql_errors.sql] FAIL"
     assert indent_pass_msg in unfixable_errors_logging
     assert multi_fail_msg in unfixable_errors_logging
 
     # Assert that they are sorted in alphabetical order
-    assert unfixable_errors_logging.index(indent_pass_msg) < unfixable_errors_logging.index(multi_fail_msg)
+    assert unfixable_errors_logging.index(indent_pass_msg) < \
+        unfixable_errors_logging.index(multi_fail_msg)
