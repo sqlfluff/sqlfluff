@@ -24,13 +24,11 @@ class BaseParser(Matchable):
     def __init__(
         self,
         raw_class: Type[RawSegment],
-        name: Optional[str] = None,
         type: Optional[str] = None,
         optional: bool = False,
         **segment_kwargs,
     ) -> None:
         self.raw_class = raw_class
-        self.name = name
         self.type = type
         self.optional = optional
         self.segment_kwargs = segment_kwargs or {}
@@ -43,21 +41,31 @@ class BaseParser(Matchable):
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
 
-    def _make_match_from_first_result(self, segments: Tuple[BaseSegment, ...]):
+    def _make_match_from_first_result(self, segment: BaseSegment):
         """Make a MatchResult from the first segment in the given list.
 
         This is a helper function for reuse by other parsers.
         """
         # Construct the segment object
         new_seg = self.raw_class(
-            raw=segments[0].raw,
-            pos_marker=segments[0].pos_marker,
+            raw=segment.raw,
+            pos_marker=segment.pos_marker,
             type=self.type,
-            name=self.name,
             **self.segment_kwargs,
         )
         # Return as a tuple
-        return MatchResult((new_seg,), segments[1:])
+        return new_seg
+
+    def _match_single(self, segment: BaseSegment):
+        # Is the first one already of this type?
+        if (
+            isinstance(segment, self.raw_class)
+            and segment.is_type(self.type)
+        ):
+            return segment
+        # Does it match?
+        elif self._is_first_match(segment):
+            return self._make_match_from_first_result(segment)
 
     def match(
         self,
@@ -75,17 +83,49 @@ class BaseParser(Matchable):
 
         # We're only going to match against the first element
         if len(segments) >= 1:
-            # Is the first one already of this type?
-            if (
-                isinstance(segments[0], self.raw_class)
-                and segments[0].name == self.name
-                and segments[0].is_type(self.type)
-            ):
-                return MatchResult((segments[0],), segments[1:])
-            # Does it match?
-            elif self._is_first_match(segments[0]):
-                return self._make_match_from_first_result(segments)
+            seg = self._match_single(segments[0])
+            if seg:
+                return MatchResult((seg,), segments[1:])
+            
         return MatchResult.from_unmatched(segments)
+
+
+class TypedParser(BaseParser):
+    """An object which matches and returns raw segments based on types."""
+
+    def __init__(
+        self,
+        template: str,
+        raw_class: Type[RawSegment],
+        type: Optional[str] = None,
+        optional: bool = False,
+        **segment_kwargs,
+    ):
+        # NB: the template in this case is the _target_ type.
+        # The type kwarg is the eventual type.
+        self.template = template
+        super().__init__(
+            raw_class=raw_class,
+            # If no type specified we default to the template
+            type=type or template,
+            optional=optional,
+            **segment_kwargs,
+        )
+
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+        """Does this matcher support a uppercase hash matching route?
+
+        TypedParser segment does NOT for now. We might need to later for efficiency.
+
+        There is a way that this *could* be enabled, by allowing *another*
+        shortcut route, to look ahead at the types of upcoming segments,
+        rather than their content.
+        """
+        return None
+
+    def _is_first_match(self, segment: BaseSegment):
+        """Return true if the type matches the target type."""
+        return segment.is_type(self.template)
 
 
 class StringParser(BaseParser):
@@ -95,7 +135,6 @@ class StringParser(BaseParser):
         self,
         template: str,
         raw_class: Type[RawSegment],
-        name: Optional[str] = None,
         type: Optional[str] = None,
         optional: bool = False,
         **segment_kwargs,
@@ -105,7 +144,6 @@ class StringParser(BaseParser):
         self._simple = [self.template]
         super().__init__(
             raw_class=raw_class,
-            name=name,
             type=type,
             optional=optional,
             **segment_kwargs,
@@ -135,7 +173,6 @@ class MultiStringParser(BaseParser):
         self,
         templates: Collection[str],
         raw_class: Type[RawSegment],
-        name: Optional[str] = None,
         type: Optional[str] = None,
         optional: bool = False,
         **segment_kwargs,
@@ -145,7 +182,6 @@ class MultiStringParser(BaseParser):
         self._simple = list(self.templates)
         super().__init__(
             raw_class=raw_class,
-            name=name,
             type=type,
             optional=optional,
             **segment_kwargs,
@@ -168,51 +204,6 @@ class MultiStringParser(BaseParser):
         return False
 
 
-class NamedParser(BaseParser):
-    """An object which matches and returns raw segments based on names."""
-
-    def __init__(
-        self,
-        template: str,
-        raw_class: Type[RawSegment],
-        name: Optional[str] = None,
-        type: Optional[str] = None,
-        optional: bool = False,
-        **segment_kwargs,
-    ):
-        self.template = template.lower()
-        super().__init__(
-            raw_class=raw_class,
-            name=name,
-            type=type,
-            optional=optional,
-            **segment_kwargs,
-        )
-
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
-        """Does this matcher support a uppercase hash matching route?
-
-        NamedParser segment does NOT for now. We might need to later for efficiency.
-
-        There is a way that this *could* be enabled, by allowing *another*
-        shortcut route, to look ahead at the names of upcoming segments,
-        rather than their content.
-        """
-        return None
-
-    def _is_first_match(self, segment: BaseSegment):
-        """Does the segment provided match according to the current rules.
-
-        NamedParser implements its own matching function where
-        we assume that ._template is the `name` of a segment.
-        """
-        # Case sensitivity is not supported. Names are all
-        # lowercase by convention.
-        if self.template == segment.name.lower():
-            return True
-        return False
-
-
 class RegexParser(BaseParser):
     """An object which matches and returns raw segments based on a regex."""
 
@@ -220,7 +211,6 @@ class RegexParser(BaseParser):
         self,
         template: str,
         raw_class: Type[RawSegment],
-        name: Optional[str] = None,
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,
@@ -234,7 +224,6 @@ class RegexParser(BaseParser):
         self._template = regex.compile(template, regex.IGNORECASE)
         super().__init__(
             raw_class=raw_class,
-            name=name,
             type=type,
             optional=optional,
             **segment_kwargs,
