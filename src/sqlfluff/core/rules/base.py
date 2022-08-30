@@ -327,7 +327,7 @@ class LintFix:
         ):
             # We're editing something with zero size in the source. This means
             # it likely _didn't exist_ in the source and so can be edited safely.
-            # We return and empty set because this edit doesn't touch anything
+            # We return an empty set because this edit doesn't touch anything
             # in the source.
             return set()
 
