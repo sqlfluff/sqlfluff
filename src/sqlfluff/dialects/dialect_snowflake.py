@@ -1932,7 +1932,7 @@ class AccessStatementSegment(BaseSegment):
             ),
         ),
         Sequence("APPLY", "MASKING", "POLICY"),
-        Sequence("APPLY", "RAW", "ACCESS", "POLICY"),
+        Sequence("APPLY", "ROW", "ACCESS", "POLICY"),
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),
