@@ -38,16 +38,16 @@ class Rule_L061(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""
-        # We only care about "<>"
-        if context.segment.raw != "<>":
-            return None
-
         # Get the comparison operator children
         raw_comparison_operators = (
             FunctionalContext(context)
             .segment.children()
             .select(select_if=sp.is_type("raw_comparison_operator"))
         )
+
+        # Only care about ``<>``
+        if [r.raw for r in raw_comparison_operators] != ["<", ">"]:
+            return None
 
         # Provide a fix and replace ``<>`` with ``!=``
         # As each symbol is a separate symbol this is done in two steps:
