@@ -38,10 +38,8 @@ class Rule_L061(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""
-        # Only care about not_equal_to segments. We should only get
-        # comparison operator types from the crawler, but not all will
-        # be "not_equal_to".
-        if context.segment.name != "not_equal_to":
+        # We only care about "<>"
+        if context.segment.raw != "<>":
             return None
 
         # Get the comparison operator children
@@ -50,10 +48,6 @@ class Rule_L061(BaseRule):
             .segment.children()
             .select(select_if=sp.is_type("raw_comparison_operator"))
         )
-
-        # Only care about ``<>``
-        if [r.raw for r in raw_comparison_operators] != ["<", ">"]:
-            return None
 
         # Provide a fix and replace ``<>`` with ``!=``
         # As each symbol is a separate symbol this is done in two steps:
