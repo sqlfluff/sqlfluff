@@ -2,60 +2,208 @@ rule: L069
 
 test_pass_cast:
   pass_str: |
-    SELECT CAST(1 AS varchar) AS bar
-    FROM foo;
+    select cast(1 as varchar) as bar
+    from foo;
 
-test_fail_convert:
-  fail_str: |
-    SELECT CONVERT(varchar, 1) AS bar
-    FROM foo;
-  fix_str: |
-    SELECT CAST(1 AS varchar) AS bar
-    FROM foo;
+test_pass_casting_operator:
+  pass_str: |
+    select 1::varchar as bar
+    from foo;
+
+test_pass_multi_casting_operator:
+  pass_str: |
+    select 1::int::varchar as bar
+    from foo;
+
+test_pass_convert:
+  pass_str: |
+    select convert(varchar, 1) as bar
+    from foo;
 
 test_pass_3_argument_convert:
   pass_str: |
-    SELECT CONVERT(varchar, 1, 126) AS bar
-    FROM foo;
+    select convert(varchar, 1, 126) as bar
+    from foo;
 
-test_fail_casting_operator:
+test_fail_inconsistent_type_casting_prior_convert:
   fail_str: |
-    SELECT 1::varchar AS bar
-    FROM foo;
+    select
+        convert(int, 1) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
   fix_str: |
-    SELECT CAST(1 AS varchar) AS bar
-    FROM foo;
+    select
+        convert(int, 1) as bar,
+        convert(text, convert(int, 100)),
+        convert(text, 10) as coo
+    from foo;
 
-test_fail_multi_casting_operator:
+# test_fail_inconsistent_type_casting_prior_3_argument_convert:
+# # we skip more than 2 argument convert so we fall to the next segment casting style
+#   fail_str: |
+#     select
+#         convert(int, 1, 126) as bar,
+#         100::int::text,
+#         cast(10 as text) as coo
+#     from foo;
+#   fix_str: |
+#     select
+#         convert(int, 1, 126) as bar,
+#         convert(text, convert(int, 100)),
+#         convert(text, 10) as coo
+#     from foo;
+
+test_fail_inconsistent_type_casting_prior_cast:
   fail_str: |
-    SELECT 1::int::varchar AS bar
-    FROM foo;
+    select
+        cast(10 as text) as coo,
+        convert(int, 1) as bar,
+        100::int::text,
+    from foo;
   fix_str: |
-    SELECT CAST(CAST(1 AS int) AS varchar) AS bar
-    FROM foo;
+    select
+        cast(10 as text) as coo,
+        cast(1 as int) as bar,
+        cast(cast(100 as int) as text),
+    from foo;
 
-test_pass_convert_when_allow_non_standard_type_casting:
-  pass_str: |
-    SELECT CONVERT(varchar, 1) AS bar
-    FROM foo;
+test_fail_inconsistent_type_casting_prior_cast_3_arguments_convert:
+  fail_str: |
+    select
+        cast(10 as text) as coo,
+        convert(int, 1, 126) as bar,
+        100::int::text
+    from foo;
+  fix_str: |
+    select
+        cast(10 as text) as coo,
+        convert(int, 1, 126) as bar,
+        cast(cast(100 as int) as text)
+    from foo;
+
+test_fail_inconsistent_type_casting_prior_shorthand:
+  fail_str: |
+    select
+        100::int::text,
+        cast(10 as text) as coo,
+        convert(int, 1) as bar
+    from foo;
+  fix_str: |
+    select
+        100::int::text,
+        10::text as coo,
+        1::int as bar
+    from foo;
+
+test_fail_inconsistent_type_casting_prior_shorthand_3_arguments_convert:
+  fail_str: |
+    select
+        100::int::text,
+        convert(int, 1, 126) as bar,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        100::int::text,
+        convert(int, 1, 126) as bar,
+        10::text as coo
+    from foo;
+
+test_fail_inconsistent_type_casting_when_config_cast:
+  fail_str: |
+    select
+        convert(int, 1) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        cast(1 as int) as bar,
+        cast(cast(100 as int) as text),
+        cast(10 as text) as coo
+    from foo;
   configs:
     rules:
       L069:
-        allow_non_standard_type_casting: true
+        preferred_type_casting_style: cast
 
-test_pass_casting_operator_when_allow_non_standard_type_casting:
-  pass_str: |
-    SELECT 1::int::varchar AS bar
-    FROM foo;
+test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
+  fail_str: |
+    select
+        convert(int, 1, 126) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        convert(int, 1, 126) as bar,
+        cast(cast(100 as int) as text),
+        cast(10 as text) as coo
+    from foo;
   configs:
     rules:
       L069:
-        allow_non_standard_type_casting: true
+        preferred_type_casting_style: cast
+
+test_fail_inconsistent_type_casting_when_config_convert:
+  fail_str: |
+    select
+        convert(int, 1) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        convert(int, 1) as bar,
+        convert(text, convert(int, 100)),
+        convert(text, 10) as coo
+    from foo;
+  configs:
+    rules:
+      L069:
+        preferred_type_casting_style: convert
+
+test_fail_inconsistent_type_casting_when_config_shorthand:
+  fail_str: |
+    select
+        convert(int, 1) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        1::int as bar,
+        100::int::text,
+        10::text as coo
+    from foo;
+  configs:
+    rules:
+      L069:
+        preferred_type_casting_style: shorthand
+
+test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
+  fail_str: |
+    select
+        convert(int, 1, 126) as bar,
+        100::int::text,
+        cast(10 as text) as coo
+    from foo;
+  fix_str: |
+    select
+        convert(int, 1, 126) as bar,
+        100::int::text,
+        10::text as coo
+    from foo;
+  configs:
+    rules:
+      L069:
+        preferred_type_casting_style: shorthand
 
 test_pass_when_dialect_is_teradata:
   pass_str: |
-    SELECT CONVERT(varchar, 1, 126) AS bar
-    FROM foo;
+    select convert(varchar, 1) as bar
+    from foo;
   configs:
     core:
       dialect: teradata

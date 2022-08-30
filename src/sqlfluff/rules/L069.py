@@ -310,7 +310,7 @@ class Rule_L069(BaseRule):
                     anchor=context.segment,
                     memory=context.memory,
                     fixes=fixes,
-                    description=("Inconsistent type casting style found."),
+                    description=("Inconsistent type casting styles found."),
                 )
 
             if prior_type_casting_style is None:
@@ -325,6 +325,8 @@ class Rule_L069(BaseRule):
                             sp.is_type("bracketed")
                         )
                     )
+                    if len(convert_content) > 2:
+                        return None
 
                     fixes = self._cast_fix_list(
                         context,
@@ -394,7 +396,8 @@ class Rule_L069(BaseRule):
                 memory=context.memory,
                 fixes=fixes,
                 description=(
-                    "Used casting style is different from the preferred casting style."
+                    "Used type casting style is different from the \
+                    preferred type casting style."
                 ),
             )
         return None
