@@ -78,9 +78,10 @@ class Rule_L010(BaseRule):
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
             return [LintResult(memory=context.memory)]
 
-        # If the parent element is a function_name and there is more than one element
-        # below it, we ignore it because it is most likely a user defined function.
-        # SUM() should be modified. However, dbo.myScalar() must not be modified.
+        # Used by L030 (that inherits from this rule)
+        # If it's a qualified function_name (i.e with more than one part to
+        # function_name). Then it is likely an existing user defined function (UDF)
+        # which are case sensitive so ignore for this.
         if (
             context.parent_stack[-1].get_type() == "function_name"
             and len(context.parent_stack[-1].segments) != 1
