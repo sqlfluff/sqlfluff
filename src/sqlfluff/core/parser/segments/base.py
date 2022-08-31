@@ -788,7 +788,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
                 except TypeError as err:  # pragma: no cover
                     # This is an error to assist with debugging dialect design.
-                    # It's most likely that the match_grammar has been seg on
+                    # It's most likely that the match_grammar has been set on
                     # a raw segment which shouldn't happen.
                     raise TypeError(
                         f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
