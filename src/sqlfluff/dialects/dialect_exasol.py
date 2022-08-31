@@ -75,9 +75,24 @@ exasol_dialect.insert_lexer_matchers(
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
-        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment, segment_kwargs={"type": "escaped_identifier"}),
-        RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment, segment_kwargs={"type": "udf_param_dot_syntax"}),
-        RegexLexer("range_operator", r"\.{2}", SymbolSegment, segment_kwargs={"type": "range_operator"}),
+        RegexLexer(
+            "escaped_identifier",
+            r"\[\w+\]",
+            CodeSegment,
+            segment_kwargs={"type": "escaped_identifier"},
+        ),
+        RegexLexer(
+            "udf_param_dot_syntax",
+            r"\.{3}",
+            CodeSegment,
+            segment_kwargs={"type": "udf_param_dot_syntax"},
+        ),
+        RegexLexer(
+            "range_operator",
+            r"\.{2}",
+            SymbolSegment,
+            segment_kwargs={"type": "range_operator"},
+        ),
         StringLexer("hash", "#", CodeSegment),
         StringLexer("walrus_operator", ":=", CodeSegment),
         RegexLexer(
@@ -104,8 +119,18 @@ exasol_dialect.patch_lexer_matchers(
         # strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment, segment_kwargs={"type": "single_quote"}),
-        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment, segment_kwargs={"type": "double_quote"}),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
         RegexLexer(
             "inline_comment",
             r"--[^\n]*",

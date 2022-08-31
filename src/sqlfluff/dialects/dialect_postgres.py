@@ -11,7 +11,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
@@ -70,6 +70,7 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
             r"[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
+            segment_kwargs={"type": "unicode_single_quote"},
         ),
         # This is similar to the Unicode regex, the key differences being:
         # - E - must start with E
@@ -85,17 +86,20 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
+            segment_kwargs={"type": "escaped_single_quote"},
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
             r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
+            segment_kwargs={"type": "unicode_double_quote"},
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            CodeSegment,
+            SymbolSegment,
+            segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
     ],
@@ -141,10 +145,18 @@ postgres_dialect.patch_lexer_matchers(
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote",
+            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
         # In Postgres, there is no escape character for double quote strings
-        RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+        RegexLexer(
+            "double_quote",
+            r'(?s)".+?"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
         RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
     ]
 )
@@ -196,7 +208,7 @@ postgres_dialect.sets("date_part_function_name").clear()
 postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
-    JsonOperatorSegment=NamedParser(
+    JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
@@ -204,7 +216,7 @@ postgres_dialect.add(
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
     # In general let the parser handle newlines and whitespace.
-    MultilineConcatenateNewline=NamedParser(
+    MultilineConcatenateNewline=TypedParser(
         "newline",
         NewlineSegment,
         type="newline",
@@ -270,14 +282,14 @@ postgres_dialect.replace(
         # Note we CANNOT use Delimited as it's greedy and swallows the
         # last Newline - see #2495
         Sequence(
-            NamedParser(
+            TypedParser(
                 "single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -285,14 +297,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "unicode_single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "unicode_single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -300,14 +312,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "escaped_single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "escaped_single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -315,14 +327,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "dollar_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "dollar_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -331,8 +343,8 @@ postgres_dialect.replace(
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        NamedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
-        NamedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
+        TypedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
