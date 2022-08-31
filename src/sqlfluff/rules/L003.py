@@ -350,30 +350,41 @@ class Rule_L003(BaseRule):
         current_indent_buffer: List[BaseSegment],
         current_anchor: BaseSegment,
     ) -> List[LintFix]:
-        """Generate fixes to make an indent a certain size."""
-        # In all cases we empty the existing buffer
-        # except for our indent markers
-        fixes = [
-            LintFix.delete(elem)
-            for elem in current_indent_buffer
-            if not elem.is_type("indent")
-        ]
-        if len(desired_indent) == 0:
-            # If there shouldn't be an indent at all, just delete.
-            return fixes
+        """Generate fixes to make an indent a certain size.
 
-        # Anything other than 0 create a fresh buffer
-        return [
-            LintFix.create_before(
-                current_anchor,
-                [
-                    WhitespaceSegment(
-                        raw=desired_indent,
-                    ),
-                ],
-            ),
-            *fixes,
+        Rather than blindly creating indent, we should _edit_
+        if at all possible, this stops other rules trying to
+        remove floating double indents.
+        """
+        existing_whitespace = [
+            seg for seg in current_indent_buffer if seg.is_type("whitespace")
         ]
+        # Should we have an indent?
+        if len(desired_indent) == 0:
+            # No? Just delete everything
+            return [LintFix.delete(seg) for seg in existing_whitespace]
+        else:
+            # Is there already an indent?
+            if existing_whitespace:
+                # Edit the first, delete the rest.
+                edit_fix = LintFix.replace(
+                    existing_whitespace[0],
+                    [existing_whitespace[0].edit(desired_indent)],
+                )
+                delete_fixes = [LintFix.delete(seg) for seg in existing_whitespace[1:]]
+                return [edit_fix] + delete_fixes
+            else:
+                # Just create an indent.
+                return [
+                    LintFix.create_before(
+                        current_anchor,
+                        [
+                            WhitespaceSegment(
+                                raw=desired_indent,
+                            ),
+                        ],
+                    )
+                ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Indentation not consistent with previous lines.
@@ -654,20 +665,16 @@ class Rule_L003(BaseRule):
                             has_partial_indent=has_partial_indent,
                             compared_to=prev_line.line_no,
                         ),
-                        # Add in an extra bit of whitespace for the indent
-                        fixes=[
-                            LintFix.create_before(
-                                trigger_segment,
-                                [
-                                    WhitespaceSegment(
-                                        raw=self._make_indent(
-                                            indent_unit=self.indent_unit,
-                                            tab_space_size=self.tab_space_size,
-                                        ),
-                                    ),
-                                ],
+                        # Coerce the indent to what we think it should be.
+                        fixes=self._coerce_indent_to(
+                            desired_indent=self._make_indent(
+                                num=this_indent_num + 1,
+                                tab_space_size=self.tab_space_size,
+                                indent_unit=self.indent_unit,
                             ),
-                        ],
+                            current_indent_buffer=this_line.indent_buffer,
+                            current_anchor=trigger_segment,
+                        ),
                     )
             elif (
                 this_indent_num < comp_indent_num

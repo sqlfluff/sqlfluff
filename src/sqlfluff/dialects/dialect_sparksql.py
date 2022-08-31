@@ -341,8 +341,8 @@ sparksql_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    EqualsSegment_a=StringParser("==", SymbolSegment, type="comparison_operator"),
-    EqualsSegment_b=StringParser("<=>", SymbolSegment, type="comparison_operator"),
+    EqualsSegment_a=StringParser("==", ansi.ComparisonOperatorSegment),
+    EqualsSegment_b=StringParser("<=>", ansi.ComparisonOperatorSegment),
     FileKeywordSegment=MultiStringParser(
         ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),

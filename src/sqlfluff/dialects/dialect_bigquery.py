@@ -1829,25 +1829,21 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "compression",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "field_delimiter",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "format",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "uri",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),
@@ -1863,19 +1859,16 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "header",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "overwrite",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "use_avro_logical_types",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),

@@ -433,41 +433,33 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     pass
 
 
-class OverlapSegment(BaseSegment):
+class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
     """Overlaps range operator."""
 
-    type = "comparison_operator"
-    name = "overlap"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False
     )
 
 
-class NotExtendRightSegment(BaseSegment):
+class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
     """Not extend right range operator."""
 
-    type = "comparison_operator"
-    name = "not_extend_right"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )
 
 
-class NotExtendLeftSegment(BaseSegment):
+class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
     """Not extend left range operator."""
 
-    type = "comparison_operator"
-    name = "not_extend_left"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
-class AdjacentSegment(BaseSegment):
+class AdjacentSegment(ansi.CompositeComparisonOperatorSegment):
     """Adjacent range operator."""
 
-    type = "comparison_operator"
-    name = "adjacent"
     match_grammar = Sequence(
         Ref("MinusSegment"), Ref("PipeSegment"), Ref("MinusSegment"), allow_gaps=False
     )
