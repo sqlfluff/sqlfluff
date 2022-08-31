@@ -23,7 +23,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     CodeSegment,
     CommentSegment,
-    NamedParser,
+    TypedParser,
     SymbolSegment,
     StringParser,
     RegexParser,
@@ -75,20 +75,15 @@ exasol_dialect.insert_lexer_matchers(
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
-        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment),
-        RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment),
-        RegexLexer("range_operator", r"\.{2}", CodeSegment),
+        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment, segment_kwargs={"type": "escaped_identifier"}),
+        RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment, segment_kwargs={"type": "udf_param_dot_syntax"}),
+        RegexLexer("range_operator", r"\.{2}", SymbolSegment, segment_kwargs={"type": "range_operator"}),
         StringLexer("hash", "#", CodeSegment),
-        StringLexer(
-            "walrus_operator",
-            ":=",
-            CodeSegment,
-            segment_kwargs={"type": "walrus_operator"},
-        ),
+        StringLexer("walrus_operator", ":=", CodeSegment),
         RegexLexer(
             "function_script_terminator",
             r"\n/\n|\n/$",
-            CodeSegment,
+            SymbolSegment,
             segment_kwargs={"type": "function_script_terminator"},
             subdivider=RegexLexer(
                 "newline",
@@ -109,8 +104,8 @@ exasol_dialect.patch_lexer_matchers(
         # strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment, segment_kwargs={"type": "single_quote"}),
+        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment, segment_kwargs={"type": "double_quote"}),
         RegexLexer(
             "inline_comment",
             r"--[^\n]*",
@@ -121,10 +116,10 @@ exasol_dialect.patch_lexer_matchers(
 )
 
 exasol_dialect.add(
-    UDFParameterDotSyntaxSegment=NamedParser(
+    UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
-    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
+    RangeOperator=TypedParser("range_operator", SymbolSegment),
     UnknownSegment=StringParser(
         "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
     ),
@@ -166,7 +161,7 @@ exasol_dialect.add(
         enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=NamedParser(
+    EscapedIdentifierSegment=TypedParser(
         "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
@@ -188,15 +183,11 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    FunctionScriptTerminatorSegment=NamedParser(
+    FunctionScriptTerminatorSegment=TypedParser(
         "function_script_terminator",
         SymbolSegment,
-        name="function_script_terminator",
-        type="function_script_terminator",
     ),
-    WalrusOperatorSegment=NamedParser(
-        "walrus_operator", SymbolSegment, type="assignment_operator"
-    ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
@@ -279,7 +270,7 @@ exasol_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
-        NamedParser(
+        TypedParser(
             "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
