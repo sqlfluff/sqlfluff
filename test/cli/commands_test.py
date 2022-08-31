@@ -1764,6 +1764,8 @@ def test__cli__fix_multiple_errors_show_errors():
 
 def test__cli__multiple_files__fix_multiple_errors_show_errors():
     """Basic check of lint ensures with multiple files, filenames are listed."""
+    sql_path = "test/fixtures/linter/multiple_sql_errors.sql"
+    indent_path = "test/fixtures/linter/indentation_errors.sql"
     result = invoke_assert_code(
         ret_code=1,
         args=[
@@ -1771,8 +1773,8 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
             [
                 "--disable_progress_bar",
                 "--show-lint-violations",
-                "test/fixtures/linter/multiple_sql_errors.sql",
-                "test/fixtures/linter/indentation_errors.sql",
+                sql_path,
+                indent_path,
             ],
         ],
     )
@@ -1780,9 +1782,10 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
     unfixable_error_msg = "==== lint for unfixable violations ===="
     assert unfixable_error_msg in result.output
 
+    indent_pass_msg = f"== [{os.path.normpath(indent_path)}] PASS"
+    multi_fail_msg = f"== [{os.path.normpath(sql_path)}] FAIL"
+
     unfix_err_log = result.output[result.output.index(unfixable_error_msg) :]
-    indent_pass_msg = "== [test/fixtures/linter/indentation_errors.sql] PASS"
-    multi_fail_msg = "== [test/fixtures/linter/multiple_sql_errors.sql] FAIL"
     assert indent_pass_msg in unfix_err_log
     assert multi_fail_msg in unfix_err_log
 
