@@ -17,7 +17,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -95,23 +95,32 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
+            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote_with_n",
+            r"N'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote_with_n"},
+        ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "hash_prefix"},
         ),
     ],
     before="back_quote",
@@ -120,7 +129,12 @@ tsql_dialect.insert_lexer_matchers(
 tsql_dialect.patch_lexer_matchers(
     [
         # Patching single_quote to allow for TSQL-style escaped quotes
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
@@ -173,17 +187,17 @@ tsql_dialect.patch_lexer_matchers(
 )
 
 tsql_dialect.add(
-    BracketedIdentifierSegment=NamedParser(
+    BracketedIdentifierSegment=TypedParser(
         "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
     ),
-    HashIdentifierSegment=NamedParser(
+    HashIdentifierSegment=TypedParser(
         "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
     ),
-    VariableIdentifierSegment=NamedParser(
+    VariableIdentifierSegment=TypedParser(
         "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
-    QuotedLiteralSegmentWithN=NamedParser(
+    QuotedLiteralSegmentWithN=TypedParser(
         "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
