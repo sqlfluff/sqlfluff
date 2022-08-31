@@ -16,7 +16,7 @@ from sqlfluff.core.parser import (
     Delimited,
     KeywordSegment,
     Matchable,
-    NamedParser,
+    TypedParser,
     OneOf,
     Ref,
     RegexLexer,
@@ -56,7 +56,10 @@ mysql_dialect.patch_lexer_matchers(
         #         (?!')            negative lookahead: not single quote
         #     )                    group2 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
+            "single_quote",
+            r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
     ]
 )
@@ -85,7 +88,7 @@ mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
 mysql_dialect.replace(
-    QuotedIdentifierSegment=NamedParser(
+    QuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
@@ -136,7 +139,7 @@ mysql_dialect.replace(
             optional=True,
         ),
         OneOf(
-            NamedParser(
+            TypedParser(
                 "single_quote",
                 ansi.LiteralSegment,
                 type="date_constructor_literal",
@@ -149,7 +152,7 @@ mysql_dialect.replace(
             # MySQL allows whitespace-concatenated string literals (#1488).
             # Since these string literals can have comments between them,
             # we use grammar to handle this.
-            NamedParser(
+            TypedParser(
                 "single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
@@ -188,17 +191,15 @@ mysql_dialect.replace(
 )
 
 mysql_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
+    DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
-    AtSignLiteralSegment=NamedParser(
-        "at_sign",
+    AtSignLiteralSegment=TypedParser(
+        "at_sign_literal",
         ansi.LiteralSegment,
-        type="at_sign_literal",
-        trim_chars=("@",),
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",
@@ -705,6 +706,7 @@ mysql_dialect.insert_lexer_matchers(
             "at_sign",
             r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
+            segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
         ),
     ],
     before="code",

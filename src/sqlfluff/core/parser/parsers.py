@@ -58,10 +58,7 @@ class BaseParser(Matchable):
 
     def _match_single(self, segment: BaseSegment):
         # Is the first one already of this type?
-        if (
-            isinstance(segment, self.raw_class)
-            and segment.is_type(self.type)
-        ):
+        if isinstance(segment, self.raw_class) and segment.is_type(self.type):
             return segment
         # Does it match?
         elif self._is_first_match(segment):
@@ -86,7 +83,7 @@ class BaseParser(Matchable):
             seg = self._match_single(segments[0])
             if seg:
                 return MatchResult((seg,), segments[1:])
-            
+
         return MatchResult.from_unmatched(segments)
 
 

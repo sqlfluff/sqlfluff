@@ -150,11 +150,28 @@ ansi_dialect.set_lexer_matchers(
             ),
             segment_kwargs={"type": "block_comment"},
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment, segment_kwargs={"type": "single_quote"}),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment, segment_kwargs={"type": "double_quote"}),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment, segment_kwargs={"type": "back_quote"}),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
+        RegexLexer(
+            "back_quote", r"`[^`]*`", CodeSegment, segment_kwargs={"type": "back_quote"}
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment, segment_kwargs={"type": "dollar_quote"}),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$[^\1]*?\$\1\$",
+            CodeSegment,
+            segment_kwargs={"type": "dollar_quote"},
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -179,7 +196,12 @@ ansi_dialect.set_lexer_matchers(
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
-        RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment, segment_kwargs={"type": "like_operator"}),
+        RegexLexer(
+            "like_operator",
+            r"!?~~?\*?",
+            ComparisonOperatorSegment,
+            segment_kwargs={"type": "like_operator"},
+        ),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
@@ -357,7 +379,9 @@ ansi_dialect.add(
             type="function_name_identifier",
         )
     ),
-    QuotedIdentifierSegment=TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier"
+    ),
     QuotedLiteralSegment=TypedParser(
         "single_quote", LiteralSegment, type="quoted_literal"
     ),
