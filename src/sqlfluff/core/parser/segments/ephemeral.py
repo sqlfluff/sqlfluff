@@ -2,7 +2,6 @@
 
 import copy
 import logging
-from typing import Optional
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -22,9 +21,7 @@ class EphemeralSegment(BaseSegment):
 
     type = "ephemeral"
 
-    def __init__(
-        self, segments, pos_marker, parse_grammar, ephemeral_name: Optional[str] = None
-    ):
+    def __init__(self, segments, pos_marker, parse_grammar, ephemeral_name: str):
         # Stash the parse grammar for now.
         self._parse_grammar = parse_grammar
         self.ephemeral_name = ephemeral_name

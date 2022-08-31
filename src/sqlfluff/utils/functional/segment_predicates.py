@@ -29,6 +29,15 @@ def raw_is(*raws: str) -> Callable[[BaseSegment], bool]:
     return _
 
 
+def raw_upper_is(*raws: str) -> Callable[[BaseSegment], bool]:
+    """Returns a function that determines if segment matches one of the raw inputs."""
+
+    def _(segment: BaseSegment):
+        return segment.raw_upper in raws
+
+    return _
+
+
 def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
     """Returns a function that determines if segment is one of the types."""
 
@@ -38,18 +47,11 @@ def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
     return _
 
 
-def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:
-    """Returns a function that determines if segment is one of the names."""
-
-    def _(segment: BaseSegment):
-        return segment.is_name(*seg_name)
-
-    return _
-
-
 def is_keyword(*keyword_name) -> Callable[[BaseSegment], bool]:
     """Returns a function that determines if it's a matching keyword."""
-    return and_(is_type("keyword"), is_name(*keyword_name))
+    return and_(
+        is_type("keyword"), raw_upper_is(*[raw.upper() for raw in keyword_name])
+    )
 
 
 def is_code() -> Callable[[BaseSegment], bool]:
@@ -115,11 +117,11 @@ def is_templated() -> Callable[[BaseSegment], bool]:
     return _
 
 
-def get_name() -> Callable[[BaseSegment], str]:
-    """Returns a function that gets segment name."""
+def get_type() -> Callable[[BaseSegment], str]:
+    """Returns a function that gets segment type."""
 
     def _(segment: BaseSegment) -> str:
-        return segment.get_name()
+        return segment.get_type()
 
     return _
 
