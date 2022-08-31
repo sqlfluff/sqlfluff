@@ -27,6 +27,7 @@ class EphemeralSegment(BaseSegment):
         self.ephemeral_name = ephemeral_name
         super().__init__(segments, pos_marker=pos_marker)
 
+    @property
     def expected_form(self) -> str:
         """What to return to the user when unparsable."""
         return self.ephemeral_name
