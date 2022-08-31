@@ -228,6 +228,42 @@ class LiteralKeywordSegment(KeywordSegment):
     type = "literal"
 
 
+class BinaryOperatorSegment(CodeSegment):
+    """An binary operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "binary_operator"
+
+
+class CompositeBinaryOperatorSegment(BaseSegment):
+    """An composite binary operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "binary_operator"
+
+
+class ComparisonOperatorSegment(CodeSegment):
+    """An comparison operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "comparison_operator"
+
+
+class CompositeComparisonOperatorSegment(BaseSegment):
+    """An comparison operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "comparison_operator"
+
+
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -398,8 +434,8 @@ ansi_dialect.add(
         Ref("ArrayLiteralSegment"),
         Ref("ObjectLiteralSegment"),
     ),
-    AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
-    OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
+    AndOperatorGrammar=StringParser("AND", BinaryOperatorSegment),
+    OrOperatorGrammar=StringParser("OR", BinaryOperatorSegment),
     NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
@@ -1847,55 +1883,43 @@ ansi_dialect.add(
 )
 
 
-class EqualsSegment(BaseSegment):
+class EqualsSegment(CompositeComparisonOperatorSegment):
     """Equals operator."""
 
-    type = "comparison_operator"
-    name = "equals"
     match_grammar: Matchable = Ref("RawEqualsSegment")
 
 
-class GreaterThanSegment(BaseSegment):
+class GreaterThanSegment(CompositeComparisonOperatorSegment):
     """Greater than operator."""
 
-    type = "comparison_operator"
-    name = "greater_than"
     match_grammar: Matchable = Ref("RawGreaterThanSegment")
 
 
-class LessThanSegment(BaseSegment):
+class LessThanSegment(CompositeComparisonOperatorSegment):
     """Less than operator."""
 
-    type = "comparison_operator"
-    name = "less_than"
     match_grammar: Matchable = Ref("RawLessThanSegment")
 
 
-class GreaterThanOrEqualToSegment(BaseSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator."""
 
-    type = "comparison_operator"
-    name = "greater_than_equal_to"
     match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-class LessThanOrEqualToSegment(BaseSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Less than or equal to operator."""
 
-    type = "comparison_operator"
-    name = "less_than_equal_to"
     match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-class NotEqualToSegment(BaseSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator."""
 
-    type = "comparison_operator"
-    name = "not_equal_to"
     match_grammar: Matchable = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment"), allow_gaps=False),
         Sequence(
@@ -1904,45 +1928,37 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-class ConcatSegment(BaseSegment):
+class ConcatSegment(CompositeBinaryOperatorSegment):
     """Concat operator."""
 
-    type = "binary_operator"
-    name = "concatenate"
     match_grammar: Matchable = Sequence(
         Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False
     )
 
 
-class BitwiseAndSegment(BaseSegment):
+class BitwiseAndSegment(CompositeBinaryOperatorSegment):
     """Bitwise and operator."""
 
-    type = "binary_operator"
-    name = "binary_and"
     match_grammar: Matchable = Ref("AmpersandSegment")
 
 
-class BitwiseOrSegment(BaseSegment):
+class BitwiseOrSegment(CompositeBinaryOperatorSegment):
     """Bitwise or operator."""
 
-    type = "binary_operator"
-    name = "binary_or"
     match_grammar: Matchable = Ref("PipeSegment")
 
 
-class BitwiseLShiftSegment(BaseSegment):
+class BitwiseLShiftSegment(CompositeBinaryOperatorSegment):
     """Bitwise left-shift operator."""
 
-    type = "binary_operator"
     match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
-class BitwiseRShiftSegment(BaseSegment):
+class BitwiseRShiftSegment(CompositeBinaryOperatorSegment):
     """Bitwise right-shift operator."""
 
-    type = "binary_operator"
     match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )
