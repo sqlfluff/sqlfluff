@@ -344,15 +344,10 @@ class ReflowSequence:
             reflow_logger.exception("Assertion check on ReflowSequence failed.")
             raise err
 
-    @classmethod
-    def from_raw_segments(
-        cls, segments: Sequence[RawSegment], root_segment: BaseSegment
-    ):
-        """Construct a ReflowSequence from a sequence of raw segments.
-
-        Aimed to be the basic constructor, which other more specific
-        ones may fall back to.
-        """
+    @staticmethod
+    def _elements_from_raw_segments(
+        segments: Sequence[RawSegment], root_segment: BaseSegment
+    ) -> Sequence[_ReflowElement]:
         elem_buff = []
         seg_buff: List[RawSegment] = []
         SeqClass: Union[None, Type[ReflowBlock], Type[ReflowPoint]] = None
@@ -386,7 +381,21 @@ class ReflowSequence:
         if seg_buff and SeqClass:
             elem_buff.append(SeqClass(segments=seg_buff, root_segment=root_segment))
 
-        return cls(elements=elem_buff, root_segment=root_segment)
+        return elem_buff
+
+    @classmethod
+    def from_raw_segments(
+        cls, segments: Sequence[RawSegment], root_segment: BaseSegment
+    ):
+        """Construct a ReflowSequence from a sequence of raw segments.
+
+        Aimed to be the basic constructor, which other more specific
+        ones may fall back to.
+        """
+        return cls(
+            elements=cls._elements_from_raw_segments(segments, root_segment),
+            root_segment=root_segment,
+        )
 
     @classmethod
     def from_root(cls, root_segment: BaseSegment):
@@ -396,7 +405,7 @@ class ReflowSequence:
     @classmethod
     def from_around_target(
         cls,
-        target_segment: RawSegment,
+        target_segment: BaseSegment,
         root_segment: BaseSegment,
         sides: str = "both",
     ):
@@ -422,9 +431,12 @@ class ReflowSequence:
         # materialising the raw_segments for the whole root, but
         # it works. Optimise later.
         all_raws = root_segment.raw_segments
-        idx = all_raws.index(target_segment)
-        pre_idx = idx
-        post_idx = idx + 1
+
+        target_raws = target_segment.raw_segments
+        assert target_raws
+        pre_idx = all_raws.index(target_raws[0])
+        post_idx = all_raws.index(target_raws[-1]) + 1
+        initial_idx = (pre_idx, post_idx)
         if sides in ("both", "before"):
             # Catch at least the previous segment
             pre_idx -= 1
@@ -443,7 +455,7 @@ class ReflowSequence:
         reflow_logger.debug(
             "Generating ReflowSequence.from_around_target(). idx: %s. "
             "slice: %s:%s. segments: %s",
-            idx,
+            initial_idx,
             pre_idx,
             post_idx,
             segments,
@@ -561,6 +573,34 @@ class ReflowSequence:
                     embodied_fixes=[LintFix.create_after(target, [insertion])],
                 )
             raise ValueError(f"Unexpected value for ReflowSequence.insert(pos): {pos}")
+
+    def replace(
+        self, target: BaseSegment, edit: Sequence[BaseSegment]
+    ) -> "ReflowSequence":
+        """Returns a new reflow sequence elements replaced."""
+        replace_fix = LintFix.replace(target, edit)
+
+        target_raws = target.raw_segments
+        assert target_raws
+
+        edit_raws = list(chain.from_iterable(seg.raw_segments for seg in edit))
+
+        # It's much easier to just totally reconstruct the sequence rather
+        # than do surgery on the elements.
+        current_raws = list(
+            chain.from_iterable(elem.segments for elem in self.elements)
+        )
+        start_idx = current_raws.index(target_raws[0])
+        last_idx = current_raws.index(target_raws[-1])
+
+        return ReflowSequence(
+            self._elements_from_raw_segments(
+                current_raws[:start_idx] + edit_raws + current_raws[last_idx + 1 :],
+                root_segment=self.root_segment,
+            ),
+            root_segment=self.root_segment,
+            embodied_fixes=[replace_fix],
+        )
 
     def _iter_points_with_constraints(
         self,

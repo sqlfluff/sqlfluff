@@ -1,13 +1,12 @@
 """Implementation of Rule L006."""
 
 
-from typing import Tuple, List
+from typing import List
 
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
-    EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
@@ -43,17 +42,8 @@ class Rule_L006(BaseRule):
 
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
-    # L006 works on operators so requires three operators.
-    # However some rules that inherit from here (e.g. L048) do not.
-    # So allow this to be configurable.
-    _require_three_children: bool = True
 
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "binary_operator"),
-        ("type", "comparison_operator"),
-    ]
-
-    def _eval(self, context: RuleContext) -> EvalResultType:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should be surrounded by a single whitespace.
 
         Rewritten to assess direct children of a segment to make
