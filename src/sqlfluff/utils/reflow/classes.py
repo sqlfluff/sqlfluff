@@ -204,7 +204,7 @@ class ReflowPoint(_ReflowElement):
                         reflow_logger.debug(
                             "    Detected existing fix %s", existing_fix
                         )
-                        if not fixes:
+                        if not fixes:  # pragma: no cover
                             raise ValueError(
                                 "Fixes detected, but none passed to .respace(). "
                                 "This will cause conflicts."
@@ -212,15 +212,16 @@ class ReflowPoint(_ReflowElement):
                         # Find the fix
                         for fix in fixes:
                             # Does it contain the insertion?
-                            # TODO: This feels ugly - why is eq for BaseSegment defined
-                            # so differently?!!?!???!? Shouldn't it all use uuids?
+                            # TODO: This feels ugly - eq for BaseSegment is different
+                            # to uuid matching for RawSegment. Perhaps this should be
+                            # more aligned. There might be a better way of doing this.
                             if (
                                 insertion
                                 and fix.edit
                                 and insertion.uuid in [elem.uuid for elem in fix.edit]
                             ):
                                 break
-                        else:
+                        else:  # pragma: no cover
                             reflow_logger.warning("Fixes %s", fixes)
                             raise ValueError(f"Couldn't find insertion for {insertion}")
                         # Mutate the existing fix
@@ -257,11 +258,13 @@ class ReflowPoint(_ReflowElement):
                                     edit=[WhitespaceSegment()],
                                 )
                             )
-                        else:
+                        else:  # pragma: no cover
                             NotImplementedError(
                                 "Not set up to handle a missing _after_ and _before_."
                             )
-                else:
+                else:  # pragma: no cover
+                    # TODO: This will get test coverage when configuration routines
+                    # are in properly.
                     raise NotImplementedError(
                         "Not set up to handle non-single whitespace rules."
                     )
@@ -451,7 +454,9 @@ class ReflowSequence:
         for idx, elem in enumerate(self.elements):
             if target in elem.segments:
                 return idx
-        raise ValueError(f"Target [{target}] not found in ReflowSequence.")
+        raise ValueError(  # pragma: no cover
+            f"Target [{target}] not found in ReflowSequence."
+        )
 
     def without(self, target: RawSegment) -> "ReflowSequence":
         """Returns a new reflow sequence without the specified segment.
@@ -463,11 +468,11 @@ class ReflowSequence:
         """
         removal_idx = self._find_element_idx_with(target)
         if removal_idx == 0 or removal_idx == len(self.elements) - 1:
-            raise NotImplementedError(
+            raise NotImplementedError(  # pragma: no cover
                 "Unexpected removal at one end of a ReflowSequence."
             )
         if isinstance(self.elements[removal_idx], ReflowPoint):
-            raise NotImplementedError(
+            raise NotImplementedError(  # pragma: no cover
                 "Not expected removal of whitespace in ReflowSequence."
             )
         merged_point = ReflowPoint(
@@ -495,7 +500,10 @@ class ReflowSequence:
         assert pos in ("before", "after")
         target_idx = self._find_element_idx_with(target)
         # Are we inserting something whitespacey...
-        if insertion.is_type("whitespace", "indent", "newline"):
+        # NOTE: I'm not sure we will _ever_ use this next section. Once
+        # more rules are using respace we should evaluate whether to keep
+        # this. We might decide that it will never exist.
+        if insertion.is_type("whitespace", "indent", "newline"):   # pragma: no cover
             # ... into a point?
             if isinstance(self.elements[target_idx], ReflowPoint):
                 # This is the easy case where we just append the new segment
@@ -527,7 +535,7 @@ class ReflowSequence:
                 segments=[insertion], root_segment=self.root_segment
             )
             if isinstance(self.elements[target_idx], ReflowPoint):
-                raise NotImplementedError(
+                raise NotImplementedError(  # pragma: no cover
                     "Can't insert relative to whitespace for now."
                 )
             elif pos == "before":
@@ -539,7 +547,10 @@ class ReflowSequence:
                     # Generate the fix to do the removal.
                     embodied_fixes=[LintFix.create_before(target, [insertion])],
                 )
-            elif pos == "after":
+            elif pos == "after":  # pragma: no cover
+                # TODO: This doesn't get coverage - should it even exist?
+                # Re-evaluate whether this code path is ever taken once more rules use
+                # this.
                 return ReflowSequence(
                     elements=list(self.elements[: target_idx + 1])
                     + [ReflowPoint([], root_segment=self.root_segment), new_block]
