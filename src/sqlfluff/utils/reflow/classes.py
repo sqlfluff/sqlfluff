@@ -4,7 +4,8 @@
 from itertools import chain
 import logging
 from dataclasses import dataclass
-from typing import Iterator, List, Literal, Optional, Sequence, Tuple, Union, Type, cast
+from typing import Iterator, List, Optional, Sequence, Tuple, Union, Type, cast
+from typing_extensions import Literal
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
@@ -82,7 +83,7 @@ class ReflowPoint(_ReflowElement):
         after: Optional[ReflowBlock] = None,
         before: Optional[ReflowBlock] = None,
         fixes: Optional[List[LintFix]] = None,
-    ) -> List[LintFix]:
+    ) -> Tuple[List[LintFix], "ReflowPoint"]:
         """Respace a point based on given constraints.
 
         NB: This effectively includes trailing whitespace fixes.
@@ -92,6 +93,8 @@ class ReflowPoint(_ReflowElement):
         """
         new_fixes = []
         last_whitespace: List[RawSegment] = []
+        # The buffer is used to create the new reflow point to return
+        segment_buffer = list(self.segments)
         edited = False
 
         reflow_logger.debug("Respacing: %s", self)
@@ -101,9 +104,11 @@ class ReflowPoint(_ReflowElement):
                 last_whitespace.append(seg)
             # If it's a newline, check if we've just passed whitespace
             elif seg.is_type("newline", "end_of_file"):
-                # If we have, remove it as trailing whitespace
+                # If we have, remove it as trailing whitespace.
+                # Both from the buffer and create a fix.
                 if last_whitespace:
                     for ws in last_whitespace:
+                        segment_buffer.remove(ws)
                         new_fixes.append(LintFix("delete", ws))
                     reflow_logger.debug("    Removing trailing whitespace.")
                 # Regardless, unset last_whitespace.
@@ -118,6 +123,7 @@ class ReflowPoint(_ReflowElement):
             # a valid indent (or the one we consider for constraints).
             # Remove all the following ones.
             for ws in last_whitespace[1:]:
+                segment_buffer.remove(ws)
                 new_fixes.append(LintFix("delete", ws))
 
         # Is there a newline?
@@ -144,6 +150,7 @@ class ReflowPoint(_ReflowElement):
                         reflow_logger.debug(
                             "    Removing non-contiguous whitespace post removal."
                         )
+                        segment_buffer.remove(ws_seg)
                         new_fixes.append(LintFix("delete", ws_seg))
 
         # Is this an inline case? (i.e. no newline)
@@ -155,13 +162,16 @@ class ReflowPoint(_ReflowElement):
                     not before or before.before == "single"
                 ):
                     if last_whitespace[0].raw != " ":
+                        new_seg = last_whitespace[0].edit(" ")
+                        seg_idx = segment_buffer.index(last_whitespace[0])
                         new_fixes.append(
                             LintFix(
-                                "edit",
+                                "replace",
                                 anchor=last_whitespace[0],
-                                edit=last_whitespace[0].edit(" "),
+                                edit=[new_seg],
                             )
                         )
+                        segment_buffer[seg_idx] = new_seg
                 else:
                     raise NotImplementedError(
                         "Not set up to handle non-single whitespace rules."
@@ -173,6 +183,8 @@ class ReflowPoint(_ReflowElement):
                 ):
                     # Insert a single whitespace.
                     reflow_logger.debug("    Inserting Single Whitespace.")
+                    # Add it to the buffer first (the easy bit)
+                    segment_buffer = [WhitespaceSegment()]
 
                     # So special handling here. If segments either side
                     # already exist then we don't care which we anchor on
@@ -259,7 +271,9 @@ class ReflowPoint(_ReflowElement):
             reflow_logger.debug(
                 "    Fixes. Old & Changed: %s. New: %s", fixes, new_fixes
             )
-        return (fixes or []) + new_fixes
+        return (fixes or []) + new_fixes, ReflowPoint(
+            segment_buffer, root_segment=self.root_segment
+        )
 
 
 class ReflowSequence:
@@ -272,12 +286,26 @@ class ReflowSequence:
     We assume points on each end because this is the case with a file.
     """
 
-    def __init__(self, elements: Sequence[_ReflowElement], root_segment: BaseSegment):
+    def __init__(
+        self,
+        elements: Sequence[_ReflowElement],
+        root_segment: BaseSegment,
+        embodied_fixes: Optional[List[LintFix]] = None,
+    ):
         # First validate integrity
         self._validate_reflow_sequence(elements, root_segment)
         # Then save
         self.elements = elements
         self.root_segment = root_segment
+        # This keeps track of fixes generated in the chaining process.
+        # Alternatively pictured: This is the list of fixes required
+        # to generate this sequence. We can build on this as we edit
+        # the sequence.
+        self.embodied_fixes: List[LintFix] = embodied_fixes or []
+
+    def get_fixes(self):
+        """Get the current fix buffer."""
+        return self.embodied_fixes
 
     @staticmethod
     def _validate_reflow_sequence(
@@ -401,7 +429,7 @@ class ReflowSequence:
             ):
                 pre_idx -= 1
         if sides in ("both", "after"):
-            while post_idx + 1 < len(all_raws) and all_raws[post_idx + 1].is_type(
+            while post_idx < len(all_raws) and all_raws[post_idx].is_type(
                 "whitespace", "newline", "indent"
             ):
                 post_idx += 1
@@ -419,13 +447,13 @@ class ReflowSequence:
         # Include the final index so +1
         return cls.from_raw_segments(segments, root_segment)
 
-    def _find_element_idx_with(self, target: BaseSegment) -> int:
+    def _find_element_idx_with(self, target: RawSegment) -> int:
         for idx, elem in enumerate(self.elements):
             if target in elem.segments:
                 return idx
         raise ValueError(f"Target [{target}] not found in ReflowSequence.")
 
-    def without(self, target: BaseSegment) -> "ReflowSequence":
+    def without(self, target: RawSegment) -> "ReflowSequence":
         """Returns a new reflow sequence without the specified segment.
 
         It's important to note that this doesn't itself remove the target
@@ -452,9 +480,13 @@ class ReflowSequence:
             + [merged_point]
             + list(self.elements[removal_idx + 2 :]),
             root_segment=self.root_segment,
+            # Generate the fix to do the removal.
+            embodied_fixes=[LintFix.delete(target)],
         )
 
-    def insert(self, insertion: RawSegment, target: RawSegment, pos="before"):
+    def insert(
+        self, insertion: RawSegment, target: RawSegment, pos="before"
+    ) -> "ReflowSequence":
         """Returns a new reflow sequence with the new element inserted.
 
         Insertion is always relative to an existing element. Either before
@@ -504,6 +536,8 @@ class ReflowSequence:
                     + [new_block, ReflowPoint([], root_segment=self.root_segment)]
                     + list(self.elements[target_idx:]),
                     root_segment=self.root_segment,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_before(target, [insertion])],
                 )
             elif pos == "after":
                 return ReflowSequence(
@@ -511,7 +545,10 @@ class ReflowSequence:
                     + [ReflowPoint([], root_segment=self.root_segment), new_block]
                     + list(self.elements[target_idx + 1 :]),
                     root_segment=self.root_segment,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_after(target, [insertion])],
                 )
+            raise ValueError(f"Unexpected value for ReflowSequence.insert(pos): {pos}")
 
     def _iter_points_with_constraints(
         self,
@@ -527,23 +564,30 @@ class ReflowSequence:
                     post = cast(ReflowBlock, self.elements[idx + 1])
                 yield elem, pre, post
 
-    def respace(self, fixes: Optional[List[LintFix]] = None) -> List[LintFix]:
+    def respace(self) -> "ReflowSequence":
         """Respace a sequence.
 
-        This resets spacing in a ReflowSequence.
-
-        Args:
-            fixes (:obj:`list` of :obj:`BaseSegment`, optional): Optionally
-                provide a list of existing fixes to be applied so that we can
-                merge additional changes into those existing fixes and not
-                trigger issues with multiple fixes aimed at the same segment.
+        This resets spacing in a ReflowSequence. Note, it relies on the
+        embodied fixes being correct so that we can build on them.
         """
-        fixes = fixes or []
+        # Use the embodied fixes as a starting point.
+        fixes = self.embodied_fixes or []
+        new_elements: List[_ReflowElement] = []
         for point, pre, post in self._iter_points_with_constraints():
             # Pass through the fixes because they may get mutated
             # TODO: This feels a bit gross - can we do better?
-            fixes = point.respace(after=pre, before=post, fixes=fixes)
-        return fixes
+            fixes, new_point = point.respace(after=pre, before=post, fixes=fixes)
+            if pre and (not new_elements or new_elements[-1] != pre):
+                new_elements.append(pre)
+            new_elements.append(new_point)
+            if post:
+                new_elements.append(post)
+        return ReflowSequence(
+            elements=new_elements,
+            root_segment=self.root_segment,
+            # Generate the fix to do the removal.
+            embodied_fixes=fixes,
+        )
 
     def trailing_whitespace_fixes(self) -> List[LintFix]:
         """Fix any trailing whitespace detected."""
@@ -552,5 +596,6 @@ class ReflowSequence:
             if isinstance(elem, ReflowPoint) and any(
                 seg.is_type("newline", "end_of_file") for seg in elem.segments
             ):
-                fixes.extend(elem.respace())
+                new_fixes, _ = elem.respace()
+                fixes.extend(new_fixes)
         return fixes
