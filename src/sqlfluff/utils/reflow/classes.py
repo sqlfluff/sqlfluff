@@ -17,7 +17,19 @@ from sqlfluff.core.rules.base import LintFix
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-@dataclass
+# Until we have a proper structure this will work.
+# TODO: Migrate this to the config file.
+SPACING_CONFIG = {
+    "start_bracket": {"after": "close"},
+    "end_bracket": {"before": "close"},
+    "comma": {"before": "close"},
+    "statement_terminator": {"before": "close"},
+    "casting_operator": {"before": "close", "after": "close"},
+}
+SPACING_CONFIG_TYPES = set(SPACING_CONFIG.keys())
+
+
+@dataclass(frozen=True)
 class _ReflowElement:
     """Base reflow element class."""
 
@@ -33,7 +45,7 @@ class _ReflowElement:
         return set(chain.from_iterable(seg.class_types for seg in self.segments))
 
 
-@dataclass
+@dataclass(frozen=True)
 class ReflowBlock(_ReflowElement):
     """Class for keeping track of elements to reflow.
 
@@ -60,13 +72,22 @@ class ReflowBlock(_ReflowElement):
         # configuration to the dialect or an explicit config
         # are the two most likely options.
         # TODO: This is not covered in tests yet, it's prep for later.
-        if {"start_bracket"} in self.class_types:
-            self.after = "close"  # pragma: no cover
-        elif {"end_bracket"} in self.class_types:
-            self.before = "close"  # pragma: no cover
+        configured_types = self.class_types.intersection(SPACING_CONFIG_TYPES)
+        # We use a for loop here so that all matched configs are applied
+        # although there isn't a formal precedence here. This could lead
+        # to bugs when it gets complicated - but ok for now.
+        # In most cases there will only be one...so no problem.
+        for seg_type in configured_types:
+            # We're using object.__setattr__ because ReflowBlock is frozen.
+            object.__setattr__(
+                self, "after", SPACING_CONFIG[seg_type].get("after", self.after)
+            )
+            object.__setattr__(
+                self, "before", SPACING_CONFIG[seg_type].get("before", self.before)
+            )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ReflowPoint(_ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
@@ -79,8 +100,8 @@ class ReflowPoint(_ReflowElement):
 
     def respace(
         self,
-        after: Optional[ReflowBlock] = None,
-        before: Optional[ReflowBlock] = None,
+        prev_block: Optional[ReflowBlock] = None,
+        next_block: Optional[ReflowBlock] = None,
         fixes: Optional[List[LintFix]] = None,
     ) -> Tuple[List[LintFix], "ReflowPoint"]:
         """Respace a point based on given constraints.
@@ -154,12 +175,24 @@ class ReflowPoint(_ReflowElement):
 
         # Is this an inline case? (i.e. no newline)
         else:
+            pre_constraint = prev_block.after if prev_block else "single"
+            post_constraint = next_block.before if next_block else "single"
+            reflow_logger.debug(
+                "    Inline case. Constraints: %s <-> %s.",
+                pre_constraint,
+                post_constraint,
+            )
+
             # Do we at least have _some_ whitespace?
             if last_whitespace:
                 # We do - is it the right size?
-                if (not after or after.after == "single") and (
-                    not before or before.before == "single"
-                ):
+
+                # Do we have either side set to "close"
+                if "close" in [pre_constraint, post_constraint]:
+                    # In this instance - no whitespace is correct
+                    raise NotImplementedError(f"CLOSE CASE! {self.segments}")
+                # Handle the default case
+                elif pre_constraint == post_constraint == "single":
                     if last_whitespace[0].raw != " ":
                         new_seg = last_whitespace[0].edit(" ")
                         seg_idx = segment_buffer.index(last_whitespace[0])
@@ -173,13 +206,17 @@ class ReflowPoint(_ReflowElement):
                         segment_buffer[seg_idx] = new_seg
                 else:
                     raise NotImplementedError(
-                        "Not set up to handle non-single whitespace rules."
+                        f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
                     )
             else:
                 # No. Should we insert some?
-                if (not after or after.after == "single") and (
-                    not before or before.before == "single"
-                ):
+
+                # Do we have either side set to "close"
+                if "close" in [pre_constraint, post_constraint]:
+                    # In this instance - no whitespace is correct
+                    pass
+                # Handle the default case
+                elif pre_constraint == post_constraint == "single":
                     # Insert a single whitespace.
                     reflow_logger.debug("    Inserting Single Whitespace.")
                     # Add it to the buffer first (the easy bit)
@@ -192,12 +229,12 @@ class ReflowPoint(_ReflowElement):
                     # fix.
                     existing_fix = None
                     insertion = None
-                    if after and not after.segments[-1].pos_marker:
+                    if prev_block and not prev_block.segments[-1].pos_marker:
                         existing_fix = "after"
-                        insertion = after.segments[-1]
-                    elif before and not before.segments[0].pos_marker:
+                        insertion = prev_block.segments[-1]
+                    elif next_block and not next_block.segments[0].pos_marker:
                         existing_fix = "before"
-                        insertion = before.segments[0]
+                        insertion = next_block.segments[0]
 
                     if existing_fix:
                         reflow_logger.debug(
@@ -241,19 +278,19 @@ class ReflowPoint(_ReflowElement):
                         reflow_logger.debug(
                             "    Not Detected existing fix. Creating new"
                         )
-                        if after:
+                        if prev_block:
                             new_fixes.append(
                                 LintFix(
                                     "create_after",
-                                    anchor=after.segments[-1],
+                                    anchor=prev_block.segments[-1],
                                     edit=[WhitespaceSegment()],
                                 )
                             )
-                        elif before:
+                        elif next_block:
                             new_fixes.append(
                                 LintFix(
                                     "create_before",
-                                    anchor=before.segments[0],
+                                    anchor=next_block.segments[0],
                                     edit=[WhitespaceSegment()],
                                 )
                             )
@@ -265,7 +302,7 @@ class ReflowPoint(_ReflowElement):
                     # TODO: This will get test coverage when configuration routines
                     # are in properly.
                     raise NotImplementedError(
-                        "Not set up to handle non-single whitespace rules."
+                        f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
                     )
 
         # Only log if we actually made a change.
@@ -612,7 +649,7 @@ class ReflowSequence:
                 post = None
                 if idx > 0:
                     pre = cast(ReflowBlock, self.elements[idx - 1])
-                if idx < len(self.elements) - 2:
+                if idx < len(self.elements) - 1:
                     post = cast(ReflowBlock, self.elements[idx + 1])
                 yield elem, pre, post
 
@@ -628,7 +665,9 @@ class ReflowSequence:
         for point, pre, post in self._iter_points_with_constraints():
             # Pass through the fixes because they may get mutated
             # TODO: This feels a bit gross - can we do better?
-            fixes, new_point = point.respace(after=pre, before=post, fixes=fixes)
+            fixes, new_point = point.respace(
+                prev_block=pre, next_block=post, fixes=fixes
+            )
             if pre and (not new_elements or new_elements[-1] != pre):
                 new_elements.append(pre)
             new_elements.append(new_point)

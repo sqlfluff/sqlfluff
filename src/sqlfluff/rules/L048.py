@@ -1,6 +1,6 @@
 """Implementation of Rule L048."""
 
-from typing import Optional, Tuple, List
+from typing import List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.context import RuleContext
