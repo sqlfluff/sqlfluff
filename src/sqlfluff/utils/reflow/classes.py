@@ -5,7 +5,6 @@ from itertools import chain
 import logging
 from dataclasses import dataclass
 from typing import Iterator, List, Optional, Sequence, Tuple, Union, Type, cast
-from typing_extensions import Literal
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
@@ -399,7 +398,7 @@ class ReflowSequence:
         cls,
         target_segment: RawSegment,
         root_segment: BaseSegment,
-        sides: Literal["before", "after", "both"] = "both",
+        sides: str = "both",
     ):
         """Generate a sequence around a target.
 
@@ -424,10 +423,12 @@ class ReflowSequence:
         # it works. Optimise later.
         all_raws = root_segment.raw_segments
         idx = all_raws.index(target_segment)
-        pre_idx = idx - 1
+        pre_idx = idx
         post_idx = idx + 1
         if sides in ("both", "before"):
-            while pre_idx > 0 and all_raws[pre_idx].is_type(
+            # Catch at least the previous segment
+            pre_idx -= 1
+            while pre_idx - 1 > 0 and all_raws[pre_idx].is_type(
                 "whitespace", "newline", "indent"
             ):
                 pre_idx -= 1
@@ -503,7 +504,7 @@ class ReflowSequence:
         # NOTE: I'm not sure we will _ever_ use this next section. Once
         # more rules are using respace we should evaluate whether to keep
         # this. We might decide that it will never exist.
-        if insertion.is_type("whitespace", "indent", "newline"):   # pragma: no cover
+        if insertion.is_type("whitespace", "indent", "newline"):  # pragma: no cover
             # ... into a point?
             if isinstance(self.elements[target_idx], ReflowPoint):
                 # This is the easy case where we just append the new segment
