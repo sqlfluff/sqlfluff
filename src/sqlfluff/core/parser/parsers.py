@@ -41,7 +41,7 @@ class BaseParser(Matchable):
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
 
-    def _make_match_from_first_result(self, segment: BaseSegment):
+    def _make_match_from_segment(self, segment: BaseSegment):
         """Make a MatchResult from the first segment in the given list.
 
         This is a helper function for reuse by other parsers.
@@ -57,12 +57,16 @@ class BaseParser(Matchable):
         return new_seg
 
     def _match_single(self, segment: BaseSegment):
-        # Is the first one already of this type?
+        """Match a single segment.
+
+        Used in the context of matching against the first in a sequence.
+        """
+        # Is the segment already of this type?
         if isinstance(segment, self.raw_class) and segment.is_type(self.type):
             return segment
         # Does it match?
         elif self._is_first_match(segment):
-            return self._make_match_from_first_result(segment)
+            return self._make_match_from_segment(segment)
 
     def match(
         self,
