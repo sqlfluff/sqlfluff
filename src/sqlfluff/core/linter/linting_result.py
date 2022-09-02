@@ -113,9 +113,7 @@ class LintingResult:
 
     def violation_dict(self, **kwargs):
         """Return a dict of paths and violations."""
-        return self.combine_dicts(
-            path.violation_dict(**kwargs) for path in self.paths
-        )
+        return self.combine_dicts(path.violation_dict(**kwargs) for path in self.paths)
 
     def stats(self) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
