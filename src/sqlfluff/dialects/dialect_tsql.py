@@ -501,15 +501,13 @@ class StatementSegment(ansi.StatementSegment):
     parse_grammar = match_grammar
 
 
-class GreaterThanOrEqualToSegment(BaseSegment):
+class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
     to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "greater_than_equal_to"
     match_grammar = OneOf(
         Sequence(
             Ref("RawGreaterThanSegment"),
@@ -522,15 +520,13 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     )
 
 
-class LessThanOrEqualToSegment(BaseSegment):
+class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
     to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "less_than_equal_to"
     match_grammar = OneOf(
         Sequence(
             Ref("RawLessThanSegment"),
@@ -543,14 +539,12 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-class NotEqualToSegment(BaseSegment):
+class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "not_equal_to"
     match_grammar = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
         Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
@@ -2025,6 +2019,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
                     ),
                     Ref("FunctionSegment"),
                     Ref("VariableIdentifierSegment"),
+                    "NULL",
                 ),
             ),
         ),
@@ -2253,6 +2248,12 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
+                ),
+                Sequence(
+                    "DROP",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
                 ),
                 Sequence(
                     "ADD",
@@ -4104,9 +4105,7 @@ class ForXmlSegment(BaseSegment):
     )
 
 
-class ConcatSegment(BaseSegment):
+class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
     """Concat operator."""
 
-    type = "binary_operator"
-    name = "concatenate"
     match_grammar: Matchable = Ref("PlusSegment")

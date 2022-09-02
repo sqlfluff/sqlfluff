@@ -205,6 +205,7 @@ def core_options(f: Callable) -> Callable:
     # that supports it
     if shell_completion_enabled:
         f = click.option(
+            "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
@@ -212,11 +213,13 @@ def core_options(f: Callable) -> Callable:
         )(f)
     else:  # pragma: no cover
         f = click.option(
+            "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
         )(f)
     f = click.option(
+        "-t",
         "--templater",
         default=None,
         help="The templater to use (default=jinja)",
@@ -230,6 +233,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-r",
         "--rules",
         default=None,
         help=(
@@ -241,6 +245,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-e",
         "--exclude-rules",
         default=None,
         help=(
@@ -284,6 +289,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "-i",
         "--ignore",
         default=None,
         help=(
@@ -391,7 +397,15 @@ def get_linter_and_formatter(
     return Linter(config=cfg, formatter=formatter), formatter
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    epilog="""\b\bExamples:\n
+  sqlfluff lint --dialect postgres .\n
+  sqlfluff lint --dialect postgres --rules L042 .\n
+  sqlfluff fix --dialect sqlite --rules L041,L042 src/queries\n
+  sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
+""",
+)
 @click.version_option()
 def cli():
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
@@ -673,7 +687,10 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
+    "-x",
+    "--fixed-suffix",
+    default=None,
+    help="An optional suffix to add to fixed files.",
 )
 @click.option(
     "-p",
@@ -885,8 +902,13 @@ def fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        for violation in result.get_violations(**num_violations_kwargs):
-            click.echo(formatter.format_violation(violation))
+        all_results = result.violation_dict(**num_violations_kwargs)
+        sorted_files = sorted(all_results.keys())
+        for file in sorted_files:
+            violations = all_results.get(file, [])
+            click.echo(formatter.format_filename(file, success=(not violations)))
+            for violation in violations:
+                click.echo(formatter.format_violation(violation))
 
     sys.exit(exit_code)
 

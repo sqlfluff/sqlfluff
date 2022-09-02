@@ -5,6 +5,13 @@ create storage integration s3_int
   enabled = true
   storage_allowed_locations = ('s3://mybucket1/path1/', 's3://mybucket2/path2/');
 
+create storage integration s3_int
+  type = external_stage
+  storage_provider = s3
+  storage_aws_role_arn = 'arn:aws:iam::001234567890:role/myrole'
+  enabled = true
+  storage_allowed_locations = ('s3://mybucket1', 's3://mybucket2/');
+
 create storage integration gcs_int
   type = external_stage
   storage_provider = gcs

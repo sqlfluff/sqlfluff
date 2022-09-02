@@ -605,7 +605,7 @@ def test__parser__grammar_delimited(
     seg_list = generate_test_segments(token_list)
     g = Delimited(
         StringParser("bar", KeywordSegment),
-        delimiter=StringParser(".", SymbolSegment, name="dot"),
+        delimiter=StringParser(".", SymbolSegment),
         allow_gaps=allow_gaps,
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,

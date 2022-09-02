@@ -5,7 +5,7 @@ from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.rules.L006 import Rule_L006
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 CorrectionListType = List[Union[WhitespaceSegment, KeywordSegment]]
@@ -41,6 +41,7 @@ class Rule_L049(Rule_L006):
     """
 
     groups = ("all", "core")
+    # Inherit crawl behaviour from L006
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Relational operators should not be used to check for NULL values."""
@@ -48,7 +49,7 @@ class Rule_L049(Rule_L006):
         # https://news.ycombinator.com/item?id=28772289
         # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
         if len(context.segment.segments) <= 2:
-            return None
+            return None  # pragma: no cover
 
         # Allow assignments in SET clauses
         if context.parent_stack and context.parent_stack[-1].is_type(
@@ -60,7 +61,7 @@ class Rule_L049(Rule_L006):
         if context.segment.is_type("set_clause_list", "execute_script_statement"):
             return None
 
-        segment = context.functional.segment
+        segment = FunctionalContext(context).segment
         # Iterate through children of this segment looking for equals or "not
         # equals". Once found, check if the next code segment is a NULL literal.
 
@@ -77,7 +78,7 @@ class Rule_L049(Rule_L006):
             after_op_list = children.select(start_seg=operator)
             # If nothing comes after operator then skip
             if not after_op_list:
-                continue
+                continue  # pragma: no cover
             null_literal = after_op_list.first(sp.is_code())
             # if the next bit of code isnt a NULL then we are good
             if not null_literal.all(sp.is_type("null_literal")):

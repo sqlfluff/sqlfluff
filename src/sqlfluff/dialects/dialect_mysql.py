@@ -173,13 +173,13 @@ mysql_dialect.replace(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
-        StringParser("AND", KeywordSegment, type="binary_operator"),
-        StringParser("&&", CodeSegment, type="binary_operator"),
+        StringParser("AND", ansi.BinaryOperatorSegment),
+        StringParser("&&", ansi.BinaryOperatorSegment),
     ),
     OrOperatorGrammar=OneOf(
-        StringParser("OR", KeywordSegment, type="binary_operator"),
-        StringParser("||", CodeSegment, type="binary_operator"),
-        StringParser("XOR", KeywordSegment, type="binary_operator"),
+        StringParser("OR", ansi.BinaryOperatorSegment),
+        StringParser("||", ansi.BinaryOperatorSegment),
+        StringParser("XOR", ansi.BinaryOperatorSegment),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
@@ -282,7 +282,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     Ref.keyword("DEFAULT", optional=True),
                     Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment"),
+                    Ref("EqualsSegment", optional=True),
                     OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
                 ),
             ),

@@ -11,7 +11,7 @@ from unittest import mock
 import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
@@ -268,7 +268,7 @@ def test__templater_dbt_skips_file(
     path, reason, dbt_templater, project_dir  # noqa: F811
 ):
     """A disabled dbt model should be skipped."""
-    with pytest.raises(SQLTemplaterSkipFile, match=reason):
+    with pytest.raises(SQLFluffSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
@@ -307,13 +307,14 @@ def _clean_path(glob_expression):
     "path", ["models/my_new_project/issue_1608.sql", "snapshots/issue_1771.sql"]
 )
 def test__dbt_templated_models_fix_does_not_corrupt_file(
-    project_dir, path  # noqa: F811
+    project_dir, path, caplog  # noqa: F811
 ):
     """Test issues where previously "sqlfluff fix" corrupted the file."""
     test_glob = os.path.join(project_dir, os.path.dirname(path), "*FIXED.sql")
     _clean_path(test_glob)
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
+    with caplog.at_level(logging.INFO, logger="sqlfluff.linter"):
+        lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
     try:
         lnt.persist_changes(fixed_file_suffix="FIXED")
         with open(os.path.join(project_dir, path + ".after")) as f:

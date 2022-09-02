@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 80552b4296eb1e1392edc2235a2d9be10d7e6e38b123013344a09b2392e491d8
+_hash: fbe3353e07c57202acff14e3a5d21434fdf7ef8d76994a4e23d5e7440d4c73a6
 file:
 - statement:
     create_file_format_segment:
@@ -132,6 +132,44 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: UTF8
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_csv_format
+    - csv_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: CSV
+      - keyword: ESCAPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\\'"
+      - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'\\\"'"
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: NONE
+      - keyword: FIELD_DELIMITER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'|'"
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -419,6 +457,28 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_json_format
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: JSON
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
@@ -620,6 +680,10 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - boolean_literal: 'FALSE'
+      - keyword: BINARY_AS_TEXT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
       - keyword: NULL_IF
       - comparison_operator:
           raw_comparison_operator: '='

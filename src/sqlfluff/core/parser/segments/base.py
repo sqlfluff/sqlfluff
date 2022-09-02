@@ -17,11 +17,13 @@ from itertools import takewhile, chain
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Optional,
     List,
     Tuple,
     Iterator,
+    Set,
     TYPE_CHECKING,
 )
 import logging
@@ -51,6 +53,7 @@ from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
     from sqlfluff.core.rules import LintFix  # pragma: no cover
+    from sqlfluff.core.parser.segments import RawSegment  # pragma: no cover
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -197,7 +200,35 @@ class AnchorEditInfo:
         return False  # pragma: no cover
 
 
-class BaseSegment:
+class SegmentMetaclass(type):
+    """The metaclass for segments.
+
+    This metaclass provides pre-computed class attributes
+    based on the defined attributes of specific classes.
+    """
+
+    def __new__(mcs, name, bases, class_dict):
+        """Generate a new class.
+
+        We use the `type` class attribute for the class
+        and it's parent base classes to build up a `set`
+        of types on construction to use in type checking
+        later in the process. Doing it on construction
+        here saves calculating it at runtime for each
+        instance of the class.
+        """
+        class_obj = super().__new__(mcs, name, bases, class_dict)
+        added_type = class_dict.get("type", None)
+        class_types = {added_type} if added_type else set()
+        for base in bases:
+            class_types.update(base._class_types)
+        # NB: We're setting the private value so that some dependent
+        # classes can make their own public property.
+        class_obj._class_types = class_types
+        return class_obj
+
+
+class BaseSegment(metaclass=SegmentMetaclass):
     """The base segment element.
 
     This defines the base element which drives both Lexing, Parsing and Linting.
@@ -216,7 +247,8 @@ class BaseSegment:
     """
 
     # `type` should be the *category* of this kind of segment
-    type = "base"
+    type: ClassVar[str] = "base"
+    _class_types: ClassVar[Set[str]]  # NOTE: Set by SegmentMetaclass
     parse_grammar: Optional[Matchable] = None
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
@@ -391,6 +423,38 @@ class BaseSegment:
         """Make a string from the segments of this segment."""
         return "".join(seg.raw for seg in self.segments)
 
+    @property
+    def class_types(self) -> Set[str]:
+        """The set of types for this segment."""
+        # NOTE: This version is simple, but some dependent classes
+        # (notably RawSegment) override this with something more
+        # custom.
+        return self._class_types
+
+    @cached_property
+    def descendant_type_set(self) -> Set[str]:
+        """The set of all contained types.
+
+        This is used for rule crawling.
+
+        NOTE: Does not include the types of the parent segment itself.
+        """
+        return set(
+            chain.from_iterable(
+                seg.descendant_type_set | seg.class_types for seg in self.segments
+            )
+        )
+
+    @cached_property
+    def direct_descendant_type_set(self) -> Set[str]:
+        """The set of all directly child types.
+
+        This is used for rule crawling.
+
+        NOTE: Does not include the types of the parent segment itself.
+        """
+        return set(chain.from_iterable(seg.class_types for seg in self.segments))
+
     @cached_property
     def raw_upper(self) -> str:
         """Make an uppercase string from the segments of this segment."""
@@ -402,7 +466,7 @@ class BaseSegment:
         return sum(seg.matched_length for seg in self.segments)
 
     @cached_property
-    def raw_segments(self) -> List["BaseSegment"]:
+    def raw_segments(self) -> List["RawSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
 
@@ -632,17 +696,9 @@ class BaseSegment:
     @classmethod
     def class_is_type(cls, *seg_type):
         """Is this segment class (or its parent) of the given type."""
-        # Do we match on the type of _this_ class.
-        if cls.type in seg_type:
+        # Use set intersection
+        if cls._class_types.intersection(seg_type):
             return True
-        # If not, check types of parents.
-        for base_class in cls.__bases__:
-            if base_class is object:
-                break
-            elif base_class.type in seg_type:
-                return True
-            elif base_class.type == "base":
-                break
         return False
 
     @classmethod
@@ -726,9 +782,18 @@ class BaseSegment:
                 )
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult(
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
-                )
+                try:
+                    return MatchResult(
+                        (cls(segments=m.matched_segments),), m.unmatched_segments
+                    )
+                except TypeError as err:  # pragma: no cover
+                    # This is an error to assist with debugging dialect design.
+                    # It's most likely that the match_grammar has been set on
+                    # a raw segment which shouldn't happen.
+                    raise TypeError(
+                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
+                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
+                    )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -750,6 +815,9 @@ class BaseSegment:
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
+            "full_type_set",
+            "descendant_type_set ",
+            "direct_descendant_type_set ",
         ]:
             self.__dict__.pop(key, None)
 
@@ -1232,7 +1300,10 @@ class BaseSegment:
                             assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
-                                "Matched fix against segment: %s -> %s", f, seg
+                                "Matched fix for %s against segment: %s -> %s",
+                                rule_code,
+                                f,
+                                seg,
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
@@ -1467,11 +1538,18 @@ class BaseSegment:
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
+            # If there's an end of file segment or indent, ignore them just for the
+            # purposes of patch iteration.
+            # NOTE: This doesn't mutate the underlying `self.segments`.
+            segments = self.segments
+            while segments and segments[-1].is_type("end_of_file", "indent"):
+                segments = segments[:-1]
+
             # Iterate through the child segments
             source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
-            for seg_idx, segment in enumerate(self.segments):
+            for seg_idx, segment in enumerate(segments):
 
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated
