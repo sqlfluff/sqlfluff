@@ -34,6 +34,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     Matchable,
     MultiStringParser,
+    StringLexer,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -313,6 +314,14 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add arrow operators for lambdas (e.g. aggregate)
+        Ref("RightArrowOperator"),
+    ),
 )
 
 sparksql_dialect.add(
@@ -322,6 +331,7 @@ sparksql_dialect.add(
         type="quoted_identifier",
         trim_chars=("`",),
     ),
+    RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
@@ -581,6 +591,16 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
     before="single_quote",
+)
+
+sparksql_dialect.insert_lexer_matchers(
+    # Lambda expressions:
+    # https://github.com/apache/spark/blob/b4c019627b676edf850c00bb070377896b66fad2/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseLexer.g4#L396
+    # https://github.com/apache/spark/blob/b4c019627b676edf850c00bb070377896b66fad2/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4#L837-L838
+    [
+        StringLexer("right_arrow", "->", CodeSegment),
+    ],
+    before="like_operator",
 )
 
 
