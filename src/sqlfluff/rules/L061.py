@@ -38,12 +38,6 @@ class Rule_L061(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""
-        # Only care about not_equal_to segments. We should only get
-        # comparison operator types from the crawler, but not all will
-        # be "not_equal_to".
-        if context.segment.name != "not_equal_to":
-            return None
-
         # Get the comparison operator children
         raw_comparison_operators = (
             FunctionalContext(context)

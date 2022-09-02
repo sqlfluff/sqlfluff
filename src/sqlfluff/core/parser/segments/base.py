@@ -782,9 +782,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult(
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
-                )
+                try:
+                    return MatchResult(
+                        (cls(segments=m.matched_segments),), m.unmatched_segments
+                    )
+                except TypeError as err:  # pragma: no cover
+                    # This is an error to assist with debugging dialect design.
+                    # It's most likely that the match_grammar has been set on
+                    # a raw segment which shouldn't happen.
+                    raise TypeError(
+                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
+                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
+                    )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -1291,7 +1300,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
-                                "Matched fix against segment: %s -> %s", f, seg
+                                "Matched fix for %s against segment: %s -> %s",
+                                rule_code,
+                                f,
+                                seg,
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
@@ -1526,11 +1538,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
+            # If there's an end of file segment or indent, ignore them just for the
+            # purposes of patch iteration.
+            # NOTE: This doesn't mutate the underlying `self.segments`.
+            segments = self.segments
+            while segments and segments[-1].is_type("end_of_file", "indent"):
+                segments = segments[:-1]
+
             # Iterate through the child segments
             source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
-            for seg_idx, segment in enumerate(self.segments):
+            for seg_idx, segment in enumerate(segments):
 
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated

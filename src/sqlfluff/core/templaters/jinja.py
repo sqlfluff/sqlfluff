@@ -14,6 +14,7 @@ from jinja2 import (
     meta,
 )
 from jinja2.environment import Template
+from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -57,11 +58,17 @@ class JinjaTemplater(PythonTemplater):
         context = {}
         macro_template = env.from_string(template, globals=ctx)
         # This is kind of low level and hacky but it works
-        for k in macro_template.module.__dict__:
-            attr = getattr(macro_template.module, k)
-            # Is it a macro? If so install it at the name of the macro
-            if isinstance(attr, Macro):
-                context[k] = attr
+        try:
+            for k in macro_template.module.__dict__:
+                attr = getattr(macro_template.module, k)
+                # Is it a macro? If so install it at the name of the macro
+                if isinstance(attr, Macro):
+                    context[k] = attr
+        except UndefinedError:
+            # This occurs if any file in the macro path references an
+            # undefined Jinja variable. It's safe to ignore this. Any
+            # meaningful issues will surface later at linting time.
+            pass
         # Return the context
         return context
 
@@ -228,12 +235,37 @@ class JinjaTemplater(PythonTemplater):
         """Get a properly configured jinja environment."""
         # We explicitly want to preserve newlines.
         macros_path = self._get_macros_path(config)
+        ignore_templating = config and "templating" in config.get("ignore")
+        if ignore_templating:
+
+            class SafeFileSystemLoader(FileSystemLoader):
+                def get_source(self, environment, name, *args, **kwargs):
+                    try:
+                        if not isinstance(name, DummyUndefined):
+                            return super().get_source(
+                                environment, name, *args, **kwargs
+                            )
+                        raise TemplateNotFound(str(name))
+                    except TemplateNotFound:
+                        # When ignore=templating is set, treat missing files
+                        # or attempts to load an "Undefined" file as the first
+                        # 'base' part of the name / filename rather than failing.
+                        templater_logger.debug(
+                            "Providing dummy contents for Jinja macro file: %s", name
+                        )
+                        value = os.path.splitext(os.path.basename(str(name)))[0]
+                        return value, f"{value}.sql", lambda: False
+
+            loader = SafeFileSystemLoader(macros_path or [])
+        else:
+            loader = FileSystemLoader(macros_path) if macros_path else None
+
         return SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False,
             extensions=["jinja2.ext.do"],
-            loader=FileSystemLoader(macros_path) if macros_path else None,
+            loader=loader,
         )
 
     def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
@@ -254,6 +286,10 @@ class JinjaTemplater(PythonTemplater):
         live_context = super().get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
         if config:
+            # first make libraries available in the context
+            # so they can be used by the macros too
+            live_context.update(self._extract_libraries_from_config(config=config))
+
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
@@ -284,7 +320,6 @@ class JinjaTemplater(PythonTemplater):
                 )
             )
 
-            live_context.update(self._extract_libraries_from_config(config=config))
         return live_context
 
     def template_builder(
@@ -376,8 +411,12 @@ class JinjaTemplater(PythonTemplater):
 
         undefined_variables = set()
 
-        class Undefined:
+        class UndefinedRecorder:
             """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+
+            @classmethod
+            def create(cls, name):
+                return UndefinedRecorder(name=name)
 
             def __init__(self, name):
                 self.name = name
@@ -389,15 +428,20 @@ class JinjaTemplater(PythonTemplater):
 
             def __getattr__(self, item):
                 undefined_variables.add(self.name)
-                return Undefined(f"{self.name}.{item}")
+                return UndefinedRecorder(f"{self.name}.{item}")
 
+        Undefined = (
+            UndefinedRecorder
+            if "templating" not in config.get("ignore")
+            else DummyUndefined
+        )
         for val in potentially_undefined_variables:
             if val not in live_context:
-                live_context[val] = Undefined(name=val)
+                live_context[val] = Undefined.create(val)  # type: ignore
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
-            out_str = template.render()
+            out_str = template.render(**live_context)
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
@@ -422,7 +466,7 @@ class JinjaTemplater(PythonTemplater):
                 violations,
             )
         except (TemplateError, TypeError) as err:
-            templater_logger.info("Unrecoverable Jinja Error: %s", err)
+            templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             template_err: SQLBaseError = SQLTemplaterError(
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "
@@ -461,3 +505,70 @@ class JinjaTemplater(PythonTemplater):
         tracer = analyzer.analyze(make_template)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
+
+
+class DummyUndefined(jinja2.Undefined):
+    """Acts as a dummy value to try and avoid template failures.
+
+    Inherits from jinja2.Undefined so Jinja's default() filter will
+    treat it as a missing value, even though it has a non-empty value
+    in normal contexts.
+    """
+
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
+
+    def __str__(self):
+        return self.name.replace(".", "_")
+
+    @classmethod
+    def create(cls, name):
+        """Factory method.
+
+        When ignoring=templating is configured, use 'name' as the value for
+        undefined variables. We deliberately avoid recording and reporting
+        undefined variables as errors. Using 'name' as the value won't always
+        work, but using 'name', combined with implementing the magic methods
+        (such as __eq__, see above), works well in most cases.
+        """
+        templater_logger.debug(
+            "Providing dummy value for undefined Jinja variable: %s", name
+        )
+        result = DummyUndefined(name)
+        return result
+
+    def __getattr__(self, item):
+        return self.create(f"{self.name}.{item}")
+
+    # Implement the most common magic methods. This helps avoid
+    # templating errors for undefined variables.
+    # https://www.tutorialsteacher.com/python/magic-methods-in-python
+    def _self_impl(self, *args, **kwargs):
+        return self
+
+    def _bool_impl(self, *args, **kwargs):
+        return True
+
+    __add__ = _self_impl
+    __sub__ = _self_impl
+    __mul__ = _self_impl
+    __floordiv__ = _self_impl
+    __truediv__ = _self_impl
+    __mod__ = _self_impl
+    __pow__ = _self_impl
+    __pos__ = _self_impl
+    __neg__ = _self_impl
+    __getitem__ = _self_impl
+    __lt__ = _bool_impl
+    __le__ = _bool_impl
+    __eq__ = _bool_impl
+    __ne__ = _bool_impl
+    __ge__ = _bool_impl
+
+    def __hash__(self):  # pragma: no cov
+        # This is called by the "in" operator, among other things.
+        return 0
+
+    def __iter__(self):
+        return [self].__iter__()

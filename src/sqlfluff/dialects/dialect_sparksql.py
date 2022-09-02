@@ -341,8 +341,8 @@ sparksql_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    EqualsSegment_a=StringParser("==", SymbolSegment, type="comparison_operator"),
-    EqualsSegment_b=StringParser("<=>", SymbolSegment, type="comparison_operator"),
+    EqualsSegment_a=StringParser("==", ansi.ComparisonOperatorSegment),
+    EqualsSegment_b=StringParser("<=>", ansi.ComparisonOperatorSegment),
     FileKeywordSegment=MultiStringParser(
         ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),
@@ -584,6 +584,24 @@ sparksql_dialect.insert_lexer_matchers(
 )
 
 
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = StartsWith(
+        "QUALIFY",
+        terminator=OneOf("WINDOW", Sequence("ORDER", "BY"), "LIMIT"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
 # Hive Segments
 class RowFormatClauseSegment(hive.RowFormatClauseSegment):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
@@ -721,6 +739,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
+        Indent,
         OneOf(
             # ALTER TABLE - RENAME TO `table_identifier`
             Sequence(
@@ -883,6 +902,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Dedent,
             ),
         ),
+        Dedent,
     )
 
 
@@ -998,11 +1018,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
+        Indent,
         AnyNumberOf(
             Ref("LocationGrammar", optional=True),
             Ref("CommentGrammar", optional=True),
             Ref("TablePropertiesGrammar", optional=True),
         ),
+        Dedent,
         # Create AS syntax:
         Sequence(
             "AS",
@@ -1453,8 +1475,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
         # Removing non-valid clauses that exist in ANSI dialect
-        remove=[Ref("OverlapsClauseSegment", optional=True)]
+        remove=[Ref("OverlapsClauseSegment", optional=True)],
     )
 
 
@@ -1471,6 +1494,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("SortByClauseSegment", optional=True),
         ],
         before=Ref("LimitClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
     )
 
 

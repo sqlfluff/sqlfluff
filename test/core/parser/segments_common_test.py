@@ -49,7 +49,6 @@ def test__parser__core_ephemeral_segment(raw_seg_list):
         segments=raw_seg_list[:1],
         pos_marker=None,
         parse_grammar=BarKeyword,
-        name="foobar",
     )
 
     with RootParseContext(dialect=None) as ctx:

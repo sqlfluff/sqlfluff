@@ -4,11 +4,12 @@ import logging
 from typing import List, NamedTuple
 
 import pytest
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from jinja2.exceptions import UndefinedError
 
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import JinjaAnalyzer
+from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -1218,7 +1219,7 @@ def test__templater_jinja_large_file_check():
         ),
     )
     # Finally check we raise a skip exception when config is set low.
-    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+    with pytest.raises(SQLFluffSkipFile) as excinfo:
         JinjaTemplater().process(
             in_str="SELECT 1",
             fname="<string>",
@@ -1228,3 +1229,11 @@ def test__templater_jinja_large_file_check():
         )
 
     assert "Length of file" in str(excinfo.value)
+
+
+def test_dummy_undefined_fail_with_undefined_error():
+    """Tests that a recursion error bug no longer occurs."""
+    ud = DummyUndefined("name")
+    with pytest.raises(UndefinedError):
+        # This was previously causing a recursion error.
+        ud._fail_with_undefined_error()

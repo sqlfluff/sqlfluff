@@ -15,7 +15,7 @@ from sqlfluff.core.errors import (
     SQLLexError,
     SQLLintError,
     SQLParseError,
-    SQLTemplaterSkipFile,
+    SQLFluffSkipFile,
 )
 from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
@@ -105,6 +105,19 @@ class Linter:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
         encoding = get_encoding(fname=fname, config=file_config)
+        # Check file size before loading.
+        limit = file_config.get("large_file_skip_byte_limit")
+        if limit:
+            # Get the file size
+            file_size = os.path.getsize(fname)
+            if file_size > limit:
+                raise SQLFluffSkipFile(
+                    f"Length of file {fname!r} is {file_size} bytes which is over "
+                    f"the limit of {limit} bytes. Skipping to avoid parser lock. "
+                    "Users can increase this limit in their config by setting the "
+                    "'large_file_skip_byte_limit' value, or disable by setting it "
+                    "to zero."
+                )
         with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
@@ -512,7 +525,11 @@ class Linter:
                 def is_first_linter_pass():
                     return phase == phases[0] and loop == 0
 
-                linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
+                # Additional newlines are to assist in scanning linting loops
+                # during debugging.
+                linter_logger.info(
+                    f"\n\nEntering linter phase {phase}, loop {loop+1}/{loop_limit}\n"
+                )
                 changed = False
 
                 if is_first_linter_pass():
@@ -784,7 +801,7 @@ class Linter:
             templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             )
-        except SQLTemplaterSkipFile as s:  # pragma: no cover
+        except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
             templated_file = None
             templater_violations = []
@@ -1181,9 +1198,13 @@ class Linter:
             if self.formatter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
-            raw_file, config, encoding = self._load_raw_file_and_config(
-                fname, self.config
-            )
+            try:
+                raw_file, config, encoding = self._load_raw_file_and_config(
+                    fname, self.config
+                )
+            except SQLFluffSkipFile as s:
+                linter_logger.warning(str(s))
+                continue
             yield self.parse_string(
                 raw_file,
                 fname=fname,

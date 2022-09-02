@@ -190,6 +190,7 @@ bigquery_dialect.replace(
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
+        Ref("DatePartWeekSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -266,13 +267,6 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
-        "MONDAY",
-        "TUESDAY",
-        "WEDNESDAY",
-        "THURSDAY",
-        "FRIDAY",
-        "SATURDAY",
-        "SUNDAY",
     ]
 )
 
@@ -292,7 +286,6 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
-        "WEEK",
     ]
 )
 
@@ -424,6 +417,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LeaveStatementSegment"),
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
         ],
     )
 
@@ -746,6 +742,32 @@ class ExtractFunctionNameSegment(BaseSegment):
     )
 
 
+class DatePartWeekSegment(BaseSegment):
+    """WEEK(<WEEKDAY>) in EXTRACT, DATE_DIFF, DATE_TRUNC, LAST_DAY.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_trunc
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#last_day
+    """
+
+    type = "date_part_week"
+    match_grammar: Matchable = Sequence(
+        "WEEK",
+        Bracketed(
+            OneOf(
+                "SUNDAY",
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+            ),
+        ),
+    )
+
+
 class NormalizeFunctionNameSegment(BaseSegment):
     """NORMALIZE function name segment.
 
@@ -789,6 +811,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     OneOf(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref("ExtendedDatetimeUnitSegment"),
                     ),
                     "FROM",
@@ -819,6 +842,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     Delimited(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             ephemeral_name="FunctionContentsGrammar",
@@ -1490,6 +1514,65 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_statement
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """A `ALTER MATERIALIZED VIEW SET OPTIONS` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_materialized_view_set_options_statement
+    """
+
+    type = "alter_materialized_view_set_options_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_materialized_view_statement
+    """
+
+    type = "drop_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 class ParameterizedSegment(BaseSegment):
     """BigQuery allows named and argument based parameters to help preven SQL Injection.
 
@@ -1746,25 +1829,21 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "compression",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "field_delimiter",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "format",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "uri",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),
@@ -1780,19 +1859,16 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "header",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "overwrite",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "use_avro_logical_types",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),

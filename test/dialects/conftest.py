@@ -54,6 +54,10 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
+    # Most segments won't handle the end of file marker. We should strip it.
+    if seg_list[-1].is_type("end_of_file"):
+        seg_list = seg_list[:-1]
+
     # This test is different if we're working with RawSegment
     # derivatives or not.
     if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):

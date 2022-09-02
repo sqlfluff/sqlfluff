@@ -106,7 +106,7 @@ class SQLTemplaterError(SQLBaseError):
     _identifier = "templating"
 
 
-class SQLTemplaterSkipFile(RuntimeError):
+class SQLFluffSkipFile(RuntimeError):
     """An error returned from a templater to skip a file."""
 
     pass
