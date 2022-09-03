@@ -197,7 +197,7 @@ def test__parser__grammar__oneof__ephemeral_segment(seg_list):
         assert isinstance(seg, TestSegment)
         # Check the content is ephemeral
         assert isinstance(seg.segments[0], EphemeralSegment)
-        assert seg.segments[0].name == "foofoo"
+        assert seg.segments[0].ephemeral_name == "foofoo"
         # Expand the segment
         res = seg.parse(ctx)
         # Check we still have a test segment

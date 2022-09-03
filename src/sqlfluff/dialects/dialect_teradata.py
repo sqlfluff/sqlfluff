@@ -35,7 +35,12 @@ teradata_dialect = ansi_dialect.copy_as("teradata")
 teradata_dialect.patch_lexer_matchers(
     [
         # so it also matches 1.
-        RegexLexer("numeric_literal", r"([0-9]+(\.[0-9]*)?)", CodeSegment),
+        RegexLexer(
+            "numeric_literal",
+            r"([0-9]+(\.[0-9]*)?)",
+            CodeSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
     ]
 )
 

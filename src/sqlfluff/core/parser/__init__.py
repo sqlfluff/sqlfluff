@@ -33,7 +33,7 @@ from sqlfluff.core.parser.grammar import (
 )
 from sqlfluff.core.parser.parsers import (
     StringParser,
-    NamedParser,
+    TypedParser,
     RegexParser,
     MultiStringParser,
 )
@@ -71,7 +71,7 @@ __all__ = (
     "Conditional",
     "StringParser",
     "MultiStringParser",
-    "NamedParser",
+    "TypedParser",
     "RegexParser",
     "PositionMarker",
     "Lexer",
