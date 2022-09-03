@@ -2,7 +2,6 @@
 
 import copy
 import logging
-from typing import Optional
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -22,10 +21,16 @@ class EphemeralSegment(BaseSegment):
 
     type = "ephemeral"
 
-    def __init__(self, segments, pos_marker, parse_grammar, name: Optional[str] = None):
+    def __init__(self, segments, pos_marker, parse_grammar, ephemeral_name: str):
         # Stash the parse grammar for now.
         self._parse_grammar = parse_grammar
-        super().__init__(segments, pos_marker=pos_marker, name=name)
+        self.ephemeral_name = ephemeral_name
+        super().__init__(segments, pos_marker=pos_marker)
+
+    @property
+    def expected_form(self) -> str:
+        """What to return to the user when unparsable."""
+        return self.ephemeral_name
 
     @property
     def is_expandable(self):
@@ -89,7 +94,7 @@ def allow_ephemeral(func):
                             pos_marker=None,
                             # Ephemeral segments get a copy of the parent grammar.
                             parse_grammar=new_grammar,
-                            name=self.ephemeral_name,
+                            ephemeral_name=self.ephemeral_name,
                         ),
                     )
                 )

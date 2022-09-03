@@ -68,9 +68,9 @@ class Rule_L011(BaseRule):
 
         assert context.segment.is_type("alias_expression")
         if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
-            if any(e.name.lower() == "as" for e in context.segment.segments):
+            if any(e.raw_upper == "AS" for e in context.segment.segments):
                 if self.aliasing == "implicit":
-                    if context.segment.segments[0].name.lower() == "as":
+                    if context.segment.segments[0].raw_upper == "AS":
 
                         # Remove the AS as we're using implict aliasing
                         fixes.append(LintFix.delete(context.segment.segments[0]))

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c737b887f0cc0a2ed626c137c319ee67d66df336b93e89e4e91409110cba744
+_hash: bc371af29b8f949369fa476a81b009cf89d025b40ba61cda52e3b086c09e6c10
 file:
   statement:
     create_udf_script:
@@ -61,28 +61,29 @@ file:
           end_bracket: )
     - keyword: AS
     - script_content:
-      - raw: "\"\"\"\n/*====================================================================\n\
+      - double_quote: "\"\"\"\n/*====================================================================\n\
           \    e.g.:\n    SELECT MYSCHEMA.MYPYTHONSCRIPT(\n            '[{\""
       - raw: '@lang'
-      - raw: '":"'
+      - double_quote: '":"'
       - raw: de
       - raw: '-'
       - raw: DE
-      - raw: '","'
+      - double_quote: '","'
       - raw: $
-      - raw: '":"'
+      - double_quote: '":"'
       - raw: Krztxt
-      - raw: '"}, {"'
+      - double_quote: '"}, {"'
       - raw: '@lang'
-      - raw: '":"'
+      - double_quote: '":"'
       - raw: en
       - raw: '-'
       - raw: GB
-      - raw: '","'
+      - double_quote: '","'
       - raw: $
-      - raw: '":"'
+      - double_quote: '":"'
       - raw: Shrttxt
-      - raw: "\"}]',\n            '@lang',\n            '$'\n        );\n ====================================================================*/\n\
+      - double_quote: "\"}]',\n            '@lang',\n            '$'\n        );\n\
+          \ ====================================================================*/\n\
           \"\"\""
       - raw: def
       - raw: run

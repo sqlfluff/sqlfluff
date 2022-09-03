@@ -31,7 +31,6 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
-    is_name,
     is_type,
     is_whitespace,
 )
@@ -148,7 +147,7 @@ def _calculate_fixes(
     """Given the Root select and the offending subqueries calculate fixes."""
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
-    is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
+    is_recursive = is_with and len(root_select.children(is_keyword("recursive"))) > 0
     case_preference = _get_case_preference(root_select)
     # generate an instance which will track and shape our output CTE
     ctes = _CTEBuilder()
