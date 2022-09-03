@@ -583,56 +583,127 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
+class IndexTypeGrammar(BaseSegment):
+    """index_type in `CREATE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    """
+
+    type = "index_type"
+    match_grammar = Sequence(
+        "USING",
+        OneOf("BTREE", "HASH"),
+    )
+
+
+class IndexOptionsSegment(BaseSegment):
+    """index_option in `CREATE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    """
+
+    type = "index_option"
+    match_grammar = AnySetOf(
+        Sequence(
+            "KEY_BLOCK_SIZE",
+            Ref("EqualsSegment", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Ref("IndexTypeGrammar"),
+        Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
+        Ref("CommentClauseSegment"),
+        OneOf("VISIBLE", "INVISIBLE"),
+        Sequence(
+            "ENGINE_ATTRIBUTE",
+            Ref("EqualsSegment", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "SECONDARY_ENGINE_ATTRIBUTE",
+            Ref("EqualsSegment", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
 class TableConstraintSegment(BaseSegment):
-    """A table constraint, e.g. for CREATE TABLE."""
+    """A table constraint, e.g. for CREATE TABLE.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    """
 
     type = "table_constraint"
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
-    match_grammar = Sequence(
-        Sequence(  # [ CONSTRAINT <Constraint name> ]
-            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
-        ),
-        OneOf(
-            Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
-                "UNIQUE",
-                OneOf("INDEX", "KEY", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(  # [ CONSTRAINT <Constraint name> ]
+                "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
             ),
-            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                Ref("PrimaryKeyGrammar"),
-                # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
-            ),
-            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
-                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                Ref("ForeignKeyGrammar"),
-                # Local columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                # Later add support for [ ON DELETE/UPDATE action ] ?
-                AnyNumberOf(
-                    Sequence(
-                        "ON",
-                        OneOf("DELETE", "UPDATE"),
-                        OneOf(
-                            "RESTRICT",
-                            "CASCADE",
-                            Sequence("SET", "NULL"),
-                            Sequence("NO", "ACTION"),
-                            Sequence("SET", "DEFAULT"),
+            OneOf(
+                # UNIQUE [INDEX | KEY] [index_name] [index_type] (key_part,...)
+                # [index_option] ...
+                Sequence(
+                    "UNIQUE",
+                    OneOf("INDEX", "KEY", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # PRIMARY KEY [index_type] (key_part,...) [index_option] ...
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("IndexTypeGrammar", optional=True),
+                    # Columns making up PRIMARY KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # FOREIGN KEY [index_name] (col_name,...) reference_definition
+                Sequence(
+                    # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                    Ref("ForeignKeyGrammar"),
+                    # Local columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "REFERENCES",
+                    Ref("ColumnReferenceSegment"),
+                    # Foreign columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
+                    # Later add support for [ ON DELETE/UPDATE action ] ?
+                    AnyNumberOf(
+                        Sequence(
+                            "ON",
+                            OneOf("DELETE", "UPDATE"),
+                            OneOf(
+                                "RESTRICT",
+                                "CASCADE",
+                                Sequence("SET", "NULL"),
+                                Sequence("NO", "ACTION"),
+                                Sequence("SET", "DEFAULT"),
+                            ),
+                            optional=True,
                         ),
-                        optional=True,
                     ),
                 ),
             ),
+        ),
+        # {INDEX | KEY} [index_name] [index_type] (key_part,...) [index_option] ...
+        Sequence(
+            OneOf("INDEX", "KEY"),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("IndexTypeGrammar", optional=True),
+            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+        # {FULLTEXT | SPATIAL} [INDEX | KEY] [index_name] (key_part,...)
+        # [index_option] ...
+        Sequence(
+            OneOf("FULLTEXT", "SPATIAL"),
+            OneOf("INDEX", "KEY", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
         ),
     )
 
@@ -985,15 +1056,15 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref.keyword("UNIQUE", optional=True),
                     OneOf("INDEX", "KEY", optional=True),
                     Ref("IndexReferenceSegment"),
-                    Sequence("USING", OneOf("BTREE", "HASH"), optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
                     Ref("BracketedColumnReferenceListGrammar"),
                     AnySetOf(
                         Sequence(
                             "KEY_BLOCK_SIZE",
-                            Ref("EqualsSegment"),
+                            Ref("EqualsSegment", optional=True),
                             Ref("NumericLiteralSegment"),
                         ),
-                        Sequence("USING", OneOf("BTREE", "HASH")),
+                        Ref("IndexTypeGrammar"),
                         Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
                         Ref("CommentClauseSegment"),
                         OneOf("VISIBLE", "INVISIBLE"),
