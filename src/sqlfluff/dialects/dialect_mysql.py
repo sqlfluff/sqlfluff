@@ -1174,7 +1174,10 @@ class SetAssignmentStatementSegment(BaseSegment):
                 OneOf(
                     Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
                 ),
-                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("EqualsSegment"),
+                    Ref("WalrusOperatorSegment"),
+                ),
                 AnyNumberOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
