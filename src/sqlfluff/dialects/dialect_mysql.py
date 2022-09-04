@@ -189,6 +189,14 @@ mysql_dialect.replace(
         StringParser("NOT", KeywordSegment, type="keyword"),
         StringParser("!", CodeSegment, type="not_operator"),
     ),
+    Expression_C_Grammar=Sequence(
+        Sequence(
+            Ref("SessionVariableNameSegment"),
+            Ref("WalrusOperatorSegment"),
+            optional=True,
+        ),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
+    ),
 )
 
 mysql_dialect.add(
