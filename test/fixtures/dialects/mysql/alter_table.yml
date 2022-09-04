@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5152af802d2f27c218ba95a163daa2e596e5c8053f5fc837129b619767b80fa1
+_hash: ca2b93e19e7f5f0cc1a224c467ae13cd8f18cf601596a66b40935babeb68a030
 file:
 - statement:
     alter_table_statement:
@@ -173,20 +173,21 @@ file:
       - dot: .
       - quoted_identifier: '`bar`'
     - keyword: ADD
-    - keyword: UNIQUE
-    - index_reference:
-        quoted_identifier: '`index_name`'
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          quoted_identifier: '`col_1`'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '`col_2`'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '`col_3`'
-      - end_bracket: )
+    - table_constraint:
+        keyword: UNIQUE
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -197,20 +198,21 @@ file:
       - dot: .
       - quoted_identifier: '`bar`'
     - keyword: ADD
-    - keyword: INDEX
-    - index_reference:
-        quoted_identifier: '`index_name`'
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          quoted_identifier: '`col_1`'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '`col_2`'
-      - comma: ','
-      - column_reference:
-          quoted_identifier: '`col_3`'
-      - end_bracket: )
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
