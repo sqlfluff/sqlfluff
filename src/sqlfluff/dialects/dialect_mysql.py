@@ -46,18 +46,20 @@ mysql_dialect.patch_lexer_matchers(
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
-        #     ('')+?               group1 match consecutive single quotes
-        #     (?!')                negative lookahead single quote
-        #     |(                   group2 start
-        #         '.*?             single quote wildcard zero or more, lazy
-        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
-        #         (?:'')*          non-capturing group: consecutive single quotes
-        #         '                single quote
+        #     (                    group1 start
+        #         '                single quote (start)
+        #         (?:              non-capturing group: begin
+        #             \\'          MySQL escaped single-quote
+        #             |''          or ANSI escaped single-quotes
+        #             |\\\\        or consecutive [escaped] backslashes
+        #             |[^']        or anything besides a single-quote
+        #         )*               non-capturing group: end (zero or more times)
+        #         '                single quote (end of the single-quoted string)
         #         (?!')            negative lookahead: not single quote
-        #     )                    group2 end
+        #     )                    group1 end
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))",
+            r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
             segment_kwargs={"type": "single_quote"},
         ),

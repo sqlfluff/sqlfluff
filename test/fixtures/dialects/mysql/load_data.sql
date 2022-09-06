@@ -26,3 +26,5 @@ LOAD DATA INFILE 'file.txt'
 LOAD DATA INFILE 'file.txt'
   INTO TABLE t1
   (column1, @dummy, column2, @dummy, column3);
+LOAD DATA INFILE '/local/access_log' INTO TABLE tbl_name
+  FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'
