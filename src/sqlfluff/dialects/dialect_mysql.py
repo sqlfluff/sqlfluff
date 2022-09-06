@@ -127,6 +127,7 @@ mysql_dialect.replace(
         insert=[
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
+            Ref("VariableAssignmentSegment"),
         ]
     ),
     DateTimeLiteralGrammar=Sequence(
@@ -189,6 +190,14 @@ mysql_dialect.replace(
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
         StringParser("!", CodeSegment, type="not_operator"),
+    ),
+    Expression_C_Grammar=Sequence(
+        Sequence(
+            Ref("SessionVariableNameSegment"),
+            Ref("WalrusOperatorSegment"),
+            optional=True,
+        ),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
     ),
 )
 
@@ -762,6 +771,12 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    VariableAssignmentSegment=Sequence(
+        Ref("SessionVariableNameSegment"),
+        Ref("WalrusOperatorSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
         # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
@@ -799,6 +814,14 @@ mysql_dialect.insert_lexer_matchers(
         StringLexer("double_vertical_bar", "||", CodeSegment),
     ],
     before="vertical_bar",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
 )
 
 
@@ -1153,7 +1176,10 @@ class SetAssignmentStatementSegment(BaseSegment):
                 OneOf(
                     Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
                 ),
-                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("EqualsSegment"),
+                    Ref("WalrusOperatorSegment"),
+                ),
                 AnyNumberOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
