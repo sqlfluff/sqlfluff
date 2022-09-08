@@ -42,9 +42,9 @@ file:
                           expression:
                             null_literal: 'null'
                       - keyword: end
+                  - end_bracket: )
                   - keyword: ignore
                   - keyword: nulls
-                  - end_bracket: )
                   over_clause:
                     keyword: over
                     bracketed:
