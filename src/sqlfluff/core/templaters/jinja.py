@@ -559,12 +559,21 @@ class DummyUndefined(jinja2.Undefined):
     __pow__ = _self_impl
     __pos__ = _self_impl
     __neg__ = _self_impl
+    __lshift__ = _self_impl
+    __rshift__ = _self_impl
     __getitem__ = _self_impl
+    __invert__ = _self_impl
+    __call__ = _self_impl
+    __and__ = _bool_impl
+    __or__ = _bool_impl
+    __xor__ = _bool_impl
+    __bool__ = _bool_impl
     __lt__ = _bool_impl
     __le__ = _bool_impl
     __eq__ = _bool_impl
     __ne__ = _bool_impl
     __ge__ = _bool_impl
+    __gt__ = _bool_impl
 
     def __hash__(self):  # pragma: no cov
         # This is called by the "in" operator, among other things.

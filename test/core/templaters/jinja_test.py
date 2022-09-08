@@ -1237,3 +1237,36 @@ def test_dummy_undefined_fail_with_undefined_error():
     with pytest.raises(UndefinedError):
         # This was previously causing a recursion error.
         ud._fail_with_undefined_error()
+
+
+def test_undefined_magic_methods():
+    """Test all the magic methods defined on DummyUndefined."""
+    ud = DummyUndefined("name")
+
+    # _self_impl
+    assert ud + ud is ud
+    assert ud - ud is ud
+    assert ud / ud is ud
+    assert ud // ud is ud
+    assert ud % ud is ud
+    assert ud**ud is ud
+    assert +ud is ud
+    assert -ud is ud
+    assert ud << ud is ud
+    assert ud[ud] is ud
+    assert ~ud is ud
+    assert ud(ud) is ud
+
+    # _bool_impl
+    assert ud and ud
+    assert ud or ud
+    assert ud ^ ud
+    assert bool(ud)
+    assert ud < ud
+    assert ud <= ud
+    assert ud == ud
+    assert ud != ud
+    assert ud >= ud
+    assert ud > ud
+
+    assert ud + ud is ud
