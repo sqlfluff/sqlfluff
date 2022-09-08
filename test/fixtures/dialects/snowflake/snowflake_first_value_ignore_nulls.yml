@@ -21,11 +21,11 @@ file:
             - start_bracket: (
             - expression:
                 function:
-                  function_name:
+                - function_name:
                     function_name_identifier: first_value
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
+                - bracketed:
+                    start_bracket: (
+                    expression:
                       case_expression:
                       - keyword: case
                       - when_clause:
@@ -42,10 +42,10 @@ file:
                           expression:
                             null_literal: 'null'
                       - keyword: end
-                  - end_bracket: )
-                  - keyword: ignore
-                  - keyword: nulls
-                  over_clause:
+                    end_bracket: )
+                - keyword: ignore
+                - keyword: nulls
+                - over_clause:
                     keyword: over
                     bracketed:
                       start_bracket: (
