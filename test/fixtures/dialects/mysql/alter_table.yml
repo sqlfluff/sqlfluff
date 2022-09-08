@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca2b93e19e7f5f0cc1a224c467ae13cd8f18cf601596a66b40935babeb68a030
+_hash: e8d7f3711c85548f5ece0c48bc378f88cb5af8a43c94e6515f3290959d0d8a22
 file:
 - statement:
     alter_table_statement:
@@ -174,10 +174,89 @@ file:
       - quoted_identifier: '`bar`'
     - keyword: ADD
     - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`index_name`'
+      - keyword: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
         keyword: UNIQUE
         index_reference:
           quoted_identifier: '`index_name`'
         bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`index_name`'
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - index_reference:
+          quoted_identifier: '`index_name`'
+      - bracketed:
         - start_bracket: (
         - column_reference:
             quoted_identifier: '`col_1`'
