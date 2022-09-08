@@ -74,7 +74,7 @@ class Rule_L013(BaseRule):
         ):
             return None
 
-        select_clause_children = children.select(sp.not_(sp.is_name("star")))
+        select_clause_children = children.select(sp.not_(sp.is_type("star")))
         is_complex_clause = _recursively_check_is_complex(select_clause_children)
         if not is_complex_clause:
             return None

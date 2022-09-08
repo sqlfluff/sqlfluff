@@ -178,7 +178,7 @@ def _extract_deletion_sequence_and_anchor(
     insert_anchor: Optional[BaseSegment] = None
     to_delete: List[BaseSegment] = []
     for seg in join_clause.children():
-        if seg.name == "using":
+        if seg.raw_upper == "USING":
             # Start collecting once we hit USING
             to_delete.append(seg)
             continue

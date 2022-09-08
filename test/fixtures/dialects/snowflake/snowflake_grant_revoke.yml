@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 720ff5c9692b2664122dbee7c4bfd1e95e77c4da32e1951c3b60cd829c779749
+_hash: ec054d3dbcbf028019afc7e9f1a2fb6d3992fe9de5b15d0d7a78b2cefe802659
 file:
 - statement:
     access_statement:
@@ -961,4 +961,192 @@ file:
     - keyword: share
     - object_reference:
         naked_identifier: share1
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: apply
+    - keyword: masking
+    - keyword: policy
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: apply
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: apply
+    - keyword: session
+    - keyword: policy
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: apply
+    - keyword: tag
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: attach
+    - keyword: policy
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: execute
+    - keyword: task
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: import
+    - keyword: share
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: manage
+    - keyword: grants
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: monitor
+    - keyword: execution
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: monitor
+    - keyword: usage
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: override
+    - keyword: share
+    - keyword: restrictions
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: account
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: share
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: network
+    - keyword: policy
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: data
+    - keyword: exchange
+    - keyword: listing
+    - keyword: 'on'
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: my_role
 - statement_terminator: ;

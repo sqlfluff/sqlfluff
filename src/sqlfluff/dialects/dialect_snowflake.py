@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -49,12 +49,17 @@ snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
         RegexLexer(
             "inline_comment",
             r"(--|#|//)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#", "//")},
+            segment_kwargs={"trim_start": ("--", "#", "//"), "type": "inline_comment"},
         ),
     ]
 )
@@ -72,6 +77,7 @@ snowflake_dialect.insert_lexer_matchers(
             "dollar_quote",
             r"\$\$.*\$\$",
             CodeSegment,
+            segment_kwargs={"type": "dollar_quote"},
         ),
         RegexLexer(
             "dollar_literal",
@@ -90,6 +96,7 @@ snowflake_dialect.insert_lexer_matchers(
             "unquoted_file_path",
             r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
             CodeSegment,
+            segment_kwargs={"type": "unquoted_file_path"},
         ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
@@ -170,7 +177,7 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
-    QuotedSemiStructuredElementSegment=NamedParser(
+    QuotedSemiStructuredElementSegment=TypedParser(
         "double_quote",
         CodeSegment,
         type="semi_structured_element",
@@ -233,19 +240,19 @@ snowflake_dialect.add(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         ansi.LiteralSegment,
     ),
-    DoubleQuotedUDFBody=NamedParser(
+    DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=('"',),
     ),
-    SingleQuotedUDFBody=NamedParser(
+    SingleQuotedUDFBody=TypedParser(
         "single_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=("'",),
     ),
-    DollarQuotedUDFBody=NamedParser(
+    DollarQuotedUDFBody=TypedParser(
         "dollar_quote",
         CodeSegment,
         type="udf_body",
@@ -275,10 +282,9 @@ snowflake_dialect.add(
         CodeSegment,
         type="bucket_path",
     ),
-    UnquotedFilePath=NamedParser(
+    UnquotedFilePath=TypedParser(
         "unquoted_file_path",
         CodeSegment,
-        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
@@ -550,12 +556,12 @@ snowflake_dialect.replace(
     ),
     QuotedLiteralSegment=OneOf(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
-        NamedParser(
+        TypedParser(
             "single_quote",
             ansi.LiteralSegment,
             type="quoted_literal",
         ),
-        NamedParser(
+        TypedParser(
             "dollar_quote",
             ansi.LiteralSegment,
             type="quoted_literal",
@@ -1932,7 +1938,7 @@ class AccessStatementSegment(BaseSegment):
             ),
         ),
         Sequence("APPLY", "MASKING", "POLICY"),
-        Sequence("APPLY", "RAW", "ACCESS", "POLICY"),
+        Sequence("APPLY", "ROW", "ACCESS", "POLICY"),
         Sequence("APPLY", "SESSION", "POLICY"),
         Sequence("APPLY", "TAG"),
         Sequence("ATTACH", "POLICY"),

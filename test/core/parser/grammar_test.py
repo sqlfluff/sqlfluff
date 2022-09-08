@@ -197,7 +197,7 @@ def test__parser__grammar__oneof__ephemeral_segment(seg_list):
         assert isinstance(seg, TestSegment)
         # Check the content is ephemeral
         assert isinstance(seg.segments[0], EphemeralSegment)
-        assert seg.segments[0].name == "foofoo"
+        assert seg.segments[0].ephemeral_name == "foofoo"
         # Expand the segment
         res = seg.parse(ctx)
         # Check we still have a test segment
@@ -605,7 +605,7 @@ def test__parser__grammar_delimited(
     seg_list = generate_test_segments(token_list)
     g = Delimited(
         StringParser("bar", KeywordSegment),
-        delimiter=StringParser(".", SymbolSegment, name="dot"),
+        delimiter=StringParser(".", SymbolSegment),
         allow_gaps=allow_gaps,
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,

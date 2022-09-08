@@ -80,7 +80,7 @@ class Rule_L052(BaseRule):
                 s
                 for s in before_segment
                 if s.is_comment
-                and s.name != "block_comment"
+                and not s.is_type("block_comment")
                 and s.pos_marker.working_line_no
                 # We don't need to handle the case where raw_segments is empty
                 # because it never is. It's either a segment with raw children

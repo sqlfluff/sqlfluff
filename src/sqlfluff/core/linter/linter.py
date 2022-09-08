@@ -425,7 +425,7 @@ class Linter:
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
-            if comment.name == "inline_comment":
+            if comment.is_type("inline_comment"):
                 ignore_entry = cls.extract_ignore_from_comment(comment, rule_codes)
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)

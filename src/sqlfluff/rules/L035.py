@@ -67,7 +67,7 @@ class Rule_L035(BaseRule):
             # reverse.
             before_else = children.reversed().select(
                 start_seg=else_clause[0],
-                loop_while=sp.or_(sp.is_name("whitespace", "newline"), sp.is_meta()),
+                loop_while=sp.or_(sp.is_type("whitespace", "newline"), sp.is_meta()),
             )
             return LintResult(
                 anchor=context.segment,

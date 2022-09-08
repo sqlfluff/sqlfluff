@@ -211,9 +211,7 @@ class StringLexer:
 
     def construct_segment(self, raw, pos_marker):
         """Construct a segment using the given class a properties."""
-        return self.segment_class(
-            raw=raw, pos_marker=pos_marker, name=self.name, **self.segment_kwargs
-        )
+        return self.segment_class(raw=raw, pos_marker=pos_marker, **self.segment_kwargs)
 
 
 class RegexLexer(StringLexer):

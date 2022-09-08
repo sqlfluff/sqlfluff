@@ -21,7 +21,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
-    NamedParser,
+    TypedParser,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -34,6 +34,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     Matchable,
     MultiStringParser,
+    StringLexer,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -55,7 +56,7 @@ sparksql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": "--"},
+            segment_kwargs={"trim_start": "--", "type": "inline_comment"},
         ),
         # == and <=> are valid equal operations
         # <=> is a non-null equals in Spark SQL
@@ -66,7 +67,12 @@ sparksql_dialect.patch_lexer_matchers(
         # including `
         # Ex: select `delimited `` with escaped` from `just delimited`
         # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
-        RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
+        RegexLexer(
+            "back_quote",
+            r"`([^`]|``)*`",
+            CodeSegment,
+            segment_kwargs={"type": "back_quote"},
+        ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
         # Pattern breakdown:
@@ -110,21 +116,37 @@ sparksql_dialect.patch_lexer_matchers(
                 r"((?<=\.)|(?=\b))"
             ),
             CodeSegment,
+            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )
 
 sparksql_dialect.insert_lexer_matchers(
     [
-        RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
-        RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
+        RegexLexer(
+            "bytes_single_quote",
+            r"X'([^'\\]|\\.)*'",
+            CodeSegment,
+            segment_kwargs={"type": "bytes_single_quote"},
+        ),
+        RegexLexer(
+            "bytes_double_quote",
+            r'X"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={"type": "bytes_double_quote"},
+        ),
     ],
     before="single_quote",
 )
 
 sparksql_dialect.insert_lexer_matchers(
     [
-        RegexLexer("at_sign_literal", r"@\w*", CodeSegment),
+        RegexLexer(
+            "at_sign_literal",
+            r"@\w*",
+            CodeSegment,
+            segment_kwargs={"type": "at_sign_literal"},
+        ),
     ],
     before="code",
 )
@@ -213,8 +235,8 @@ sparksql_dialect.replace(
         OneOf("TEMP", "TEMPORARY"),
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -313,15 +335,24 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add arrow operators for lambdas (e.g. aggregate)
+        Ref("RightArrowOperator"),
+    ),
 )
 
 sparksql_dialect.add(
-    BackQuotedIdentifierSegment=NamedParser(
+    BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
     ),
+    RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
@@ -341,8 +372,8 @@ sparksql_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    EqualsSegment_a=StringParser("==", SymbolSegment, type="comparison_operator"),
-    EqualsSegment_b=StringParser("<=>", SymbolSegment, type="comparison_operator"),
+    EqualsSegment_a=StringParser("==", ansi.ComparisonOperatorSegment),
+    EqualsSegment_b=StringParser("<=>", ansi.ComparisonOperatorSegment),
     FileKeywordSegment=MultiStringParser(
         ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),
@@ -512,12 +543,12 @@ sparksql_dialect.add(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
     BytesQuotedLiteralSegment=OneOf(
-        NamedParser(
+        TypedParser(
             "bytes_single_quote",
             ansi.LiteralSegment,
             type="bytes_quoted_literal",
         ),
-        NamedParser(
+        TypedParser(
             "bytes_double_quote",
             ansi.LiteralSegment,
             type="bytes_quoted_literal",
@@ -543,7 +574,7 @@ sparksql_dialect.add(
             "ANTI",
         ),
     ),
-    AtSignLiteralSegment=NamedParser(
+    AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         ansi.LiteralSegment,
         type="at_sign_literal",
@@ -552,12 +583,12 @@ sparksql_dialect.add(
     # This is the same as QuotedLiteralSegment but
     # is given a different `name` to stop L048 flagging
     SignedQuotedLiteralSegment=OneOf(
-        NamedParser(
+        TypedParser(
             "single_quote",
             ansi.LiteralSegment,
             type="signed_quoted_literal",
         ),
-        NamedParser(
+        TypedParser(
             "double_quote",
             ansi.LiteralSegment,
             type="signed_quoted_literal",
@@ -581,6 +612,16 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
     before="single_quote",
+)
+
+sparksql_dialect.insert_lexer_matchers(
+    # Lambda expressions:
+    # https://github.com/apache/spark/blob/b4c019627b676edf850c00bb070377896b66fad2/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseLexer.g4#L396
+    # https://github.com/apache/spark/blob/b4c019627b676edf850c00bb070377896b66fad2/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBaseParser.g4#L837-L838
+    [
+        StringLexer("right_arrow", "->", CodeSegment),
+    ],
+    before="like_operator",
 )
 
 
