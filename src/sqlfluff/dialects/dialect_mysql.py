@@ -46,18 +46,20 @@ mysql_dialect.patch_lexer_matchers(
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
-        #     ('')+?               group1 match consecutive single quotes
-        #     (?!')                negative lookahead single quote
-        #     |(                   group2 start
-        #         '.*?             single quote wildcard zero or more, lazy
-        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
-        #         (?:'')*          non-capturing group: consecutive single quotes
-        #         '                single quote
+        #     (                    group1 start
+        #         '                single quote (start)
+        #         (?:              non-capturing group: begin
+        #             \\'          MySQL escaped single-quote
+        #             |''          or ANSI escaped single-quotes
+        #             |\\\\        or consecutive [escaped] backslashes
+        #             |[^']        or anything besides a single-quote
+        #         )*               non-capturing group: end (zero or more times)
+        #         '                single quote (end of the single-quoted string)
         #         (?!')            negative lookahead: not single quote
-        #     )                    group2 end
+        #     )                    group1 end
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))",
+            r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
             segment_kwargs={"type": "single_quote"},
         ),
@@ -125,6 +127,7 @@ mysql_dialect.replace(
         insert=[
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
+            Ref("VariableAssignmentSegment"),
         ]
     ),
     DateTimeLiteralGrammar=Sequence(
@@ -187,6 +190,14 @@ mysql_dialect.replace(
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
         StringParser("!", CodeSegment, type="not_operator"),
+    ),
+    Expression_C_Grammar=Sequence(
+        Sequence(
+            Ref("SessionVariableNameSegment"),
+            Ref("WalrusOperatorSegment"),
+            optional=True,
+        ),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
     ),
 )
 
@@ -770,6 +781,12 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    VariableAssignmentSegment=Sequence(
+        Ref("SessionVariableNameSegment"),
+        Ref("WalrusOperatorSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
         # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
@@ -807,6 +824,14 @@ mysql_dialect.insert_lexer_matchers(
         StringLexer("double_vertical_bar", "||", CodeSegment),
     ],
     before="vertical_bar",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
 )
 
 
@@ -1177,7 +1202,10 @@ class SetAssignmentStatementSegment(BaseSegment):
                 OneOf(
                     Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
                 ),
-                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("EqualsSegment"),
+                    Ref("WalrusOperatorSegment"),
+                ),
                 AnyNumberOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
