@@ -14,6 +14,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+* More refactoring of parse structures in preparation for upcoming refactor of
+  formatting/whitespace rules.
+* Fixes some bugs in L003 (indentation).
+* New config flag `large_file_skip_byte_limit` which applies **prior to**
+  loading the file.
+
 ## What’s Changed
 
 * Snowflake: Fix syntax errors in tests [#3834](https://github.com/sqlfluff/sqlfluff/pull/3834) [@JamesRTaylor](https://github.com/JamesRTaylor)
@@ -244,7 +250,7 @@ Major changes include:
 Major changes include:
 * L066 - New rule to allow you to set min/max length requirements for aliases to ensure they are meaningful
 * L062 - addition of `blocked_regex` as well as `blocked_words`
-* L025 - fix several corner cases where aliases were removed inappropriately 
+* L025 - fix several corner cases where aliases were removed inappropriately
 * L059 is now disabled by default for Postgres
 * Many more dialect improvements and bug fixes.
 
