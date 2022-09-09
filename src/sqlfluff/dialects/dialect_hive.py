@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     Delimited,
-    NamedParser,
+    TypedParser,
     Nothing,
     SymbolSegment,
     StringParser,
@@ -132,7 +132,7 @@ hive_dialect.add(
             )
         ),
     ),
-    BackQuotedIdentifierSegment=NamedParser(
+    BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
@@ -143,9 +143,9 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),

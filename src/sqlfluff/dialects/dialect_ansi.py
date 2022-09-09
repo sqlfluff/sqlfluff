@@ -34,7 +34,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     Matchable,
     MultiStringParser,
-    NamedParser,
+    TypedParser,
     NewlineSegment,
     Nothing,
     OneOf,
@@ -55,6 +55,70 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
+
+
+class IdentifierSegment(CodeSegment):
+    """An identifier segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "identifier"
+
+
+class LiteralSegment(CodeSegment):
+    """An literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
+class LiteralKeywordSegment(KeywordSegment):
+    """An keyword style literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
+class BinaryOperatorSegment(CodeSegment):
+    """An binary operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "binary_operator"
+
+
+class CompositeBinaryOperatorSegment(BaseSegment):
+    """An composite binary operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "binary_operator"
+
+
+class ComparisonOperatorSegment(CodeSegment):
+    """An comparison operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "comparison_operator"
+
+
+class CompositeComparisonOperatorSegment(BaseSegment):
+    """An comparison operator segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "comparison_operator"
+
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
@@ -86,11 +150,28 @@ ansi_dialect.set_lexer_matchers(
             ),
             segment_kwargs={"type": "block_comment"},
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
+        RegexLexer(
+            "back_quote", r"`[^`]*`", CodeSegment, segment_kwargs={"type": "back_quote"}
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$[^\1]*?\$\1\$",
+            CodeSegment,
+            segment_kwargs={"type": "dollar_quote"},
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -112,9 +193,15 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer(
             "numeric_literal",
             r"(?>\d+\.\d+|\d+\.(?!\.)|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
-            CodeSegment,
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
         ),
-        RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
+        RegexLexer(
+            "like_operator",
+            r"!?~~?\*?",
+            ComparisonOperatorSegment,
+            segment_kwargs={"type": "like_operator"},
+        ),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
@@ -201,33 +288,6 @@ ansi_dialect.sets("bracket_pairs").update(
 ansi_dialect.sets("value_table_functions").update([])
 
 
-class IdentifierSegment(CodeSegment):
-    """An identifier segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "identifier"
-
-
-class LiteralSegment(CodeSegment):
-    """An literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
-class LiteralKeywordSegment(KeywordSegment):
-    """An keyword style literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -260,9 +320,7 @@ ansi_dialect.add(
     AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
-    LikeOperatorSegment=NamedParser(
-        "like_operator", SymbolSegment, type="comparison_operator"
-    ),
+    LikeOperatorSegment=TypedParser("like_operator", ComparisonOperatorSegment),
     RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
     RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),
     RawGreaterThanSegment=StringParser(
@@ -321,16 +379,16 @@ ansi_dialect.add(
             type="function_name_identifier",
         )
     ),
-    QuotedIdentifierSegment=NamedParser(
+    QuotedIdentifierSegment=TypedParser(
         "double_quote", IdentifierSegment, type="quoted_identifier"
     ),
-    QuotedLiteralSegment=NamedParser(
+    QuotedLiteralSegment=TypedParser(
         "single_quote", LiteralSegment, type="quoted_literal"
     ),
-    SingleQuotedIdentifierSegment=NamedParser(
+    SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier"
     ),
-    NumericLiteralSegment=NamedParser(
+    NumericLiteralSegment=TypedParser(
         "numeric_literal", LiteralSegment, type="numeric_literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different
@@ -381,7 +439,7 @@ ansi_dialect.add(
     # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
-        NamedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
@@ -398,8 +456,8 @@ ansi_dialect.add(
         Ref("ArrayLiteralSegment"),
         Ref("ObjectLiteralSegment"),
     ),
-    AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
-    OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
+    AndOperatorGrammar=StringParser("AND", BinaryOperatorSegment),
+    OrOperatorGrammar=StringParser("OR", BinaryOperatorSegment),
     NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
@@ -1847,55 +1905,43 @@ ansi_dialect.add(
 )
 
 
-class EqualsSegment(BaseSegment):
+class EqualsSegment(CompositeComparisonOperatorSegment):
     """Equals operator."""
 
-    type = "comparison_operator"
-    name = "equals"
     match_grammar: Matchable = Ref("RawEqualsSegment")
 
 
-class GreaterThanSegment(BaseSegment):
+class GreaterThanSegment(CompositeComparisonOperatorSegment):
     """Greater than operator."""
 
-    type = "comparison_operator"
-    name = "greater_than"
     match_grammar: Matchable = Ref("RawGreaterThanSegment")
 
 
-class LessThanSegment(BaseSegment):
+class LessThanSegment(CompositeComparisonOperatorSegment):
     """Less than operator."""
 
-    type = "comparison_operator"
-    name = "less_than"
     match_grammar: Matchable = Ref("RawLessThanSegment")
 
 
-class GreaterThanOrEqualToSegment(BaseSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator."""
 
-    type = "comparison_operator"
-    name = "greater_than_equal_to"
     match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-class LessThanOrEqualToSegment(BaseSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Less than or equal to operator."""
 
-    type = "comparison_operator"
-    name = "less_than_equal_to"
     match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-class NotEqualToSegment(BaseSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator."""
 
-    type = "comparison_operator"
-    name = "not_equal_to"
     match_grammar: Matchable = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment"), allow_gaps=False),
         Sequence(
@@ -1904,45 +1950,37 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-class ConcatSegment(BaseSegment):
+class ConcatSegment(CompositeBinaryOperatorSegment):
     """Concat operator."""
 
-    type = "binary_operator"
-    name = "concatenate"
     match_grammar: Matchable = Sequence(
         Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False
     )
 
 
-class BitwiseAndSegment(BaseSegment):
+class BitwiseAndSegment(CompositeBinaryOperatorSegment):
     """Bitwise and operator."""
 
-    type = "binary_operator"
-    name = "binary_and"
     match_grammar: Matchable = Ref("AmpersandSegment")
 
 
-class BitwiseOrSegment(BaseSegment):
+class BitwiseOrSegment(CompositeBinaryOperatorSegment):
     """Bitwise or operator."""
 
-    type = "binary_operator"
-    name = "binary_or"
     match_grammar: Matchable = Ref("PipeSegment")
 
 
-class BitwiseLShiftSegment(BaseSegment):
+class BitwiseLShiftSegment(CompositeBinaryOperatorSegment):
     """Bitwise left-shift operator."""
 
-    type = "binary_operator"
     match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
-class BitwiseRShiftSegment(BaseSegment):
+class BitwiseRShiftSegment(CompositeBinaryOperatorSegment):
     """Bitwise right-shift operator."""
 
-    type = "binary_operator"
     match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )

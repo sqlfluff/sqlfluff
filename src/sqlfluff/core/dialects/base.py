@@ -343,7 +343,7 @@ class Dialect:
 
         if not found:  # pragma: no cover
             raise ValueError(
-                "Lexer struct insert before '%s' failed because tag never found."
+                f"Lexer struct insert before '{before}' failed because tag never found."
             )
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff

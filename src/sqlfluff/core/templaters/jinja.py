@@ -286,6 +286,10 @@ class JinjaTemplater(PythonTemplater):
         live_context = super().get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
         if config:
+            # first make libraries available in the context
+            # so they can be used by the macros too
+            live_context.update(self._extract_libraries_from_config(config=config))
+
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
@@ -316,7 +320,6 @@ class JinjaTemplater(PythonTemplater):
                 )
             )
 
-            live_context.update(self._extract_libraries_from_config(config=config))
         return live_context
 
     def template_builder(
@@ -513,6 +516,7 @@ class DummyUndefined(jinja2.Undefined):
     """
 
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
     def __str__(self):
@@ -555,12 +559,21 @@ class DummyUndefined(jinja2.Undefined):
     __pow__ = _self_impl
     __pos__ = _self_impl
     __neg__ = _self_impl
+    __lshift__ = _self_impl
+    __rshift__ = _self_impl
     __getitem__ = _self_impl
+    __invert__ = _self_impl
+    __call__ = _self_impl
+    __and__ = _bool_impl
+    __or__ = _bool_impl
+    __xor__ = _bool_impl
+    __bool__ = _bool_impl
     __lt__ = _bool_impl
     __le__ = _bool_impl
     __eq__ = _bool_impl
     __ne__ = _bool_impl
     __ge__ = _bool_impl
+    __gt__ = _bool_impl
 
     def __hash__(self):  # pragma: no cov
         # This is called by the "in" operator, among other things.

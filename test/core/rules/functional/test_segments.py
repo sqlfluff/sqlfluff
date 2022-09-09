@@ -118,7 +118,7 @@ def test_segments_apply():
 @pytest.mark.parametrize(
     ["function", "expected"],
     [
-        [sp.get_name(), ["RawSegment", "RawSegment"]],
+        [sp.get_type(), ["raw", "raw"]],
         [sp.is_comment(), [False, False]],
         [sp.is_raw(), [True, True]],
     ],

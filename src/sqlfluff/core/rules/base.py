@@ -320,6 +320,17 @@ class LintFix:
             templated_slices = [
                 slice(anchor_slice.stop - adjust_boundary, anchor_slice.stop + 1),
             ]
+        elif (
+            self.edit_type == "replace"
+            and self.anchor.pos_marker.source_slice.stop
+            == self.anchor.pos_marker.source_slice.start
+        ):
+            # We're editing something with zero size in the source. This means
+            # it likely _didn't exist_ in the source and so can be edited safely.
+            # We return an empty set because this edit doesn't touch anything
+            # in the source.
+            return set()
+
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
         # result, as a sort of placeholder or sentinel value. We pass a literal
@@ -555,9 +566,9 @@ class BaseRule:
                 )
 
             for lerr in new_lerrs:
-                self.logger.debug("!! Violation Found: %r", lerr.description)
+                self.logger.info("!! Violation Found: %r", lerr.description)
             for lfix in new_fixes:
-                self.logger.debug("!! Fix Proposed: %r", lfix)
+                self.logger.info("!! Fix Proposed: %r", lfix)
 
             # Consume the new results
             vs += new_lerrs

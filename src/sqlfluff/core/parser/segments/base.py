@@ -254,7 +254,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     match_grammar: Matchable
     comment_separate = False
     optional = False  # NB: See the sequence grammar for details
-    _name: Optional[str] = None
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False
@@ -269,13 +268,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         segments,
         pos_marker: Optional[PositionMarker] = None,
-        name: Optional[str] = None,
         uuid: Optional[UUID] = None,
     ):
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
-        # Surrogate name option.
-        self._surrogate_name = name
 
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -367,22 +363,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PUBLIC PROPERTIES
 
     @property
-    def name(self) -> str:
-        """The name of this segment.
-
-        The reason for three routes for names is that some subclasses
-        might want to override the name rather than just getting
-        the class name. Instances may also override this with the
-        _surrogate_name.
-
-        Name should be specific to this kind of segment, while `type`
-        should be a higher level descriptor of the kind of segment.
-        For example, the name of `+` is 'plus' but the type might be
-        'binary_operator'.
-        """
-        return self._surrogate_name or self._name or self.__class__.__name__
-
-    @property
     def is_expandable(self) -> bool:
         """Return true if it is meaningful to call `expand` on this segment.
 
@@ -430,6 +410,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # (notably RawSegment) override this with something more
         # custom.
         return self._class_types
+
+    @property
+    def expected_form(self) -> str:
+        """What to return to the user when unparsable."""
+        return self.get_type()
 
     @cached_property
     def descendant_type_set(self) -> Set[str]:
@@ -782,9 +767,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult(
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
-                )
+                try:
+                    return MatchResult(
+                        (cls(segments=m.matched_segments),), m.unmatched_segments
+                    )
+                except TypeError as err:  # pragma: no cover
+                    # This is an error to assist with debugging dialect design.
+                    # It's most likely that the match_grammar has been set on
+                    # a raw segment which shouldn't happen.
+                    raise TypeError(
+                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
+                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
+                    )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -836,14 +830,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def is_type(self, *seg_type):
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
-
-    def get_name(self):
-        """Returns the name of this segment as a string."""
-        return self.name
-
-    def is_name(self, *seg_name):
-        """Is this segment of the given name."""
-        return any(s == self.name for s in seg_name)
 
     def invalidate_caches(self):
         """Invalidate the cached properties.
@@ -1206,7 +1192,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.name,
+                            expected=self.expected_form,
                         ),  # NB: tuple
                     )
                     + post_nc
@@ -1291,7 +1277,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
-                                "Matched fix against segment: %s -> %s", f, seg
+                                "Matched fix for %s against segment: %s -> %s",
+                                rule_code,
+                                f,
+                                seg,
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
@@ -1714,11 +1703,10 @@ class BaseFileSegment(BaseSegment):
         self,
         segments,
         pos_marker=None,
-        name: Optional[str] = None,
         fname: Optional[str] = None,
     ):
         self._file_path = fname
-        super().__init__(segments, pos_marker=pos_marker, name=name)
+        super().__init__(segments, pos_marker=pos_marker)
 
     @property
     def file_path(self):
