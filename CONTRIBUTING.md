@@ -238,7 +238,8 @@ whenever a new release is published to GitHub.
 
 The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
 
-A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml).
+A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml).
+Open this page, then click "Run workflow".
 
 As further PRs are merged, we may need to rerun the release script again (or alternatively just manually updating the branch). This can only be rerun locally (the GitHub Action will exit error if the branch already exists to prevent overwriting it).
 
