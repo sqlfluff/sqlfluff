@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 789ce56881e3f7b0af7a4b54f2cfe023dd5f6d954786307db6ebaf960a6693b2
+_hash: 1780bc1b0a80daf11a8cf042139cb566504f310f930cc6dce88febf2470b40b4
 file:
   statement:
     select_statement:
@@ -21,11 +21,11 @@ file:
             - start_bracket: (
             - expression:
                 function:
-                  function_name:
+                - function_name:
                     function_name_identifier: first_value
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
+                - bracketed:
+                    start_bracket: (
+                    expression:
                       case_expression:
                       - keyword: case
                       - when_clause:
@@ -42,10 +42,10 @@ file:
                           expression:
                             null_literal: 'null'
                       - keyword: end
-                  - keyword: ignore
-                  - keyword: nulls
-                  - end_bracket: )
-                  over_clause:
+                    end_bracket: )
+                - keyword: ignore
+                - keyword: nulls
+                - over_clause:
                     keyword: over
                     bracketed:
                       start_bracket: (
