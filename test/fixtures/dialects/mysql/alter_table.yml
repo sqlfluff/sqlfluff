@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8d7f3711c85548f5ece0c48bc378f88cb5af8a43c94e6515f3290959d0d8a22
+_hash: 41fcfee6a93246aff99c4bb64693cda8eff625400fa30d5fd23e5063cf327638
 file:
 - statement:
     alter_table_statement:
@@ -292,6 +292,95 @@ file:
         - column_reference:
             quoted_identifier: '`col_3`'
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '8'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          numeric_literal: '8'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          numeric_literal: '8'
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'index for col_1, col_2, col_3'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
