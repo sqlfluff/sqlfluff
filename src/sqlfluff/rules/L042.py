@@ -113,7 +113,6 @@ class Rule_L042(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
         self.forbid_subquery_in: str
-        # parent_types = self._config_mapping[self.forbid_subquery_in]
         functional_context = FunctionalContext(context)
         segment = functional_context.segment
         parent_stack = functional_context.parent_stack
@@ -149,7 +148,7 @@ class Rule_L042(BaseRule):
 
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
-        result = _calculate_fixes(
+        result = self._calculate_fixes(
             dialect=context.dialect,
             query=crawler.query_tree,
             ctes=ctes,
@@ -197,60 +196,72 @@ class Rule_L042(BaseRule):
             result = [result[0] for result in result]
         return result
 
-
-def _calculate_fixes(
-    dialect: Dialect, query: Query, ctes: "_CTEBuilder", case_preference, clone_map
-):  # -> List[LintResult]:
-    """Given the Root select and the offending subqueries calculate fixes."""
-    print(f"Query: {json.dumps(query.as_json(), indent=4)}")
-    lint_results = []
-    for idx, selectable in enumerate(query.selectables):
-        print(f"query selectable #{idx+1}: {selectable.as_str()}")
-        for idx2, table_alias in enumerate(selectable.select_info.table_aliases):
-            sc = SelectCrawler(table_alias.from_expression_element, dialect)
-            if sc.query_tree:
-                child = sc.query_tree
-                print(f"selectable child query #{idx2+1}: {child.as_json()}")
-                alias_name, is_new_name = ctes.create_cte_alias(table_alias)
-                selectable = child.selectables[0]
-                assert selectable.parent
-                new_cte = _create_cte_seg(
-                    alias_name=alias_name,
-                    subquery=clone_map[selectable.parent],
-                    case_preference=case_preference,
-                    dialect=dialect,
-                )
-                print(f"Creating new CTE: {new_cte.raw}")
-                insert_position = ctes.insert_cte(new_cte)
-                print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
-                from_expression = _find_from_expression(query, selectable.selectable)
-
-                # this_seg_clone = clone_map[from_expression]
-                # new_table_ref = _create_table_ref(alias_name, dialect)
-                # this_seg_clone.segments = [new_table_ref]
-                anchor = from_expression.get_child("table_expression")
-                # Grab the first keyword or symbol in the subquery to use as the
-                # anchor. This makes the lint warning less likely to be filtered out
-                # if a bit of the subquery happens to be templated.
-                for seg in anchor.recursive_crawl("keyword", "symbol"):
-                    anchor = seg
-                    break
-                res = LintResult(
-                    anchor=anchor,
-                    description=f"{query.selectables[0].selectable.type} clauses "
-                    "should not contain subqueries. Use CTEs instead",
-                    fixes=[],
-                )
-                assert len(query.selectables) == 1
-                lint_results.append(
-                    (
-                        res,
-                        from_expression,
-                        alias_name,
-                        query.selectables[0].selectable,
+    def _calculate_fixes(
+        self,
+        dialect: Dialect,
+        query: Query,
+        ctes: "_CTEBuilder",
+        case_preference,
+        clone_map,
+    ):  # -> List[LintResult]:
+        """Given the Root select and the offending subqueries calculate fixes."""
+        print(f"Query: {json.dumps(query.as_json(), indent=4)}")
+        lint_results = []
+        for idx, selectable in enumerate(query.selectables):
+            print(f"query selectable #{idx+1}: {selectable.as_str()}")
+            for idx2, table_alias in enumerate(selectable.select_info.table_aliases):
+                sc = SelectCrawler(table_alias.from_expression_element, dialect)
+                if sc.query_tree:
+                    path_to = selectable.selectable.path_to(
+                        table_alias.from_expression_element
                     )
-                )
-    return lint_results
+                    parent_types = self._config_mapping[self.forbid_subquery_in]
+                    if not any(seg.is_type(*parent_types) for seg in path_to):
+                        continue
+                    child = sc.query_tree
+                    print(f"selectable child query #{idx2+1}: {child.as_json()}")
+                    alias_name, is_new_name = ctes.create_cte_alias(table_alias)
+                    selectable = child.selectables[0]
+                    assert selectable.parent
+                    new_cte = _create_cte_seg(
+                        alias_name=alias_name,
+                        subquery=clone_map[selectable.parent],
+                        case_preference=case_preference,
+                        dialect=dialect,
+                    )
+                    print(f"Creating new CTE: {new_cte.raw}")
+                    insert_position = ctes.insert_cte(new_cte)
+                    print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
+                    from_expression = _find_from_expression(
+                        query, selectable.selectable
+                    )
+
+                    # this_seg_clone = clone_map[from_expression]
+                    # new_table_ref = _create_table_ref(alias_name, dialect)
+                    # this_seg_clone.segments = [new_table_ref]
+                    anchor = from_expression.get_child("table_expression")
+                    # Grab the first keyword or symbol in the subquery to use as the
+                    # anchor. This makes the lint warning less likely to be filtered out
+                    # if a bit of the subquery happens to be templated.
+                    for seg in anchor.recursive_crawl("keyword", "symbol"):
+                        anchor = seg
+                        break
+                    res = LintResult(
+                        anchor=anchor,
+                        description=f"{query.selectables[0].selectable.type} clauses "
+                        "should not contain subqueries. Use CTEs instead",
+                        fixes=[],
+                    )
+                    assert len(query.selectables) == 1
+                    lint_results.append(
+                        (
+                            res,
+                            from_expression,
+                            alias_name,
+                            query.selectables[0].selectable,
+                        )
+                    )
+        return lint_results
 
 
 def _find_from_expression(query: Query, subquery: BaseSegment):
