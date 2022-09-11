@@ -502,3 +502,26 @@ issue_3598_avoid_looping_2:
     rules:
       L042:
         forbid_subquery_in: both
+
+test_fail_subquery_in_cte:
+  fail_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      )
+    )
+    select b.z
+    from b
+  fix_str: |
+    with prep_1 as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from prep_1
+    )
+    select b.z
+    from b
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
