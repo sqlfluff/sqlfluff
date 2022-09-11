@@ -197,9 +197,9 @@ class Rule_L042(BaseRule):
         clone_map,
     ):  # -> List[LintResult]:
         """Given the Root select and the offending subqueries calculate fixes."""
+        lint_results = []
         for q in [query] + list(query.ctes.values()):
             print(f"Query: {json.dumps(q.as_json(), indent=4)}")
-            lint_results = []
             for idx, selectable in enumerate(q.selectables):
                 print(f"query selectable #{idx+1}: {selectable.as_str()}")
                 for idx2, table_alias in enumerate(
