@@ -13,6 +13,12 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 
 
+def is_capitalizable(character: str) -> bool:
+    if character.lower() == character.upper():
+        return False
+    return True
+
+
 @document_groups
 @document_fix_compatible
 @document_configuration
@@ -121,7 +127,13 @@ class Rule_L010(BaseRule):
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
-        if segment.raw[0] != segment.raw[0].upper():
+        for character in segment.raw:
+            if is_capitalizable(character):
+                first_letter_is_lowercase = character != character.upper()
+                break
+            first_letter_is_lowercase = False  # If none of the characters are letters there will be a parsing error, so not sure we need this statement
+
+        if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise", "pascal"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
