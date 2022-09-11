@@ -4,7 +4,6 @@ import json
 from functools import partial
 from typing import (
     List,
-    NamedTuple,
     Optional,
     Set,
     Tuple,
@@ -51,13 +50,6 @@ _SELECT_TYPES = [
     "set_expression",
     "select_statement",
 ]
-
-
-class _NestedSubQuerySummary(NamedTuple):
-    parent_clause_type: str
-    parent_select_segments: Segments
-    clause_segments: Segments
-    subquery: BaseSegment
 
 
 @document_groups
@@ -223,6 +215,16 @@ class Rule_L042(BaseRule):
                             continue
                         child = sc.query_tree
                         print(f"selectable child query #{idx2+1}: {child.as_json()}")
+                        if _is_correlated_subquery(
+                            Segments(sc.query_tree.selectables[0].selectable),
+                            {
+                                a.ref_str
+                                for a in selectable.select_info.table_aliases
+                                if a.ref_str
+                            },
+                            dialect,
+                        ):
+                            continue
                         alias_name, is_new_name = ctes.create_cte_alias(table_alias)
                         selectable = child.selectables[0]
                         assert selectable.parent
