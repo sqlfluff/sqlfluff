@@ -99,7 +99,7 @@ double_nested_fail:
       L042:
         forbid_subquery_in: both
 
-double_nested_unfixable_cte_clash:
+double_nested_fail_2:
   fail_str: |
     select
         a.x, a.y, b.z
@@ -109,6 +109,16 @@ double_nested_unfixable_cte_clash:
         select x, z from p_cte
       ) as b
     ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
   configs:
     rules:
       L042:
