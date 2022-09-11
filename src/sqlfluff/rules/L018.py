@@ -65,7 +65,7 @@ class Rule_L018(BaseRule):
         raw_stack_buff = list(context.raw_stack)
         # Look for the with keyword
         for seg in context.segment.segments:
-            if seg.name.lower() == "with":
+            if seg.raw_upper == "WITH":
                 seg_line_no = seg.pos_marker.line_no
                 break
         else:  # pragma: no cover

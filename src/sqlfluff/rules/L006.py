@@ -44,7 +44,9 @@ class Rule_L006(BaseRule):
     """
 
     groups = ("all", "core")
-    crawl_behaviour = ParentOfSegmentCrawler({"binary_operator", "comparison_operator"})
+    crawl_behaviour = ParentOfSegmentCrawler(
+        {"binary_operator", "comparison_operator", "assignment_operator"}
+    )
     # L006 works on operators so requires three operators.
     # However some rules that inherit from here (e.g. L048) do not.
     # So allow this to be configurable.
@@ -53,6 +55,7 @@ class Rule_L006(BaseRule):
     _target_elems: List[Tuple[str, str]] = [
         ("type", "binary_operator"),
         ("type", "comparison_operator"),
+        ("type", "assignment_operator"),
     ]
 
     @staticmethod

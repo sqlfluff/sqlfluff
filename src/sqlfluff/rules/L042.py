@@ -34,7 +34,6 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
-    is_name,
     is_type,
     is_whitespace,
 )
@@ -137,7 +136,7 @@ class Rule_L042(BaseRule):
 
         is_with = segment.all(is_type("with_compound_statement"))
         # TODO: consider if we can fix recursive CTEs
-        is_recursive = is_with and len(segment.children(is_name("recursive"))) > 0
+        is_recursive = is_with and len(segment.children(is_keyword("recursive"))) > 0
         case_preference = _get_case_preference(segment)
         output_select = segment
         if is_with:

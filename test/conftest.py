@@ -190,19 +190,19 @@ def generate_test_segments():
                 SegClass = NewlineSegment
             elif elem == "(":
                 SegClass = SymbolSegment
-                seg_kwargs = {"name": "bracket_open"}
+                seg_kwargs = {"type": "bracket_open"}
             elif elem == ")":
                 SegClass = SymbolSegment
-                seg_kwargs = {"name": "bracket_close"}
+                seg_kwargs = {"type": "bracket_close"}
             elif elem.startswith("--"):
                 SegClass = CommentSegment
-                seg_kwargs = {"name": "inline_comment"}
+                seg_kwargs = {"type": "inline_comment"}
             elif elem.startswith('"'):
                 SegClass = CodeSegment
-                seg_kwargs = {"name": "double_quote"}
+                seg_kwargs = {"type": "double_quote"}
             elif elem.startswith("'"):
                 SegClass = CodeSegment
-                seg_kwargs = {"name": "single_quote"}
+                seg_kwargs = {"type": "single_quote"}
             else:
                 SegClass = CodeSegment
 

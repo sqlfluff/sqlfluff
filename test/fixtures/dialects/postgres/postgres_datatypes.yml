@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 318d9e68866d95ce8cd26b859bd4cc69aa89b75f3301eba470bfa13e5dba69c8
+_hash: a17aee7276b9a154c8e8d744ce804e89888de215f7895437be9da003abf5136e
 file:
 - statement:
     create_table_statement:
@@ -695,9 +695,9 @@ file:
     - keyword: ENUM
     - bracketed:
       - start_bracket: (
-      - raw: "'foo'"
+      - single_quote: "'foo'"
       - comma: ','
-      - raw: "'bar'"
+      - single_quote: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -726,9 +726,9 @@ file:
     - keyword: ENUM
     - bracketed:
       - start_bracket: (
-      - raw: "'foo'"
+      - single_quote: "'foo'"
       - comma: ','
-      - raw: "'bar'"
+      - single_quote: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
