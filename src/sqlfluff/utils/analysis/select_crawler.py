@@ -303,14 +303,13 @@ class SelectCrawler:
                             # added to this Query later.
                             query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
+                        # Ignore segments under a from_expression_element.
+                        # Those will be nested queries, and we're only
+                        # interested in CTEs and "main" queries, i.e.
+                        # standalones or those following a block of CTEs.
                         elif not any(
                             seg.is_type("from_expression_element") for seg in path[1:]
                         ):
-                            # Ignore segments under a from_expression_element.
-                            # Those will be nested queries, and we're only
-                            # interested in CTEs and "main" queries, i.e.
-                            # standalones or those following a block of CTEs.
-
                             # It's a select_statement or values_clause.
                             selectable = Selectable(
                                 path[-1], path[-2] if len(path) >= 2 else None, dialect
@@ -368,7 +367,8 @@ class SelectCrawler:
                             # interested in CTEs and "main" queries, i.e.
                             # standalones or those following a block of CTEs.
                             if not any(
-                                seg.is_type("from_expression_element") for seg in path
+                                seg.is_type("from_expression_element")
+                                for seg in path[1:]
                             ):
                                 if path[-1].is_type(
                                     "select_statement", "update_statement"

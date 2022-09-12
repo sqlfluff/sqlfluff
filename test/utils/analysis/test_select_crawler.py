@@ -124,3 +124,42 @@ def test_select_crawler_constructor(sql, expected_json):
     crawler = select_crawler.SelectCrawler(segment, linter.dialect)
     json_query_tree = crawler.query_tree.as_json()
     assert expected_json == json_query_tree
+
+
+def test_select_crawler_nested():
+    """Test invoking with an outer from_expression_segment."""
+    sql = """
+select
+    a.x, a.y, b.z
+from a
+join (
+    with d as (
+        select x, z from b
+    )
+    select * from d
+) using (x)
+    """
+    linter = Linter(dialect="ansi")
+    parsed = linter.parse_string(sql)
+    segments = list(
+        parsed.tree.recursive_crawl(
+            "with_compound_statement",
+            "set_expression",
+            "select_statement",
+        )
+    )
+    segment = segments[0]
+    crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    sc = select_crawler.SelectCrawler(
+        crawler.query_tree.selectables[0]
+        .select_info.table_aliases[1]
+        .from_expression_element,
+        linter.dialect,
+    )
+    assert sc.query_tree.as_json() == {
+        "selectables": [
+            "select * from d",
+        ],
+        "ctes": {"D": {"selectables": ["select x, z from b"]}},
+        "query_type": "WithCompound",
+    }
