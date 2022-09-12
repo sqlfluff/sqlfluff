@@ -513,10 +513,10 @@ issue_3598_avoid_looping_2:
     )
     SELECT * FROM cte1
   fix_str: |
-    WITH temp AS (SELECT * FROM mongo.temp),
+    WITH prep_1 AS (SELECT * FROM mongo.temp),
     cte1 AS (
         SELECT *
-        FROM temp
+        FROM prep_1
     )
     SELECT * FROM cte1
   configs:
