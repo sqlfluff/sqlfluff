@@ -202,6 +202,8 @@ class Rule_L042(BaseRule):
             print(f"Query: {json.dumps(q.as_json(), indent=4)}")
             for idx, selectable in enumerate(q.selectables):
                 print(f"query selectable #{idx+1}: {selectable.as_str()}")
+                if not selectable.select_info:
+                    continue
                 for idx2, table_alias in enumerate(
                     selectable.select_info.table_aliases
                 ):
