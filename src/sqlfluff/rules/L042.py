@@ -1,6 +1,5 @@
 """Implementation of Rule L042."""
 import copy
-import json
 from functools import partial
 from typing import (
     List,
@@ -22,7 +21,13 @@ from sqlfluff.core.parser.segments.raw import (
     SymbolSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import (
+    BaseRule,
+    EvalResultType,
+    LintFix,
+    LintResult,
+    RuleContext,
+)
 from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -102,7 +107,7 @@ class Rule_L042(BaseRule):
         "both": ["join_clause", "from_expression_element"],
     }
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
         self.forbid_subquery_in: str
         functional_context = FunctionalContext(context)
@@ -140,7 +145,7 @@ class Rule_L042(BaseRule):
 
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
-        result = self._calculate_fixes(
+        result = self._lint_query(
             dialect=context.dialect,
             query=crawler.query_tree,
             ctes=ctes,
@@ -149,7 +154,7 @@ class Rule_L042(BaseRule):
         )
 
         if result:
-            _, from_expression, alias_name, subquery_parent = result[-1]
+            lint_result, from_expression, alias_name, subquery_parent = result
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
             )
@@ -170,38 +175,35 @@ class Rule_L042(BaseRule):
             if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
                 # If we have duplicate CTE names just don't fix anything
                 # Return the lint warnings anyway
-                return [result[0] for result in result]
+                return lint_result
 
-            # Add fixes to the last result only
+            # Compute fix.
             edit = [
                 ctes.compose_select(
                     clone_map[output_select[0]],
                     case_preference=case_preference,
                 ),
             ]
-            result[-1][0].fixes = [
+            lint_result.fixes = [
                 LintFix.replace(
                     segment[0],
                     edit_segments=edit,
                 )
             ]
-            result = [result[0] for result in result]
-        return result
+            return lint_result
+        return None
 
-    def _calculate_fixes(
+    def _lint_query(
         self,
         dialect: Dialect,
         query: Query,
         ctes: "_CTEBuilder",
         case_preference,
         clone_map,
-    ):  # -> List[LintResult]:
-        """Given the Root select and the offending subqueries calculate fixes."""
-        lint_results = []
+    ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
+        """Given the root query, compute lint warnings."""
         for q in [query] + list(query.ctes.values()):
-            print(f"Query: {json.dumps(q.as_json(), indent=4)}")
             for idx, selectable in enumerate(q.selectables):
-                print(f"query selectable #{idx+1}: {selectable.as_str()}")
                 if not selectable.select_info:
                     continue
                 for idx2, table_alias in enumerate(
@@ -215,8 +217,6 @@ class Rule_L042(BaseRule):
                         parent_types = self._config_mapping[self.forbid_subquery_in]
                         if not any(seg.is_type(*parent_types) for seg in path_to):
                             continue
-                        child = sc.query_tree
-                        print(f"selectable child query #{idx2+1}: {child.as_json()}")
                         select_source_names = set()
                         for a in selectable.select_info.table_aliases:
                             # For each table in FROM, return table name and any alias.
@@ -238,9 +238,7 @@ class Rule_L042(BaseRule):
                             case_preference=case_preference,
                             dialect=dialect,
                         )
-                        print(f"Creating new CTE: {new_cte.raw}")
-                        insert_position = ctes.insert_cte(new_cte)
-                        print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
+                        ctes.insert_cte(new_cte)
 
                         # Grab the first keyword or symbol in the subquery to
                         # use as the anchor. This makes the lint warning less
@@ -256,16 +254,13 @@ class Rule_L042(BaseRule):
                             fixes=[],
                         )
                         assert len(q.selectables) == 1
-                        lint_results.append(
-                            (
-                                res,
-                                table_alias.from_expression_element,
-                                alias_name,
-                                q.selectables[0].selectable,
-                            )
+                        return (
+                            res,
+                            table_alias.from_expression_element,
+                            alias_name,
+                            q.selectables[0].selectable,
                         )
-                        return lint_results
-        return lint_results
+        return None
 
 
 def _find_from_expression(query: Query, subquery: BaseSegment):
@@ -355,9 +350,6 @@ class _CTEBuilder:
         )
 
         self.ctes.insert(insert_position, cte)
-        print("CTEs:")
-        print("==========")
-        print("\n\n".join(cte.raw for cte in self.ctes))
         return insert_position
 
     def create_cte_alias(self, alias: Optional[AliasInfo]) -> Tuple[str, bool]:
