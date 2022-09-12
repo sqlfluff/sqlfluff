@@ -595,10 +595,7 @@ class DeleteStatementSegment(BaseSegment):
 
 
 class IndexTypeGrammar(BaseSegment):
-    """index_type in `CREATE TABLE` statement.
-
-    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
-    """
+    """index_type in table_constraint."""
 
     type = "index_type"
     match_grammar = Sequence(
@@ -608,9 +605,10 @@ class IndexTypeGrammar(BaseSegment):
 
 
 class IndexOptionsSegment(BaseSegment):
-    """index_option in `CREATE TABLE` statement.
+    """index_option in `CREATE TABLE` and `ALTER TABLE` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
     """
 
     type = "index_option"
@@ -624,6 +622,7 @@ class IndexOptionsSegment(BaseSegment):
         Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
         Ref("CommentClauseSegment"),
         OneOf("VISIBLE", "INVISIBLE"),
+        # (SECONDARY_)ENGINE_ATTRIBUTE supported in `CREATE TABLE`
         Sequence(
             "ENGINE_ATTRIBUTE",
             Ref("EqualsSegment", optional=True),
@@ -638,13 +637,13 @@ class IndexOptionsSegment(BaseSegment):
 
 
 class TableConstraintSegment(BaseSegment):
-    """A table constraint, e.g. for CREATE TABLE.
+    """A table constraint, e.g. for CREATE TABLE, ALTER TABLE.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
     """
 
     type = "table_constraint"
-    # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = OneOf(
         Sequence(
@@ -674,6 +673,7 @@ class TableConstraintSegment(BaseSegment):
                 Sequence(
                     # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
                     Ref("ForeignKeyGrammar"),
+                    Ref("IndexReferenceSegment", optional=True),
                     # Local columns making up FOREIGN KEY constraint
                     Ref("BracketedColumnReferenceListGrammar"),
                     "REFERENCES",
@@ -695,6 +695,16 @@ class TableConstraintSegment(BaseSegment):
                             ),
                             optional=True,
                         ),
+                    ),
+                ),
+                # CHECK (expr) [[NOT] ENFORCED]
+                Sequence(
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                        optional=True,
                     ),
                 ),
             ),
@@ -1075,25 +1085,10 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
-                # Add index
+                # Add constraint
                 Sequence(
                     "ADD",
-                    Ref.keyword("UNIQUE", optional=True),
-                    OneOf("INDEX", "KEY", optional=True),
-                    Ref("IndexReferenceSegment"),
-                    Ref("IndexTypeGrammar", optional=True),
-                    Ref("BracketedColumnReferenceListGrammar"),
-                    AnySetOf(
-                        Sequence(
-                            "KEY_BLOCK_SIZE",
-                            Ref("EqualsSegment", optional=True),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Ref("IndexTypeGrammar"),
-                        Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
-                        Ref("CommentClauseSegment"),
-                        OneOf("VISIBLE", "INVISIBLE"),
-                    ),
+                    Ref("TableConstraintSegment"),
                 ),
                 # Change column
                 Sequence(
@@ -1123,7 +1118,33 @@ class AlterTableStatementSegment(BaseSegment):
                             OneOf("INDEX", "KEY", optional=True),
                             Ref("IndexReferenceSegment"),
                         ),
+                        Ref("PrimaryKeyGrammar"),
+                        Sequence(
+                            Ref("ForeignKeyGrammar"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("CHECK", "CONSTRAINT"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
                     ),
+                ),
+                # Alter constraint
+                Sequence(
+                    "ALTER",
+                    OneOf("CHECK", "CONSTRAINT"),
+                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                    ),
+                ),
+                # Alter index
+                Sequence(
+                    "ALTER",
+                    "INDEX",
+                    Ref("IndexReferenceSegment"),
+                    OneOf("VISIBLE", "INVISIBLE"),
                 ),
                 # Rename
                 Sequence(
@@ -1143,6 +1164,11 @@ class AlterTableStatementSegment(BaseSegment):
                             Ref("IndexReferenceSegment"),
                         ),
                     ),
+                ),
+                # Enable/Disable updating nonunique indexes
+                Sequence(
+                    OneOf("DISABLE", "ENABLE"),
+                    "KEYS",
                 ),
             ),
         ),
