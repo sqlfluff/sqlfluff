@@ -217,18 +217,20 @@ class Rule_L042(BaseRule):
                             continue
                         child = sc.query_tree
                         print(f"selectable child query #{idx2+1}: {child.as_json()}")
+                        select_source_names = set()
+                        for a in selectable.select_info.table_aliases:
+                            # For each table in FROM, return table name and any alias.
+                            if a.ref_str:
+                                select_source_names.add(a.ref_str)
+                            if a.object_reference:
+                                select_source_names.add(a.object_reference.raw)
                         if _is_correlated_subquery(
                             Segments(sc.query_tree.selectables[0].selectable),
-                            {
-                                a.ref_str
-                                for a in selectable.select_info.table_aliases
-                                if a.ref_str
-                            },
+                            select_source_names,
                             dialect,
                         ):
                             continue
                         alias_name, is_new_name = ctes.create_cte_alias(table_alias)
-                        selectable = child.selectables[0]
                         anchor = table_alias.from_expression_element.segments[0]
                         new_cte = _create_cte_seg(
                             alias_name=alias_name,
