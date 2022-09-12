@@ -1,6 +1,5 @@
 """Implementation of Rule L039."""
 from typing import List, Optional
-import logging
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -120,9 +119,7 @@ class Rule_L039(BaseRule):
                     # If we find whitespace at the start of a segment it's probably
                     # from a fix, so leave it be. It otherwise shouldn't be there.
                     elif idx == 0:
-                        # TODO: This line lost coverage during #3808. Consider
-                        # removing as part of whitespace consolidation.
-                        continue  # pragma: no cover
+                        continue
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
@@ -160,55 +157,94 @@ class Rule_L039(BaseRule):
             bool: whether seg is part of a select clause element containing an alias.
         """
         segments = context.segment.segments
-        if context.segment.is_type("select_clause_element", "set_expression", "from_expression", "join_clause"):
+        if context.segment.is_type(
+            "select_clause_element", "set_expression", "from_expression", "join_clause"
+        ):
             segment_index = segments.index(seg)
             # If seg is last segment, we know it cant be before an alias
             if len(segments) > segment_index + 1:
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
                 # Check to see if previous segment is column reference or expression
-                prev_is_col_expression = prev_seg.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
+                prev_is_col_expression = prev_seg.is_type(
+                    "expression",
+                    "function",
+                    "over_clause",
+                    "column_reference",
+                    "literal",
+                    "null_literal",
+                    "table_expression",
+                )
                 # Check to see if next segment is alias expression
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
                     return True
         return False
 
-    def _pad_unaligned_aliases(self, elements, max_len) -> List[
-        LintFix]:
+    def _pad_unaligned_aliases(self, elements, max_len) -> List[LintFix]:
         """Finds expressions before aliases, and ensures they are padded to line up."""
         fixes = []
         # Loop over `select_clause_element`s again to pad each expression/apply fixes
         for element in elements:
             for expression_segment in element.segments:
-                is_expression = expression_segment.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
-                is_before_end = element.segments.index(expression_segment) < len(element.segments)-1
+                is_expression = expression_segment.is_type(
+                    "expression",
+                    "function",
+                    "over_clause",
+                    "column_reference",
+                    "literal",
+                    "null_literal",
+                    "table_expression",
+                )
+                is_before_end = (
+                    element.segments.index(expression_segment)
+                    < len(element.segments) - 1
+                )
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
                     expr_len = expression_segment.get_end_loc()[1]
                     if max_len != expr_len:
                         padding = max_len - expr_len
                         # Fetch existing WhiteSpace element following this expression
-                        old_white_space = element.segments[element.segments.index(expression_segment) + 1]
+                        old_white_space = element.segments[
+                            element.segments.index(expression_segment) + 1
+                        ]
                         # Create new WhiteSpace element with correct padding
                         new_white_space = WhitespaceSegment(raw=" " * padding)
                         # Append a fix to replace existing Whitespace element with new Whitespace element
-                        fixes.append(LintFix.replace(old_white_space, [new_white_space]))
+                        fixes.append(
+                            LintFix.replace(old_white_space, [new_white_space])
+                        )
         return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
         """Loops through each select clause and pads all aliases evenly."""
         functional_segment = FunctionalContext(context).segment
         children = functional_segment.children()
-        select_clause_elements = children.select(sp.is_type("select_clause_element", "set_expression", "from_expression", "join_clause"))
+        select_clause_elements = children.select(
+            sp.is_type(
+                "select_clause_element",
+                "set_expression",
+                "from_expression",
+                "join_clause",
+            )
+        )
         if select_clause_elements:
             max_len = 0
             # Loop over `select_clause_element`s to find length of the longest expression
             for element in select_clause_elements:
                 for expression_segment in element.segments:
-                    is_expression = expression_segment.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
+                    is_expression = expression_segment.is_type(
+                        "expression",
+                        "function",
+                        "over_clause",
+                        "column_reference",
+                        "literal",
+                        "null_literal",
+                        "table_expression",
+                    )
                     if is_expression:
-                        max_len = max(max_len, expression_segment.get_end_loc()[1]+1)
+                        max_len = max(max_len, expression_segment.get_end_loc()[1] + 1)
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
                 elements=select_clause_elements, max_len=max_len
