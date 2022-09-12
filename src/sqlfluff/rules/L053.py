@@ -97,7 +97,7 @@ class Rule_L053(BaseRule):
             # segment above. This avoids introducing a parse error (ANSI and other
             # dialects generally don't allow this at lower levels of the parse
             # tree).
-            to_lift_predicate = sp.or_(sp.is_whitespace(), sp.is_name("inline_comment"))
+            to_lift_predicate = sp.or_(sp.is_whitespace(), sp.is_type("inline_comment"))
             leading = filtered_children.select(loop_while=to_lift_predicate)
             self.logger.debug("Leading: %s", leading)
             trailing = (

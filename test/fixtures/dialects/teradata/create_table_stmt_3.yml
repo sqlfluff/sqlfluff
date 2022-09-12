@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc9bccf721c6d09124f8c79fd96de34843bf86e3b284efbb28b9ac693134579a
+_hash: b7fbf02d7f6097837f16800fe669722f75a9d81baf345f63c6f04aa51a31fba0
 file:
   statement:
     create_table_statement:
@@ -71,13 +71,13 @@ file:
           - raw: FEC_OPERACION
           - raw: BETWEEN
           - raw: DATE
-          - raw: "'2007-01-01'"
+          - single_quote: "'2007-01-01'"
           - raw: AND
           - raw: DATE
-          - raw: "'2022-01-01'"
+          - single_quote: "'2022-01-01'"
           - raw: EACH
           - raw: INTERVAL
-          - raw: "'1'"
+          - single_quote: "'1'"
           - raw: MONTH
           - comma: ','
           - raw: 'NO'

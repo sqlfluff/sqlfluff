@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -49,7 +49,12 @@ bigquery_dialect.insert_lexer_matchers(
     [
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
-        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer(
+            "at_sign_literal",
+            r"@[a-zA-Z_][\w]*",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
+        ),
     ],
     before="equals",
 )
@@ -67,6 +72,7 @@ bigquery_dialect.patch_lexer_matchers(
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
             r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
@@ -74,30 +80,31 @@ bigquery_dialect.patch_lexer_matchers(
             r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
             r'(\\{2})*")',
             CodeSegment,
+            segment_kwargs={"type": "double_quote"},
         ),
     ]
 )
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
+    DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
-    SingleQuotedLiteralSegment=NamedParser(
+    SingleQuotedLiteralSegment=TypedParser(
         "single_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=("'",),
     ),
-    DoubleQuotedUDFBody=NamedParser(
+    DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=('"',),
     ),
-    SingleQuotedUDFBody=NamedParser(
+    SingleQuotedUDFBody=TypedParser(
         "single_quote",
         CodeSegment,
         type="udf_body",
@@ -114,11 +121,9 @@ bigquery_dialect.add(
         allow_trailing=True,
     ),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
-    AtSignLiteralSegment=NamedParser(
+    AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         ansi.LiteralSegment,
-        type="at_sign_literal",
-        trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
@@ -214,7 +219,7 @@ bigquery_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        NamedParser(
+        TypedParser(
             "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
@@ -680,7 +685,7 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 
 
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedParser(
+    QuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
@@ -688,7 +693,7 @@ bigquery_dialect.replace(
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        NamedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
+        TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     # Add three elements to the ansi LiteralGrammar

@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -149,7 +149,7 @@ athena_dialect.add(
             )
         ),
     ),
-    BackQuotedIdentifierSegment=NamedParser(
+    BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.LiteralSegment,
         type="quoted_identifier",
@@ -159,9 +159,9 @@ athena_dialect.add(
 
 athena_dialect.replace(
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),

@@ -51,7 +51,7 @@ class Rule_L021(BaseRule):
                 segment.children(sp.is_type("select_clause"))
                 .children(sp.is_type("select_clause_modifier"))
                 .children(sp.is_type("keyword"))
-                .select(sp.is_name("distinct"))
+                .select(sp.is_keyword("distinct"))
             )
             if distinct:
                 return LintResult(anchor=distinct[0])
