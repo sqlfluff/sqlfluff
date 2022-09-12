@@ -2,7 +2,7 @@
 import pytest
 
 from sqlfluff.core.linter.linter import Linter
-from sqlfluff.core.rules.analysis import select_crawler
+from sqlfluff.utils.analysis import select_crawler
 
 
 @pytest.mark.parametrize(
