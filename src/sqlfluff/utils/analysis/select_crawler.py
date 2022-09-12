@@ -273,10 +273,10 @@ class SelectCrawler:
             except ValueError:
                 pass
 
-        # Stores the last CTE definition & name we saw, so we can associate with
-        # the corresponding Query.
-        cte_definition_segment: Optional[BaseSegment] = None
-        cte_name_segment: Optional[BaseSegment] = None
+        # Stacks for CTE definition & names we've seen but haven't consumed yet,
+        # so we can associate with the corresponding Query.
+        cte_definition_segment_stack: List[BaseSegment] = []
+        cte_name_segment_stack: List[BaseSegment] = []
 
         # Visit segment and all its children
         for event, path in SelectCrawler.visit_segments(segment):
@@ -328,14 +328,14 @@ class SelectCrawler:
                                 append_query(query)
                     else:
                         # We're processing a "with" statement.
-                        if cte_name_segment:
+                        if cte_name_segment_stack:
                             # If we have a CTE name, this is the Query for that
                             # name.
                             query = self.query_class(
                                 QueryType.Simple,
                                 dialect,
-                                cte_definition_segment=cte_definition_segment,
-                                cte_name_segment=cte_name_segment,
+                                cte_definition_segment=cte_definition_segment_stack[-1],
+                                cte_name_segment=cte_name_segment_stack[-1],
                             )
                             if path[-1].is_type(
                                 "select_statement", "values_clause", "update_statement"
@@ -354,9 +354,11 @@ class SelectCrawler:
                                 # to the Query later when we encounter those
                                 # child segments.
                                 pass
-                            query_stack[-1].ctes[cte_name_segment.raw_upper] = query
-                            cte_definition_segment = None
-                            cte_name_segment = None
+                            query_stack[-1].ctes[
+                                cte_name_segment_stack[-1].raw_upper
+                            ] = query
+                            cte_definition_segment_stack.pop()
+                            cte_name_segment_stack.pop()
                             append_query(query)
                         else:
                             # There's no CTE name, so we're probably processing
@@ -389,16 +391,19 @@ class SelectCrawler:
                 elif path[-1].is_type("with_compound_statement"):
                     # Beginning a "with" statement, i.e. a block of CTEs.
                     query = self.query_class(QueryType.WithCompound, dialect)
-                    if cte_name_segment:
-                        query_stack[-1].ctes[cte_name_segment.raw_upper] = query
-                        cte_definition_segment = None
-                        cte_name_segment = None
+                    if cte_name_segment_stack:
+                        query_stack[-1].ctes[
+                            cte_name_segment_stack[-1].raw_upper
+                        ] = query
+                        query.cte_definition_segment = cte_definition_segment_stack[-1]
+                        cte_definition_segment_stack.pop()
+                        cte_name_segment_stack.pop()
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
                     # This is a "<<cte name>> AS". Save definition segment and
                     # name for later.
-                    cte_definition_segment = path[-1]
-                    cte_name_segment = path[-1].segments[0]
+                    cte_definition_segment_stack.append(path[-1])
+                    cte_name_segment_stack.append(path[-1].segments[0])
             elif event == "end":
                 finish_segment()
 

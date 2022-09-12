@@ -107,6 +107,34 @@ from sqlfluff.utils.analysis import select_crawler
                 ],
             },
         ),
+        (
+            """with prep_1 as (
+    with d as (
+        select x, z from b
+    )
+    select * from d
+)
+select
+    a.x, a.y, b.z
+from a
+join prep_1 using (x)
+""",
+            {
+                "ctes": {
+                    "PREP_1": {
+                        "ctes": {
+                            "D": {"selectables": ["select x, z from b"]},
+                        },
+                        "query_type": "WithCompound",
+                        "selectables": ["select * from d"],
+                    }
+                },
+                "query_type": "WithCompound",
+                "selectables": [
+                    "select\n    a.x, a.y, b.z\nfrom a\njoin prep_1 using (x)"
+                ],
+            },
+        ),
     ],
 )
 def test_select_crawler_constructor(sql, expected_json):
@@ -122,6 +150,10 @@ def test_select_crawler_constructor(sql, expected_json):
     )
     segment = segments[0]
     crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    assert all(
+        cte.cte_definition_segment is not None
+        for cte in crawler.query_tree.ctes.values()
+    )
     json_query_tree = crawler.query_tree.as_json()
     assert expected_json == json_query_tree
 
