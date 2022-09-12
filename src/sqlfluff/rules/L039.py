@@ -1,6 +1,6 @@
 """Implementation of Rule L039."""
 from typing import List, Optional
-# import logging
+import logging
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -96,9 +96,9 @@ class Rule_L039(BaseRule):
         else:
             non_meta_segs = [seg for seg in context.segment.segments if not seg.is_meta]
             for idx, seg in enumerate(non_meta_segs):
+                if self.align_alias and self._skip_aliases(context, seg):
+                    continue
                 if seg.is_type("whitespace"):
-                    if self.align_alias and self._skip_aliases(context, seg):
-                        continue
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
                     # segments or at the end of a parent segment.
@@ -167,7 +167,7 @@ class Rule_L039(BaseRule):
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
                 # Check to see if previous segment is column reference or expression
-                prev_is_col_expression = prev_seg.is_type("expression", "function", "column_reference", "literal", "null_literal", "table_expression")
+                prev_is_col_expression = prev_seg.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
                 # Check to see if next segment is alias expression
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
@@ -180,37 +180,35 @@ class Rule_L039(BaseRule):
         fixes = []
         # Loop over `select_clause_element`s again to pad each expression/apply fixes
         for element in elements:
-            # logging.error(f"Element: { str(element) }")
             for expression_segment in element.segments:
-                # logging.error(f"   - Type: {expression_segment.get_type()}, Details: {str(expression_segment)}")
-                is_expression = expression_segment.is_type("expression", "function", "column_reference", "literal", "null_literal", "table_expression")
+                is_expression = expression_segment.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
                 is_before_end = element.segments.index(expression_segment) < len(element.segments)-1
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
-                    padding = max_len - expression_segment.matched_length + 1
-                    # Fetch existing WhiteSpace element following this expression
-                    old_white_space = element.segments[
-                        element.segments.index(expression_segment) + 1
-                        ]
-                    # Create new WhiteSpace element with correct padding
-                    new_white_space = WhitespaceSegment(raw=" " * padding)
-                    fixes.append(LintFix.replace(old_white_space, [new_white_space]),)
+                    expr_len = expression_segment.get_end_loc()[1]
+                    if max_len != expr_len:
+                        padding = max_len - expr_len
+                        # Fetch existing WhiteSpace element following this expression
+                        old_white_space = element.segments[element.segments.index(expression_segment) + 1]
+                        # Create new WhiteSpace element with correct padding
+                        new_white_space = WhitespaceSegment(raw=" " * padding)
+                        # Append a fix to replace existing Whitespace element with new Whitespace element
+                        fixes.append(LintFix.replace(old_white_space, [new_white_space]))
         return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
         """Loops through each select clause and pads all aliases evenly."""
         functional_segment = FunctionalContext(context).segment
         children = functional_segment.children()
-        # logging.error(children)
         select_clause_elements = children.select(sp.is_type("select_clause_element", "set_expression", "from_expression", "join_clause"))
         if select_clause_elements:
             max_len = 0
             # Loop over `select_clause_element`s to find length of the longest expression
             for element in select_clause_elements:
                 for expression_segment in element.segments:
-                    is_expression = expression_segment.is_type("expression", "function", "column_reference", "literal", "null_literal", "table_expression")
+                    is_expression = expression_segment.is_type("expression", "function", "over_clause", "column_reference", "literal", "null_literal", "table_expression")
                     if is_expression:
-                        max_len = max(max_len, expression_segment.matched_length)
+                        max_len = max(max_len, expression_segment.get_end_loc()[1]+1)
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
                 elements=select_clause_elements, max_len=max_len
