@@ -141,6 +141,23 @@ unfixable_cte_clash:
         select 1
       ) as b
     ) as c on (a.x = b.x)
+  fix_str: |
+    with "b" as (
+      select x, z from p_cte
+    ),
+    c as (
+      select x, z from (
+        select 1
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join c on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 5
+      line_pos: 20
   configs:
     rules:
       L042:
