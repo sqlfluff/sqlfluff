@@ -119,6 +119,10 @@ double_nested_fail_2:
         a.x, a.y, b.z
     from a
     join b on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 2
+      line_pos: 20
   configs:
     rules:
       L042:
