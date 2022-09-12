@@ -185,7 +185,7 @@ class Rule_L039(BaseRule):
         return False
 
     def _pad_unaligned_aliases(self, select_clause_elements, max_len) -> List[LintFix]:
-        """Checks the length of each expression preceding alias, and pads Whitespace appropriately."""
+        """Checks the length of each expression preceding alias, and pads Whitespace accordingly."""
         fixes = []
         # Loop over select_clause_elements again to pad each expression/apply fixes
         for element in select_clause_elements:
