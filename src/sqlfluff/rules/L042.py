@@ -120,7 +120,6 @@ class Rule_L042(BaseRule):
             return None
 
         crawler = SelectCrawler(context.segment, context.dialect)
-
         assert crawler.query_tree
 
         # generate an instance which will track and shape our output CTE
@@ -263,17 +262,6 @@ class Rule_L042(BaseRule):
         return None
 
 
-def _find_from_expression(query: Query, subquery: BaseSegment):
-    """Given parent and child, find 'from expression' containing the child."""
-    for s in query.selectables:
-        for a in s.select_info.table_aliases:
-            if any(
-                subquery is s2 for s2 in a.from_expression_element.recursive_crawl_all()
-            ):
-                return a.from_expression_element
-    assert False
-
-
 def _get_first_select_statement_descendant(
     segment: BaseSegment,
 ) -> Optional[BaseSegment]:
@@ -293,8 +281,6 @@ def _is_correlated_subquery(
 
     https://en.wikipedia.org/wiki/Correlated_subquery
     """
-    if not nested_select:
-        return False  # pragma: no cover
     select_statement = _get_first_select_statement_descendant(nested_select[0])
     if not select_statement:
         return False  # pragma: no cover
@@ -412,20 +398,19 @@ class _CTEBuilder:
             if any(segment is seg for seg in cte.recursive_crawl_all()):
                 self.ctes[idx] = clone_map[self.ctes[idx]]
                 return
-        # else:
-        #     import pdb; pdb.set_trace()
-        #     assert False
 
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     """Is the child actually between the start and end markers of the parent."""
-    assert len(maybe_child) == 1, "Cannot assess Childness of multiple Segments"
-    assert len(maybe_parent) == 1, "Cannot assess Childness of multiple Parents"
+    assert (
+        len(maybe_child) == 1
+    ), "Cannot assess child relationship of multiple segments"
+    assert (
+        len(maybe_parent) == 1
+    ), "Cannot assess child relationship of multiple parents"
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
-    if not parent_pos or not child_markers:
-        return False  # pragma: no cover
-
+    assert parent_pos and child_markers
     if child_markers < parent_pos.start_point_marker():
         return False  # pragma: no cover
 
