@@ -227,24 +227,17 @@ class Rule_L042(BaseRule):
                             continue
                         alias_name, is_new_name = ctes.create_cte_alias(table_alias)
                         selectable = child.selectables[0]
-                        assert selectable.parent
+                        anchor = table_alias.from_expression_element.segments[0]
                         new_cte = _create_cte_seg(
                             alias_name=alias_name,
-                            subquery=clone_map[selectable.parent],
+                            subquery=clone_map[anchor],
                             case_preference=case_preference,
                             dialect=dialect,
                         )
                         print(f"Creating new CTE: {new_cte.raw}")
                         insert_position = ctes.insert_cte(new_cte)
                         print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
-                        from_expression = _find_from_expression(
-                            q, selectable.selectable
-                        )
 
-                        # this_seg_clone = clone_map[from_expression]
-                        # new_table_ref = _create_table_ref(alias_name, dialect)
-                        # this_seg_clone.segments = [new_table_ref]
-                        anchor = from_expression.get_child("table_expression")
                         # Grab the first keyword or symbol in the subquery to
                         # use as the anchor. This makes the lint warning less
                         # likely to be filtered out if a bit of the subquery
@@ -262,7 +255,7 @@ class Rule_L042(BaseRule):
                         lint_results.append(
                             (
                                 res,
-                                from_expression,
+                                table_alias.from_expression_element,
                                 alias_name,
                                 q.selectables[0].selectable,
                             )
