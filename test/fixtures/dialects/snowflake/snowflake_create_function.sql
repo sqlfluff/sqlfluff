@@ -33,7 +33,7 @@ CREATE SECURE FUNCTION js_factorial(d double)
   }
   ';
 
-CREATE FUNCTION simple_table_function ()
+CREATE FUNCTION IF NOT EXISTS simple_table_function ()
   RETURNS TABLE (x INTEGER, y INTEGER)
   LANGUAGE SQL
   AS

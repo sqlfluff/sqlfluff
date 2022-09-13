@@ -2209,6 +2209,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         Sequence("SECURE", optional=True),
         "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
