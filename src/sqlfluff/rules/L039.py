@@ -255,7 +255,9 @@ class Rule_L039(BaseRule):
                 for expression_segment in select_clause_element.segments:
                     is_expression = expression_segment.is_type(*expression_types)
                     if is_expression:
-                        max_len = self._get_longest_segment(expression_segment, expression_segment, max_len)
+                        max_len = self._get_longest_segment(
+                            expression_segment, expression_segment, max_len
+                        )
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
                 select_clause_elements=select_clause_elements, max_len=max_len
