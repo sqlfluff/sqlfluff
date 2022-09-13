@@ -201,19 +201,17 @@ class Rule_L042(BaseRule):
         clone_map,
     ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
+        parent_types = self._config_mapping[self.forbid_subquery_in]
         for q in [query] + list(query.ctes.values()):
-            for idx, selectable in enumerate(q.selectables):
+            for selectable in q.selectables:
                 if not selectable.select_info:
                     continue
-                for idx2, table_alias in enumerate(
-                    selectable.select_info.table_aliases
-                ):
+                for table_alias in selectable.select_info.table_aliases:
                     sc = SelectCrawler(table_alias.from_expression_element, dialect)
                     if sc.query_tree:
                         path_to = selectable.selectable.path_to(
                             table_alias.from_expression_element
                         )
-                        parent_types = self._config_mapping[self.forbid_subquery_in]
                         if not any(seg.is_type(*parent_types) for seg in path_to):
                             continue
                         select_source_names = set()
@@ -243,9 +241,7 @@ class Rule_L042(BaseRule):
                         # use as the anchor. This makes the lint warning less
                         # likely to be filtered out if a bit of the subquery
                         # happens to be templated.
-                        for seg in anchor.recursive_crawl("keyword", "symbol"):
-                            anchor = seg
-                            break
+                        anchor = next(anchor.recursive_crawl("keyword", "symbol"))
                         res = LintResult(
                             anchor=anchor,
                             description=f"{q.selectables[0].selectable.type} clauses "
@@ -320,7 +316,7 @@ class _CTEBuilder:
         used_names = self.list_used_names()
         return len(set(used_names)) != len(used_names)
 
-    def insert_cte(self, cte: CTEDefinitionSegment) -> int:
+    def insert_cte(self, cte: CTEDefinitionSegment):
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
         inbound_subquery = (
@@ -336,7 +332,6 @@ class _CTEBuilder:
         )
 
         self.ctes.insert(insert_position, cte)
-        return insert_position
 
     def create_cte_alias(self, alias: Optional[AliasInfo]) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
@@ -352,7 +347,7 @@ class _CTEBuilder:
         return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
-        """Return a valid list of CTES with required padding Segments."""
+        """Return a valid list of CTES with required padding segments."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
             cte_segments = cte_segments + [
@@ -443,9 +438,7 @@ def _create_cte_seg(
             WhitespaceSegment(),
             _segmentify("AS", casing=case_preference),
             WhitespaceSegment(),
-            # SymbolSegment("(", name="start_bracket", type="start_bracket"),
             subquery,
-            # SymbolSegment(")", name="end_bracket", type="end_bracket"),
         )
     )
     return element
