@@ -2246,3 +2246,17 @@ class LoadDataSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
+    """A `DROP TRIGGER` Statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/drop-trigger.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+    )
