@@ -41,7 +41,7 @@ class Selectable:
         return self.selectable.raw
 
     @cached_property
-    def select_info(self) -> Optional[SelectStatementColumnsAndTables]:
+    def select_info(self):
         """Returns SelectStatementColumnsAndTables on the SELECT."""
         if self.selectable.is_type("select_statement"):
             return get_select_statement_info(
