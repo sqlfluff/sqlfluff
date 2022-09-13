@@ -2,7 +2,9 @@
 import copy
 from functools import partial
 from typing import (
+    Iterator,
     List,
+    NamedTuple,
     Optional,
     Set,
     Tuple,
@@ -29,7 +31,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -55,6 +57,14 @@ _SELECT_TYPES = [
     "set_expression",
     "select_statement",
 ]
+
+
+class _NestedSubQuerySummary(NamedTuple):
+    query: Query
+    selectable: Selectable
+    table_alias: AliasInfo
+    sc: SelectCrawler
+    select_source_names: Set[str]
 
 
 @document_groups
@@ -192,6 +202,39 @@ class Rule_L042(BaseRule):
             return lint_result
         return None
 
+    def _nested_subqueries(
+        self, query: Query, dialect: Dialect
+    ) -> Iterator[_NestedSubQuerySummary]:
+        parent_types = self._config_mapping[self.forbid_subquery_in]
+        for q in [query] + list(query.ctes.values()):
+            for selectable in q.selectables:
+                if not selectable.select_info:
+                    continue  # pragma: no cover
+                select_source_names = set()
+                for a in selectable.select_info.table_aliases:
+                    # For each table in FROM, return table name and any alias.
+                    if a.ref_str:
+                        select_source_names.add(a.ref_str)
+                    if a.object_reference:
+                        select_source_names.add(a.object_reference.raw)
+                for table_alias in selectable.select_info.table_aliases:
+                    sc = SelectCrawler(table_alias.from_expression_element, dialect)
+                    if sc.query_tree:
+                        path_to = selectable.selectable.path_to(
+                            table_alias.from_expression_element
+                        )
+                        if not any(seg.is_type(*parent_types) for seg in path_to):
+                            continue
+                        if _is_correlated_subquery(
+                            Segments(sc.query_tree.selectables[0].selectable),
+                            select_source_names,
+                            dialect,
+                        ):
+                            continue
+                        yield _NestedSubQuerySummary(
+                            q, selectable, table_alias, sc, select_source_names
+                        )
+
     def _lint_query(
         self,
         dialect: Dialect,
@@ -201,60 +244,36 @@ class Rule_L042(BaseRule):
         clone_map,
     ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
-        parent_types = self._config_mapping[self.forbid_subquery_in]
-        for q in [query] + list(query.ctes.values()):
-            for selectable in q.selectables:
-                if not selectable.select_info:
-                    continue
-                for table_alias in selectable.select_info.table_aliases:
-                    sc = SelectCrawler(table_alias.from_expression_element, dialect)
-                    if sc.query_tree:
-                        path_to = selectable.selectable.path_to(
-                            table_alias.from_expression_element
-                        )
-                        if not any(seg.is_type(*parent_types) for seg in path_to):
-                            continue
-                        select_source_names = set()
-                        for a in selectable.select_info.table_aliases:
-                            # For each table in FROM, return table name and any alias.
-                            if a.ref_str:
-                                select_source_names.add(a.ref_str)
-                            if a.object_reference:
-                                select_source_names.add(a.object_reference.raw)
-                        if _is_correlated_subquery(
-                            Segments(sc.query_tree.selectables[0].selectable),
-                            select_source_names,
-                            dialect,
-                        ):
-                            continue
-                        alias_name, is_new_name = ctes.create_cte_alias(table_alias)
-                        anchor = table_alias.from_expression_element.segments[0]
-                        new_cte = _create_cte_seg(
-                            alias_name=alias_name,
-                            subquery=clone_map[anchor],
-                            case_preference=case_preference,
-                            dialect=dialect,
-                        )
-                        ctes.insert_cte(new_cte)
+        nsq: _NestedSubQuerySummary
+        for nsq in self._nested_subqueries(query, dialect):
+            alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
+            anchor = nsq.table_alias.from_expression_element.segments[0]
+            new_cte = _create_cte_seg(
+                alias_name=alias_name,
+                subquery=clone_map[anchor],
+                case_preference=case_preference,
+                dialect=dialect,
+            )
+            ctes.insert_cte(new_cte)
 
-                        # Grab the first keyword or symbol in the subquery to
-                        # use as the anchor. This makes the lint warning less
-                        # likely to be filtered out if a bit of the subquery
-                        # happens to be templated.
-                        anchor = next(anchor.recursive_crawl("keyword", "symbol"))
-                        res = LintResult(
-                            anchor=anchor,
-                            description=f"{q.selectables[0].selectable.type} clauses "
-                            "should not contain subqueries. Use CTEs instead",
-                            fixes=[],
-                        )
-                        assert len(q.selectables) == 1
-                        return (
-                            res,
-                            table_alias.from_expression_element,
-                            alias_name,
-                            q.selectables[0].selectable,
-                        )
+            # Grab the first keyword or symbol in the subquery to
+            # use as the anchor. This makes the lint warning less
+            # likely to be filtered out if a bit of the subquery
+            # happens to be templated.
+            anchor = next(anchor.recursive_crawl("keyword", "symbol"))
+            res = LintResult(
+                anchor=anchor,
+                description=f"{nsq.query.selectables[0].selectable.type} clauses "
+                "should not contain subqueries. Use CTEs instead",
+                fixes=[],
+            )
+            if len(nsq.query.selectables) == 1:
+                return (
+                    res,
+                    nsq.table_alias.from_expression_element,
+                    alias_name,
+                    nsq.query.selectables[0].selectable,
+                )
         return None
 
 

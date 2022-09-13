@@ -146,16 +146,19 @@ class Rule_L028(BaseRule):
         children = list(query.children)
         # 'query.children' includes CTEs and "main" queries, but not queries in
         # the "FROM" list. We want to visit those as well.
-        for a in select_info.table_aliases if select_info else []:
-            for q in SelectCrawler.get(query, a.from_expression_element):
-                if isinstance(q, Query):
+        if select_info:
+            for a in select_info.table_aliases:
+                for q in SelectCrawler.get(query, a.from_expression_element):
+                    if not isinstance(q, Query):
+                        continue
                     # Check for previously visited selectables to avoid possible
                     # infinite recursion, e.g.:
                     #   WITH test1 AS (SELECT i + 1, j + 1 FROM test1)
                     #   SELECT * FROM test1;
-                    if not any(s.selectable in visited for s in q.selectables):
-                        visited.update(s.selectable for s in q.selectables)
-                        children.append(q)
+                    if any(s.selectable in visited for s in q.selectables):
+                        continue
+                    visited.update(s.selectable for s in q.selectables)
+                    children.append(q)
         for child in children:
             yield from self._visit_queries(child, visited)
 
