@@ -197,12 +197,12 @@ class Rule_L039(BaseRule):
         """Checks the length of each expression preceding alias, and pads Whitespace accordingly."""
         fixes = []
         # Loop over select_clause_elements again to pad each expression/apply fixes
-        for element in select_clause_elements:
-            for expression_segment in element.segments:
+        for select_clause_element in select_clause_elements:
+            for expression_segment in select_clause_element.segments:
                 is_expression = expression_segment.is_type(*expression_types)
                 is_before_end = (
-                    element.segments.index(expression_segment)
-                    < len(element.segments) - 1
+                    select_clause_element.segments.index(expression_segment)
+                    < len(select_clause_element.segments) - 1
                 )
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
@@ -210,8 +210,8 @@ class Rule_L039(BaseRule):
                     # If needed, update whitespace to align aliases
                     padding = max_len - expr_len + 1
                     # Fetch existing WhiteSpace element following this expression
-                    old_white_space = element.segments[
-                        element.segments.index(expression_segment) + 1
+                    old_white_space = select_clause_element.segments[
+                        select_clause_element.segments.index(expression_segment) + 1
                     ]
                     # Create new WhiteSpace element with correct padding
                     new_white_space = WhitespaceSegment(raw=" " * padding)
