@@ -129,7 +129,7 @@ test_excess_space_without_align_alias:
   configs:
     rules:
       L039:
-        align_alias: False
+        align_alias: false
 
 test_excess_space_with_align_alias:
   fail_str: |
@@ -147,4 +147,4 @@ test_excess_space_with_align_alias:
   configs:
     rules:
       L039:
-        align_alias: True
+        align_alias: true

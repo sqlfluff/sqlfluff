@@ -4,7 +4,11 @@ from typing import List, Optional
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups, document_configuration
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_groups,
+    document_configuration,
+)
 from sqlfluff.utils.functional import sp
 from sqlfluff.utils.functional.context import FunctionalContext
 
@@ -194,7 +198,8 @@ class Rule_L039(BaseRule):
         return False
 
     def _pad_unaligned_aliases(self, select_clause_elements, max_len) -> List[LintFix]:
-        """Checks the length of each expression preceding alias, and pads Whitespace accordingly."""
+        """Checks the length of each expression preceding alias,
+         and pads Whitespace accordingly."""
         fixes = []
         # Loop over select_clause_elements again to pad each expression/apply fixes
         for select_clause_element in select_clause_elements:
@@ -216,7 +221,8 @@ class Rule_L039(BaseRule):
                     # Create new WhiteSpace element with correct padding
                     new_white_space = WhitespaceSegment(raw=" " * padding)
                     if old_white_space.raw != new_white_space.raw:
-                        # Append a fix to replace existing Whitespace element with new Whitespace element
+                        # Append a fix to replace existing Whitespace element
+                        # with new Whitespace element
                         fixes.append(
                             LintFix.replace(old_white_space, [new_white_space])
                         )
