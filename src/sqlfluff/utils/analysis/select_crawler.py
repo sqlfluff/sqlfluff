@@ -152,10 +152,6 @@ class Query:
             result["ctes"] = {
                 k: v.as_json() for k, v in self.ctes.items()
             }  # type: ignore
-        # Omit for now: In current test cases, children are also CTEs, so this
-        # just adds noise.
-        # if self.children:
-        #     result["children"] = [c.as_json() for c in self.children]
         return result
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
