@@ -14,6 +14,7 @@ from sqlfluff.core.rules.doc_decorators import (
 
 
 def is_capitalizable(character: str) -> bool:
+    """Does the character have differing lower and upper-case versions?"""
     if character.lower() == character.upper():
         return False
     return True
@@ -131,7 +132,9 @@ class Rule_L010(BaseRule):
             if is_capitalizable(character):
                 first_letter_is_lowercase = character != character.upper()
                 break
-            first_letter_is_lowercase = False  # If none of the characters are letters there will be a parsing error, so not sure we need this statement
+            # If none of the characters are letters there will be a parsing
+            # error, so not sure we need this statement
+            first_letter_is_lowercase = False 
 
         if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise", "pascal"])
