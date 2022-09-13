@@ -61,12 +61,34 @@ test_allow_date_parts_as_function_parameter_snowflake:
     core:
       dialect: snowflake
 
-test_ignore_value_table_functions:
+test_ignore_value_table_functions_when_counting_tables:
+  # Allow use of unnested value tables from bigquery without counting as a
+  # table reference. This test passes despite unqualified reference
+  # because we "only select from one table"
+  pass_str: |
+    select
+        unqualified_reference_from_table_a,
+        _t_start
+    from a
+    left join unnest(generate_timestamp_array(
+            '2020-01-01', '2020-01-30', interval 1 day)) as _t_start
+        on true
+  configs:
+    core:
+      dialect: bigquery
+
+test_ignore_value_table_functions_when_counting_unqualified_aliases:
+  # Allow use of unnested value tables from bigquery without qualification.
+  # The function `unnest` returns a table which is only one unnamed column.
+  # This is impossible to qualify further, and as such the rule allows it.
   pass_str: |
     select
         a.*,
+        b.*,
         _t_start
     from a
+    left join b
+        on true
     left join unnest(generate_timestamp_array(
             '2020-01-01', '2020-01-30', interval 1 day)) as _t_start
         on true
