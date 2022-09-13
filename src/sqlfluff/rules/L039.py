@@ -119,10 +119,6 @@ class Rule_L039(BaseRule):
         else:
             non_meta_segs = [seg for seg in context.segment.segments if not seg.is_meta]
             for idx, seg in enumerate(non_meta_segs):
-                if self.align_alias and self._skip_aliases(context, seg):
-                    # If align_alias is True, then check if _align_aliases will
-                    # handle the segment.
-                    continue
                 if seg.is_type("whitespace"):
                     # Casting operators shouldn't have any whitespace around them.
                     # Look for preceeding or following casting operators either as raw
@@ -212,7 +208,7 @@ class Rule_L039(BaseRule):
                 )
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
-                    expr_len = expression_segment.get_end_loc()[1]
+                    expr_len = (expression_segment.get_end_loc()[1] - expression_segment.get_start_loc()[1])
                     # If needed, update whitespace to align aliases
                     padding = max_len - expr_len + 1
                     # Fetch existing WhiteSpace element following this expression
@@ -229,6 +225,13 @@ class Rule_L039(BaseRule):
                         )
         return fixes
 
+    def _get_longest_segment(self, segment, max_len):
+
+        if segment.segments:
+            for sub_segment in segment.iter_segments():
+                max_len = self._get_longest_segment(sub_segment, max_len)
+        return max_len
+
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
         """Loops through each select clause and pads all aliases evenly."""
         functional_segment = FunctionalContext(context).segment
@@ -241,8 +244,8 @@ class Rule_L039(BaseRule):
                 for expression_segment in select_clause_element.segments:
                     is_expression = expression_segment.is_type(*expression_types)
                     if is_expression:
-                        new_len = expression_segment.get_end_loc()[1]
-                        max_len = max(max_len, new_len)
+                        expr_len = (expression_segment.get_end_loc()[1] - expression_segment.get_start_loc()[1])
+                        max_len = max(max_len, expr_len)
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
                 select_clause_elements=select_clause_elements, max_len=max_len
