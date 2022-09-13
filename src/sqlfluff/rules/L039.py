@@ -29,6 +29,7 @@ expression_types = [
 
 @document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L039(BaseRule):
     """Unnecessary whitespace found.
 
@@ -206,20 +207,19 @@ class Rule_L039(BaseRule):
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
                     expr_len = expression_segment.get_end_loc()[1]
-                    if max_len != expr_len:
-                        # If needed, update whitespace to align aliases
-                        padding = max_len - expr_len + 1
-                        # Fetch existing WhiteSpace element following this expression
-                        old_white_space = element.segments[
-                            element.segments.index(expression_segment) + 1
-                        ]
-                        # Create new WhiteSpace element with correct padding
-                        new_white_space = WhitespaceSegment(raw=" " * padding)
-                        if old_white_space.raw != new_white_space.raw:
-                            # Append a fix to replace existing Whitespace element with new Whitespace element
-                            fixes.append(
-                                LintFix.replace(old_white_space, [new_white_space])
-                            )
+                    # If needed, update whitespace to align aliases
+                    padding = max_len - expr_len + 1
+                    # Fetch existing WhiteSpace element following this expression
+                    old_white_space = element.segments[
+                        element.segments.index(expression_segment) + 1
+                    ]
+                    # Create new WhiteSpace element with correct padding
+                    new_white_space = WhitespaceSegment(raw=" " * padding)
+                    if old_white_space.raw != new_white_space.raw:
+                        # Append a fix to replace existing Whitespace element with new Whitespace element
+                        fixes.append(
+                            LintFix.replace(old_white_space, [new_white_space])
+                        )
         return fixes
 
     def _align_aliases(self, context: RuleContext) -> Optional[LintResult]:
@@ -230,13 +230,11 @@ class Rule_L039(BaseRule):
         if select_clause_elements:
             max_len = 0
             # Loop over select clause elements to find length of the longest expression
-            for element in select_clause_elements:
-                for expression_segment in element.segments:
+            for select_clause_element in select_clause_elements:
+                for expression_segment in select_clause_element.segments:
                     is_expression = expression_segment.is_type(*expression_types)
                     if is_expression:
-                        new_len = expression_segment.get_end_point_marker().templated_position()[
-                            1
-                        ]
+                        new_len = expression_segment.get_end_loc()[1]
                         max_len = max(max_len, new_len)
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
