@@ -144,7 +144,7 @@ class Rule_L010(BaseRule):
                 break
             # If none of the characters are letters there will be a parsing
             # error, so not sure we need this statement
-            first_letter_is_lowercase = False 
+            first_letter_is_lowercase = False
 
         if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise", "pascal"])
