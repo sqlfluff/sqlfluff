@@ -212,15 +212,17 @@ class Rule_L039(BaseRule):
                 )
                 if is_expression and is_before_end:
                     # Determine how much padding is needed for expression
-                    expr_end = expression_segment.get_end_loc()
-                    expr_start = expression_segment.get_start_loc()
-                    expr_len = expr_end[1] - expr_start[1]
+                    expr_len = (
+                        expression_segment.get_end_loc()[1]
+                        - expression_segment.get_start_loc()[1]
+                    )
                     # If needed, update whitespace to align aliases
                     padding = max_len - expr_len + 1
                     # Fetch existing WhiteSpace element following this expression
                     old_white_space = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 1
                     ]
+                    # If alias expression is missing "as", add extra space to padding
                     alias_expression = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 2
                     ]
