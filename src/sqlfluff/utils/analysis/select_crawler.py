@@ -41,7 +41,7 @@ class Selectable:
         return self.selectable.raw
 
     @cached_property
-    def select_info(self):
+    def select_info(self) -> Optional[SelectStatementColumnsAndTables]:
         """Returns SelectStatementColumnsAndTables on the SELECT."""
         if self.selectable.is_type("select_statement"):
             return get_select_statement_info(
@@ -117,7 +117,7 @@ class Selectable:
         """Find corresponding table_aliases entry (if any) matching "table"."""
         alias_info = [
             t
-            for t in self.select_info.table_aliases
+            for t in (self.select_info.table_aliases if self.select_info else [])
             if t.aliased and t.ref_str == table
         ]
         assert len(alias_info) <= 1

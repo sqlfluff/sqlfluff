@@ -5,6 +5,7 @@ from typing import Iterator, List, Optional, Set
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import SymbolSegment
+from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules import (
     BaseRule,
@@ -105,6 +106,7 @@ class Rule_L028(BaseRule):
         return None
 
     def _visit_queries(self, query: Query) -> Iterator[LintResult]:
+        select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
@@ -138,7 +140,14 @@ class Rule_L028(BaseRule):
                     self._fix_inconsistent_to,
                     fixable,
                 )
-        for child in query.children:
+        children = list(query.children)
+        # 'query.children' includes CTEs and "main" queries, but not queries in
+        # the "FROM" list. We want to visit those as well.
+        for a in select_info.table_aliases if select_info else []:
+            for q in SelectCrawler.get(query, a.from_expression_element):
+                if isinstance(q, Query):
+                    children.append(q)
+        for child in children:
             yield from self._visit_queries(child)
 
 
