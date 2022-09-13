@@ -8,6 +8,24 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 from sqlfluff.utils.functional import sp
 from sqlfluff.utils.functional.context import FunctionalContext
 
+# List of Segment Types which can contain an alias expression
+iterable_clause_types = [
+    "select_clause_element",
+    "set_expression",
+    "from_expression",
+    "join_clause",
+]
+# List of Segment Types which can come before an alias expression
+expression_types = [
+    "expression",
+    "function",
+    "over_clause",
+    "column_reference",
+    "literal",
+    "null_literal",
+    "table_expression",
+]
+
 
 @document_groups
 @document_fix_compatible
@@ -160,24 +178,14 @@ class Rule_L039(BaseRule):
             bool: whether seg is part of a select clause element containing an alias.
         """
         segments = context.segment.segments
-        if context.segment.is_type(
-            "select_clause_element", "set_expression", "from_expression", "join_clause"
-        ):
+        if context.segment.is_type(*iterable_clause_types):
             segment_index = segments.index(seg)
             # If seg is last segment, we know it cant be before an alias
             if len(segments) > segment_index + 1:
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
                 # Check to see if previous segment is column reference or expression
-                prev_is_col_expression = prev_seg.is_type(
-                    "expression",
-                    "function",
-                    "over_clause",
-                    "column_reference",
-                    "literal",
-                    "null_literal",
-                    "table_expression",
-                )
+                prev_is_col_expression = prev_seg.is_type(*expression_types)
                 # Check to see if next segment is alias expression
                 next_is_alias = next_seg.is_type("alias_expression")
                 if prev_is_col_expression and next_is_alias:
@@ -190,15 +198,7 @@ class Rule_L039(BaseRule):
         # Loop over select_clause_elements again to pad each expression/apply fixes
         for element in select_clause_elements:
             for expression_segment in element.segments:
-                is_expression = expression_segment.is_type(
-                    "expression",
-                    "function",
-                    "over_clause",
-                    "column_reference",
-                    "literal",
-                    "null_literal",
-                    "table_expression",
-                )
+                is_expression = expression_segment.is_type(*expression_types)
                 is_before_end = (
                     element.segments.index(expression_segment)
                     < len(element.segments) - 1
@@ -226,30 +226,18 @@ class Rule_L039(BaseRule):
         """Loops through each select clause and pads all aliases evenly."""
         functional_segment = FunctionalContext(context).segment
         children = functional_segment.children()
-        select_clause_elements = children.select(
-            sp.is_type(
-                "select_clause_element",
-                "set_expression",
-                "from_expression",
-                "join_clause",
-            )
-        )
+        select_clause_elements = children.select(sp.is_type(*iterable_clause_types))
         if select_clause_elements:
             max_len = 0
             # Loop over select clause elements to find length of the longest expression
             for element in select_clause_elements:
                 for expression_segment in element.segments:
-                    is_expression = expression_segment.is_type(
-                        "expression",
-                        "function",
-                        "over_clause",
-                        "column_reference",
-                        "literal",
-                        "null_literal",
-                        "table_expression",
-                    )
+                    is_expression = expression_segment.is_type(*expression_types)
                     if is_expression:
-                        max_len = max(max_len, expression_segment.get_end_loc()[1])
+                        new_len = expression_segment.get_end_point_marker().templated_position()[
+                            1
+                        ]
+                        max_len = max(max_len, new_len)
             # Generate padding for all aliases in select clause, based off max_len
             fixes = self._pad_unaligned_aliases(
                 select_clause_elements=select_clause_elements, max_len=max_len
