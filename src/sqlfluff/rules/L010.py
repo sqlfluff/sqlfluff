@@ -78,6 +78,16 @@ class Rule_L010(BaseRule):
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
             return [LintResult(memory=context.memory)]
 
+        # Used by L030 (that inherits from this rule)
+        # If it's a qualified function_name (i.e with more than one part to
+        # function_name). Then it is likely an existing user defined function (UDF)
+        # which are case sensitive so ignore for this.
+        if (
+            context.parent_stack[-1].get_type() == "function_name"
+            and len(context.parent_stack[-1].segments) != 1
+        ):
+            return [LintResult(memory=context.memory)]
+
         return [self._handle_segment(context.segment, context.memory)]
 
     def _handle_segment(self, segment, memory) -> LintResult:
