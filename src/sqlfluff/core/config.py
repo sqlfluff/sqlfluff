@@ -28,7 +28,17 @@ can still cache appropriately
 
 ConfigElemType = Tuple[Tuple[str, ...], Any]
 
-REMOVED_CONFIGS: Dict[Tuple[str, ...], Any] = {
+DEPRECATED_CONFIGS: Dict[Tuple[str, ...], Any] = {
+    ("rules", "L007", "operator_new_lines"): (
+        "Use the line_position config in the appropriate "
+        "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+        ":binary_operator)."
+    ),
+    ("rules", "L019", "comma_style"): (
+        "Use the line_position config in the appropriate "
+        "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+        ":comma)."
+    ),
     ("rules", "L003", "lint_templated_tokens"): ("No longer used."),
 }
 

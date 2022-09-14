@@ -85,6 +85,19 @@ class Rule_L007(BaseRule):
         if not fixes:
             return LintResult()
 
-        # TODO: Still need to incorporate the nicer formatted description
-        # in based on the current config.
-        return LintResult(context.segment, fixes)
+        seg_type = context.segment.class_types.intersection(
+            {"binary_operator", "comparison_operator"}
+        ).pop()
+        desired_position = context.config.get(
+            "line_position", ("layout", "type", seg_type)
+        )
+
+        return LintResult(
+            context.segment,
+            fixes,
+            description=(
+                after_description
+                if desired_position == "leading"
+                else before_description
+            ),
+        )
