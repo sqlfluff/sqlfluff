@@ -141,9 +141,7 @@ class Rule_L039(BaseRule):
                     # If we find whitespace at the start of a segment it's probably
                     # from a fix, so leave it be. It otherwise shouldn't be there.
                     elif idx == 0:
-                        # TODO: This line lost coverage during #3808. Consider
-                        # removing as part of whitespace consolidation.
-                        continue  # pragma: no cover
+                        continue
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
@@ -187,7 +185,7 @@ class Rule_L039(BaseRule):
         segments = context.segment.segments
         if context.segment.is_type(*iterable_clause_types):
             segment_index = segments.index(seg)
-            # If seg is last segment, we know it cant be before an alias
+            # If seg is last segment, we know it can't be before an alias
             if len(segments) > segment_index + 1:
                 prev_seg = segments[segment_index - 1]
                 next_seg = segments[segment_index + 1]
