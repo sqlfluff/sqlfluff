@@ -1,10 +1,10 @@
 """Implementation of Rule L005."""
 from typing import Optional
 
-from sqlfluff.core.parser import RawSegment
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 @document_groups
@@ -41,20 +41,22 @@ class Rule_L005(BaseRule):
     """
 
     groups = ("all", "core")
-    crawl_behaviour = SegmentSeekerCrawler({"comma"}, provide_raw_stack=True)
+    crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them."""
-        if not context.raw_stack:
-            return None  # pragma: no cover
-        anchor: Optional[RawSegment] = context.raw_stack[-1]
-        if (
-            # We need at least one segment previous segment for this to work.
-            anchor is not None
-            and context.segment.is_type("comma")
-            and anchor.is_type("whitespace")
-            and anchor.pos_marker.line_pos > 1
-        ):
-            return LintResult(anchor=anchor, fixes=[LintFix.delete(anchor)])
-        # Otherwise fine.
+        fixes = (
+            ReflowSequence.from_around_target(
+                context.segment,
+                context.parent_stack[0],
+                config=context.config,
+                sides="before",
+            )
+            .respace()
+            .get_fixes()
+        )
+        deletes = [fix for fix in fixes if fix.edit_type == "delete"]
+        if deletes:
+            # There should just be one, so just take the first.
+            return LintResult(anchor=deletes[0].anchor, fixes=deletes[:1])
         return None
