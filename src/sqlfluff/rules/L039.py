@@ -141,7 +141,9 @@ class Rule_L039(BaseRule):
                     # If we find whitespace at the start of a segment it's probably
                     # from a fix, so leave it be. It otherwise shouldn't be there.
                     elif idx == 0:
-                        continue
+                        # TODO: This line lost coverage during #3808. Consider
+                        # removing as part of whitespace consolidation.
+                        continue  # pragma: no cover
                     # Otherwise indents are allowed
                     elif non_meta_segs[idx - 1].is_type("newline", "whitespace"):
                         continue
@@ -222,9 +224,7 @@ class Rule_L039(BaseRule):
                     alias_expression = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 2
                         ].raw.strip()
-                    if not alias_expression.startswith(
-                        "as"
-                    ) and not alias_expression.startswith("AS"):
+                    if not alias_expression.startswith(("as", "AS")):
                         padding += 1
                     # Create new WhiteSpace element with correct padding
                     new_white_space = WhitespaceSegment(raw=" " * padding)
