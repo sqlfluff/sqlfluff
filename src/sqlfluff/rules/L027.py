@@ -91,6 +91,9 @@ class Rule_L027(Rule_L020):
                 and r.raw not in col_alias_names
                 # Allow columns defined in a USING expression.
                 and r.raw not in using_cols
+                # Allow columns defined as standalone aliases
+                # (e.g. value table functions from bigquery)
+                and r.raw not in standalone_aliases
             ):
                 violation_buff.append(
                     LintResult(

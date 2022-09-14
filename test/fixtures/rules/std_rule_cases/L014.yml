@@ -26,6 +26,9 @@ test_pass_consistent_capitalisation_with_multiple_words_with_numbers:
   # Numbers count as part of words so following letter can be upper or lower
   pass_str: SELECT AppleFritter, Apple123fritter, Apple123Fritter
 
+test_pass_consistent_capitalisation_with_leading_underscore:
+  pass_str: SELECT _a, b
+
 test_fail_inconsistent_capitalisation_lower_case:
   # Test that fixes are consistent
   fail_str: SELECT a,   B

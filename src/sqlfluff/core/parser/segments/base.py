@@ -1749,6 +1749,11 @@ class IdentitySet(MutableSet):
         """Add an element."""
         self.map[self.key(value)] = value
 
+    def update(self, value):
+        """Add elements in 'value'."""
+        for v in value:
+            self.add(v)
+
     def discard(self, value):  # MutableSet
         """Remove an element.  Do not raise an exception if absent."""
         self.map.pop(self.key(value), None)  # pragma: no cover
