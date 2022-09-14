@@ -33,6 +33,7 @@ from typing import (
 from collections import namedtuple
 
 from sqlfluff.core.cached_property import cached_property
+from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -300,7 +301,7 @@ class LintFix:
         #    character positions surrounding the insertion point (**NOT** the
         #    whole anchor segment, because we're not *touching* the anchor
         #    segment, we're inserting **RELATIVE** to it.
-        assert self.anchor.pos_marker
+        assert self.anchor.pos_marker, f"Anchor missing position marker: {self.anchor}"
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
 
@@ -482,6 +483,7 @@ class BaseRule:
         templated_file: Optional["TemplatedFile"],
         ignore_mask: List[NoQaDirective],
         fname: Optional[str],
+        config: FluffConfig,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
         """Run the rule on a given tree.
 
@@ -495,6 +497,7 @@ class BaseRule:
             templated_file=templated_file,
             path=pathlib.Path(fname) if fname else None,
             segment=tree,
+            config=config,
         )
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
@@ -655,7 +658,7 @@ class BaseRule:
         if seg.raw_upper in [
             elem[1] for elem in target_tuples if elem[0] == "raw_upper"
         ]:
-            return True
+            return True  # pragma: no cover
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         # For parent type checks, there's a higher risk of getting an incorrect
