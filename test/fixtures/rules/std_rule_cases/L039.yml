@@ -148,3 +148,21 @@ test_excess_space_with_align_alias:
     rules:
       L039:
         align_alias: true
+
+test_missing_keyword_with_align_alias:
+  fail_str: |
+        SELECT
+            a    first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    rules:
+      L039:
+        align_alias: true
