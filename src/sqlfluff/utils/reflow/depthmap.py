@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import FrozenSet, List, Sequence, Tuple, Type
+from typing import FrozenSet, List, Sequence, Tuple, Type, Dict
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -33,7 +33,7 @@ class DepthInfo:
     # This is a convenience cache to speed up operations.
     stack_hash_set: FrozenSet[int]
     stack_class_types: Tuple[FrozenSet[str], ...]
-    stack_positions: Tuple[str, ...]
+    stack_positions: Dict[int, Tuple[int, int, str]]
 
     @classmethod
     def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[PathStep]):
@@ -44,7 +44,10 @@ class DepthInfo:
             stack_hashes=stack_hashes,
             stack_hash_set=frozenset(stack_hashes),
             stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
-            stack_positions=tuple(_stack_pos_interpreter(ps) for ps in stack),
+            stack_positions={
+                hash(ps.segment): (ps.idx, ps.len, _stack_pos_interpreter(ps))
+                for ps in stack
+            },
         )
 
     def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
@@ -63,12 +66,15 @@ class DepthInfo:
         if amount == 0:
             # The trivial case.
             return self
+        new_hash_set = self.stack_hash_set.difference(self.stack_hashes[-amount:])
         return self.__class__(
             stack_depth=self.stack_depth - amount,
             stack_hashes=self.stack_hashes[:-amount],
-            stack_hash_set=self.stack_hash_set.difference(self.stack_hashes[-amount:]),
+            stack_hash_set=new_hash_set,
             stack_class_types=self.stack_class_types[:-amount],
-            stack_positions=self.stack_positions[:-amount],
+            stack_positions={
+                k: v for k, v in self.stack_positions.items() if k in new_hash_set
+            },
         )
 
 

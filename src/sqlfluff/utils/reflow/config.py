@@ -20,12 +20,14 @@ class BlockConfig:
     spacing_before: str = "single"
     spacing_after: str = "single"
     spacing_within: Optional[str] = None
+    line_position: Optional[str] = None
 
     def incorporate(
         self,
         before: Optional[str] = None,
         after: Optional[str] = None,
         within: Optional[str] = None,
+        line_position: Optional[str] = None,
         config: Optional[ConfigElementType] = None,
     ):
         """Mutate the config based on additional information."""
@@ -38,6 +40,9 @@ class BlockConfig:
         )
         self.spacing_within = (
             within or config.get("spacing_within", None) or self.spacing_within
+        )
+        self.line_position = (
+            line_position or config.get("line_position", None) or self.line_position
         )
 
 
@@ -100,7 +105,8 @@ class ReflowConfig:
         # we're at one end (if depth info provided).
         if depth_info:
             parent_start, parent_end = True, True
-            for idx, pos in enumerate(depth_info.stack_positions[::-1]):
+            for idx, key in enumerate(depth_info.stack_hashes[::-1]):
+                _, _, pos = depth_info.stack_positions[key]
                 # Work out if we're allowed to claim the parent.
                 if pos not in ("solo", "start"):
                     parent_start = False
