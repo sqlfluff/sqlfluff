@@ -218,12 +218,12 @@ class Rule_L039(BaseRule):
                     # Fetch existing WhiteSpace element following this expression
                     old_white_space = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 1
-                        ]
+                    ]
                     # If alias expression is missing "as" keyword,
                     # Then add extra space for padding "as"
                     alias_expression = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 2
-                        ].raw.strip()
+                    ].raw.strip()
                     if not alias_expression.startswith(("as", "AS")):
                         padding += 1
                     # Create new WhiteSpace element with correct padding
