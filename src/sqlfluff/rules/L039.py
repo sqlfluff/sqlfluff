@@ -108,11 +108,6 @@ class Rule_L039(BaseRule):
         self.align_alias: bool
         # For the given segment, lint whitespace directly within it.
         violations = []
-        if self.align_alias:
-            # If align_alias is True, then collect related violations.
-            align_violation = self._align_aliases(context)
-            if align_violation:
-                violations.append(align_violation)
         # For some segments, strip all whitespace.
         if context.segment.is_type("object_reference", "comparison_operator"):
             for child_seg in context.segment.get_raw_segments():
@@ -170,6 +165,11 @@ class Rule_L039(BaseRule):
                                 fixes=[LintFix.replace(seg, [WhitespaceSegment()])],
                             )
                         )
+        if self.align_alias:
+            # If align_alias is True, then collect related violations.
+            align_violation = self._align_aliases(context)
+            if align_violation:
+                violations.append(align_violation)
         return violations
 
     def _skip_aliases(self, context: RuleContext, seg) -> bool:
@@ -216,12 +216,12 @@ class Rule_L039(BaseRule):
                     # Fetch existing WhiteSpace element following this expression
                     old_white_space = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 1
-                    ]
+                        ]
                     # If alias expression is missing "as" keyword,
                     # Then add extra space for padding "as"
                     alias_expression = select_clause_element.segments[
                         select_clause_element.segments.index(expression_segment) + 2
-                    ].raw.strip()
+                        ].raw.strip()
                     if not alias_expression.startswith(
                         "as"
                     ) and not alias_expression.startswith("AS"):
@@ -250,14 +250,15 @@ class Rule_L039(BaseRule):
                     if is_expression:
                         new_len = expression_segment.get_end_loc()[1]
                         max_len = max(max_len, new_len)
-            # Generate padding for all aliases in select clause, based off max_len
-            fixes = self._pad_unaligned_aliases(
-                select_clause_elements=select_clause_elements, max_len=max_len
-            )
-            # Apply padding for all aliases in select clause
-            if fixes:
-                description = "Aliases are not aligned in the Select statement."
-                return LintResult(
-                    anchor=fixes[0].anchor, fixes=fixes, description=description
+            if max_len > 0:
+                # Generate padding for all aliases in select clause, based off max_len
+                fixes = self._pad_unaligned_aliases(
+                    select_clause_elements=select_clause_elements, max_len=max_len
                 )
+                # Apply padding for all aliases in select clause
+                if fixes:
+                    description = "Aliases are not aligned in the Select statement."
+                    return LintResult(
+                        anchor=fixes[0].anchor, fixes=fixes, description=description
+                    )
         return None

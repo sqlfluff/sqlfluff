@@ -158,9 +158,27 @@ test_missing_keyword_with_align_alias:
         FROM foo
   fix_str: |
     SELECT
-        a           AS first_column,
+        a            first_column,
         b           AS second_column,
         (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    rules:
+      L039:
+        align_alias: true
+
+test_skip_alias_with_align_alias:
+  fail_str: |
+        SELECT
+            a   ,
+            b   ,
+            (a   +   b) /   2
+        FROM foo
+  fix_str: |
+    SELECT
+        a ,
+        b ,
+        (a + b) / 2
     FROM foo
   configs:
     rules:
