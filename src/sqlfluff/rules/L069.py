@@ -173,7 +173,7 @@ class Rule_L069(BaseRule):
     def _shorthand_fix_list(
         context: RuleContext, shorthand_arg_1: BaseSegment, shorthand_arg_2: BaseSegment
     ) -> List[LintFix]:
-        """Generate list of fixes to convert CAST and CONVERT to ShortHandCast."""
+        """Generate list of fixes to convert CAST and CONVERT to ShorthandCast."""
         edits = [
             shorthand_arg_1,
             SymbolSegment("::", type="casting_operator"),
