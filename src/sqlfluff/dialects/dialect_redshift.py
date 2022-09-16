@@ -778,9 +778,9 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            OneOf(
+            Delimited(
                 # Columns and comment syntax:
-                Delimited(
+                AnyNumberOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
@@ -790,12 +790,12 @@ class CreateTableStatementSegment(BaseSegment):
                             optional=True,
                         ),
                     ),
-                    Ref("TableConstraintSegment", optional=True),
-                ),
-                Sequence(
-                    "LIKE",
-                    Ref("TableReferenceSegment"),
-                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    Ref("TableConstraintSegment"),
+                    Sequence(
+                        "LIKE",
+                        Ref("TableReferenceSegment"),
+                        AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    ),
                 ),
             )
         ),
