@@ -120,6 +120,16 @@ CREATE TEMP TABLE t1 (LIKE schema1.t2 INCLUDING DEFAULTS);
 
 CREATE TABLE t1 (LIKE schema1.t2 EXCLUDING DEFAULTS);
 
+CREATE TABLE some_schema.example_table (
+    LIKE some_schema.another_table INCLUDING DEFAULTS
+    , LIKE some_schema.next_table EXCLUDING DEFAULTS
+    );
+
+CREATE TABLE some_schema.example_table (
+    LIKE some_schema.another_table INCLUDING DEFAULTS
+    , col_name VARCHAR(5)
+    );
+
 CREATE TABLE some_table
 (
     some_column INTEGER NOT NULL DEFAULT 1
