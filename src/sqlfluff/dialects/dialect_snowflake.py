@@ -964,6 +964,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
+            Ref("AlterShareStatementSegment"),
             Ref("CreateExternalTableSegment"),
             Ref("AlterExternalTableStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
@@ -1784,6 +1785,59 @@ class AlterWarehouseStatementSegment(BaseSegment):
                     Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
                 ),
             ),
+        ),
+    )
+
+
+class AlterShareStatementSegment(BaseSegment):
+    """An `ALTER SHARE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-share.html
+
+    """
+
+    type = "alter_share_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SHARE",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("NakedIdentifierSegment"),
+        OneOf(
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "REMOVE",
+                ),
+                "ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("NakedIdentifierSegment")),
+                Sequence(
+                    "SHARE_RESTRICTIONS",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                "ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("NakedIdentifierSegment")),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                "TAG",
+                Ref("NakedIdentifierSegment"),
+                AnyNumberOf(
+                    Ref("CommaSegment"), Ref("NakedIdentifierSegment"), optional=True
+                ),
+            ),
+            Sequence("UNSET", "COMMENT"),
         ),
     )
 
