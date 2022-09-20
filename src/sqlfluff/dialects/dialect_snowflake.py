@@ -992,6 +992,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("CreateDatabaseFromShareStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2158,6 +2159,22 @@ class CreateCloneStatementSegment(BaseSegment):
             Ref("FromBeforeExpressionSegment"),
             optional=True,
         ),
+    )
+
+
+class CreateDatabaseFromShareStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... DATABASE FROM SHARE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-database.html
+    """
+
+    type = "create_database_from_share_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("ObjectReferenceSegment"),
+        Sequence("FROM", "SHARE"),
+        Ref("ObjectReferenceSegment"),
     )
 
 
