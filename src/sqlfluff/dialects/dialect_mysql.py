@@ -954,6 +954,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CursorFetchSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("AlterViewStatementSegment"),
+            Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
@@ -1172,6 +1174,76 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class WithCheckOptionSegment(BaseSegment):
+    """
+    WITH [CASCADED | LOCAL] CHECK OPTION for CREATE/ALTER View Syntax
+    """
+
+    type = "with_check_options"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        OneOf("CASCADED", "LOCAL", optional=True),
+        "CHECK",
+        "OPTION",
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """An `ALTER VIEW .. AS ..` statement.
+
+    As specified in https://mariadb.com/kb/en/alter-view/
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment"),
+            OneOf("UNDEFINED", "MERGE", "TEMPTABLE"),
+            optional=True,
+        ),
+        Ref("DefinerSegment", optional=True),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        Ref("SelectStatementSegment"),
+        Ref("WithCheckOptionSegment", optional=True),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """An `CREATE VIEW .. AS ..` statement.
+
+    As specified in https://mariadb.com/kb/en/create-view/
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment"),
+            OneOf("UNDEFINED", "MERGE", "TEMPTABLE"),
+            optional=True,
+        ),
+        Ref("DefinerSegment", optional=True),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        Ref("SelectStatementSegment"),
+        Ref("WithCheckOptionSegment", optional=True),
     )
 
 
@@ -1448,7 +1520,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref("UpsertClauseListSegment")]
+        insert=[OneOf(Ref("UpsertClauseListSegment"), Ref("WithCheckOptionSegment"))]
     )
 
     # Inherit most of the parse grammar from the original.
