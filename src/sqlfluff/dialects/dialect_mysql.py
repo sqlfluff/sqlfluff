@@ -1178,8 +1178,9 @@ class AlterTableStatementSegment(BaseSegment):
 
 
 class WithCheckOptionSegment(BaseSegment):
-    """
-    WITH [CASCADED | LOCAL] CHECK OPTION for CREATE/ALTER View Syntax
+    """WITH [CASCADED | LOCAL] CHECK OPTION for CREATE/ALTER View Syntax.
+
+    As specified in https://mariadb.com/kb/en/alter-view/
     """
 
     type = "with_check_options"
