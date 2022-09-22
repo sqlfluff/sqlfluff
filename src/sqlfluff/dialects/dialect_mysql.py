@@ -1180,8 +1180,7 @@ class AlterTableStatementSegment(BaseSegment):
 class WithCheckOptionSegment(BaseSegment):
     """WITH [CASCADED | LOCAL] CHECK OPTION for CREATE/ALTER View Syntax.
 
-    As specified in https://mariadb.com/kb/en/alter-view/
-    https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
     """
 
     type = "with_check_options"
@@ -1197,8 +1196,7 @@ class WithCheckOptionSegment(BaseSegment):
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW .. AS ..` statement.
 
-    As specified in https://mariadb.com/kb/en/alter-view/
-    https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
     """
 
     type = "alter_view_statement"
@@ -1225,8 +1223,7 @@ class AlterViewStatementSegment(BaseSegment):
 class CreateViewStatementSegment(BaseSegment):
     """An `CREATE VIEW .. AS ..` statement.
 
-    As specified in https://mariadb.com/kb/en/create-view/
-    https://dev.mysql.com/doc/refman/8.0/en/create-view.html
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-view.html
     """
 
     type = "create_view_statement"
