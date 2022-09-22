@@ -5375,7 +5375,10 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
             "TRANSACTION",
             Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
         ),
-        "COMMIT",
+        Sequence(
+            "COMMIT",
+            Sequence("WORK", optional=True),
+        ),
         "ROLLBACK",
     )
 
