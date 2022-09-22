@@ -5306,7 +5306,7 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
         ),
         Sequence(
             "COMMIT",
-            OneOf("WORK", optional=True),
+            Sequence("WORK", optional=True),
         ),
         "ROLLBACK",
     )
