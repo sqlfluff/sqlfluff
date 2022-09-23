@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15126b3499d3fbf65de8d9cc75ea7287bc4237b17e6954271cf5f4cb1fbef96a
+_hash: 58ff3d3126b72210e4fdb67622ebebae1a87031847cfe9384b76d74645447bf6
 file:
 - statement:
     create_database_statement:
@@ -21,4 +21,17 @@ file:
     - keyword: EXISTS
     - database_reference:
         naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+    create_database_from_share_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: MY_DATABASE
+    - keyword: FROM
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: MY_ACCOUNT
+      - dot: .
+      - naked_identifier: MY_SHARE
 - statement_terminator: ;
