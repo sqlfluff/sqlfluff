@@ -63,6 +63,12 @@ mysql_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={"type": "single_quote"},
         ),
+        RegexLexer(
+            "double_quote",
+            r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
     ]
 )
 
@@ -150,19 +156,17 @@ mysql_dialect.replace(
             Ref("NumericLiteralSegment"),
         ),
     ),
-    QuotedLiteralSegment=OneOf(
-        AnyNumberOf(
-            # MySQL allows whitespace-concatenated string literals (#1488).
-            # Since these string literals can have comments between them,
-            # we use grammar to handle this.
-            TypedParser(
-                "single_quote",
-                ansi.LiteralSegment,
-                type="quoted_literal",
-            ),
-            min_times=1,
+    QuotedLiteralSegment=AnyNumberOf(
+        # MySQL allows whitespace-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        TypedParser(
+            "single_quote",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
         Ref("DoubleQuotedLiteralSegment"),
+        min_times=1,
     ),
     UniqueKeyGrammar=Sequence(
         "UNIQUE",
