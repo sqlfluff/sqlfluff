@@ -239,6 +239,18 @@ mysql_dialect.add(
         CodeSegment,
         type="system_variable",
     ),
+    DoubleQuotedJSONPath=TypedParser(
+        "double_quote",
+        CodeSegment,
+        type="json_path",
+        trim_chars=('"',),
+    ),
+    SingleQuotedJSONPath=TypedParser(
+        "single_quote",
+        CodeSegment,
+        type="json_path",
+        trim_chars=("'",),
+    ),
 )
 
 
@@ -809,6 +821,12 @@ mysql_dialect.add(
         Ref("WalrusOperatorSegment"),
         Ref("BaseExpressionElementGrammar"),
     ),
+    ColumnPathOperatorSegment=StringParser(
+        "->", SymbolSegment, type="column_path_operator"
+    ),
+    InlinePathOperatorSegment=StringParser(
+        "->>", SymbolSegment, type="column_path_operator"
+    ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
         # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
@@ -854,6 +872,15 @@ mysql_dialect.insert_lexer_matchers(
         StringLexer("walrus_operator", ":=", CodeSegment),
     ],
     before="equals",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("inline_path_operator", "->>", CodeSegment),
+        StringLexer("column_path_operator", "->", CodeSegment),
+    ],
+    before="greater_than",
 )
 
 
@@ -2354,4 +2381,28 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
         "TRIGGER",
         Ref("IfExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to column, field or alias.
+
+    Also allows `column->path` and `column->>path` for JSON values.
+    https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#operator_json-column-path
+    """
+
+    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                ansi.ColumnReferenceSegment.match_grammar.copy(),
+                OneOf(
+                    Ref("ColumnPathOperatorSegment"),
+                    Ref("InlinePathOperatorSegment"),
+                ),
+                OneOf(
+                    Ref("DoubleQuotedJSONPath"),
+                    Ref("SingleQuotedJSONPath"),
+                ),
+            ),
+        ]
     )
