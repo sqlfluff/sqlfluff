@@ -1560,13 +1560,13 @@ class CreateFunctionStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-function.html
     https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-function-transact-sql?view=sql-server-ver15
     """
 
     type = "create_function_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         "FUNCTION",
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -1830,13 +1830,13 @@ class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-procedure-transact-sql?view=sql-server-ver15
     """
 
     type = "create_procedure_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
         Indent,
@@ -1880,13 +1880,13 @@ class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
     Adjusted to allow CREATE OR ALTER instead of CREATE OR REPLACE.
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-view-transact-sql?view=sql-server-ver15#examples
     """
 
     type = "create_view_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         "VIEW",
         Ref("ObjectReferenceSegment"),
         Bracketed(

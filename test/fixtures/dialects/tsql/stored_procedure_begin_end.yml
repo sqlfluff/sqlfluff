@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bda275337a514353248e0a73540dcd239b19ae80144f7563bb385e709b301be6
+_hash: f9e1fac5b61620be692a6788ab340558c42aea8eaf0f8cb0122995c92557adf7
 file:
 - batch:
     create_procedure_statement:
@@ -109,6 +109,8 @@ file:
 - batch:
     create_procedure_statement:
     - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
     - keyword: PROCEDURE
     - object_reference:
       - quoted_identifier: '[dbo]'
@@ -156,7 +158,7 @@ file:
     keyword: GO
 - batch:
     create_procedure_statement:
-    - keyword: CREATE
+    - keyword: ALTER
     - keyword: PROCEDURE
     - object_reference:
       - quoted_identifier: '[dbo]'
