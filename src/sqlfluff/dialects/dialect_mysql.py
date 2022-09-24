@@ -72,6 +72,24 @@ mysql_dialect.patch_lexer_matchers(
     ]
 )
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "hexadecimal_literal",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        RegexLexer(
+            "bit_value_literal",
+            r"([bB]'[01]+'|0b[01]+)",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+    ],
+    before="numeric_literal",
+)
+
 # Set Keywords
 # Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
 # Just add MySQL unreserved keywords.
