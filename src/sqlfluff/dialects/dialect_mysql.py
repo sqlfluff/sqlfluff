@@ -2385,7 +2385,11 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
 
 
 class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
-    """A reference to column, field or alias."""
+    """A reference to column, field or alias.
+
+    Also allows `column->path` and `column->>path` for JSON values.
+    https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#operator_json-column-path
+    """
 
     match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
         insert=[
