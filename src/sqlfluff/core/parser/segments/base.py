@@ -471,6 +471,26 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self.get_raw_segments()
 
     @cached_property
+    def raw_segments_with_ancestors(
+        self,
+    ) -> List[Tuple["RawSegment", List["BaseSegment"]]]:
+        """Returns a list of raw segments in this segment with the ancestors."""
+        buffer = []
+        for seg in self.segments:
+            # If it's a raw, yield it with this segment as the parent
+            if seg.is_type("raw"):
+                buffer.append((seg, [self]))
+            # If it's not, recurse - prepending self to the ancestor stack
+            else:
+                buffer.extend(
+                    [
+                        (raw_seg, [self] + stack)
+                        for raw_seg, stack in seg.raw_segments_with_ancestors
+                    ]
+                )
+        return buffer
+
+    @cached_property
     def source_fixes(self) -> List[SourceFix]:
         """Return any source fixes as list."""
         return list(chain.from_iterable(s.source_fixes for s in self.segments))
@@ -813,6 +833,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "raw_upper",
             "matched_length",
             "raw_segments",
+            "raw_segments_with_ancestors",
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
