@@ -121,9 +121,9 @@ class Rule_L052(BaseRule):
         # Find statement segment containing the current segment.
         statement_segment = next(
             (
-                s
-                for s in (parent_segment.path_to(segment) or [])
-                if s.is_type("statement")
+                ps.segment
+                for ps in (parent_segment.path_to(segment) or [])
+                if ps.segment.is_type("statement")
             ),
             None,
         )
@@ -395,7 +395,7 @@ class Rule_L052(BaseRule):
                 seg = cast(RawSegment, seg)
                 self.logger.debug("Handling semi-colon: %s", seg)
                 res = self._handle_semicolon(seg, context.segment)
-            # Otherwise handle the end of the file seperately.
+            # Otherwise handle the end of the file separately.
             elif (
                 self.require_final_semicolon
                 and idx == len(context.segment.segments) - 1

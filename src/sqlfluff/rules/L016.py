@@ -515,9 +515,9 @@ class Rule_L016(Rule_L003):
                     # long. That would imply that we've passed the root segment
                     # itself - but in that case - we should conclude it's not
                     # in a comment.
-                    if len(path) < 2:
+                    if len(path) < 1:
                         return False  # pragma: no cover
-                    parent = path[-2]
+                    parent = path[-1].segment
                     return parent.is_type("comment_clause", "comment_equals_clause")
 
                 literals_in_comments = quoted_literals.select(select_if=is_in_comment)
