@@ -1087,8 +1087,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             :obj:`list` of :obj:`PathStep`, not including the segment we're looking
                 for. If `other` is not found, then empty list. This includes if
                 called on self.
+
+        The result of this should be interpreted as *the path from `self` to `other`*.
+        If the return value is `[]` (an empty list), that implies there is no path
+        from `self` to `other`. This would include the case where the two are the same
+        segment, as there is no path from a segment to itself.
         """
-        # Return empty if we've found the segment.
+        # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover
 
