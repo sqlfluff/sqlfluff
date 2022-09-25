@@ -84,7 +84,7 @@ class PathStep:
 
     Attributes:
         segment (:obj:`BaseSegment`): The segment in the chain.
-        idx (int): The index of the target within it's `segment`.
+        idx (int): The index of the target within its `segment`.
         len (int): The number of childen `segment` has.
     """
 
