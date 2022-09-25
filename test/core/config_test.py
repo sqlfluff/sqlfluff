@@ -5,7 +5,7 @@ import sys
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
-    DEPRECATED_CONFIGS,
+    REMOVED_CONFIGS,
     ConfigLoader,
     nested_combine,
     dict_diff,
@@ -360,13 +360,13 @@ def test__config_missing_dialect():
 
 def test__config__validate_configs_direct():
     """Test _validate_configs method of ConfigLoader directly."""
-    # Make sure there _are_ deprecated configs.
-    assert DEPRECATED_CONFIGS
+    # Make sure there _are_ removed configs.
+    assert REMOVED_CONFIGS
     # Make sure all raise an error if validated
-    for k in DEPRECATED_CONFIGS:
+    for k in REMOVED_CONFIGS:
         with pytest.raises(SQLFluffUserError) as excinfo:
             ConfigLoader._validate_configs([(k, "foo")], "<test>")
-        assert "set deprecated config" in str(excinfo.value)
+        assert "set an outdated config" in str(excinfo.value)
 
 
 def test__config__validate_configs_indirect():
@@ -376,7 +376,7 @@ def test__config__validate_configs_indirect():
         FluffConfig(
             configs={
                 "core": {"dialect": "ansi"},
-                # This is a known deprecated value.
+                # This is a known removed value.
                 "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )

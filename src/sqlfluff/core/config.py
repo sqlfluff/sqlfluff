@@ -28,7 +28,7 @@ can still cache appropriately
 
 ConfigElemType = Tuple[Tuple[str, ...], Any]
 
-DEPRECATED_CONFIGS: Dict[Tuple[str, ...], Any] = {
+REMOVED_CONFIGS: Dict[Tuple[str, ...], Any] = {
     ("rules", "L003", "lint_templated_tokens"): ("No longer used."),
 }
 
@@ -285,13 +285,13 @@ class ConfigLoader:
 
     @staticmethod
     def _validate_configs(configs: Iterable[ConfigElemType], file_path):
-        """Validate config elements against deprecated list."""
+        """Validate config elements against removed list."""
         for k, _ in configs:
-            if k in DEPRECATED_CONFIGS:
+            if k in REMOVED_CONFIGS:
                 formatted_key = ":".join(k)
                 raise SQLFluffUserError(
-                    f"Config file {file_path} set deprecated config "
-                    f"value {formatted_key}.\n\n{DEPRECATED_CONFIGS[k]}\n\n"
+                    f"Config file {file_path} set an outdated config "
+                    f"value {formatted_key}.\n\n{REMOVED_CONFIGS[k]}\n\n"
                     "See https://docs.sqlfluff.com/en/stable/configuration.html"
                     " for more details."
                 )
