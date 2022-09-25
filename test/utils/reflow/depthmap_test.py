@@ -17,6 +17,7 @@ def test_reflow_depthmap_from_parent(default_config):
     root = parse_ansi_string(sql, default_config)
 
     dm = DepthMap.from_parent(root)
+
     # We use UUIDS in the depth map so we can't assert their value.
     # What we can do is use them.
 
@@ -32,7 +33,7 @@ def test_reflow_depthmap_from_parent(default_config):
     # Check they all share the same first three hash and
     # class type elements (except the end of file marker at the end).
     # These should be the file, statement and select statement.
-    expected = [{"file", "base"}, {"statement", "base"}, {"select_statement", "base"}]
+    expected = ({"file", "base"}, {"statement", "base"}, {"select_statement", "base"})
     assert all(
         dm.depth_info[seg.uuid].stack_class_types[:3] == expected
         for seg in root.raw_segments[:-1]
