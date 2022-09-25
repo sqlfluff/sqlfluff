@@ -473,18 +473,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @cached_property
     def raw_segments_with_ancestors(
         self,
-    ) -> List[Tuple["RawSegment", List["BaseSegment"]]]:
+    ) -> List[Tuple["RawSegment", List[PathStep]]]:
         """Returns a list of raw segments in this segment with the ancestors."""
         buffer = []
-        for seg in self.segments:
+        for idx, seg in enumerate(self.segments):
             # If it's a raw, yield it with this segment as the parent
+            new_step = [PathStep(self, idx, len(self.segments))]
             if seg.is_type("raw"):
-                buffer.append((seg, [self]))
+                buffer.append((seg, new_step))
             # If it's not, recurse - prepending self to the ancestor stack
             else:
                 buffer.extend(
                     [
-                        (raw_seg, [self] + stack)
+                        (raw_seg, new_step + stack)
                         for raw_seg, stack in seg.raw_segments_with_ancestors
                     ]
                 )

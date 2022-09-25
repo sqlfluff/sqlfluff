@@ -190,6 +190,9 @@ def test__parser__raw_segments_with_ancestors(raw_seg_list):
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list[:1]), raw_seg_list[1]])
     # Result should be the same raw segment, but with appropriate parents
     assert test_seg.raw_segments_with_ancestors == [
-        (raw_seg_list[0], [test_seg, test_seg.segments[0]]),
-        (raw_seg_list[1], [test_seg]),
+        (
+            raw_seg_list[0],
+            [PathStep(test_seg, 0, 2), PathStep(test_seg.segments[0], 0, 1)],
+        ),
+        (raw_seg_list[1], [PathStep(test_seg, 1, 2)]),
     ]
