@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5e00002a7c59c889b4a283b8c4cec06a04eb2247fa14abd2f6cada29edcbb12
+_hash: 4c002f668682103d0f48fae1d2ccc011e9b2866999d027077a39e237a07896e3
 file:
 - batch:
     statement:
@@ -47,8 +47,7 @@ file:
                   keyword: SET
                   parameter: '@ISOweek'
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                   - function:
                       function_name:
@@ -118,8 +117,7 @@ file:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
-                        comparison_operator:
-                          raw_comparison_operator: '='
+                        raw_comparison_operator: '='
                       expression:
                         function:
                           function_name:
@@ -255,8 +253,7 @@ file:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
-                        comparison_operator:
-                          raw_comparison_operator: '='
+                        raw_comparison_operator: '='
                       expression:
                         numeric_literal: '1'
                       statement_terminator: ;
