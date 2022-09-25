@@ -1789,7 +1789,7 @@ class AssignmentOperatorSegment(BaseSegment):
 
     type = "assignment_operator"
     match_grammar = OneOf(
-        Ref("EqualsSegment"),
+        Ref("RawEqualsSegment"),
         Sequence(
             OneOf(
                 Ref("PlusSegment"),
@@ -1801,7 +1801,7 @@ class AssignmentOperatorSegment(BaseSegment):
                 Ref("BitwiseOrSegment"),
                 Ref("BitwiseXorSegment"),
             ),
-            Ref("EqualsSegment"),
+            Ref("RawEqualsSegment"),
             allow_gaps=False,
         ),
     )
