@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BaseFileSegment,
 )
+from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
 
@@ -52,15 +53,33 @@ def test__parser__base_segments_class_types():
 
 
 def test__parser__base_segments_descendant_type_set(raw_seg_list):
-    """Test the .descendant_type_set () method."""
+    """Test the .descendant_type_set() method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
 
 
 def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
-    """Test the .direct_descendant_type_set () method."""
+    """Test the .direct_descendant_type_set() method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
+
+
+def test__parser__base_segments_path_to(raw_seg_list):
+    """Test the .path_to() method."""
+    test_seg_a = DummyAuxSegment(raw_seg_list)
+    test_seg_b = DummySegment([test_seg_a])
+    # With a direct parent/child relationship we only get
+    # one element of path.
+    assert test_seg_b.path_to(test_seg_a) == [PathStep(test_seg_b, 0, 1)]
+    # With a three segment chain - we get two path elements.
+    assert test_seg_b.path_to(raw_seg_list[0]) == [
+        PathStep(test_seg_b, 0, 1),
+        PathStep(test_seg_a, 0, 2),
+    ]
+    assert test_seg_b.path_to(raw_seg_list[1]) == [
+        PathStep(test_seg_b, 0, 1),
+        PathStep(test_seg_a, 1, 2),
+    ]
 
 
 def test__parser__base_segments_stubs():

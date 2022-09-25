@@ -1092,6 +1092,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         If the return value is `[]` (an empty list), that implies there is no path
         from `self` to `other`. This would include the case where the two are the same
         segment, as there is no path from a segment to itself.
+
+        Technically this could be seen as a "half open interval" of the path between
+        two segments: in that it includes the root segment, but not the leaf.
         """
         # Return empty if they are the same segment.
         if self is other:
