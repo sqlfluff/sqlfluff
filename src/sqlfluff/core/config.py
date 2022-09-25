@@ -7,7 +7,7 @@ import configparser
 
 import pluggy
 from itertools import chain
-from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
+from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.errors import SQLFluffUserError
@@ -25,6 +25,12 @@ global_loader = None
 We define a global loader, so that between calls to load config, we
 can still cache appropriately
 """
+
+ConfigElemType = Tuple[Tuple[str, ...], Any]
+
+DEPRECATED_CONFIGS: Dict[Tuple[str, ...], Any] = {
+    ("rules", "L003", "lint_templated_tokens"): ("No longer used."),
+}
 
 
 def coerce_value(val: str) -> Any:
@@ -117,7 +123,7 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
         # If it's not the same but both are dicts, then compare
         elif isinstance(left[k], dict) and isinstance(right[k], dict):
             diff = dict_diff(left[k], right[k], ignore=ignore)
-            # Only if the difference is not ignored it do we include it.
+            # Only include the difference if non-null.
             if diff:
                 buff[k] = diff
         # It's just different
@@ -166,7 +172,17 @@ class ConfigLoader:
         return buff
 
     @classmethod
-    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+    def _iter_config_elems_from_dict(cls, configs: dict) -> Iterator[ConfigElemType]:
+        """Walk a config dict and get config elements."""
+        for key, val in configs.items():
+            if isinstance(val, dict):
+                for partial_key, sub_val in cls._iter_config_elems_from_dict(val):
+                    yield (key,) + partial_key, sub_val
+            else:
+                yield (key,), val
+
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a TOML file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -178,7 +194,7 @@ class ConfigLoader:
         return cls._walk_toml(tool)
 
     @classmethod
-    def _get_config_elems_from_file(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+    def _get_config_elems_from_file(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -244,7 +260,7 @@ class ConfigLoader:
         return ref_path if os.path.exists(ref_path) else val
 
     @staticmethod
-    def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
+    def _incorporate_vals(ctx: dict, vals: List[ConfigElemType]) -> dict:
         """Take a list of tuples and incorporate it into a dictionary."""
         for k, v in vals:
             # Keep a ref we can use for recursion
@@ -267,13 +283,30 @@ class ConfigLoader:
             r[n] = v
         return ctx
 
-    def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
+    @staticmethod
+    def _validate_configs(configs: Iterable[ConfigElemType], file_path):
+        """Validate config elements against deprecated list."""
+        for k, _ in configs:
+            if k in DEPRECATED_CONFIGS:
+                formatted_key = ":".join(k)
+                raise SQLFluffUserError(
+                    f"Config file {file_path} set deprecated config "
+                    f"value {formatted_key}.\n\n{DEPRECATED_CONFIGS[k]}\n\n"
+                    "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                    " for more details."
+                )
+
+    def load_config_file(
+        self, file_dir: str, file_name: str, configs: Optional[dict] = None
+    ) -> dict:
         """Load the default config file."""
+        file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
-            elems = self._get_config_elems_from_toml(os.path.join(file_dir, file_name))
+            elems = self._get_config_elems_from_toml(file_path)
         else:
-            elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
-        return self._incorporate_vals({}, elems)
+            elems = self._get_config_elems_from_file(file_path)
+        self._validate_configs(elems, file_path)
+        return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
         """Load config from a given path."""
@@ -302,11 +335,7 @@ class ConfigLoader:
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                if fname == "pyproject.toml":
-                    elems = self._get_config_elems_from_toml(os.path.join(p, fname))
-                else:
-                    elems = self._get_config_elems_from_file(os.path.join(p, fname))
-                configs = self._incorporate_vals(configs, elems)
+                configs = self.load_config_file(p, fname, configs=configs)
 
         # Store in the cache
         self._config_cache[str(path)] = configs
@@ -466,12 +495,26 @@ class FluffConfig:
         self._ignore_local_config = (
             ignore_local_config  # We only store this for child configs
         )
+        # If overrides are provided, validate them early.
+        if overrides:
+            ConfigLoader._validate_configs(
+                [
+                    (("core",) + k, v)
+                    for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                ],
+                "<provided overrides>",
+            )
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
         self._plugin_manager = plugin_manager or get_plugin_manager()
 
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
+        # If any existing configs are provided. Validate them:
+        if configs:
+            ConfigLoader._validate_configs(
+                ConfigLoader._iter_config_elems_from_dict(configs), "<provided configs>"
+            )
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )

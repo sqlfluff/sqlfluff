@@ -4,7 +4,12 @@ import os
 import sys
 
 from sqlfluff.core import config, Linter, FluffConfig
-from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
+from sqlfluff.core.config import (
+    DEPRECATED_CONFIGS,
+    ConfigLoader,
+    nested_combine,
+    dict_diff,
+)
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
@@ -96,10 +101,22 @@ def test__config__load_nested():
     }
 
 
+def test__config__iter_config_elems_from_dict():
+    """Test nested overwrite and order of precedence of config files."""
+    c = ConfigLoader._iter_config_elems_from_dict(
+        {"a": {"b": {"c": 123, "d": 456}, "f": 6}}
+    )
+    assert list(c) == [
+        (("a", "b", "c"), 123),
+        (("a", "b", "d"), 456),
+        (("a", "f"), 6),
+    ]
+
+
 def test__config__load_toml():
     """Test loading config from a pyproject.toml file."""
     c = ConfigLoader()
-    cfg = c.load_default_config_file(
+    cfg = c.load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )
@@ -339,3 +356,27 @@ def test__config_missing_dialect():
     with pytest.raises(SQLFluffUserError) as e:
         FluffConfig.from_kwargs()
     assert "must configure a dialect" in str(e.value)
+
+
+def test__config__validate_configs_direct():
+    """Test _validate_configs method of ConfigLoader directly."""
+    # Make sure there _are_ deprecated configs.
+    assert DEPRECATED_CONFIGS
+    # Make sure all raise an error if validated
+    for k in DEPRECATED_CONFIGS:
+        with pytest.raises(SQLFluffUserError) as excinfo:
+            ConfigLoader._validate_configs([(k, "foo")], "<test>")
+        assert "set deprecated config" in str(excinfo.value)
+
+
+def test__config__validate_configs_indirect():
+    """Test _validate_configs method of FluffConfig indirectly."""
+    # Instantiate config object.
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(
+            configs={
+                "core": {"dialect": "ansi"},
+                # This is a known deprecated value.
+                "rules": {"L003": {"lint_templated_tokens": True}},
+            }
+        )
