@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16ee861ffacdc80133052b99b8ce0559c901a48d4342937e72dd5aac2e7c1b97
+_hash: be997bb95ccd1ed890e72a446c3418a44eb32babce3c243dd4b5aeca6f9b528d
 file:
 - batch:
   - statement:
@@ -19,8 +19,7 @@ file:
             column_reference:
               naked_identifier: JobTitle
             assignment_operator:
-              comparison_operator:
-                raw_comparison_operator: '='
+              raw_comparison_operator: '='
             expression:
               quoted_literal: "N'Executive'"
         where_clause:
