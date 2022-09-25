@@ -78,7 +78,7 @@ class SourceFix:
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 
-@dataclass()
+@dataclass(frozen=True)
 class PathStep:
     """An element of the response to BaseSegment.path_to().
 
