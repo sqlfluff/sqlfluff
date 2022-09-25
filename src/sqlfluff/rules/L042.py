@@ -223,7 +223,12 @@ class Rule_L042(BaseRule):
                         path_to = selectable.selectable.path_to(
                             table_alias.from_expression_element
                         )
-                        if not any(seg.is_type(*parent_types) for seg in path_to):
+                        if not (
+                            # The from_expression_element
+                            table_alias.from_expression_element.is_type(*parent_types)
+                            # Or any of it's parents up to the selectable
+                            or any(ps.segment.is_type(*parent_types) for ps in path_to)
+                        ):
                             continue
                         if _is_correlated_subquery(
                             Segments(sc.query_tree.selectables[0].selectable),
