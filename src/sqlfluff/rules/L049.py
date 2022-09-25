@@ -51,7 +51,7 @@ class Rule_L049(BaseRule):
         # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
 
         # Allow assignments in SET clauses
-        if context.parent_stack and context.parent_stack[-2].is_type(
+        if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
             "set_clause_list", "execute_script_statement"
         ):
             return None
@@ -66,7 +66,7 @@ class Rule_L049(BaseRule):
         if context.segment.raw not in ("=", "!=", "<>"):
             return None
 
-        # We only care if it's followed by a null.
+        # We only care if it's followed by a NULL literal.
         siblings = Segments(*context.parent_stack[-1].segments)
         after_op_list = siblings.select(start_seg=context.segment)
         next_code = after_op_list.first(sp.is_code())

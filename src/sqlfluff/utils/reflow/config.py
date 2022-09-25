@@ -4,7 +4,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import Dict, Set
+from typing import AbstractSet, Dict, Set
 
 from sqlfluff.core.config import FluffConfig
 
@@ -35,10 +35,17 @@ class ReflowConfig:
         """Constructs a ReflowConfig from a FluffConfig."""
         return cls.from_dict(config.get_section(["layout", "type"]))
 
-    def get_block_config(self, point_class_types: Set[str]):
-        """Given the class types of a ReflowBlock return spacing config."""
+    def get_block_config(self, block_class_types: AbstractSet[str]):
+        """Given the class types of a ReflowBlock return spacing config.
+
+        When fetching the config for a single class type for a simple block
+        we should just get an appropriate simple config back.
+        >>> cfg = ReflowConfig.from_dict({"comma": {"spacing_before": "touch"}})
+        >>> cfg.get_block_config({"comma"})
+        {'spacing_before': 'touch', 'spacing_after': 'single', 'spacing_within': None}
+        """
         # set intersection to get the class types which matter
-        configured_types = point_class_types.intersection(self.config_types)
+        configured_types = self.config_types.intersection(block_class_types)
         # Start with a default config.
         block_config = {
             "spacing_before": "single",

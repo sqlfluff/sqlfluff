@@ -1,8 +1,8 @@
-"""The DepthMap class which is an enriched sequence of raw segments."""
+"""The DepthMap class is an enriched sequence of raw segments."""
 
 import logging
 from dataclasses import dataclass
-from typing import List, Sequence, Set, Tuple
+from typing import FrozenSet, List, Sequence, Tuple, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
@@ -16,26 +16,30 @@ class DepthInfo:
     """An object to hold the depth information for a specific raw segment."""
 
     stack_depth: int
-    stack_hashes: List[int]
+    stack_hashes: Tuple[int, ...]
     # This is a convenience cache to speed up operations.
-    stack_hash_set: Set[int]
-    stack_class_types: List[Set[str]]
+    stack_hash_set: FrozenSet[int]
+    stack_class_types: Tuple[FrozenSet[str], ...]
 
     @classmethod
     def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[BaseSegment]):
-        """Construct from a raw and it's stack."""
-        stack_hashes = [hash(seg) for seg in stack]
+        """Construct from a raw and its stack."""
+        stack_hashes = tuple(hash(seg) for seg in stack)
         return cls(
             stack_depth=len(stack),
             stack_hashes=stack_hashes,
-            stack_hash_set=set(stack_hashes),
-            stack_class_types=[seg.class_types for seg in stack],
+            stack_hash_set=frozenset(stack_hashes),
+            stack_class_types=tuple(frozenset(seg.class_types) for seg in stack),
         )
 
-    def common_with(self, other: "DepthInfo") -> List[int]:
+    def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
         """Get the common depth and hashes with the other."""
         # We use set intersection because it's faster and hashes should be unique.
         common_hashes = self.stack_hash_set.intersection(other.stack_hashes)
+        # We should expect there to be _at least_ one common ancestor, because
+        # they should share the same file segment. If that's not the case we
+        # we should error because it's likely a bug or programming error.
+        assert common_hashes, "DepthInfo comparison shares no common ancestor!"
         common_depth = len(common_hashes)
         return self.stack_hashes[:common_depth]
 
@@ -53,7 +57,7 @@ class DepthInfo:
 
 
 class DepthMap:
-    """A sequence raw segments with depth and parent information.
+    """A mapping of raw segments to depth and parent information.
 
     This class addresses two needs:
     - To understand configuration of segments with no whitespace
@@ -76,18 +80,20 @@ class DepthMap:
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)
 
     @classmethod
-    def from_parent(cls, parent: BaseSegment):
+    def from_parent(cls: Type["DepthMap"], parent: BaseSegment) -> "DepthMap":
         """Generate a DepthMap from all the children of a segment.
 
         NOTE: This is the most efficient way to construct a DepthMap
         due to caching in the BaseSegment.
         """
-        return cls(raws_with_stack=parent.raw_segments_with_stack)
+        return cls(raws_with_stack=parent.raw_segments_with_ancestors)
 
     @classmethod
     def from_raws_and_root(
-        cls, raw_segments: Sequence[RawSegment], root_segment: BaseSegment
-    ):
+        cls: Type["DepthMap"],
+        raw_segments: Sequence[RawSegment],
+        root_segment: BaseSegment,
+    ) -> "DepthMap":
         """Generate a DepthMap a sequence of raws and a root.
 
         NOTE: This is the less efficient way to construct a DepthMap
@@ -101,7 +107,7 @@ class DepthMap:
             buff.append((raw, stack[:-1]))
         return cls(raws_with_stack=buff)
 
-    def get_depth_info(self, raw: RawSegment):
+    def get_depth_info(self, raw: RawSegment) -> DepthInfo:
         """Get the depth info for a given segment."""
         try:
             return self.depth_info[raw.uuid]
@@ -118,7 +124,7 @@ class DepthMap:
         """Copy the depth info for one segment and apply to another.
 
         This mutates the existing depth map. That's ok because it's
-        an idempotent and uuids should be unique.
+        an idempotent operation and uuids should be unique.
 
         This is used in edits to a reflow sequence when new segments are
         inserted and can't infer their own depth info.

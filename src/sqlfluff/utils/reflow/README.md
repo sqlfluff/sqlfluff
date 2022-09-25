@@ -53,11 +53,11 @@ When applying reflow in a rule context it makes sense to consider
 how widespread the impact we want to have is:
 - A rule designed around _Spacing_ may act in relative isolation,
   but may also optionally need to resolve excessive _Line Length_.
-- A rule designed around _Indentation_ may act simply on it's own
+- A rule designed around _Indentation_ may act simply on its own
   but may also optionally need to resolve excessive _Line Length_.
 - A rule designed around the placement or presence of _Line Breaks_
   will probably have to consider _Spacing_ (or at least decide
-  what spacing to impose at least for the moved elements) and if
+  what spacing to impose for the moved elements) and if
   introducing additional _Line Breaks_ it may need to account
   for _Indentation_.
 - Resolving _Line Length_ will involve introducing additional
@@ -77,7 +77,7 @@ As a rule of thumb:
   existing _Indentation_ and not reset that or consider any
   _Line Length_ issues. We **should** consider _Spacing_, but
   only around the elements moved (e.g. if we're shifting a trailing
-  comma to be a leading one, then we should also correct it's spacing
+  comma to be a leading one, then we should also correct its spacing
   at the same time).
   - This means in practice we should move the _Segment_ and not
     move the _Line Break_. Once moved, we should use the `.respace()`
@@ -86,7 +86,7 @@ As a rule of thumb:
   _Indentation_ and _Line Breaks_.
   - This should use a more fully featured `.reflow()` method which
     can use `.reindent()` and others under the hood, but limited
-    only to reflowing the offending line itself (TBC whether in
+    only to reflowing the offending line itself (TBD whether in
     in practice this needs to be broader).
 
 ### What about non-reflow rules?
@@ -165,7 +165,7 @@ could live in two places:
    file just for this purpose.
 
 Given user requirements to be able to configure at least comma placement
-the config file approach seems the most suitable - as it allows sensible
+in the config file approach seems the most suitable - as it allows sensible
 inheritance and deviation from a default spacing configuration.
 
 ### More specifically...

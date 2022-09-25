@@ -4,7 +4,7 @@
 from itertools import chain
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Set, Tuple, cast
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
@@ -64,7 +64,9 @@ class ReflowBlock(ReflowElement):
     stack_spacing_configs: Dict[int, str]
 
     @classmethod
-    def from_config(cls, segments, config: ReflowConfig, depth_info: DepthInfo):
+    def from_config(
+        cls: Type["ReflowBlock"], segments, config: ReflowConfig, depth_info: DepthInfo
+    ) -> "ReflowBlock":
         """Extendable constructor which accepts config."""
         block_config = config.get_block_config(cls._class_types(segments))
         # Populate any spacing_within config.
@@ -100,9 +102,9 @@ class ReflowPoint(ReflowElement):
 
     def respace_point(
         self,
-        prev_block: Optional[ReflowBlock] = None,
-        next_block: Optional[ReflowBlock] = None,
-        fixes: Optional[List[LintFix]] = None,
+        prev_block: Optional[ReflowBlock],
+        next_block: Optional[ReflowBlock],
+        fixes: List[LintFix],
         strip_newlines: bool = False,
     ) -> Tuple[List[LintFix], "ReflowPoint"]:
         """Respace a point based on given constraints.
@@ -137,7 +139,17 @@ class ReflowPoint(ReflowElement):
                 pass
             elif within_constraint in ("touch", "inline"):
                 # NOTE: inline is actually a more extreme version of "touch".
-                # i.e. inline, implies no spaces between either.
+                # Examples:
+                # - "inline" would be used with an object reference, where the
+                #   parts have to all be together on one line like `a.b.c`.
+                # - "touch" would allow the above layout, _but also_ allow an
+                #   an optional line break between, much like between an opening
+                #   bracket and the following element: `(a)` or:
+                #   ```
+                #   (
+                #       a
+                #   )
+                #   ```
                 if within_constraint == "inline":
                     # If they are then strip newlines.
                     strip_newlines = True
@@ -156,7 +168,7 @@ class ReflowPoint(ReflowElement):
                 )
 
         reflow_logger.debug("Respacing: %s", self)
-        for idx, seg in enumerate(self.segments):
+        for seg in self.segments:
             # If it's whitespace, store it.
             if seg.is_type("whitespace"):
                 last_whitespace.append(seg)
@@ -200,7 +212,7 @@ class ReflowPoint(ReflowElement):
             # BUT: There is one case we should handle here.
             # If we find that the last whitespace has a newline
             # before it, and the position markers imply there was
-            # a removal between them. Remove the whitespace.
+            # a removal between them, then remove the whitespace.
             # This ensures a consistent indent.
             # TODO: Check this doesn't duplicate indentation code
             # once written.
@@ -380,4 +392,4 @@ class ReflowPoint(ReflowElement):
             reflow_logger.debug(
                 "    Fixes. Old & Changed: %s. New: %s", fixes, new_fixes
             )
-        return (fixes or []) + new_fixes, ReflowPoint(segment_buffer)
+        return fixes + new_fixes, ReflowPoint(segment_buffer)

@@ -3,7 +3,7 @@
 
 from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Sequence, Tuple, cast
+from typing import Iterator, List, Optional, Sequence, Tuple, cast, Type, Union
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
@@ -11,12 +11,13 @@ from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 
-from sqlfluff.utils.reflow.elements import ReflowElement, ReflowBlock, ReflowPoint
+from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
+ReflowSequenceType = List[Union[ReflowBlock, ReflowPoint]]
 
 
 class ReflowSequence:
@@ -31,7 +32,7 @@ class ReflowSequence:
 
     def __init__(
         self,
-        elements: Sequence[ReflowElement],
+        elements: ReflowSequenceType,
         root_segment: BaseSegment,
         reflow_config: ReflowConfig,
         depth_map: DepthMap,
@@ -55,9 +56,9 @@ class ReflowSequence:
         return self.embodied_fixes
 
     @staticmethod
-    def _validate_reflow_sequence(elements: Sequence[ReflowElement]):
+    def _validate_reflow_sequence(elements: ReflowSequenceType):
         assert elements, "ReflowSequence has empty elements."
-        # Check odds and events
+        # Check odds and evens
         OddType = elements[0].__class__
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
         try:
@@ -78,13 +79,13 @@ class ReflowSequence:
     @staticmethod
     def _elements_from_raw_segments(
         segments: Sequence[RawSegment], reflow_config: ReflowConfig, depth_map: DepthMap
-    ) -> Sequence[ReflowElement]:
+    ) -> ReflowSequenceType:
         """Construct reflow elements from raw segments.
 
         NOTE: ReflowBlock elements should only ever have one segment
         which simplifies iteration here.
         """
-        elem_buff: List[ReflowElement] = []
+        elem_buff: ReflowSequenceType = []
         seg_buff: List[RawSegment] = []
         for seg in segments:
             if seg.is_type("whitespace", "newline", "end_of_file", "indent"):
@@ -113,12 +114,12 @@ class ReflowSequence:
 
     @classmethod
     def from_raw_segments(
-        cls,
+        cls: Type["ReflowSequence"],
         segments: Sequence[RawSegment],
         root_segment: BaseSegment,
         config: FluffConfig,
         depth_map: Optional[DepthMap] = None,
-    ):
+    ) -> "ReflowSequence":
         """Construct a ReflowSequence from a sequence of raw segments.
 
         Aimed to be the basic constructor, which other more specific
@@ -141,7 +142,9 @@ class ReflowSequence:
         )
 
     @classmethod
-    def from_root(cls, root_segment: BaseSegment, config: FluffConfig):
+    def from_root(
+        cls: Type["ReflowSequence"], root_segment: BaseSegment, config: FluffConfig
+    ) -> "ReflowSequence":
         """Generate a sequence from a root segment."""
         return cls.from_raw_segments(
             root_segment.raw_segments,
@@ -153,12 +156,12 @@ class ReflowSequence:
 
     @classmethod
     def from_around_target(
-        cls,
+        cls: Type["ReflowSequence"],
         target_segment: BaseSegment,
         root_segment: BaseSegment,
         config: FluffConfig,
         sides: str = "both",
-    ):
+    ) -> "ReflowSequence":
         """Generate a sequence around a target.
 
         Args:
@@ -244,9 +247,9 @@ class ReflowSequence:
             + list(self.elements[removal_idx + 1].segments),
         )
         return ReflowSequence(
-            elements=list(self.elements[: removal_idx - 1])
+            elements=self.elements[: removal_idx - 1]
             + [merged_point]
-            + list(self.elements[removal_idx + 2 :]),
+            + self.elements[removal_idx + 2 :],
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
@@ -255,7 +258,7 @@ class ReflowSequence:
         )
 
     def insert(
-        self, insertion: RawSegment, target: RawSegment, pos="before"
+        self, insertion: RawSegment, target: RawSegment, pos: str = "before"
     ) -> "ReflowSequence":
         """Returns a new reflow sequence with the new element inserted.
 
@@ -272,7 +275,7 @@ class ReflowSequence:
             )
 
         # We're inserting something blocky. That means a new block AND a new point.
-        # It's possible we try to _split_ a point by targetting a whitespace element
+        # It's possible we try to _split_ a point by targeting a whitespace element
         # inside a larger point. For now this isn't supported.
         # NOTE: We use the depth info of the reference anchor, with the assumption
         # (I think reliable) that the insertion will be applied as a sibling of
@@ -289,9 +292,9 @@ class ReflowSequence:
             )
         elif pos == "before":
             return ReflowSequence(
-                elements=list(self.elements[:target_idx])
+                elements=self.elements[:target_idx]
                 + [new_block, ReflowPoint([])]
-                + list(self.elements[target_idx:]),
+                + self.elements[target_idx:],
                 root_segment=self.root_segment,
                 reflow_config=self.reflow_config,
                 depth_map=self.depth_map,
@@ -303,9 +306,9 @@ class ReflowSequence:
             # Re-evaluate whether this code path is ever taken once more rules use
             # this.
             return ReflowSequence(
-                elements=list(self.elements[: target_idx + 1])
+                elements=self.elements[: target_idx + 1]
                 + [ReflowPoint([]), new_block]
-                + list(self.elements[target_idx + 1 :]),
+                + self.elements[target_idx + 1 :],
                 root_segment=self.root_segment,
                 reflow_config=self.reflow_config,
                 depth_map=self.depth_map,
@@ -319,7 +322,7 @@ class ReflowSequence:
     def replace(
         self, target: BaseSegment, edit: Sequence[BaseSegment]
     ) -> "ReflowSequence":
-        """Returns a new reflow sequence elements replaced."""
+        """Returns a new reflow sequence with `edit` elements replaced."""
         replace_fix = LintFix.replace(target, edit)
 
         target_raws = target.raw_segments
@@ -344,7 +347,7 @@ class ReflowSequence:
         # than do surgery on the elements.
 
         # TODO: The surgery is actually a good idea for long sequences now that
-        # we have the handle the depth map.
+        # we have the depth map.
 
         current_raws = list(
             chain.from_iterable(elem.segments for elem in self.elements)
@@ -379,7 +382,9 @@ class ReflowSequence:
                     post = cast(ReflowBlock, self.elements[idx + 1])
                 yield elem, pre, post
 
-    def respace(self, strip_newlines=False, filter="all") -> "ReflowSequence":
+    def respace(
+        self, strip_newlines: bool = False, filter: str = "all"
+    ) -> "ReflowSequence":
         """Respace a sequence.
 
         Args:
@@ -407,7 +412,7 @@ class ReflowSequence:
         ), f"Unexpected value for filter: {filter}"
         # Use the embodied fixes as a starting point.
         fixes = self.embodied_fixes or []
-        new_elements: List[ReflowElement] = []
+        new_elements: ReflowSequenceType = []
         for point, pre, post in self._iter_points_with_constraints():
             # We filter on the elements POST RESPACE. This is to allow
             # strict respacing to reclaim newlines.
