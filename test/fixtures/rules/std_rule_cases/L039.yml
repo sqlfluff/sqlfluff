@@ -135,18 +135,19 @@ test_excess_space_without_align_alias:
           spacing_before: single
 
 test_excess_space_with_align_alias:
+  # NOTE: The config here shouldn't move the table alias
   fail_str: |
         SELECT
             a    AS first_column,
             b      AS second_column,
             (a + b) / 2 AS third_column
-        FROM foo
+        FROM foo   AS bar
   fix_str: |
     SELECT
         a           AS first_column,
         b           AS second_column,
         (a + b) / 2 AS third_column
-    FROM foo
+    FROM foo AS bar
   configs: &align_alias
     layout:
       type:
@@ -184,3 +185,27 @@ test_skip_alias_with_align_alias:
         (a + b) / 2
     FROM foo
   configs: *align_alias
+
+test_excess_space_with_align_alias_wider:
+  # NOTE: The config here SHOULD move the table alias
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        b      AS second_column,
+        (a      +      b)      /      2 AS third_column
+    FROM foo   AS first_table
+    JOIN my_tbl AS second_table USING(a)
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo        AS first_table
+    JOIN my_tbl     AS second_table USING(a)
+  configs: &align_alias_wider
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_statement
+          align_boundary: statement
