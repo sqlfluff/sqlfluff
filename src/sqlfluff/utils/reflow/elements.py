@@ -253,7 +253,11 @@ class ReflowPoint(ReflowElement):
 
         # Is the current indent the only one on the line?
         if any(
+            # Same line
             sibling.pos_marker.working_line_no == next_seg.pos_marker.working_line_no
+            # And not same position (i.e. not self)
+            and sibling.pos_marker.working_line_pos
+            != next_seg.pos_marker.working_line_pos
             for sibling in siblings
         ):
             reflow_logger.debug("    Found sibling on same line. Treat as single")
