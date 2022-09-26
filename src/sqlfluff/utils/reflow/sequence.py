@@ -423,6 +423,7 @@ class ReflowSequence:
             new_fixes, new_point = point.respace_point(
                 prev_block=pre,
                 next_block=post,
+                root_segment=self.root_segment,
                 fixes=fixes,
                 strip_newlines=strip_newlines,
             )

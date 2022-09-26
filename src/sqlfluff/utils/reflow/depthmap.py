@@ -12,6 +12,18 @@ from sqlfluff.core.parser.segments.raw import RawSegment
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
+def _stack_pos_interpreter(path_step: PathStep):
+    """Interpret a path step for stack_positions."""
+    if path_step.idx == 0 and path_step.idx == path_step.len - 1:
+        return "solo"
+    elif path_step.idx == 0:
+        return "start"
+    elif path_step.idx == path_step.len - 1:
+        return "end"
+    else:
+        return ""  # NOTE: Empty string evaluates is falsy.
+
+
 @dataclass(frozen=True)
 class DepthInfo:
     """An object to hold the depth information for a specific raw segment."""
@@ -21,6 +33,7 @@ class DepthInfo:
     # This is a convenience cache to speed up operations.
     stack_hash_set: FrozenSet[int]
     stack_class_types: Tuple[FrozenSet[str], ...]
+    stack_positions: Tuple[str, ...]
 
     @classmethod
     def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[PathStep]):
@@ -31,6 +44,7 @@ class DepthInfo:
             stack_hashes=stack_hashes,
             stack_hash_set=frozenset(stack_hashes),
             stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
+            stack_positions=tuple(_stack_pos_interpreter(ps) for ps in stack),
         )
 
     def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
@@ -54,6 +68,7 @@ class DepthInfo:
             stack_hashes=self.stack_hashes[:-amount],
             stack_hash_set=self.stack_hash_set.difference(self.stack_hashes[-amount:]),
             stack_class_types=self.stack_class_types[:-amount],
+            stack_positions=self.stack_positions[:-amount],
         )
 
 

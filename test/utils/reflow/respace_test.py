@@ -97,6 +97,7 @@ def test_reflow__point_respace_point(
         fixes, new_pnt = pnt.respace_point(
             prev_block=seq.elements[point_idx - 1],
             next_block=seq.elements[point_idx + 1],
+            root_segment=root,
             fixes=[],
             **kwargs
         )

@@ -72,22 +72,20 @@ class ReflowBlock(ReflowElement):
         cls: Type["ReflowBlock"], segments, config: ReflowConfig, depth_info: DepthInfo
     ) -> "ReflowBlock":
         """Extendable constructor which accepts config."""
-        block_config = config.get_block_config(cls._class_types(segments))
+        block_config = config.get_block_config(cls._class_types(segments), depth_info)
         # Populate any spacing_within config.
         # TODO: This needs decent unit tests - not just what happens in rules.
         stack_spacing_configs = {}
         for hash, class_types in zip(
             depth_info.stack_hashes, depth_info.stack_class_types
         ):
-            spacing_within = config.get_block_config(class_types).get(
-                "spacing_within", None
-            )
+            spacing_within = config.get_block_config(class_types).spacing_within
             if spacing_within:
                 stack_spacing_configs[hash] = spacing_within
         return cls(
             segments=segments,
-            spacing_before=block_config.get("spacing_before", "single"),
-            spacing_after=block_config.get("spacing_after", "single"),
+            spacing_before=block_config.spacing_before,
+            spacing_after=block_config.spacing_after,
             depth_info=depth_info,
             stack_spacing_configs=stack_spacing_configs,
         )
@@ -215,6 +213,8 @@ class ReflowPoint(ReflowElement):
     def _handle_respace__inline_with_space(
         pre_constraint: str,
         post_constraint: str,
+        next_block: Optional[ReflowBlock],
+        root_segment: BaseSegment,
         segment_buffer: List[RawSegment],
         last_whitespace: List[RawSegment],
     ) -> Tuple[List[RawSegment], List[LintFix]]:
@@ -229,7 +229,7 @@ class ReflowPoint(ReflowElement):
         Given this we apply constraints to ensure the whitespace
         is of an appropriate size.
         """
-        new_fixes = []
+        new_fixes: List[LintFix] = []
         # Get some indices so that we can reference around them
         ws_seg = last_whitespace[0]
         ws_idx = segment_buffer.index(ws_seg)
@@ -238,10 +238,10 @@ class ReflowPoint(ReflowElement):
         if "any" in [pre_constraint, post_constraint]:
             # In this instance - don't change anything.
             # e.g. this could mean there is a comment on one side.
-            pass
+            return segment_buffer, new_fixes
 
         # Do we have either side set to "touch"?
-        elif "touch" in [pre_constraint, post_constraint]:
+        if "touch" in [pre_constraint, post_constraint]:
             # In this instance - no whitespace is correct, This
             # means we should delete it.
             new_fixes.append(
@@ -251,11 +251,103 @@ class ReflowPoint(ReflowElement):
                 )
             )
             segment_buffer.pop(ws_idx)
+            return segment_buffer, new_fixes
 
-        # Handle the default case
-        elif pre_constraint == post_constraint == "single":
-            if ws_seg.raw != " ":
-                new_seg = ws_seg.edit(" ")
+        # Handle left alignment & singles
+        if (
+            post_constraint.startswith("align") and next_block
+        ) or pre_constraint == post_constraint == "single":
+
+            # Determine the desired spacing, either as alignment or as a single.
+            if post_constraint.startswith("align") and next_block:
+                alignment_config = post_constraint.split(":")
+                seg_type = alignment_config[1]
+                align_within = (
+                    alignment_config[2] if len(alignment_config) > 2 else None
+                )
+                align_boundary = (
+                    alignment_config[3] if len(alignment_config) > 3 else None
+                )
+                reflow_logger.debug(
+                    "    %s, %s, %s, %s",
+                    seg_type,
+                    align_within,
+                    align_boundary,
+                    next_block.segments[0].pos_marker.working_line_pos,
+                )
+
+                # Find the level of segment that we're aligning.
+                # NOTE: Reverse slice
+                parent_segment = None
+                for ps in root_segment.path_to(next_block.segments[0])[::-1]:
+                    if ps.segment.is_type(align_within):
+                        parent_segment = ps.segment
+                    if ps.segment.is_type(align_boundary):
+                        break
+
+                if not parent_segment:
+                    reflow_logger.debug(
+                        "    No Parent found for alignment case. Treat as single."
+                    )
+                    desired_space = " "
+                else:
+                    # We've got a parent. Find some siblings.
+                    reflow_logger.debug(
+                        "    Determining alignment within: %s", parent_segment
+                    )
+                    siblings = []
+                    for sibling in parent_segment.recursive_crawl(seg_type):
+                        # Purge any siblings with a boundary between them
+                        if not any(
+                            ps.segment.is_type(align_boundary)
+                            for ps in parent_segment.path_to(sibling)
+                        ):
+                            siblings.append(sibling)
+                        else:
+                            reflow_logger.debug(
+                                "    Purging a sibling because they're blocked "
+                                "by a boundary: %s",
+                                sibling,
+                            )
+                    # Work out the current spacing before each.
+                    last_code = None
+                    max_desired_line_pos = 0
+                    for seg in parent_segment.raw_segments:
+                        for sibling in siblings:
+                            # NOTE: We're asserting that there must have been
+                            # a last_code. Otherwise this won't work.
+                            if (
+                                seg.pos_marker.working_loc
+                                == sibling.pos_marker.working_loc
+                                and last_code
+                            ):
+                                loc = last_code.pos_marker.working_loc_after(
+                                    last_code.raw
+                                )
+                                reflow_logger.debug(
+                                    "    loc for %s: %s from %s",
+                                    sibling,
+                                    loc,
+                                    last_code,
+                                )
+                                if loc[1] > max_desired_line_pos:
+                                    max_desired_line_pos = loc[1]
+                        if seg.is_code:
+                            last_code = seg
+
+                    desired_space = " " * (
+                        1 + max_desired_line_pos - ws_seg.pos_marker.working_line_pos
+                    )
+                    reflow_logger.debug(
+                        "    desired_space: %r (based on max line pos of %s)",
+                        desired_space,
+                        max_desired_line_pos,
+                    )
+            else:
+                desired_space = " "
+
+            if ws_seg.raw != desired_space:
+                new_seg = ws_seg.edit(desired_space)
                 new_fixes.append(
                     LintFix(
                         "replace",
@@ -265,12 +357,11 @@ class ReflowPoint(ReflowElement):
                 )
                 segment_buffer[ws_idx] = new_seg
 
-        else:
-            raise NotImplementedError(  # pragma: no cover
-                f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
-            )
+            return segment_buffer, new_fixes
 
-        return segment_buffer, new_fixes
+        raise NotImplementedError(  # pragma: no cover
+            f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
+        )
 
     @staticmethod
     def _handle_respace__inline_without_space(
@@ -389,6 +480,7 @@ class ReflowPoint(ReflowElement):
         self,
         prev_block: Optional[ReflowBlock],
         next_block: Optional[ReflowBlock],
+        root_segment: BaseSegment,
         fixes: List[LintFix],
         strip_newlines: bool = False,
     ) -> Tuple[List[LintFix], "ReflowPoint"]:
@@ -460,7 +552,12 @@ class ReflowPoint(ReflowElement):
             if last_whitespace:
                 # We do - is it the right size?
                 segment_buffer, delta_fixes = self._handle_respace__inline_with_space(
-                    pre_constraint, post_constraint, segment_buffer, last_whitespace
+                    pre_constraint,
+                    post_constraint,
+                    next_block,
+                    root_segment,
+                    segment_buffer,
+                    last_whitespace,
                 )
                 new_fixes.extend(delta_fixes)
             else:
