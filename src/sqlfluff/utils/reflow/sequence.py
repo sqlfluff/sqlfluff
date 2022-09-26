@@ -332,7 +332,7 @@ class ReflowSequence:
 
         # Add the new segments to the depth map at the same level as the target.
         # First work out how much to trim by.
-        trim_amount = len(target.path_to(target_raws[0])) - 1
+        trim_amount = len(target.path_to(target_raws[0]))
         reflow_logger.debug(
             "Replacement trim amount: %s.",
             trim_amount,
