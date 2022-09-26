@@ -210,7 +210,91 @@ class ReflowPoint(ReflowElement):
         )
 
     @staticmethod
+    def _determine_aligned_inline_spacing(
+        root_segment: BaseSegment,
+        whitespace_seg: RawSegment,
+        next_seg: RawSegment,
+        segment_type: str,
+        align_within: Optional[str],
+        align_boundary: Optional[str],
+    ) -> str:
+        """Work out spacing for instance of an `align` constraint."""
+        # Find the level of segment that we're aligning.
+        # NOTE: Reverse slice
+        parent_segment = None
+        for ps in root_segment.path_to(next_seg)[::-1]:
+            if ps.segment.is_type(align_within):
+                parent_segment = ps.segment
+            if ps.segment.is_type(align_boundary):
+                break
+
+        if not parent_segment:
+            reflow_logger.debug(
+                "    No Parent found for alignment case. Treat as single."
+            )
+            return " "
+
+        # We've got a parent. Find some siblings.
+        reflow_logger.debug("    Determining alignment within: %s", parent_segment)
+        siblings = []
+        for sibling in parent_segment.recursive_crawl(segment_type):
+            # Purge any siblings with a boundary between them
+            if not any(
+                ps.segment.is_type(align_boundary)
+                for ps in parent_segment.path_to(sibling)
+            ):
+                siblings.append(sibling)
+            else:
+                reflow_logger.debug(
+                    "    Purging a sibling because they're blocked "
+                    "by a boundary: %s",
+                    sibling,
+                )
+
+        # Is the current indent the only one on the line?
+        if any(
+            sibling.pos_marker.working_line_no == next_seg.pos_marker.working_line_no
+            for sibling in siblings
+        ):
+            reflow_logger.debug("    Found sibling on same line. Treat as single")
+            return " "
+
+        # Work out the current spacing before each.
+        last_code = None
+        max_desired_line_pos = 0
+        for seg in parent_segment.raw_segments:
+            for sibling in siblings:
+                # NOTE: We're asserting that there must have been
+                # a last_code. Otherwise this won't work.
+                if (
+                    seg.pos_marker.working_loc == sibling.pos_marker.working_loc
+                    and last_code
+                ):
+                    loc = last_code.pos_marker.working_loc_after(last_code.raw)
+                    reflow_logger.debug(
+                        "    loc for %s: %s from %s",
+                        sibling,
+                        loc,
+                        last_code,
+                    )
+                    if loc[1] > max_desired_line_pos:
+                        max_desired_line_pos = loc[1]
+            if seg.is_code:
+                last_code = seg
+
+        desired_space = " " * (
+            1 + max_desired_line_pos - whitespace_seg.pos_marker.working_line_pos
+        )
+        reflow_logger.debug(
+            "    desired_space: %r (based on max line pos of %s)",
+            desired_space,
+            max_desired_line_pos,
+        )
+        return desired_space
+
+    @classmethod
     def _handle_respace__inline_with_space(
+        cls,
         pre_constraint: str,
         post_constraint: str,
         next_block: Optional[ReflowBlock],
@@ -269,94 +353,21 @@ class ReflowPoint(ReflowElement):
                     alignment_config[3] if len(alignment_config) > 3 else None
                 )
                 reflow_logger.debug(
-                    "    %s, %s, %s, %s",
+                    "    Alignment Config: %s, %s, %s, %s",
                     seg_type,
                     align_within,
                     align_boundary,
                     next_block.segments[0].pos_marker.working_line_pos,
                 )
 
-                # Find the level of segment that we're aligning.
-                # NOTE: Reverse slice
-                parent_segment = None
-                for ps in root_segment.path_to(next_block.segments[0])[::-1]:
-                    if ps.segment.is_type(align_within):
-                        parent_segment = ps.segment
-                    if ps.segment.is_type(align_boundary):
-                        break
-
-                if not parent_segment:
-                    reflow_logger.debug(
-                        "    No Parent found for alignment case. Treat as single."
-                    )
-                    desired_space = " "
-                else:
-                    # We've got a parent. Find some siblings.
-                    reflow_logger.debug(
-                        "    Determining alignment within: %s", parent_segment
-                    )
-                    siblings = []
-                    for sibling in parent_segment.recursive_crawl(seg_type):
-                        # Purge any siblings with a boundary between them
-                        if not any(
-                            ps.segment.is_type(align_boundary)
-                            for ps in parent_segment.path_to(sibling)
-                        ):
-                            siblings.append(sibling)
-                        else:
-                            reflow_logger.debug(
-                                "    Purging a sibling because they're blocked "
-                                "by a boundary: %s",
-                                sibling,
-                            )
-
-                    # Is the current indent the only one on the line?
-                    if any(
-                        sibling.pos_marker.working_line_no
-                        == next_block.segments[0].pos_marker.working_line_no
-                        for sibling in siblings
-                    ):
-                        reflow_logger.debug(
-                            "    Found sibling on same line. Treat as single"
-                        )
-                        desired_space = " "
-                    else:
-                        # Work out the current spacing before each.
-                        last_code = None
-                        max_desired_line_pos = 0
-                        for seg in parent_segment.raw_segments:
-                            for sibling in siblings:
-                                # NOTE: We're asserting that there must have been
-                                # a last_code. Otherwise this won't work.
-                                if (
-                                    seg.pos_marker.working_loc
-                                    == sibling.pos_marker.working_loc
-                                    and last_code
-                                ):
-                                    loc = last_code.pos_marker.working_loc_after(
-                                        last_code.raw
-                                    )
-                                    reflow_logger.debug(
-                                        "    loc for %s: %s from %s",
-                                        sibling,
-                                        loc,
-                                        last_code,
-                                    )
-                                    if loc[1] > max_desired_line_pos:
-                                        max_desired_line_pos = loc[1]
-                            if seg.is_code:
-                                last_code = seg
-
-                        desired_space = " " * (
-                            1
-                            + max_desired_line_pos
-                            - ws_seg.pos_marker.working_line_pos
-                        )
-                        reflow_logger.debug(
-                            "    desired_space: %r (based on max line pos of %s)",
-                            desired_space,
-                            max_desired_line_pos,
-                        )
+                desired_space = cls._determine_aligned_inline_spacing(
+                    root_segment,
+                    ws_seg,
+                    next_block.segments[0],
+                    seg_type,
+                    align_within,
+                    align_boundary,
+                )
             else:
                 desired_space = " "
 
