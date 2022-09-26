@@ -953,6 +953,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
+            Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("ShowStatementSegment"),
@@ -3183,6 +3184,117 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("CopyIntoTableStatementSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateUserSegment(BaseSegment):
+    """A snowflake `CREATE USER` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-user.html
+    """
+
+    type = "create_user_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "USER",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "LOGIN_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DISPLAY_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "FIRST_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "MIDDLE_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "LAST_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "EMAIL",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "MUST_CHANGE_PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DISABLED",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DAYS_TO_EXPIRY",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MINS_TO_UNLOCK",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "DEFAULT_WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_NAMESPACE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_ROLE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_SECONDARY_ROLES",
+                Ref("EqualsSegment"),
+                Bracketed(Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "MINS_TO_BYPASS_MFA",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "RSA_PUBLIC_KEY",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "RSA_PUBLIC_KEY_2",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
         ),
     )
 
