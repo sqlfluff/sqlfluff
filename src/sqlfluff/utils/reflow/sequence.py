@@ -55,6 +55,10 @@ class ReflowSequence:
         """Get the current fix buffer."""
         return self.embodied_fixes
 
+    def get_raw(self):
+        """Get the current raw representation."""
+        return "".join(elem.raw for elem in self.elements)
+
     @staticmethod
     def _validate_reflow_sequence(elements: ReflowSequenceType):
         assert elements, "ReflowSequence has empty elements."

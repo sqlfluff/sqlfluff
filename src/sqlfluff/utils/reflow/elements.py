@@ -36,6 +36,11 @@ class ReflowElement:
         """
         return self._class_types(self.segments)
 
+    @property
+    def raw(self):
+        """Get the current raw representation."""
+        return "".join(seg.raw for seg in self.segments)
+
 
 @dataclass(frozen=True)
 class ReflowBlock(ReflowElement):
@@ -411,7 +416,9 @@ class ReflowPoint(ReflowElement):
         )
 
         # Is there a newline?
-        if self.class_types.intersection({"newline", "end_of_file"}):
+        # NOTE: We do this based on the segment buffer rather than self.class_types
+        # because we may have just removed any present newlines in the buffer.
+        if any(seg.is_type("newline", "end_of_file") for seg in segment_buffer):
             # Most of this section should be handled as _Indentation_.
             # BUT: There is one case we should handle here.
             # If we find that the last whitespace has a newline
