@@ -154,7 +154,7 @@ test_excess_space_with_align_alias:
         alias_expression:
           spacing_before: align
           align_within: select_clause
-          align_boundary: statement
+          align_boundary: bracketed
 
 test_missing_keyword_with_align_alias:
   fail_str: |
@@ -208,4 +208,27 @@ test_excess_space_with_align_alias_wider:
         alias_expression:
           spacing_before: align
           align_within: select_statement
-          align_boundary: statement
+          align_boundary: bracketed
+
+test_align_alias_boundary:
+  # The alias inside the expression shouldn't move.
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        (SELECT b AS c)      AS second_column
+  fix_str: |
+    SELECT
+        a               AS first_column,
+        (SELECT b AS c) AS second_column
+  configs: *align_alias
+
+test_align_alias_inline_pass:
+  # The aliases on the same line shouldn't panic.
+  pass_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias
+
+test_align_alias_inline_fail:
+  # The aliases on the same line shouldn't panic.
+  fail_str: SELECT a   AS   b  ,   c   AS   d    FROM tbl
+  fix_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias

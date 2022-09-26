@@ -309,40 +309,54 @@ class ReflowPoint(ReflowElement):
                                 "by a boundary: %s",
                                 sibling,
                             )
-                    # Work out the current spacing before each.
-                    last_code = None
-                    max_desired_line_pos = 0
-                    for seg in parent_segment.raw_segments:
-                        for sibling in siblings:
-                            # NOTE: We're asserting that there must have been
-                            # a last_code. Otherwise this won't work.
-                            if (
-                                seg.pos_marker.working_loc
-                                == sibling.pos_marker.working_loc
-                                and last_code
-                            ):
-                                loc = last_code.pos_marker.working_loc_after(
-                                    last_code.raw
-                                )
-                                reflow_logger.debug(
-                                    "    loc for %s: %s from %s",
-                                    sibling,
-                                    loc,
-                                    last_code,
-                                )
-                                if loc[1] > max_desired_line_pos:
-                                    max_desired_line_pos = loc[1]
-                        if seg.is_code:
-                            last_code = seg
 
-                    desired_space = " " * (
-                        1 + max_desired_line_pos - ws_seg.pos_marker.working_line_pos
-                    )
-                    reflow_logger.debug(
-                        "    desired_space: %r (based on max line pos of %s)",
-                        desired_space,
-                        max_desired_line_pos,
-                    )
+                    # Is the current indent the only one on the line?
+                    if any(
+                        sibling.pos_marker.working_line_no
+                        == next_block.segments[0].pos_marker.working_line_no
+                        for sibling in siblings
+                    ):
+                        reflow_logger.debug(
+                            "    Found sibling on same line. Treat as single"
+                        )
+                        desired_space = " "
+                    else:
+                        # Work out the current spacing before each.
+                        last_code = None
+                        max_desired_line_pos = 0
+                        for seg in parent_segment.raw_segments:
+                            for sibling in siblings:
+                                # NOTE: We're asserting that there must have been
+                                # a last_code. Otherwise this won't work.
+                                if (
+                                    seg.pos_marker.working_loc
+                                    == sibling.pos_marker.working_loc
+                                    and last_code
+                                ):
+                                    loc = last_code.pos_marker.working_loc_after(
+                                        last_code.raw
+                                    )
+                                    reflow_logger.debug(
+                                        "    loc for %s: %s from %s",
+                                        sibling,
+                                        loc,
+                                        last_code,
+                                    )
+                                    if loc[1] > max_desired_line_pos:
+                                        max_desired_line_pos = loc[1]
+                            if seg.is_code:
+                                last_code = seg
+
+                        desired_space = " " * (
+                            1
+                            + max_desired_line_pos
+                            - ws_seg.pos_marker.working_line_pos
+                        )
+                        reflow_logger.debug(
+                            "    desired_space: %r (based on max line pos of %s)",
+                            desired_space,
+                            max_desired_line_pos,
+                        )
             else:
                 desired_space = " "
 
