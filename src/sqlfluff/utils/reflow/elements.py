@@ -29,14 +29,6 @@ class ReflowElement:
         return set(chain.from_iterable(seg.class_types for seg in segments))
 
     @property
-    def class_types(self):
-        """The set of contained class types.
-
-        Parallel to BaseSegment.class_types
-        """
-        return self._class_types(self.segments)
-
-    @property
     def raw(self):
         """Get the current raw representation."""
         return "".join(seg.raw for seg in self.segments)
