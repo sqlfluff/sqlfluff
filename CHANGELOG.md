@@ -14,6 +14,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a release for dialect fixes and improvements with additions
+and changes to TSQL, Snowflake, MySQL & Redshift. The other changes of note are:
+1. Support for warnings when users set old removed config values. This supports
+   future change work by allowing a mechanism to warn if they are used.
+2. Improvements to the fix routines for L014 and L042 to handle some trickier
+   cases.
+
 ## What’s Changed
 
 * Add CreateUserSegment for Snowflake dialect [#3880](https://github.com/sqlfluff/sqlfluff/pull/3880) [@Gal40n04ek](https://github.com/Gal40n04ek)
