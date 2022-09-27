@@ -10,6 +10,49 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.3.2] - 2022-09-27
+
+## Highlights
+
+This is primarily a release for dialect fixes and improvements with additions
+and changes to TSQL, Snowflake, MySQL & Redshift. The other changes of note are:
+1. Support for warnings when users set old removed config values. This supports
+   future change work by allowing a mechanism to warn if they are used.
+2. Improvements to the fix routines for L014 and L042 to handle some trickier
+   cases.
+
+## What’s Changed
+
+* Add CreateUserSegment for Snowflake dialect [#3880](https://github.com/sqlfluff/sqlfluff/pull/3880) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* raw_segments_with_ancestors [#3878](https://github.com/sqlfluff/sqlfluff/pull/3878) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Adjust TSQL Operators [#3877](https://github.com/sqlfluff/sqlfluff/pull/3877) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Refactor path_to [#3875](https://github.com/sqlfluff/sqlfluff/pull/3875) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support Removed warning on configs [#3874](https://github.com/sqlfluff/sqlfluff/pull/3874) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: Support column-path operator for JSON type [#3864](https://github.com/sqlfluff/sqlfluff/pull/3864) [@yoichi](https://github.com/yoichi)
+* T-SQL: ALTER FUNCTION/PROCEDURE/VIEW parsing [#3867](https://github.com/sqlfluff/sqlfluff/pull/3867) [@differgroup](https://github.com/differgroup)
+* MySQL: Support hexadecimal literals and bit value literals [#3869](https://github.com/sqlfluff/sqlfluff/pull/3869) [@yoichi](https://github.com/yoichi)
+* MySQL: Treat double quotes the same as single quotes [#3871](https://github.com/sqlfluff/sqlfluff/pull/3871) [@yoichi](https://github.com/yoichi)
+* Snowflake: COMMIT WORK [#3862](https://github.com/sqlfluff/sqlfluff/pull/3862) [@rglbr](https://github.com/rglbr)
+* Snowflake: AlterShareStatementSegment and CreateDatabaseFromShareStatementSegment [#3858](https://github.com/sqlfluff/sqlfluff/pull/3858) [@moreaupascal56](https://github.com/moreaupascal56)
+* MySQL: Add CREATE/ALTER VIEW [#3859](https://github.com/sqlfluff/sqlfluff/pull/3859) [@wfelipew](https://github.com/wfelipew)
+* Redshift: CREATE TABLE LIKE enhancements [#3853](https://github.com/sqlfluff/sqlfluff/pull/3853) [@greg-finley](https://github.com/greg-finley)
+* L014 leading underscore capitalization inference fix [#3841](https://github.com/sqlfluff/sqlfluff/pull/3841) [@j-svensmark](https://github.com/j-svensmark)
+* MySQL: Add extended DROP TRIGGER functionality [#3846](https://github.com/sqlfluff/sqlfluff/pull/3846) [@yoichi](https://github.com/yoichi)
+* Allow standalone aliases in L027 [#3848](https://github.com/sqlfluff/sqlfluff/pull/3848) [@olagjo](https://github.com/olagjo)
+* L042: Enable autofix for some tricky cases [#3700](https://github.com/sqlfluff/sqlfluff/pull/3700) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: CREATE FUNCTION IF NOT EXISTS [#3845](https://github.com/sqlfluff/sqlfluff/pull/3845) [@greg-finley](https://github.com/greg-finley)
+* ignore functions with more than one element ... [#3792](https://github.com/sqlfluff/sqlfluff/pull/3792) [@fmms](https://github.com/fmms)
+* MySQL: support remaining constraint parts of CREATE/ALTER TABLE [#3827](https://github.com/sqlfluff/sqlfluff/pull/3827) [@yoichi](https://github.com/yoichi)
+
+## New Contributors
+
+* [@olagjo](https://github.com/olagjo) made their first contribution in [#3848](https://github.com/sqlfluff/sqlfluff/pull/3848)
+* [@j-svensmark](https://github.com/j-svensmark) made their first contribution in [#3841](https://github.com/sqlfluff/sqlfluff/pull/3841)
+* [@wfelipew](https://github.com/wfelipew) made their first contribution in [#3859](https://github.com/sqlfluff/sqlfluff/pull/3859)
+* [@moreaupascal56](https://github.com/moreaupascal56) made their first contribution in [#3858](https://github.com/sqlfluff/sqlfluff/pull/3858)
+* [@rglbr](https://github.com/rglbr) made their first contribution in [#3862](https://github.com/sqlfluff/sqlfluff/pull/3862)
+* [@differgroup](https://github.com/differgroup) made their first contribution in [#3867](https://github.com/sqlfluff/sqlfluff/pull/3867)
+
 ## [1.3.1] - 2022-09-09
 
 ## Highlights
