@@ -34,7 +34,5 @@ class Rule_L024(Rule_L023):
 
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
-    pre_segment_identifier = ("raw_upper", "USING")
-    post_segment_identifier = ("type", "bracketed")
-    expand_children = None
-    allow_newline = True
+    target_keyword = "USING"
+    strip_newlines = False

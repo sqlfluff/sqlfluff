@@ -39,7 +39,7 @@ class FunctionalContext:
         )
 
     @property
-    def raw_stack(self) -> "Segments":
+    def raw_stack(self) -> "Segments":  # pragma: no cover
         """Returns a Segments object for context.raw_stack."""
         return Segments(
             *self.context.raw_stack, templated_file=self.context.templated_file

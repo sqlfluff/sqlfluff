@@ -8,13 +8,15 @@ test_pass_expression:
   pass_str: "SELECT ('foo' || 'bar') as buzz"
 
 test_fail_as:
+  # NOTE: we should fix the _missing_ whitespace but not the excess.
+  # That's covered in L039.
   fail_str: |
     SELECT
-        'foo'AS bar
+        'foo'AS   bar
     FROM foo
   fix_str: |
     SELECT
-        'foo' AS bar
+        'foo' AS   bar
     FROM foo
 
 test_fail_expression:
