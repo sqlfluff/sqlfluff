@@ -10,6 +10,7 @@ from typing import (
 )
 
 from dataclasses import dataclass, field
+from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
@@ -25,6 +26,7 @@ class RuleContext:
     fix: bool
     templated_file: Optional[TemplatedFile]
     path: Optional[pathlib.Path]
+    config: FluffConfig
 
     # These change within a file.
     # segment: The segment in question

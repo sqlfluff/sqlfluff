@@ -3,6 +3,7 @@
 Any files in the test/fixtures/dialects/ directory will be picked up
 and automatically tested against the appropriate dialect.
 """
+import logging
 from typing import Any, Dict, Optional
 import pytest
 
@@ -63,7 +64,9 @@ def test__dialect__base_file_parse(dialect, file):
 
 @pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
-def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
+def test__dialect__base_broad_fix(
+    dialect, file, raise_critical_errors_after_fix, caplog
+):
     """Run a full fix with all rules, in search of critical errors."""
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
@@ -75,7 +78,8 @@ def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix
     config = FluffConfig(overrides=config_overides)
     # Due to "raise_critical_errors_after_fix" fixure "fix",
     # will now throw.
-    Linter(config=config).lint_string(raw, fix=True)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
+        Linter(config=config).lint_string(raw, fix=True)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
