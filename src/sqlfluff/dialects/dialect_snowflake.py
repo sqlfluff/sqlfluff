@@ -995,6 +995,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
             Ref("CreateDatabaseFromShareStatementSegment"),
+            Ref("CreateNetworkPolicyStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2233,6 +2234,47 @@ class CreateDatabaseFromShareStatementSegment(BaseSegment):
     )
 
 
+class CreateNetworkPolicyStatementSegment(BaseSegment):
+    """A snowflake `CREATE NETWORK POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-network-policy.html
+    """
+
+    type = "create_network_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "NETWORK",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ALLOWED_IP_LIST",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "BLOCKED_IP_LIST",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CreateProcedureStatementSegment(BaseSegment):
     """A snowflake `CREATE ... PROCEDURE` statement.
 
@@ -3036,7 +3078,6 @@ class CreateStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf(
-            Sequence("NETWORK", "POLICY"),
             Sequence("RESOURCE", "MONITOR"),
             "SHARE",
             "ROLE",
