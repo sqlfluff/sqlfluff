@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 20b2664374ee5c7824fba4b3c64e369703564ec0cf5807374b7488d3e09a5a28
+_hash: 9315b4c172e0bf1ae67125034ad97c68730a35c856061ebdd6fe8a0fe9aaaaf7
 file:
 - statement:
-    create_network_policy_statement:
+    create_statement:
     - keyword: create
     - keyword: network
     - keyword: policy
@@ -28,7 +28,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_network_policy_statement:
+    create_statement:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
