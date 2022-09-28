@@ -15,9 +15,6 @@ line_position = leading
 tab_space_size = 2
 max_line_length = 120
 
-[sqlfluff:rules:L007]  # Keywords
-operator_new_lines = after
-
 [sqlfluff:rules:L010]  # Keywords
 capitalisation_policy = upper
 

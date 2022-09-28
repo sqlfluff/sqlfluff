@@ -91,8 +91,8 @@ class ReflowConfig:
         When fetching the config for a single class type for a simple block
         we should just get an appropriate simple config back.
         >>> cfg = ReflowConfig.from_dict({"comma": {"spacing_before": "touch"}})
-        >>> cfg.get_block_config({"comma"})
-        BlockConfig(spacing_before='touch', spacing_after='single', spacing_within=None)
+        >>> cfg.get_block_config({"comma"})  # doctest: +ELLIPSIS
+        BlockConfig(spacing_before='touch', spacing_after='single', ...)
         """
         # set intersection to get the class types which matter
         configured_types = self.config_types.intersection(block_class_types)

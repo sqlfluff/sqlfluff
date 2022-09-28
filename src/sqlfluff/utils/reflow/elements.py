@@ -29,6 +29,14 @@ class ReflowElement:
         return set(chain.from_iterable(seg.class_types for seg in segments))
 
     @property
+    def class_types(self):
+        """The set of contained class types.
+
+        Parallel to BaseSegment.class_types
+        """
+        return self._class_types(self.segments)
+
+    @property
     def raw(self):
         """Get the current raw representation."""
         return "".join(seg.raw for seg in self.segments)
@@ -547,13 +555,28 @@ class ReflowPoint(ReflowElement):
         """
         # Get the indent (or in the case of no newline, the last whitespace)
         indent_seg = self._get_indent_segment()
+        reflow_logger.debug(
+            "Coercing indent %s to %r. (newlines: %s)",
+            indent_seg,
+            desired_indent,
+            self.num_newlines(),
+        )
         if self.num_newlines():
             # There is already a newline.
             if indent_seg:
                 # Coerce existing indent to desired.
                 if indent_seg.raw == desired_indent:
-                    # trivial case. indent already correct
+                    # Trivial case. Indent already correct
                     return [], self
+                elif desired_indent == "":
+                    # Coerce to no indent. We don't want the indent. Delete it.
+                    new_indent = indent_seg.edit(desired_indent)
+                    idx = self.segments.index(indent_seg)
+                    return [LintFix.delete(indent_seg)], ReflowPoint(
+                        list(self.segments[:idx]) + list(self.segments[idx + 1 :])
+                    )
+
+                # Standard case of an indent change.
                 new_indent = indent_seg.edit(desired_indent)
                 idx = self.segments.index(indent_seg)
                 return [LintFix.replace(indent_seg, [new_indent])], ReflowPoint(
@@ -581,7 +604,7 @@ class ReflowPoint(ReflowElement):
                 # There isn't a whitespace segment either. We need to insert one.
                 # Do we have an anchor?
                 new_indent = WhitespaceSegment(desired_indent)
-                if not before and not after:
+                if not before and not after:  # pragma: no cover
                     raise NotImplementedError(
                         "Not set up to handle empty points in this "
                         "scenario without provided before/after "
@@ -596,13 +619,19 @@ class ReflowPoint(ReflowElement):
                 new_point = ReflowPoint([new_newline, new_indent])
             else:
                 # There is whitespace. Coerce it to the right indent and add
-                # a newline _before_
+                # a newline _before_. In the edge case that we're coercing to
+                # _no indent_, edit existing indent to be the newline and leave
+                # it there.
+                new_segs: List[RawSegment]
+                if desired_indent == "":
+                    new_segs = [new_newline]
+                else:
+                    new_segs = [new_newline, indent_seg.edit(desired_indent)]
                 idx = self.segments.index(indent_seg)
-                new_indent = indent_seg.edit(desired_indent)
-                fix = LintFix.replace(indent_seg, [new_newline, new_indent])
+                fix = LintFix.replace(indent_seg, new_segs)
                 new_point = ReflowPoint(
                     list(self.segments[:idx])
-                    + [new_newline, new_indent]
+                    + new_segs
                     + list(self.segments[idx + 1 :])
                 )
 
@@ -644,9 +673,8 @@ class ReflowPoint(ReflowElement):
         # NOTE: We do this based on the segment buffer rather than self.class_types
         # because we may have just removed any present newlines in the buffer.
         if (
-            any(seg.is_type("newline", "end_of_file") for seg in segment_buffer)
-            and not strip_newlines
-        ):
+            any(seg.is_type("newline") for seg in segment_buffer) and not strip_newlines
+        ) or any(seg.is_type("end_of_file") for seg in segment_buffer):
             # Most of this section should be handled as _Indentation_.
             # BUT: There is one case we should handle here.
             # If we find that the last whitespace has a newline

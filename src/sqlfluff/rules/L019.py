@@ -54,6 +54,7 @@ class Rule_L019(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
+    _adjust_anchors = True
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Enforce comma placement.
