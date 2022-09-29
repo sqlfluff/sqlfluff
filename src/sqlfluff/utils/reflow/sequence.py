@@ -384,7 +384,7 @@ class ReflowSequence:
         )
 
     def insert(
-        self, insertion: RawSegment, target: RawSegment, pos: str = "before"
+        self, insertion: RawSegment, target: BaseSegment, pos: str = "before"
     ) -> "ReflowSequence":
         """Returns a new reflow sequence with the new element inserted.
 
@@ -392,7 +392,18 @@ class ReflowSequence:
         or after it as specified by `pos`.
         """
         assert pos in ("before", "after")
-        target_idx = self._find_element_idx_with(target)
+
+        # If the target isn't a raw segment, work out the appropriate raw
+        # segment to reference.
+        if not isinstance(target, RawSegment):
+            if pos == "before":
+                target_raw = target.raw_segments[0]
+            else:
+                target_raw = target.raw_segments[-1]
+        else:
+            target_raw = target
+        target_idx = self._find_element_idx_with(target_raw)
+
         # Are we trying to insert something whitespace-like?
         if insertion.is_type("whitespace", "indent", "newline"):  # pragma: no cover
             raise ValueError(
@@ -400,22 +411,94 @@ class ReflowSequence:
                 "spacing elements such as whitespace or newlines"
             )
 
+        # Add the new segments to the depth map at the same level as the target.
+        # First work out how much to trim by.
+        trim_amount = len(target.path_to(target_raw))
+        reflow_logger.debug(
+            "Insertion trim amount: %s.",
+            trim_amount,
+        )
+
         # We're inserting something blocky. That means a new block AND a new point.
         # It's possible we try to _split_ a point by targeting a whitespace element
         # inside a larger point. For now this isn't supported.
         # NOTE: We use the depth info of the reference anchor, with the assumption
         # (I think reliable) that the insertion will be applied as a sibling of
         # the target.
-        self.depth_map.copy_depth_info(target, insertion)
+        # NOTE: if target raws has more than one segment we take the depth info
+        # of the first one. We trim to avoid including the implications of removed
+        # "container" segments.
+        self.depth_map.copy_depth_info(target_raw, insertion, trim=trim_amount)
         new_block = ReflowBlock.from_config(
             segments=[insertion],
             config=self.reflow_config,
-            depth_info=self.depth_map.get_depth_info(target),
+            depth_info=self.depth_map.get_depth_info(insertion),
         )
         if isinstance(self.elements[target_idx], ReflowPoint):
-            raise NotImplementedError(  # pragma: no cover
-                "Can't insert relative to whitespace for now."
-            )
+            # This is likely inserting relative to an indent or dedent.
+            # In any case it's either within a point or at the end of one.
+            if pos == "before" and target_raw == self.elements[target_idx].segments[0]:
+                return ReflowSequence(
+                    elements=self.elements[:target_idx]
+                    + [ReflowPoint([]), new_block]
+                    + self.elements[target_idx:],
+                    root_segment=self.root_segment,
+                    reflow_config=self.reflow_config,
+                    depth_map=self.depth_map,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_before(target, [insertion])],
+                )
+            elif (
+                pos == "after" and target_raw == self.elements[target_idx].segments[-1]
+            ):
+                return ReflowSequence(
+                    elements=self.elements[: target_idx + 1]
+                    + [new_block, ReflowPoint([])]
+                    + self.elements[target_idx + 1 :],
+                    root_segment=self.root_segment,
+                    reflow_config=self.reflow_config,
+                    depth_map=self.depth_map,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_after(target, [insertion])],
+                )
+
+            # Ok we're going to need to _split_ the point
+            split_idx = self.elements[target_idx].segments.index(target_raw)
+            if pos == "before":
+                return ReflowSequence(
+                    elements=self.elements[:target_idx]
+                    + [
+                        ReflowPoint(self.elements[target_idx].segments[:split_idx]),
+                        new_block,
+                        ReflowPoint(self.elements[target_idx].segments[split_idx:]),
+                    ]
+                    + self.elements[target_idx + 1 :],
+                    root_segment=self.root_segment,
+                    reflow_config=self.reflow_config,
+                    depth_map=self.depth_map,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_before(target, [insertion])],
+                )
+            elif pos == "after":
+                return ReflowSequence(
+                    elements=self.elements[:target_idx]
+                    + [
+                        ReflowPoint(
+                            self.elements[target_idx].segments[: split_idx + 1]
+                        ),
+                        new_block,
+                        ReflowPoint(
+                            self.elements[target_idx].segments[split_idx + 1 :]
+                        ),
+                    ]
+                    + self.elements[target_idx + 1 :],
+                    root_segment=self.root_segment,
+                    reflow_config=self.reflow_config,
+                    depth_map=self.depth_map,
+                    # Generate the fix to do the removal.
+                    embodied_fixes=[LintFix.create_after(target, [insertion])],
+                )
+
         elif pos == "before":
             return ReflowSequence(
                 elements=self.elements[:target_idx]
