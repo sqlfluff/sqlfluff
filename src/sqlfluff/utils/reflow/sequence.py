@@ -872,7 +872,10 @@ class ReflowSequence:
                 if not elem_buff[loc.next_nl_idx].num_newlines():
                     reflow_logger.debug("  Found missing newline after in alone case")
                     fixes, next_point = next_point.indent_to(
-                        self._deduce_line_indent(loc.target.raw_segments[-1]),
+                        # Even though we're inserting after, insert at indent of
+                        # the _start_ of the target. This ensures we're in line
+                        # with the target itself.
+                        self._deduce_line_indent(loc.target.raw_segments[0]),
                         after=loc.target,
                     )
                     # Update the point in the buffer
@@ -886,6 +889,7 @@ class ReflowSequence:
                     # but there isn't an unambiguous way to do this, because we
                     # can't be sure what the comments are referring to.
                     # Given that, we take the simple option.
+                    # TODO: When we've implemented more stuff, maybe revisit this.
                     fixes, prev_point = prev_point.indent_to(
                         self._deduce_line_indent(loc.target.raw_segments[0]),
                         before=loc.target,
