@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4dede9571dafbf9136e3725f05afe85293bd1beb457aa05c4ae7238cece9d78c
+_hash: 40c32eb27d8d8dc065fe6ac0e484d6b1f9ffffaf63230c70c66d24d20c93d5da
 file:
   statement:
     create_table_statement:
@@ -39,6 +39,11 @@ file:
           data_type:
             data_type_identifier: INT
       - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
       - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
@@ -69,6 +74,20 @@ file:
       - table_constraint:
           keyword: INDEX
           index_reference:
+            quoted_identifier: '`idx_prefix_a`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            bracketed:
+              start_bracket: (
+              numeric_literal: '20'
+              end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
             quoted_identifier: '`idx_b`'
           bracketed:
             start_bracket: (
@@ -79,6 +98,28 @@ file:
             comment_clause:
               keyword: COMMENT
               quoted_literal: "'index (b)'"
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_desc_b`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: b
+            keyword: DESC
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_asc_c`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: c
+            keyword: ASC
+            end_bracket: )
       - end_bracket: )
     - parameter: ENGINE
     - comparison_operator:
