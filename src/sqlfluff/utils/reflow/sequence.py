@@ -29,6 +29,7 @@ class _RebreakSpan:
     start_idx: int
     end_idx: int
     line_position: str
+    strict: bool
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ class _RebreakLocation:
     next_nl_idx: int
     next_code_pt_idx: int
     line_position: str
+    strict: bool
 
     @classmethod
     def from_span(cls, span: _RebreakSpan, elements: ReflowSequenceType):
@@ -87,6 +89,7 @@ class _RebreakLocation:
             next_nl_idx,
             next_code_pt_idx,
             span.line_position,
+            span.strict,
         )
 
     def has_templated_newline(self, elements: ReflowSequenceType) -> bool:
@@ -112,16 +115,25 @@ class _RebreakLocation:
                 break
         return False
 
-    def has_inappropriate_newlines(self, elements: ReflowSequenceType) -> bool:
-        """Is the span surrounded by one (but not two) line breaks?"""
+    def has_inappropriate_newlines(
+        self, elements: ReflowSequenceType, strict: bool = False
+    ) -> bool:
+        """Is the span surrounded by one (but not two) line breaks?
+
+        Args:
+            elements: The elements of the ReflowSequence this element
+               is taken from to allow comparison.
+            strict (:obj:`bool`): If set to true, this will not allow
+               the case where there aren't newlines on either side.
+        """
         # Here we use the newline index, not
         # just the adjacent point, so that we can see past comments.
         n_prev_newlines = elements[self.prev_nl_idx].num_newlines()
         n_next_newlines = elements[self.next_nl_idx].num_newlines()
         return (
             # If there isn't a newline on either side then carry
-            # on. We're not interested in this yet.
-            not bool(n_prev_newlines or n_next_newlines)
+            # on, unless it's strict.
+            not bool(n_prev_newlines or n_next_newlines or strict)
             # If there is a newline on BOTH sides. That's ok.
             or bool(n_prev_newlines and n_next_newlines)
         )
@@ -591,7 +603,15 @@ class ReflowSequence:
             if elem.line_position:
                 # Blocks should only have one segment so it's easy to pick it.
                 spans.append(
-                    _RebreakSpan(elem.segments[0], idx, idx, elem.line_position)
+                    _RebreakSpan(
+                        elem.segments[0],
+                        idx,
+                        idx,
+                        # NOTE: this isn't pretty but until it needs to be more
+                        # complex, this works.
+                        elem.line_position.split(":")[0],
+                        elem.line_position.endswith("strict"),
+                    )
                 )
             # Do any of it's parents have config, and are we at the start
             # of them?
@@ -614,7 +634,13 @@ class ReflowSequence:
                         ].segment
                         spans.append(
                             _RebreakSpan(
-                                target, idx, end_idx, elem.line_position_configs[key]
+                                target,
+                                idx,
+                                end_idx,
+                                # NOTE: this isn't pretty but until it needs to be more
+                                # complex, this works.
+                                elem.line_position_configs[key].split(":")[0],
+                                elem.line_position_configs[key].endswith("strict"),
                             )
                         )
                         break
@@ -676,7 +702,7 @@ class ReflowSequence:
                 ),
             )
 
-            if loc.has_inappropriate_newlines(elem_buff):
+            if loc.has_inappropriate_newlines(elem_buff, strict=loc.strict):
                 continue
 
             if loc.has_templated_newline(elem_buff):
@@ -819,6 +845,44 @@ class ReflowSequence:
                         + elem_buff[loc.prev_code_pt_idx : loc.prev_point_idx + 1]
                         + elem_buff[loc.next_point_idx + 1 :]
                     )
+
+            elif loc.line_position == "alone":
+                # If we get here we can assume that the element is currently
+                # either leading or trailing and needs to be moved onto it's
+                # own line.
+
+                # First handle the following newlines first (easy).
+                if not elem_buff[loc.next_nl_idx].num_newlines():
+                    reflow_logger.debug("  Found missing newline after in alone case")
+                    if prev_point.num_newlines():
+                        new_indent = prev_point.get_indent() or ""
+                    else:
+                        # TODO: This needs to be smarter!
+                        new_indent = ""
+                    fixes, next_point = next_point.indent_to(
+                        new_indent, after=loc.target
+                    )
+                    # Update the point in the buffer
+                    elem_buff[loc.next_point_idx] = next_point
+
+                # Then handle newlines before. (hoisting past comments if needed).
+                if not elem_buff[loc.prev_point_idx].num_newlines():
+                    reflow_logger.debug("  Found missing newline before in alone case")
+                    # NOTE: In the case that there are comments _after_ the
+                    # target, they will be moved with it. This might break things
+                    # but there isn't an unambiguous way to do this, because we
+                    # can't be sure what the comments are referring to.
+                    # Given that, we take the simple option.
+                    if next_point.num_newlines():
+                        new_indent = next_point.get_indent() or ""
+                    else:
+                        # TODO: This needs to be smarter!
+                        new_indent = ""
+                    fixes, prev_point = prev_point.indent_to(
+                        new_indent, before=loc.target
+                    )
+                    # Update the point in the buffer
+                    elem_buff[loc.prev_point_idx] = prev_point
 
             else:
                 raise NotImplementedError(  # pragma: no cover
