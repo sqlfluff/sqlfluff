@@ -199,7 +199,9 @@ class ReflowSequence:
         elem_buff: ReflowSequenceType = []
         seg_buff: List[RawSegment] = []
         for seg in segments:
-            if seg.is_type("whitespace", "newline", "end_of_file", "indent"):
+            # NOTE: end_of_file is block-like rather than point-like.
+            # This is to facilitate better evaluation of the ends of files.
+            if seg.is_type("whitespace", "newline", "indent"):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)
                 continue
@@ -219,7 +221,8 @@ class ReflowSequence:
             seg_buff = []
 
         # If we ended with a buffer, apply it.
-        if seg_buff:
+        # TODO: Consider removing this clause?
+        if seg_buff:  # pragma: no cover
             elem_buff.append(ReflowPoint(segments=seg_buff))
         return elem_buff
 
@@ -508,10 +511,10 @@ class ReflowSequence:
             filter (:obj:`str`): Optionally filter which reflow points
                 to respace. Default configuration is `all`. Other options
                 are `line_break` which only respaces points containing
-                a `newline` or `end_of_file` marker or `inline` which
-                is the inverse of `line_break`. This is most useful for
-                filtering between trailing whitespace and fixes between
-                content on a line.
+                a `newline` or followed by an `end_of_file` marker, or
+                `inline` which is the inverse of `line_break`. This is
+                most useful for filtering between trailing whitespace
+                and fixes between content on a line.
 
         This resets spacing in a ReflowSequence. Note, it relies on the
         embodied fixes being correct so that we can build on them.
@@ -539,17 +542,22 @@ class ReflowSequence:
                 filter == "inline"
                 if (
                     # NOTE: We test on the NEW point.
-                    any(
-                        seg.is_type("newline", "end_of_file")
-                        for seg in new_point.segments
-                    )
+                    any(seg.is_type("newline") for seg in new_point.segments)
+                    # Or if it's followed by the end of file
+                    or (post and "end_of_file" in post.class_types)
                 )
                 else filter == "newline"
             ):
                 # Reset the values
+                reflow_logger.debug(
+                    "    Filter %r applied. Resetting %s", filter, point
+                )
                 new_point = point
             # Otherwise apply the new fixes
             else:
+                reflow_logger.debug(
+                    "    Filter %r allows fixes for point: %s", filter, new_fixes
+                )
                 fixes = new_fixes
 
             if pre and (not new_elements or new_elements[-1] != pre):
