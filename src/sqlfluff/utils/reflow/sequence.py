@@ -652,6 +652,23 @@ class ReflowSequence:
                     continue
         return spans
 
+    def _deduce_line_indent(self, raw_segment: RawSegment) -> str:
+        """Given a raw segment, deduce the indent of it's line."""
+        seg_idx = self.root_segment.raw_segments.index(raw_segment)
+        indent_seg = None
+        for seg in self.root_segment.raw_segments[:seg_idx:-1]:
+            if seg.is_code:
+                indent_seg = None
+            elif seg.is_type("whitespace"):
+                indent_seg = seg
+            elif seg.is_type("newline"):
+                break
+        reflow_logger.debug("Deduced indent for %s as %s", raw_segment, indent_seg)
+        if indent_seg:
+            return indent_seg.raw
+        else:
+            return ""
+
     def rebreak(self):
         """Reflow line breaks within a sequence.
 
@@ -854,13 +871,9 @@ class ReflowSequence:
                 # First handle the following newlines first (easy).
                 if not elem_buff[loc.next_nl_idx].num_newlines():
                     reflow_logger.debug("  Found missing newline after in alone case")
-                    if prev_point.num_newlines():
-                        new_indent = prev_point.get_indent() or ""
-                    else:
-                        # TODO: This needs to be smarter!
-                        new_indent = ""
                     fixes, next_point = next_point.indent_to(
-                        new_indent, after=loc.target
+                        self._deduce_line_indent(loc.target.raw_segments[-1]),
+                        after=loc.target,
                     )
                     # Update the point in the buffer
                     elem_buff[loc.next_point_idx] = next_point
@@ -873,13 +886,9 @@ class ReflowSequence:
                     # but there isn't an unambiguous way to do this, because we
                     # can't be sure what the comments are referring to.
                     # Given that, we take the simple option.
-                    if next_point.num_newlines():
-                        new_indent = next_point.get_indent() or ""
-                    else:
-                        # TODO: This needs to be smarter!
-                        new_indent = ""
                     fixes, prev_point = prev_point.indent_to(
-                        new_indent, before=loc.target
+                        self._deduce_line_indent(loc.target.raw_segments[0]),
+                        before=loc.target,
                     )
                     # Update the point in the buffer
                     elem_buff[loc.prev_point_idx] = prev_point

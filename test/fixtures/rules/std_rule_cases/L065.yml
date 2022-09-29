@@ -110,13 +110,5 @@ test_fail_simple_fix_bigquery_intersect_distinct_before_and_after:
     core:
       dialect: bigquery
 
-test_fail_autofix_in_tsql_disabled:
-  fail_str: |
-    SELECT supplyID, supplier
-    FROM dbo.SUPPLY1
-    UNION ALL
-    SELECT supplyID, supplier
-    FROM dbo.SUPPLY2
-  configs:
-    core:
-      dialect: tsql
+# NOTE: We used to exclude TSQL from fixing these queries, but
+# the reflow logic now enables this.
