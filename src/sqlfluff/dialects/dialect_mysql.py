@@ -692,7 +692,7 @@ class TableConstraintSegment(BaseSegment):
                     OneOf("INDEX", "KEY", optional=True),
                     Ref("IndexReferenceSegment", optional=True),
                     Ref("IndexTypeGrammar", optional=True),
-                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("BracketedKeyPartListGrammar"),
                     Ref("IndexOptionsSegment", optional=True),
                 ),
                 # PRIMARY KEY [index_type] (key_part,...) [index_option] ...
@@ -700,7 +700,7 @@ class TableConstraintSegment(BaseSegment):
                     Ref("PrimaryKeyGrammar"),
                     Ref("IndexTypeGrammar", optional=True),
                     # Columns making up PRIMARY KEY constraint
-                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("BracketedKeyPartListGrammar"),
                     Ref("IndexOptionsSegment", optional=True),
                 ),
                 # FOREIGN KEY [index_name] (col_name,...) reference_definition
@@ -748,7 +748,7 @@ class TableConstraintSegment(BaseSegment):
             OneOf("INDEX", "KEY"),
             Ref("IndexReferenceSegment", optional=True),
             Ref("IndexTypeGrammar", optional=True),
-            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("BracketedKeyPartListGrammar"),
             Ref("IndexOptionsSegment", optional=True),
         ),
         # {FULLTEXT | SPATIAL} [INDEX | KEY] [index_name] (key_part,...)
@@ -757,7 +757,7 @@ class TableConstraintSegment(BaseSegment):
             OneOf("FULLTEXT", "SPATIAL"),
             OneOf("INDEX", "KEY", optional=True),
             Ref("IndexReferenceSegment", optional=True),
-            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("BracketedKeyPartListGrammar"),
             Ref("IndexOptionsSegment", optional=True),
         ),
     )
@@ -834,6 +834,24 @@ mysql_dialect.add(
         # the correct capitalisation policy.
         OneOf("ON", "OFF"),
         OneOf("TRUE", "FALSE"),
+    ),
+    # (key_part, ...)
+    # key_part: {col_name [(length)] | (expr)} [ASC | DESC]
+    # https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    BracketedKeyPartListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Bracketed(Ref("NumericLiteralSegment")),
+                    ),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+            ),
+        ),
     ),
 )
 
