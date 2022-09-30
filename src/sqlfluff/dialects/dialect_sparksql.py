@@ -207,6 +207,7 @@ sparksql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
+        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -314,7 +315,6 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
-    PreTableFunctionKeywordsGrammar=Ref("FunctionNameSegment"),
 )
 
 sparksql_dialect.add(
@@ -2447,6 +2447,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 "WINDOW",
                 "PIVOT",
                 "KEYS",
+                "FROM",
             ),
         ),
     )
@@ -2884,7 +2885,8 @@ class ConstraintStatementSegment(BaseSegment):
 
 
 class ApplyChangesIntoStatementSegment(BaseSegment):
-    """
+    """A statement ingest CDC data a target table.
+
     https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
     """
 
@@ -2899,7 +2901,7 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
         Indent,
         Ref("TableExpressionSegment"),
         Dedent,
-        Ref("FromExpressionElementSegment"),
+        Ref("FromClauseSegment"),
         Sequence(
             "KEYS",
             Indent,
@@ -2945,5 +2947,5 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             "TYPE",
             Ref("NumericLiteralSegment"),
             optional=True,
-        )
+        ),
     )
