@@ -678,7 +678,7 @@ def test__cli__command__fix(rule, fname):
     with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
 
-
+# Money maker
 @pytest.mark.parametrize(
     "sql,fix_args,fixed,exit_code",
     [
@@ -798,6 +798,17 @@ def test__cli__command__fix(rule, fname):
             ],
             1,
         ),
+        (
+            """
+            CREATE TABLE IF NOT EXISTS vuln.software_name_dictionary(
+            id SERIAL PRIMARY KEY,
+            rule VARCHAR(30),
+            );
+            """,
+            ["--force", "--dialect", "postgres", "--disable_progress_bar", "--nocolor"],
+            None,
+            1
+        )
     ],
     ids=[
         "1_lint_error_1_unsuppressed_parse_error",
@@ -807,6 +818,7 @@ def test__cli__command__fix(rule, fname):
         "0_lint_errors_1_suppressed_parse_error",
         "1_lint_error_1_unsuppressed_parse_error_FIX_EVEN_UNPARSABLE",
         "2_files_with_lint_errors_1_unsuppressed_parse_error",
+        "1_lint_error_1_unsuppressed_parse_error_postgres",
     ],
 )
 def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpdir):
