@@ -86,14 +86,14 @@ Databricks
 
 The dialect `Databricks`_ is an alias for the :ref:`sparksql_dialect_ref`.
 
-Since Databricks `builds on top of`_ Apache Spark, the Spark SQL dialect holds
-most of the definitions of common commands and structures.
+Since Databricks `builds on top of`_ Apache Spark, the Spark SQL dialect
+holds most of the definitions of common commands and structures.
 
-Specifics to Databricks, such as Delta Live Table syntax, are added to the Spark
-SQL dialect to simplify implementation and prevent code duplication for minor
-syntax updates. This follows SQLFluff's philosophy of not being strict in adhering
-to dialect specifications to permit slightly wider set of functions than actually
-available in a given dialect.
+Specifics to Databricks, such as Delta Live Table syntax, are added to the
+Spark SQL dialect to simplify implementation and prevent code duplication
+for minor syntax updates. This follows SQLFluff's philosophy of not being
+strict in adhering to dialect specifications to permit slightly wider set
+of functions than actually available in a given dialect.
 
 .. _`Databricks`: https://databricks.com/
 .. _`builds on top of` : https://www.databricks.com/spark/comparing-databricks-to-apache-spark
