@@ -33,6 +33,7 @@ from typing import (
 from collections import namedtuple
 
 from sqlfluff.core.cached_property import cached_property
+from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -64,7 +65,7 @@ class LintResult:
 
     Args:
         anchor (:obj:`BaseSegment`, optional): A segment which represents
-            the *position* of the a problem. NB: Each fix will also hold
+            the *position* of the problem. NB: Each fix will also hold
             its own reference to position, so this position is mostly for
             alerting the user to where the *problem* is.
         fixes (:obj:`list` of :obj:`LintFix`, optional): An array of any
@@ -300,7 +301,7 @@ class LintFix:
         #    character positions surrounding the insertion point (**NOT** the
         #    whole anchor segment, because we're not *touching* the anchor
         #    segment, we're inserting **RELATIVE** to it.
-        assert self.anchor.pos_marker
+        assert self.anchor.pos_marker, f"Anchor missing position marker: {self.anchor}"
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
 
@@ -482,6 +483,7 @@ class BaseRule:
         templated_file: Optional["TemplatedFile"],
         ignore_mask: List[NoQaDirective],
         fname: Optional[str],
+        config: FluffConfig,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
         """Run the rule on a given tree.
 
@@ -495,6 +497,7 @@ class BaseRule:
             templated_file=templated_file,
             path=pathlib.Path(fname) if fname else None,
             segment=tree,
+            config=config,
         )
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
@@ -655,7 +658,7 @@ class BaseRule:
         if seg.raw_upper in [
             elem[1] for elem in target_tuples if elem[0] == "raw_upper"
         ]:
-            return True
+            return True  # pragma: no cover
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         # For parent type checks, there's a higher risk of getting an incorrect
@@ -768,32 +771,46 @@ class BaseRule:
         anchor: BaseSegment = segment
         child: BaseSegment = segment
         path: Optional[List[BaseSegment]] = (
-            root_segment.path_to(segment) if root_segment else None
+            [ps.segment for ps in root_segment.path_to(segment)]
+            if root_segment
+            else None
         )
-        inner_path: Optional[List[BaseSegment]] = path[1:-1] if path else None
-        if inner_path:
-            for seg in inner_path[::-1]:
-                # Which lists of children to check against.
-                children_lists: List[List[BaseSegment]] = []
-                if filter_meta:
-                    # Optionally check against filtered (non-meta only) children.
-                    children_lists.append(
-                        [child for child in seg.segments if not child.is_meta]
+        assert path
+        for seg in path[::-1]:
+            # If the segment allows non code ends, then no problem.
+            # We're done. This is usually the outer file segment.
+            if seg.can_start_end_non_code:
+                linter_logger.debug(
+                    "Stopping hoist at %s, as allows non code ends.", seg
+                )
+                break
+            # Which lists of children to check against.
+            children_lists: List[List[BaseSegment]] = []
+            if filter_meta:
+                # Optionally check against filtered (non-meta only) children.
+                children_lists.append(
+                    [child for child in seg.segments if not child.is_meta]
+                )
+            # Always check against the full set of children.
+            children_lists.append(seg.segments)
+            children: List[BaseSegment]
+            for children in children_lists:
+                if edit_type == "create_before" and children[0] is child:
+                    linter_logger.debug(
+                        "Hoisting anchor from before %s to %s", anchor, seg
                     )
-                # Always check against the full set of children.
-                children_lists.append(seg.segments)
-                children: List[BaseSegment]
-                for children in children_lists:
-                    if edit_type == "create_before" and children[0] is child:
-                        anchor = seg
-                        assert anchor.raw.startswith(segment.raw)
-                        child = seg
-                        break
-                    elif edit_type == "create_after" and children[-1] is child:
-                        anchor = seg
-                        assert anchor.raw.endswith(segment.raw)
-                        child = seg
-                        break
+                    anchor = seg
+                    assert anchor.raw.startswith(segment.raw)
+                    child = seg
+                    break
+                elif edit_type == "create_after" and children[-1] is child:
+                    linter_logger.debug(
+                        "Hoisting anchor from after %s to %s", anchor, seg
+                    )
+                    anchor = seg
+                    assert anchor.raw.endswith(segment.raw)
+                    child = seg
+                    break
         return anchor
 
     @staticmethod

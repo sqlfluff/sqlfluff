@@ -21,7 +21,7 @@ SELECT '8'
 END;
 GO
 
-CREATE PROCEDURE [dbo].[usp_process_tran_log]
+CREATE OR ALTER PROCEDURE [dbo].[usp_process_tran_log]
 	  @out_vchCode uddt_output_code OUTPUT
 	, @out_vchMsg uddt_output_msg OUT
 	, @in_debug INT = 1 READONLY
@@ -33,7 +33,7 @@ SELECT '8'
 END;
 GO
 
-CREATE PROCEDURE [dbo].[usp_process_tran_log]
+ALTER PROCEDURE [dbo].[usp_process_tran_log]
 	  @out_vchCode uddt_output_code OUTPUT
 	, @out_vchMsg uddt_output_msg OUTPUT
 	, @in_debug INT = 1

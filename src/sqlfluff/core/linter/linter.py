@@ -425,7 +425,7 @@ class Linter:
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
-            if comment.name == "inline_comment":
+            if comment.is_type("inline_comment"):
                 ignore_entry = cls.extract_ignore_from_comment(comment, rule_codes)
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
@@ -570,6 +570,7 @@ class Linter:
                         templated_file=templated_file,
                         ignore_mask=ignore_buff,
                         fname=fname,
+                        config=config,
                     )
                     if is_first_linter_pass():
                         initial_linting_errors += linting_errors
@@ -585,7 +586,7 @@ class Linter:
                                 f"Rule {crawler.code} returned conflicting "
                                 "fixes with the same anchor. This is only "
                                 "supported for create_before+create_after, so "
-                                "the fixes will not be applied. {fixes!r}"
+                                f"the fixes will not be applied. {fixes!r}"
                             )
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:

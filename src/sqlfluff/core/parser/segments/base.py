@@ -78,6 +78,21 @@ class SourceFix:
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 
+@dataclass(frozen=True)
+class PathStep:
+    """An element of the response to BaseSegment.path_to().
+
+    Attributes:
+        segment (:obj:`BaseSegment`): The segment in the chain.
+        idx (int): The index of the target within its `segment`.
+        len (int): The number of childen `segment` has.
+    """
+
+    segment: "BaseSegment"
+    idx: int
+    len: int
+
+
 @dataclass
 class FixPatch:
     """An edit patch for a source file."""
@@ -254,7 +269,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     match_grammar: Matchable
     comment_separate = False
     optional = False  # NB: See the sequence grammar for details
-    _name: Optional[str] = None
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False
@@ -269,13 +283,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         segments,
         pos_marker: Optional[PositionMarker] = None,
-        name: Optional[str] = None,
         uuid: Optional[UUID] = None,
     ):
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
-        # Surrogate name option.
-        self._surrogate_name = name
 
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -367,22 +378,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PUBLIC PROPERTIES
 
     @property
-    def name(self) -> str:
-        """The name of this segment.
-
-        The reason for three routes for names is that some subclasses
-        might want to override the name rather than just getting
-        the class name. Instances may also override this with the
-        _surrogate_name.
-
-        Name should be specific to this kind of segment, while `type`
-        should be a higher level descriptor of the kind of segment.
-        For example, the name of `+` is 'plus' but the type might be
-        'binary_operator'.
-        """
-        return self._surrogate_name or self._name or self.__class__.__name__
-
-    @property
     def is_expandable(self) -> bool:
         """Return true if it is meaningful to call `expand` on this segment.
 
@@ -431,6 +426,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # custom.
         return self._class_types
 
+    @property
+    def expected_form(self) -> str:
+        """What to return to the user when unparsable."""
+        return self.get_type()
+
     @cached_property
     def descendant_type_set(self) -> Set[str]:
         """The set of all contained types.
@@ -469,6 +469,27 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def raw_segments(self) -> List["RawSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
+
+    @cached_property
+    def raw_segments_with_ancestors(
+        self,
+    ) -> List[Tuple["RawSegment", List[PathStep]]]:
+        """Returns a list of raw segments in this segment with the ancestors."""
+        buffer = []
+        for idx, seg in enumerate(self.segments):
+            # If it's a raw, yield it with this segment as the parent
+            new_step = [PathStep(self, idx, len(self.segments))]
+            if seg.is_type("raw"):
+                buffer.append((seg, new_step))
+            # If it's not, recurse - prepending self to the ancestor stack
+            else:
+                buffer.extend(
+                    [
+                        (raw_seg, new_step + stack)
+                        for raw_seg, stack in seg.raw_segments_with_ancestors
+                    ]
+                )
+        return buffer
 
     @cached_property
     def source_fixes(self) -> List[SourceFix]:
@@ -782,9 +803,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
             # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                return MatchResult(
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
-                )
+                try:
+                    return MatchResult(
+                        (cls(segments=m.matched_segments),), m.unmatched_segments
+                    )
+                except TypeError as err:  # pragma: no cover
+                    # This is an error to assist with debugging dialect design.
+                    # It's most likely that the match_grammar has been set on
+                    # a raw segment which shouldn't happen.
+                    raise TypeError(
+                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
+                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
+                    )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -804,6 +834,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "raw_upper",
             "matched_length",
             "raw_segments",
+            "raw_segments_with_ancestors",
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
@@ -836,14 +867,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def is_type(self, *seg_type):
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
-
-    def get_name(self):
-        """Returns the name of this segment as a string."""
-        return self.name
-
-    def is_name(self, *seg_name):
-        """Is this segment of the given name."""
-        return any(s == self.name for s in seg_name)
 
     def invalidate_caches(self):
         """Invalidate the cached properties.
@@ -1079,33 +1102,48 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         no_recursive_seg_type=no_recursive_seg_type,
                     )
 
-    def path_to(self, other):
+    def path_to(self, other) -> List[PathStep]:
         """Given a segment which is assumed within self, get the intermediate segments.
 
         Returns:
-            :obj:`list` of segments, including the segment we're looking for.
-            None if not found.
+            :obj:`list` of :obj:`PathStep`, not including the segment we're looking
+                for. If `other` is not found, then empty list. This includes if
+                called on self.
 
+        The result of this should be interpreted as *the path from `self` to `other`*.
+        If the return value is `[]` (an empty list), that implies there is no path
+        from `self` to `other`. This would include the case where the two are the same
+        segment, as there is no path from a segment to itself.
+
+        Technically this could be seen as a "half open interval" of the path between
+        two segments: in that it includes the root segment, but not the leaf.
         """
-        # Return self if we've found the segment.
+        # Return empty if they are the same segment.
         if self is other:
-            return [self]
+            return []  # pragma: no cover
 
         # Are we in the right ballpark?
         # NB: Comparisons have a higher precedence than `not`.
         if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
-            return None
+            return []
 
         # Do we have any child segments at all?
         if not self.segments:
-            return None
+            return []
 
         # Check through each of the child segments
-        for seg in self.segments:
+        for idx, seg in enumerate(self.segments):
+            step = PathStep(self, idx, len(self.segments))
+            # Have we found the target?
+            if seg is other:
+                return [step]
+            # Is there a path to the target?
             res = seg.path_to(other)
             if res:
-                return [self] + res
-        return None  # pragma: no cover
+                return [step] + res
+
+        # Not found.
+        return []  # pragma: no cover
 
     def parse(
         self,
@@ -1206,7 +1244,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     + (
                         UnparsableSegment(
                             segments=segments,
-                            expected=self.name,
+                            expected=self.expected_form,
                         ),  # NB: tuple
                     )
                     + post_nc
@@ -1502,7 +1540,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # If we're here, the segment doesn't match the original.
         linter_logger.debug(
-            "%s at %s: Original: [%r] Fixed: [%r]",
+            "# Changed Segment Found: %s at %s: Original: [%r] Fixed: [%r]",
             type(self).__name__,
             self.pos_marker.templated_slice,
             templated_raw,
@@ -1717,11 +1755,10 @@ class BaseFileSegment(BaseSegment):
         self,
         segments,
         pos_marker=None,
-        name: Optional[str] = None,
         fname: Optional[str] = None,
     ):
         self._file_path = fname
-        super().__init__(segments, pos_marker=pos_marker, name=name)
+        super().__init__(segments, pos_marker=pos_marker)
 
     @property
     def file_path(self):
@@ -1763,6 +1800,11 @@ class IdentitySet(MutableSet):
     def add(self, value):  # MutableSet
         """Add an element."""
         self.map[self.key(value)] = value
+
+    def update(self, value):
+        """Add elements in 'value'."""
+        for v in value:
+            self.add(v)
 
     def discard(self, value):  # MutableSet
         """Remove an element.  Do not raise an exception if absent."""

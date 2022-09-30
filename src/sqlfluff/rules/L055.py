@@ -48,8 +48,8 @@ class Rule_L055(BaseRule):
         assert context.segment.is_type("join_clause")
 
         # Identify if RIGHT JOIN is present.
-        if {"right", "join"}.issubset(
-            {segment.name for segment in context.segment.segments}
+        if {"RIGHT", "JOIN"}.issubset(
+            {segment.raw_upper for segment in context.segment.segments}
         ):
             return LintResult(context.segment.segments[0])
 

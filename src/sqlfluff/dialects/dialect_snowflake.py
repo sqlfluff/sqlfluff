@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -49,12 +49,17 @@ snowflake_dialect.patch_lexer_matchers(
     [
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
         RegexLexer(
             "inline_comment",
             r"(--|#|//)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#", "//")},
+            segment_kwargs={"trim_start": ("--", "#", "//"), "type": "inline_comment"},
         ),
     ]
 )
@@ -72,6 +77,7 @@ snowflake_dialect.insert_lexer_matchers(
             "dollar_quote",
             r"\$\$.*\$\$",
             CodeSegment,
+            segment_kwargs={"type": "dollar_quote"},
         ),
         RegexLexer(
             "dollar_literal",
@@ -90,6 +96,7 @@ snowflake_dialect.insert_lexer_matchers(
             "unquoted_file_path",
             r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
             CodeSegment,
+            segment_kwargs={"type": "unquoted_file_path"},
         ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
@@ -170,7 +177,7 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
-    QuotedSemiStructuredElementSegment=NamedParser(
+    QuotedSemiStructuredElementSegment=TypedParser(
         "double_quote",
         CodeSegment,
         type="semi_structured_element",
@@ -233,19 +240,19 @@ snowflake_dialect.add(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         ansi.LiteralSegment,
     ),
-    DoubleQuotedUDFBody=NamedParser(
+    DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=('"',),
     ),
-    SingleQuotedUDFBody=NamedParser(
+    SingleQuotedUDFBody=TypedParser(
         "single_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=("'",),
     ),
-    DollarQuotedUDFBody=NamedParser(
+    DollarQuotedUDFBody=TypedParser(
         "dollar_quote",
         CodeSegment,
         type="udf_body",
@@ -275,10 +282,9 @@ snowflake_dialect.add(
         CodeSegment,
         type="bucket_path",
     ),
-    UnquotedFilePath=NamedParser(
+    UnquotedFilePath=TypedParser(
         "unquoted_file_path",
         CodeSegment,
-        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
@@ -550,12 +556,12 @@ snowflake_dialect.replace(
     ),
     QuotedLiteralSegment=OneOf(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
-        NamedParser(
+        TypedParser(
             "single_quote",
             ansi.LiteralSegment,
             type="quoted_literal",
         ),
-        NamedParser(
+        TypedParser(
             "dollar_quote",
             ansi.LiteralSegment,
             type="quoted_literal",
@@ -947,6 +953,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
+            Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("ShowStatementSegment"),
@@ -958,6 +965,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
+            Ref("AlterShareStatementSegment"),
             Ref("CreateExternalTableSegment"),
             Ref("AlterExternalTableStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
@@ -986,6 +994,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GetStatementSegment"),
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("CreateDatabaseFromShareStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1781,6 +1790,59 @@ class AlterWarehouseStatementSegment(BaseSegment):
     )
 
 
+class AlterShareStatementSegment(BaseSegment):
+    """An `ALTER SHARE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-share.html
+
+    """
+
+    type = "alter_share_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SHARE",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("NakedIdentifierSegment"),
+        OneOf(
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "REMOVE",
+                ),
+                "ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("NakedIdentifierSegment")),
+                Sequence(
+                    "SHARE_RESTRICTIONS",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                "ACCOUNTS",
+                Ref("EqualsSegment"),
+                Delimited(Ref("NakedIdentifierSegment")),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                "TAG",
+                Ref("NakedIdentifierSegment"),
+                AnyNumberOf(
+                    Ref("CommaSegment"), Ref("NakedIdentifierSegment"), optional=True
+                ),
+            ),
+            Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
 class AlterExternalTableStatementSegment(BaseSegment):
     """An `ALTER EXTERNAL TABLE` statement.
 
@@ -2155,6 +2217,22 @@ class CreateCloneStatementSegment(BaseSegment):
     )
 
 
+class CreateDatabaseFromShareStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... DATABASE FROM SHARE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-database.html
+    """
+
+    type = "create_database_from_share_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("ObjectReferenceSegment"),
+        Sequence("FROM", "SHARE"),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class CreateProcedureStatementSegment(BaseSegment):
     """A snowflake `CREATE ... PROCEDURE` statement.
 
@@ -2203,6 +2281,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         Sequence("SECURE", optional=True),
         "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
@@ -3105,6 +3184,117 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("CopyIntoTableStatementSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateUserSegment(BaseSegment):
+    """A snowflake `CREATE USER` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-user.html
+    """
+
+    type = "create_user_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "USER",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                "PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "LOGIN_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DISPLAY_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "FIRST_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "MIDDLE_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "LAST_NAME",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "EMAIL",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "MUST_CHANGE_PASSWORD",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DISABLED",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DAYS_TO_EXPIRY",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MINS_TO_UNLOCK",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "DEFAULT_WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_NAMESPACE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_ROLE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DEFAULT_SECONDARY_ROLES",
+                Ref("EqualsSegment"),
+                Bracketed(Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "MINS_TO_BYPASS_MFA",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "RSA_PUBLIC_KEY",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "RSA_PUBLIC_KEY_2",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("CommentEqualsClauseSegment"),
         ),
     )
 
@@ -5297,7 +5487,10 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
             "TRANSACTION",
             Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
         ),
-        "COMMIT",
+        Sequence(
+            "COMMIT",
+            Sequence("WORK", optional=True),
+        ),
         "ROLLBACK",
     )
 

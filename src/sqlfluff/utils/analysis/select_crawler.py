@@ -33,7 +33,12 @@ class Selectable:
     """A "SELECT" query segment."""
 
     selectable: BaseSegment
+    parent: Optional[BaseSegment]
     dialect: Dialect
+
+    def as_str(self) -> str:
+        """String representation for logging/testing."""
+        return self.selectable.raw
 
     @cached_property
     def select_info(self):
@@ -112,7 +117,7 @@ class Selectable:
         """Find corresponding table_aliases entry (if any) matching "table"."""
         alias_info = [
             t
-            for t in self.select_info.table_aliases
+            for t in (self.select_info.table_aliases if self.select_info else [])
             if t.aliased and t.ref_str == table
         ]
         assert len(alias_info) <= 1
@@ -131,7 +136,23 @@ class Query:
     parent: Optional["Query"] = field(default=None)
     # Children (could be CTE, subselect, or other).
     children: List["Query"] = field(default_factory=list)
+    cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
+
+    def as_json(self) -> Dict:
+        """JSON representation for logging/testing."""
+        result = {}
+        if self.query_type != QueryType.Simple:
+            result["query_type"] = self.query_type.name
+        if self.selectables:
+            result["selectables"] = [
+                s.as_str() for s in self.selectables
+            ]  # type: ignore
+        if self.ctes:
+            result["ctes"] = {
+                k: v.as_json() for k, v in self.ctes.items()
+            }  # type: ignore
+        return result
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         """Look up a CTE by name, in the current or any parent scope."""
@@ -146,7 +167,7 @@ class Query:
             return None
 
     def crawl_sources(
-        self, segment: BaseSegment, recurse_into=True, pop=False
+        self, segment: BaseSegment, recurse_into=True, pop=False, lookup_cte=True
     ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -154,20 +175,26 @@ class Query:
         references or function call strings, yield those.
         """
         found_nested_select = False
-        for seg in segment.recursive_crawl(
+        types = [
             "table_reference",
             "set_expression",
             "select_statement",
             "values_clause",
-            recurse_into=recurse_into,
+        ]
+        for event, path in SelectCrawler.visit_segments(
+            segment, recurse_into=recurse_into
         ):
+            seg = path[-1]
+            if event == "end" or not seg.is_type(*types):
+                continue
+
             if seg is segment:
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
                 continue
 
             if seg.is_type("table_reference"):
-                if not seg.is_qualified():
+                if not seg.is_qualified() and lookup_cte:
                     cte = self.lookup_cte(seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.
@@ -179,7 +206,15 @@ class Query:
                     "set_expression", "select_statement", "values_clause"
                 )
                 found_nested_select = True
-                crawler = SelectCrawler(seg, self.dialect, parent=self)
+                seg_ = Segments(*path[1:]).first(
+                    sp.is_type(
+                        "from_expression_element",
+                        "set_expression",
+                        "select_statement",
+                        "values_clause",
+                    )
+                )[0]
+                crawler = SelectCrawler(seg_, self.dialect, parent=self)
                 # We know this will pass because we specified parent=self above.
                 assert crawler.query_tree
                 yield crawler.query_tree
@@ -234,9 +269,10 @@ class SelectCrawler:
             except ValueError:
                 pass
 
-        # Stores the last CTE name we saw, so we can associate it with the
-        # corresponding Query.
-        cte_name_segment: Optional[BaseSegment] = None
+        # Stacks for CTE definition & names we've seen but haven't consumed yet,
+        # so we can associate with the corresponding Query.
+        cte_definition_segment_stack: List[BaseSegment] = []
+        cte_name_segment_stack: List[BaseSegment] = []
 
         # Visit segment and all its children
         for event, path in SelectCrawler.visit_segments(segment):
@@ -263,9 +299,17 @@ class SelectCrawler:
                             # added to this Query later.
                             query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
-                        else:
+                        # Ignore segments under a from_expression_element.
+                        # Those will be nested queries, and we're only
+                        # interested in CTEs and "main" queries, i.e.
+                        # standalones or those following a block of CTEs.
+                        elif not any(
+                            seg.is_type("from_expression_element") for seg in path[1:]
+                        ):
                             # It's a select_statement or values_clause.
-                            selectable = Selectable(path[-1], dialect)
+                            selectable = Selectable(
+                                path[-1], path[-2] if len(path) >= 2 else None, dialect
+                            )
                             # Determine if this is part of a set_expression.
                             if len(path) >= 2 and path[-2].is_type("set_expression"):
                                 # It's part of a set_expression. Append to the
@@ -280,27 +324,37 @@ class SelectCrawler:
                                 append_query(query)
                     else:
                         # We're processing a "with" statement.
-                        if cte_name_segment:
+                        if cte_name_segment_stack:
                             # If we have a CTE name, this is the Query for that
                             # name.
                             query = self.query_class(
                                 QueryType.Simple,
                                 dialect,
-                                cte_name_segment=cte_name_segment,
+                                cte_definition_segment=cte_definition_segment_stack[-1],
+                                cte_name_segment=cte_name_segment_stack[-1],
                             )
                             if path[-1].is_type(
                                 "select_statement", "values_clause", "update_statement"
                             ):
                                 # Add to the Query object we just created.
-                                query.selectables.append(Selectable(path[-1], dialect))
+                                query.selectables.append(
+                                    Selectable(
+                                        path[-1],
+                                        path[-2] if len(path) >= 2 else None,
+                                        dialect,
+                                    )
+                                )
                             else:
                                 # Processing a set_expression. Nothing
                                 # additional to do here; we'll add selectables
                                 # to the Query later when we encounter those
                                 # child segments.
                                 pass
-                            query_stack[-1].ctes[cte_name_segment.raw_upper] = query
-                            cte_name_segment = None
+                            query_stack[-1].ctes[
+                                cte_name_segment_stack[-1].raw_upper
+                            ] = query
+                            cte_definition_segment_stack.pop()
+                            cte_name_segment_stack.pop()
                             append_query(query)
                         else:
                             # There's no CTE name, so we're probably processing
@@ -311,7 +365,8 @@ class SelectCrawler:
                             # interested in CTEs and "main" queries, i.e.
                             # standalones or those following a block of CTEs.
                             if not any(
-                                seg.is_type("from_expression_element") for seg in path
+                                seg.is_type("from_expression_element")
+                                for seg in path[1:]
                             ):
                                 if path[-1].is_type(
                                     "select_statement", "update_statement"
@@ -319,7 +374,11 @@ class SelectCrawler:
                                     # Processing a select_statement. Add it to the
                                     # Query object on top of the stack.
                                     query_stack[-1].selectables.append(
-                                        Selectable(path[-1], dialect)
+                                        Selectable(
+                                            path[-1],
+                                            path[-2] if len(path) >= 2 else None,
+                                            dialect,
+                                        )
                                     )
                                 else:
                                     # Processing a set_expression. Nothing
@@ -328,13 +387,19 @@ class SelectCrawler:
                 elif path[-1].is_type("with_compound_statement"):
                     # Beginning a "with" statement, i.e. a block of CTEs.
                     query = self.query_class(QueryType.WithCompound, dialect)
-                    if cte_name_segment:
-                        query_stack[-1].ctes[cte_name_segment.raw_upper] = query
-                        cte_name_segment = None
+                    if cte_name_segment_stack:
+                        query_stack[-1].ctes[
+                            cte_name_segment_stack[-1].raw_upper
+                        ] = query
+                        query.cte_definition_segment = cte_definition_segment_stack[-1]
+                        cte_definition_segment_stack.pop()
+                        cte_name_segment_stack.pop()
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
-                    # This is a "<<cte name>> AS". Grab the name for later.
-                    cte_name_segment = path[-1].segments[0]
+                    # This is a "<<cte name>> AS". Save definition segment and
+                    # name for later.
+                    cte_definition_segment_stack.append(path[-1])
+                    cte_name_segment_stack.append(path[-1].segments[0])
             elif event == "end":
                 finish_segment()
 
@@ -355,13 +420,14 @@ class SelectCrawler:
         return list(query.crawl_sources(segment, True))
 
     @classmethod
-    def visit_segments(cls, seg, path=None):
+    def visit_segments(cls, seg, path=None, recurse_into=True):
         """Recursively visit all segments."""
         if path is None:
             path = []
         path.append(seg)
         yield "start", path
-        for seg in seg.segments:
-            yield from cls.visit_segments(seg, path)
+        if recurse_into:
+            for seg in seg.segments:
+                yield from cls.visit_segments(seg, path, recurse_into)
         yield "end", path
         path.pop()

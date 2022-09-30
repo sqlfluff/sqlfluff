@@ -76,7 +76,7 @@ test_fix_tsql_spaced_chars:
     core:
       dialect: tsql
 
-# Check CASE Statment parses with newlines properly
+# Check CASE Statement parses with newlines properly
 # See https://github.com/sqlfluff/sqlfluff/issues/2495
 test_pass_postgres_case_statement:
   pass_str: |
@@ -112,3 +112,123 @@ test_redshift_at_time_zone:
   configs:
     core:
       dialect: redshift
+
+test_excess_space_without_align_alias:
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a AS first_column,
+        b AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    # This is the default config but we're being explicit
+    # here for testing.
+    layout:
+      type:
+        alias_expression:
+          spacing_before: single
+
+test_excess_space_with_align_alias:
+  # NOTE: The config here shouldn't move the table alias
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo   AS bar
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo AS bar
+  configs: &align_alias
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_boundary: bracketed
+
+test_missing_keyword_with_align_alias:
+  fail_str: |
+        SELECT
+            a    first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a           first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs: *align_alias
+
+test_skip_alias_with_align_alias:
+  fail_str: |
+        SELECT
+            a   ,
+            b   ,
+            (a   +   b) /   2
+        FROM foo
+  fix_str: |
+    SELECT
+        a,
+        b,
+        (a + b) / 2
+    FROM foo
+  configs: *align_alias
+
+test_excess_space_with_align_alias_wider:
+  # NOTE: The config here SHOULD move the table alias
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        b      AS second_column,
+        (a      +      b)      /      2 AS third_column
+    FROM foo   AS first_table
+    JOIN my_tbl AS second_table USING(a)
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo        AS first_table
+    JOIN my_tbl     AS second_table USING(a)
+  configs: &align_alias_wider
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_statement
+          align_boundary: bracketed
+
+test_align_alias_boundary:
+  # The alias inside the expression shouldn't move.
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        (SELECT b AS c)      AS second_column
+  fix_str: |
+    SELECT
+        a               AS first_column,
+        (SELECT b AS c) AS second_column
+  configs: *align_alias
+
+test_align_alias_inline_pass:
+  # The aliases on the same line shouldn't panic.
+  pass_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias
+
+test_align_alias_inline_fail:
+  # The aliases on the same line shouldn't panic.
+  fail_str: SELECT a   AS   b  ,   c   AS   d    FROM tbl
+  fix_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias

@@ -70,6 +70,9 @@ def generate_one_parse_fixture(example: _ParseExample) -> None:
         if "base" in types:
             raise SQLParseError(f"Unnamed base section when parsing: {f.name}")
         if "unparsable" in types:
+            for unparsable in tree.iter_unparsables():
+                print("Found unparsable segment...")
+                print(unparsable.stringify())
             raise SQLParseError(f"Could not parse: {f.name}")
 
         records = tree.as_record(code_only=True, show_raw=True)

@@ -10,6 +10,102 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.3.2] - 2022-09-27
+
+## Highlights
+
+This is primarily a release for dialect fixes and improvements with additions
+and changes to TSQL, Snowflake, MySQL & Redshift. The other changes of note are:
+1. Support for warnings when users set old removed config values. This supports
+   future change work by allowing a mechanism to warn if they are used.
+2. Improvements to the fix routines for L014 and L042 to handle some trickier
+   cases.
+
+## What’s Changed
+
+* Add CreateUserSegment for Snowflake dialect [#3880](https://github.com/sqlfluff/sqlfluff/pull/3880) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* raw_segments_with_ancestors [#3878](https://github.com/sqlfluff/sqlfluff/pull/3878) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Adjust TSQL Operators [#3877](https://github.com/sqlfluff/sqlfluff/pull/3877) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Refactor path_to [#3875](https://github.com/sqlfluff/sqlfluff/pull/3875) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support Removed warning on configs [#3874](https://github.com/sqlfluff/sqlfluff/pull/3874) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: Support column-path operator for JSON type [#3864](https://github.com/sqlfluff/sqlfluff/pull/3864) [@yoichi](https://github.com/yoichi)
+* T-SQL: ALTER FUNCTION/PROCEDURE/VIEW parsing [#3867](https://github.com/sqlfluff/sqlfluff/pull/3867) [@differgroup](https://github.com/differgroup)
+* MySQL: Support hexadecimal literals and bit value literals [#3869](https://github.com/sqlfluff/sqlfluff/pull/3869) [@yoichi](https://github.com/yoichi)
+* MySQL: Treat double quotes the same as single quotes [#3871](https://github.com/sqlfluff/sqlfluff/pull/3871) [@yoichi](https://github.com/yoichi)
+* Snowflake: COMMIT WORK [#3862](https://github.com/sqlfluff/sqlfluff/pull/3862) [@rglbr](https://github.com/rglbr)
+* Snowflake: AlterShareStatementSegment and CreateDatabaseFromShareStatementSegment [#3858](https://github.com/sqlfluff/sqlfluff/pull/3858) [@moreaupascal56](https://github.com/moreaupascal56)
+* MySQL: Add CREATE/ALTER VIEW [#3859](https://github.com/sqlfluff/sqlfluff/pull/3859) [@wfelipew](https://github.com/wfelipew)
+* Redshift: CREATE TABLE LIKE enhancements [#3853](https://github.com/sqlfluff/sqlfluff/pull/3853) [@greg-finley](https://github.com/greg-finley)
+* L014 leading underscore capitalization inference fix [#3841](https://github.com/sqlfluff/sqlfluff/pull/3841) [@j-svensmark](https://github.com/j-svensmark)
+* MySQL: Add extended DROP TRIGGER functionality [#3846](https://github.com/sqlfluff/sqlfluff/pull/3846) [@yoichi](https://github.com/yoichi)
+* Allow standalone aliases in L027 [#3848](https://github.com/sqlfluff/sqlfluff/pull/3848) [@olagjo](https://github.com/olagjo)
+* L042: Enable autofix for some tricky cases [#3700](https://github.com/sqlfluff/sqlfluff/pull/3700) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: CREATE FUNCTION IF NOT EXISTS [#3845](https://github.com/sqlfluff/sqlfluff/pull/3845) [@greg-finley](https://github.com/greg-finley)
+* ignore functions with more than one element ... [#3792](https://github.com/sqlfluff/sqlfluff/pull/3792) [@fmms](https://github.com/fmms)
+* MySQL: support remaining constraint parts of CREATE/ALTER TABLE [#3827](https://github.com/sqlfluff/sqlfluff/pull/3827) [@yoichi](https://github.com/yoichi)
+
+## New Contributors
+
+* [@olagjo](https://github.com/olagjo) made their first contribution in [#3848](https://github.com/sqlfluff/sqlfluff/pull/3848)
+* [@j-svensmark](https://github.com/j-svensmark) made their first contribution in [#3841](https://github.com/sqlfluff/sqlfluff/pull/3841)
+* [@wfelipew](https://github.com/wfelipew) made their first contribution in [#3859](https://github.com/sqlfluff/sqlfluff/pull/3859)
+* [@moreaupascal56](https://github.com/moreaupascal56) made their first contribution in [#3858](https://github.com/sqlfluff/sqlfluff/pull/3858)
+* [@rglbr](https://github.com/rglbr) made their first contribution in [#3862](https://github.com/sqlfluff/sqlfluff/pull/3862)
+* [@differgroup](https://github.com/differgroup) made their first contribution in [#3867](https://github.com/sqlfluff/sqlfluff/pull/3867)
+
+## [1.3.1] - 2022-09-09
+
+## Highlights
+
+* More refactoring of parse structures in preparation for upcoming refactor of
+  formatting/whitespace rules.
+* Fixes some bugs in L003 (indentation).
+* New config flag `large_file_skip_byte_limit` which applies **prior to**
+  loading the file.
+
+## What’s Changed
+
+* Snowflake: Fix syntax errors in tests [#3834](https://github.com/sqlfluff/sqlfluff/pull/3834) [@JamesRTaylor](https://github.com/JamesRTaylor)
+* Add support for additional magic methods on DummyUndefined [#3835](https://github.com/sqlfluff/sqlfluff/pull/3835) [@barrywhart](https://github.com/barrywhart)
+* MySQL: support variable assignments by assignment operator := [#3829](https://github.com/sqlfluff/sqlfluff/pull/3829) [@yoichi](https://github.com/yoichi)
+* MYSQL: improve lexing for single-quoted strings [#3831](https://github.com/sqlfluff/sqlfluff/pull/3831) [@mdahlman](https://github.com/mdahlman)
+* MySQL: More support for index definition in CREATE TABLE [#3826](https://github.com/sqlfluff/sqlfluff/pull/3826) [@yoichi](https://github.com/yoichi)
+* Typed matching and ripping out the rest of .name [#3819](https://github.com/sqlfluff/sqlfluff/pull/3819) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* sparksql dialect to support lambda expressions (->) [#3821](https://github.com/sqlfluff/sqlfluff/pull/3821) [@juhoautio](https://github.com/juhoautio)
+* Fixed broken main branch [#3825](https://github.com/sqlfluff/sqlfluff/pull/3825) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Enable file name logging for multi-files w/ --show-lint-violations flag [#3788](https://github.com/sqlfluff/sqlfluff/pull/3788) [@thechopkins](https://github.com/thechopkins)
+* Take database and schema out of Snowflake reserved keywords list [#3818](https://github.com/sqlfluff/sqlfluff/pull/3818) [@NiallRees](https://github.com/NiallRees)
+* Remove a chunk of name references [#3814](https://github.com/sqlfluff/sqlfluff/pull/3814) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix typo in Snowflake dialect  [#3813](https://github.com/sqlfluff/sqlfluff/pull/3813) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* Allow the use of libraries in macro definitions [#3803](https://github.com/sqlfluff/sqlfluff/pull/3803) [@bjgbeelen](https://github.com/bjgbeelen)
+* Indentation fixes and rule logging improvements [#3808](https://github.com/sqlfluff/sqlfluff/pull/3808) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fixes a recursion error in  JinjaTemplater handling of undefined values [#3809](https://github.com/sqlfluff/sqlfluff/pull/3809) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: extend `GRANT` syntax [#3807](https://github.com/sqlfluff/sqlfluff/pull/3807) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* add warehouse_type in snowflake dialect [#3805](https://github.com/sqlfluff/sqlfluff/pull/3805) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* add Create Notification Integration syntax [#3801](https://github.com/sqlfluff/sqlfluff/pull/3801) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* T-SQL: fix parsing PARTITION BY NULL in window function [#3790](https://github.com/sqlfluff/sqlfluff/pull/3790) [@fmms](https://github.com/fmms)
+* SparkSQL: Update L014 rule to not flag Delta Change Data Feed Session & Table Property [#3689](https://github.com/sqlfluff/sqlfluff/pull/3689) [@R7L208](https://github.com/R7L208)
+* Snowflake: OVER (ORDER BY) clause required for first_value (fixes #3797) [#3798](https://github.com/sqlfluff/sqlfluff/pull/3798) [@JamesRTaylor](https://github.com/JamesRTaylor)
+* add Alter Pipe syntax for snowflake dialect [#3796](https://github.com/sqlfluff/sqlfluff/pull/3796) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* BigQuery: Parse WEEK(<WEEKDAY>) in date_part [#3787](https://github.com/sqlfluff/sqlfluff/pull/3787) [@yoichi](https://github.com/yoichi)
+* Postgres: Support setting user properties using intrinsic ON & OFF values [#3793](https://github.com/sqlfluff/sqlfluff/pull/3793) [@chris-codaio](https://github.com/chris-codaio)
+* extend SF dialect for File Format statements [#3774](https://github.com/sqlfluff/sqlfluff/pull/3774) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* Add QUALIFY to SparkSQL dialect [#3778](https://github.com/sqlfluff/sqlfluff/pull/3778) [@ThijsKoot](https://github.com/ThijsKoot)
+* fix regex for S3Path [#3782](https://github.com/sqlfluff/sqlfluff/pull/3782) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* Snowflake: add Optional parameter ERROR INTEGRATION for PIPE [#3785](https://github.com/sqlfluff/sqlfluff/pull/3785) [@Gal40n04ek](https://github.com/Gal40n04ek)
+* Add a file size check in bytes [#3770](https://github.com/sqlfluff/sqlfluff/pull/3770) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Require importlib_metadata >=1.0.0 [#3769](https://github.com/sqlfluff/sqlfluff/pull/3769) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@Gal40n04ek](https://github.com/Gal40n04ek) made their first contribution in [#3785](https://github.com/sqlfluff/sqlfluff/pull/3785)
+* [@ThijsKoot](https://github.com/ThijsKoot) made their first contribution in [#3778](https://github.com/sqlfluff/sqlfluff/pull/3778)
+* [@chris-codaio](https://github.com/chris-codaio) made their first contribution in [#3793](https://github.com/sqlfluff/sqlfluff/pull/3793)
+* [@JamesRTaylor](https://github.com/JamesRTaylor) made their first contribution in [#3798](https://github.com/sqlfluff/sqlfluff/pull/3798)
+* [@fmms](https://github.com/fmms) made their first contribution in [#3790](https://github.com/sqlfluff/sqlfluff/pull/3790)
+* [@bjgbeelen](https://github.com/bjgbeelen) made their first contribution in [#3803](https://github.com/sqlfluff/sqlfluff/pull/3803)
+* [@thechopkins](https://github.com/thechopkins) made their first contribution in [#3788](https://github.com/sqlfluff/sqlfluff/pull/3788)
+
 ## [1.3.0] - 2022-08-21
 
 ## Highlights
@@ -197,7 +293,7 @@ Major changes include:
 Major changes include:
 * L066 - New rule to allow you to set min/max length requirements for aliases to ensure they are meaningful
 * L062 - addition of `blocked_regex` as well as `blocked_words`
-* L025 - fix several corner cases where aliases were removed inappropriately 
+* L025 - fix several corner cases where aliases were removed inappropriately
 * L059 is now disabled by default for Postgres
 * Many more dialect improvements and bug fixes.
 

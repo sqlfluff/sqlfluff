@@ -44,9 +44,6 @@ allow_scalar = True
 single_table_references = consistent
 unquoted_identifiers_policy = all
 
-[sqlfluff:rules:L003]
-lint_templated_tokens = True
-
 [sqlfluff:rules:L007]  # Keywords
 operator_new_lines = after
 

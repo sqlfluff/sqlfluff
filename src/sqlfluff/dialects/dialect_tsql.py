@@ -17,7 +17,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -95,23 +95,32 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
+            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote_with_n",
+            r"N'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote_with_n"},
+        ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
+            segment_kwargs={"type": "hash_prefix"},
         ),
     ],
     before="back_quote",
@@ -120,13 +129,18 @@ tsql_dialect.insert_lexer_matchers(
 tsql_dialect.patch_lexer_matchers(
     [
         # Patching single_quote to allow for TSQL-style escaped quotes
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -173,17 +187,17 @@ tsql_dialect.patch_lexer_matchers(
 )
 
 tsql_dialect.add(
-    BracketedIdentifierSegment=NamedParser(
+    BracketedIdentifierSegment=TypedParser(
         "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
     ),
-    HashIdentifierSegment=NamedParser(
+    HashIdentifierSegment=TypedParser(
         "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
     ),
-    VariableIdentifierSegment=NamedParser(
+    VariableIdentifierSegment=TypedParser(
         "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
-    QuotedLiteralSegmentWithN=NamedParser(
+    QuotedLiteralSegmentWithN=TypedParser(
         "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
@@ -501,15 +515,13 @@ class StatementSegment(ansi.StatementSegment):
     parse_grammar = match_grammar
 
 
-class GreaterThanOrEqualToSegment(BaseSegment):
+class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
     to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "greater_than_equal_to"
     match_grammar = OneOf(
         Sequence(
             Ref("RawGreaterThanSegment"),
@@ -522,15 +534,13 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     )
 
 
-class LessThanOrEqualToSegment(BaseSegment):
+class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
     to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "less_than_equal_to"
     match_grammar = OneOf(
         Sequence(
             Ref("RawLessThanSegment"),
@@ -543,14 +553,12 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-class NotEqualToSegment(BaseSegment):
+class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.
     """
 
-    type = "comparison_operator"
-    name = "not_equal_to"
     match_grammar = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
         Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
@@ -1552,13 +1560,13 @@ class CreateFunctionStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-function.html
     https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-function-transact-sql?view=sql-server-ver15
     """
 
     type = "create_function_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         "FUNCTION",
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -1781,7 +1789,7 @@ class AssignmentOperatorSegment(BaseSegment):
 
     type = "assignment_operator"
     match_grammar = OneOf(
-        Ref("EqualsSegment"),
+        Ref("RawEqualsSegment"),
         Sequence(
             OneOf(
                 Ref("PlusSegment"),
@@ -1793,7 +1801,7 @@ class AssignmentOperatorSegment(BaseSegment):
                 Ref("BitwiseOrSegment"),
                 Ref("BitwiseXorSegment"),
             ),
-            Ref("EqualsSegment"),
+            Ref("RawEqualsSegment"),
             allow_gaps=False,
         ),
     )
@@ -1822,13 +1830,13 @@ class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-procedure-transact-sql?view=sql-server-ver15
     """
 
     type = "create_procedure_statement"
 
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
         Indent,
@@ -1872,13 +1880,13 @@ class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
     Adjusted to allow CREATE OR ALTER instead of CREATE OR REPLACE.
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-view-transact-sql?view=sql-server-ver15#examples
     """
 
     type = "create_view_statement"
     match_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
+        OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         "VIEW",
         Ref("ObjectReferenceSegment"),
         Bracketed(
@@ -4111,9 +4119,7 @@ class ForXmlSegment(BaseSegment):
     )
 
 
-class ConcatSegment(BaseSegment):
+class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
     """Concat operator."""
 
-    type = "binary_operator"
-    name = "concatenate"
     match_grammar: Matchable = Ref("PlusSegment")

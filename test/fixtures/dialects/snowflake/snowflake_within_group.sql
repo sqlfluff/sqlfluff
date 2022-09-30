@@ -34,7 +34,7 @@ select array_agg(distinct o_orderstatus) within group (order by o_orderstatus as
 
 select
     o_orderstatus,
-    arrayagg(o_clerk) within group (order by o_totalprice desc)
+    array_agg(o_clerk) within group (order by o_totalprice desc)
   from orders
   where o_totalprice > 450000
   group by o_orderstatus

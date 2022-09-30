@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a8a93f23a2a7112743fa0c9d1a5e26aad4d078fe87dc9f03d0c79ff9f765fde
+_hash: fb91070986ad8b8e82dd3bd9b793200a0ed9398192aa045f0361fdcae06af34b
 file:
 - statement:
     create_table_statement:
@@ -49,16 +49,15 @@ file:
           data_type:
             data_type_identifier: INT
       - comma: ','
-      - column_definition:
-          naked_identifier: INDEX
-          data_type:
-            data_type_identifier: par_ind
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: parent_id
-              end_bracket: )
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            naked_identifier: par_ind
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: parent_id
+            end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: FOREIGN
