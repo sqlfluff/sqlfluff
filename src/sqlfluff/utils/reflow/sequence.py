@@ -126,12 +126,19 @@ class _RebreakLocation:
         # just the adjacent point, so that we can see past comments.
         n_prev_newlines = elements[self.prev_nl_idx].num_newlines()
         n_next_newlines = elements[self.next_nl_idx].num_newlines()
+        newlines_on_neither_side = (
+            n_prev_newlines + n_next_newlines == 0
+        )
+        newlines_on_both_sides = (
+            n_prev_newlines > 0
+            and n_next_newlines > 0
+        )
         return (
             # If there isn't a newline on either side then carry
             # on, unless it's strict.
-            not bool(n_prev_newlines or n_next_newlines or strict)
+            (newlines_on_neither_side and not strict)
             # If there is a newline on BOTH sides. That's ok.
-            or bool(n_prev_newlines and n_next_newlines)
+            or newlines_on_both_sides
         )
 
 
