@@ -14,6 +14,7 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 @dataclass(frozen=True)
 class StackPosition:
+    """An element of the stack_positions property of DepthInfo."""
     idx: int
     len: int
     type: str
@@ -32,6 +33,13 @@ class StackPosition:
 
     @classmethod
     def from_path_step(cls, path_step: PathStep):
+        """Interpret a PathStep to construct a StackPosition.
+        
+        The reason we don't just use the same object is partly
+        to interpret it a little more, but also to drop the reference
+        to a specific segment which could induce bugs at a later
+        stage if used.
+        """
         return cls(path_step.idx, path_step.len, cls._stack_pos_interpreter(path_step))
 
 
