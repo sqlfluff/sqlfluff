@@ -643,12 +643,10 @@ class ReflowSequence:
                             )
                         )
                         break
-                else:
-                    # If we find the start, but not the end, it's not a problem, but
-                    # we won't be rebreaking this span. This is important so that we
-                    # don't rebreak part of something without the context of what's
-                    # in the rest of it. Continue.
-                    continue
+                # If we find the start, but not the end, it's not a problem, but
+                # we won't be rebreaking this span. This is important so that we
+                # don't rebreak part of something without the context of what's
+                # in the rest of it. We continue without adding it to the buffer.
         return spans
 
     def _deduce_line_indent(self, raw_segment: RawSegment) -> str:
