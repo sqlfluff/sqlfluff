@@ -583,9 +583,10 @@ class ReflowPoint(ReflowElement):
                 )
             else:
                 # There is a newline, but no indent. Make one after the newline
-                idx = max(
-                    i for i, seg in enumerate(self.segments) if seg.is_type("newline")
-                )
+                # Find the index of the last newline.
+                for idx in range(len(self.segments) - 1, 0, -1):
+                    if self.segments[idx].is_type("newline"):
+                        break
                 new_indent = WhitespaceSegment(desired_indent)
                 return [
                     LintFix.create_after(self.segments[idx], [new_indent])
