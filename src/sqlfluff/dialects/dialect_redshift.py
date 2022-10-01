@@ -57,7 +57,7 @@ redshift_dialect.sets("date_part_function_name").update(
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 redshift_dialect.sets("datetime_units").update(
     [
-        # millenium
+        # millennium
         "MILLENNIUM",
         "MILLENNIA",
         "MIL",

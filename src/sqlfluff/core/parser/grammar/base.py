@@ -336,7 +336,7 @@ class BaseGrammar(Matchable):
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
             # one we just dump out the whole segment, but splitting off the
-            # first element seperated by whitespace. This is a) faster and
+            # first element separated by whitespace. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
             # See https://github.com/sqlfluff/sqlfluff/issues/433
 

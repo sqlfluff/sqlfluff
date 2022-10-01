@@ -72,12 +72,12 @@ class Rule_L007(BaseRule):
         before the next meaningful code segment.
 
         """
-        relevent_types = ["binary_operator", "comparison_operator"]
+        relevant_types = ["binary_operator", "comparison_operator"]
         segment = FunctionalContext(context).segment
         # bring var to this scope so as to only have one type ignore
         operator_new_lines: str = self.operator_new_lines  # type: ignore
         expr = segment.children()
-        operator_segments = segment.children(sp.is_type(*relevent_types))
+        operator_segments = segment.children(sp.is_type(*relevant_types))
         results: List[LintResult] = []
         # If len(operator_segments) == 0 this will essentially not run
         for operator in operator_segments:

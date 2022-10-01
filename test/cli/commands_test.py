@@ -163,7 +163,7 @@ def test__cli__command_no_dialect():
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified as commandline option.
     result = invoke_assert_code(
         ret_code=1,
@@ -186,7 +186,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
 def test__cli__command_parse_error_dialect_implicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified in .sqlfluff config.
     result = invoke_assert_code(
         ret_code=1,
@@ -1049,7 +1049,7 @@ def test__cli__command_fix_stdin_safety():
             "create TABLE {{ params.dsfsdfds }}.t (a int)",
             1,
             "-v",
-            "Fix aborted due to unparseable template variables.",
+            "Fix aborted due to unparsable template variables.",
         ),  # template error
         ("create TABLE a.t (a int)", 0, "", ""),  # fixable error
         ("create table a.t (a int)", 0, "", ""),  # perfection

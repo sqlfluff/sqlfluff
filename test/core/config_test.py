@@ -168,7 +168,7 @@ def test__config__find_sqlfluffignore_in_same_directory():
 
 
 def test__config__nested_config_tests():
-    """Test linting with overriden config in nested paths.
+    """Test linting with overridden config in nested paths.
 
     This looks like a linter test but it's actually a config
     test.

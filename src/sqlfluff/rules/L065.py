@@ -15,7 +15,7 @@ class Rule_L065(BaseRule):
 
     **Anti-pattern**
 
-    In this example, `UNION ALL` is not on a line ifself.
+    In this example, `UNION ALL` is not on a line itself.
 
     .. code-block:: sql
 
@@ -42,7 +42,7 @@ class Rule_L065(BaseRule):
         """Set operators should be surrounded by newlines.
 
         For any set operator we check if there is any NewLineSegment in the non-code
-        segments preceeding or following it.
+        segments preceding or following it.
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
@@ -56,7 +56,7 @@ class Rule_L065(BaseRule):
 
         # If len(set_operator) == 0 this will essentially not run
         for set_operator in set_operator_segments:
-            preceeding_code = (
+            preceding_code = (
                 expression.reversed().select(start_seg=set_operator).first(sp.is_code())
             )
             following_code = expression.select(start_seg=set_operator).first(
@@ -64,7 +64,7 @@ class Rule_L065(BaseRule):
             )
             res = {
                 "before": expression.select(
-                    start_seg=preceeding_code.get(), stop_seg=set_operator
+                    start_seg=preceding_code.get(), stop_seg=set_operator
                 ),
                 "after": expression.select(
                     start_seg=set_operator, stop_seg=following_code.get()
@@ -74,9 +74,9 @@ class Rule_L065(BaseRule):
             newline_before_set_operator = res["before"].first(sp.is_type("newline"))
             newline_after_set_operator = res["after"].first(sp.is_type("newline"))
 
-            # If there is a whitespace directly preceeding/following the set operator we
+            # If there is a whitespace directly preceding/following the set operator we
             # are replacing it with a newline later.
-            preceeding_whitespace = res["before"].first(sp.is_type("whitespace")).get()
+            preceding_whitespace = res["before"].first(sp.is_type("whitespace")).get()
             following_whitespace = res["after"].first(sp.is_type("whitespace")).get()
 
             if newline_before_set_operator and newline_after_set_operator:
@@ -89,7 +89,7 @@ class Rule_L065(BaseRule):
                             "Set operators should be surrounded by newlines. "
                             f"Missing newline before set operator {set_operator.raw}."
                         ),
-                        fixes=_generate_fixes(whitespace_segment=preceeding_whitespace),
+                        fixes=_generate_fixes(whitespace_segment=preceding_whitespace),
                     )
                 )
             elif newline_before_set_operator and not newline_after_set_operator:
@@ -104,19 +104,19 @@ class Rule_L065(BaseRule):
                     )
                 )
             else:
-                preceeding_whitespace_fixes = _generate_fixes(
-                    whitespace_segment=preceeding_whitespace
+                preceding_whitespace_fixes = _generate_fixes(
+                    whitespace_segment=preceding_whitespace
                 )
                 following_whitespace_fixes = _generate_fixes(
                     whitespace_segment=following_whitespace
                 )
 
                 # make mypy happy
-                assert isinstance(preceeding_whitespace_fixes, Iterable)
+                assert isinstance(preceding_whitespace_fixes, Iterable)
                 assert isinstance(following_whitespace_fixes, Iterable)
 
                 fixes = []
-                fixes.extend(preceeding_whitespace_fixes)
+                fixes.extend(preceding_whitespace_fixes)
                 fixes.extend(following_whitespace_fixes)
 
                 results.append(
@@ -154,7 +154,7 @@ def _generate_fixes(
         # We should rarely reach here as set operators are always surrounded by either
         # WhitespaceSegment or NewlineSegment.
         # However, in exceptional cases the WhitespaceSegment might be enclosed in the
-        # surrounding segment hierachy and not accessible by the rule logic.
+        # surrounding segment hierarchy and not accessible by the rule logic.
         # At the time of writing this is true for `tsql` as covered in the test
         # `test_fail_autofix_in_tsql_disabled`. If we encounter such case, we skip
         # fixing.

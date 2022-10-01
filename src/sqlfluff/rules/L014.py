@@ -84,7 +84,8 @@ class Rule_L014(Rule_L010):
     _description_elem = "Unquoted identifiers"
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        # Return None if identifer is case-sensitive property to enable Change Data Feed
+        # Return None if identifier is case-sensitive property to enable Change
+        # Data Feed
         # https://docs.delta.io/2.0.0/delta-change-data-feed.html#enable-change-data-feed
         if (
             context.dialect.name in ["sparksql"]

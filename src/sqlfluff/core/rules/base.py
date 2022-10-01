@@ -837,8 +837,8 @@ class RuleSet:
 
     The code for the rule will be parsed from the name, the description
     from the docstring. The eval function is assumed that it will be
-    overriden by the subclass, and the parent class raises an error on
-    this function if not overriden.
+    overridden by the subclass, and the parent class raises an error on
+    this function if not overridden.
 
     """
 

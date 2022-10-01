@@ -84,7 +84,7 @@ def test_reflow__point_respace_point(
     """Test the ReflowPoint.respace_point() method directly.
 
     NOTE: This doesn't check any pre-existing fixes.
-    That should be a seperate more specific test.
+    That should be a separate more specific test.
     """
     root = parse_ansi_string(raw_sql_in, default_config)
     seq = ReflowSequence.from_raw_segments(
