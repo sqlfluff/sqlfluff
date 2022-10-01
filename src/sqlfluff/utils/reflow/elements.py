@@ -44,8 +44,7 @@ class ReflowElement:
     def num_newlines(self) -> int:
         """How many newlines does this element contain?"""
         return sum(
-            bool(seg.class_types.intersection({"newline", "end_of_file"}))
-            for seg in self.segments
+            bool(seg.class_types.intersection({"newline"})) for seg in self.segments
         )
 
 
@@ -175,7 +174,7 @@ class ReflowPoint(ReflowElement):
     @staticmethod
     def _process_spacing(
         segment_buffer: List[RawSegment], strip_newlines: bool = False
-    ) -> Tuple[List[RawSegment], List[RawSegment], List[LintFix]]:
+    ) -> Tuple[List[RawSegment], Optional[RawSegment], List[LintFix]]:
         """Given the existing spacing, extract information and do basic pruning."""
         removal_buffer: List[RawSegment] = []
         last_whitespace: List[RawSegment] = []
@@ -222,7 +221,8 @@ class ReflowPoint(ReflowElement):
         # and associated fixes.
         return (
             [s for s in segment_buffer if s not in removal_buffer],
-            last_whitespace,
+            # We should have removed all other whitespace by now.
+            last_whitespace[0] if last_whitespace else None,
             [LintFix.delete(s) for s in removal_buffer],
         )
 
@@ -321,7 +321,7 @@ class ReflowPoint(ReflowElement):
         next_block: Optional[ReflowBlock],
         root_segment: BaseSegment,
         segment_buffer: List[RawSegment],
-        last_whitespace: List[RawSegment],
+        last_whitespace: RawSegment,
     ) -> Tuple[List[RawSegment], List[LintFix]]:
         """Check inline spacing is the right size.
 
@@ -336,8 +336,7 @@ class ReflowPoint(ReflowElement):
         """
         new_fixes: List[LintFix] = []
         # Get some indices so that we can reference around them
-        ws_seg = last_whitespace[0]
-        ws_idx = segment_buffer.index(ws_seg)
+        ws_idx = segment_buffer.index(last_whitespace)
 
         # Do we have either side set to "any"
         if "any" in [pre_constraint, post_constraint]:
@@ -352,7 +351,7 @@ class ReflowPoint(ReflowElement):
             new_fixes.append(
                 LintFix(
                     "delete",
-                    anchor=ws_seg,
+                    anchor=last_whitespace,
                 )
             )
             segment_buffer.pop(ws_idx)
@@ -383,7 +382,7 @@ class ReflowPoint(ReflowElement):
 
                 desired_space = cls._determine_aligned_inline_spacing(
                     root_segment,
-                    ws_seg,
+                    last_whitespace,
                     next_block.segments[0],
                     seg_type,
                     align_within,
@@ -392,12 +391,12 @@ class ReflowPoint(ReflowElement):
             else:
                 desired_space = " "
 
-            if ws_seg.raw != desired_space:
-                new_seg = ws_seg.edit(desired_space)
+            if last_whitespace.raw != desired_space:
+                new_seg = last_whitespace.edit(desired_space)
                 new_fixes.append(
                     LintFix(
                         "replace",
-                        anchor=ws_seg,
+                        anchor=last_whitespace,
                         edit=[new_seg],
                     )
                 )
@@ -669,12 +668,18 @@ class ReflowPoint(ReflowElement):
             list(self.segments), strip_newlines
         )
 
+        # Check for final trailing whitespace (which otherwise looks like an indent).
+        if next_block and "end_of_file" in next_block.class_types and last_whitespace:
+            new_fixes.append(LintFix.delete(last_whitespace))
+            segment_buffer.remove(last_whitespace)
+            last_whitespace = None
+
         # Is there a newline?
         # NOTE: We do this based on the segment buffer rather than self.class_types
         # because we may have just removed any present newlines in the buffer.
         if (
             any(seg.is_type("newline") for seg in segment_buffer) and not strip_newlines
-        ) or any(seg.is_type("end_of_file") for seg in segment_buffer):
+        ) or (next_block and "end_of_file" in next_block.class_types):
             # Most of this section should be handled as _Indentation_.
             # BUT: There is one case we should handle here.
             # If we find that the last whitespace has a newline
@@ -687,22 +692,21 @@ class ReflowPoint(ReflowElement):
             # The test is less about whether it's longer than one
             # (because we should already have removed additional
             # whitespace above). This is about attempting consistency.
-            if len(last_whitespace) == 1:
-                ws_seg = last_whitespace[0]
-                ws_idx = self.segments.index(ws_seg)
+            if last_whitespace:
+                ws_idx = self.segments.index(last_whitespace)
                 if ws_idx > 0:
                     prev_seg = self.segments[ws_idx - 1]
                     if (
                         prev_seg.is_type("newline")
                         # Not just unequal. Must be actively _before_.
                         # NOTE: Based on working locations
-                        and prev_seg.get_end_loc() < ws_seg.get_start_loc()
+                        and prev_seg.get_end_loc() < last_whitespace.get_start_loc()
                     ):
                         reflow_logger.debug(
                             "    Removing non-contiguous whitespace post removal."
                         )
-                        segment_buffer.remove(ws_seg)
-                        new_fixes.append(LintFix("delete", ws_seg))
+                        segment_buffer.remove(last_whitespace)
+                        new_fixes.append(LintFix("delete", last_whitespace))
 
         # Is this an inline case? (i.e. no newline)
         else:
