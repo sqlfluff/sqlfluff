@@ -12,16 +12,27 @@ from sqlfluff.core.parser.segments.raw import RawSegment
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def _stack_pos_interpreter(path_step: PathStep):
-    """Interpret a path step for stack_positions."""
-    if path_step.idx == 0 and path_step.idx == path_step.len - 1:
-        return "solo"
-    elif path_step.idx == 0:
-        return "start"
-    elif path_step.idx == path_step.len - 1:
-        return "end"
-    else:
-        return ""  # NOTE: Empty string evaluates is falsy.
+@dataclass(frozen=True)
+class StackPosition:
+    idx: int
+    len: int
+    type: str
+
+    @staticmethod
+    def _stack_pos_interpreter(path_step: PathStep):
+        """Interpret a path step for stack_positions."""
+        if path_step.idx == 0 and path_step.idx == path_step.len - 1:
+            return "solo"
+        elif path_step.idx == 0:
+            return "start"
+        elif path_step.idx == path_step.len - 1:
+            return "end"
+        else:
+            return ""  # NOTE: Empty string evaluates is falsy.
+
+    @classmethod
+    def from_path_step(cls, path_step: PathStep):
+        return cls(path_step.idx, path_step.len, cls._stack_pos_interpreter(path_step))
 
 
 @dataclass(frozen=True)
@@ -33,7 +44,7 @@ class DepthInfo:
     # This is a convenience cache to speed up operations.
     stack_hash_set: FrozenSet[int]
     stack_class_types: Tuple[FrozenSet[str], ...]
-    stack_positions: Dict[int, Tuple[int, int, str]]
+    stack_positions: Dict[int, StackPosition]
 
     @classmethod
     def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[PathStep]):
@@ -45,8 +56,7 @@ class DepthInfo:
             stack_hash_set=frozenset(stack_hashes),
             stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
             stack_positions={
-                hash(ps.segment): (ps.idx, ps.len, _stack_pos_interpreter(ps))
-                for ps in stack
+                hash(ps.segment): StackPosition.from_path_step(ps) for ps in stack
             },
         )
 

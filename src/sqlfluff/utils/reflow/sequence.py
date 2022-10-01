@@ -616,16 +616,15 @@ class ReflowSequence:
             # Do any of its parents have config, and are we at the start
             # of them?
             for key in elem.line_position_configs.keys():
-                seg_idx, length, _ = elem.depth_info.stack_positions[key]
                 # If we're not at the start of the segment, then pass.
-                if seg_idx != 0:
+                if elem.depth_info.stack_positions[key].idx != 0:
                     continue
                 # Can we find the end?
                 for end_idx in range(idx, len(element_buffer) - 2):
                     end_elem = element_buffer[end_idx]
                     if not isinstance(end_elem, ReflowBlock):
                         continue
-                    if end_elem.depth_info.stack_positions[key][0] == length - 1:
+                    if end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
                         # Found the end. Add it to the stack.
                         # We reference the appropriate element from the parent stack.
                         target_depth = elem.depth_info.stack_hashes.index(key)

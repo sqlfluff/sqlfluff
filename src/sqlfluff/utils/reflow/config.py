@@ -106,11 +106,10 @@ class ReflowConfig:
         if depth_info:
             parent_start, parent_end = True, True
             for idx, key in enumerate(depth_info.stack_hashes[::-1]):
-                _, _, pos = depth_info.stack_positions[key]
                 # Work out if we're allowed to claim the parent.
-                if pos not in ("solo", "start"):
+                if depth_info.stack_positions[key].type not in ("solo", "start"):
                     parent_start = False
-                if pos not in ("solo", "end"):
+                if depth_info.stack_positions[key].type not in ("solo", "end"):
                     parent_end = False
                 if not (parent_start or parent_end):
                     break
