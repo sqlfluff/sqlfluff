@@ -56,30 +56,26 @@ class _RebreakLocation:
         prev_nl_idx = prev_point_idx
         next_nl_idx = next_point_idx
         # We hop in 2s because we're checking two ahead.
-        while (
-            prev_nl_idx >= 2
-            and "newline" not in elements[prev_nl_idx].class_types
-            and not any(seg.is_code for seg in elements[prev_nl_idx - 1].segments)
-        ):
-            prev_nl_idx -= 2
-        while (
-            next_nl_idx < len(elements) - 2
-            and "newline" not in elements[next_nl_idx].class_types
-            and not any(seg.is_code for seg in elements[next_nl_idx + 1].segments)
-        ):
-            next_nl_idx += 2
+        for prev_nl_idx in range(prev_nl_idx, 0, -2):
+            if "newline" in elements[prev_nl_idx].class_types or any(
+                seg.is_code for seg in elements[prev_nl_idx - 1].segments
+            ):
+                break
+        for next_nl_idx in range(next_nl_idx, len(elements), 2):
+            if "newline" in elements[next_nl_idx].class_types or any(
+                seg.is_code for seg in elements[next_nl_idx + 1].segments
+            ):
+                break
         # Then just find the next code
         prev_code_pt_idx = prev_nl_idx
         next_code_pt_idx = next_nl_idx
         # We hop in 2s because we're checking two ahead.
-        while next_code_pt_idx < len(elements) - 2 and not any(
-            seg.is_code for seg in elements[next_code_pt_idx + 1].segments
-        ):
-            next_code_pt_idx += 2
-        while prev_code_pt_idx >= 2 and not any(
-            seg.is_code for seg in elements[prev_code_pt_idx - 1].segments
-        ):
-            prev_code_pt_idx -= 2
+        for next_code_pt_idx in range(next_code_pt_idx, len(elements), 2):
+            if any(seg.is_code for seg in elements[next_code_pt_idx + 1].segments):
+                break
+        for prev_code_pt_idx in range(prev_code_pt_idx, 0, -2):
+            if any(seg.is_code for seg in elements[prev_code_pt_idx - 1].segments):
+                break
         return cls(
             span.target,
             prev_code_pt_idx,
@@ -325,11 +321,13 @@ class ReflowSequence:
         if sides in ("both", "before"):
             # Catch at least the previous segment
             pre_idx -= 1
-            while pre_idx - 1 > 0 and not all_raws[pre_idx].is_code:
-                pre_idx -= 1
+            for pre_idx in range(pre_idx, -1, -1):
+                if all_raws[pre_idx].is_code:
+                    break
         if sides in ("both", "after"):
-            while post_idx < len(all_raws) and not all_raws[post_idx].is_code:
-                post_idx += 1
+            for post_idx in range(post_idx, len(all_raws)):
+                if all_raws[post_idx].is_code:
+                    break
             # Capture one more after the whitespace.
             post_idx += 1
         segments = all_raws[pre_idx:post_idx]
