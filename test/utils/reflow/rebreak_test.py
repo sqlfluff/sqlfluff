@@ -42,7 +42,7 @@ def parse_ansi_string(sql, config):
 def test_reflow__sequence_rebreak_root(raw_sql_in, raw_sql_out, default_config, caplog):
     """Test the ReflowSequence.rebreak() method directly.
 
-    Focussed around a whole segment.
+    Focused around a whole segment.
     """
     root = parse_ansi_string(raw_sql_in, default_config)
     print(root.stringify())
@@ -75,7 +75,7 @@ def test_reflow__sequence_rebreak_target(
 ):
     """Test the ReflowSequence.rebreak() method directly.
 
-    Focussed around a target segment. This intentionally
+    Focused around a target segment. This intentionally
     stretches some of the span logic.
     """
     root = parse_ansi_string(raw_sql_in, default_config)

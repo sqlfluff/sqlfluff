@@ -593,7 +593,7 @@ class ReflowSequence:
                 spans.append(
                     _RebreakSpan(elem.segments[0], idx, idx, elem.line_position)
                 )
-            # Do any of it's parents have config, and are we at the start
+            # Do any of its parents have config, and are we at the start
             # of them?
             for key in elem.line_position_configs.keys():
                 seg_idx, length, _ = elem.depth_info.stack_positions[key]
@@ -727,7 +727,7 @@ class ReflowSequence:
                     for seg in elem_buff[loc.prev_point_idx].segments:
                         fixes.append(LintFix.delete(seg))
 
-                    # We re-insert always reinsert after the first point, but respace
+                    # We always reinsert after the first point, but respace
                     # the inserted point to ensure it's the right size given
                     # configs.
                     fixes, new_point = ReflowPoint([]).respace_point(
