@@ -2,8 +2,6 @@
 
 Specifically:
 - ReflowSequence.rebreak()
-- ReflowPoint.indent_to()
-- ReflowPoint.get_indent()
 """
 
 import logging
@@ -92,41 +90,3 @@ def test_reflow__sequence_rebreak_target(
 
     print(new_seq.get_fixes())
     assert new_seq.get_raw() == seq_sql_out
-
-
-@pytest.mark.parametrize(
-    "raw_sql_in,elem_idx,indent_to,point_sql_out",
-    [
-        # Trivial Case
-        ("select\n  1", 1, "  ", "\n  "),
-        # Change existing indents
-        ("select\n  1", 1, "    ", "\n    "),
-        ("select\n  1", 1, " ", "\n "),
-        ("select\n1", 1, "  ", "\n  "),
-        ("select\n  1", 1, "", "\n"),
-        # Create new indents
-        ("select 1", 1, "  ", "\n  "),
-        ("select 1", 1, " ", "\n "),
-        ("select 1", 1, "", "\n"),
-        ("select      1", 1, "  ", "\n  "),
-    ],
-)
-def test_reflow__point_indent_to(
-    raw_sql_in, elem_idx, indent_to, point_sql_out, default_config, caplog
-):
-    """Test the ReflowPoint.indent_to() method directly."""
-    root = parse_ansi_string(raw_sql_in, default_config)
-    print(root.stringify())
-    seq = ReflowSequence.from_root(root, config=default_config)
-    elem = seq.elements[elem_idx]
-    print("Element: ", elem)
-
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        new_fixes, new_point = elem.indent_to(
-            indent_to,
-            before=seq.elements[elem_idx - 1].segments[-1],
-            after=seq.elements[elem_idx + 1].segments[0],
-        )
-
-    print(new_fixes)
-    assert new_point.raw == point_sql_out
