@@ -524,11 +524,13 @@ class ReflowPoint(ReflowElement):
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
         """Get the current indent segment (if there)."""
+        indent = None
         for seg in reversed(self.segments):
-            if seg.is_type("newline", "end_of_file"):
-                return None
+            if seg.is_type("newline"):
+                return indent
             elif seg.is_type("whitespace"):
-                return seg
+                indent = seg
+        # i.e. if we never find a newline, it's not an indent.
         return None
 
     def get_indent(self) -> Optional[str]:
@@ -596,7 +598,12 @@ class ReflowPoint(ReflowElement):
         else:
             # There isn't currently a newline.
             new_newline = NewlineSegment()
-            if not indent_seg:
+            # Check for whitespace
+            ws_seg = None
+            for seg in self.segments[::-1]:
+                if seg.is_type("whitespace"):
+                    ws_seg = seg
+            if not ws_seg:
                 # There isn't a whitespace segment either. We need to insert one.
                 # Do we have an anchor?
                 new_indent = WhitespaceSegment(desired_indent)
@@ -622,9 +629,9 @@ class ReflowPoint(ReflowElement):
                 if desired_indent == "":
                     new_segs = [new_newline]
                 else:
-                    new_segs = [new_newline, indent_seg.edit(desired_indent)]
-                idx = self.segments.index(indent_seg)
-                fix = LintFix.replace(indent_seg, new_segs)
+                    new_segs = [new_newline, ws_seg.edit(desired_indent)]
+                idx = self.segments.index(ws_seg)
+                fix = LintFix.replace(ws_seg, new_segs)
                 new_point = ReflowPoint(
                     self.segments[:idx] + tuple(new_segs) + self.segments[idx + 1 :]
                 )

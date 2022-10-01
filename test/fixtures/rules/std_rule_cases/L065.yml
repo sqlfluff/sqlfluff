@@ -50,10 +50,10 @@ test_fail_fix_works_in_subqueries:
   fix_str: |
       SELECT * FROM (
           SELECT 'g'
-      UNION ALL
+          UNION ALL
           SELECT 'h'
           UNION ALL
-      SELECT 'j'
+          SELECT 'j'
       )
 
 # Test autofix after L003 passes L065

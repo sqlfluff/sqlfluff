@@ -168,9 +168,51 @@ class ReflowSequence:
         # the sequence.
         self.embodied_fixes: List[LintFix] = embodied_fixes or []
 
-    def get_fixes(self):
+    def get_fixes(self) -> List[LintFix]:
         """Get the current fix buffer."""
         return self.embodied_fixes
+
+    def get_partitioned_fixes(
+        self, target: BaseSegment
+    ) -> Tuple[List[LintFix], List[LintFix], List[LintFix]]:
+        """Get the current fix buffer partitioned around a target."""
+        first_target_raw = target.raw_segments[0]
+        last_target_raw = target.raw_segments[-1]
+
+        assert target.pos_marker
+        pre_fixes = [
+            fix
+            for fix in self.embodied_fixes
+            if fix.anchor.pos_marker
+            and (
+                fix.anchor.pos_marker.working_loc
+                < first_target_raw.pos_marker.working_loc
+                or (
+                    fix.edit_type == "create_before"
+                    and fix.anchor.pos_marker.working_loc
+                    == first_target_raw.pos_marker.working_loc
+                )
+            )
+        ]
+        post_fixes = [
+            fix
+            for fix in self.embodied_fixes
+            if fix.anchor.pos_marker
+            and (
+                fix.anchor.pos_marker.working_loc
+                > last_target_raw.pos_marker.working_loc
+                or (
+                    fix.edit_type == "create_after"
+                    and fix.anchor.pos_marker.working_loc
+                    == last_target_raw.pos_marker.working_loc
+                )
+            )
+        ]
+        # The rest
+        mid_fixes = [
+            fix for fix in self.embodied_fixes if fix not in pre_fixes + post_fixes
+        ]
+        return pre_fixes, mid_fixes, post_fixes
 
     def get_raw(self):
         """Get the current raw representation."""
@@ -653,7 +695,7 @@ class ReflowSequence:
         """Given a raw segment, deduce the indent of it's line."""
         seg_idx = self.root_segment.raw_segments.index(raw_segment)
         indent_seg = None
-        for seg in self.root_segment.raw_segments[:seg_idx:-1]:
+        for seg in self.root_segment.raw_segments[seg_idx::-1]:
             if seg.is_code:
                 indent_seg = None
             elif seg.is_type("whitespace"):
@@ -868,10 +910,11 @@ class ReflowSequence:
                 # First handle the following newlines first (easy).
                 if not elem_buff[loc.next_nl_idx].num_newlines():
                     reflow_logger.debug("  Found missing newline after in alone case")
-                    fixes, next_point = next_point.indent_to(
+                    pre_fixes, next_point = next_point.indent_to(
                         self._deduce_line_indent(loc.target.raw_segments[-1]),
                         after=loc.target,
                     )
+                    fixes += pre_fixes
                     # Update the point in the buffer
                     elem_buff[loc.next_point_idx] = next_point
 
@@ -883,10 +926,11 @@ class ReflowSequence:
                     # but there isn't an unambiguous way to do this, because we
                     # can't be sure what the comments are referring to.
                     # Given that, we take the simple option.
-                    fixes, prev_point = prev_point.indent_to(
+                    post_fixes, prev_point = prev_point.indent_to(
                         self._deduce_line_indent(loc.target.raw_segments[0]),
                         before=loc.target,
                     )
+                    fixes += post_fixes
                     # Update the point in the buffer
                     elem_buff[loc.prev_point_idx] = prev_point
 
