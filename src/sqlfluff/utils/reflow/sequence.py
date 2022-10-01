@@ -220,7 +220,7 @@ class ReflowSequence:
             elif elem_buff or seg_buff:
                 # There are elements. The last will have been a block.
                 # Add a point before we add the block. NOTE: It may be empty.
-                elem_buff.append(ReflowPoint(segments=seg_buff))
+                elem_buff.append(ReflowPoint(segments=tuple(seg_buff)))
             # Add the block, with config info.
             elem_buff.append(
                 ReflowBlock.from_config(
@@ -235,7 +235,7 @@ class ReflowSequence:
         # If we ended with a buffer, apply it.
         # TODO: Consider removing this clause?
         if seg_buff:  # pragma: no cover
-            elem_buff.append(ReflowPoint(segments=seg_buff))
+            elem_buff.append(ReflowPoint(segments=tuple(seg_buff)))
         return elem_buff
 
     @classmethod
@@ -369,8 +369,8 @@ class ReflowSequence:
                 "Not expected removal of whitespace in ReflowSequence."
             )
         merged_point = ReflowPoint(
-            segments=list(self.elements[removal_idx - 1].segments)
-            + list(self.elements[removal_idx + 1].segments),
+            segments=self.elements[removal_idx - 1].segments
+            + self.elements[removal_idx + 1].segments,
         )
         return ReflowSequence(
             elements=self.elements[: removal_idx - 1]
@@ -419,7 +419,7 @@ class ReflowSequence:
         elif pos == "before":
             return ReflowSequence(
                 elements=self.elements[:target_idx]
-                + [new_block, ReflowPoint([])]
+                + [new_block, ReflowPoint(())]
                 + self.elements[target_idx:],
                 root_segment=self.root_segment,
                 reflow_config=self.reflow_config,
@@ -433,7 +433,7 @@ class ReflowSequence:
             # this.
             return ReflowSequence(
                 elements=self.elements[: target_idx + 1]
-                + [ReflowPoint([]), new_block]
+                + [ReflowPoint(()), new_block]
                 + self.elements[target_idx + 1 :],
                 root_segment=self.root_segment,
                 reflow_config=self.reflow_config,

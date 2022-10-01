@@ -22,7 +22,7 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 class ReflowElement:
     """Base reflow element class."""
 
-    segments: Sequence[RawSegment]
+    segments: Tuple[RawSegment, ...]
 
     @staticmethod
     def _class_types(segments: Sequence[RawSegment]) -> Set[str]:
@@ -572,16 +572,14 @@ class ReflowPoint(ReflowElement):
                     new_indent = indent_seg.edit(desired_indent)
                     idx = self.segments.index(indent_seg)
                     return [LintFix.delete(indent_seg)], ReflowPoint(
-                        list(self.segments[:idx]) + list(self.segments[idx + 1 :])
+                        self.segments[:idx] + self.segments[idx + 1 :]
                     )
 
                 # Standard case of an indent change.
                 new_indent = indent_seg.edit(desired_indent)
                 idx = self.segments.index(indent_seg)
                 return [LintFix.replace(indent_seg, [new_indent])], ReflowPoint(
-                    list(self.segments[:idx])
-                    + [new_indent]
-                    + list(self.segments[idx + 1 :])
+                    self.segments[:idx] + (new_indent,) + self.segments[idx + 1 :]
                 )
             else:
                 # There is a newline, but no indent. Make one after the newline
@@ -592,9 +590,7 @@ class ReflowPoint(ReflowElement):
                 return [
                     LintFix.create_after(self.segments[idx], [new_indent])
                 ], ReflowPoint(
-                    list(self.segments[: idx + 1])
-                    + [new_indent]
-                    + list(self.segments[idx + 1 :])
+                    self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
                 )
         else:
             # There isn't currently a newline.
@@ -615,7 +611,7 @@ class ReflowPoint(ReflowElement):
                 else:
                     assert after  # mypy hint
                     fix = LintFix.create_after(after, [new_newline, new_indent])
-                new_point = ReflowPoint([new_newline, new_indent])
+                new_point = ReflowPoint((new_newline, new_indent))
             else:
                 # There is whitespace. Coerce it to the right indent and add
                 # a newline _before_. In the edge case that we're coercing to
@@ -629,9 +625,7 @@ class ReflowPoint(ReflowElement):
                 idx = self.segments.index(indent_seg)
                 fix = LintFix.replace(indent_seg, new_segs)
                 new_point = ReflowPoint(
-                    list(self.segments[:idx])
-                    + new_segs
-                    + list(self.segments[idx + 1 :])
+                    self.segments[:idx] + tuple(new_segs) + self.segments[idx + 1 :]
                 )
 
             return [fix], new_point
@@ -751,4 +745,4 @@ class ReflowPoint(ReflowElement):
         if new_fixes:
             reflow_logger.debug("    New Fixes: %s", new_fixes)
 
-        return fixes + new_fixes, ReflowPoint(segment_buffer)
+        return fixes + new_fixes, ReflowPoint(tuple(segment_buffer))
