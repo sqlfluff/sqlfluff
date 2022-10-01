@@ -112,7 +112,7 @@ def test__cli__command_directed():
         args=[
             lint,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
@@ -1002,7 +1002,7 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     result = invoke_assert_code(
         args=[
             fix,
-            ("-", "--rules", rules, "--disable_progress_bar", "--dialect=ansi"),
+            ("-", "--rules", rules, "--disable-progress-bar", "--dialect=ansi"),
         ],
         cli_input=stdin,
     )
@@ -1036,7 +1036,7 @@ def test__cli__command_fix_stdin_safety():
 
     # just prints the very same thing
     result = invoke_assert_code(
-        args=[fix, ("-", "--disable_progress_bar", "--dialect=ansi")],
+        args=[fix, ("-", "--disable-progress-bar", "--dialect=ansi")],
         cli_input=perfect_sql,
     )
     assert result.output.strip() == perfect_sql
@@ -1177,7 +1177,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
                 "L010",
                 "--format",
                 serialize,
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--dialect=ansi",
             ),
         ],
@@ -1222,7 +1222,7 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
         "--nocolor",
         "--dialect",
         "ansi",
-        "--disable_progress_bar",
+        "--disable-progress-bar",
         fpath,
         "--write-output",
         output_file,
@@ -1253,7 +1253,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         fpath,
         "--format",
         serialize,
-        "--disable_progress_bar",
+        "--disable-progress-bar",
     )
 
     if write_file:
@@ -1310,7 +1310,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "github-annotation",
                 "--annotation-level",
                 "warning",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1421,7 +1421,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
                 "github-annotation-native",
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1465,7 +1465,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1480,7 +1480,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "failure",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1617,7 +1617,7 @@ class TestProgressBars:
             args=[
                 lint,
                 [
-                    "--disable_progress_bar",
+                    "--disable-progress-bar",
                     "test/fixtures/linter/passing.sql",
                 ],
             ],
@@ -1709,7 +1709,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
         ],
@@ -1729,7 +1729,7 @@ def test__cli__fix_multiple_errors_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
@@ -1771,7 +1771,7 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--show-lint-violations",
                 sql_path,
                 indent_path,
