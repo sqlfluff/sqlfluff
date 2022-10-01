@@ -56,13 +56,13 @@ class _RebreakLocation:
         prev_nl_idx = prev_point_idx
         next_nl_idx = next_point_idx
         # We hop in 2s because we're checking two ahead.
-        for prev_nl_idx in range(prev_nl_idx, 1, -2):
+        for prev_nl_idx in range(prev_nl_idx, 0, -2):
             if "newline" in elements[prev_nl_idx].class_types or any(
                 seg.is_code for seg in elements[prev_nl_idx - 1].segments
             ):
                 break
-        for next_nl_idx in range(next_nl_idx, len(elements) - 2, 2):
-            if "newline" not in elements[next_nl_idx].class_types or any(
+        for next_nl_idx in range(next_nl_idx, len(elements), 2):
+            if "newline" in elements[next_nl_idx].class_types or any(
                 seg.is_code for seg in elements[next_nl_idx + 1].segments
             ):
                 break
@@ -70,10 +70,10 @@ class _RebreakLocation:
         prev_code_pt_idx = prev_nl_idx
         next_code_pt_idx = next_nl_idx
         # We hop in 2s because we're checking two ahead.
-        for next_code_pt_idx in range(next_code_pt_idx, len(elements) - 2, 2):
+        for next_code_pt_idx in range(next_code_pt_idx, len(elements), 2):
             if any(seg.is_code for seg in elements[next_code_pt_idx + 1].segments):
                 break
-        for prev_code_pt_idx in range(prev_code_pt_idx, 1, -2):
+        for prev_code_pt_idx in range(prev_code_pt_idx, 0, -2):
             if any(seg.is_code for seg in elements[prev_code_pt_idx - 1].segments):
                 break
         return cls(
