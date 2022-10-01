@@ -81,6 +81,16 @@ class Rule_L019(BaseRule):
         if not fixes:
             return LintResult()
 
-        # TODO: Still need to incorporate the nicer formatted description
-        # in based on the current config.
-        return LintResult(context.segment, fixes)
+        desired_position = context.config.get(
+            "line_position", ("layout", "type", "comma")
+        )
+
+        return LintResult(
+            context.segment,
+            fixes,
+            description=(
+                "Found trailing comma. Expected only leading."
+                if desired_position == "leading"
+                else "Found leading comma. Expected only trailing."
+            ),
+        )
