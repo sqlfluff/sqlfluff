@@ -10,5 +10,4 @@ ON
   src.foo = tgt.foo
 WHEN MATCHED THEN
   UPDATE SET
-    tgt.foo = src.foo
-;
+    tgt.foo = src.foo;

@@ -8,7 +8,7 @@ from sqlfluff.rules.L007 import after_description, before_description
 
 
 def test__rules__std_L007_default():
-    """Verify that L007 returns the correct error message for default (after)."""
+    """Verify that L007 returns the correct error message for default (trailing)."""
     sql = """
         SELECT
             a,
@@ -23,8 +23,8 @@ def test__rules__std_L007_default():
     assert after_description in [r["description"] for r in result]
 
 
-def test__rules__std_L007_after():
-    """Verify orrect error message when after is explicitly used."""
+def test__rules__std_L007_leading():
+    """Verify correct error message when leading is used."""
     sql = """
         SELECT
             a,
@@ -35,7 +35,7 @@ def test__rules__std_L007_after():
             b = 2
     """
     config = FluffConfig(
-        configs={"rules": {"L007": {"operator_new_lines": "after"}}},
+        configs={"layout": {"type": {"binary_operator": {"line_position": "leading"}}}},
         overrides={"dialect": "ansi"},
     )
     # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
@@ -46,8 +46,8 @@ def test__rules__std_L007_after():
     assert after_description in [r["description"] for r in result]
 
 
-def test__rules__std_L007_before():
-    """Verify that L007 returns the correct error message when before is used."""
+def test__rules__std_L007_trailing():
+    """Verify correct error message when trailing is used."""
     sql = """
         SELECT
             a,
@@ -58,7 +58,9 @@ def test__rules__std_L007_before():
             AND b = 2
     """
     config = FluffConfig(
-        configs={"rules": {"L007": {"operator_new_lines": "before"}}},
+        configs={
+            "layout": {"type": {"binary_operator": {"line_position": "trailing"}}}
+        },
         overrides={"dialect": "ansi"},
     )
     # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
