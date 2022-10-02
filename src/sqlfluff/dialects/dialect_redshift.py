@@ -177,27 +177,6 @@ redshift_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    ColumnReferenceSegment=Delimited(
-        Sequence(
-            ansi.ColumnReferenceSegment,
-            AnyNumberOf(Ref("ArrayAccessorSegment")),
-        ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-        ),
-        allow_gaps=False,
-    ),
 )
 
 redshift_dialect.patch_lexer_matchers(
@@ -2401,11 +2380,3 @@ class FunctionSegment(ansi.FunctionSegment):
             ),
         ),
     )
-
-
-class ColumnReferenceSegment(postgres.ColumnReferenceSegment):
-    """A reference to column, field or alias.
-
-    We override this for Redshift to allow keywords in fully qualified column
-    names (using Full segments) like it's done in Postgres.
-    """
