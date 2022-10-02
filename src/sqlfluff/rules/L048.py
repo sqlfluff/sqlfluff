@@ -44,46 +44,46 @@ class Rule_L048(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Quoted literals should be surrounded by a single whitespace."""
-        fixes = (
+        pre_fixes, _, post_fixes = (
             ReflowSequence.from_around_target(
                 context.segment, context.parent_stack[0], config=context.config
             )
             .respace()
-            .get_fixes()
+            .get_partitioned_fixes(context.segment)
         )
 
-        fixes = [
-            # Filter for only creations, because edits are handled as excess
-            # whitespace in a different rule.
+        # Filter for only creations, because edits are handled as excess
+        # whitespace in a different rule.
+        pre_fixes = [
             fix
-            for fix in fixes
+            for fix in pre_fixes
+            if fix.edit_type in ("create_before", "create_after")
+        ]
+        post_fixes = [
+            fix
+            for fix in post_fixes
             if fix.edit_type in ("create_before", "create_after")
         ]
 
         violations = []
 
-        for fix in fixes:
-            # Is it a creation before
-            if fix.anchor.pos_marker < context.segment.pos_marker or (
-                fix.anchor == context.segment and fix.edit_type == "create_before"
-            ):
-                violations.append(
-                    LintResult(
-                        context.segment,
-                        fixes=[fix],
-                        description=f"Missing whitespace before {context.segment.raw}",
-                    )
+        # Is it a creation before
+        if pre_fixes:
+            violations.append(
+                LintResult(
+                    context.segment,
+                    fixes=pre_fixes,
+                    description=f"Missing whitespace before {context.segment.raw}",
                 )
-            # Is it a creation after
-            if fix.anchor.pos_marker > context.segment.pos_marker or (
-                fix.anchor == context.segment and fix.edit_type == "create_after"
-            ):
-                violations.append(
-                    LintResult(
-                        context.segment,
-                        fixes=[fix],
-                        description=f"Missing whitespace after {context.segment.raw}",
-                    )
+            )
+        # Is it a creation after
+        if post_fixes:
+            violations.append(
+                LintResult(
+                    context.segment,
+                    fixes=post_fixes,
+                    description=f"Missing whitespace after {context.segment.raw}",
                 )
+            )
 
         return violations

@@ -1,11 +1,10 @@
 """Implementation of Rule L065."""
-from typing import List, Optional, Iterable
+from typing import List
 
-from sqlfluff.utils.functional import sp, FunctionalContext
-from sqlfluff.core.parser import BaseSegment, NewlineSegment
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.crawlers import ParentOfSegmentCrawler
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 @document_groups
@@ -15,7 +14,7 @@ class Rule_L065(BaseRule):
 
     **Anti-pattern**
 
-    In this example, `UNION ALL` is not on a line ifself.
+    In this example, `UNION ALL` is not on a line itself.
 
     .. code-block:: sql
 
@@ -34,9 +33,7 @@ class Rule_L065(BaseRule):
 
     groups = ("all",)
 
-    # Still define target elems for functional steps later
-    _target_elems = ("set_operator",)
-    crawl_behaviour = ParentOfSegmentCrawler({"set_operator"})
+    crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Set operators should be surrounded by newlines.
@@ -46,116 +43,38 @@ class Rule_L065(BaseRule):
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
-        segment = FunctionalContext(context).segment
-
-        expression = segment.children()
-        set_operator_segments = segment.children(sp.is_type(*self._target_elems))
-        # We should always find some as children because of the ParentOfSegmentCrawler
-        assert set_operator_segments
-        results: List[LintResult] = []
-
-        # If len(set_operator) == 0 this will essentially not run
-        for set_operator in set_operator_segments:
-            preceeding_code = (
-                expression.reversed().select(start_seg=set_operator).first(sp.is_code())
+        pre_fixes, _, post_fixes = (
+            ReflowSequence.from_around_target(
+                context.segment,
+                root_segment=context.parent_stack[0],
+                config=context.config,
             )
-            following_code = expression.select(start_seg=set_operator).first(
-                sp.is_code()
+            .rebreak()
+            .get_partitioned_fixes(context.segment)
+        )
+
+        results = []
+        if pre_fixes:
+            results.append(
+                LintResult(
+                    anchor=context.segment,
+                    description=(
+                        "Set operators should be surrounded by newlines. "
+                        f"Missing newline before set operator {context.segment.raw}."
+                    ),
+                    fixes=pre_fixes,
+                )
             )
-            res = {
-                "before": expression.select(
-                    start_seg=preceeding_code.get(), stop_seg=set_operator
-                ),
-                "after": expression.select(
-                    start_seg=set_operator, stop_seg=following_code.get()
-                ),
-            }
-
-            newline_before_set_operator = res["before"].first(sp.is_type("newline"))
-            newline_after_set_operator = res["after"].first(sp.is_type("newline"))
-
-            # If there is a whitespace directly preceeding/following the set operator we
-            # are replacing it with a newline later.
-            preceeding_whitespace = res["before"].first(sp.is_type("whitespace")).get()
-            following_whitespace = res["after"].first(sp.is_type("whitespace")).get()
-
-            if newline_before_set_operator and newline_after_set_operator:
-                continue
-            elif not newline_before_set_operator and newline_after_set_operator:
-                results.append(
-                    LintResult(
-                        anchor=set_operator,
-                        description=(
-                            "Set operators should be surrounded by newlines. "
-                            f"Missing newline before set operator {set_operator.raw}."
-                        ),
-                        fixes=_generate_fixes(whitespace_segment=preceeding_whitespace),
-                    )
+        if post_fixes:
+            results.append(
+                LintResult(
+                    anchor=context.segment,
+                    description=(
+                        "Set operators should be surrounded by newlines. "
+                        f"Missing newline after set operator {context.segment.raw}."
+                    ),
+                    fixes=post_fixes,
                 )
-            elif newline_before_set_operator and not newline_after_set_operator:
-                results.append(
-                    LintResult(
-                        anchor=set_operator,
-                        description=(
-                            "Set operators should be surrounded by newlines. "
-                            f"Missing newline after set operator {set_operator.raw}."
-                        ),
-                        fixes=_generate_fixes(whitespace_segment=following_whitespace),
-                    )
-                )
-            else:
-                preceeding_whitespace_fixes = _generate_fixes(
-                    whitespace_segment=preceeding_whitespace
-                )
-                following_whitespace_fixes = _generate_fixes(
-                    whitespace_segment=following_whitespace
-                )
-
-                # make mypy happy
-                assert isinstance(preceeding_whitespace_fixes, Iterable)
-                assert isinstance(following_whitespace_fixes, Iterable)
-
-                fixes = []
-                fixes.extend(preceeding_whitespace_fixes)
-                fixes.extend(following_whitespace_fixes)
-
-                results.append(
-                    LintResult(
-                        anchor=set_operator,
-                        description=(
-                            "Set operators should be surrounded by newlines. "
-                            "Missing newline before and after set operator "
-                            f"{set_operator.raw}."
-                        ),
-                        fixes=fixes,
-                    )
-                )
+            )
 
         return results
-
-
-def _generate_fixes(
-    whitespace_segment: Optional[BaseSegment],
-) -> Optional[List[LintFix]]:
-
-    if whitespace_segment:
-        return [
-            LintFix.replace(
-                anchor_segment=whitespace_segment,
-                # NB: Currently we are just inserting a Newline here. This alone will
-                # produce not properly indented SQL. We rely on L003 to deal with
-                # indentation later.
-                # As a future improvement we could maybe add WhitespaceSegment( ... )
-                # here directly.
-                edit_segments=[NewlineSegment()],
-            )
-        ]
-    else:
-        # We should rarely reach here as set operators are always surrounded by either
-        # WhitespaceSegment or NewlineSegment.
-        # However, in exceptional cases the WhitespaceSegment might be enclosed in the
-        # surrounding segment hierachy and not accessible by the rule logic.
-        # At the time of writing this is true for `tsql` as covered in the test
-        # `test_fail_autofix_in_tsql_disabled`. If we encounter such case, we skip
-        # fixing.
-        return []

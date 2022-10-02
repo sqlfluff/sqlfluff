@@ -108,7 +108,7 @@ def is_whitespace() -> Callable[[BaseSegment], bool]:
     return _
 
 
-def is_templated() -> Callable[[BaseSegment], bool]:
+def is_templated() -> Callable[[BaseSegment], bool]:  # pragma: no cover
     """Returns a function that checks if segment is templated."""
 
     def _(segment: BaseSegment) -> bool:
