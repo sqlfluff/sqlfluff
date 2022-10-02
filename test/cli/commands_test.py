@@ -1628,6 +1628,29 @@ class TestProgressBars:
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
 
+    def test_cli_lint_disabled_progress_bar_deprecated_option(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """Same as above but checks additionally if deprecation warning is printed."""
+        result = invoke_assert_code(
+            args=[
+                lint,
+                [
+                    "--disable_progress_bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
+        assert "\rparsing: 0it" not in raw_output
+        assert "\r\rlint by rules:" not in raw_output
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) in raw_output
+
     def test_cli_lint_enabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock
     ) -> None:
