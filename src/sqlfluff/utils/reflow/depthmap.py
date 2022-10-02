@@ -33,7 +33,9 @@ class StackPosition:
             return ""  # NOTE: Empty string evaluates as falsy.
 
     @classmethod
-    def from_path_step(cls, path_step: PathStep):
+    def from_path_step(
+        cls: Type["StackPosition"], path_step: PathStep
+    ) -> "StackPosition":
         """Interpret a PathStep to construct a StackPosition.
 
         The reason we don't just use the same object is partly
