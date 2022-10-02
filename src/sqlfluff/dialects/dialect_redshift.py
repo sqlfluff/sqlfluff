@@ -2401,3 +2401,11 @@ class FunctionSegment(ansi.FunctionSegment):
             ),
         ),
     )
+
+
+class ColumnReferenceSegment(postgres.ColumnReferenceSegment):
+    """A reference to column, field or alias.
+
+    We override this for Redshift to allow keywords in fully qualified column
+    names (using Full segments) like it's done in Postgres.
+    """
