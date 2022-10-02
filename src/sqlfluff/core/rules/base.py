@@ -236,8 +236,9 @@ class LintFix:
                 detail = f"create:{new_detail!r}"
         else:
             detail = ""  # pragma: no cover TODO?
-        return "<LintFix: {} @{} {}>".format(
-            self.edit_type, self.anchor.pos_marker, detail
+        return (
+            f"<LintFix: {self.edit_type} {self.anchor.get_type()}"
+            f"@{self.anchor.pos_marker} {detail}>"
         )
 
     def __eq__(self, other):
