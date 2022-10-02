@@ -21,7 +21,7 @@ class StackPosition:
     type: str
 
     @staticmethod
-    def _stack_pos_interpreter(path_step: PathStep):
+    def _stack_pos_interpreter(path_step: PathStep) -> str:
         """Interpret a path step for stack_positions."""
         if path_step.idx == 0 and path_step.idx == path_step.len - 1:
             return "solo"
@@ -30,7 +30,7 @@ class StackPosition:
         elif path_step.idx == path_step.len - 1:
             return "end"
         else:
-            return ""  # NOTE: Empty string evaluates is falsy.
+            return ""  # NOTE: Empty string evaluates as falsy.
 
     @classmethod
     def from_path_step(cls, path_step: PathStep):

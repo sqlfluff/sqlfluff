@@ -904,7 +904,7 @@ class ReflowSequence:
 
             elif loc.line_position == "alone":
                 # If we get here we can assume that the element is currently
-                # either leading or trailing and needs to be moved onto it's
+                # either leading or trailing and needs to be moved onto its
                 # own line.
 
                 # First handle the following newlines first (easy).

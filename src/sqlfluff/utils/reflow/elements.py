@@ -44,7 +44,7 @@ class ReflowElement:
     def num_newlines(self) -> int:
         """How many newlines does this element contain?"""
         return sum(
-            bool(seg.class_types.intersection({"newline"})) for seg in self.segments
+            bool("newline" in seg.class_types) for seg in self.segments
         )
 
 
