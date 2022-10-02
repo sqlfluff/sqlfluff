@@ -1,14 +1,11 @@
 """Implementation of Rule L008."""
-from typing import Optional, Tuple
+from typing import Optional
 
-from sqlfluff.core.parser import WhitespaceSegment
-
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-from sqlfluff.utils.functional import sp, FunctionalContext
 
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 @document_groups
@@ -43,71 +40,19 @@ class Rule_L008(BaseRule):
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
-    def _get_subsequent_whitespace(
-        self,
-        context,
-    ) -> Tuple[Optional[BaseSegment], Optional[BaseSegment]]:
-        """Search forwards through the raw segments for subsequent whitespace.
-
-        Return a tuple of both the trailing whitespace segment and the
-        first non-whitespace segment discovered.
-        """
-        # Get all raw segments. "raw_segments" is appropriate as the
-        # only segments we can care about are comma, whitespace,
-        # newline, and comment, which are all raw. Using the
-        # raw_segments allows us to account for possible unexpected
-        # parse tree structures resulting from other rule fixes.
-        raw_segments = FunctionalContext(context).raw_segments
-        # Start after the current comma within the list. Get all the
-        # following whitespace.
-        following_segments = raw_segments.select(
-            loop_while=sp.or_(sp.is_meta(), sp.is_type("whitespace")),
-            start_seg=context.segment,
-        )
-        subsequent_whitespace = following_segments.last(sp.is_type("whitespace"))
-        try:
-            return (
-                subsequent_whitespace[0] if subsequent_whitespace else None,
-                raw_segments[
-                    raw_segments.index(context.segment) + len(following_segments) + 1
-                ],
-            )
-        except IndexError:
-            # If we find ourselves here it's all whitespace (or nothing) to the
-            # end of the file. This can only happen in bigquery (see
-            # test_pass_bigquery_trailing_comma).
-            return subsequent_whitespace, None
-
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        # We only care about commas.
-        assert context.segment.is_type("comma")
-
-        # Get subsequent whitespace segment and the first non-whitespace segment.
-        subsequent_whitespace, first_non_whitespace = self._get_subsequent_whitespace(
-            context
+        """Commas should not have whitespace directly before them."""
+        fixes = (
+            ReflowSequence.from_around_target(
+                context.segment,
+                context.parent_stack[0],
+                config=context.config,
+                sides="after",
+            )
+            .respace()
+            .get_fixes()
         )
-
-        if (
-            not subsequent_whitespace
-            and (first_non_whitespace is not None)
-            and (not first_non_whitespace.is_type("newline"))
-        ):
-            # No trailing whitespace and not followed by a newline,
-            # therefore create a whitespace after the comma.
-            return LintResult(
-                anchor=first_non_whitespace,
-                fixes=[LintFix.create_after(context.segment, [WhitespaceSegment()])],
-            )
-        elif (
-            subsequent_whitespace
-            and (subsequent_whitespace.raw != " ")
-            and (first_non_whitespace is not None)
-            and (not first_non_whitespace.is_comment)
-        ):
-            # Excess trailing whitespace therefore edit to only be one space long.
-            return LintResult(
-                anchor=subsequent_whitespace,
-                fixes=[LintFix.replace(subsequent_whitespace, [WhitespaceSegment()])],
-            )
-
+        if fixes:
+            # There should just be one, so just take the first.
+            return LintResult(anchor=fixes[0].anchor, fixes=fixes[:1])
         return None
