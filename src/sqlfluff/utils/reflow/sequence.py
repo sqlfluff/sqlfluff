@@ -241,17 +241,6 @@ class ReflowSequence:
                 reflow_logger.error("   - %s", elem)
             reflow_logger.exception("Assertion check on ReflowSequence failed.")
             raise err
-        # Check for double whitespace in points.
-        for elem in elements:
-            if isinstance(elem, ReflowPoint):
-                for idx in range(len(elem.segments) - 1):
-                    assert not (
-                        elem.segments[idx].is_type("whitespace")
-                        and elem.segments[idx + 1].is_type("whitespace")
-                    ), (
-                        "Found adjacent double whitespace in ReflowPoint. "
-                        "This is not allowed."
-                    )
 
     @staticmethod
     def _elements_from_raw_segments(
