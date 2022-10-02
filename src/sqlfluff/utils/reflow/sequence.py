@@ -33,57 +33,60 @@ class _RebreakSpan:
 
 
 @dataclass(frozen=True)
+class _RebreakIndices:
+    """Indices of points for a _RebreakLocation."""
+
+    dir: int
+    adj_pt_idx: int
+    newline_pt_idx: int
+    pre_code_pt_idx: int
+
+    @classmethod
+    def from_elements(
+        cls: Type["_RebreakIndices"],
+        elements: ReflowSequenceType,
+        start_idx: int,
+        dir: int,
+    ) -> "_RebreakIndices":
+        """Iterate through the elements to deduce important point indices."""
+        assert dir in (1, -1), "Direction must be a unit direction (i.e. 1 or -1)."
+        # Limit depends on the direction
+        limit = 0 if dir == -1 else len(elements)
+        # The adjacent point is just the next one.
+        adj_point_idx = start_idx + dir
+        # The newline point is next. We hop in 2s because we're checking
+        # only points, which alternate with blocks.
+        for newline_point_idx in range(adj_point_idx, limit, 2 * dir):
+            if "newline" in elements[newline_point_idx].class_types or any(
+                seg.is_code for seg in elements[newline_point_idx + dir].segments
+            ):
+                break
+        # Finally we look for the point preceding the next code element.
+        for pre_code_point_idx in range(newline_point_idx, limit, 2 * dir):
+            if any(seg.is_code for seg in elements[pre_code_point_idx + dir].segments):
+                break
+        return cls(dir, adj_point_idx, newline_point_idx, pre_code_point_idx)
+
+
+@dataclass(frozen=True)
 class _RebreakLocation:
     """A location within a sequence to rebreak, with metadata."""
 
     target: BaseSegment
-    prev_code_pt_idx: int
-    prev_nl_idx: int
-    prev_point_idx: int
-    next_point_idx: int
-    next_nl_idx: int
-    next_code_pt_idx: int
+    prev: _RebreakIndices
+    next: _RebreakIndices
     line_position: str
     strict: bool
 
     @classmethod
-    def from_span(cls, span: _RebreakSpan, elements: ReflowSequenceType):
+    def from_span(
+        cls: Type["_RebreakLocation"], span: _RebreakSpan, elements: ReflowSequenceType
+    ) -> "_RebreakLocation":
         """Expand a span to a location."""
-        # First get the next newline.
-        prev_point_idx = span.start_idx - 1
-        next_point_idx = span.end_idx + 1
-
-        prev_nl_idx = prev_point_idx
-        next_nl_idx = next_point_idx
-        # We hop in 2s because we're checking two ahead.
-        for prev_nl_idx in range(prev_nl_idx, 0, -2):
-            if "newline" in elements[prev_nl_idx].class_types or any(
-                seg.is_code for seg in elements[prev_nl_idx - 1].segments
-            ):
-                break
-        for next_nl_idx in range(next_nl_idx, len(elements), 2):
-            if "newline" in elements[next_nl_idx].class_types or any(
-                seg.is_code for seg in elements[next_nl_idx + 1].segments
-            ):
-                break
-        # Then just find the next code
-        prev_code_pt_idx = prev_nl_idx
-        next_code_pt_idx = next_nl_idx
-        # We hop in 2s because we're checking two ahead.
-        for next_code_pt_idx in range(next_code_pt_idx, len(elements), 2):
-            if any(seg.is_code for seg in elements[next_code_pt_idx + 1].segments):
-                break
-        for prev_code_pt_idx in range(prev_code_pt_idx, 0, -2):
-            if any(seg.is_code for seg in elements[prev_code_pt_idx - 1].segments):
-                break
         return cls(
             span.target,
-            prev_code_pt_idx,
-            prev_nl_idx,
-            prev_point_idx,
-            next_point_idx,
-            next_nl_idx,
-            next_code_pt_idx,
+            _RebreakIndices.from_elements(elements, span.start_idx, -1),
+            _RebreakIndices.from_elements(elements, span.end_idx, 1),
             span.line_position,
             span.strict,
         )
@@ -98,13 +101,13 @@ class _RebreakLocation:
         """
         # Check the _last_ newline of the previous point.
         # Slice backward to search in reverse.
-        for seg in elements[self.prev_nl_idx].segments[::-1]:
+        for seg in elements[self.prev.newline_pt_idx].segments[::-1]:
             if seg.is_type("newline"):
                 if not seg.pos_marker.is_literal():
                     return True
                 break
         # Check the _first_ newline of the next point.
-        for seg in elements[self.next_nl_idx].segments:
+        for seg in elements[self.next.newline_pt_idx].segments:
             if seg.is_type("newline"):
                 if not seg.pos_marker.is_literal():
                     return True
@@ -124,8 +127,8 @@ class _RebreakLocation:
         """
         # Here we use the newline index, not
         # just the adjacent point, so that we can see past comments.
-        n_prev_newlines = elements[self.prev_nl_idx].num_newlines()
-        n_next_newlines = elements[self.next_nl_idx].num_newlines()
+        n_prev_newlines = elements[self.prev.newline_pt_idx].num_newlines()
+        n_next_newlines = elements[self.next.newline_pt_idx].num_newlines()
         newlines_on_neither_side = n_prev_newlines + n_next_newlines == 0
         newlines_on_both_sides = n_prev_newlines > 0 and n_next_newlines > 0
         return (
@@ -753,7 +756,7 @@ class ReflowSequence:
                 "".join(
                     elem.raw
                     for elem in elem_buff[
-                        loc.prev_code_pt_idx - 1 : loc.next_code_pt_idx + 2
+                        loc.prev.pre_code_pt_idx - 1 : loc.next.pre_code_pt_idx + 2
                     ]
                 ),
             )
@@ -765,20 +768,20 @@ class ReflowSequence:
                 continue
 
             # Points and blocks either side are just offsets from the indices.
-            prev_point = elem_buff[loc.prev_point_idx]
-            next_point = elem_buff[loc.next_point_idx]
+            prev_point = elem_buff[loc.prev.adj_pt_idx]
+            next_point = elem_buff[loc.next.adj_pt_idx]
 
             # So we know we have a preference, is it ok?
             if loc.line_position == "leading":
-                if elem_buff[loc.prev_nl_idx].num_newlines():
+                if elem_buff[loc.prev.newline_pt_idx].num_newlines():
                     # We're good. It's already leading.
                     continue
                 # Is it the simple case with no comments between the
                 # old and new desired locations and only a single following
                 # whitespace?
                 elif (
-                    loc.next_point_idx == loc.next_code_pt_idx
-                    and elem_buff[loc.next_nl_idx].num_newlines() == 1
+                    loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
+                    and elem_buff[loc.next.newline_pt_idx].num_newlines() == 1
                 ):
                     reflow_logger.debug("  Trailing Easy Case")
                     # Simple case. No comments.
@@ -788,15 +791,15 @@ class ReflowSequence:
                         next_point.get_indent() or "", before=loc.target
                     )
                     fixes, next_point = next_point.respace_point(
-                        elem_buff[loc.next_point_idx - 1],
-                        elem_buff[loc.next_point_idx + 1],
+                        elem_buff[loc.next.adj_pt_idx - 1],
+                        elem_buff[loc.next.adj_pt_idx + 1],
                         root_segment=self.root_segment,
                         fixes=fixes,
                         strip_newlines=True,
                     )
                     # Update the points in the buffer
-                    elem_buff[loc.prev_point_idx] = prev_point
-                    elem_buff[loc.next_point_idx] = next_point
+                    elem_buff[loc.prev.adj_pt_idx] = prev_point
+                    elem_buff[loc.next.adj_pt_idx] = next_point
                 else:
                     reflow_logger.debug("  Trailing Tricky Case")
                     # Otherwise we've got a tricky scenario where there are comments
@@ -806,45 +809,45 @@ class ReflowSequence:
                     # Delete the existing position of the target, and
                     # the _preceding_ point.
                     fixes.append(LintFix.delete(loc.target))
-                    for seg in elem_buff[loc.prev_point_idx].segments:
+                    for seg in elem_buff[loc.prev.adj_pt_idx].segments:
                         fixes.append(LintFix.delete(seg))
 
                     # We always reinsert after the first point, but respace
                     # the inserted point to ensure it's the right size given
                     # configs.
                     fixes, new_point = ReflowPoint([]).respace_point(
-                        elem_buff[loc.next_point_idx - 1],
-                        elem_buff[loc.next_code_pt_idx + 1],
+                        elem_buff[loc.next.adj_pt_idx - 1],
+                        elem_buff[loc.next.pre_code_pt_idx + 1],
                         root_segment=self.root_segment,
                         fixes=fixes,
                         anchor_on="after",
                     )
                     fixes.append(
                         LintFix.create_after(
-                            elem_buff[loc.next_code_pt_idx].segments[-1],
+                            elem_buff[loc.next.pre_code_pt_idx].segments[-1],
                             [loc.target],
                         )
                     )
 
                     elem_buff = (
-                        elem_buff[: loc.prev_point_idx]
-                        + elem_buff[loc.next_point_idx : loc.next_code_pt_idx + 1]
+                        elem_buff[: loc.prev.adj_pt_idx]
+                        + elem_buff[loc.next.adj_pt_idx : loc.next.pre_code_pt_idx + 1]
                         + elem_buff[
-                            loc.prev_point_idx + 1 : loc.next_point_idx
+                            loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
                         ]  # the target
                         + [new_point]
-                        + elem_buff[loc.next_code_pt_idx + 1 :]
+                        + elem_buff[loc.next.pre_code_pt_idx + 1 :]
                     )
 
             elif loc.line_position == "trailing":
-                if elem_buff[loc.next_nl_idx].num_newlines():
+                if elem_buff[loc.next.newline_pt_idx].num_newlines():
                     # We're good, it's already trailing.
                     continue
                 # Is it the simple case with no comments between the
                 # old and new desired locations and only one previous newline?
                 elif (
-                    loc.prev_point_idx == loc.prev_code_pt_idx
-                    and elem_buff[loc.prev_nl_idx].num_newlines() == 1
+                    loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
+                    and elem_buff[loc.prev.newline_pt_idx].num_newlines() == 1
                 ):
                     reflow_logger.debug("  Leading Easy Case")
                     # Simple case. No comments.
@@ -854,15 +857,15 @@ class ReflowSequence:
                         prev_point.get_indent() or "", after=loc.target
                     )
                     fixes, prev_point = prev_point.respace_point(
-                        elem_buff[loc.prev_point_idx - 1],
-                        elem_buff[loc.prev_point_idx + 1],
+                        elem_buff[loc.prev.adj_pt_idx - 1],
+                        elem_buff[loc.prev.adj_pt_idx + 1],
                         root_segment=self.root_segment,
                         fixes=fixes,
                         strip_newlines=True,
                     )
                     # Update the points in the buffer
-                    elem_buff[loc.prev_point_idx] = prev_point
-                    elem_buff[loc.next_point_idx] = next_point
+                    elem_buff[loc.prev.adj_pt_idx] = prev_point
+                    elem_buff[loc.next.adj_pt_idx] = next_point
                 else:
                     reflow_logger.debug("  Leading Tricky Case")
                     # Otherwise we've got a tricky scenario where there are comments
@@ -872,34 +875,34 @@ class ReflowSequence:
                     # Delete the existing position of the target, and
                     # the _following_ point.
                     fixes.append(LintFix.delete(loc.target))
-                    for seg in elem_buff[loc.next_point_idx].segments:
+                    for seg in elem_buff[loc.next.adj_pt_idx].segments:
                         fixes.append(LintFix.delete(seg))
 
                     # We always reinsert before the first point, but respace
                     # the inserted point to ensure it's the right size given
                     # configs.
                     fixes, new_point = ReflowPoint([]).respace_point(
-                        elem_buff[loc.prev_code_pt_idx - 1],
-                        elem_buff[loc.prev_point_idx + 1],
+                        elem_buff[loc.prev.pre_code_pt_idx - 1],
+                        elem_buff[loc.prev.adj_pt_idx + 1],
                         root_segment=self.root_segment,
                         fixes=fixes,
                         anchor_on="before",
                     )
                     fixes.append(
                         LintFix.create_before(
-                            elem_buff[loc.prev_code_pt_idx].segments[0],
+                            elem_buff[loc.prev.pre_code_pt_idx].segments[0],
                             [loc.target],
                         )
                     )
 
                     elem_buff = (
-                        elem_buff[: loc.prev_code_pt_idx]
+                        elem_buff[: loc.prev.pre_code_pt_idx]
                         + [new_point]
                         + elem_buff[
-                            loc.prev_point_idx + 1 : loc.next_point_idx
+                            loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
                         ]  # the target
-                        + elem_buff[loc.prev_code_pt_idx : loc.prev_point_idx + 1]
-                        + elem_buff[loc.next_point_idx + 1 :]
+                        + elem_buff[loc.prev.pre_code_pt_idx : loc.prev.adj_pt_idx + 1]
+                        + elem_buff[loc.next.adj_pt_idx + 1 :]
                     )
 
             elif loc.line_position == "alone":
@@ -908,7 +911,7 @@ class ReflowSequence:
                 # own line.
 
                 # First handle the following newlines first (easy).
-                if not elem_buff[loc.next_nl_idx].num_newlines():
+                if not elem_buff[loc.next.newline_pt_idx].num_newlines():
                     reflow_logger.debug("  Found missing newline after in alone case")
                     pre_fixes, next_point = next_point.indent_to(
                         self._deduce_line_indent(loc.target.raw_segments[-1]),
@@ -916,10 +919,10 @@ class ReflowSequence:
                     )
                     fixes += pre_fixes
                     # Update the point in the buffer
-                    elem_buff[loc.next_point_idx] = next_point
+                    elem_buff[loc.next.adj_pt_idx] = next_point
 
                 # Then handle newlines before. (hoisting past comments if needed).
-                if not elem_buff[loc.prev_point_idx].num_newlines():
+                if not elem_buff[loc.prev.adj_pt_idx].num_newlines():
                     reflow_logger.debug("  Found missing newline before in alone case")
                     # NOTE: In the case that there are comments _after_ the
                     # target, they will be moved with it. This might break things
@@ -932,7 +935,7 @@ class ReflowSequence:
                     )
                     fixes += post_fixes
                     # Update the point in the buffer
-                    elem_buff[loc.prev_point_idx] = prev_point
+                    elem_buff[loc.prev.adj_pt_idx] = prev_point
 
             else:
                 raise NotImplementedError(  # pragma: no cover
