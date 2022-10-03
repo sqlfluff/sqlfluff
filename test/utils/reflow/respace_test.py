@@ -40,9 +40,7 @@ def test_reflow__sequence_respace(
 ):
     """Test the ReflowSequence.respace() method directly."""
     root = parse_ansi_string(raw_sql_in, default_config)
-    seq = ReflowSequence.from_raw_segments(
-        root.raw_segments, root, config=default_config
-    )
+    seq = ReflowSequence.from_root(root, config=default_config)
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         new_seq = seq.respace(**kwargs)
@@ -87,9 +85,7 @@ def test_reflow__point_respace_point(
     That should be a separate more specific test.
     """
     root = parse_ansi_string(raw_sql_in, default_config)
-    seq = ReflowSequence.from_raw_segments(
-        root.raw_segments, root, config=default_config
-    )
+    seq = ReflowSequence.from_root(root, config=default_config)
     pnt = seq.elements[point_idx]
     assert isinstance(pnt, ReflowPoint)
 
