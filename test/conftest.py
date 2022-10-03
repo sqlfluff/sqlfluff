@@ -30,6 +30,8 @@ yaml.add_representer(str, quoted_presenter)
 
 
 class ParseExample(NamedTuple):
+    """A tuple representing an example SQL file to parse."""
+
     dialect: str
     sqlfile: str
 
