@@ -258,7 +258,7 @@ class Bracketed(Sequence):
             seg_buff = segments  # pragma: no cover TODO?
 
         # Rehydrate the bracket segments in question.
-        # bracket_persits controls whether we make a BracketedSegment or not.
+        # bracket_persists controls whether we make a BracketedSegment or not.
         start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(
             parse_context
         )

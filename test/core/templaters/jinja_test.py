@@ -1200,7 +1200,7 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 def test__templater_jinja_large_file_check():
     """Test large file skipping.
 
-    The check is seperately called on each .process() method
+    The check is separately called on each .process() method
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without specific config.

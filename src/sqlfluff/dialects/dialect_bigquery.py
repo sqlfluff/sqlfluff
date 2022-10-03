@@ -1476,7 +1476,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        # Although not specified in the BigQuery documentation optinal arguments for
+        # Although not specified in the BigQuery documentation optional arguments for
         # CREATE EXTERNAL TABLE statements can be ordered arbitrarily.
         AnyNumberOf(
             # connection names have the same rules as table names in BigQuery
@@ -1579,7 +1579,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
 
 
 class ParameterizedSegment(BaseSegment):
-    """BigQuery allows named and argument based parameters to help preven SQL Injection.
+    """BigQuery allows named and argument based parameters to prevent SQL Injection.
 
     https://cloud.google.com/bigquery/docs/parameterized-queries
     """

@@ -25,7 +25,7 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
 
 
 def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSegment]:
-    """Performs a Lex and Parse, with cachable inputs within fixture."""
+    """Performs a Lex and Parse, with cacheable inputs within fixture."""
     # Load the right dialect
     config = FluffConfig(overrides=config_overrides)
     tokens, lex_vs = Lexer(config=config).lex(raw)
@@ -47,9 +47,9 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSe
 def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
-    config_overides = dict(dialect=dialect)
+    config_overrides = dict(dialect=dialect)
     # Use the helper function to avoid parsing twice
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overides, raw)
+    parsed: Optional[BaseSegment] = lex_and_parse(config_overrides, raw)
     if not parsed:
         return
 
@@ -69,13 +69,13 @@ def test__dialect__base_broad_fix(
 ):
     """Run a full fix with all rules, in search of critical errors."""
     raw = load_file(dialect, file)
-    config_overides = dict(dialect=dialect)
+    config_overrides = dict(dialect=dialect)
     # Lean on the cached result of the above test if possible
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overides, raw)
+    parsed: Optional[BaseSegment] = lex_and_parse(config_overrides, raw)
     if not parsed:
         return
 
-    config = FluffConfig(overrides=config_overides)
+    config = FluffConfig(overrides=config_overrides)
     # Due to "raise_critical_errors_after_fix" fixure "fix",
     # will now throw.
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):

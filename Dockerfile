@@ -9,7 +9,7 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH $VIRTUAL_ENV/bin:$PATH
 RUN pip install --upgrade pip setuptools wheel
 
-# Install requirements seperately
+# Install requirements separately
 # to take advantage of layer caching.
 # N.B. we extract the requirements from setup.cfg
 COPY setup.cfg .

@@ -108,7 +108,7 @@ to keep in mind.
   ansi specification. Other SQL dialects inherit from the ansi dialect,
   replacing or patching any segments they need to. One reason for the *Ref*
   grammar is that it allows name resolution of grammar elements at runtime
-  and so a *patched* grammar with some elements overriden can still rely on
+  and so a *patched* grammar with some elements overridden can still rely on
   lower-level elements which haven't been redeclared within the dialect
 - All grammars and segments attempt to match as much as they can and will
   return partial matches where possible. It is up to the calling grammar

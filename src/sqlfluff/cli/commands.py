@@ -799,7 +799,7 @@ def fix(
         if templater_error:
             click.echo(
                 formatter.colorize(
-                    "Fix aborted due to unparseable template variables.",
+                    "Fix aborted due to unparsable template variables.",
                     Color.red,
                 ),
                 err=True,
