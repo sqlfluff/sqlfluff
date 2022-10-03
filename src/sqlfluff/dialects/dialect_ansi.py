@@ -3169,6 +3169,7 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
                 Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
+                Ref("ObjectReferenceSegment"),
             ),
             "FROM",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
