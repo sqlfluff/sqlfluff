@@ -4247,7 +4247,7 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
+        Bracketed(Delimited(Anything(), optional=True), optional=True),
     )
 
 
