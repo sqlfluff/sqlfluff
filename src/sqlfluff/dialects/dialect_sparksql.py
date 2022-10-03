@@ -2961,6 +2961,8 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
             ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
             max_times=2,
         ),
         Sequence(
