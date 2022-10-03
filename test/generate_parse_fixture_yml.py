@@ -4,12 +4,17 @@ import os
 import fnmatch
 import re
 import click
-from typing import Callable, Dict, List, NamedTuple, Optional, TypeVar
+from typing import Callable, Dict, List, Optional, TypeVar
 
 
 import yaml
 
-from conftest import compute_parse_tree_hash, get_parse_fixtures, parse_example_file
+from conftest import (
+    compute_parse_tree_hash,
+    get_parse_fixtures,
+    parse_example_file,
+    ParseExample,
+)
 from sqlfluff.core.errors import SQLParseError
 
 
@@ -23,19 +28,14 @@ def distribute_work(work_items: List[S], work_fn: Callable[[S], None]) -> None:
             pass
 
 
-class _ParseExample(NamedTuple):
-    dialect: str
-    sqlfile: str
-
-
-def _create_yaml_path(example: _ParseExample) -> str:
+def _create_yaml_path(example: ParseExample) -> str:
     dialect, sqlfile = example
     root, _ = os.path.splitext(sqlfile)
     path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
     return path
 
 
-def _is_matching_new_criteria(example: _ParseExample):
+def _is_matching_new_criteria(example: ParseExample):
     """Is the Yaml doesn't exist or is older than the SQL."""
     yaml_path = _create_yaml_path(example)
     if not os.path.exists(yaml_path):
@@ -51,7 +51,7 @@ def _is_matching_new_criteria(example: _ParseExample):
     return os.path.getmtime(yaml_path) < os.path.getmtime(sql_path)
 
 
-def generate_one_parse_fixture(example: _ParseExample) -> None:
+def generate_one_parse_fixture(example: ParseExample) -> None:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
     tree = parse_example_file(dialect, sqlfile)
@@ -98,7 +98,7 @@ def gather_file_list(
     dialect: Optional[str] = None,
     glob_match_pattern: Optional[str] = None,
     new_only: bool = False,
-) -> List[_ParseExample]:
+) -> List[ParseExample]:
     """Gather the list of files to generate fixtures for. Apply filters as required."""
     parse_success_examples, _ = get_parse_fixtures()
     if new_only:
