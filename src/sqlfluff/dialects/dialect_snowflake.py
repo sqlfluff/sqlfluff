@@ -1493,7 +1493,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
-            # @TODO: add more contraint actions
+            # @TODO: add more constraint actions
             Sequence(
                 "DROP",
                 Ref("PrimaryKeyGrammar"),
@@ -2487,7 +2487,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
     https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
 
-    Note: comments are handled seperately so not incorrectly marked as
+    Note: comments are handled separately so not incorrectly marked as
     warehouse object.
     """
 
@@ -4982,7 +4982,7 @@ class AlterUserStatementSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
-            # Snowflake supports the SET command with space delimitted parameters, but
+            # Snowflake supports the SET command with space delimited parameters, but
             # it also supports using commas which is better supported by `Delimited`, so
             # we will just use that.
             Sequence(

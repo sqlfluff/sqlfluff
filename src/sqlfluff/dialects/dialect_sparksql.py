@@ -929,7 +929,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "SET",
                 Ref("LocationGrammar"),
             ),
-            # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
+            # ALTER TABLE - ADD/DROP CONSTRAINTS (DELTA)
             Sequence(
                 Indent,
                 OneOf("ADD", "DROP"),
@@ -1855,7 +1855,7 @@ class TransformClauseSegment(BaseSegment):
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
-    Enhanced from ANSI dialect to allow for additonal parameters.
+    Enhanced from ANSI dialect to allow for additional parameters.
 
     EXPLAIN [ EXTENDED | CODEGEN | COST | FORMATTED ] explainable_stmt
 
@@ -2701,8 +2701,8 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
         ),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref(
             "AliasExpressionSegment",
             exclude=Ref.keyword("SET"),

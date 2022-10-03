@@ -2,6 +2,7 @@
 import hashlib
 import io
 import os
+from typing import NamedTuple
 
 import pytest
 import yaml
@@ -28,6 +29,13 @@ from sqlfluff.core.templaters import TemplatedFile
 yaml.add_representer(str, quoted_presenter)
 
 
+class ParseExample(NamedTuple):
+    """A tuple representing an example SQL file to parse."""
+
+    dialect: str
+    sqlfile: str
+
+
 def get_parse_fixtures(fail_on_missing_yml=False):
     """Search for all parsing fixtures."""
     parse_success_examples = []
@@ -44,7 +52,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
             if f.endswith(".sql"):
                 root = f[:-4]
                 # only look for sql files
-                parse_success_examples.append((d, f))
+                parse_success_examples.append(ParseExample(d, f))
                 # Look for the code_only version of the structure
                 y = root + ".yml"
                 if y in dirlist:

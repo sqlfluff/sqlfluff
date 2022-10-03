@@ -51,7 +51,7 @@ def test__cli__formatters__violation(tmpdir):
         FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
     )
     f = formatter.format_violation(v)
-    # Position is 3, 3 becase foobarbar is on the third
+    # Position is 3, 3 because foobarbar is on the third
     # line (i.e. it has two newlines preceding it) and
     # it's at the third position in that line (i.e. there
     # are two characters between it and the preceding

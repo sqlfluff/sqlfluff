@@ -9,4 +9,4 @@ We have a fast-growing `community on Slack <https://join.slack.com/t/sqlfluff/sh
 SQLFluff on Twitter
 ====================
 
-Follow us On Twitter `@SQLFluff <https://twitter.com/SQLFluff>`_ for annoncements and other related posts.
+Follow us On Twitter `@SQLFluff <https://twitter.com/SQLFluff>`_ for announcements and other related posts.

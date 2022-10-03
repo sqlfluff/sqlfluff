@@ -156,7 +156,7 @@ tsql_dialect.patch_lexer_matchers(
         #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
         #   )*                   Match any number of the atomic group contents.
         #   (?>
-        #       (?R)             Recusively match the block comment pattern
+        #       (?R)             Recursively match the block comment pattern
         #                        to match nested block comments.
         #       (?>
         #           [^*/]+

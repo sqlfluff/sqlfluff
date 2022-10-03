@@ -39,7 +39,7 @@ class Rule_L065(BaseRule):
         """Set operators should be surrounded by newlines.
 
         For any set operator we check if there is any NewLineSegment in the non-code
-        segments preceeding or following it.
+        segments preceding or following it.
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
