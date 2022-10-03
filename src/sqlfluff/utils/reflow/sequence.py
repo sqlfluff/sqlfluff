@@ -560,7 +560,7 @@ class ReflowSequence:
 
         Args:
             strip_newlines (:obj:`bool`): Optionally strip newlines
-                before respacing. This is primarily used on focussed
+                before respacing. This is primarily used on focused
                 sequences to coerce objects onto a single line. This
                 does not apply any prioritisation to which line breaks
                 to remove and so is not a substitute for the full

@@ -192,7 +192,7 @@ def test__templater_python_sorted_occurrence_tuples(test, result):
 def test__templater_python_slice_template(test, result):
     """Test _slice_template."""
     resp = list(PythonTemplater._slice_template(test))
-    # check contigious
+    # check contiguous
     assert "".join(elem.raw for elem in resp) == test
     # check indices
     idx = 0
@@ -313,7 +313,7 @@ def test__templater_python_split_invariants(
                     "invariant",
                     slice(45, 76, None),
                     slice(40, 71, None),
-                    [RawFileSlice("' as convertable from something", "literal", 40)],
+                    [RawFileSlice("' as convertible from something", "literal", 40)],
                 ),
             ],
             {
@@ -321,16 +321,16 @@ def test__templater_python_split_invariants(
                 ", ": [13, 31, 38],
                 " as foo, ": [24],
                 ", '": [38],
-                "' as convertable from something": [45],
+                "' as convertible from something": [45],
             },
             {
                 "SELECT ": [0],
                 ", ": [14, 29, 35],
                 " as foo, ": [22],
                 ", '": [35],
-                "' as convertable from something": [40],
+                "' as convertible from something": [40],
             },
-            "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
+            "SELECT nothing, 435.24 as foo, spam, '{}' as convertible from something",
             [
                 TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
                 TemplatedFileSlice("templated", slice(7, 13, None), slice(7, 14, None)),
@@ -389,7 +389,7 @@ def test__templater_python_split_uniques_coalesce_rest(
                 templated_str,
             )
         )
-    # Check contigious
+    # Check contiguous
     prev_slice = None
     for elem in result:
         if prev_slice:
@@ -411,9 +411,9 @@ def test__templater_python_split_uniques_coalesce_rest(
             [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
-            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from "
+            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertible from "
             "something",
-            "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
+            "SELECT nothing, 435.24 as foo, spam, '{}' as convertible from something",
             True,
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -465,7 +465,7 @@ def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, 
             overrides={"dialect": "ansi"},
         ),
     )
-    # Check contigious
+    # Check contiguous
     prev_slice = None
     for templated_slice in resp:
         if prev_slice:
@@ -479,7 +479,7 @@ def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, 
 def test__templater_python_large_file_check():
     """Test large file skipping.
 
-    The check is seperately called on each .process() method
+    The check is separately called on each .process() method
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without config.

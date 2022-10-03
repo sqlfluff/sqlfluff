@@ -123,7 +123,7 @@ def test_reflow_sequence_from_segments(
             " ",
             ReflowBlock,
             [
-                # Even targetting whitespace, we should get points either side.
+                # Even targeting whitespace, we should get points either side.
                 ["1"],
                 [" "],
                 ["+"],

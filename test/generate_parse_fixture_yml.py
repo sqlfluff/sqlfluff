@@ -36,7 +36,7 @@ def _create_yaml_path(example: _ParseExample) -> str:
 
 
 def _is_matching_new_criteria(example: _ParseExample):
-    """Is the Yaml doesnt exist or is older than the SQL."""
+    """Is the Yaml doesn't exist or is older than the SQL."""
     yaml_path = _create_yaml_path(example)
     if not os.path.exists(yaml_path):
         return True

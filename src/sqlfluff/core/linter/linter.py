@@ -1004,7 +1004,7 @@ class Linter:
                     with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                         ignores[dirpath] = spec
-                    # We don't need to process the ignore file any futher
+                    # We don't need to process the ignore file any further
                     continue
 
                 # We won't purge files *here* because there's an edge case
