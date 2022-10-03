@@ -336,7 +336,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
         ),
@@ -386,7 +386,7 @@ class SelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -743,7 +743,7 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 class CreateVirtualSchemaStatementSegment(BaseSegment):
-    """A `CREATE VIRUTAL SCHEMA` statement.
+    """A `CREATE VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/create_schema.htm
     """
@@ -773,7 +773,7 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
 
 
 class AlterSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -801,7 +801,7 @@ class AlterSchemaStatementSegment(BaseSegment):
 
 
 class AlterVirtualSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -959,7 +959,7 @@ class CreateTableStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         Ref("CommaSegment"),
-                        Ref("TableDistributionPartitonClause"),
+                        Ref("TableDistributionPartitionClause"),
                         optional=True,
                     ),
                 ),
@@ -1279,7 +1279,7 @@ class CreateTableLikeClauseSegment(BaseSegment):
     )
 
 
-class TableDistributionPartitonClause(BaseSegment):
+class TableDistributionPartitionClause(BaseSegment):
     """`CREATE / ALTER TABLE` distribution / partition clause.
 
     DISTRIBUTE/PARTITION clause doesn't except the identifiers in brackets
@@ -1491,7 +1491,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
-            Ref("TableDistributionPartitonClause"),
+            Ref("TableDistributionPartitionClause"),
             Sequence(
                 "DROP",
                 OneOf(
@@ -2245,8 +2245,8 @@ class FBVColumnDefinitionSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             AnyNumberOf(
-                # IMPORT vaild: SIZE ,START, FORMAT, PADDING, ALIGN
-                # EXPORT vaild: SIZE, FORMAT, ALIGN, PADDING
+                # IMPORT valid: SIZE ,START, FORMAT, PADDING, ALIGN
+                # EXPORT valid: SIZE, FORMAT, ALIGN, PADDING
                 Sequence(
                     OneOf("SIZE", "START"),
                     Ref("EqualsSegment"),
@@ -2393,7 +2393,7 @@ class AlterUserStatementSegment(BaseSegment):
 
 
 class UserPasswordAuthSegment(BaseSegment):
-    """user password authentification."""
+    """user password authentication."""
 
     type = "password_auth"
     match_grammar = Sequence(
@@ -2404,7 +2404,7 @@ class UserPasswordAuthSegment(BaseSegment):
 
 
 class UserKerberosAuthSegment(BaseSegment):
-    """user kerberos authentification."""
+    """user kerberos authentication."""
 
     type = "kerberos_auth"
     match_grammar = Sequence(
@@ -2416,7 +2416,7 @@ class UserKerberosAuthSegment(BaseSegment):
 
 
 class UserLDAPAuthSegment(BaseSegment):
-    """user ldap authentification."""
+    """user ldap authentication."""
 
     type = "ldap_auth"
     match_grammar = Sequence(
@@ -2429,7 +2429,7 @@ class UserLDAPAuthSegment(BaseSegment):
 
 
 class UserOpenIDAuthSegment(BaseSegment):
-    """User OpenID authentification."""
+    """User OpenID authentication."""
 
     type = "openid_auth"
     match_grammar = Sequence(

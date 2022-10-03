@@ -57,7 +57,7 @@ redshift_dialect.sets("date_part_function_name").update(
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 redshift_dialect.sets("datetime_units").update(
     [
-        # millenium
+        # millennium
         "MILLENNIUM",
         "MILLENNIA",
         "MIL",
@@ -176,27 +176,6 @@ redshift_dialect.replace(
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
-    ),
-    ColumnReferenceSegment=Delimited(
-        Sequence(
-            ansi.ColumnReferenceSegment,
-            AnyNumberOf(Ref("ArrayAccessorSegment")),
-        ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-        ),
-        allow_gaps=False,
     ),
 )
 

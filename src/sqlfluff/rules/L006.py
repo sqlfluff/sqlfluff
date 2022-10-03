@@ -68,7 +68,7 @@ class Rule_L006(BaseRule):
         # a significant number of them are multiple (thanks TSQL). While
         # we could provide an alternative route for single raws, this is
         # implemented to separately look before, and after. In the single
-        # raw case - they'll be targetting the same segment, and potentially
+        # raw case - they'll be targeting the same segment, and potentially
         # waste some processing overhead, but this makes the code simpler.
 
         # If this is an operator within an operator, we'll double count

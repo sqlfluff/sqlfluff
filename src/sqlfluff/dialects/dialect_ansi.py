@@ -391,7 +391,7 @@ ansi_dialect.add(
     NumericLiteralSegment=TypedParser(
         "numeric_literal", LiteralSegment, type="numeric_literal"
     ),
-    # NullSegment is defined seperately to the keyword so we can give it a different
+    # NullSegment is defined separately to the keyword so we can give it a different
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
@@ -2293,7 +2293,7 @@ ansi_dialect.add(
     NonSetSelectableGrammar=OneOf(
         Ref("ValuesClauseSegment"),
         Ref("UnorderedSelectStatementSegment"),
-        # If it's bracketed, we can have the full select statment here,
+        # If it's bracketed, we can have the full select statement here,
         # otherwise we can't because any order by clauses should belong
         # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),

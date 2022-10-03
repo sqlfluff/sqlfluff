@@ -143,7 +143,7 @@ class Rule_L059(BaseRule):
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
-        # need to explicity check for that.
+        # need to explicitly check for that.
         if not context.segment.is_type(
             context_policy
         ) or context.segment.raw.lower() in (
