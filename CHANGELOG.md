@@ -850,7 +850,7 @@ Major changes include:
 * Spark3: Auxiliary`FILE` and `JAR` statements [#2778](https://github.com/sqlfluff/sqlfluff/pull/2778) [@R7L208](https://github.com/R7L208)
 * Snowflake: Refine `SET`/`UNSET` `MASKING POLICY` grammar [#2775](https://github.com/sqlfluff/sqlfluff/pull/2775) [@jpy-git](https://github.com/jpy-git)
 * L049 bug: correct over zealous `=` --> `IS` [#2760](https://github.com/sqlfluff/sqlfluff/pull/2760) [@OTooleMichael](https://github.com/OTooleMichael)
-* Make extenstion case insensitive [#2773](https://github.com/sqlfluff/sqlfluff/pull/2773) [@tunetheweb](https://github.com/tunetheweb)
+* Make extension case insensitive [#2773](https://github.com/sqlfluff/sqlfluff/pull/2773) [@tunetheweb](https://github.com/tunetheweb)
 * Snowflake: Add dollar quoted string literal [#2770](https://github.com/sqlfluff/sqlfluff/pull/2770) [@jpy-git](https://github.com/jpy-git)
 * Bug fix: L036 corrupts `SELECT DISTINCT id` query [#2768](https://github.com/sqlfluff/sqlfluff/pull/2768) [@barrywhart](https://github.com/barrywhart)
 * Snowflake: Add `CHANGES` clause [#2764](https://github.com/sqlfluff/sqlfluff/pull/2764) [@jpy-git](https://github.com/jpy-git)
@@ -1348,7 +1348,7 @@ Major changes include:
 
 This release brings about several great new additions including:
 - dbt 1.0.0 compatibility.
-- CLI and Simple API paramaters to provide custom paths to config files.
+- CLI and Simple API parameters to provide custom paths to config files.
 - Refinement to Simple API to return parse output in JSON format rather than as an internal SQLFluff object (**BREAKING CHANGE**).
 - An [Official SQLFluff Docker Image](https://hub.docker.com/r/sqlfluff/sqlfluff).
 - Grammar improvements across various dialects.
@@ -1370,7 +1370,7 @@ There have also been many bug fixes and improvements to the CI and development p
 * Update parse method of Simple API to output JSON parse tree [#2082](https://github.com/sqlfluff/sqlfluff/pull/2082) [@jpy-git](https://github.com/jpy-git)
 * T-SQL dialect: add parsing for MERGE statement [#2057](https://github.com/sqlfluff/sqlfluff/pull/2057) [@tkachenkomaria244](https://github.com/tkachenkomaria244)
 * Simple API config path [#2080](https://github.com/sqlfluff/sqlfluff/pull/2080) [@jpy-git](https://github.com/jpy-git)
-* dbt 1.0.0 compatability [#2079](https://github.com/sqlfluff/sqlfluff/pull/2079) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* dbt 1.0.0 compatibility [#2079](https://github.com/sqlfluff/sqlfluff/pull/2079) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Parse `on delete` and `on update` clause for create table constraints [#2076](https://github.com/sqlfluff/sqlfluff/pull/2076) [@kayman-mk](https://github.com/kayman-mk)
 * Pre-commit: Add hook for doc8 [#2074](https://github.com/sqlfluff/sqlfluff/pull/2074) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Fix typo in Alter Table parser in Postgres dialect [#2072](https://github.com/sqlfluff/sqlfluff/pull/2072) [@derickl](https://github.com/derickl)
@@ -1636,7 +1636,7 @@ Highlights of this release contains a lot of T-SQL dialect improvements (shout o
 
 **BREAKING CHANGE**
 
-This release extracts the dbt templater to a seperately installable plugin
+This release extracts the dbt templater to a separately installable plugin
 [sqlfluff-templater-dbt](https://pypi.org/project/sqlfluff-templater-dbt/).
 For users who take advantage of the dbt templater see the
 [updated docs on how to migrate](https://docs.sqlfluff.com/en/latest/configuration.html#installation-configuration).
@@ -1704,7 +1704,7 @@ Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax impro
 * Add dbt 0.21.0 to the test suite [#1566](https://github.com/sqlfluff/sqlfluff/pull/1566) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Merge EXASOL_FS dialect into EXASOL dialect [#1498](https://github.com/sqlfluff/sqlfluff/pull/1498) [@sti0](https://github.com/sti0)
 * T-SQL - BEGIN/END blocks [#1553](https://github.com/sqlfluff/sqlfluff/pull/1553) [@jpers36](https://github.com/jpers36)
-* Small refactor with type hints and string formattings [#1525](https://github.com/sqlfluff/sqlfluff/pull/1525) [@adam-tokarski](https://github.com/adam-tokarski)
+* Small refactor with type hints and string formatting [#1525](https://github.com/sqlfluff/sqlfluff/pull/1525) [@adam-tokarski](https://github.com/adam-tokarski)
 * Add Github Preview Image [#1557](https://github.com/sqlfluff/sqlfluff/pull/1557) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Support SETOF in Postgres [#1522](https://github.com/sqlfluff/sqlfluff/pull/1522) [@tunetheweb](https://github.com/tunetheweb)
 * Support Double Precision in ANSI [#1524](https://github.com/sqlfluff/sqlfluff/pull/1524) [@tunetheweb](https://github.com/tunetheweb)
@@ -1724,7 +1724,7 @@ Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax impro
 * Fix broken block comments in exasol [#1565](https://github.com/sqlfluff/sqlfluff/pull/1565) [@sti0](https://github.com/sti0)
 * Rethink sequence_files in dbt templater. [#1563](https://github.com/sqlfluff/sqlfluff/pull/1563) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * T-SQL: fix STRING_AGG() WITHIN GROUP clause [#1559](https://github.com/sqlfluff/sqlfluff/pull/1559) [@jpers36](https://github.com/jpers36)
-* fix spelling: occurance>occurrence [#1507](https://github.com/sqlfluff/sqlfluff/pull/1507) [@jpers36](https://github.com/jpers36)
+* fix spelling: occurrence>occurrence [#1507](https://github.com/sqlfluff/sqlfluff/pull/1507) [@jpers36](https://github.com/jpers36)
 
 
 ## [0.6.8] - 2021-10-05
@@ -1745,7 +1745,7 @@ Lots of fixes to our rules (particularly when running `sqlfluff fix`, and partic
 * Snowflake better WAREHOUSE and CREATE (EXTERNAL) TABLES support [#1508](https://github.com/sqlfluff/sqlfluff/pull/1508) [@tunetheweb](https://github.com/tunetheweb)
 * Exasol: Fix typo in `REORGANIZE` statement [#1509](https://github.com/sqlfluff/sqlfluff/pull/1509) [@sti0](https://github.com/sti0)
 * Fix bug that can prevent linting ephemeral dbt models [#1496](https://github.com/sqlfluff/sqlfluff/pull/1496) [@barrywhart](https://github.com/barrywhart)
-* Disable rules L026 and L028 for BigQuery by default, with option to reenable [#1504](https://github.com/sqlfluff/sqlfluff/pull/1504) [@tunetheweb](https://github.com/tunetheweb)
+* Disable rules L026 and L028 for BigQuery by default, with option to re-enable [#1504](https://github.com/sqlfluff/sqlfluff/pull/1504) [@tunetheweb](https://github.com/tunetheweb)
 * BigQuery keywords [#1506](https://github.com/sqlfluff/sqlfluff/pull/1506) [@tunetheweb](https://github.com/tunetheweb)
 * Inline --noqa not always honoured by "sqlfluff fix" [#1502](https://github.com/sqlfluff/sqlfluff/pull/1502) [@barrywhart](https://github.com/barrywhart)
 * Snowflake - fix parsing of UNPIVOT [#1505](https://github.com/sqlfluff/sqlfluff/pull/1505) [@michael-the1](https://github.com/michael-the1)
@@ -1875,7 +1875,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 ## [0.6.4] - 2021-08-20
 
 ### Added
-* Added support for empty WINDOWS specificiations ([#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)) [@matthieucan](https://github.com/matthieucan)
+* Added support for empty WINDOWS specifications ([#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)) [@matthieucan](https://github.com/matthieucan)
 * Added auto release drafter ([#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)) [@tunetheweb](https://github.com/tunetheweb)
 
 ### Changed
@@ -1969,11 +1969,11 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - Respect XDG base dirs on Mac OS ([#889](https://github.com/sqlfluff/sqlfluff/issues/889)).
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+  when overridden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for the DELIMITER statement in the mysql dialect [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
+  when overridden in a specific child dialect (mysql) [#901](https://github.com/sqlfluff/sqlfluff/issues/901))
 - Added support for function as a default column value [#849](https://github.com/sqlfluff/sqlfluff/issues/849).
 - Add an `--include-metas` option for parse output to show the meta
   segments in the parse tree.
@@ -1995,7 +1995,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
   which then are relatively out of place.
 - Additional logging within the lexer and templater engines.
 - Allow meta segments to parse within `Delimited` grammars which otherwise
-  don't allow gaps. This is facilitated through an optional agrument to
+  don't allow gaps. This is facilitated through an optional argument to
   `trim_non_code_segments`.
 - Fix bug [#1079](https://github.com/sqlfluff/sqlfluff/issues/1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.

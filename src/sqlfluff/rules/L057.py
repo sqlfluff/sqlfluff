@@ -136,7 +136,7 @@ class Rule_L057(BaseRule):
                 identifier = identifier.replace(".", "")
 
             # SparkSQL file references for direct file query
-            # are quoted in back ticks to allow for identfiers common
+            # are quoted in back ticks to allow for identifiers common
             # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
             #
@@ -147,7 +147,7 @@ class Rule_L057(BaseRule):
             if context.dialect.name in ["sparksql"] and context.parent_stack:
 
                 # SparkSQL file references for direct file query
-                # are quoted in back ticks to allow for identfiers common
+                # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing
                 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
                 #
