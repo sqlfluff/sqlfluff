@@ -98,7 +98,7 @@ class SQLTemplaterError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
@@ -117,7 +117,7 @@ class SQLLexError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 

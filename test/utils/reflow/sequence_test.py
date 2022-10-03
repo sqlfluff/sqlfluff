@@ -42,9 +42,10 @@ def assert_reflow_structure(sequence, StartClass, raw_elems):
                 ["+"],
                 [],
                 ["2"],
-                # NOTE: The last element is the end of file marker.
-                # indent, end_of_file.
-                ["", ""],
+                # indent (as point)
+                [""],
+                # end_of_file (as block)
+                [""],
             ],
         )
     ],
@@ -122,7 +123,7 @@ def test_reflow_sequence_from_segments(
             " ",
             ReflowBlock,
             [
-                # Even targetting whitespace, we should get points either side.
+                # Even targeting whitespace, we should get points either side.
                 ["1"],
                 [" "],
                 ["+"],
@@ -209,8 +210,10 @@ def test_reflow_sequence_from_around_target_non_raw(default_config, caplog):
             ["SELECT"],
             ["", " "],
             ["1"],
-            # dedent - ws - end_of_file
-            ["", "     ", ""],
+            # dedent - ws
+            ["", "     "],
+            # end of file
+            [""],
         ],
     )
 

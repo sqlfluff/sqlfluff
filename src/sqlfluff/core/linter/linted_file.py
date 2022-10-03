@@ -343,16 +343,14 @@ class LintedFile(NamedTuple):
             # Deal with the easy cases of 1) New code at end 2) only literals
             if not local_type_list or set(local_type_list) == {"literal"}:
                 linter_logger.info(
-                    "      * Keeping patch on new or literal-only section: %s",
-                    patch,
+                    "      * Keeping patch on new or literal-only section.",
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
             # Handle the easy case of an explicit source fix
             elif patch.patch_category == "source":
                 linter_logger.info(
-                    "      * Keeping explicit source fix patch: %s",
-                    patch,
+                    "      * Keeping explicit source fix patch.",
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
@@ -362,8 +360,7 @@ class LintedFile(NamedTuple):
                 and patch.source_slice.start == local_raw_slices[0].source_idx
             ):
                 linter_logger.info(
-                    "      * Keeping insertion patch on slice boundary: %s",
-                    patch,
+                    "      * Keeping insertion patch on slice boundary.",
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())

@@ -30,6 +30,10 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
         ("SelectClauseElementSegment", "c is not null as c_notnull"),
         ("SelectClauseElementSegment", "c isnull as c_isnull"),
         ("SelectClauseElementSegment", "c notnull as c_notnull"),
+        ("ArrayAccessorSegment", "[2:10]"),
+        ("ArrayAccessorSegment", "[:10]"),
+        ("ArrayAccessorSegment", "[2:]"),
+        ("ArrayAccessorSegment", "[2]"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(

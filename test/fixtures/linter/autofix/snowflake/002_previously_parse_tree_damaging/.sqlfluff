@@ -1,60 +1,22 @@
 [sqlfluff]
-verbose = 0
-nocolor = False
 dialect = snowflake
 templater = jinja
-rules = None
 exclude_rules = L011,L016,L031,L034,L035
-recurse = 0
 output_line_length = 120
-runaway_limit = 10
-ignore = None
-ignore_templated_areas = True
-encoding = autodetect
-disable_noqa = False
-sql_file_exts = .sql,.sql.j2,.dml
-fix_even_unparsable = False
 
-[sqlfluff:indentation]
-indented_joins = False
-indented_ctes = False
-indented_using_on = True
-template_blocks_indent = True
+[sqlfluff:layout:type:binary_operator]
+line_position = leading
 
-[sqlfluff:templater]
-unwrap_wrapped_queries = True
-
-[sqlfluff:templater:jinja]
-apply_dbt_builtins = True
-
-[sqlfluff:templater:jinja:macros]
-dbt_ref = {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
-dbt_source = {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
-dbt_config = {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
-dbt_var = {% macro var(variable, default='') %}item{% endmacro %}
-dbt_is_incremental = {% macro is_incremental() %}True{% endmacro %}
+[sqlfluff:layout:type:comparison_operator]
+line_position = leading
 
 # Some rules can be configured directly from the config common to other rules.
 [sqlfluff:rules]
 tab_space_size = 2
 max_line_length = 120
-indent_unit = space
-comma_style = leading
-allow_scalar = True
-single_table_references = consistent
-unquoted_identifiers_policy = all
-
-[sqlfluff:rules:L007]  # Keywords
-operator_new_lines = after
 
 [sqlfluff:rules:L010]  # Keywords
 capitalisation_policy = upper
-
-[sqlfluff:rules:L011]  # Table aliasing
-aliasing = implicit
-
-[sqlfluff:rules:L012]  # Column aliasing
-aliasing = explicit
 
 [sqlfluff:rules:L013]  # Column expressions
 allow_scalar = False
@@ -62,29 +24,5 @@ allow_scalar = False
 [sqlfluff:rules:L014]  # Unquoted identifiers
 extended_capitalisation_policy = lower
 
-[sqlfluff:rules:L016]
-ignore_comment_lines = False
-
-[sqlfluff:rules:L029]  # Keyword identifiers
-unquoted_identifiers_policy = aliases
-
 [sqlfluff:rules:L030]  # Function names
 extended_capitalisation_policy = lower
-
-[sqlfluff:rules:L038]
-select_clause_trailing_comma = forbid
-
-[sqlfluff:rules:L040]  # Null & Boolean Literals
-capitalisation_policy = consistent
-
-[sqlfluff:rules:L042]
-# By default, allow subqueries in FROM clauses, but not JOIN clauses.
-forbid_subquery_in = join
-
-[sqlfluff:rules:L047]  # Consistent syntax to count all rows
-prefer_count_1 = False
-prefer_count_0 = False
-
-[sqlfluff:rules:L052]  # Statements must end with a semi-colon
-multiline_newline = True
-require_final_semicolon = True
