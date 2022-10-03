@@ -62,15 +62,15 @@ class DeprecatedOptionsCommand(click.Command):
             if not isinstance(option.obj, DeprecatedOption):
                 continue
 
-            option.process = self._make_process(option)
+            option.process = self._make_process(option)  # type: ignore
 
         return parser
 
     def _make_process(self, an_option: Option) -> Callable:
         """Construct a closure to the parser option processor."""
         orig_process: Callable = an_option.process
-        deprecated: list[str] = getattr(an_option.obj, "deprecated", None)
-        preferred: str = getattr(an_option.obj, "preferred", None)
+        deprecated = getattr(an_option.obj, "deprecated", None)
+        preferred = getattr(an_option.obj, "preferred", None)
 
         if not deprecated:
             raise ValueError(
@@ -88,11 +88,11 @@ class DeprecatedOptionsCommand(click.Command):
 
             frame = inspect.currentframe()
             try:
-                opt = frame.f_back.f_locals.get("opt")
+                opt = frame.f_back.f_locals.get("opt")  # type: ignore
             finally:
                 del frame
 
-            if opt in deprecated:
+            if opt in deprecated:  # type: ignore
                 msg = (
                     f"DeprecationWarning: The option {opt!r} is deprecated, "
                     f"use {preferred!r}."

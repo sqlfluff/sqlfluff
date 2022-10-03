@@ -1,4 +1,6 @@
 """The Test suite for `DeprecatedOption` - extension for click options."""
+from typing import List
+
 import click
 import pytest
 
@@ -25,7 +27,7 @@ class TestClickDeprecatedOption:
         ],
     )
     def test_cli_deprecated_option(
-        self, option: list[str], expected_output: str
+        self, option: List[str], expected_output: str
     ) -> None:
         """Prepares command with option which has deprecated version and checks it."""
 
