@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import FrozenSet, List, Sequence, Tuple, Type
+from typing import FrozenSet, List, Sequence, Tuple, Type, Dict
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
@@ -12,16 +12,38 @@ from sqlfluff.core.parser.segments.raw import RawSegment
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def _stack_pos_interpreter(path_step: PathStep):
-    """Interpret a path step for stack_positions."""
-    if path_step.idx == 0 and path_step.idx == path_step.len - 1:
-        return "solo"
-    elif path_step.idx == 0:
-        return "start"
-    elif path_step.idx == path_step.len - 1:
-        return "end"
-    else:
-        return ""  # NOTE: Empty string evaluates is falsy.
+@dataclass(frozen=True)
+class StackPosition:
+    """An element of the stack_positions property of DepthInfo."""
+
+    idx: int
+    len: int
+    type: str
+
+    @staticmethod
+    def _stack_pos_interpreter(path_step: PathStep) -> str:
+        """Interpret a path step for stack_positions."""
+        if path_step.idx == 0 and path_step.idx == path_step.len - 1:
+            return "solo"
+        elif path_step.idx == 0:
+            return "start"
+        elif path_step.idx == path_step.len - 1:
+            return "end"
+        else:
+            return ""  # NOTE: Empty string evaluates as falsy.
+
+    @classmethod
+    def from_path_step(
+        cls: Type["StackPosition"], path_step: PathStep
+    ) -> "StackPosition":
+        """Interpret a PathStep to construct a StackPosition.
+
+        The reason we don't just use the same object is partly
+        to interpret it a little more, but also to drop the reference
+        to a specific segment which could induce bugs at a later
+        stage if used.
+        """
+        return cls(path_step.idx, path_step.len, cls._stack_pos_interpreter(path_step))
 
 
 @dataclass(frozen=True)
@@ -33,7 +55,7 @@ class DepthInfo:
     # This is a convenience cache to speed up operations.
     stack_hash_set: FrozenSet[int]
     stack_class_types: Tuple[FrozenSet[str], ...]
-    stack_positions: Tuple[str, ...]
+    stack_positions: Dict[int, StackPosition]
 
     @classmethod
     def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[PathStep]):
@@ -44,7 +66,9 @@ class DepthInfo:
             stack_hashes=stack_hashes,
             stack_hash_set=frozenset(stack_hashes),
             stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
-            stack_positions=tuple(_stack_pos_interpreter(ps) for ps in stack),
+            stack_positions={
+                hash(ps.segment): StackPosition.from_path_step(ps) for ps in stack
+            },
         )
 
     def common_with(self, other: "DepthInfo") -> Tuple[int, ...]:
@@ -63,12 +87,15 @@ class DepthInfo:
         if amount == 0:
             # The trivial case.
             return self
+        new_hash_set = self.stack_hash_set.difference(self.stack_hashes[-amount:])
         return self.__class__(
             stack_depth=self.stack_depth - amount,
             stack_hashes=self.stack_hashes[:-amount],
-            stack_hash_set=self.stack_hash_set.difference(self.stack_hashes[-amount:]),
+            stack_hash_set=new_hash_set,
             stack_class_types=self.stack_class_types[:-amount],
-            stack_positions=self.stack_positions[:-amount],
+            stack_positions={
+                k: v for k, v in self.stack_positions.items() if k in new_hash_set
+            },
         )
 
 
