@@ -81,7 +81,7 @@ def test__cli__helpers__cli_table(tmpdir):
 
 
 @pytest.mark.parametrize(
-    "sql,fix_args,expected,stderr_contains",
+    "sql,fix_args,expected",
     [
         (
             (
@@ -97,13 +97,10 @@ def test__cli__helpers__cli_table(tmpdir):
                 "rule VARCHAR(30)"
                 ");"
             ),
-            "1 templating/parsing errors found",
         )
     ],
 )
-def test__cli__fix_no_corrupt_file_contents(
-    sql, fix_args, expected, stderr_contains, tmpdir, capfd
-):
+def test__cli__fix_no_corrupt_file_contents(sql, fix_args, expected, tmpdir):
     """Test how the fix cli command creates files.
 
     Ensure there is no incorrect output from stderr
@@ -116,10 +113,8 @@ def test__cli__fix_no_corrupt_file_contents(
     with tmpdir.as_cwd():
         with pytest.raises(SystemExit):
             fix(fix_args)
-    out, err = capfd.readouterr()
     with open(tmp_path / "testing.sql", "r") as fin:
         actual = fin.read()
 
+    # Ensure no corruption in formatted file
     assert actual.strip() == expected.strip()
-    assert "All Finished!" in out
-    assert stderr_contains in err

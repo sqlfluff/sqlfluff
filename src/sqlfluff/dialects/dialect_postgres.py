@@ -494,25 +494,46 @@ class PsqlVariableGrammar(BaseSegment):
 
 
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
-    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
+    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets.
+
+    Postgres can also have array access like python [:2] or [2:] so
+    numbers on either side of the slice segment are optional.
+    """
 
     match_grammar = Sequence(
         AnyNumberOf(
             Bracketed(
                 Sequence(
                     OneOf(
-                        Ref("QualifiedNumericLiteralSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        Ref("SliceSegment"),
                         OneOf(
                             Ref("QualifiedNumericLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                         ),
-                        optional=True,
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
                     ),
-                    optional=True,
                 ),
                 bracket_type="square",
             )
