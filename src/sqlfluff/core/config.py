@@ -4,10 +4,11 @@ import logging
 import os
 import os.path
 import configparser
+from dataclasses import dataclass
 
 import pluggy
 from itertools import chain
-from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable
+from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable, Callable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.errors import SQLFluffUserError
@@ -28,19 +29,41 @@ can still cache appropriately
 
 ConfigElemType = Tuple[Tuple[str, ...], Any]
 
-REMOVED_CONFIGS: Dict[Tuple[str, ...], Any] = {
-    ("rules", "L007", "operator_new_lines"): (
-        "Use the line_position config in the appropriate "
-        "sqlfluff:layout section (e.g. sqlfluff:layout:type"
-        ":binary_operator)."
+
+@dataclass
+class _RemovedConfig:
+    old_path: Tuple[str, ...]
+    warning: str
+    new_path: Optional[Tuple[str, ...]] = None
+    translation_func: Optional[Callable[[str], str]] = None
+
+
+REMOVED_CONFIGS = [
+    _RemovedConfig(
+        ("rules", "L007", "operator_new_lines"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":binary_operator)."
+        ),
+        ("layout", "type", "binary_operator", "line_position"),
+        (lambda x: "trailing" if x == "after" else "leading"),
     ),
-    ("rules", "L019", "comma_style"): (
-        "Use the line_position config in the appropriate "
-        "sqlfluff:layout section (e.g. sqlfluff:layout:type"
-        ":comma)."
+    _RemovedConfig(
+        ("rules", "L019", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
     ),
-    ("rules", "L003", "lint_templated_tokens"): ("No longer used."),
-}
+    _RemovedConfig(
+        ("rules", "L003", "lint_templated_tokens"),
+        "No longer used.",
+    ),
+]
 
 
 def coerce_value(val: str) -> Any:
@@ -81,6 +104,13 @@ def nested_combine(*dicts: dict) -> dict:
     Returns:
         `dict`: A combined dictionary from the input dictionaries.
 
+    A simple example:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"d": "e"}})
+    {'a': {'b': 'c', 'd': 'e'}}
+
+    Keys overwrite left to right:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"b": "e"}})
+    {'a': {'b': 'e'}}
     """
     r: dict = {}
     for d in dicts:
@@ -115,10 +145,20 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
         left (:obj:`dict`): The object containing the *new* elements
             which will be compared against the other.
         right (:obj:`dict`): The object to compare against.
+        ignore (:obj:`list` of `str`, optional): Keys to ignore.
 
     Returns:
         `dict`: A dictionary representing the difference.
 
+    Basic functionality shown, especially returning the left as:
+    >>> dict_diff({"a": "b", "c": "d"}, {"a": "b", "c": "e"})
+    {'c': 'd'}
+
+    Ignoring works on a key basis:
+    >>> dict_diff({"a": "b"}, {"a": "c"})
+    {'a': 'b'}
+    >>> dict_diff({"a": "b"}, {"a": "c"}, ["a"])
+    {}
     """
     buff: dict = {}
     for k in left:
@@ -183,13 +223,40 @@ class ConfigLoader:
 
     @classmethod
     def _iter_config_elems_from_dict(cls, configs: dict) -> Iterator[ConfigElemType]:
-        """Walk a config dict and get config elements."""
+        """Walk a config dict and get config elements.
+
+        >>> list(
+        ...    ConfigLoader._iter_config_elems_from_dict(
+        ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
+        ...    )
+        ... )
+        [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
+        """
         for key, val in configs.items():
             if isinstance(val, dict):
                 for partial_key, sub_val in cls._iter_config_elems_from_dict(val):
                     yield (key,) + partial_key, sub_val
             else:
                 yield (key,), val
+
+    @classmethod
+    def _config_elems_to_dict(cls, configs: Iterable[ConfigElemType]) -> dict:
+        """Reconstruct config elements into a dict.
+
+        >>> ConfigLoader._config_elems_to_dict(
+        ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
+        ... )
+        {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
+        """
+        result: Dict[str, Union[dict, str]] = {}
+        for key, val in configs:
+            ref = result
+            for step in key[:-1]:
+                if step not in ref:
+                    ref[step] = {}
+                ref = ref[step]  # type: ignore
+            ref[key[-1]] = val
+        return result
 
     @classmethod
     def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
@@ -271,7 +338,13 @@ class ConfigLoader:
 
     @staticmethod
     def _incorporate_vals(ctx: dict, vals: List[ConfigElemType]) -> dict:
-        """Take a list of tuples and incorporate it into a dictionary."""
+        """Take a list of tuples and incorporate it into a dictionary.
+
+        >>> ConfigLoader._incorporate_vals({}, [(("a", "b"), "c")])
+        {'a': {'b': 'c'}}
+        >>> ConfigLoader._incorporate_vals({"a": {"b": "c"}}, [(("a", "d"), "e")])
+        {'a': {'b': 'c', 'd': 'e'}}
+        """
         for k, v in vals:
             # Keep a ref we can use for recursion
             r = ctx
@@ -294,17 +367,41 @@ class ConfigLoader:
         return ctx
 
     @staticmethod
-    def _validate_configs(configs: Iterable[ConfigElemType], file_path):
+    def _validate_configs(
+        configs: Iterable[ConfigElemType], file_path
+    ) -> List[ConfigElemType]:
         """Validate config elements against removed list."""
-        for k, _ in configs:
-            if k in REMOVED_CONFIGS:
+        config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
+        new_configs = []
+        for k, v in configs:
+            if k in config_map.keys():
                 formatted_key = ":".join(k)
-                raise SQLFluffUserError(
-                    f"Config file {file_path} set an outdated config "
-                    f"value {formatted_key}.\n\n{REMOVED_CONFIGS[k]}\n\n"
-                    "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                    " for more details."
-                )
+                removed_option = config_map[k]
+                # Is there a mapping option?
+                if removed_option.translation_func and removed_option.new_path:
+                    # Mutate and warn.
+                    v = removed_option.translation_func(v)
+                    k = removed_option.new_path
+                    formatted_new_key = ":".join(k)
+                    config_logger.warning(
+                        f"Config file {file_path} set a deprecated config "
+                        f"value {formatted_key}. Your current value has been "
+                        f"interpreted as setting {formatted_new_key} to {v}. "
+                        f"\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details."
+                    )
+                else:
+                    # Raise an error.
+                    raise SQLFluffUserError(
+                        f"Config file {file_path} set an outdated config "
+                        f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details."
+                    )
+
+            new_configs.append((k, v))
+        return new_configs
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None
@@ -315,7 +412,7 @@ class ConfigLoader:
             elems = self._get_config_elems_from_toml(file_path)
         else:
             elems = self._get_config_elems_from_file(file_path)
-        self._validate_configs(elems, file_path)
+        elems = self._validate_configs(elems, file_path)
         return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -507,13 +604,15 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            ConfigLoader._validate_configs(
-                [
-                    (("core",) + k, v)
-                    for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
-                ],
-                "<provided overrides>",
-            )
+            overrides = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    [
+                        (("core",) + k, v)
+                        for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                    ],
+                    "<provided overrides>",
+                )
+            )["core"]
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
@@ -522,8 +621,11 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            ConfigLoader._validate_configs(
-                ConfigLoader._iter_config_elems_from_dict(configs), "<provided configs>"
+            configs = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    ConfigLoader._iter_config_elems_from_dict(configs),
+                    "<provided configs>",
+                )
             )
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}

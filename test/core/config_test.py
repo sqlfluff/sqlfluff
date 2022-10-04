@@ -363,15 +363,25 @@ def test__config_missing_dialect():
     assert "must configure a dialect" in str(e.value)
 
 
-def test__config__validate_configs_direct():
+def test__config__validate_configs_direct(caplog):
     """Test _validate_configs method of ConfigLoader directly."""
     # Make sure there _are_ removed configs.
     assert REMOVED_CONFIGS
     # Make sure all raise an error if validated
     for k in REMOVED_CONFIGS:
-        with pytest.raises(SQLFluffUserError) as excinfo:
-            ConfigLoader._validate_configs([(k, "foo")], "<test>")
-        assert "set an outdated config" in str(excinfo.value)
+        print(k)
+        if k.translation_func and k.new_path:
+            res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            print(res)
+            assert not any(elem[0] == k.old_path for elem in res)
+            assert any(elem[0] == k.new_path for elem in res)
+            assert "set a deprecated config" in caplog.text
+            assert k.warning in caplog.text
+        else:
+            with pytest.raises(SQLFluffUserError) as excinfo:
+                ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            assert "set an outdated config" in str(excinfo.value)
+            assert k.warning in str(excinfo.value)
 
 
 def test__config__validate_configs_indirect():
