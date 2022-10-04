@@ -968,7 +968,7 @@ postgres_nondocs_keywords = [
     ("TIMESTAMPTZ", "non-reserved"),
     ("TIMING", "non-reserved"),
     ("UNSAFE", "non-reserved"),
-    ("USAGE", "reserved"),
+    ("USAGE", "non-reserved"),
     ("WAL", "non-reserved"),
 ]
 
