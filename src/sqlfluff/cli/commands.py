@@ -307,7 +307,8 @@ def core_options(f: Callable) -> Callable:
     f = click.option(
         "--logger",
         type=click.Choice(
-            ["templater", "lexer", "parser", "linter", "rules", "config"], case_sensitive=False
+            ["templater", "lexer", "parser", "linter", "rules", "config"],
+            case_sensitive=False,
         ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
