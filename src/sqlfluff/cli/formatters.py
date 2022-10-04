@@ -514,18 +514,22 @@ class OutputStreamFormatter:
         lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
         if total_errors:
             click.echo(
-                self.colorize(
+                message=self.colorize(
                     f"  [{total_errors} templating/parsing errors found]", Color.red
-                )
+                ),
+                color=self.plain_output,
+                err=True,
             )
             if num_filtered_errors < total_errors:
                 color = Color.red if num_filtered_errors else Color.green
                 click.echo(
-                    self.colorize(
+                    message=self.colorize(
                         f"  [{num_filtered_errors} templating/parsing errors "
                         f'remaining after "ignore"]',
-                        color,
-                    )
+                        color=color,
+                    ),
+                    color=not self.plain_output,
+                    err=num_filtered_errors > 0,
                 )
         return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
