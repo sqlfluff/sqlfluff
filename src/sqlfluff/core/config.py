@@ -17,7 +17,7 @@ import appdirs
 
 import toml
 
-# Instantiate the templater logger
+# Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
 
 global_loader = None
@@ -383,13 +383,18 @@ class ConfigLoader:
                     v = removed_option.translation_func(v)
                     k = removed_option.new_path
                     formatted_new_key = ":".join(k)
+                    # NOTE: At the stage of emitting this warnig, we may not yet
+                    # have set up red logging because we haven't yet loaded the config
+                    # file. For that reason, this error message has a bit more padding.
                     config_logger.warning(
-                        f"Config file {file_path} set a deprecated config "
-                        f"value {formatted_key}. Your current value has been "
-                        f"interpreted as setting {formatted_new_key} to {v}. "
+                        f"\nWARNING: Config file {file_path} set a deprecated config "
+                        f"value `{formatted_key}`. This will be removed in a later "
+                        "release. This has been mapped to "
+                        f"`{formatted_new_key}` set to a value of `{v}` for this run. "
+                        "Please update your configuration to remove this warning. "
                         f"\n\n{removed_option.warning}\n\n"
                         "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                        " for more details."
+                        " for more details.\n"
                     )
                 else:
                     # Raise an error.
