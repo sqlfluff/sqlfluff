@@ -383,7 +383,7 @@ class ConfigLoader:
                     v = removed_option.translation_func(v)
                     k = removed_option.new_path
                     formatted_new_key = ":".join(k)
-                    # NOTE: At the stage of emitting this warnig, we may not yet
+                    # NOTE: At the stage of emitting this warning, we may not yet
                     # have set up red logging because we haven't yet loaded the config
                     # file. For that reason, this error message has a bit more padding.
                     config_logger.warning(
