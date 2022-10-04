@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
@@ -371,7 +372,8 @@ def test__config__validate_configs_direct(caplog):
     for k in REMOVED_CONFIGS:
         print(k)
         if k.translation_func and k.new_path:
-            res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            with caplog.at_level(logging.WARNING, logger="sqlfluff.config"):
+                res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
             print(res)
             assert not any(elem[0] == k.old_path for elem in res)
             assert any(elem[0] == k.new_path for elem in res)
