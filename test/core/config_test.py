@@ -2,7 +2,6 @@
 
 import os
 import sys
-import logging
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
@@ -364,7 +363,7 @@ def test__config_missing_dialect():
     assert "must configure a dialect" in str(e.value)
 
 
-def test__config__validate_configs_direct(caplog):
+def test__config__validate_configs_direct():
     """Test _validate_configs method of ConfigLoader directly."""
     # Make sure there _are_ removed configs.
     assert REMOVED_CONFIGS
