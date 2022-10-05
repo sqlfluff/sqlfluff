@@ -9,7 +9,7 @@ from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.utils.reflow.elements import ReflowBlock
 
 
