@@ -3,7 +3,7 @@
 Specifically:
 - ReflowPoint.indent_to()
 - ReflowPoint.get_indent()
-- ReflowPoint._deduce_line_indent()
+- deduce_line_indent()
 """
 
 import logging
@@ -12,6 +12,7 @@ import pytest
 from sqlfluff.core import Linter
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
+from sqlfluff.utils.reflow.reindent.analysis import deduce_line_indent
 
 
 def parse_ansi_string(sql, config):
@@ -102,7 +103,7 @@ def test_reflow__point_get_indent(
 def test_reflow__deduce_line_indent(
     raw_sql_in, target_raw, indent_out, default_config, caplog
 ):
-    """Test the ReflowPoint.get_indent() method directly."""
+    """Test the deduce_line_indent() method directly."""
     root = parse_ansi_string(raw_sql_in, default_config)
     print(root.stringify())
 
@@ -113,9 +114,7 @@ def test_reflow__deduce_line_indent(
         raise ValueError("Target Raw Not Found")
     print("Target: ", target_seg)
 
-    seq = ReflowSequence.from_root(root, config=default_config)
-
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        result = seq._deduce_line_indent(target_seg)
+        result = deduce_line_indent(target_seg, root)
 
     assert result == indent_out
