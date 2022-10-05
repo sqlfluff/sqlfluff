@@ -11,7 +11,7 @@ from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
-from sqlfluff.utils.reflow.rebreak.sequence import rebreak_sequence
+from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset

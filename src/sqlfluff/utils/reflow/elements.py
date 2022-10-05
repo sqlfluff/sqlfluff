@@ -13,7 +13,7 @@ from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
 # Respace Algorithms
-from sqlfluff.utils.reflow.respace.point import (
+from sqlfluff.utils.reflow.respace import (
     determine_constraints,
     process_spacing,
     handle_respace__inline_with_space,

@@ -12,7 +12,7 @@ import pytest
 from sqlfluff.core import Linter
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
-from sqlfluff.utils.reflow.reindent.analysis import deduce_line_indent
+from sqlfluff.utils.reflow.reindent import deduce_line_indent
 
 
 def parse_ansi_string(sql, config):

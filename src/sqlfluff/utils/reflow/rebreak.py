@@ -9,7 +9,7 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintFix
 
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
-from sqlfluff.utils.reflow.reindent.analysis import deduce_line_indent
+from sqlfluff.utils.reflow.reindent import deduce_line_indent
 
 
 # We're in the utils module, but users will expect reflow
