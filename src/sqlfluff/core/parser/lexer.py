@@ -365,20 +365,39 @@ class Lexer:
             if (
                 last_source_slice
                 and last_source_slice.stop > source_slice.start
+                and last_source_slice.stop != source_slice.stop
                 and last_source_slice != source_slice
             ):
                 # If we have, insert a loop marker to reflect that.
                 lexer_logger.debug(
                     "      Backward jump detected. Inserting Loop Marker"
                 )
-                segment_buffer.append(
-                    TemplateLoop(
-                        pos_marker=PositionMarker.from_point(
-                            last_source_slice.stop,
-                            element.template_slice.start,
-                            templated_file,
-                        )
-                    )
+                # TemplateLoops should usually have a dedent before
+                # and an indent after.
+                segment_buffer.extend(
+                    [
+                        Dedent(
+                            pos_marker=PositionMarker.from_point(
+                                last_source_slice.stop,
+                                element.template_slice.start,
+                                templated_file,
+                            )
+                        ),
+                        TemplateLoop(
+                            pos_marker=PositionMarker.from_point(
+                                last_source_slice.stop,
+                                element.template_slice.start,
+                                templated_file,
+                            )
+                        ),
+                        Indent(
+                            pos_marker=PositionMarker.from_point(
+                                last_source_slice.stop,
+                                element.template_slice.start,
+                                templated_file,
+                            ),
+                        ),
+                    ]
                 )
 
             # The calculated source slice will include any source only slices.
