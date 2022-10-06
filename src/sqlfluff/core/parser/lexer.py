@@ -382,7 +382,7 @@ class Lexer:
                                 last_source_slice.stop,
                                 element.template_slice.start,
                                 templated_file,
-                            )
+                            ),
                         ),
                         TemplateLoop(
                             pos_marker=PositionMarker.from_point(
@@ -530,7 +530,7 @@ class Lexer:
                                 placeholder_slice.start,
                                 element.template_slice.start,
                                 templated_file,
-                            )
+                            ),
                         )
                     )
 
