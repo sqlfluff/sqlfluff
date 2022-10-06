@@ -377,6 +377,7 @@ class Lexer:
                 segment_buffer.extend(
                     [
                         Dedent(
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 last_source_slice.stop,
                                 element.template_slice.start,
@@ -391,6 +392,7 @@ class Lexer:
                             )
                         ),
                         Indent(
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 last_source_slice.stop,
                                 element.template_slice.start,
@@ -523,6 +525,7 @@ class Lexer:
                     lexer_logger.debug("      DEDENT")
                     segment_buffer.append(
                         Dedent(
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 placeholder_slice.start,
                                 element.template_slice.start,
