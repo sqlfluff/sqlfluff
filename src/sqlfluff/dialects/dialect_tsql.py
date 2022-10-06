@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -26,6 +25,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -399,15 +399,23 @@ tsql_dialect.replace(
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
-    JoinTypeKeywordsGrammar=OneOf(
-        "INNER",
-        Sequence(
-            OneOf(
-                "FULL",
-                "LEFT",
-                "RIGHT",
+    JoinTypeKeywordsGrammar=Sequence(
+        OneOf(
+            "INNER",
+            Sequence(
+                OneOf(
+                    "FULL",
+                    "LEFT",
+                    "RIGHT",
+                ),
+                Ref.keyword("OUTER", optional=True),
             ),
-            Ref.keyword("OUTER", optional=True),
+        ),
+        OneOf(
+            "LOOP",
+            "HASH",
+            "MERGE",
+            optional=True,
         ),
         optional=True,
     ),
