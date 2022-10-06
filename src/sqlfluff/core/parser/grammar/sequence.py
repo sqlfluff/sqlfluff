@@ -355,7 +355,6 @@ class Bracketed(Sequence):
                 if (
                     seg.is_meta
                     and cast(MetaSegment, seg).indent_val > 0
-                    and not cast(MetaSegment, seg).is_template
                 ):
                     meta_idx = idx
                     break
