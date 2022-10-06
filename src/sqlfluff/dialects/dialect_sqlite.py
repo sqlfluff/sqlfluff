@@ -5,6 +5,7 @@ https://www.sqlite.org/
 
 from sqlfluff.core.parser import (
     BaseSegment,
+    Bracketed,
     Matchable,
     OneOf,
     Ref,
@@ -114,13 +115,38 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 class TableConstraintSegment(ansi.TableConstraintSegment):
     """Overriding TableConstraintSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.TableConstraintSegment.match_grammar.copy(
-        insert=[
-            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
-            OneOf(
-                Sequence("INITIALLY", "DEFERRED"),
-                Sequence("INITIALLY", "IMMEDIATE"),
-                optional=True,
+    match_grammar: Matchable = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            # CHECK ( <expr> )
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
+            Sequence(  # UNIQUE ( column_name [, ... ] )
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
             ),
-        ],
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+                Ref("PrimaryKeyGrammar"),
+                # Columns making up PRIMARY KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
+            ),
+        ),
+        OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+        OneOf(
+            Sequence("INITIALLY", "DEFERRED"),
+            Sequence("INITIALLY", "IMMEDIATE"),
+            optional=True,
+        ),
     )
