@@ -3,10 +3,15 @@
 from itertools import chain
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
-from sqlfluff.core.parser import BaseSegment, RawSegment
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    RawSegment,
+    NewlineSegment,
+    WhitespaceSegment,
+    Indent,
+)
 from sqlfluff.core.rules.base import LintFix
 
 from sqlfluff.utils.reflow.config import ReflowConfig
@@ -139,6 +144,14 @@ class ReflowPoint(ReflowElement):
         """Get the current indent (if there)."""
         seg = self._get_indent_segment()
         return seg.raw if seg else None
+
+    def get_indent_impulse(self) -> int:
+        """Get the change in intended indent balance from this point."""
+        return sum(
+            cast(Indent, seg).indent_val
+            for seg in self.segments
+            if seg.is_type("indent")
+        )
 
     def indent_to(
         self,
