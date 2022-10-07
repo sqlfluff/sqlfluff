@@ -18,6 +18,7 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.templaters.base import RawFileSlice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -254,6 +255,242 @@ class RegexLexer(StringLexer):
         return None
 
 
+def _generate_template_loop_segments(
+    source_slice: slice,
+    last_source_slice: slice,
+    templated_idx: int,
+    templated_file: TemplatedFile,
+) -> List[RawSegment]:
+    """Detect when we've gone backward in the source.
+
+    NOTE: If it's the _same_ slice then don't insert a marker
+    because we're probably just within a single templated
+    section.
+    """
+    if (
+        last_source_slice
+        and last_source_slice.stop > source_slice.start
+        and last_source_slice.stop != source_slice.stop
+        and last_source_slice != source_slice
+    ):
+        # If we have, insert a loop marker to reflect that.
+        lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
+        # TemplateLoops should usually have a dedent before
+        # and an indent after.
+        return [
+            Dedent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    last_source_slice.stop,
+                    templated_idx,
+                    templated_file,
+                ),
+            ),
+            TemplateLoop(
+                pos_marker=PositionMarker.from_point(
+                    last_source_slice.stop,
+                    templated_idx,
+                    templated_file,
+                )
+            ),
+            Indent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    last_source_slice.stop,
+                    templated_idx,
+                    templated_file,
+                ),
+            ),
+        ]
+    else:
+        return []
+
+
+def _generate_placeholder_segments(
+    source_slice: slice,
+    # NOTE: no last_source_slice implies start of file.
+    last_source_slice: Optional[slice],
+    template_slice: slice,
+    source_only_slices: List[RawFileSlice],
+    templated_file: TemplatedFile,
+    add_indents: bool,
+) -> Tuple[List[RawSegment], slice]:
+    """Generate any template placeholder segments.
+
+    The input source_slice, will potentially include not just
+    elements from the templated file, but also sections of
+    template code which no longer appear in the rendered file.
+
+    This code extracts them, adjusts the source_slice and generates
+    appropriate template segments to insert.
+
+    NOTE: For reasons which aren't well documented, any literal
+    elements will come at the end of the source_slice, and any
+    source only elements will usually come at the start. This
+    code takes advantage of that.
+    """
+    so_slices = []
+    # First check whether we've got any relevant source only slices for
+    # this position in the file.
+    if last_source_slice != source_slice:
+        for source_only_slice in source_only_slices:
+            # If it's later in the source, stop looking. Any later
+            # ones *also* won't match.
+            if source_only_slice.source_idx >= source_slice.stop:
+                break
+            elif source_only_slice.source_idx >= source_slice.start:
+                so_slices.append(source_only_slice)
+
+    # No relevant source only slices in this instance. Return
+    if not so_slices:
+        return [], source_slice
+
+    lexer_logger.debug("    Collected Source Only Slices")
+    for so_slice in so_slices:
+        lexer_logger.debug("       %s", so_slice)
+
+    # Calculate some things which will be useful
+    templ_str = templated_file.templated_str[template_slice]
+    source_str = templated_file.source_str[source_slice]
+
+    # For reasons which aren't entirely clear right now, if there is
+    # an included literal, it will always be at the end. Let's see if it's
+    # there.
+    if source_str.endswith(templ_str):
+        existing_len = len(templ_str)
+    else:
+        existing_len = 0
+
+    # Calculate slices, without any existing literal.
+    placeholder_slice = slice(source_slice.start, source_slice.stop - existing_len)
+    placeholder_str = source_str[:-existing_len]
+    source_slice = slice(source_slice.stop - existing_len, source_slice.stop)
+
+    # If it doesn't manage to extract a placeholder string from the source
+    # just concatenate the source only strings. There is almost always
+    # only one of them.
+    if not placeholder_str:
+        placeholder_str = "".join(s.raw for s in so_slices)
+
+    # The Jinja templater sometimes returns source-only slices with
+    # gaps between. For example, in this section:
+    #
+    #   {% else %}
+    #   JOIN
+    #       {{action}}_raw_effect_sizes
+    #   USING
+    #       ({{ states }})
+    #   {% endif %}
+    #
+    # we might get {% else %} and {% endif %} slices, without the
+    # 4 lines between. This indicates those lines were not executed
+    # In this case, generate a placeholder where the skipped code is
+    # omitted but noted with a brief string, e.g.:
+    #
+    # "{% else %}... [103 unused template characters] ...{% endif %}".
+    #
+    # This is more readable -- it would be REALLY confusing for a
+    # placeholder to include code that wasn't even executed!!
+    if len(so_slices) >= 2:
+        has_gap = False
+        gap_placeholder_parts = []
+        last_slice = None
+        # For each slice...
+        for so_slice in so_slices:
+            # If it's not the first slice, was there a gap?
+            if last_slice:
+                end_last = last_slice.source_idx + len(last_slice.raw)
+                chars_skipped = so_slice.source_idx - end_last
+                if chars_skipped:
+                    # Yes, gap between last_slice and so_slice.
+                    has_gap = True
+
+                    # Generate a string documenting the gap.
+                    if chars_skipped >= 10:
+                        gap_placeholder_parts.append(
+                            f"... [{chars_skipped} unused template " "characters] ..."
+                        )
+                    else:
+                        gap_placeholder_parts.append("...")
+            # Now add the slice's source.
+            gap_placeholder_parts.append(so_slice.raw)
+            last_slice = so_slice
+        if has_gap:
+            placeholder_str = "".join(gap_placeholder_parts)
+    lexer_logger.debug(
+        "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
+        existing_len,
+        placeholder_slice,
+        source_slice,
+        placeholder_str,
+        templ_str,
+    )
+
+    # Calculate potential indent/dedent
+    segment_buffer: List[RawSegment] = []
+    block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
+    block_balance = sum(s.slice_type == "block_start" for s in so_slices) - sum(
+        s.slice_type == "block_end" for s in so_slices
+    )
+    lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
+    trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
+    lexer_logger.debug(
+        "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, " "Add: %s",
+        block_slices,
+        block_balance,
+        lead_dedent,
+        trail_indent,
+        add_indents,
+    )
+
+    # Add a dedent if appropriate.
+    if lead_dedent and add_indents:
+        lexer_logger.debug("      DEDENT")
+        segment_buffer.append(
+            Dedent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    placeholder_slice.start,
+                    template_slice.start,
+                    templated_file,
+                ),
+            )
+        )
+
+    # Always add a placeholder
+    segment_buffer.append(
+        TemplateSegment(
+            pos_marker=PositionMarker(
+                placeholder_slice,
+                slice(
+                    template_slice.start,
+                    template_slice.start,
+                ),
+                templated_file,
+            ),
+            source_str=placeholder_str,
+            block_type=so_slices[0].slice_type if len(so_slices) == 1 else "compound",
+        )
+    )
+    lexer_logger.debug("      Placeholder: %s, %r", segment_buffer[-1], placeholder_str)
+
+    # Add an indent if appropriate.
+    if trail_indent and add_indents:
+        lexer_logger.debug("      INDENT")
+        segment_buffer.append(
+            Indent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    placeholder_slice.stop,
+                    template_slice.start,
+                    templated_file,
+                ),
+            )
+        )
+
+    return segment_buffer, source_slice
+
+
 class Lexer:
     """The Lexer class actually does the lexing step."""
 
@@ -334,6 +571,8 @@ class Lexer:
         # Working buffer to build up segments
         segment_buffer: List[RawSegment] = []
 
+        add_indents = self.config.get("template_blocks_indent", "indentation")
+
         lexer_logger.info("Elements to Segments.")
         # Get the templated slices to re-insert tokens for them
         source_only_slices = templated_file.source_only_slices()
@@ -358,216 +597,27 @@ class Lexer:
                 templated_file.templated_str[element.template_slice],
             )
 
-            # Detect when we've gone backward in the source.
-            # NOTE: If it's the _same_ slice then don't insert a marker
-            # because we're probably just within a single templated
-            # section.
-            if (
-                last_source_slice
-                and last_source_slice.stop > source_slice.start
-                and last_source_slice.stop != source_slice.stop
-                and last_source_slice != source_slice
-            ):
-                # If we have, insert a loop marker to reflect that.
-                lexer_logger.debug(
-                    "      Backward jump detected. Inserting Loop Marker"
-                )
-                # TemplateLoops should usually have a dedent before
-                # and an indent after.
+            # Detect template loops
+            if last_source_slice:
                 segment_buffer.extend(
-                    [
-                        Dedent(
-                            is_template=True,
-                            pos_marker=PositionMarker.from_point(
-                                last_source_slice.stop,
-                                element.template_slice.start,
-                                templated_file,
-                            ),
-                        ),
-                        TemplateLoop(
-                            pos_marker=PositionMarker.from_point(
-                                last_source_slice.stop,
-                                element.template_slice.start,
-                                templated_file,
-                            )
-                        ),
-                        Indent(
-                            is_template=True,
-                            pos_marker=PositionMarker.from_point(
-                                last_source_slice.stop,
-                                element.template_slice.start,
-                                templated_file,
-                            ),
-                        ),
-                    ]
-                )
-
-            # The calculated source slice will include any source only slices.
-            # We should consider all of them in turn to see whether we can
-            # insert them.
-            so_slices = []
-            # Only look for source only slices if we've got a new source slice to
-            # avoid unnecessary duplication.
-            if last_source_slice != source_slice:
-                for source_only_slice in source_only_slices:
-                    # If it's later in the source, stop looking. Any later
-                    # ones *also* won't match.
-                    if source_only_slice.source_idx >= source_slice.stop:
-                        break
-                    elif source_only_slice.source_idx >= source_slice.start:
-                        so_slices.append(source_only_slice)
-
-            if so_slices:
-                lexer_logger.debug("    Collected Source Only Slices")
-                for so_slice in so_slices:
-                    lexer_logger.debug("       %s", so_slice)
-
-                # Calculate some things which will be useful
-                templ_str = templated_file.templated_str[element.template_slice]
-                source_str = templated_file.source_str[source_slice]
-
-                # For reasons which aren't entirely clear right now, if there is
-                # an included literal, it will always be at the end. Let's see if it's
-                # there.
-                if source_str.endswith(templ_str):
-                    existing_len = len(templ_str)
-                else:
-                    existing_len = 0
-
-                # Calculate slices
-                placeholder_slice = slice(
-                    source_slice.start, source_slice.stop - existing_len
-                )
-                placeholder_str = source_str[:-existing_len]
-                source_slice = slice(
-                    source_slice.stop - existing_len, source_slice.stop
-                )
-                # If it doesn't manage to extract a placeholder string from the source
-                # just concatenate the source only strings. There is almost always
-                # only one of them.
-                if not placeholder_str:
-                    placeholder_str = "".join(s.raw for s in so_slices)
-                # The Jinja templater sometimes returns source-only slices with
-                # gaps between. For example, in this section:
-                #
-                #   {% else %}
-                #   JOIN
-                #       {{action}}_raw_effect_sizes
-                #   USING
-                #       ({{ states }})
-                #   {% endif %}
-                #
-                # we might get {% else %} and {% endif %} slices, without the
-                # 4 lines between. This indicates those lines were not executed
-                # In this case, generate a placeholder where the skipped code is
-                # omitted but noted with a brief string, e.g.:
-                #
-                # "{% else %}... [103 unused template characters] ...{% endif %}".
-                #
-                # This is more readable -- it would be REALLY confusing for a
-                # placeholder to include code that wasn't even executed!!
-                if len(so_slices) >= 2:
-                    has_gap = False
-                    gap_placeholder_parts = []
-                    last_slice = None
-                    # For each slice...
-                    for so_slice in so_slices:
-                        # If it's not the first slice, was there a gap?
-                        if last_slice:
-                            end_last = last_slice.source_idx + len(last_slice.raw)
-                            chars_skipped = so_slice.source_idx - end_last
-                            if chars_skipped:
-                                # Yes, gap between last_slice and so_slice.
-                                has_gap = True
-
-                                # Generate a string documenting the gap.
-                                if chars_skipped >= 10:
-                                    gap_placeholder_parts.append(
-                                        f"... [{chars_skipped} unused template "
-                                        "characters] ..."
-                                    )
-                                else:
-                                    gap_placeholder_parts.append("...")
-                        # Now add the slice's source.
-                        gap_placeholder_parts.append(so_slice.raw)
-                        last_slice = so_slice
-                    if has_gap:
-                        placeholder_str = "".join(gap_placeholder_parts)
-                lexer_logger.debug(
-                    "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
-                    existing_len,
-                    placeholder_slice,
-                    source_slice,
-                    placeholder_str,
-                    templ_str,
-                )
-
-                # Calculate potential indent/dedent
-                block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
-                block_balance = sum(
-                    s.slice_type == "block_start" for s in so_slices
-                ) - sum(s.slice_type == "block_end" for s in so_slices)
-                lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
-                trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
-                add_indents = self.config.get("template_blocks_indent", "indentation")
-                lexer_logger.debug(
-                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, "
-                    "Add: %s",
-                    block_slices,
-                    block_balance,
-                    lead_dedent,
-                    trail_indent,
-                    add_indents,
-                )
-
-                # Add a dedent if appropriate.
-                if lead_dedent and add_indents:
-                    lexer_logger.debug("      DEDENT")
-                    segment_buffer.append(
-                        Dedent(
-                            is_template=True,
-                            pos_marker=PositionMarker.from_point(
-                                placeholder_slice.start,
-                                element.template_slice.start,
-                                templated_file,
-                            ),
-                        )
-                    )
-
-                # Always add a placeholder
-                segment_buffer.append(
-                    TemplateSegment(
-                        pos_marker=PositionMarker(
-                            placeholder_slice,
-                            slice(
-                                element.template_slice.start,
-                                element.template_slice.start,
-                            ),
-                            templated_file,
-                        ),
-                        source_str=placeholder_str,
-                        block_type=so_slices[0].slice_type
-                        if len(so_slices) == 1
-                        else "compound",
+                    _generate_template_loop_segments(
+                        source_slice,
+                        last_source_slice,
+                        element.template_slice.start,
+                        templated_file,
                     )
                 )
-                lexer_logger.debug(
-                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
-                )
 
-                # Add an indent if appropriate.
-                if trail_indent and add_indents:
-                    lexer_logger.debug("      INDENT")
-                    segment_buffer.append(
-                        Indent(
-                            is_template=True,
-                            pos_marker=PositionMarker.from_point(
-                                placeholder_slice.stop,
-                                element.template_slice.start,
-                                templated_file,
-                            ),
-                        )
-                    )
+            # Generate template segments and adjust source slice accordingly
+            template_segments, source_slice = _generate_placeholder_segments(
+                source_slice,
+                last_source_slice,
+                element.template_slice,
+                source_only_slices,
+                templated_file,
+                add_indents,
+            )
+            segment_buffer.extend(template_segments)
 
             # Add the actual segment
             segment_buffer.append(
@@ -584,26 +634,16 @@ class Lexer:
             # the last element. This happens, for example, if a Jinja templated
             # file ends with "{% endif %}", and there's no trailing newline.
             if idx == len(elements) - 1:
-                so_slices = [
-                    so
-                    for so in source_only_slices
-                    if so.source_idx >= source_slice.stop
-                ]
-                for so_slice in so_slices:
-                    segment_buffer.append(
-                        TemplateSegment(
-                            pos_marker=PositionMarker(
-                                slice(so_slice.source_idx, so_slice.end_source_idx()),
-                                slice(
-                                    element.template_slice.stop,
-                                    element.template_slice.stop,
-                                ),
-                                templated_file,
-                            ),
-                            source_str=so_slice.raw,
-                            block_type=so_slice.slice_type,
-                        )
-                    )
+
+                template_segments, _ = _generate_placeholder_segments(
+                    slice(last_source_slice.stop, len(templated_file.source_str)),
+                    last_source_slice,
+                    slice(element.template_slice.stop, element.template_slice.stop),
+                    source_only_slices,
+                    templated_file,
+                    add_indents,
+                )
+                segment_buffer.extend(template_segments)
 
         # Add an end of file marker
         segment_buffer.append(
