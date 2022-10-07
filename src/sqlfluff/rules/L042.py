@@ -143,14 +143,6 @@ class Rule_L042(BaseRule):
         # TODO: consider if we can fix recursive CTEs
         is_recursive = is_with and len(segment.children(is_keyword("recursive"))) > 0
         case_preference = _get_case_preference(segment)
-        output_select = segment
-        if is_with:
-            output_select = segment.children(
-                is_type(
-                    "set_expression",
-                    "select_statement",
-                )
-            )
 
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
@@ -189,7 +181,8 @@ class Rule_L042(BaseRule):
             # Compute fix.
             edit = [
                 ctes.compose_select(
-                    clone_map[output_select[0]],
+                    crawler.query_tree,
+                    clone_map,
                     case_preference=case_preference,
                 ),
             ]
@@ -381,36 +374,40 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(self, output_select: BaseSegment, case_preference: str):
+    def compose_select(
+        self, output_query: Query, clone_map: "SegmentCloneMap", case_preference: str
+    ):
         """Compose our final new CTE."""
         # Ensure there's whitespace between "FROM" and the CTE table name.
-        from_clause = output_select.get_child("from_clause")
-        from_clause_children = Segments(*from_clause.segments)
-        from_segment = from_clause_children.first(is_keyword("from"))
-        if from_segment and not from_clause_children.select(
-            start_seg=from_segment[0], loop_while=is_whitespace()
-        ):
-            idx_from = from_clause_children.index(from_segment[0])
-            # Insert whitespace between "FROM" and the CTE table name.
-            from_clause.segments = list(
-                from_clause_children[: idx_from + 1]
-                + (WhitespaceSegment(),)
-                + from_clause_children[idx_from + 1 :]
-            )
+        for selectable in output_query.selectables:
+            output_select = clone_map[selectable.selectable]
+            from_clause = output_select.get_child("from_clause")
+            from_clause_children = Segments(*from_clause.segments)
+            from_segment = from_clause_children.first(is_keyword("from"))
+            if from_segment and not from_clause_children.select(
+                start_seg=from_segment[0], loop_while=is_whitespace()
+            ):
+                idx_from = from_clause_children.index(from_segment[0])
+                # Insert whitespace between "FROM" and the CTE table name.
+                from_clause.segments = list(
+                    from_clause_children[: idx_from + 1]
+                    + (WhitespaceSegment(),)
+                    + from_clause_children[idx_from + 1 :]
+                )
 
-        # Compose the CTE.
-        new_select = WithCompoundStatementSegment(
-            segments=tuple(
-                [
-                    _segmentify("WITH", case_preference),
-                    WhitespaceSegment(),
-                    *self.get_cte_segments(),
-                    NewlineSegment(),
-                    output_select,
-                ]
+            # Compose the CTE.
+            new_select = WithCompoundStatementSegment(
+                segments=tuple(
+                    [
+                        _segmentify("WITH", case_preference),
+                        WhitespaceSegment(),
+                        *self.get_cte_segments(),
+                        NewlineSegment(),
+                        output_select,
+                    ]
+                )
             )
-        )
-        return new_select
+            return new_select
 
     def replace_with_clone(self, segment, clone_map):
         for idx, cte in enumerate(self.ctes):
