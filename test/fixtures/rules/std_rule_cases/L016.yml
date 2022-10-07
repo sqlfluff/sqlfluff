@@ -254,7 +254,7 @@ test_fail_ignore_comment_clauses_2:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses:
   pass_str: |
@@ -266,7 +266,7 @@ test_pass_ignore_comment_clauses:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_teradata:
   pass_str: |
@@ -276,7 +276,7 @@ test_pass_ignore_comment_clauses_teradata:
       dialect: teradata
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_exasol:
   pass_str: |
@@ -288,7 +288,7 @@ test_pass_ignore_comment_clauses_exasol:
       dialect: exasol
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_snowflake:
   pass_str: |
@@ -298,7 +298,7 @@ test_pass_ignore_comment_clauses_snowflake:
       dialect: snowflake
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_postgres:
   pass_str: |
@@ -313,7 +313,7 @@ test_pass_ignore_comment_clauses_postgres:
       dialect: postgres
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_fail_templated_comment_clause:
   fail_str: |
@@ -333,7 +333,7 @@ test_pass_ignore_templated_comment_clause:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
     templater:
       jinja:
         context: {}
