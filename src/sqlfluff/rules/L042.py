@@ -163,12 +163,7 @@ class Rule_L042(BaseRule):
         )
 
         if result:
-            (
-                lint_result,
-                from_expression,
-                alias_name,
-                subquery_parent,
-            ) = result
+            lint_result, from_expression, alias_name, subquery_parent = result
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
             )
@@ -194,7 +189,8 @@ class Rule_L042(BaseRule):
             # Compute fix.
             edit = [
                 ctes.compose_select(
-                    clone_map[output_select[0]], case_preference=case_preference
+                    clone_map[output_select[0]],
+                    case_preference=case_preference,
                 ),
             ]
             lint_result.fixes = [
@@ -256,9 +252,8 @@ class Rule_L042(BaseRule):
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
             alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
-            anchor = nsq.table_alias.from_expression_element.segments[
-                0
-            ]  # This is the TableExpressionSegmen we fix/replace w/CTE name.
+            # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
+            anchor = nsq.table_alias.from_expression_element.segments[0]
             new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
                 alias_name=alias_name,
                 subquery=clone_map[anchor],
@@ -272,7 +267,6 @@ class Rule_L042(BaseRule):
             # likely to be filtered out if a bit of the subquery
             # happens to be templated.
             anchor = next(anchor.recursive_crawl("keyword", "symbol"))
-
             res = LintResult(
                 anchor=anchor,
                 description=f"{nsq.query.selectables[0].selectable.type} clauses "
