@@ -634,9 +634,8 @@ class Lexer:
             # the last element. This happens, for example, if a Jinja templated
             # file ends with "{% endif %}", and there's no trailing newline.
             if last_source_slice and idx == len(elements) - 1:
-
                 template_segments, _ = _generate_placeholder_segments(
-                    slice(last_source_slice.stop, len(templated_file.source_str)),
+                    slice(source_slice.stop, len(templated_file.source_str)),
                     last_source_slice,
                     slice(element.template_slice.stop, element.template_slice.stop),
                     source_only_slices,

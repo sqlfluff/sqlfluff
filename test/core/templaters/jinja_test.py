@@ -592,6 +592,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/003", False, True),
         ("jinja_l_metas/004", False, True),
         ("jinja_l_metas/005", False, True),
+        ("jinja_l_metas/006", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
