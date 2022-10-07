@@ -151,6 +151,7 @@ class Rule_L042(BaseRule):
                     "select_statement",
                 )
             )
+
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
         result = self._lint_query(
@@ -164,7 +165,6 @@ class Rule_L042(BaseRule):
         if result:
             (
                 lint_result,
-                nsq_crawler,
                 from_expression,
                 alias_name,
                 subquery_parent,
@@ -251,7 +251,7 @@ class Rule_L042(BaseRule):
         ctes: "_CTEBuilder",
         case_preference,
         clone_map,
-    ) -> Optional[Tuple[LintResult, SelectCrawler, BaseSegment, str, BaseSegment]]:
+    ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
@@ -282,7 +282,6 @@ class Rule_L042(BaseRule):
             if len(nsq.query.selectables) == 1:
                 return (
                     res,
-                    nsq.sc,
                     # FromExpressionElementSegment, parent of original "anchor" segment
                     nsq.table_alias.from_expression_element,
                     alias_name,  # Name of CTE we're creating from the nested query
