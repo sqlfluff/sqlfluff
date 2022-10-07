@@ -206,6 +206,15 @@ def test_reflow__deduce_line_indent(
                 _ReindentLine(25, 27, 1, "  "),
             ],
         ),
+        # Test that we don't get them for empty lines.
+        (
+            "\n\n  \n\nselect\n\n\n\n  \n\n     1\n\n  \n\n",
+            [
+                # Only two lines here
+                _ReindentLine(0, 2, 0, ""),
+                _ReindentLine(2, 4, 1, "     "),
+            ]
+        ),
     ],
 )
 def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
