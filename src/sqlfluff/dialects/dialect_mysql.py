@@ -909,25 +909,28 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ),
+    match_grammar: Matchable = OneOf(
         Sequence(
-            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            optional=True,
-            allow_gaps=False,
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+                allow_gaps=False,
+            ),
+            allow_gaps=True,
         ),
-        allow_gaps=True,
+        "CURRENT_USER",
     )
 
 
@@ -1430,7 +1433,7 @@ class IfExpressionStatement(BaseSegment):
 
 
 class DefinerSegment(BaseSegment):
-    """This is the body of a `CREATE FUNCTION` statement."""
+    """This is the body of a `CREATE FUNCTION` and `CREATE TRIGGER` statements."""
 
     type = "definer_segment"
 
@@ -2384,6 +2387,33 @@ class LoadDataSegment(BaseSegment):
             "SET",
             Ref("Expression_B_Grammar"),
             optional=True,
+        ),
+    )
+
+
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    As Specified in https://dev.mysql.com/doc/refman/8.0/en/create-trigger.html
+    """
+
+    # "DEFINED = user", optional
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("DefinerSegment", optional=True),
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER"),
+        OneOf("INSERT", "UPDATE", "DELETE"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW"),
+        Sequence(
+            OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
+        ),
+        OneOf(
+            Ref("StatementSegment"),
+            Sequence("BEGIN", Ref("StatementSegment"), "END"),
         ),
     )
 
