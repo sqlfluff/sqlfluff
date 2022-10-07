@@ -546,3 +546,52 @@ test_fail_subquery_in_cte:
     rules:
       L042:
         forbid_subquery_in: both
+
+test_fail_subquery_in_cte_2:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from (select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both

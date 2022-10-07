@@ -143,7 +143,14 @@ class Rule_L042(BaseRule):
         # TODO: consider if we can fix recursive CTEs
         is_recursive = is_with and len(segment.children(is_keyword("recursive"))) > 0
         case_preference = _get_case_preference(segment)
-
+        output_select = segment
+        if is_with:
+            output_select = segment.children(
+                is_type(
+                    "set_expression",
+                    "select_statement",
+                )
+            )
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
         result = self._lint_query(
@@ -155,7 +162,13 @@ class Rule_L042(BaseRule):
         )
 
         if result:
-            lint_result, from_expression, alias_name, subquery_parent = result
+            (
+                lint_result,
+                nsq_crawler,
+                from_expression,
+                alias_name,
+                subquery_parent,
+            ) = result
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
             )
@@ -181,9 +194,7 @@ class Rule_L042(BaseRule):
             # Compute fix.
             edit = [
                 ctes.compose_select(
-                    crawler.query_tree,
-                    clone_map,
-                    case_preference=case_preference,
+                    clone_map[output_select[0]], case_preference=case_preference
                 ),
             ]
             lint_result.fixes = [
@@ -240,13 +251,15 @@ class Rule_L042(BaseRule):
         ctes: "_CTEBuilder",
         case_preference,
         clone_map,
-    ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
+    ) -> Optional[Tuple[LintResult, SelectCrawler, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
             alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
-            anchor = nsq.table_alias.from_expression_element.segments[0]
-            new_cte = _create_cte_seg(
+            anchor = nsq.table_alias.from_expression_element.segments[
+                0
+            ]  # This is the TableExpressionSegmen we fix/replace w/CTE name.
+            new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
                 alias_name=alias_name,
                 subquery=clone_map[anchor],
                 case_preference=case_preference,
@@ -259,6 +272,7 @@ class Rule_L042(BaseRule):
             # likely to be filtered out if a bit of the subquery
             # happens to be templated.
             anchor = next(anchor.recursive_crawl("keyword", "symbol"))
+
             res = LintResult(
                 anchor=anchor,
                 description=f"{nsq.query.selectables[0].selectable.type} clauses "
@@ -268,8 +282,11 @@ class Rule_L042(BaseRule):
             if len(nsq.query.selectables) == 1:
                 return (
                     res,
+                    nsq.sc,
+                    # FromExpressionElementSegment, parent of original "anchor" segment
                     nsq.table_alias.from_expression_element,
-                    alias_name,
+                    alias_name,  # Name of CTE we're creating from the nested query
+                    # Query with the subquery: 'select a from (select x from b)'
                     nsq.query.selectables[0].selectable,
                 )
         return None
@@ -374,14 +391,20 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(
-        self, output_query: Query, clone_map: "SegmentCloneMap", case_preference: str
-    ):
+    def compose_select(self, output_select: BaseSegment, case_preference: str):
         """Compose our final new CTE."""
         # Ensure there's whitespace between "FROM" and the CTE table name.
-        for selectable in output_query.selectables:
-            output_select = clone_map[selectable.selectable]
-            from_clause = output_select.get_child("from_clause")
+        from_clause = output_select.get_child("from_clause")
+        # This section of code relates to inserting the CTE name in the
+        # top-level query. Because _nested_subqueries() processes both the
+        # main query and CTEs, output_select may be the top-level query even
+        # though the nested subquery we're fixing is in a CTE. In that case,
+        # we can sometimes skip this section. This could probably be cleaned
+        # up someday -- simply skipping because from_clause is None doesn't
+        # seem quite right; it's just skipping because it's a set_expression
+        # and not a select_statement, thus there's no from_clause as a direct
+        # child (grandchild instead).
+        if from_clause is not None:
             from_clause_children = Segments(*from_clause.segments)
             from_segment = from_clause_children.first(is_keyword("from"))
             if from_segment and not from_clause_children.select(
@@ -395,19 +418,19 @@ class _CTEBuilder:
                     + from_clause_children[idx_from + 1 :]
                 )
 
-            # Compose the CTE.
-            new_select = WithCompoundStatementSegment(
-                segments=tuple(
-                    [
-                        _segmentify("WITH", case_preference),
-                        WhitespaceSegment(),
-                        *self.get_cte_segments(),
-                        NewlineSegment(),
-                        output_select,
-                    ]
-                )
+        # Compose the CTE.
+        new_select = WithCompoundStatementSegment(
+            segments=tuple(
+                [
+                    _segmentify("WITH", case_preference),
+                    WhitespaceSegment(),
+                    *self.get_cte_segments(),
+                    NewlineSegment(),
+                    output_select,
+                ]
             )
-            return new_select
+        )
+        return new_select
 
     def replace_with_clone(self, segment, clone_map):
         for idx, cte in enumerate(self.ctes):
