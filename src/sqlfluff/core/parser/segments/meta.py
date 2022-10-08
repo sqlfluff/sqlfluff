@@ -22,7 +22,7 @@ class MetaSegment(RawSegment):
         Args:
             is_template (:obj:`bool`): A flag to indicate whether
                 this meta segment is related to a templated section.
-                This allows proper handing.
+                This allows proper handling.
         """
         super().__init__(*args, **kwargs)
         self.is_template = is_template

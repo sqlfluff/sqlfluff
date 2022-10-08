@@ -275,7 +275,7 @@ def _generate_template_loop_segments(
     ):
         # If we have, insert a loop marker to reflect that.
         lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
-        # TemplateLoops should usually have a dedent before
+        # TemplateLoops should have a dedent before
         # and an indent after.
         return [
             Dedent(
