@@ -519,7 +519,9 @@ def dump_file_payload(filename: Optional[str], payload: str):
     default=None,
     help=(
         "A filename to persist the timing information for a linting run to "
-        "in csv format for external analysis."
+        "in csv format for external analysis. NOTE: This feature should be "
+        "treated as beta, and the format of the csv file may change in "
+        "future releases without warning."
     ),
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
