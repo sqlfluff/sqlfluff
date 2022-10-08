@@ -614,6 +614,8 @@ ansi_dialect.add(
             optional=True,
         ),
     ),
+    # This can be overwritten by dialects
+    ExtendedNaturalJoinKeywordsGrammar=Nothing(),
     NestedJoinGrammar=Nothing(),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
@@ -1562,6 +1564,13 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             Ref("NaturalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
+        # Sometimes, a natural join might already include the keyword
+        Sequence(
+            Ref("ExtendedNaturalJoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
             Dedent,
