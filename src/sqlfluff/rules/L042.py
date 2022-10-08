@@ -401,34 +401,36 @@ class _CTEBuilder:
         fix = None
         output_select_clone = clone_map[output_select]
         if subquery_parent is output_select:
-            # Case 1
-            from_clause = output_select_clone.get_child("from_clause")
-            if from_clause is not None:
-                from_clause_children = Segments(*from_clause.segments)
-                from_segment = from_clause_children.first(is_keyword("from"))
-                if from_segment and not from_clause_children.select(
-                    start_seg=from_segment[0], loop_while=is_whitespace()
-                ):
-                    idx_from = from_clause_children.index(from_segment[0])
-                    # from_clause is a child of cloned "output_select_clone"
-                    # that will be inserted by a fix. We can directly
-                    # manipulate the "segments" list. to insert whitespace
-                    # between "FROM" and the CTE table name.
-                    from_clause.segments = list(
-                        from_clause_children[: idx_from + 1]
-                        + (WhitespaceSegment(),)
-                        + from_clause_children[idx_from + 1 :]
-                    )
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(output_select_clone)
+            if missing_space_after_from:
+                # from_clause is a child of cloned "output_select_clone"
+                # that will be inserted by a fix. We can directly
+                # manipulate the "segments" list. to insert whitespace
+                # between "FROM" and the CTE table name.
+                idx_from = from_clause_children.index(from_segment[0])
+                from_clause.segments = list(
+                    from_clause_children[: idx_from + 1]
+                    + (WhitespaceSegment(),)
+                    + from_clause_children[idx_from + 1 :]
+                )
         else:
             # Case 2
-            from_clause = subquery_parent.get_child("from_clause")
-            if from_clause is not None:
-                from_clause_children = Segments(*from_clause.segments)
-                from_segment = from_clause_children.first(is_keyword("from"))
-                if from_segment and not from_clause_children.select(
-                    start_seg=from_segment[0], loop_while=is_whitespace()
-                ):
-                    fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(subquery_parent)
+            if missing_space_after_from:
+                # Need to insert a space after FROM. from_segment is in the
+                # current parse tree, so we can't modify it directly as above.
+                # Need to generate a LintFix to add the space.
+                fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
 
         # Compose the CTE.
         new_select = WithCompoundStatementSegment(
@@ -443,6 +445,21 @@ class _CTEBuilder:
             )
         )
         return new_select, fix
+
+    @staticmethod
+    def _missing_space_after_from(segment):
+        missing_space_after_from = False
+        from_clause_children = None
+        from_segment = None
+        from_clause = segment.get_child("from_clause")
+        if from_clause is not None:
+            from_clause_children = Segments(*from_clause.segments)
+            from_segment = from_clause_children.first(is_keyword("from"))
+            if from_segment and not from_clause_children.select(
+                start_seg=from_segment[0], loop_while=is_whitespace()
+            ):
+                missing_space_after_from = True
+        return missing_space_after_from, from_clause, from_clause_children, from_segment
 
     def replace_with_clone(self, segment, clone_map):
         for idx, cte in enumerate(self.ctes):
