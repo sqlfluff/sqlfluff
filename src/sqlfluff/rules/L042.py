@@ -393,10 +393,6 @@ class _CTEBuilder:
         case_preference: str,
     ) -> Tuple[BaseSegment, List[LintFix]]:
         """Compose our final new CTE."""
-        # Ensure there's whitespace between "FROM" and the CTE table name.
-        # Two cases:
-        # 1. subquery_parent and output_select are same.
-        # 2. They're different.
         output_select_clone = clone_map[output_select]
         fixes = self._ensure_space_after_from(
             output_select, output_select_clone, subquery_parent
@@ -419,6 +415,7 @@ class _CTEBuilder:
     def _ensure_space_after_from(
         self, output_select, output_select_clone, subquery_parent
     ):
+        """Ensure there's whitespace between "FROM" and the CTE table name."""
         fixes = []
         if subquery_parent is output_select:
             (
