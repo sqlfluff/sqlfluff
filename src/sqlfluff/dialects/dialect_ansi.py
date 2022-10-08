@@ -34,7 +34,6 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     Matchable,
     MultiStringParser,
-    TypedParser,
     NewlineSegment,
     Nothing,
     OneOf,
@@ -48,6 +47,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
     WhitespaceSegment,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
@@ -614,6 +614,8 @@ ansi_dialect.add(
             optional=True,
         ),
     ),
+    # This can be overwritten by dialects
+    ExtendedNaturalJoinKeywordsGrammar=Nothing(),
     NestedJoinGrammar=Nothing(),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
@@ -1561,6 +1563,13 @@ class JoinClauseSegment(BaseSegment):
         Sequence(
             Ref("NaturalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
+        # Sometimes, a natural join might already include the keyword
+        Sequence(
+            Ref("ExtendedNaturalJoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
             Dedent,
