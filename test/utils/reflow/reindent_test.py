@@ -203,8 +203,10 @@ def test_reflow__deduce_line_indent(
                 _ReindentLine(0, 1, 0, ""),
                 _ReindentLine(1, 3, 1, "  "),
                 _ReindentLine(3, 5, 0, "  ", True),  # Here's the sunken element.
-                _ReindentLine(5, 9, 2, "    "),
-                _ReindentLine(9, 13, 1, "  "),
+                # These next two lines aren't further indented either.
+                _ReindentLine(5, 9, 1, "    "),
+                _ReindentLine(9, 13, 0, "  "),
+                # The final tag then sits on the baseline.
                 _ReindentLine(13, 15, 0, "", True),
             ],
         ),
@@ -280,24 +282,23 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             "select\n  1+(\n    2+3\n  ),\n  4\nfrom foo",
         ),
         # ### Templated Multiline Cases ###
+        # NOTE: the templated tags won't show here, but they
+        # should still be indented.
         # Trailing tag
         (
             "select\n1\n{% if true %}\n+ 2\n{% endif %}",
-            # NOTE: the templated tags won't show here, but they
-            # should still be indented.
-            # TODO: The endif here isn't indented, which is a bug!
-            # It's because it falls after the appropriate dedent.
-            "select\n  1\n  \n    + 2\n",
+            "select\n  1\n  \n    + 2\n  ",
         ),
         # Cutting across the parse tree
         (
             "select\n1\n{% if true %}\n,2\nFROM a\n{% endif %}",
-            # NOTE: the templated tags won't show here, but they
-            # should still be indented.
-            # TODO: This set of template tags cuts across the parse
-            # tree. We should indent them appropriately. At the moment
-            # that doesn't happen very smartly.
-            "select\n  1\n  \n    ,2\n  FROM a\n",
+            # This set of template tags cuts across the parse
+            # tree. We should indent them appropriately. In this case
+            # that should mean "case 3", picking the lowest of the
+            # existing indents which should mean no indent for either.
+            # We also shouldn't indent the contents between them either
+            # when taking this option.
+            "select\n  1\n\n  ,2\nFROM a\n",
         ),
     ],
 )
