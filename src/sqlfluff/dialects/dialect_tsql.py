@@ -2037,19 +2037,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
     match_grammar = Sequence(
         "PARTITION",
         "BY",
-        Delimited(
-            OptionallyBracketed(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    Bracketed(
-                        Ref("SelectStatementSegment"),
-                    ),
-                    Ref("FunctionSegment"),
-                    Ref("VariableIdentifierSegment"),
-                    "NULL",
-                ),
-            ),
-        ),
+        Delimited(OptionallyBracketed(Ref("ExpressionSegment"))),
     )
     parse_grammar = None
 
