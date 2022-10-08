@@ -34,7 +34,6 @@ from sqlfluff.core.parser import (
     KeywordSegment,
     Matchable,
     MultiStringParser,
-    TypedParser,
     NewlineSegment,
     Nothing,
     OneOf,
@@ -48,6 +47,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
     WhitespaceSegment,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
@@ -653,6 +653,7 @@ ansi_dialect.add(
         ),
     ),
     TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
+    DefaultValuesGrammar=Sequence("DEFAULT", "VALUES"),
 )
 
 
@@ -2419,6 +2420,8 @@ class InsertStatementSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("SelectableGrammar"),
             ),
+            # This is part of ANSI SQL since SQL-92
+            Ref("DefaultValuesGrammar"),
         ),
     )
 

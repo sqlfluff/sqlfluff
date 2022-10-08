@@ -678,7 +678,11 @@ class InsertStatementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("OutputClauseSegment", optional=True),
-        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("ExecuteScriptSegment"),
+            Ref("DefaultValuesGrammar"),
+        ),
     )
 
 
