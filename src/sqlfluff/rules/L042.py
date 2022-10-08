@@ -187,9 +187,11 @@ class Rule_L042(BaseRule):
                 return lint_result
 
             # Compute fix.
-            output_select_clone = clone_map[output_select[0]]
-            new_select = ctes.compose_select(
-                output_select_clone, case_preference=case_preference
+            new_select, fix = ctes.compose_select(
+                subquery_parent,
+                output_select[0],
+                clone_map,
+                case_preference=case_preference,
             )
             lint_result.fixes = [
                 LintFix.replace(
@@ -197,9 +199,8 @@ class Rule_L042(BaseRule):
                     edit_segments=[new_select],
                 )
             ]
-            lint_result.fixes += ensure_space_after_from(
-                subquery_parent, output_select, output_select_clone
-            )
+            if fix:
+                lint_result.fixes.append(fix)
             return lint_result
         return None
 
@@ -386,20 +387,77 @@ class _CTEBuilder:
         return cte_segments[:-2]
 
     def compose_select(
-        self, output_select: BaseSegment, case_preference: str
-    ) -> BaseSegment:
+        self,
+        subquery_parent: BaseSegment,
+        output_select: BaseSegment,
+        clone_map: "SegmentCloneMap",
+        case_preference: str,
+    ) -> Tuple[BaseSegment, Optional[LintFix]]:
         """Compose our final new CTE."""
-        return WithCompoundStatementSegment(
+        # Ensure there's whitespace between "FROM" and the CTE table name.
+        # Two cases:
+        # 1. subquery_parent and output_select are same.
+        # 2. They're different.
+        fix = None
+        output_select_clone = clone_map[output_select]
+        if subquery_parent is output_select:
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(output_select_clone)
+            if missing_space_after_from:
+                # Case 1: from_clause is a child of cloned "output_select_clone"
+                # that will be inserted by a fix. We can directly manipulate the
+                # "segments" list. to insert whitespace between "FROM" and the
+                # CTE table name.
+                idx_from = from_clause_children.index(from_segment[0])
+                from_clause.segments = list(
+                    from_clause_children[: idx_from + 1]
+                    + (WhitespaceSegment(),)
+                    + from_clause_children[idx_from + 1 :]
+                )
+        else:
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(subquery_parent)
+            if missing_space_after_from:
+                # Case 2. from_segment is in the current parse tree, so we can't
+                # modify it directly. Create a LintFix to do it.
+                fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
+
+        # Compose the CTE.
+        new_select = WithCompoundStatementSegment(
             segments=tuple(
                 [
                     _segmentify("WITH", case_preference),
                     WhitespaceSegment(),
                     *self.get_cte_segments(),
                     NewlineSegment(),
-                    output_select,
+                    output_select_clone,
                 ]
             )
         )
+        return new_select, fix
+
+    @staticmethod
+    def _missing_space_after_from(segment):
+        missing_space_after_from = False
+        from_clause_children = None
+        from_segment = None
+        from_clause = segment.get_child("from_clause")
+        if from_clause is not None:
+            from_clause_children = Segments(*from_clause.segments)
+            from_segment = from_clause_children.first(is_keyword("from"))
+            if from_segment and not from_clause_children.select(
+                start_seg=from_segment[0], loop_while=is_whitespace()
+            ):
+                missing_space_after_from = True
+        return missing_space_after_from, from_clause, from_clause_children, from_segment
 
     def replace_with_clone(self, segment, clone_map):
         for idx, cte in enumerate(self.ctes):
@@ -497,62 +555,6 @@ def _segmentify(input_el: str, casing: str) -> BaseSegment:
         input_el = input_el.upper()
 
     return KeywordSegment(raw=input_el)
-
-
-def has_whitespace_after_from(segment: BaseSegment):
-    """Check if there is a space after the FROM keyword.
-
-    Also returns some related segment info.
-    """
-    has_whitespace = True
-    from_clause_children = None
-    from_segment = None
-    from_clause = segment.get_child("from_clause")
-    if from_clause is not None:
-        from_clause_children = Segments(*from_clause.segments)
-        from_segment = from_clause_children.first(is_keyword("from"))
-        if from_segment and not from_clause_children.select(
-            start_seg=from_segment[0], loop_while=is_whitespace()
-        ):
-            has_whitespace = False
-    return has_whitespace, from_clause, from_clause_children, from_segment
-
-
-def ensure_space_after_from(
-    subquery_parent, output_select, output_select_clone
-) -> List[LintFix]:
-    """Ensure there's whitespace between "FROM" and the CTE table name."""
-    fixes = []
-    if subquery_parent is output_select:
-        (
-            has_space,
-            from_clause,
-            from_clause_children,
-            from_segment,
-        ) = has_whitespace_after_from(output_select_clone)
-        if not has_space:
-            # Case 1: from_clause is a child of cloned "output_select_clone"
-            # that will be inserted by a fix. We can directly manipulate the
-            # "segments" list. to insert whitespace between "FROM" and the
-            # CTE table name.
-            idx_from = from_clause_children.index(from_segment[0])
-            from_clause.segments = list(
-                from_clause_children[: idx_from + 1]
-                + (WhitespaceSegment(),)
-                + from_clause_children[idx_from + 1 :]
-            )
-    else:
-        (
-            has_space,
-            from_clause,
-            from_clause_children,
-            from_segment,
-        ) = has_whitespace_after_from(subquery_parent)
-        if not has_space:
-            # Case 2. from_segment is in the current parse tree, so we can't
-            # modify it directly. Create a LintFix to do it.
-            fixes.append(LintFix.create_after(from_segment[0], [WhitespaceSegment()]))
-    return fixes
 
 
 class SegmentCloneMap:
