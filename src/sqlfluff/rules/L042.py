@@ -396,8 +396,8 @@ class _CTEBuilder:
         """Compose our final new CTE."""
         # Ensure there's whitespace between "FROM" and the CTE table name.
         # Two cases:
-        # 1. subquery_parent and output_select are same: This code.
-        # 2. They're different. LintFix.create_before()
+        # 1. subquery_parent and output_select are same.
+        # 2. They're different.
         fix = None
         output_select_clone = clone_map[output_select]
         if subquery_parent is output_select:
@@ -408,10 +408,10 @@ class _CTEBuilder:
                 from_segment,
             ) = self._missing_space_after_from(output_select_clone)
             if missing_space_after_from:
-                # from_clause is a child of cloned "output_select_clone"
-                # that will be inserted by a fix. We can directly
-                # manipulate the "segments" list. to insert whitespace
-                # between "FROM" and the CTE table name.
+                # Case 1: from_clause is a child of cloned "output_select_clone"
+                # that will be inserted by a fix. We can directly manipulate the
+                # "segments" list. to insert whitespace between "FROM" and the
+                # CTE table name.
                 idx_from = from_clause_children.index(from_segment[0])
                 from_clause.segments = list(
                     from_clause_children[: idx_from + 1]
@@ -419,7 +419,6 @@ class _CTEBuilder:
                     + from_clause_children[idx_from + 1 :]
                 )
         else:
-            # Case 2
             (
                 missing_space_after_from,
                 from_clause,
@@ -427,9 +426,8 @@ class _CTEBuilder:
                 from_segment,
             ) = self._missing_space_after_from(subquery_parent)
             if missing_space_after_from:
-                # Need to insert a space after FROM. from_segment is in the
-                # current parse tree, so we can't modify it directly as above.
-                # Need to generate a LintFix to add the space.
+                # Case 2. from_segment is in the current parse tree, so we can't
+                # modify it directly. Create a LintFix to do it.
                 fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
 
         # Compose the CTE.
