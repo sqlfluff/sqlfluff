@@ -1149,3 +1149,33 @@ test_tsql_nested_join:
   configs:
     core:
       dialect: tsql
+
+test_tsql_outer_apply_indentation:
+  # Test for behavior in issue #3685
+  pass_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_outer_apply_indentation_fix:
+  # Test for behavior in issue #3685
+  fail_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+        INNER JOIN table3
+            ON table1.col = table3.col
+  fix_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
+  configs:
+    core:
+      dialect: tsql
