@@ -2,6 +2,7 @@
 
 import logging
 from typing import Optional, List, Tuple, Union, NamedTuple
+from uuid import UUID, uuid4
 import regex
 
 from sqlfluff.core.parser.segments import (
@@ -260,6 +261,7 @@ def _generate_template_loop_segments(
     last_source_slice: slice,
     templated_idx: int,
     templated_file: TemplatedFile,
+    block_uuid: UUID,
 ) -> List[RawSegment]:
     """Detect when we've gone backward in the source.
 
@@ -287,7 +289,7 @@ def _generate_template_loop_segments(
                 is_template=True,
                 pos_marker=pos_marker,
             ),
-            TemplateLoop(pos_marker=pos_marker),
+            TemplateLoop(pos_marker=pos_marker, block_uuid=block_uuid),
             Indent(
                 is_template=True,
                 pos_marker=pos_marker,
@@ -305,7 +307,8 @@ def _generate_placeholder_segments(
     source_only_slices: List[RawFileSlice],
     templated_file: TemplatedFile,
     add_indents: bool,
-) -> Tuple[List[RawSegment], slice]:
+    block_uuid_stack: List[UUID],
+) -> Tuple[List[RawSegment], slice, List[UUID]]:
     """Generate any template placeholder segments.
 
     The input source_slice, will potentially include not just
@@ -315,12 +318,18 @@ def _generate_placeholder_segments(
     This code extracts them, adjusts the source_slice and generates
     appropriate template segments to insert.
 
+    Then block stack is to provide a consistent reference between
+    of the same expression (i.e. link an {% if .. %} and an
+    {% endif %}. This is useful metadata for any downstream
+    edits we might want to make and keep their position in line.
+
     NOTE: For reasons which aren't well documented, any literal
     elements will come at the end of the source_slice, and any
     source only elements will usually come at the start. This
     code takes advantage of that.
     """
     so_slices = []
+    block_stack = block_uuid_stack.copy()
     # First check whether we've got any relevant source only slices for
     # this position in the file.
     if last_source_slice != source_slice:
@@ -334,7 +343,7 @@ def _generate_placeholder_segments(
 
     # No relevant source only slices in this instance. Return
     if not so_slices:
-        return [], source_slice
+        return [], source_slice, block_stack
 
     lexer_logger.debug("    Collected Source Only Slices")
     for so_slice in so_slices:
@@ -420,19 +429,24 @@ def _generate_placeholder_segments(
     # Calculate potential indent/dedent
     segment_buffer: List[RawSegment] = []
     block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
-    block_balance = sum(s.slice_type == "block_start" for s in so_slices) - sum(
-        s.slice_type == "block_end" for s in so_slices
-    )
     lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
     trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
     lexer_logger.debug(
-        "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, " "Add: %s",
+        "    Block Slices: %s. Lead: %s, Trail: %s, Add: %s",
         block_slices,
-        block_balance,
         lead_dedent,
         trail_indent,
         add_indents,
     )
+
+    # Update block stack
+    block_uuid = None
+    for so_slice in so_slices:
+        if so_slice.slice_type == "block_end":
+            block_uuid = block_stack.pop()
+        elif so_slice.slice_type == "block_start":
+            block_uuid = uuid4()
+            block_stack.append(block_uuid)
 
     # Add a dedent if appropriate.
     if lead_dedent and add_indents:
@@ -461,6 +475,7 @@ def _generate_placeholder_segments(
             ),
             source_str=placeholder_str,
             block_type=so_slices[0].slice_type if len(so_slices) == 1 else "compound",
+            block_uuid=block_uuid,
         )
     )
     lexer_logger.debug("      Placeholder: %s, %r", segment_buffer[-1], placeholder_str)
@@ -479,7 +494,7 @@ def _generate_placeholder_segments(
             )
         )
 
-    return segment_buffer, source_slice
+    return segment_buffer, source_slice, block_stack
 
 
 class Lexer:
@@ -561,6 +576,7 @@ class Lexer:
         """Convert a tuple of lexed elements into a tuple of segments."""
         # Working buffer to build up segments
         segment_buffer: List[RawSegment] = []
+        block_stack: List[UUID] = []
 
         add_indents = self.config.get("template_blocks_indent", "indentation")
 
@@ -596,19 +612,21 @@ class Lexer:
                         last_source_slice,
                         element.template_slice.start,
                         templated_file,
+                        block_uuid=block_stack[-1] if block_stack else None,
                     )
                 )
 
             # Generate template segments and adjust source slice accordingly
-            template_segments, source_slice = _generate_placeholder_segments(
+            placeholders, source_slice, block_stack = _generate_placeholder_segments(
                 source_slice,
                 last_source_slice,
                 element.template_slice,
                 source_only_slices,
                 templated_file,
                 add_indents,
+                block_stack,
             )
-            segment_buffer.extend(template_segments)
+            segment_buffer.extend(placeholders)
 
             # Add the actual segment
             segment_buffer.append(
@@ -625,15 +643,16 @@ class Lexer:
             # the last element. This happens, for example, if a Jinja templated
             # file ends with "{% endif %}", and there's no trailing newline.
             if last_source_slice and idx == len(elements) - 1:
-                template_segments, _ = _generate_placeholder_segments(
+                placeholders, _, _ = _generate_placeholder_segments(
                     slice(source_slice.stop, len(templated_file.source_str)),
                     last_source_slice,
                     slice(element.template_slice.stop, element.template_slice.stop),
                     source_only_slices,
                     templated_file,
                     add_indents,
+                    block_stack,
                 )
-                segment_buffer.extend(template_segments)
+                segment_buffer.extend(placeholders)
 
         # Add an end of file marker
         segment_buffer.append(
