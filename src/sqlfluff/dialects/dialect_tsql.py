@@ -513,6 +513,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateCursorStatementSegment"),
             Ref("FetchCursorStatementSegment"),
             Ref("CreateTypeStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -1088,6 +1090,26 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
             ),
             min_times=0,
             max_times=3,
+        ),
+    )
+
+
+class SchemaObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """An object reference to an object with only a schema.
+
+    A SchemaObjectReferenceSegment may not refer to a server or database name.
+    """
+
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=1,
         ),
     )
 
@@ -4136,3 +4158,30 @@ class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
     """Concat operator."""
 
     match_grammar: Matchable = Ref("PlusSegment")
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement."""
+
+    type = "create_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SYNONYM",
+        Ref("SchemaObjectReferenceSegment"),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement."""
+
+    type = "drop_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SchemaObjectReferenceSegment"),
+    )

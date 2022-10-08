@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 877d8edd0c53a7e183a9e06b92e636ba37421493fcf68d6f9b6e5cf27fd06b51
+file:
+  batch:
+  - statement:
+      create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: my_synonym
+      - keyword: FOR
+      - object_reference:
+          naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+      create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: my_synonym
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: otherdb
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: mytable
+  - statement_terminator: ;
+  - statement:
+      drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - object_reference:
+          naked_identifier: my_synonym
+  - statement_terminator: ;
+  - statement:
+      drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          naked_identifier: my_synonym
+  - statement_terminator: ;
+  - statement:
+      drop_synonym_statement:
+      - keyword: DROP
+      - keyword: SYNONYM
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: my_synonym
+  - statement_terminator: ;
