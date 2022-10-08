@@ -64,6 +64,13 @@ def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
     assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
 
 
+def test__parser__base_segments_count_segments(raw_seg_list):
+    """Test the .count_segments() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.count_segments() == 4
+    assert test_seg.count_segments(raw_only=True) == 2
+
+
 def test__parser__base_segments_path_to(raw_seg_list):
     """Test the .path_to() method."""
     test_seg_a = DummyAuxSegment(raw_seg_list)
