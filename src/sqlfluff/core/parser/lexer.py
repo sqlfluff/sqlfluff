@@ -275,31 +275,22 @@ def _generate_template_loop_segments(
     ):
         # If we have, insert a loop marker to reflect that.
         lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
-        # TemplateLoops should have a dedent before
-        # and an indent after.
+        # TemplateLoops should have a dedent before and an indent after.
+        # The position maker is the same for all of them.
+        pos_marker = PositionMarker.from_point(
+            last_source_slice.stop,
+            templated_idx,
+            templated_file,
+        )
         return [
             Dedent(
                 is_template=True,
-                pos_marker=PositionMarker.from_point(
-                    last_source_slice.stop,
-                    templated_idx,
-                    templated_file,
-                ),
+                pos_marker=pos_marker,
             ),
-            TemplateLoop(
-                pos_marker=PositionMarker.from_point(
-                    last_source_slice.stop,
-                    templated_idx,
-                    templated_file,
-                )
-            ),
+            TemplateLoop(pos_marker=pos_marker),
             Indent(
                 is_template=True,
-                pos_marker=PositionMarker.from_point(
-                    last_source_slice.stop,
-                    templated_idx,
-                    templated_file,
-                ),
+                pos_marker=pos_marker,
             ),
         ]
     else:
