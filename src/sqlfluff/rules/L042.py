@@ -187,7 +187,7 @@ class Rule_L042(BaseRule):
                 return lint_result
 
             # Compute fix.
-            new_select, fix = ctes.compose_select(
+            new_select, fixes = ctes.compose_select(
                 subquery_parent,
                 output_select[0],
                 clone_map,
@@ -199,8 +199,7 @@ class Rule_L042(BaseRule):
                     edit_segments=[new_select],
                 )
             ]
-            if fix:
-                lint_result.fixes.append(fix)
+            lint_result.fixes.extend(fixes)
             return lint_result
         return None
 
@@ -392,14 +391,35 @@ class _CTEBuilder:
         output_select: BaseSegment,
         clone_map: "SegmentCloneMap",
         case_preference: str,
-    ) -> Tuple[BaseSegment, Optional[LintFix]]:
+    ) -> Tuple[BaseSegment, List[LintFix]]:
         """Compose our final new CTE."""
         # Ensure there's whitespace between "FROM" and the CTE table name.
         # Two cases:
         # 1. subquery_parent and output_select are same.
         # 2. They're different.
-        fix = None
         output_select_clone = clone_map[output_select]
+        fixes = self._ensure_space_after_from(
+            output_select, output_select_clone, subquery_parent
+        )
+
+        # Compose the CTE.
+        new_select = WithCompoundStatementSegment(
+            segments=tuple(
+                [
+                    _segmentify("WITH", case_preference),
+                    WhitespaceSegment(),
+                    *self.get_cte_segments(),
+                    NewlineSegment(),
+                    output_select_clone,
+                ]
+            )
+        )
+        return new_select, fixes
+
+    def _ensure_space_after_from(
+        self, output_select, output_select_clone, subquery_parent
+    ):
+        fixes = []
         if subquery_parent is output_select:
             (
                 missing_space_after_from,
@@ -428,21 +448,10 @@ class _CTEBuilder:
             if missing_space_after_from:
                 # Case 2. from_segment is in the current parse tree, so we can't
                 # modify it directly. Create a LintFix to do it.
-                fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
-
-        # Compose the CTE.
-        new_select = WithCompoundStatementSegment(
-            segments=tuple(
-                [
-                    _segmentify("WITH", case_preference),
-                    WhitespaceSegment(),
-                    *self.get_cte_segments(),
-                    NewlineSegment(),
-                    output_select_clone,
-                ]
-            )
-        )
-        return new_select, fix
+                fixes.append(
+                    LintFix.create_after(from_segment[0], [WhitespaceSegment()])
+                )
+        return fixes
 
     @staticmethod
     def _missing_space_after_from(segment):
