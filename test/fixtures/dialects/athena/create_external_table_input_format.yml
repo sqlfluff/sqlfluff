@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94ddb94b907ece40daddbc8c37cbdc441942f80a757ab12d484dcbc18fb846e1
+_hash: 89736602cebb4b7df453b1a6b750b53e568799a82aed2c0777c13457e5539dbf
 file:
   statement:
     create_table_statement:
@@ -58,15 +58,15 @@ file:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - quoted_literal: "'org.apache.hadoop.hive.ql.io.orc.OrcSerde'"
+      - quoted_literal: "'some row format'"
     - keyword: STORED
     - keyword: AS
     - keyword: INPUTFORMAT
-    - quoted_literal: "'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'"
+    - quoted_literal: "'some input format'"
     - keyword: OUTPUTFORMAT
-    - quoted_literal: "'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'"
+    - quoted_literal: "'some output format'"
     - keyword: LOCATION
-    - raw: "'s3://athena-examples-myregion/flight/orc_data/'"
+    - raw: "'s3://athena-examples-myregion/some_data/'"
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
