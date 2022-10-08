@@ -178,7 +178,7 @@ class ReflowPoint(ReflowElement):
             self.num_newlines(),
         )
         if self.num_newlines():
-            # There is already a newline.
+            # There is already a newline. Is there an indent?
             if indent_seg:
                 # Coerce existing indent to desired.
                 if indent_seg.raw == desired_indent:
@@ -200,8 +200,9 @@ class ReflowPoint(ReflowElement):
                 )
             else:
                 # There is a newline, but no indent. Make one after the newline
-                # Find the index of the last newline.
-                for idx in range(len(self.segments) - 1, 0, -1):
+                # Find the index of the last newline (there _will_ be one because
+                # we checked self.num_newlines() above).
+                for idx in range(len(self.segments) - 1, -1, -1):
                     if self.segments[idx].is_type("newline"):
                         break
                 new_indent = WhitespaceSegment(desired_indent)

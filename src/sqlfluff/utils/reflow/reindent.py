@@ -1,10 +1,11 @@
 """Methods for deducing and understanding indents."""
 
 import logging
-from typing import List
+from typing import List, cast
 from dataclasses import dataclass
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
+from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowPoint, ReflowSequenceType
 
 
@@ -47,7 +48,11 @@ def map_reindent_lines(
     init_idx = 0
     last_pt_idx = 0
     if elements and isinstance(elements[0], ReflowPoint):
-        indent = elements[0].get_indent() or ""
+        # The initial point is a special case where we allow
+        # .raw if .get_indent() return nothing. That's because
+        # the initial point may have no newline (i.e. the start
+        # of the file).
+        indent = elements[0].get_indent() or elements[0].raw
     else:
         indent = ""
     indent_balance = initial_balance
@@ -72,3 +77,108 @@ def map_reindent_lines(
         result.append(_ReindentLine(init_idx, last_pt_idx, last_indent_balance, indent))
 
     return result
+
+
+def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine]):
+    """Given _ReindentLines, lint what we've got.
+
+    Each line is compared to the previous _good_ line with
+    either the _same_ or _less_ indent balance than this one.
+
+    To facilitate that, we maintain a stack of _ReindentLine
+    objects to not need to go back and scan through all of them
+    to do comparisons.
+
+    Additionally, an indent balance of 0, implies there should
+    be no indent, regardless of previous lines. This also allows
+    us to clear the stack any time we reach 0.
+    """
+    stack: List[_ReindentLine] = []
+    fixes: List[LintFix] = []
+    element_buffer = elements.copy()
+    # TODO: This should be driven by config!
+    indent_unit = "  "
+    # Iterate through the lines.
+    for line in lines:
+        # Three scenarios:
+        # 1.  It's got an indent balance of zero.
+        # 2a. There's a balance, and a stack.
+        # 2b. There's a balance and no stack.
+
+        # 2a can degrade to 2b, if there isn't an appropriate
+        # comparison on the stack.
+
+        start_point = cast(ReflowPoint, element_buffer[line.start_point_idx])
+
+        # Handle the zero case first.
+        if line.initial_indent_balance == 0:
+            # Clear stack, we reached zero
+            stack = []
+            # If there's an indent, remove it.
+            if line.current_indent:
+                reflow_logger.debug(
+                    "Reindent. Line %s. Zero line with indent. Fixing.", line
+                )
+                # The first line gets special handling, because it
+                # contains no newline.
+                if line.start_point_idx == 0:
+                    if start_point.segments:
+                        new_fixes = [
+                            LintFix.delete(seg) for seg in start_point.segments
+                        ]
+                        new_point = ReflowPoint(())
+                    else:
+                        new_fixes, new_point = [], start_point
+                # Otherwise use the normal indent logic
+                else:
+                    new_fixes, new_point = start_point.indent_to("")
+                fixes.extend(new_fixes)
+                # Replace with new point
+                element_buffer[line.start_point_idx] = new_point
+            continue
+
+        # Prune anything from the stack which has a higher balance.
+        for idx in range(len(stack) - 1, -1, -1):
+            # Is it a good comparison point?
+            if stack[idx].initial_indent_balance <= line.initial_indent_balance:
+                # Good
+                break
+            else:
+                # Otherwise get rid of it.
+                stack.pop(idx)
+
+        # Is there a stack left?
+        if stack:
+            # We're comparing to the top of the stack
+            comparison = stack[-1]
+            reflow_logger.debug("Reindent. Line %s. Comparing to %s.", line, comparison)
+            desired_indent = comparison.current_indent + (
+                indent_unit
+                * (line.initial_indent_balance - comparison.initial_indent_balance)
+            )
+            deeper = line.initial_indent_balance > comparison.initial_indent_balance
+        else:
+            # Without a stack to compare to we assume we're comparing to the baseline.
+            reflow_logger.debug("Reindent. Line %s. Comparing to baseline.", line)
+            desired_indent = indent_unit * line.initial_indent_balance
+            deeper = True
+
+        if line.current_indent == desired_indent:
+            # It's good. Add it to the stack, if we're deeper.
+            if deeper:
+                stack += [line]
+        else:
+            # It's not good. Adjust it.
+            reflow_logger.debug(
+                "Reindent. Line %s. %r != %r. Fixing",
+                line,
+                line.current_indent,
+                desired_indent,
+            )
+            new_fixes, new_point = start_point.indent_to(desired_indent)
+            fixes.extend(new_fixes)
+            # Replace with new point
+            element_buffer[line.start_point_idx] = new_point
+
+    # Return the adjusted buffers.
+    return element_buffer, fixes

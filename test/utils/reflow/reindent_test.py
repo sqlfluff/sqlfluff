@@ -17,6 +17,7 @@ from sqlfluff.utils.reflow.reindent import (
     deduce_line_indent,
     map_reindent_lines,
     _ReindentLine,
+    lint_reindent_lines,
 )
 
 
@@ -213,12 +214,12 @@ def test_reflow__deduce_line_indent(
                 # Only two lines here
                 _ReindentLine(0, 2, 0, ""),
                 _ReindentLine(2, 4, 1, "     "),
-            ]
+            ],
         ),
     ],
 )
 def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
-    """Test the deduce_line_indent() method directly."""
+    """Test the map_reindent_lines() method directly."""
     # Run the lexer at debug level here, so we can see
     # creation of indents and dedents.
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.lexer"):
@@ -233,3 +234,53 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             print(idx, repr(elem.raw))
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
         assert map_reindent_lines(seq.elements) == lines
+
+
+@pytest.mark.parametrize(
+    "raw_sql_in,raw_sql_out",
+    [
+        # Trivial
+        (
+            "select 1",
+            "select 1",
+        ),
+        # Initial Indent
+        (
+            "      select 1",
+            "select 1",
+        ),
+        # Basic Multiline
+        (
+            "select\n1",
+            "select\n  1",
+        ),
+        # Advanced Multiline
+        (
+            "select\n1+(\n2+3\n),\n4\nfrom foo",
+            "select\n  1+(\n    2+3\n  ),\n  4\nfrom foo",
+        ),
+        (
+            "select\n    1+(\n    2+3\n    ),\n    4\n    from foo",
+            "select\n  1+(\n    2+3\n  ),\n  4\nfrom foo",
+        ),
+    ],
+)
+def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, caplog):
+    """Test the lint_reindent_lines() method indirectly.
+
+    Rather than testing directly, for brevity we check
+    the raw output it produces. This results in a more
+    compact test.
+    """
+    root = parse_ansi_string(raw_sql_in, default_config)
+    print(root.stringify())
+    seq = ReflowSequence.from_root(root, config=default_config)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
+        lines = map_reindent_lines(seq.elements)
+        for idx, line in enumerate(lines):
+            print(idx, line)
+        # We're not testing the fixes directly at this stage.
+        result, _ = lint_reindent_lines(seq.elements, lines)
+
+    result_raw = "".join(elem.raw for elem in result)
+    assert result_raw == raw_sql_out
