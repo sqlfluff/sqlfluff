@@ -23,6 +23,10 @@ from tqdm import tqdm
 from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
 from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
+from sqlfluff.cli.click_deprecated_option import (
+    DeprecatedOption,
+    DeprecatedOptionsCommand,
+)
 from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
@@ -455,7 +459,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
         click.echo(payload)
 
 
-@cli.command()
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @click.option(
@@ -509,8 +513,11 @@ def dump_file_payload(filename: Optional[str], payload: str):
 )
 @click.option(
     "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
+    cls=DeprecatedOption,
+    deprecated=["--disable_progress_bar"],
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
@@ -704,7 +711,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
 )
@@ -792,7 +799,7 @@ def fix(
         if templater_error:
             click.echo(
                 formatter.colorize(
-                    "Fix aborted due to unparseable template variables.",
+                    "Fix aborted due to unparsable template variables.",
                     Color.red,
                 ),
                 err=True,

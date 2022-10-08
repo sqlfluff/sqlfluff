@@ -1,4 +1,4 @@
-"""Module to handle cached_property version dependant imports."""
+"""Module to handle cached_property version dependent imports."""
 import sys
 
 if sys.version_info >= (3, 8):

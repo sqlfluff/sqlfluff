@@ -86,7 +86,17 @@ Databricks
 
 The dialect `Databricks`_ is an alias for the :ref:`sparksql_dialect_ref`.
 
+Since Databricks `builds on top of`_ Apache Spark, the Spark SQL dialect
+holds most of the definitions of common commands and structures.
+
+Specifics to Databricks, such as Delta Live Table syntax, are added to the
+Spark SQL dialect to simplify implementation and prevent code duplication
+for minor syntax updates. This follows SQLFluff's philosophy of not being
+strict in adhering to dialect specifications to permit slightly wider set
+of functions than actually available in a given dialect.
+
 .. _`Databricks`: https://databricks.com/
+.. _`builds on top of` : https://www.databricks.com/spark/comparing-databricks-to-apache-spark
 
 .. _db2_dialect_ref:
 
@@ -180,7 +190,8 @@ SparkSQL
 
 The dialect for Apache `Spark SQL`_. It inherits from :ref:`ansi_dialect_ref`
 and includes relevant syntax from :ref:`hive_dialect_ref` for commands that
-permit Hive Format.
+permit Hive Format. Spark SQL extensions provided by the `Delta Lake`_ project
+are also implemented in this dialect.
 
 This implementation focuses on the `Ansi Compliant Mode`_ introduced in
 Spark3, instead of being Hive Compliant. The introduction of ANSI Compliance
@@ -189,6 +200,7 @@ provides better data quality and easier migration from traditional DBMS.
 Versions of Spark prior to 3.x will only support the Hive dialect.
 
 .. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
 .. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 
 .. _sqlite_dialect_ref:

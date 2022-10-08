@@ -494,25 +494,46 @@ class PsqlVariableGrammar(BaseSegment):
 
 
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
-    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
+    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets.
+
+    Postgres can also have array access like python [:2] or [2:] so
+    numbers on either side of the slice segment are optional.
+    """
 
     match_grammar = Sequence(
         AnyNumberOf(
             Bracketed(
                 Sequence(
                     OneOf(
-                        Ref("QualifiedNumericLiteralSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        Ref("SliceSegment"),
                         OneOf(
                             Ref("QualifiedNumericLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                         ),
-                        optional=True,
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
                     ),
-                    optional=True,
                 ),
                 bracket_type="square",
             )
@@ -4211,8 +4232,8 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -4247,7 +4268,7 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
+        Bracketed(Delimited(Anything(), optional=True), optional=True),
     )
 
 

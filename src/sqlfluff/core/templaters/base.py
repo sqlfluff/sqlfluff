@@ -336,7 +336,8 @@ class TemplatedFile:
                     )
                 else:
                     raise ValueError(  # pragma: no cover
-                        "Attempting a single length slice within a templated section!"
+                        "Attempting a single length slice within a templated section! "
+                        f"{template_slice} within {ts_start_subsliced_file}."
                     )
 
         # Otherwise it's a slice with length.

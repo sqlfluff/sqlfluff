@@ -236,8 +236,9 @@ class LintFix:
                 detail = f"create:{new_detail!r}"
         else:
             detail = ""  # pragma: no cover TODO?
-        return "<LintFix: {} @{} {}>".format(
-            self.edit_type, self.anchor.pos_marker, detail
+        return (
+            f"<LintFix: {self.edit_type} {self.anchor.get_type()}"
+            f"@{self.anchor.pos_marker} {detail}>"
         )
 
     def __eq__(self, other):
@@ -837,8 +838,8 @@ class RuleSet:
 
     The code for the rule will be parsed from the name, the description
     from the docstring. The eval function is assumed that it will be
-    overriden by the subclass, and the parent class raises an error on
-    this function if not overriden.
+    overridden by the subclass, and the parent class raises an error on
+    this function if not overridden.
 
     """
 

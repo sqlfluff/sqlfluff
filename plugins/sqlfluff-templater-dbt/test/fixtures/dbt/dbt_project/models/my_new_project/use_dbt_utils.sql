@@ -17,6 +17,6 @@ select
     a,
     b,
     c,
-    count(*) as occurences
+    count(*) as occurrences
 from orders
 {{ dbt_utils.group_by(3) }}

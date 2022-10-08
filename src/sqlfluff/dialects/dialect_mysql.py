@@ -828,7 +828,7 @@ mysql_dialect.add(
         "->>", SymbolSegment, type="column_path_operator"
     ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
-        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # Boolean dynamic system variables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
         # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
         # the correct capitalisation policy.

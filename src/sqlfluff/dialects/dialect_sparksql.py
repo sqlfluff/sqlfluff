@@ -229,6 +229,7 @@ sparksql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
+        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -306,6 +307,7 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+        "APPLY",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence(
@@ -594,6 +596,8 @@ sparksql_dialect.add(
             type="signed_quoted_literal",
         ),
     ),
+    # Delta Live Tables CREATE TABLE and VIEW statements
+    OrRefreshGrammar=Sequence("OR", "REFRESH"),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -929,7 +933,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "SET",
                 Ref("LocationGrammar"),
             ),
-            # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
+            # ALTER TABLE - ADD/DROP CONSTRAINTS (DELTA)
             Sequence(
                 Indent,
                 OneOf("ADD", "DROP"),
@@ -1023,7 +1027,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("STREAMING", optional=True),
+        Ref.keyword("LIVE", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         OneOf(
@@ -1092,8 +1099,10 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
         Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("STREAMING", optional=True),
+        Ref.keyword("LIVE", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -1855,7 +1864,7 @@ class TransformClauseSegment(BaseSegment):
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
-    Enhanced from ANSI dialect to allow for additonal parameters.
+    Enhanced from ANSI dialect to allow for additional parameters.
 
     EXPLAIN [ EXTENDED | CODEGEN | COST | FORMATTED ] explainable_stmt
 
@@ -2372,6 +2381,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
             Ref("RestoreTableStatementSegment"),
+            # Databricks - Delta Live Tables
+            Ref("ConstraintStatementSegment"),
+            Ref("ApplyChangesIntoStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2475,6 +2487,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
+                "KEYS",
+                "FROM",
             ),
         ),
     )
@@ -2701,8 +2715,8 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
         ),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref(
             "AliasExpressionSegment",
             exclude=Ref.keyword("SET"),
@@ -2885,5 +2899,96 @@ class RestoreTableStatementSegment(BaseSegment):
         OneOf(
             Ref("TimestampAsOfGrammar"),
             Ref("VersionAsOfGrammar"),
+        ),
+    )
+
+
+class ConstraintStatementSegment(BaseSegment):
+    """A `CONSTRAINT` statement to to define data quality on data contents.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-expectations.html#manage-data-quality-with-delta-live-tables
+    """
+
+    type = "constraint_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        "EXPECT",
+        Bracketed(Ref("ExpressionSegment")),
+        Sequence("ON", "VIOLATION", optional=True),
+        OneOf(
+            Sequence("FAIL", "UPDATE"),
+            Sequence("DROP", "ROW"),
+            optional=True,
+        ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement ingest CDC data a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("FromClauseSegment"),
+        Sequence(
+            "KEYS",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+        ),
+        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "APPLY",
+                "AS",
+                OneOf("DELETE", "TRUNCATE"),
+                "WHEN",
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
+            max_times=2,
+        ),
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "COLUMNS",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+        ),
+        Sequence(
+            "STORED",
+            "AS",
+            "SCD",
+            "TYPE",
+            Ref("NumericLiteralSegment"),
+            optional=True,
         ),
     )

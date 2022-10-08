@@ -85,7 +85,7 @@ class PathStep:
     Attributes:
         segment (:obj:`BaseSegment`): The segment in the chain.
         idx (int): The index of the target within its `segment`.
-        len (int): The number of childen `segment` has.
+        len (int): The number of children `segment` has.
     """
 
     segment: "BaseSegment"
@@ -1637,7 +1637,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     self.pos_marker.templated_slice.stop,
                 )
                 # We determine the source_slice directly rather than
-                # infering it so that we can be very specific that
+                # inferring it so that we can be very specific that
                 # we ensure that fixes adjacent to source-only slices
                 # (e.g. {% endif %}) are placed appropriately relative
                 # to source-only slices.
@@ -1685,7 +1685,7 @@ class BracketedSegment(BaseSegment):
 
     @classmethod
     def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
-        """Simple methods for bracketed and the persitent brackets."""
+        """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
             for _, start_bracket, _, persistent in parse_context.dialect.sets(
