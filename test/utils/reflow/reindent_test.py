@@ -179,7 +179,7 @@ def test_reflow__deduce_line_indent(
             [
                 _ReindentLine(0, 1, 0, ""),
                 _ReindentLine(1, 3, 1, "  "),
-                _ReindentLine(3, 5, 0, "  "),
+                _ReindentLine(3, 5, 0, "  ", True),
             ],
         ),
         (
@@ -187,9 +187,25 @@ def test_reflow__deduce_line_indent(
             [
                 _ReindentLine(0, 1, 0, ""),
                 _ReindentLine(1, 3, 1, "  "),
-                _ReindentLine(3, 5, 1, "  "),
+                _ReindentLine(3, 5, 1, "  ", True),
                 _ReindentLine(5, 9, 2, "    "),
-                _ReindentLine(9, 11, 0, "  "),
+                # NOTE: This indent balance is 1 not 0 despite the placement
+                # of the dedent segment. This is because we "hoist" the closing
+                # tag to match the opening one where possible.
+                _ReindentLine(9, 11, 1, "  ", True),
+            ],
+        ),
+        (
+            "select\n  1\n  {% if true %}\n    , 2\n  FROM a\n{% endif %}",
+            [
+                # NOTE: Here because we can't hoist "up" we pull the opening
+                # tag down to match the closing indent balance.
+                _ReindentLine(0, 1, 0, ""),
+                _ReindentLine(1, 3, 1, "  "),
+                _ReindentLine(3, 5, 0, "  ", True),  # Here's the sunken element.
+                _ReindentLine(5, 9, 2, "    "),
+                _ReindentLine(9, 13, 1, "  "),
+                _ReindentLine(13, 15, 0, "", True),
             ],
         ),
         (
@@ -197,13 +213,13 @@ def test_reflow__deduce_line_indent(
             [
                 _ReindentLine(0, 1, 0, ""),
                 _ReindentLine(1, 5, 1, "  "),
-                _ReindentLine(5, 7, 1, "  "),
+                _ReindentLine(5, 7, 1, "  ", True),
                 _ReindentLine(7, 11, 2, "    "),
-                _ReindentLine(11, 13, 1, "  "),
+                _ReindentLine(11, 13, 1, "  ", True),  # Loop Marker
                 _ReindentLine(13, 17, 2, "    "),
-                _ReindentLine(17, 19, 1, "  "),
+                _ReindentLine(17, 19, 1, "  ", True),  # Loop Marker
                 _ReindentLine(19, 23, 2, "    "),
-                _ReindentLine(23, 25, 1, "  "),
+                _ReindentLine(23, 25, 1, "  ", True),
                 _ReindentLine(25, 27, 1, "  "),
             ],
         ),

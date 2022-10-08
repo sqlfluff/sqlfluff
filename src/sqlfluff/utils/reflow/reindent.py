@@ -39,6 +39,19 @@ class _ReindentLine:
     end_point_idx: int
     initial_indent_balance: int
     current_indent: str
+    template_only: bool = False
+
+
+def _is_template_only(elements: ReflowSequenceType):
+    """Do the blocks in the given elements only contain templates?
+
+    NOTE: We assume this comes "pre-sliced".
+    """
+    return all(
+        all(seg.is_type("placeholder", "template_loop") for seg in elem.segments)
+        for elem in elements
+        if not isinstance(elem, ReflowPoint)
+    )
 
 
 def map_reindent_lines(
@@ -65,9 +78,19 @@ def map_reindent_lines(
             last_pt_idx = idx
             indent_balance += elem.get_indent_impulse()
             # Have we found a newline?
-            # We skip the trivial matches (mostly to avoid a wierd start).
+            # We skip the trivial matches (mostly to avoid a weird start).
             if "newline" in elem.class_types and idx != init_idx:
-                result.append(_ReindentLine(init_idx, idx, last_indent_balance, indent))
+                # Detect template markers alone on lines at this stage, because
+                # we'll handle them a bit differently later.
+                result.append(
+                    _ReindentLine(
+                        init_idx,
+                        idx,
+                        last_indent_balance,
+                        indent,
+                        _is_template_only(elements[init_idx : idx + 1]),
+                    )
+                )
                 # Set the index and indent for next time
                 indent = elem.get_indent() or ""
                 init_idx = idx
@@ -76,7 +99,15 @@ def map_reindent_lines(
     # NOTE: we don't handle any indent before the end_of_file segment.
     # Which is why we use last_pt_idx not just len(elements).
     if last_pt_idx - init_idx > 1:
-        result.append(_ReindentLine(init_idx, last_pt_idx, last_indent_balance, indent))
+        result.append(
+            _ReindentLine(
+                init_idx,
+                last_pt_idx,
+                last_indent_balance,
+                indent,
+                _is_template_only(elements[init_idx : last_pt_idx + 1]),
+            )
+        )
 
     return result
 
