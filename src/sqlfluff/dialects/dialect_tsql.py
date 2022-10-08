@@ -419,8 +419,9 @@ tsql_dialect.replace(
         ),
         optional=True,
     ),
-    JoinKeywordsGrammar=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    JoinKeywordsGrammar=OneOf("JOIN", "APPLY"),
     NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    ExtendedNaturalJoinKeywordsGrammar=Sequence("OUTER", "APPLY"),
     NestedJoinGrammar=Sequence(
         Indent,
         Ref("JoinClauseSegment"),
