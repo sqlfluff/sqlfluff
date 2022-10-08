@@ -239,7 +239,7 @@ test_pass_dollar_quoted_strings_are_ignored:
       dialect: postgres
     rules:
       L064:
-        force_enable: True
+        force_enable: true
         preferred_quoted_literal_style: single_quotes
 
 test_pass_date_constructor_strings_are_ignored_1:
@@ -257,7 +257,7 @@ test_pass_date_constructor_strings_are_ignored_2:
   configs:
     rules:
       L064:
-        force_enable: True
+        force_enable: true
         preferred_quoted_literal_style: double_quotes
 
 test_pass_empty_string:

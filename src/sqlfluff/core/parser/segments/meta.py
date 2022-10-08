@@ -17,6 +17,13 @@ class MetaSegment(RawSegment):
     is_meta = True
 
     def __init__(self, is_template=False, *args, **kwargs):
+        """Constructor for MetaSegment.
+
+        Args:
+            is_template (:obj:`bool`): A flag to indicate whether
+                this meta segment is related to a templated section.
+                This allows proper handling.
+        """
         super().__init__(*args, **kwargs)
         self.is_template = is_template
 
