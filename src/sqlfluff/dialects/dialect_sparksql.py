@@ -226,6 +226,7 @@ sparksql_dialect.replace(
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
         "HAVING",
+        "QUALIFY",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
@@ -2992,3 +2993,49 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Databricks."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional EXCEPT clause
+            # https://docs.databricks.com/release-notes/runtime/9.0.html#exclude-columns-in-select--public-preview
+            Ref("ExceptClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExceptClauseSegment(BaseSegment):
+    """SELECT * EXCEPT clause."""
+
+    type = "select_except_clause"
+    match_grammar = Sequence(
+        "EXCEPT",
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    It's very similar to `SelectClauseSegment` from `dialect_ansi` except does not
+    have set `SetOperatorSegment` as possible terminator - this is to avoid issues
+    with wrongly recognized `EXCEPT`.
+    """
+
+    type = "select_clause"
+    match_grammar: Matchable = StartsWith(
+        "SELECT",
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")

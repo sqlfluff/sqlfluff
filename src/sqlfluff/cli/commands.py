@@ -50,20 +50,6 @@ from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 
-class RedWarningsFilter(logging.Filter):
-    """This filter makes all warnings or above red."""
-
-    def __init__(self, formatter: OutputStreamFormatter):
-        super().__init__()
-        self.formatter = formatter
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        """Filter any warnings (or above) to turn them red."""
-        if record.levelno >= logging.WARNING:
-            record.msg = f"{self.formatter.colorize(record.msg, Color.red)} "
-        return True
-
-
 class StreamHandlerTqdm(logging.StreamHandler):
     """Modified StreamHandler which takes care of writing within `tqdm` context.
 
@@ -113,8 +99,16 @@ def set_logging_level(
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
+
     # Set up a handler to colour warnings red.
-    handler.addFilter(RedWarningsFilter(formatter))
+    # See: https://docs.python.org/3/library/logging.html#filter-objects
+    def red_log_filter(record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            record.msg = f"{formatter.colorize(record.msg, Color.red)} "
+        return True
+
+    handler.addFilter(red_log_filter)
+
     if logger:
         focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
@@ -313,7 +307,8 @@ def core_options(f: Callable) -> Callable:
     f = click.option(
         "--logger",
         type=click.Choice(
-            ["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False
+            ["templater", "lexer", "parser", "linter", "rules", "config"],
+            case_sensitive=False,
         ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)

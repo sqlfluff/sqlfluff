@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b2def462595301518c5209a8a2824737867d12032b225116ed1f2f14a2bf721
+_hash: 29d7815aa67937d53ce3bc0bec9bc8e0b0ffb2aa4cd08ea8ba1c807a60c09f0f
 file:
 - statement:
     create_table_statement:
@@ -1408,4 +1408,42 @@ file:
       - column_constraint_segment:
           keyword: UNIQUE
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: quotas
+      - dot: .
+      - naked_identifier: usage
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: foo
+        data_type:
+          keyword: int
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: quotas
+      - dot: .
+      - naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: usage
+        data_type:
+          keyword: int
+        end_bracket: )
 - statement_terminator: ;
