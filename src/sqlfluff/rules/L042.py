@@ -188,14 +188,11 @@ class Rule_L042(BaseRule):
 
             # Compute fix.
             output_select_clone = clone_map[output_select[0]]
-            fixes = ctes._ensure_space_after_from(
+            fixes = ctes.ensure_space_after_from(
                 output_select[0], output_select_clone, subquery_parent
             )
-            new_select, _ = ctes.compose_select(
-                subquery_parent,
-                output_select[0],
-                output_select_clone,
-                case_preference=case_preference,
+            new_select = ctes.compose_select(
+                output_select_clone, case_preference=case_preference
             )
             lint_result.fixes = [
                 LintFix.replace(
@@ -390,16 +387,9 @@ class _CTEBuilder:
         return cte_segments[:-2]
 
     def compose_select(
-        self,
-        subquery_parent: BaseSegment,
-        output_select: BaseSegment,
-        output_select_clone: BaseSegment,
-        case_preference: str,
-    ) -> Tuple[BaseSegment, List[LintFix]]:
+        self, output_select_clone: BaseSegment, case_preference: str
+    ) -> BaseSegment:
         """Compose our final new CTE."""
-        # fixes = self._ensure_space_after_from(
-        #     output_select, output_select_clone, subquery_parent
-        # )
         # Compose the CTE.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
@@ -412,10 +402,13 @@ class _CTEBuilder:
                 ]
             )
         )
-        return new_select, []
+        return new_select
 
-    def _ensure_space_after_from(
-        self, output_select, output_select_clone, subquery_parent
+    def ensure_space_after_from(
+        self,
+        output_select: BaseSegment,
+        output_select_clone: BaseSegment,
+        subquery_parent: BaseSegment,
     ):
         """Ensure there's whitespace between "FROM" and the CTE table name."""
         fixes = []
