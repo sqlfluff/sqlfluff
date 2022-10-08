@@ -263,7 +263,8 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             "select\n    1+(\n    2+3\n    ),\n    4\n    from foo",
             "select\n  1+(\n    2+3\n  ),\n  4\nfrom foo",
         ),
-        # Templated Multiline
+        # ### Templated Multiline Cases ###
+        # Trailing tag
         (
             "select\n1\n{% if true %}\n+ 2\n{% endif %}",
             # NOTE: the templated tags won't show here, but they
@@ -271,6 +272,16 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             # TODO: The endif here isn't indented, which is a bug!
             # It's because it falls after the appropriate dedent.
             "select\n  1\n  \n    + 2\n",
+        ),
+        # Cutting across the parse tree
+        (
+            "select\n1\n{% if true %}\n,2\nFROM a\n{% endif %}",
+            # NOTE: the templated tags won't show here, but they
+            # should still be indented.
+            # TODO: This set of template tags cuts across the parse
+            # tree. We should indent them appropriately. At the moment
+            # that doesn't happen very smartly.
+            "select\n  1\n  \n    ,2\n  FROM a\n",
         ),
     ],
 )
