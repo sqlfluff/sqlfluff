@@ -142,8 +142,12 @@ class ReflowPoint(ReflowElement):
 
     def get_indent(self) -> Optional[str]:
         """Get the current indent (if there)."""
+        # If no newlines, it's not an indent. Return None.
+        if not self.num_newlines():
+            return None
+        # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
-        return seg.raw if seg else None
+        return seg.raw if seg else ""
 
     def get_indent_impulse(self) -> int:
         """Get the change in intended indent balance from this point."""

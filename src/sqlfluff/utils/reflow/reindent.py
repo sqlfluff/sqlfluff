@@ -48,11 +48,13 @@ def map_reindent_lines(
     init_idx = 0
     last_pt_idx = 0
     if elements and isinstance(elements[0], ReflowPoint):
+        indent = elements[0].get_indent()
         # The initial point is a special case where we allow
-        # .raw if .get_indent() return nothing. That's because
+        # .raw if .get_indent() returns None. That's because
         # the initial point may have no newline (i.e. the start
         # of the file).
-        indent = elements[0].get_indent() or elements[0].raw
+        if indent is None:
+            indent = elements[0].raw
     else:
         indent = ""
     indent_balance = initial_balance
