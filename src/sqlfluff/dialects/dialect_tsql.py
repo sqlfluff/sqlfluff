@@ -1094,26 +1094,6 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
-class SchemaObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """An object reference to an object with only a schema.
-
-    A SchemaObjectReferenceSegment may not refer to a server or database name.
-    """
-
-    # match grammar (allow whitespace)
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),
-        AnyNumberOf(
-            Sequence(
-                Ref("DotSegment"),
-                Ref("SingleIdentifierGrammar", optional=True),
-            ),
-            min_times=0,
-            max_times=1,
-        ),
-    )
-
-
 class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
@@ -4168,7 +4148,7 @@ class CreateSynonymStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "SYNONYM",
-        Ref("SchemaObjectReferenceSegment"),
+        Ref("SynonymReferenceSegment"),
         "FOR",
         Ref("ObjectReferenceSegment"),
     )
@@ -4183,5 +4163,27 @@ class DropSynonymStatementSegment(BaseSegment):
         "DROP",
         "SYNONYM",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SchemaObjectReferenceSegment"),
+        Ref("SynonymReferenceSegment"),
+    )
+
+
+class SynonymReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a synonym.
+
+    A synonym may only (optionally) specify a schema. It may not specify a server
+    or database name.
+    """
+
+    type = "synonym_reference"
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=1,
+        ),
     )
