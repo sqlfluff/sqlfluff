@@ -187,18 +187,20 @@ class Rule_L042(BaseRule):
                 return lint_result
 
             # Compute fix.
-            edit = [
-                ctes.compose_select(
-                    clone_map[output_select[0]],
-                    case_preference=case_preference,
-                ),
-            ]
+            new_select, fix = ctes.compose_select(
+                subquery_parent,
+                output_select[0],
+                clone_map,
+                case_preference=case_preference,
+            )
             lint_result.fixes = [
                 LintFix.replace(
                     segment[0],
-                    edit_segments=edit,
+                    edit_segments=[new_select],
                 )
             ]
+            if fix:
+                lint_result.fixes.append(fix)
             return lint_result
         return None
 
@@ -384,46 +386,73 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(self, output_select: BaseSegment, case_preference: str):
+    def compose_select(
+        self,
+        subquery_parent: BaseSegment,
+        output_select: BaseSegment,
+        clone_map: "SegmentCloneMap",
+        case_preference: str,
+    ) -> Tuple[BaseSegment, Optional[LintFix]]:
         """Compose our final new CTE."""
         # Ensure there's whitespace between "FROM" and the CTE table name.
-        from_clause = output_select.get_child("from_clause")
-        # This section of code relates to inserting the CTE name in the
-        # top-level query. Because _nested_subqueries() processes both the
-        # main query and CTEs, output_select may be the top-level query even
-        # though the nested subquery we're fixing is in a CTE. In that case,
-        # we can sometimes skip this section. This could probably be cleaned
-        # up someday -- simply skipping because from_clause is None doesn't
-        # seem quite right; it's just skipping because it's a set_expression
-        # and not a select_statement, thus there's no from_clause as a direct
-        # child (grandchild instead).
-        if from_clause is not None:
-            from_clause_children = Segments(*from_clause.segments)
-            from_segment = from_clause_children.first(is_keyword("from"))
-            if from_segment and not from_clause_children.select(
-                start_seg=from_segment[0], loop_while=is_whitespace()
-            ):
-                idx_from = from_clause_children.index(from_segment[0])
-                # Insert whitespace between "FROM" and the CTE table name.
-                from_clause.segments = list(
-                    from_clause_children[: idx_from + 1]
-                    + (WhitespaceSegment(),)
-                    + from_clause_children[idx_from + 1 :]
-                )
+        # Two cases:
+        # 1. subquery_parent and output_select are same: This code.
+        # 2. They're different. LintFix.create_before()
+        fix = None
+        if subquery_parent is output_select:
+            output_select_clone = clone_map[output_select]
+            from_clause = output_select_clone.get_child("from_clause")
+            # TODO: subquery_parent: Insert space after FROM if needed
+            if from_clause is not None:
+                from_clause_children = Segments(*from_clause.segments)
+                from_segment = from_clause_children.first(is_keyword("from"))
+                if from_segment and not from_clause_children.select(
+                    start_seg=from_segment[0], loop_while=is_whitespace()
+                ):
+                    idx_from = from_clause_children.index(from_segment[0])
+                    # Insert whitespace between "FROM" and the CTE table name.
+                    from_clause.segments = list(
+                        from_clause_children[: idx_from + 1]
+                        + (WhitespaceSegment(),)
+                        + from_clause_children[idx_from + 1 :]
+                    )
 
-        # Compose the CTE.
-        new_select = WithCompoundStatementSegment(
-            segments=tuple(
-                [
-                    _segmentify("WITH", case_preference),
-                    WhitespaceSegment(),
-                    *self.get_cte_segments(),
-                    NewlineSegment(),
-                    output_select,
-                ]
+            # Compose the CTE.
+            new_select = WithCompoundStatementSegment(
+                segments=tuple(
+                    [
+                        _segmentify("WITH", case_preference),
+                        WhitespaceSegment(),
+                        *self.get_cte_segments(),
+                        NewlineSegment(),
+                        output_select_clone,
+                    ]
+                )
             )
-        )
-        return new_select
+        else:
+            output_select_clone = clone_map[output_select]
+            from_clause = subquery_parent.get_child("from_clause")
+            if from_clause is not None:
+                from_clause_children = Segments(*from_clause.segments)
+                from_segment = from_clause_children.first(is_keyword("from"))
+                if from_segment and not from_clause_children.select(
+                    start_seg=from_segment[0], loop_while=is_whitespace()
+                ):
+                    fix = LintFix.create_after(from_segment[0], [WhitespaceSegment()])
+
+            # Compose the CTE.
+            new_select = WithCompoundStatementSegment(
+                segments=tuple(
+                    [
+                        _segmentify("WITH", case_preference),
+                        WhitespaceSegment(),
+                        *self.get_cte_segments(),
+                        NewlineSegment(),
+                        output_select_clone,
+                    ]
+                )
+            )
+        return new_select, fix
 
     def replace_with_clone(self, segment, clone_map):
         for idx, cte in enumerate(self.ctes):
