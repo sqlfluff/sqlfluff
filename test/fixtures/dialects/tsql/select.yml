@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 882f5a22102b61741ccb6729989c93ad4350da1fe5fd80247698f95362a1c99a
+_hash: 7630efe8a7ecc90a37d262198a0df9e9db21e846a122560e8cd1f28f945a070f
 file:
   batch:
     statement:
@@ -430,13 +430,11 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                      quoted_identifier: '[EventNM]'
+                - column_reference:
+                    quoted_identifier: '[EventNM]'
                 - comma: ','
-                - expression:
-                    column_reference:
-                      quoted_identifier: '[PersonID]'
+                - column_reference:
+                    quoted_identifier: '[PersonID]'
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -461,9 +459,8 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                      quoted_identifier: '[EventNM]'
+                - column_reference:
+                    quoted_identifier: '[EventNM]'
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -488,9 +485,8 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                      quoted_identifier: '[EventNM]'
+                - column_reference:
+                    quoted_identifier: '[EventNM]'
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -516,9 +512,8 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                      quoted_identifier: '[EventNM]'
+                - column_reference:
+                    quoted_identifier: '[EventNM]'
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -550,17 +545,15 @@ file:
                     partitionby_clause:
                     - keyword: partition
                     - keyword: by
-                    - expression:
-                        column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col2
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
                     - comma: ','
-                    - expression:
-                        column_reference:
-                        - naked_identifier: t
-                        - dot: .
-                        - naked_identifier: col3
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col3
                   end_bracket: )
         - comma: ','
         - select_clause_element:
@@ -686,16 +679,14 @@ file:
                 - keyword: BY
                 - bracketed:
                     start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: DayInMonth
+                    column_reference:
+                      naked_identifier: DayInMonth
                     end_bracket: )
                 - comma: ','
                 - bracketed:
                     start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: DaySuffix
+                    column_reference:
+                      naked_identifier: DaySuffix
                     end_bracket: )
                 orderby_clause:
                 - keyword: ORDER

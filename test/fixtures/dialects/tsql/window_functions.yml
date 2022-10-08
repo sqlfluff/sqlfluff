@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3441159013d16e00dab94d419fcabd8041caecae745ff370f99d8a2d85d65694
+_hash: 659e7f529b17efa905e2ea180f637aa54226a87233f9e0f9ea046cbb47afcecf
 file:
   batch:
   - statement:
@@ -23,11 +23,10 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: col1
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: col1
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -158,11 +157,10 @@ file:
                 partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
-                - expression:
-                    column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: col3
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: col3
                 - comma: ','
                 - expression:
                     case_expression:
@@ -182,11 +180,10 @@ file:
                           numeric_literal: '1'
                     - keyword: END
                 - comma: ','
-                - expression:
-                    column_reference:
-                    - naked_identifier: t
-                    - dot: .
-                    - naked_identifier: col4
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: col4
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
