@@ -3,17 +3,16 @@
 https://www.sqlite.org/
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Matchable,
     OneOf,
+    OptionallyBracketed,
     Ref,
     Sequence,
-    OptionallyBracketed,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -92,7 +91,7 @@ class InsertStatementSegment(BaseSegment):
         OneOf(
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Ref("SelectableGrammar")),
-            Sequence("DEFAULT", "VALUES"),
+            Ref("DefaultValuesGrammar"),
         ),
     )
 

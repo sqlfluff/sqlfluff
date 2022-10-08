@@ -226,6 +226,7 @@ sparksql_dialect.replace(
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
         "HAVING",
+        "QUALIFY",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
