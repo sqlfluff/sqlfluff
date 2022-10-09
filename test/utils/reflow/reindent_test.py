@@ -317,7 +317,7 @@ def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, ca
         for idx, line in enumerate(lines):
             print(idx, line)
         # We're not testing the fixes directly at this stage.
-        result, _ = lint_reindent_lines(seq.elements, lines)
+        result, _ = lint_reindent_lines(seq.elements, lines, indent_unit="  ")
 
     result_raw = "".join(elem.raw for elem in result)
     assert result_raw == raw_sql_out

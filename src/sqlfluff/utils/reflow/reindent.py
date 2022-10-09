@@ -243,7 +243,7 @@ def map_reindent_lines(
     return _revise_templated_lines(result, elements)
 
 
-def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine]):
+def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine], indent_unit: str):
     """Given _ReindentLines, lint what we've got.
 
     Each line is compared to the previous _good_ line with
@@ -260,8 +260,6 @@ def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine]
     stack: List[_ReindentLine] = []
     fixes: List[LintFix] = []
     element_buffer = elements.copy()
-    # TODO: This should be driven by config!
-    indent_unit = "  "
     # Iterate through the lines.
     for line in lines:
         # Three scenarios:
