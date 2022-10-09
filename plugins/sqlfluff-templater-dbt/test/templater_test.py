@@ -81,6 +81,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         # Ends with whitespace stripping, so trailing newline handling should
         # be disabled
         "ends_with_whitespace_stripping.sql",
+        # Access dbt graph nodes
+        "access_graph_nodes.sql",
     ],
 )
 def test__templater_dbt_templating_result(
