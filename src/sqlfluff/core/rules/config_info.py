@@ -34,10 +34,6 @@ STANDARD_CONFIG_INFO_DICT = {
             "indentation of a file."
         ),
     },
-    "comma_style": {
-        "validation": ["leading", "trailing"],
-        "definition": "The comma style to enforce.",
-    },
     "allow_scalar": {
         "validation": [True, False],
         "definition": (
