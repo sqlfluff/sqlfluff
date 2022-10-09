@@ -103,7 +103,6 @@ def test__rules__std_file(rule, path, violations):
         {"tab_space_size": "blah"},
         {"max_line_length": "blah"},
         {"indent_unit": "blah"},
-        {"comma_style": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},

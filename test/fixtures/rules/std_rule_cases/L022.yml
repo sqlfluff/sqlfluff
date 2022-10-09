@@ -151,10 +151,6 @@ test_fail_oneline_cte_leading_comma:
     select * from my_cte
     cross join other_cte
 
-  configs:
-    rules:
-      comma_style: leading
-
 test_fail_cte_floating_comma:
   # Fixes cte with a floating comma
   fail_str: |

@@ -45,14 +45,10 @@ class Rule_L022(BaseRule):
     """
 
     groups = ("all", "core")
-    config_keywords = ["comma_style"]
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Blank line expected but not found after CTE definition."""
-        # Config type hints
-        self.comma_style: str
-
         error_buffer = []
         assert context.segment.is_type("with_compound_statement")
         # First we need to find all the commas, the end brackets, the
@@ -76,7 +72,7 @@ class Rule_L022(BaseRule):
             blank_lines = 0
             comma_line_idx = None
             line_blank = False
-            comma_style = None
+            comma_style: str
             line_starts = {}
             comment_lines = []
 

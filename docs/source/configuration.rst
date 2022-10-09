@@ -124,7 +124,6 @@ For example:
    tab_space_size = 4
    max_line_length = 80
    indent_unit = space
-   comma_style = trailing
    allow_scalar = True
    single_table_references = consistent
    unquoted_identifiers_policy = all
