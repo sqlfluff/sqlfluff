@@ -50,6 +50,9 @@ class Rule_L022(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Blank line expected but not found after CTE definition."""
         error_buffer = []
+        global_comma_style = context.config.get(
+            "line_position", ["layout", "type", "comma"]
+        )
         assert context.segment.is_type("with_compound_statement")
         # First we need to find all the commas, the end brackets, the
         # things that come after that and the blank lines in between.
@@ -134,71 +137,78 @@ class Rule_L022(BaseRule):
                 comment_lines,
             )
 
-            if blank_lines < 1:
-                # We've got an issue
-                self.logger.info("!! Found CTE without enough blank lines.")
+            # If we've got blank lines. We're good.
+            if blank_lines >= 1:
+                continue
 
-                # Based on the current location of the comma we insert newlines
-                # to correct the issue.
-                fix_type = "create_before"  # In most cases we just insert newlines.
-                if comma_style == "oneline":
-                    # Here we respect the target comma style to insert at the
-                    # relevant point.
-                    if self.comma_style == "trailing":
-                        # Add a blank line after the comma
-                        fix_point = forward_slice[comma_seg_idx + 1]
-                        # Optionally here, if the segment we've landed on is
-                        # whitespace then we REPLACE it rather than inserting.
-                        if forward_slice[comma_seg_idx + 1].is_type("whitespace"):
-                            fix_type = "replace"
-                    elif self.comma_style == "leading":
-                        # Add a blank line before the comma
-                        fix_point = forward_slice[comma_seg_idx]
-                    # In both cases it's a double newline.
-                    num_newlines = 2
-                else:
-                    # In the following cases we only care which one we're in
-                    # when comments don't get in the way. If they *do*, then
-                    # we just work around them.
-                    if not comment_lines or line_idx - 1 not in comment_lines:
-                        self.logger.info("Comment routines not applicable")
-                        if comma_style in ("trailing", "final", "floating"):
-                            # Detected an existing trailing comma or it's a final
-                            # CTE, OR the comma isn't leading or trailing.
-                            # If the preceding segment is whitespace, replace it
-                            if forward_slice[seg_idx - 1].is_type("whitespace"):
-                                fix_point = forward_slice[seg_idx - 1]
-                                fix_type = "replace"
-                            else:
-                                # Otherwise add a single newline before the end
-                                # content.
-                                fix_point = forward_slice[seg_idx]
-                        elif comma_style == "leading":
-                            # Detected an existing leading comma.
-                            fix_point = forward_slice[comma_seg_idx]
-                    else:
-                        self.logger.info("Handling preceding comments")
-                        offset = 1
-                        while line_idx - offset in comment_lines:
-                            offset += 1
-                        # If the offset - 1 equals the line_idx then there aren't
-                        # really any comment-only lines (ref #2945).
-                        # Reset to line_idx
-                        fix_point = forward_slice[
-                            line_starts[line_idx - (offset - 1) or line_idx]
-                        ]
-                    num_newlines = 1
+            # We've got an issue
+            self.logger.info("!! Found CTE without enough blank lines.")
 
-                fixes = [
-                    LintFix(
-                        fix_type,
-                        fix_point,
-                        [NewlineSegment()] * num_newlines,
+            # Based on the current location of the comma we insert newlines
+            # to correct the issue.
+
+            # First handle the potential simple case of a current one line
+            fix_type = "create_before"  # In most cases we just insert newlines.
+            if comma_style == "oneline":
+                # Here we respect the target comma style to insert at the
+                # relevant point.
+                if global_comma_style == "trailing":
+                    # Add a blank line after the comma
+                    fix_point = forward_slice[comma_seg_idx + 1]
+                    # Optionally here, if the segment we've landed on is
+                    # whitespace then we REPLACE it rather than inserting.
+                    if forward_slice[comma_seg_idx + 1].is_type("whitespace"):
+                        fix_type = "replace"
+                elif global_comma_style == "leading":
+                    # Add a blank line before the comma
+                    fix_point = forward_slice[comma_seg_idx]
+                else:  # pragma: no cover
+                    raise NotImplementedError(
+                        f"Unexpected global comma style {global_comma_style!r}"
                     )
-                ]
-                # Create a result, anchored on the start of the next content.
-                error_buffer.append(
-                    LintResult(anchor=forward_slice[seg_idx], fixes=fixes)
+                # In both cases it's a double newline.
+                num_newlines = 2
+            else:
+                # In the following cases we only care which one we're in
+                # when comments don't get in the way. If they *do*, then
+                # we just work around them.
+                if not comment_lines or line_idx - 1 not in comment_lines:
+                    self.logger.info("Comment routines not applicable")
+                    if comma_style in ("trailing", "final", "floating"):
+                        # Detected an existing trailing comma or it's a final
+                        # CTE, OR the comma isn't leading or trailing.
+                        # If the preceding segment is whitespace, replace it
+                        if forward_slice[seg_idx - 1].is_type("whitespace"):
+                            fix_point = forward_slice[seg_idx - 1]
+                            fix_type = "replace"
+                        else:
+                            # Otherwise add a single newline before the end
+                            # content.
+                            fix_point = forward_slice[seg_idx]
+                    elif comma_style == "leading":
+                        # Detected an existing leading comma.
+                        fix_point = forward_slice[comma_seg_idx]
+                else:
+                    self.logger.info("Handling preceding comments")
+                    offset = 1
+                    while line_idx - offset in comment_lines:
+                        offset += 1
+                    # If the offset - 1 equals the line_idx then there aren't
+                    # really any comment-only lines (ref #2945).
+                    # Reset to line_idx
+                    fix_point = forward_slice[
+                        line_starts[line_idx - (offset - 1) or line_idx]
+                    ]
+                num_newlines = 1
+
+            fixes = [
+                LintFix(
+                    fix_type,
+                    fix_point,
+                    [NewlineSegment()] * num_newlines,
                 )
+            ]
+            # Create a result, anchored on the start of the next content.
+            error_buffer.append(LintResult(anchor=forward_slice[seg_idx], fixes=fixes))
         # Return the buffer if we have one.
         return error_buffer or None
