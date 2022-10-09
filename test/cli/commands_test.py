@@ -441,6 +441,8 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
+        # Check timing outputs doesn't raise exceptions
+        (lint, ["test/fixtures/cli/passing_a.sql", "--persist-timing", "test.csv"]),
     ],
 )
 def test__cli__command_lint_parse(command):

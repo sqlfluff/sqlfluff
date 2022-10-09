@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+import csv
 import time
 from typing import (
     Any,
@@ -145,6 +146,50 @@ class LintingResult:
             for file in dir.files:
                 timing.add(file.time_dict)
         return timing.summary()
+
+    def persist_timing_records(self, filename):
+        """Persist the timing records as a csv to external analysis."""
+        meta_fields = [
+            "path",
+            "source_chars",
+            "templated_chars",
+            "segments",
+            "raw_segments",
+        ]
+        timing_fields = ["templating", "lexing", "parsing", "linting"]
+        with open(filename, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=meta_fields + timing_fields)
+
+            writer.writeheader()
+
+            for dir in self.paths:
+                for file in dir.files:
+                    writer.writerow(
+                        {
+                            "path": file.path,
+                            "source_chars": (
+                                len(file.templated_file.source_str)
+                                if file.templated_file
+                                else ""
+                            ),
+                            "templated_chars": (
+                                len(file.templated_file.templated_str)
+                                if file.templated_file
+                                else ""
+                            ),
+                            "segments": (
+                                file.tree.count_segments(raw_only=False)
+                                if file.tree
+                                else ""
+                            ),
+                            "raw_segments": (
+                                file.tree.count_segments(raw_only=True)
+                                if file.tree
+                                else ""
+                            ),
+                            **file.time_dict,
+                        }
+                    )
 
     def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.
