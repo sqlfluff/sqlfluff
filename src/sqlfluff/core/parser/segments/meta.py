@@ -1,5 +1,7 @@
 """Indent and Dedent classes."""
 
+from uuid import UUID
+
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
@@ -16,16 +18,27 @@ class MetaSegment(RawSegment):
     indent_val = 0
     is_meta = True
 
-    def __init__(self, is_template=False, *args, **kwargs):
+    def __init__(
+        self,
+        is_template: bool = False,
+        block_uuid: Optional[UUID] = None,
+        *args,
+        **kwargs,
+    ):
         """Constructor for MetaSegment.
 
         Args:
             is_template (:obj:`bool`): A flag to indicate whether
                 this meta segment is related to a templated section.
                 This allows proper handling.
+            block_uuid (:obj:`UUID`): A reference to link together
+                markers which refer to the same structure in a
+                template (e.g. the beginning and end of an if
+                statement).
         """
         super().__init__(*args, **kwargs)
         self.is_template = is_template
+        self.block_uuid = block_uuid
 
     @staticmethod
     def _suffix():
@@ -128,6 +141,7 @@ class TemplateSegment(MetaSegment):
         source_str: str = "",
         block_type: str = "",
         source_fixes: Optional[List[SourceFix]] = None,
+        block_uuid: Optional[UUID] = None,
     ):
         """Initialise a placeholder with the source code embedded."""
         if not source_str:  # pragma: no cover
@@ -135,7 +149,9 @@ class TemplateSegment(MetaSegment):
         self.source_str = source_str
         self.block_type = block_type
         # Call the super of the pos_marker.
-        super().__init__(pos_marker=pos_marker, source_fixes=source_fixes)
+        super().__init__(
+            pos_marker=pos_marker, source_fixes=source_fixes, block_uuid=block_uuid
+        )
 
     def _suffix(self):
         """Also output what it's a placeholder for."""
@@ -175,4 +191,5 @@ class TemplateSegment(MetaSegment):
             source_str=self.source_str,
             block_type=self.block_type,
             source_fixes=source_fixes or self.source_fixes,
+            block_uuid=self.block_uuid,
         )
