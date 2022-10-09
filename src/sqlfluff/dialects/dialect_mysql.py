@@ -2402,6 +2402,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         "CREATE",
         Ref("DefinerSegment", optional=True),
         "TRIGGER",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
         OneOf("BEFORE", "AFTER"),
         OneOf("INSERT", "UPDATE", "DELETE"),

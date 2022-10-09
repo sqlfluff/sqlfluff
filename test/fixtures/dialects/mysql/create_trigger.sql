@@ -23,6 +23,8 @@ CREATE TRIGGER some_trigger BEFORE UPDATE ON some_table FOR EACH ROW DELETE FROM
 CREATE TRIGGER some_trigger AFTER INSERT ON some_table FOR EACH ROW DELETE FROM other_table;
 CREATE TRIGGER some_trigger BEFORE INSERT ON some_table FOR EACH ROW DELETE FROM other_table;
 
+CREATE TRIGGER IF NOT EXISTS some_trigger AFTER DELETE ON some_table
+FOR EACH ROW DELETE FROM other_table;
 
 CREATE TRIGGER some_trigger AFTER DELETE ON some_table FOR EACH ROW
 FOLLOWS some_other_trigger
