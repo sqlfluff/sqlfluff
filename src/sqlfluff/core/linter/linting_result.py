@@ -167,10 +167,26 @@ class LintingResult:
                     writer.writerow(
                         {
                             "path": file.path,
-                            "source_chars": len(file.templated_file.source_str),
-                            "templated_chars": len(file.templated_file.templated_str),
-                            "segments": file.tree.count_segments(raw_only=False),
-                            "raw_segments": file.tree.count_segments(raw_only=True),
+                            "source_chars": (
+                                len(file.templated_file.source_str)
+                                if file.templated_file
+                                else ""
+                            ),
+                            "templated_chars": (
+                                len(file.templated_file.templated_str)
+                                if file.templated_file
+                                else ""
+                            ),
+                            "segments": (
+                                file.tree.count_segments(raw_only=False)
+                                if file.tree
+                                else ""
+                            ),
+                            "raw_segments": (
+                                file.tree.count_segments(raw_only=True)
+                                if file.tree
+                                else ""
+                            ),
                             **file.time_dict,
                         }
                     )
