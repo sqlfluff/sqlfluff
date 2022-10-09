@@ -106,9 +106,9 @@ def test_rules_configs_are_dynamically_documented():
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
-        config_keywords = ["comma_style"]
+        config_keywords = ["max_line_length"]
 
-    assert "comma_style" in RuleWithConfig.__doc__
+    assert "max_line_length" in RuleWithConfig.__doc__
 
     @document_configuration
     class RuleWithoutConfig(BaseRule):
