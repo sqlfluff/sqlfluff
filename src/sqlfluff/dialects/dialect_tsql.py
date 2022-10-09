@@ -513,6 +513,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateCursorStatementSegment"),
             Ref("FetchCursorStatementSegment"),
             Ref("CreateTypeStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -4131,3 +4133,52 @@ class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
     """Concat operator."""
 
     match_grammar: Matchable = Ref("PlusSegment")
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement."""
+
+    type = "create_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SYNONYM",
+        Ref("SynonymReferenceSegment"),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement."""
+
+    type = "drop_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SynonymReferenceSegment"),
+    )
+
+
+class SynonymReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a synonym.
+
+    A synonym may only (optionally) specify a schema. It may not specify a server
+    or database name.
+    """
+
+    type = "synonym_reference"
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=1,
+        ),
+    )
