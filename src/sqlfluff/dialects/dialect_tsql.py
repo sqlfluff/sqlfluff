@@ -2043,14 +2043,9 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             OptionallyBracketed(
                 OneOf(
                     Ref("ColumnReferenceSegment"),
-                    Bracketed(
-                        Ref("SelectStatementSegment"),
-                    ),
-                    Ref("FunctionSegment"),
-                    Ref("VariableIdentifierSegment"),
-                    "NULL",
-                ),
-            ),
+                    Ref("ExpressionSegment"),
+                )
+            )
         ),
     )
     parse_grammar = None

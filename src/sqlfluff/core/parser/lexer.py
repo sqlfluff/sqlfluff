@@ -318,7 +318,7 @@ def _generate_placeholder_segments(
     This code extracts them, adjusts the source_slice and generates
     appropriate template segments to insert.
 
-    Then block stack is to provide a consistent reference between
+    The block stack is to provide a consistent reference between template tags
     of the same expression (i.e. link an {% if .. %} and an
     {% endif %}. This is useful metadata for any downstream
     edits we might want to make and keep their position in line.

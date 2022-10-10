@@ -50,6 +50,17 @@ REMOVED_CONFIGS = [
         (lambda x: "trailing" if x == "after" else "leading"),
     ),
     _RemovedConfig(
+        ("rules", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    # L019 used to have a more specific version of the same /config itself.
+    _RemovedConfig(
         ("rules", "L019", "comma_style"),
         (
             "Use the line_position config in the appropriate "

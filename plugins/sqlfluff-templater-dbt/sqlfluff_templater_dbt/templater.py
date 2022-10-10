@@ -133,10 +133,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        # Identity function used for macro hooks
-        def identity(x):
-            return x
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -147,9 +143,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        projects = self.dbt_config.load_dependencies()
-        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-        self.dbt_manifest = loader.load()
+        self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
 
         return self.dbt_manifest
 
