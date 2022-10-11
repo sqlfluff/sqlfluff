@@ -844,6 +844,100 @@ class AlterFunctionActionSegment(BaseSegment):
     )
 
 
+class AlterProcedureActionSegment(BaseSegment):
+    """Alter Procedure Action Segment.
+
+    https://www.postgresql.org/docs/14/sql-alterprocedure.html
+    """
+
+    type = "alter_procedure_action_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("DEFINER", "INVOKER"),
+            ),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            "DEFAULT",
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+        ),
+        Ref.keyword("RESTRICT", optional=True),
+    )
+
+
+class AlterProcedureStatementSegment(BaseSegment):
+    """An `ALTER PROCEDURE` statement.
+
+    https://www.postgresql.org/docs/14/sql-alterprocedure.html
+    """
+
+    type = "alter_procedure_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            )
+        ),
+        OneOf(
+            Ref("AlterProcedureActionSegment", optional=True),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        Delimited(
+                            OneOf(
+                                Ref("ParameterNameSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ExtensionReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -3284,6 +3378,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LoadStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("DiscardStatementSegment"),
+            Ref("AlterProcedureStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
