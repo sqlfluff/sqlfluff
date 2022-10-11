@@ -324,6 +324,46 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """Modified from ANSI to allow for `LATERAL VIEW` clause."""
+
+    match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
+        insert=[
+            AnyNumberOf(Ref("LateralViewClauseSegment")),
+        ],
+        after=Ref("SamplingExpressionSegment"),
+    )
+
+
+class LateralViewClauseSegment(BaseSegment):
+    """A `LATERAL VIEW` in a `FROM` clause.
+
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+lateralview
+    """
+
+    type = "lateral_view_clause"
+
+    match_grammar = Sequence(
+        Indent,
+        "LATERAL",
+        "VIEW",
+        Ref.keyword("OUTER", optional=True),
+        Ref("FunctionSegment"),
+        # NB: AliasExpressionSegment is not used here for table
+        # or column alias because `AS` is optional within it
+        # (and in most scenarios). Here it's explicitly defined
+        # for when it is required and not allowed.
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence(
+            "AS",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
 class PrimitiveTypeSegment(BaseSegment):
     """Primitive data types."""
 

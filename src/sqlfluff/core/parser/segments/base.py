@@ -864,6 +864,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Returns the type of this segment as a string."""
         return self.type
 
+    def count_segments(self, raw_only=False):
+        """Returns the number of segments in this segment."""
+        if self.segments:
+            self_count = 0 if raw_only else 1
+            return self_count + sum(
+                seg.count_segments(raw_only=raw_only) for seg in self.segments
+            )
+        else:
+            return 1
+
     def is_type(self, *seg_type):
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
