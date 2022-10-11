@@ -656,6 +656,24 @@ ansi_dialect.add(
     ),
     TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
     DefaultValuesGrammar=Sequence("DEFAULT", "VALUES"),
+    ObjectReferenceDelimiterGrammar=OneOf(
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+    ),
+    ObjectReferenceTerminatorGrammar=OneOf(
+        "ON",
+        "AS",
+        "USING",
+        Ref("CommaSegment"),
+        Ref("CastOperatorSegment"),
+        Ref("StartSquareBracketSegment"),
+        Ref("StartBracketSegment"),
+        Ref("BinaryOperatorGrammar"),
+        Ref("ColonSegment"),
+        Ref("DelimiterGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        BracketedSegment,
+    ),
 )
 
 
@@ -806,23 +824,8 @@ class ObjectReferenceSegment(BaseSegment):
     # match grammar (don't allow whitespace)
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("StartSquareBracketSegment"),
-            Ref("StartBracketSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-            BracketedSegment,
-        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminator=Ref("ObjectReferenceTerminatorGrammar"),
         allow_gaps=False,
     )
 
