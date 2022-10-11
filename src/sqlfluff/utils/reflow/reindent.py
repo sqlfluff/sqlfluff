@@ -4,6 +4,7 @@ from collections import defaultdict
 import logging
 from typing import List, Set, cast
 from dataclasses import dataclass
+from sqlfluff.core.errors import SQLFluffUserError
 
 from sqlfluff.core.parser.segments import Indent
 
@@ -243,7 +244,12 @@ def map_reindent_lines(
     return _revise_templated_lines(result, elements)
 
 
-def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine], indent_unit: str):
+def lint_reindent_lines(
+    elements: ReflowSequenceType,
+    lines: List[_ReindentLine],
+    indent_unit: str,
+    tab_space_size: int,
+):
     """Given _ReindentLines, lint what we've got.
 
     Each line is compared to the previous _good_ line with
@@ -257,6 +263,15 @@ def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine]
     be no indent, regardless of previous lines. This also allows
     us to clear the stack any time we reach 0.
     """
+    if indent_unit == "tab":
+        single_indent = "\t"
+    elif indent_unit == "space":
+        single_indent = " " * tab_space_size
+    else:
+        raise SQLFluffUserError(
+            f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
+        )
+
     stack: List[_ReindentLine] = []
     fixes: List[LintFix] = []
     element_buffer = elements.copy()
@@ -315,14 +330,14 @@ def lint_reindent_lines(elements: ReflowSequenceType, lines: List[_ReindentLine]
             comparison = stack[-1]
             reflow_logger.debug("Reindent. Line %s. Comparing to %s.", line, comparison)
             desired_indent = comparison.current_indent + (
-                indent_unit
+                single_indent
                 * (line.initial_indent_balance - comparison.initial_indent_balance)
             )
             deeper = line.initial_indent_balance > comparison.initial_indent_balance
         else:
             # Without a stack to compare to we assume we're comparing to the baseline.
             reflow_logger.debug("Reindent. Line %s. Comparing to baseline.", line)
-            desired_indent = indent_unit * line.initial_indent_balance
+            desired_indent = single_indent * line.initial_indent_balance
             deeper = True
 
         if line.current_indent == desired_indent:

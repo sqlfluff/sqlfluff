@@ -12,6 +12,7 @@ from sqlfluff.utils.reflow.depthmap import DepthMap
 
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.rebreak import rebreak_sequence
+from sqlfluff.utils.reflow.reindent import lint_reindent_lines, map_reindent_lines
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -528,6 +529,32 @@ class ReflowSequence:
 
         # Delegate to the rebreak algorithm
         elem_buff, fixes = rebreak_sequence(self.elements, self.root_segment)
+
+        return ReflowSequence(
+            elements=elem_buff,
+            root_segment=self.root_segment,
+            reflow_config=self.reflow_config,
+            depth_map=self.depth_map,
+            embodied_fixes=fixes,
+        )
+
+    def reindent(self):
+        """Reindent lines within a sequence."""
+        if self.embodied_fixes:
+            raise NotImplementedError(  # pragma: no cover
+                "rebreak cannot currently handle pre-existing embodied fixes."
+            )
+
+        # indent_unit = self.reflow_config.get()
+
+        # Delegate to the rebreak algorithm
+        lines = map_reindent_lines(self.elements, 0)
+        elem_buff, fixes = lint_reindent_lines(
+            self.elements,
+            lines,
+            indent_unit=self.reflow_config.indent_unit,
+            tab_space_size=self.reflow_config.tab_space_size,
+        )
 
         return ReflowSequence(
             elements=elem_buff,

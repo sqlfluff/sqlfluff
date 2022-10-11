@@ -744,7 +744,12 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
-                    context.parent_stack[0], fix.edit_type, fix.anchor
+                    # If no parent stack, that means the segment itself is the root
+                    context.parent_stack[0]
+                    if context.parent_stack
+                    else context.segment,
+                    fix.edit_type,
+                    fix.anchor,
                 )
 
     @staticmethod
