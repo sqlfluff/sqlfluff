@@ -217,7 +217,9 @@ def map_reindent_lines(
             # If our current indent balance is less than any untaken indent
             # levels then remove them.
             if any(x > indent_balance for x in untaken_indents):
-                untaken_indents = tuple(x for x in untaken_indents if x <= indent_balance)
+                untaken_indents = tuple(
+                    x for x in untaken_indents if x <= indent_balance
+                )
 
             # Have we found a newline?
             # We skip the trivial matches (mostly to avoid a weird start).
@@ -271,16 +273,16 @@ def lint_reindent_lines(
 ):
     """Given _ReindentLines, lint what we've got.
 
-    Each line is compared to the previous _good_ line with
-    either the _same_ or _less_ indent balance than this one.
+    Each line is evaluated based on the indent balance
+    at that point and how many of those previous opportunities
+    for an indent were actually _taken_.
 
-    To facilitate that, we maintain a stack of _ReindentLine
-    objects to not need to go back and scan through all of them
-    to do comparisons.
+    The advantage of this approach is that we're not comparing
+    to a specific line. We're simply indenting where there
+    should be indents and not where there shouldn't.
 
     Additionally, an indent balance of 0, implies there should
-    be no indent, regardless of previous lines. This also allows
-    us to clear the stack any time we reach 0.
+    be no indent, regardless of previous lines.
     """
     if indent_unit == "tab":
         single_indent = "\t"
@@ -291,25 +293,14 @@ def lint_reindent_lines(
             f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
         )
 
-    stack: List[_ReindentLine] = []
     fixes: List[LintFix] = []
     element_buffer = elements.copy()
     # Iterate through the lines.
     for line in lines:
-        # Three scenarios:
-        # 1.  It's got an indent balance of zero.
-        # 2a. There's a balance, and a stack.
-        # 2b. There's a balance and no stack.
-
-        # 2a can degrade to 2b, if there isn't an appropriate
-        # comparison on the stack.
-
         start_point = cast(ReflowPoint, element_buffer[line.start_point_idx])
 
         # Handle the zero case first.
         if line.initial_indent_balance == 0:
-            # Clear stack, we reached zero
-            stack = []
             # If there's an indent, remove it.
             if line.current_indent:
                 reflow_logger.debug(
@@ -333,36 +324,14 @@ def lint_reindent_lines(
                 element_buffer[line.start_point_idx] = new_point
             continue
 
-        # Prune anything from the stack which has a higher balance.
-        for idx in range(len(stack) - 1, -1, -1):
-            # Is it a good comparison point?
-            if stack[idx].initial_indent_balance <= line.initial_indent_balance:
-                # Good
-                break
-            else:
-                # Otherwise get rid of it.
-                stack.pop(idx)
-
-        # Is there a stack left?
-        if stack:
-            # We're comparing to the top of the stack
-            comparison = stack[-1]
-            reflow_logger.debug("Reindent. Line %s. Comparing to %s.", line, comparison)
-            desired_indent = comparison.current_indent + (
-                single_indent
-                * (line.initial_indent_balance - comparison.initial_indent_balance)
-            )
-            deeper = line.initial_indent_balance > comparison.initial_indent_balance
-        else:
-            # Without a stack to compare to we assume we're comparing to the baseline.
-            reflow_logger.debug("Reindent. Line %s. Comparing to baseline.", line)
-            desired_indent = single_indent * line.initial_indent_balance
-            deeper = True
+        # Otherwise we want an indent. Work out what it *should* be first.
+        # Then coerce it to be that if it's not.
+        desired_indent = single_indent * (
+            line.initial_indent_balance - len(line.untaken_indents)
+        )
 
         if line.current_indent == desired_indent:
-            # It's good. Add it to the stack, if we're deeper.
-            if deeper:
-                stack += [line]
+            pass
         else:
             # It's not good. Adjust it.
             reflow_logger.debug(

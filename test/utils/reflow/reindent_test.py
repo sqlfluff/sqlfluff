@@ -186,10 +186,10 @@ def test_reflow__deduce_line_indent(
             "select (((\n((\n3\n))\n)))",
             [
                 _ReindentLine(0, 7, 0, ""),
-                _ReindentLine(7, 11, 4, "", untaken_indents=(1,2,3)),
-                _ReindentLine(11, 13, 6, "", untaken_indents=(1,2,3,5)),
-                _ReindentLine(13, 17, 5, "", untaken_indents=(1,2,3,5)),
-                _ReindentLine(17, 23, 3, "", untaken_indents=(1,2,3)),
+                _ReindentLine(7, 11, 4, "", untaken_indents=(1, 2, 3)),
+                _ReindentLine(11, 13, 6, "", untaken_indents=(1, 2, 3, 5)),
+                _ReindentLine(13, 17, 5, "", untaken_indents=(1, 2, 3, 5)),
+                _ReindentLine(17, 23, 3, "", untaken_indents=(1, 2, 3)),
             ],
         ),
         # More complex examples including templating.
@@ -299,6 +299,12 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
         (
             "select\n    1+(\n    2+3\n    ),\n    4\n    from foo",
             "select\n  1+(\n    2+3\n  ),\n  4\nfrom foo",
+        ),
+        # Multiple untaken indents. We should only indent as many
+        # times as required.
+        (
+            "   select ((((\n1\n))))",
+            "select ((((\n  1\n))))",
         ),
         # ### Templated Multiline Cases ###
         # NOTE: the templated tags won't show here, but they
