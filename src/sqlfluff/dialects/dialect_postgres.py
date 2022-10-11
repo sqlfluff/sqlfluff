@@ -843,6 +843,7 @@ class AlterFunctionActionSegment(BaseSegment):
         Ref.keyword("RESTRICT", optional=True),
     )
 
+
 class AlterProcedureActionSegment(BaseSegment):
     """Alter Procedure Action Segment.
 
@@ -877,6 +878,7 @@ class AlterProcedureActionSegment(BaseSegment):
         ),
         Ref.keyword("RESTRICT", optional=True),
     )
+
 
 class AlterProcedureStatementSegment(BaseSegment):
     """An `ALTER PROCEDURE` statement.
