@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 import logging
-from typing import List, Set, cast
+from typing import List, Set, Tuple, cast
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -44,6 +44,7 @@ class _ReindentLine:
     initial_indent_balance: int
     current_indent: str
     template_only: bool = False
+    untaken_indents: Tuple[int, ...] = ()
 
 
 def _is_template_only(elements: ReflowSequenceType):
@@ -205,10 +206,19 @@ def map_reindent_lines(
     indent_balance = initial_balance
     last_indent_balance = indent_balance
     result: List[_ReindentLine] = []
+    untaken_indents: Tuple[int, ...] = ()
+    last_untaken_indents = untaken_indents
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
             last_pt_idx = idx
-            indent_balance += elem.get_indent_impulse()
+            indent_impulse = elem.get_indent_impulse()
+            indent_balance += indent_impulse
+
+            # If our current indent balance is less than any untaken indent
+            # levels then remove them.
+            if any(x > indent_balance for x in untaken_indents):
+                untaken_indents = tuple(x for x in untaken_indents if x <= indent_balance)
+
             # Have we found a newline?
             # We skip the trivial matches (mostly to avoid a weird start).
             if "newline" in elem.class_types and idx != init_idx:
@@ -221,12 +231,20 @@ def map_reindent_lines(
                         last_indent_balance,
                         indent,
                         _is_template_only(elements[init_idx : idx + 1]),
+                        # Only report untaken indents less than the balance
+                        untaken_indents=last_untaken_indents,
                     )
                 )
                 # Set the index and indent for next time
                 indent = elem.get_indent() or ""
                 init_idx = idx
                 last_indent_balance = indent_balance
+                last_untaken_indents = untaken_indents
+            elif indent_impulse > 0:
+                # If there's no newline, but there _is_ a positive impulse
+                # then this is an untaken indent. Keep track of it.
+                untaken_indents = untaken_indents + (indent_balance,)
+
     # Do we have meaningful content at the end.
     # NOTE: we don't handle any indent before the end_of_file segment.
     # Which is why we use last_pt_idx not just len(elements).
@@ -238,6 +256,7 @@ def map_reindent_lines(
                 last_indent_balance,
                 indent,
                 _is_template_only(elements[init_idx : last_pt_idx + 1]),
+                untaken_indents=last_untaken_indents,
             )
         )
 

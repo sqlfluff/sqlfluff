@@ -173,6 +173,25 @@ def test_reflow__deduce_line_indent(
                 _ReindentLine(1, 3, 1, "  "),
             ],
         ),
+        # Example with an _untaken_ indents.
+        # It's a little contrived but should illustrate the point.
+        (
+            "select (\n3)\n",
+            [
+                _ReindentLine(0, 3, 0, ""),
+                _ReindentLine(3, 7, 2, "", untaken_indents=(1,)),
+            ],
+        ),
+        (
+            "select (((\n((\n3\n))\n)))",
+            [
+                _ReindentLine(0, 7, 0, ""),
+                _ReindentLine(7, 11, 4, "", untaken_indents=(1,2,3)),
+                _ReindentLine(11, 13, 6, "", untaken_indents=(1,2,3,5)),
+                _ReindentLine(13, 17, 5, "", untaken_indents=(1,2,3,5)),
+                _ReindentLine(17, 23, 3, "", untaken_indents=(1,2,3)),
+            ],
+        ),
         # More complex examples including templating.
         (
             "select\n  1\n  {% if false %}\n    + 2\n  {% endif %}",
