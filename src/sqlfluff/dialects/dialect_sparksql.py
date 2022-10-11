@@ -2413,7 +2413,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
-                Conditional(Dedent, indented_using_on=False),
+                Conditional(Indent, indented_using_on=True),
                 # NB: this is optional
                 OneOf(
                     # ON clause
@@ -2440,7 +2440,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                     # be a good idea.
                     optional=True,
                 ),
-                Conditional(Indent, indented_using_on=False),
+                Conditional(Dedent, indented_using_on=True),
             ),
             Dedent,
         ),

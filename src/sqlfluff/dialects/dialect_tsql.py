@@ -2964,9 +2964,12 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(
             Sequence(
                 Ref("TableExpressionSegment"),
+                # TODO: Revisit this to make sure it's sensible.
                 Conditional(Dedent, indented_joins=False),
+                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 Conditional(Dedent, indented_joins=True),
+                Conditional(Indent, indented_joins=True),
             )
         ),
     )
