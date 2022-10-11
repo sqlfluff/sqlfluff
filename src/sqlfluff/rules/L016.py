@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules import LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.utils.functional import sp, Segments
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
@@ -17,13 +18,12 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.rules.L003 import Rule_L003
 
 
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_L016(Rule_L003):
+class Rule_L016(BaseRule):
     """Line is too long."""
 
     groups = ("all", "core")
@@ -33,13 +33,32 @@ class Rule_L016(Rule_L003):
 
     config_keywords = [
         "max_line_length",
-        "tab_space_size",
-        "indent_unit",
         "ignore_comment_lines",
         "ignore_comment_clauses",
     ]
 
-    def _eval_line_for_breaks(self, segments: List[RawSegment]) -> List[LintFix]:
+    @staticmethod
+    def _make_indent(
+        num: int = 1, tab_space_size: int = 4, indent_unit: str = "space"
+    ) -> str:
+        """Make an indent of a given size.
+
+        NOTE: This was migrated from L003 and should probably
+        be removed when L016 is refactored.
+        """
+        if indent_unit == "tab":
+            return "\t" * num
+        if indent_unit == "space":
+            return " " * tab_space_size * num
+
+        raise ValueError(
+            f"Parameter indent_unit has unexpected value: `{indent_unit}`. Expected"
+            " `tab` or `space`."
+        )
+
+    def _eval_line_for_breaks(
+        self, segments: List[RawSegment], indent_unit: str, tab_space_size: int
+    ) -> List[LintFix]:
         """Evaluate the line for break points.
 
         We split the line into a few particular sections:
@@ -112,8 +131,8 @@ class Rule_L016(Rule_L003):
 
                 # Generate some sample indents:
                 unit_indent = crawler._make_indent(
-                    indent_unit=crawler.indent_unit,
-                    tab_space_size=crawler.tab_space_size,
+                    indent_unit=indent_unit,
+                    tab_space_size=tab_space_size,
                 )
                 indent_p1 = indent_section.raw + unit_indent
                 if unit_indent in indent_section.raw:
@@ -485,6 +504,9 @@ class Rule_L016(Rule_L003):
         self.ignore_comment_lines: bool
         self.ignore_comment_clauses: bool
 
+        indent_unit = context.config.get("indent_unit", ["indentation"])
+        tab_space_size = context.config.get("tab_space_size", ["indentation"])
+
         assert context.segment.is_type("newline")
 
         # iterate to buffer the whole line up to this point
@@ -617,7 +639,7 @@ class Rule_L016(Rule_L003):
                     fixes=delete_buffer + create_buffer,
                 )
 
-            fixes = self._eval_line_for_breaks(this_line)
+            fixes = self._eval_line_for_breaks(this_line, indent_unit, tab_space_size)
             if fixes:
                 return LintResult(anchor=context.segment, fixes=fixes)
             return LintResult(anchor=context.segment)
