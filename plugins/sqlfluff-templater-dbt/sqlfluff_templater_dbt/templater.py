@@ -143,7 +143,13 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        try:
+            # Changing cwd temporarily as dbt is not using project_dir to read/write `target/partial_parse.msgpack`
+            os.chdir(self.project_dir)
+
+            self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        finally:
+            os.chdir(self.working_dir)
 
         return self.dbt_manifest
 
