@@ -1729,7 +1729,13 @@ class AlterTableClusteringActionSegment(BaseSegment):
         ),
     )
 
+
 class AlterTableConstraintActionSegment(BaseSegment):
+    """ALTER TABLE `constraintAction` per defined in Snowflake's grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#constraint-actions-constraintaction
+    """
+
     type = "alter_table_constraint_action"
 
     match_grammar = OneOf(
@@ -1752,9 +1758,11 @@ class AlterTableConstraintActionSegment(BaseSegment):
                     Ref("TableReferenceSegment"),
                     Bracketed(Ref("ColumnReferenceSegment")),
                 ),
-                Sequence("UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)),
-            )
-        ), 
+                Sequence(
+                    "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
+                ),
+            ),
+        ),
         Sequence(
             "DROP",
             Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
@@ -1763,16 +1771,15 @@ class AlterTableConstraintActionSegment(BaseSegment):
                 Ref("ForeignKeyGrammar"),
                 "UNIQUE",
             ),
-            Delimited(Ref("ColumnReferenceSegment"))
-        ),    
+            Delimited(Ref("ColumnReferenceSegment")),
+        ),
         Sequence(
             "RENAME",
             "CONSTRAINT",
             Ref("NakedIdentifierSegment"),
             "TO",
             Ref("NakedIdentifierSegment"),
-
-        ),    
+        ),
     )
 
 
