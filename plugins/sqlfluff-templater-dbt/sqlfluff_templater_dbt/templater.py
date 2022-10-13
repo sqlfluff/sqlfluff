@@ -144,7 +144,9 @@ class DbtTemplater(JinjaTemplater):
         from dbt.parser.manifest import ManifestLoader
 
         try:
-            # Changing cwd temporarily as dbt is not using project_dir to read/write `target/partial_parse.msgpack`
+            # Changing cwd temporarily as dbt is not using project_dir to
+            # read/write `target/partial_parse.msgpack`. This can be undone when
+            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
             os.chdir(self.project_dir)
 
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
