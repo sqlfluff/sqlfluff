@@ -1476,6 +1476,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Ref("AlterTableClusteringActionSegment"),
             Ref("AlterTableTableColumnActionSegment"),
+            Ref("AlterTableConstraintActionSegment"),
             # @TODO: constraintAction
             # @TODO: extTableColumnAction
             # SET Table options
@@ -1726,6 +1727,52 @@ class AlterTableClusteringActionSegment(BaseSegment):
             "CLUSTERING",
             "KEY",
         ),
+    )
+
+class AlterTableConstraintActionSegment(BaseSegment):
+    type = "alter_table_constraint_action"
+
+    match_grammar = OneOf(
+        # Add Column
+        Sequence(
+            "ADD",
+            Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
+            OneOf(
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                ),
+                Sequence(
+                    Sequence(
+                        Ref("ForeignKeyGrammar"),
+                        Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                        optional=True,
+                    ),
+                    "REFERENCES",
+                    Ref("TableReferenceSegment"),
+                    Bracketed(Ref("ColumnReferenceSegment")),
+                ),
+                Sequence("UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)),
+            )
+        ), 
+        Sequence(
+            "DROP",
+            Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
+            OneOf(
+                Ref("PrimaryKeyGrammar"),
+                Ref("ForeignKeyGrammar"),
+                "UNIQUE",
+            ),
+            Delimited(Ref("ColumnReferenceSegment"))
+        ),    
+        Sequence(
+            "RENAME",
+            "CONSTRAINT",
+            Ref("NakedIdentifierSegment"),
+            "TO",
+            Ref("NakedIdentifierSegment"),
+
+        ),    
     )
 
 
