@@ -106,7 +106,21 @@ with eachother. The configuration to achieve this layout is:
 Line Breaks
 -----------
 
-TODO
+When controlling line breaks we are trying to achieve a few different things:
+1. Do we have *enough* line breaks that *line length* doesn't become
+   excessive. Long lines are hard to read, especially given that readers
+   may be on varying screen sizes or have multiple windows open.
+2. Are the positioning of *blank lines* (i.e. lines with nothing other
+   than whitespace on them) appropriate. There are some circumstances
+   where a blank line is *desired* (e.g. between CTEs). There are others
+   where they are not, in particular *multiple blank lines*, for example
+   at the beginning of a file.
+3. Where we do have line breaks, are they positioned appropriately and
+   consistently with regards to other elements around them. This is most
+   common when it comes to *commas*, and whether they should be *leading*
+   (e.g. :code:`, my_column`) or *trailing* (e.g. :code:`my_column,`). In
+   less common cases it may also be desirable for some elements to have both
+   and line break *before and after* (e.g. a set operator such as `UNION`).
 
 
 Indentation
