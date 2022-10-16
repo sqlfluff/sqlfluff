@@ -1,18 +1,35 @@
 .. _indentref:
 
-Let's talk about indentation
-============================
+Let's talk about whitespace
+===========================
 
 If there is one part of building a linter that is going to be controversial
-it's going to be **indentation** (closely followed by **cApiTaLiSaTiOn** 😁).
+it's going to be **whitespace** (closely followed by **cApiTaLiSaTiOn** 😁).
 
-*SQLFluff* aims to be *opinionated* here, but also *configurable* (see
-:ref:`indentconfig`). The tool will have a default viewpoint and will aim
+More specifically, **whitespace** divides into four key themes:
+1. **Spacing**: The amount of whitespace between elements on the same line.
+2. **Line Breaks**: The choice of where within the code it is inappropriate,
+   appropriate or even compulsory to have a line break.
+3. **Indentation**: Given a line break, how much whitespace should precede
+   the first code element on that line.
+
+*SQLFluff* aims to be *opinionated* on this theme, but also *configurable*
+(see :ref:`layoutconfig`). The tool will have a default viewpoint and will aim
 to have views on all of the important aspects of SQL layout, but if you
 (or your organisation) don't like those views then we aim to allow enough
 configuration that you can lint in line with your views, and still use
 *SQLFluff*. For more information on how to configure rules to your own
 viewpoint see :ref:`config`.
+
+.. note::
+
+    This section of the docs handles the intent and reasoning behind how
+    layout is handled by SQLFluff. For a deeper look at how this is achieved
+    internally see :ref:`reflowinternals`.
+
+
+Indentation
+-----------
 
 So, without further ado, here are the principles we think apply to indentation:
 
@@ -146,10 +163,10 @@ So, without further ado, here are the principles we think apply to indentation:
          to the elements of code which they come *before*, not *after*.
 
 
-.. _indentconfig:
+.. _layoutconfig:
 
-Configuring Indentation
-^^^^^^^^^^^^^^^^^^^^^^^
+Configuring Layout
+------------------
 
 How indentation is linted is controlled in the rules, but what indentation
 is expected to be present is controlled by the parser, and therefore
