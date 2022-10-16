@@ -1,4 +1,4 @@
-.. _indentref:
+.. _layoutref:
 
 Let's talk about whitespace
 ===========================
@@ -26,6 +26,87 @@ viewpoint see :ref:`config`.
     This section of the docs handles the intent and reasoning behind how
     layout is handled by SQLFluff. For a deeper look at how this is achieved
     internally see :ref:`reflowinternals`.
+
+
+Spacing
+-------
+
+Of the different elements of whitespace, spacing it likely the least
+controversial. By default all elements are separated by a single space
+character. Except for very specific circumstances (see section on
+:ref:`alignedelements`), any additional space between elements is
+usually unwanted and a distraction for the reader. There are however
+several common cases where *no whitespace* is more appropriate, which
+fall into two cases.
+
+- *No whitespace but a newline is allowed.* This option is configured
+  using the :code:`touch` setting. The most common example of
+  this is the spacing around commas. For example :code:`SELECT a , b`
+  would be unusual and more normally be written :code:`SELECT a, b`.
+  Inserting a newline between the :code:`a` and comma would not
+  cause issues and may even be desired, for example:
+
+  .. code-block:: sql
+
+      SELECT
+         col_a
+         , col_b
+         -- Newline present before column
+         , col_c
+         -- When inline, comma should still touch element before.
+         , GREATEST(col_d, col_e) as col_f
+      FROM tbl_a
+
+- *No whitespace and a newline is not allowed.* This option is
+  configured using the :code:`inline` setting. The most common example
+  of this is spacing within the parts of qualified identifier e.g.
+  :code:`my_schema.my_table`. If a newline were present between the
+  :code:`.` and either :code:`my_schema` or :code:`my_table`, then
+  the expression would not parse and so no newlines should be allowed.
+
+
+.. _alignedelements:
+
+Aligned elements
+^^^^^^^^^^^^^^^^
+
+A special case of spacing is where elements are set to be aligned
+within some limits. This is not enabled by default, but can be
+be configured to achieve layouts like:
+
+.. code-block:: sql
+
+   SELECT
+      a           AS first_column,
+      b           AS second_column,
+      (a + b) / 2 AS third_column
+   FROM foo AS bar
+
+In this example, the alias expressions are all aligned with each other.
+Practically to configure this, SQLFluff needs to know what elements to
+align and how far to search to find elements which should be aligned
+with eachother. The configuration to achieve this layout is:
+
+.. code-block:: ini
+
+   [sqlfluff:layout:type:alias_expression]
+   # We want non-default spacing _before_ the alias expressions.
+   spacing_before = align
+   # We want to align them within the next outer select clause.
+   # This means for example that alias expressions within the FROM
+   # or JOIN clause would _not_ be aligned with them.
+   align_within = select_clause
+   # The point at which to stop searching outward for siblings, which
+   # in this example would likely be the boundary of a CTE. Stopping
+   # when we hit brackets is usually a good rule of thumb for this
+   # configuration.
+   align_boundary = bracketed
+
+
+Line Breaks
+-----------
+
+TODO
 
 
 Indentation
