@@ -152,10 +152,13 @@ way this is achieved is through a some centralised utilities in the
 
 This module aims to achieve several things:
 * Less code duplication by implementing reflow logic in only one place.
+
 * Provide a streamline interface for rules to easily utilise reflow logic.
+
   * Given this requirement, it's important that reflow utilities work
     within the existing framework for applying fixes to potentially
     templated code. We achieve this by returning `LintFix` objects which
     can then be returned by each rule wanting to use this logic.
-* Provide a consistent way of _configuring_ layout requirements. For more
+
+* Provide a consistent way of *configuring* layout requirements. For more
   details on configuration see :ref:`layoutconfig`.

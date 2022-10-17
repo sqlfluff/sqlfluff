@@ -6,11 +6,14 @@ Let's talk about whitespace
 If there is one part of building a linter that is going to be controversial
 it's going to be **whitespace** (closely followed by **cApiTaLiSaTiOn** 😁).
 
-More specifically, **whitespace** divides into four key themes:
-1. **Spacing**: The amount of whitespace between elements on the same line.
-2. **Line Breaks**: The choice of where within the code it is inappropriate,
+More specifically, **whitespace** divides into three key themes:
+
+#. **Spacing**: The amount of whitespace between elements on the same line.
+
+#. **Line Breaks**: The choice of where within the code it is inappropriate,
    appropriate or even compulsory to have a line break.
-3. **Indentation**: Given a line break, how much whitespace should precede
+
+#. **Indentation**: Given a line break, how much whitespace should precede
    the first code element on that line.
 
 *SQLFluff* aims to be *opinionated* on this theme, but also *configurable*
@@ -39,14 +42,14 @@ usually unwanted and a distraction for the reader. There are however
 several common cases where *no whitespace* is more appropriate, which
 fall into two cases.
 
-- *No whitespace but a newline is allowed.* This option is configured
-  using the :code:`touch` setting. The most common example of
-  this is the spacing around commas. For example :code:`SELECT a , b`
-  would be unusual and more normally be written :code:`SELECT a, b`.
-  Inserting a newline between the :code:`a` and comma would not
-  cause issues and may even be desired, for example:
+#. *No whitespace but a newline is allowed.* This option is configured
+   using the :code:`touch` setting. The most common example of
+   this is the spacing around commas. For example :code:`SELECT a , b`
+   would be unusual and more normally be written :code:`SELECT a, b`.
+   Inserting a newline between the :code:`a` and comma would not
+   cause issues and may even be desired, for example:
 
-  .. code-block:: sql
+   .. code-block:: sql
 
       SELECT
          col_a
@@ -57,12 +60,12 @@ fall into two cases.
          , GREATEST(col_d, col_e) as col_f
       FROM tbl_a
 
-- *No whitespace and a newline is not allowed.* This option is
-  configured using the :code:`inline` setting. The most common example
-  of this is spacing within the parts of qualified identifier e.g.
-  :code:`my_schema.my_table`. If a newline were present between the
-  :code:`.` and either :code:`my_schema` or :code:`my_table`, then
-  the expression would not parse and so no newlines should be allowed.
+#. *No whitespace and a newline is not allowed.* This option is
+   configured using the :code:`inline` setting. The most common example
+   of this is spacing within the parts of qualified identifier e.g.
+   :code:`my_schema.my_table`. If a newline were present between the
+   :code:`.` and either :code:`my_schema` or :code:`my_table`, then
+   the expression would not parse and so no newlines should be allowed.
 
 
 .. _alignedelements:
@@ -107,15 +110,18 @@ Line Breaks
 -----------
 
 When controlling line breaks we are trying to achieve a few different things:
-1. Do we have *enough* line breaks that *line length* doesn't become
+
+#. Do we have *enough* line breaks that *line length* doesn't become
    excessive. Long lines are hard to read, especially given that readers
    may be on varying screen sizes or have multiple windows open.
-2. Are the positioning of *blank lines* (i.e. lines with nothing other
+
+#. Are the positioning of *blank lines* (i.e. lines with nothing other
    than whitespace on them) appropriate. There are some circumstances
    where a blank line is *desired* (e.g. between CTEs). There are others
    where they are not, in particular *multiple blank lines*, for example
    at the beginning of a file.
-3. Where we do have line breaks, are they positioned appropriately and
+
+#. Where we do have line breaks, are they positioned appropriately and
    consistently with regards to other elements around them. This is most
    common when it comes to *commas*, and whether they should be *leading*
    (e.g. :code:`, my_column`) or *trailing* (e.g. :code:`my_column,`). In
