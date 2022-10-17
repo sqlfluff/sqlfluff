@@ -1039,6 +1039,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
             Ref("LoadDataSegment"),
+            Ref("ReplaceSegment"),
         ],
     )
 
@@ -2352,7 +2353,7 @@ class LoadDataSegment(BaseSegment):
         "INTO",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Ref("SelectPartitionClauseSegment", optional=True),
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
         Sequence(
             OneOf("FIELDS", "COLUMNS"),
@@ -2387,6 +2388,40 @@ class LoadDataSegment(BaseSegment):
             "SET",
             Ref("Expression_B_Grammar"),
             optional=True,
+        ),
+    )
+
+
+class ReplaceSegment(BaseSegment):
+    """A `REPLACE` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/replace.html
+    """
+
+    type = "replace_statement"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf("LOW_PRIORITY", "DELAYED", optional=True),
+        Sequence("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("SelectPartitionClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("ValuesClauseSegment"),
+            ),
+            Ref("SetClauseListSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                ),
+            ),
         ),
     )
 
