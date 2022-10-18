@@ -113,7 +113,9 @@ When controlling line breaks we are trying to achieve a few different things:
 
 #. Do we have *enough* line breaks that *line length* doesn't become
    excessive. Long lines are hard to read, especially given that readers
-   may be on varying screen sizes or have multiple windows open.
+   may be on varying screen sizes or have multiple windows open. This is
+   (of course) configurable, but the default is 80 characters (in line with
+   the `dbt Labs SQL style guide`_.)
 
 #. Are the positioning of *blank lines* (i.e. lines with nothing other
    than whitespace on them) appropriate. There are some circumstances
@@ -132,136 +134,239 @@ When controlling line breaks we are trying to achieve a few different things:
 Indentation
 -----------
 
-So, without further ado, here are the principles we think apply to indentation:
+Lastly, given we have multiple lines of SQL, to what extent should we indent
+some lines to provide visual queues to the structure of that SQL. It's
+important to note that SQL is *not* whitespace sensitive in it's
+interpretation and that means that any principles we apply here are entirely
+for the benefit of humans. *Your database doesn't care*.
 
-1. **For Keywords within a statement, the first root keyword of each line should be
-   aligned.** For :code:`SELECT` statements, this means that :code:`SELECT`,
-   :code:`FROM`, :code:`WHERE`, :code:`GROUP`, :code:`ORDER`, :code:`HAVING`
-   and :code:`LIMIT`, should all have the same indent. Occasionally, it's
-   actually more legible to have one-line or more compressed statements,
-   and so additionally, if two (or more) of these keywords are on *the same*
-   line, then the second (and any further) keywords won't raise a violation,
-   provided that the *first* was correctly aligned.
+The indentation therefore should be treated as a *hint* to the reader of
+the structure of the code. This explains the commons practice within most
+languages that nested elements (for example the contents of a set of brackets
+in a function call) should be indented one step from the outer elements. It's
+also convention that elements *with the same level* in a nested structure
+should have *the same indentation*, at least with regards to their local
+surroundings. As an example:
 
-   * This same logic applies to keywords within subsections, but the
-     likelihood of them being on the same line to start is higher. one
-     example of where this might occur regularly is within aggregate
-     functions.
+.. code-block:: sql
 
-     .. code-block:: sql
+   SELECT
+      nested_within_select AS first_column,
+      some_function(
+         nested_within_function,
+         also_nested_within_function
+      ) AS indented_the_same_as_opening_bracket
+   FROM indented_the_same_as_select
 
-         SELECT
-            col_a,
-            col_b,
-            COUNT(*) as num,
-            SUM(num) OVER (
-               PARTITION BY col_a
-               ORDER BY col_b
-            ) as an_aggregate_function
-         FROM tbl_a
-         GROUP BY 1, 2
+Comment Indents
+^^^^^^^^^^^^^^^
 
-     Note that :code:`PARTITION` and :code:`ORDER` are both aligned on
-     the same line. This also follows the rules around brackets described
-     below.
+**Comments** are dealt with differently, depending on whether they're
+*block* comments (:code:`/* like this */`), which might optionally
+include newlines, or *inline* comments (:code:`-- like this`) which
+are necessarily only on one line.
 
-2. **Line Length**. Long lines are hard to read and many SQL guidelines
-   include a line length restriction. This is (of course) configurable, but
-   the default is 80 characters (in line with the `dbt Labs SQL style guide`_.)
+*  *Block comments* cannot share a line with any code elements (so
+   in effect they must start on their own new line), they cannot be
+   followed by any code elements on the same line (and so in effect
+   must be followed by a newline, if we are to avoid trailing
+   whitespace). None of the lines within the block comment may have
+   an indent less than the first line of the block comment (although
+   additional indentation within a comment is allowed), and that first
+   line should be aligned with the first code element *following*
+   the block comment.
 
-3. **Bracket behaviour**. For brackets there are three accepted ways:
+   .. code-block:: sql
 
-   a. *Inline brackets*. Bracket expressions that start and end on the same line are
-      fine (providing we don't fall foul of the line length rules above).
+      SELECT
+         /* This is a block comment starting on a new line
+         which contains a newline (continuing with at least
+         the same indent.
+            - potentially containing greater indents
+            - having no other code following it in the same line
+            - and aligned with the line of code following it */
+         this_column as what_we_align_the_column_to
+      FROM my_table
 
-      .. code-block:: sql
+*  *Inline comments* can be on the same line as other code, but are
+   subject to the same line-length restrictions. If they don't fit
+   on the same line (or if it just looks nicer) they can also be
+   the only element on a line. In this latter case they should be
+   aligned with the first code element *following* the comment.
 
-         SELECT GREATEST(1, 6) AS col1 FROM my_table
+   .. code-block:: sql
 
-   b. *Brackets with immediate linebreak*. If brackets are followed by an immediate
-      line break (or at least with no other non-code elements after them on that
-      line), then the following line should be indented +1 relative to the
-      indent of the previous line. All elements of the bracketed block should
-      be at this level of indent or deeper. The *closing* bracket of this block
-      should have the same indent as the first element of the line containing
-      the opening bracket.
+      SELECT
+         -- This is fine
+         this_column as what_we_align_to,
+         another_column as something_short,  -- Is ok
+         case
+            -- This is aligned correctly with below
+            when indented then take_care
+            else try_harder
+         end as the_general_guidance
+      -- Even here we align with the line below
+      FROM my_table
 
-      .. code-block:: sql
+   .. note::
 
-         SELECT GREATEST(
-             1, 3, 7,
-             6, 8, 9
-         ) AS col1
-         FROM my_table
+      When fixing issues with comment indentation, SQLFluff
+      will attempt to keep comments in their original position
+      but if line length concerns make this difficult, it will
+      either abort the fix, or move *same line* comments up and
+      *before* the line they are currently on. This is in line
+      with the assumption that comments on their own line refer
+      to the elements of code which they come *before*, not *after*.
 
-   c. *Brackets with delayed linebreak*. If brackets are followed by content,
-      and then a linebreak *before* the closing bracket, then we assume a
-      *hanging* indent, where the following items of content should have the
-      same indent as the first item of content. In this case, the *closing*
-      bracket should come after the final element *on the same line*.
 
-      .. code-block:: sql
+.. _hangingindents:
 
-         SELECT GREATEST(1, 6, 8,
-                         6, 7) AS col1
-         FROM my_table
+Hanging Indents
+^^^^^^^^^^^^^^^
 
-4. **Comments** are dealt with differently, depending on whether they're
-   *block* comments (:code:`/* like this */`), which might optionally
-   include newlines, or *inline* comments (:code:`-- like this`) which
-   are necessarily only on one line.
+One approach to indenting nested elements is a layout called a
+*hanging indent*. In this layout, there is no line break before the
+first nested element, but subsequent elements are indented to
+match the line position of that first element. Two examples might be:
 
-   a. *Block comments* cannot share a line with any code elements (so
-      in effect they must start on their own new line), they cannot be
-      followed by any code elements on the same line (and so in effect
-      must be followed by a newline, if we are to avoid trailing
-      whitespace). None of the lines within the block comment may have
-      an indent less than the first line of the block comment (although
-      additional indentation within a comment is allowed), and that first
-      line should be aligned with the first code element *following*
-      the block comment.
+.. code-block:: sql
 
-      .. code-block:: sql
+   -- A select statement with two hanging indents:
+   SELECT no_line_break_before_me,
+          indented_to_match_the_first,
+          1 + (a
+               + b) AS another_more_complex_example
+   FROM my_table;
 
-         SELECT
-            /* This is a block comment starting on a new line
-            which contains a newline (continuing with at least
-            the same indent.
-               - potentially containing greater indents
-               - having no other code following it in the same line
-               - and aligned with the line of code following it */
-            this_column as what_we_align_the_column_to
-         FROM my_table
+   -- This TSQL example is also in essence a hanging indent:
+   DECLARE @prv_qtr_1st_dt DATETIME,
+           @last_qtr INT,
+           @last_qtr_first_mn INT,
+           @last_qtr_yr INT;
 
-   b. *Inline comments* can be on the same line as other code, but are
-      subject to the same line-length restrictions. If they don't fit
-      on the same line (or if it just looks nicer) they can also be
-      the only element on a line. In this latter case they should be
-      aligned with the first code element *following* the comment.
+In some circumstances this layout can be quite neat (the
+:code:`DECLARE` statement is a good example of this), however
+once indents are nested or indentation styles are mixed it
+can rapidly become confusing (as partially shown in the first
+example). Additionally, unless the leading element of the first
+line is very short, hanging indents use much *larger indents*
+than a traditional simple indent where a line break is used before
+the first element.
 
-      .. code-block:: sql
+Hanging indents have been supported in SQLFluff up to the 1.x
+versions, however **they will no longer by supported from 2.0.0**
+onwards. This is due to the ambiguity which they bring to
+fixing poorly formatted sql. Take the following code:
 
-         SELECT
-            -- This is fine
-            this_column as what_we_align_to,
-            another_column as something_short,  -- Is ok
-            case
-               -- This is aligned correctly with below
-               when indented then take_care
-               else try_harder
-            end as the_general_guidance
-         -- Even here we align with the line below
-         FROM my_table
+.. code-block:: sql
 
-      .. note::
+   SELECT   this_is,
+   badly_formatted, code_and,
+      not_obvious,
+         what_was,
+   intended FROM my_table
 
-         When fixing issues with comment indentation, SQLFluff
-         will attempt to keep comments in their original position
-         but if line length concerns make this difficult, it will
-         either abort the fix, or move *same line* comments up and
-         *before* the line they are currently on. This is in line
-         with the assumption that comments on their own line refer
-         to the elements of code which they come *before*, not *after*.
+Given the lack of line break between :code:`SELECT` and
+:code:`this_is`, it would appear that the user is intending
+a hanging indent, however it is also plausible that they did
+not and they just forgot to add a line break between them.
+This ambiguity is unhelpful, both for SQLFluff as a tool,
+but also for people who write SQL that there two ways of
+indenting their SQL. Given SQLFluff aims to provide consistency
+in SQL layout and remove some of the burden of needing to make
+choices like this - and that nobody is thinking of using *only*
+hanging indents - the only route left to consistency is to
+**not allow hanging indents**. Starting in 2.0.0, any hanging
+indents detected will be converted to traditional indents.
+
+.. _templatedindents:
+
+Templated Indents
+^^^^^^^^^^^^^^^^^
+
+SQLFluff supports templated elements in code, such as those
+offered by jinja2 (or dbt which relies on it). For simple
+cases, templated elements are handled as you would expect
+by introducing additional indents into the layout.
+
+.. code-block:: SQL+Jinja
+
+   SELECT
+      a,
+      {% for n in ['b', 'c', 'd'] %}
+         -- This section is indented relative to 'a' because
+         -- it is inside a jinja for loop.
+         {{ n }},
+      {% endfor %}
+      e
+   FROM my_table
+
+This functionality can be turned off if you wish using the
+:code:`template_blocks_indent` option in your :ref:`config`.
+
+It's important to note here, that SQLFluff lints the code after
+it has been rendered, and so only has access to code which is
+still present after that process.
+
+.. code-block:: SQL+Jinja
+
+   SELECT
+      a,
+      {% if False %}
+      -- This section of the code cannot be linted because
+      -- it is never rendered due to the `if False` condition.
+      my    + poorly
+         +   spaced - and/indented AS    section_of_code
+      {% endif %}
+      e
+   FROM my_table
+
+More complex templated cases are usually characterised by templated
+tags *cutting across the parse tree*. This more formally is where the
+opening and closing tags of a templated section exist at different
+levels in the parsed structure. Starting in version 2.x, these will
+be treated differently (pre version 2.x situations like this may
+be handled inconsistently or even unexpectedly).
+
+Indentation should act as a visual clue to the structure of the
+written SQL, and as such, the most important thing is that tags
+belonging to the same structure exist on the same level of indentation.
+In the example below this is the opening and closing elements of the
+second :code:`if` statement. If treated as a simple case, these tags
+would have different indents, because they are at different levels of
+the parse tree and so clearly there is a conflict to be resolved.
+
+The view SQLFluff takes on how to resolve this conflict is to pull
+all of the tags in this section down to the indent of the
+*least indented* (in the example below that would be the closing
+:code:`endif` tag). This is similar to the treatment of
+`C Preprocessor Directives`_, which are treated somewhat as being
+outside the structure of the rest of the file. In these cases,
+the content is also *not further indented* as in the simple case
+because it makes it harder to line up elements within the affected
+section and outside (in the example below the :code:`SELECT` and
+:code:`FROM` are a good illustration).
+
+.. code-block:: SQL+Jinja
+
+   SELECT
+      a,
+      {% if True %}
+         -- This is a simple case. The opening and closing tag are
+         -- both at the same level within the SELECT clause.
+         simple_case AS example,
+      {% endif %}
+      b,
+   {% if True %}
+      -- This is a complex case. The opening tag is within the SELECT
+      -- clause, but the closing tag is outside the statement
+      -- entirely.
+      complex_case AS example
+   FROM table_option_one
+   {% else %
+      complex_case_two AS example
+   FROM table_option_two
+   {% endif %}
 
 
 .. _layoutconfig:
@@ -269,10 +374,31 @@ So, without further ado, here are the principles we think apply to indentation:
 Configuring Layout
 ------------------
 
-How indentation is linted is controlled in the rules, but what indentation
-is expected to be present is controlled by the parser, and therefore
-configured separately. One of the key areas for this is the indentation
-of the :code:`JOIN` expression.
+Configuration for layout is spread across three places:
+
+#. Configuration for what indentation is expected to be present
+   within particular dialect elements is controlled by the parser.
+   This is because in the background SQLFluff inserts :code:`Indent`
+   and :code:`Dedent` tokens into the parse tree where those things
+   are expected. For more detail see :ref:`layoutindentconfig`.
+
+#. Configuration for the spacing and line position of particular
+   types of element (such as commas or operators) in set in the
+   :code:`layout` section of the config file. For more detail see
+   :ref:`layoutspacingconfig`.
+
+#. Some elements of layout are still controlled by rules directly.
+   These are usually very specific cases, see :ref:`ruleref` for
+   more details.
+
+
+.. _layoutindentconfig:
+
+Configuring indent locations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One of the key areas for this is the indentation of the
+:code:`JOIN` expression, which we'll use as an example.
 
 Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
 and therefore would be expected to be indented. However according to many
@@ -381,6 +507,94 @@ to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
+.. _layoutspacingconfig:
+
+Configuring layout and spacing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :code:`[sqlfluff:layout]` section of the config controls the treatment of
+spacing and line breaks across all rules. The syntax of this section is very
+expressive, however in normal use, only very small alterations should be
+necessary from the :ref:`defaultconfig`.
+
+The syntax of the section headings here select by *type*, which corresponds
+to the :code:`type` defined in the dialect. For example the following section
+applies to elements of the *type* :code:`comma`, i.e. :code:`,`.
+
+.. code-block:: cfg
+
+   [sqlfluff:layout:type:comma]
+   spacing_before = touch
+   line_position = trailing
+
+Within these configurable sections there are a few key elements which are
+available:
+
+*  **Spacing Elements**: :code:`spacing_before`, :code:`spacing_after` and
+   :code:`spacing_within`. For each of these options there are a few possible
+   settings:
+   
+   *  The default spacing for all elements is :code:`single` unless otherwise
+      specified. In this state, elements will be spaced with a single space
+      character unless there is a line break between them.
+
+   *  The value of :code:`touch` allows line breaks, but if no line break is
+      present, then no space should be present. A great example of this is
+      the spacing before commas (as shown in the config above), where line
+      breaks may be allowed, but if not they should *touch* the element before.
+   
+   *  The value of :code:`inline` is effectively the same as :code:`touch`
+      but in addition, no line breaks are allowed. This best illustrated
+      by the :code:`spacing_within` a qualified identifier like
+      :code:`my_schema.my_table`.
+
+*  **Line Position**: set using the :code:`line_position` option. By default
+   this is unset, which implies no particular line position requirements. The
+   available options are:
+
+   *  :code:`trailing` and :code:`leading`, which are most common in the
+      placement of commas. Both of these settings *also* allow the option
+      of a comma on it's own on a line, or in the middle of a line, *but*
+      if there is a line break on *either side* then they make sure it's
+      on the *correct side*. By default we assume *trailing* commas, but if
+      you (or your organisation) have settled on *leading* commas then
+      you should add the following section to your config:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:comma]
+         line_position = leading
+   
+   *  :code:`alone`, which means if there is a line break on either side
+      then there must be a line break on *both sides* (i.e. that it should
+      be the only thing on that line.
+   
+   *  All of the above options can be qualified with the :code:`:strict`
+      modifier - which prevents the *inline* case. For example:
+
+      .. code-block:: sql
+
+         -- Setting line_position to just `alone`
+         -- within [sqlfluff:layout:type:set_operator]
+         -- would not allow:
+         SELECT a
+         UNION SELECT b;
+         -- ...or...
+         SELECT a UNION
+         SELECT b;
+         -- but *would* allow both of the following:
+         SELECT a UNION SELECT b;
+         SELECT a
+         UNION
+         SELECT b;
+
+         -- However the default is set to `alone:strict`
+         -- then the *only* acceptable configuration is:
+         SELECT a
+         UNION
+         SELECT b;
+
+
+.. _`C Preprocessor Directives`: https://www.cprogramming.com/reference/preprocessor/
 .. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
-.. _`Rule L018`: ./rules.html#sqlfluff.core.rules.Rule_L018
