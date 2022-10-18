@@ -533,7 +533,7 @@ available:
 *  **Spacing Elements**: :code:`spacing_before`, :code:`spacing_after` and
    :code:`spacing_within`. For each of these options there are a few possible
    settings:
-   
+
    *  The default spacing for all elements is :code:`single` unless otherwise
       specified. In this state, elements will be spaced with a single space
       character unless there is a line break between them.
@@ -542,7 +542,7 @@ available:
       present, then no space should be present. A great example of this is
       the spacing before commas (as shown in the config above), where line
       breaks may be allowed, but if not they should *touch* the element before.
-   
+
    *  The value of :code:`inline` is effectively the same as :code:`touch`
       but in addition, no line breaks are allowed. This best illustrated
       by the :code:`spacing_within` a qualified identifier like
@@ -564,11 +564,11 @@ available:
 
          [sqlfluff:layout:type:comma]
          line_position = leading
-   
+
    *  :code:`alone`, which means if there is a line break on either side
       then there must be a line break on *both sides* (i.e. that it should
       be the only thing on that line.
-   
+
    *  All of the above options can be qualified with the :code:`:strict`
       modifier - which prevents the *inline* case. For example:
 
