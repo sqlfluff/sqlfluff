@@ -5867,7 +5867,11 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
     _frame_extent = OneOf(
         Sequence("CURRENT", "ROW"),
         Sequence(
-            OneOf(Ref("NumericLiteralSegment"), Ref("ReferencedVariableNameSegment"), "UNBOUNDED"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ReferencedVariableNameSegment"),
+                "UNBOUNDED",
+            ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
     )
