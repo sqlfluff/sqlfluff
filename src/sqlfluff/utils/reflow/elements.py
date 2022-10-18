@@ -100,7 +100,7 @@ class ReflowBlock(ReflowElement):
         cls: Type["ReflowBlock"], segments, config: ReflowConfig, depth_info: DepthInfo
     ) -> "ReflowBlock":
         """Construct a ReflowBlock while extracting relevant configuration.
-        
+
         This is the primary route to construct a ReflowBlock, as
         is allows all of the inference of the spacing and position
         configuration from the segments it contains and the
