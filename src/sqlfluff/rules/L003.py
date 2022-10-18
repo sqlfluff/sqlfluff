@@ -49,7 +49,6 @@ class Rule_L003(BaseRule):
     crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
     _adjust_anchors = True
-    _ignore_types: List[str] = ["script_content"]
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Indentation not consistent with previous lines.

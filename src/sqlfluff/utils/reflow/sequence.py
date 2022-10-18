@@ -549,9 +549,29 @@ class ReflowSequence:
 
         # Delegate to the rebreak algorithm
         lines = map_reindent_lines(self.elements, 0)
+
+        # Skip elements we're configured to no indent
+        filtered_lines = []
+        for line in lines:
+            for block in self.elements[line.start_point_idx : line.end_point_idx]:
+                if isinstance(block, ReflowBlock):
+                    if any(
+                        self.reflow_config.skip_indentation_in.intersection(types)
+                        for types in block.depth_info.stack_class_types
+                    ):
+                        reflow_logger.debug(
+                            "Skipping line %s because it is within one of %s",
+                            line,
+                            self.reflow_config.skip_indentation_in,
+                        )
+                        break
+            else:
+                # it's good - keep it.
+                filtered_lines.append(line)
+
         elem_buff, fixes = lint_reindent_lines(
             self.elements,
-            lines,
+            filtered_lines,
             indent_unit=self.reflow_config.indent_unit,
             tab_space_size=self.reflow_config.tab_space_size,
         )

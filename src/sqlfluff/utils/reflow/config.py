@@ -4,7 +4,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, Set, Optional
+from typing import AbstractSet, Dict, FrozenSet, Set, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
@@ -63,6 +63,7 @@ class ReflowConfig:
     tab_space_size: int = 4
     indent_unit: str = "    "
     hanging_indents: bool = False
+    skip_indentation_in: FrozenSet[str] = frozenset()
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs):
@@ -90,6 +91,9 @@ class ReflowConfig:
             indent_unit=config.get("indent_unit", ["indentation"]),
             tab_space_size=config.get("tab_space_size", ["indentation"]),
             hanging_indents=config.get("hanging_indents", ["indentation"]),
+            skip_indentation_in=frozenset(
+                config.get("skip_indentation_in", ["indentation"]).split(",")
+            ),
         )
 
     def get_block_config(
