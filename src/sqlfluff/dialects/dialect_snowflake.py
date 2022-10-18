@@ -5859,7 +5859,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
 class FrameClauseSegment(ansi.FrameClauseSegment):
     """A frame clause for window functions.
 
-    https://docs.oracle.com/cd/E17952_01/mysql-8.0-en/window-functions-frames.html
+    https://docs.snowflake.com/en/sql-reference/functions-analytic.html#window-frame-syntax-and-usage
     """
 
     type = "frame_clause"
