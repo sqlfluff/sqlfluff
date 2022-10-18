@@ -162,3 +162,20 @@ This module aims to achieve several things:
 
 * Provide a consistent way of *configuring* layout requirements. For more
   details on configuration see :ref:`layoutconfig`.
+
+To support this, the module provides a :code:`ReflowSequence` class which
+allows access to all of the relevant operations which can be used to
+re-layout sections of code, or even a whole file. Unless there is a very
+good reason, all rules should use this same approach to ensure consistent
+treatment of layout.
+
+.. autoclass:: sqlfluff.utils.reflow.ReflowSequence
+   :members:
+
+.. autoclass:: sqlfluff.utils.reflow.elements.ReflowPoint
+   :members:
+   :inherited-members:
+
+.. autoclass:: sqlfluff.utils.reflow.elements.ReflowBlock
+   :members:
+   :inherited-members:
