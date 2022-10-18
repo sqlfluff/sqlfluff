@@ -2707,7 +2707,8 @@ class StructTypeSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
-    type = "create_table_statement"
+    type = "" \
+           "create_table_statement"
     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar: Matchable = Sequence(
