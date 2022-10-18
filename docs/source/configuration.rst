@@ -124,7 +124,6 @@ For example:
    tab_space_size = 4
    max_line_length = 80
    indent_unit = space
-   comma_style = trailing
    allow_scalar = True
    single_table_references = consistent
    unquoted_identifiers_policy = all
@@ -337,7 +336,8 @@ e.g. `param_regex='__(?P<param_name>[\w_]+)__'` matches
 `'__some_param__'` not `__some_param__`
 
 the named parameter `param_name` will be used as the key to replace, if
-missing, the parameter is assumed to be positional and numbers are used insead.
+missing, the parameter is assumed to be positional and numbers are used
+instead.
 
 Also consider making a pull request to the project to have your style added,
 it may be useful to other people and simplify your configuration.
@@ -490,6 +490,66 @@ projects. In particular it provides mock objects for:
 
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
+
+Interaction with ``--ignore=templating``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Ignoring Jinja templating errors provides a way for users to use SQLFluff
+while reducing or avoiding the need to spend a lot of time adding variables
+to ``[sqlfluff:templater:jinja:context]``.
+
+When ``--ignore=templating`` is enabled, the Jinja templater behaves a bit
+differently. This additional behavior is *usually* but not *always* helpful
+for making the file at least partially parsable and fixable. It definitely
+doesn’t **guarantee** that every file can be fixed, but it’s proven useful for
+some users.
+
+Here's how it works:
+
+* Within the expanded SQL, undefined variables are automatically *replaced*
+  with the corresponding string value.
+* If you do: ``{% include query %}``, and the variable ``query`` is not
+  defined, it returns a “file” containing the string ``query``.
+* If you do: ``{% include "query_file.sql" %}``, and that file does not exist
+  or you haven’t configured a setting for ``load_macros_from_path``, it
+  returns a “file” containing the text ``query_file``.
+
+For example:
+
+.. code-block::
+
+   select {{ my_variable }}
+   from {% include "my_table.sql" %}
+
+is interpreted as:
+
+.. code-block::
+
+   select my_variable
+   from my_table
+
+The values provided by the Jinja templater act *a bit* (not exactly) like a
+mixture of several types:
+
+* ``str``
+* ``int``
+* ``list``
+* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Undefined>`_
+
+Because the values behave like ``Undefined``, it's possible to replace them
+using Jinja's ``default()`` `filter <https://jinja.palletsprojects.com/en/3.1.x/templates/#jinja-filters.default>`_.
+For example:
+
+.. code-block::
+
+      select {{ my_variable | default("col_a") }}
+      from my_table
+
+is interpreted as:
+
+.. code-block::
+
+      select col_a
+      from my_table
 
 Library Templating
 ^^^^^^^^^^^^^^^^^^
@@ -649,7 +709,7 @@ You can set the dbt project directory, profiles directory and profile with:
     running `dbt debug --config-dir`.
 
 To use builtin dbt Jinja functions SQLFluff provides a configuration option
-that enables usage withing templates.
+that enables usage within templates.
 
 .. code-block:: cfg
 

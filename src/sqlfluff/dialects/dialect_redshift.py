@@ -45,7 +45,9 @@ redshift_dialect.sets("reserved_keywords").update(
 )
 
 redshift_dialect.sets("bare_functions").clear()
-redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
+redshift_dialect.sets("bare_functions").update(
+    ["current_date", "sysdate", "current_timestamp"]
+)
 
 redshift_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "EXTRACT", "DATE_PART"]
@@ -55,7 +57,7 @@ redshift_dialect.sets("date_part_function_name").update(
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 redshift_dialect.sets("datetime_units").update(
     [
-        # millenium
+        # millennium
         "MILLENNIUM",
         "MILLENNIA",
         "MIL",
@@ -174,27 +176,6 @@ redshift_dialect.replace(
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
-    ),
-    ColumnReferenceSegment=Delimited(
-        Sequence(
-            ansi.ColumnReferenceSegment,
-            AnyNumberOf(Ref("ArrayAccessorSegment")),
-        ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-        ),
-        allow_gaps=False,
     ),
 )
 
@@ -776,9 +757,9 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            OneOf(
+            Delimited(
                 # Columns and comment syntax:
-                Delimited(
+                AnyNumberOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
@@ -788,12 +769,12 @@ class CreateTableStatementSegment(BaseSegment):
                             optional=True,
                         ),
                     ),
-                    Ref("TableConstraintSegment", optional=True),
-                ),
-                Sequence(
-                    "LIKE",
-                    Ref("TableReferenceSegment"),
-                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    Ref("TableConstraintSegment"),
+                    Sequence(
+                        "LIKE",
+                        Ref("TableReferenceSegment"),
+                        AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    ),
                 ),
             )
         ),

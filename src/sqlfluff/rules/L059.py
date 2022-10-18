@@ -6,12 +6,13 @@ import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 @document_groups
@@ -86,6 +87,7 @@ class Rule_L059(BaseRule):
         "ignore_words_regex",
         "force_enable",
     ]
+    crawl_behaviour = SegmentSeekerCrawler({"quoted_identifier", "naked_identifier"})
     _dialects_allowing_quotes_in_column_names = ["postgres", "snowflake"]
 
     # Ignore "password_auth" type to allow quotes around passwords within
@@ -111,7 +113,7 @@ class Rule_L059(BaseRule):
             return LintResult()
 
         # Ignore some segment types
-        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return None
 
         if self.prefer_quoted_identifiers:
@@ -141,7 +143,7 @@ class Rule_L059(BaseRule):
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
-        # need to explicity check for that.
+        # need to explicitly check for that.
         if not context.segment.is_type(
             context_policy
         ) or context.segment.raw.lower() in (

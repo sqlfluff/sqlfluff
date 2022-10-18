@@ -1,16 +1,13 @@
 """Implementation of Rule L007."""
-import copy
-from typing import List
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.reflow import ReflowSequence
 
 after_description = "Operators near newlines should be after, not before the newline"
 before_description = "Operators near newlines should be before, not after the newline"
@@ -58,9 +55,9 @@ class Rule_L007(BaseRule):
     """
 
     groups = ("all",)
-    config_keywords = ["operator_new_lines"]
+    crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> LintResult:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -69,95 +66,38 @@ class Rule_L007(BaseRule):
 
         We only trigger if we have an operator FOLLOWED BY a newline
         before the next meaningful code segment.
-
         """
-        relevent_types = ["binary_operator", "comparison_operator"]
-        segment = context.functional.segment
-        # bring var to this scope so as to only have one type ignore
-        operator_new_lines: str = self.operator_new_lines  # type: ignore
-        expr = segment.children()
-        operator_segments = segment.children(sp.is_type(*relevent_types))
-        results: List[LintResult] = []
-        # If len(operator_segments) == 0 this will essentially not run
-        for operator in operator_segments:
-            start = expr.reversed().select(start_seg=operator).first(sp.is_code())
-            end = expr.select(start_seg=operator).first(sp.is_code())
-            res = [
-                expr.select(start_seg=start.get(), stop_seg=operator),
-                expr.select(start_seg=operator, stop_seg=end.get()),
-            ]
-            # anchor and change els are reversed in the before case
-            if operator_new_lines == "before":
-                res = [els.reversed() for els in reversed(res)]
+        # The way we apply this is to create reflow sequences around each operator.
+        # If there isn't a newline on either side, then ignore it for now.
+        # Going any further than that is probably deeper reflow than we want
+        # for now.
 
-            change_list, anchor_list = res
-            # If the anchor side of the list has no newline
-            # then everything is ok already
-            if not anchor_list.any(
-                sp.and_(sp.is_type("newline"), sp.not_(sp.is_templated()))
-            ):
-                continue
-
-            # If the operator is on a line by itself, that's okay regardless of
-            # the 'operator_new_lines' setting.
-            newline_after_operator = expr.select(
-                sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator
-            ).first(sp.is_type("newline"))
-            newline_before_operator = (
-                expr.reversed()
-                .select(sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator)
-                .first(sp.is_type("newline"))
+        fixes = (
+            ReflowSequence.from_around_target(
+                context.segment,
+                root_segment=context.parent_stack[0],
+                config=context.config,
             )
-            if newline_after_operator and newline_before_operator:
-                continue
+            .rebreak()
+            .get_fixes()
+        )
 
-            insert_anchor = anchor_list.last().get()
-            assert insert_anchor, "Insert Anchor must be present"
-            lint_res = _generate_fixes(
-                operator_new_lines,
-                change_list,
-                operator,
-                insert_anchor,
-            )
-            results.append(lint_res)
+        if not fixes:
+            return LintResult()
 
-        return results
+        seg_type = context.segment.class_types.intersection(
+            {"binary_operator", "comparison_operator"}
+        ).pop()
+        desired_position = context.config.get(
+            "line_position", ("layout", "type", seg_type)
+        )
 
-
-def _generate_fixes(
-    operator_new_lines: str,
-    change_list: Segments,
-    operator: BaseSegment,
-    insert_anchor: BaseSegment,
-) -> LintResult:
-    # Duplicate the change list and append the operator
-    inserts: List[BaseSegment] = [
-        *change_list,
-        operator,
-    ]
-
-    if operator_new_lines == "before":
-        # We do yet another reverse here,
-        # This could be avoided but makes all "changes" relate to "before" config state
-        inserts = [*reversed(inserts)]
-
-    # ensure to insert in the right place
-    edit_type = "create_before" if operator_new_lines == "before" else "create_after"
-    fixes = [
-        # Insert elements reversed
-        LintFix(
-            edit_type=edit_type,
-            edit=map(lambda el: copy.deepcopy(el), reversed(inserts)),
-            anchor=insert_anchor,
-        ),
-        # remove the Op
-        LintFix.delete(operator),
-        # Delete the original elements (related to insert)
-        *change_list.apply(LintFix.delete),
-    ]
-    desc = before_description if operator_new_lines == "before" else after_description
-    return LintResult(
-        anchor=operator,
-        description=desc,
-        fixes=fixes,
-    )
+        return LintResult(
+            context.segment,
+            fixes,
+            description=(
+                after_description
+                if desired_position == "leading"
+                else before_description
+            ),
+        )

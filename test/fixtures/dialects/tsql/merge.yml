@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1512c510d95e9b9cccca4e086c97b64e67ae562c49fc44d23cadb82c1c1e4198
+_hash: d45a12ff4b2f569952339683d90192ef155a18140378f82e54bad347f3a3e74e
 file:
 - batch:
     statement:
@@ -65,8 +65,7 @@ file:
                   - dot: .
                   - naked_identifier: l_id
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -79,8 +78,7 @@ file:
                   - dot: .
                   - naked_identifier: e_date_to
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -189,8 +187,7 @@ file:
                     - dot: .
                     - naked_identifier: cc_name
                     assignment_operator:
-                      comparison_operator:
-                        raw_comparison_operator: '='
+                      raw_comparison_operator: '='
                     expression:
                       column_reference:
                       - naked_identifier: src
@@ -203,8 +200,7 @@ file:
                     - dot: .
                     - naked_identifier: cc_description
                     assignment_operator:
-                      comparison_operator:
-                        raw_comparison_operator: '='
+                      raw_comparison_operator: '='
                     expression:
                       column_reference:
                       - naked_identifier: src
@@ -306,8 +302,7 @@ file:
                   - dot: .
                   - naked_identifier: c_name
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -320,8 +315,7 @@ file:
                   - dot: .
                   - naked_identifier: col1
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -334,8 +328,7 @@ file:
                   - dot: .
                   - naked_identifier: col2
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -454,8 +447,7 @@ file:
                   - dot: .
                   - naked_identifier: col1
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     quoted_literal: "'N'"
               - comma: ','
@@ -465,8 +457,7 @@ file:
                   - dot: .
                   - naked_identifier: col2
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                       naked_identifier: col2
@@ -535,8 +526,7 @@ file:
                   column_reference:
                     naked_identifier: Name
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     column_reference:
                     - naked_identifier: src
@@ -737,8 +727,7 @@ file:
                   - dot: .
                   - naked_identifier: Quantity
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                   - column_reference:
                     - naked_identifier: tgt
@@ -756,8 +745,7 @@ file:
                   - dot: .
                   - naked_identifier: ModifiedDate
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                     function:
                       function_name:
@@ -937,8 +925,7 @@ file:
                   - dot: .
                   - naked_identifier: Quantity
                   assignment_operator:
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    raw_comparison_operator: '='
                   expression:
                   - column_reference:
                     - naked_identifier: pi
@@ -1092,8 +1079,7 @@ file:
                                 column_reference:
                                   naked_identifier: columnC
                                 assignment_operator:
-                                  comparison_operator:
-                                    raw_comparison_operator: '='
+                                  raw_comparison_operator: '='
                                 expression:
                                   column_reference:
                                   - naked_identifier: src

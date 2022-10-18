@@ -740,7 +740,7 @@ test_pass_ignore_templated_whitespace:
     FROM my_table
   configs:
     core:
-      ignore_templated_areas: False
+      ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_1:
   fail_str: |
@@ -756,7 +756,7 @@ test_fail_ignore_templated_whitespace_1:
 
   configs:
     core:
-      ignore_templated_areas: False
+      ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_2:
   fail_str: |
@@ -771,7 +771,7 @@ test_fail_ignore_templated_whitespace_2:
     FROM my_table
   configs:
     core:
-      ignore_templated_areas: False
+      ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_3:
   fail_str: |
@@ -786,7 +786,7 @@ test_fail_ignore_templated_whitespace_3:
     FROM my_table
   configs:
     core:
-      ignore_templated_areas: False
+      ignore_templated_areas: false
 
 test_pass_ignore_templated_whitespace_4:
   # Note the newline after c2. This causes "AS other_id" to be on a different
@@ -1024,7 +1024,7 @@ test_fail_hanging_indents_convert_to_normal_indent:
   configs:
     rules:
       L003:
-        hanging_indents: False
+        hanging_indents: false
 
 test_fail_hanging_indents_fix_mixed_indents:
   fail_str: |
@@ -1054,7 +1054,7 @@ test_fail_hanging_indents_fix_mixed_indents:
   configs:
     rules:
       L003:
-        hanging_indents: False
+        hanging_indents: false
 
 test_pass_indented_procedure_parameters:
   pass_str: |
@@ -1146,6 +1146,36 @@ test_tsql_nested_join:
     INNER JOIN table2
         INNER JOIN table3
             ON table1.col = table2.col AND table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_outer_apply_indentation:
+  # Test for behavior in issue #3685
+  pass_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_outer_apply_indentation_fix:
+  # Test for behavior in issue #3685
+  fail_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+        INNER JOIN table3
+            ON table1.col = table3.col
+  fix_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
   configs:
     core:
       dialect: tsql

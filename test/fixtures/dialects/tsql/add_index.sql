@@ -62,6 +62,14 @@ UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population);
 
 GO
 
+UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population) WITH FULLSCAN;
+
+GO
+
+UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population) WITH RESAMPLE;
+
+GO
+
 DROP STATISTICS Reporting.Population.Stats_Population
 
 GO

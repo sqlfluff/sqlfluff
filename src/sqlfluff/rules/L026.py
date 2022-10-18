@@ -4,7 +4,7 @@ from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.rules.analysis.select_crawler import (
+from sqlfluff.utils.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
@@ -14,9 +14,18 @@ from sqlfluff.core.rules import (
     RuleContext,
     EvalResultType,
 )
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.reference import object_ref_matches_table
+
+
+_START_TYPES = [
+    "delete_statement",
+    "merge_statement",
+    "select_statement",
+    "update_statement",
+]
 
 
 @dataclass
@@ -61,6 +70,7 @@ class Rule_L026(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
     _dialects_disabled_by_default = ["bigquery", "hive", "redshift", "soql", "sparksql"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
@@ -74,15 +84,7 @@ class Rule_L026(BaseRule):
             return LintResult()
 
         violations: List[LintResult] = []
-        start_types = [
-            "delete_statement",
-            "merge_statement",
-            "select_statement",
-            "update_statement",
-        ]
-        if context.segment.is_type(
-            *start_types
-        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             dml_target_table: Optional[Tuple[str, ...]] = None
             self.logger.debug("Trigger on: %s", context.segment)
             if not context.segment.is_type("select_statement"):
@@ -170,7 +172,7 @@ class Rule_L026(BaseRule):
         #   statement, thus not expected to match a table in the FROM
         #   clause.
         if ref_path:
-            return any(seg.is_type("into_table_clause") for seg in ref_path)
+            return any(ps.segment.is_type("into_table_clause") for ps in ref_path)
         else:
             return False  # pragma: no cover
 

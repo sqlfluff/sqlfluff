@@ -25,13 +25,13 @@ Currently, only Rules and Templaters can be added through plugins. Over time
 we expect more elements of SQLFluff will be extensible with plugins. Each
 plugin can implement multiple Rules or Templaters.
 
-We recomment that the name of a plugin should start with *"sqlfluff-"* to be
+We recommend that the name of a plugin should start with *"sqlfluff-"* to be
 clear on the purpose of your plugin.
 
 A plugin may need to include a default configuration if its rules
 are configurable: use plugin default configurations **only for that reason**!
 We advise against overwriting core configurations by using a default
-plugin configuration, as there is no mechanism in place to enforce precendence
+plugin configuration, as there is no mechanism in place to enforce precedence
 between the core library configs and plugin configs,
 and multiple plugins could clash.
 
@@ -51,7 +51,7 @@ while "Rule_PluginName_L000" will have code "PluginName_L000".
 Codes are used to display errors, they are also used as configuration keys.
 
 We make it easy for plugin developers to test their rules by
-exposing a testing library in *sqlfluff.testing*.
+exposing a testing library in *sqlfluff.utils.testing*.
 
 .. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
 .. _`sqlfluff/plugins/sqlfluff-templater-dbt`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-templater-dbt

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2b51cb8a76355701372426af12374b845e5aa4dc7013371eaa94cb1b8e35b1b
+_hash: e4accb429e0edd7857ac7c2df421079bd7aa7a9ac5ed932491e9e071bfe6c227
 file:
 - statement:
     create_table_statement:
@@ -747,6 +747,64 @@ file:
         like_option_segment:
         - keyword: EXCLUDING
         - keyword: DEFAULTS
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - keyword: LIKE
+      - table_reference:
+        - naked_identifier: some_schema
+        - dot: .
+        - naked_identifier: another_table
+      - like_option_segment:
+        - keyword: INCLUDING
+        - keyword: DEFAULTS
+      - comma: ','
+      - keyword: LIKE
+      - table_reference:
+        - naked_identifier: some_schema
+        - dot: .
+        - naked_identifier: next_table
+      - like_option_segment:
+        - keyword: EXCLUDING
+        - keyword: DEFAULTS
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+        start_bracket: (
+        keyword: LIKE
+        table_reference:
+        - naked_identifier: some_schema
+        - dot: .
+        - naked_identifier: another_table
+        like_option_segment:
+        - keyword: INCLUDING
+        - keyword: DEFAULTS
+        comma: ','
+        column_reference:
+          naked_identifier: col_name
+        data_type:
+          keyword: VARCHAR
+          bracketed:
+            start_bracket: (
+            numeric_literal: '5'
+            end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:

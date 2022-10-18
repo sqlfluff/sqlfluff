@@ -78,3 +78,11 @@ test_pass_sparksql_multi_units_interval_minus:
   configs:
     core:
       dialect: sparksql
+
+pass_tsql_assignment_operator:
+  # Test that we fix the outer whitespace but don't add any in between + and =.
+  fail_str: SET @param1+=1
+  fix_str: SET @param1 += 1
+  configs:
+    core:
+      dialect: tsql

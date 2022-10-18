@@ -8,3 +8,4 @@ start transaction;
 start transaction name t4;
 rollback;
 commit;
+commit work;

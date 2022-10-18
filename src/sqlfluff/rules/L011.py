@@ -1,17 +1,18 @@
 """Implementation of Rule L011."""
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
     KeywordSegment,
 )
 
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.utils.reflow import ReflowSequence
 
 
 @document_groups
@@ -47,6 +48,7 @@ class Rule_L011(BaseRule):
 
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
+    crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
 
     _target_elems: List[Tuple[str, str]] = [
         ("type", "from_expression_element"),
@@ -61,60 +63,45 @@ class Rule_L011(BaseRule):
         """
         # Config type hints
         self.aliasing: str
-        fixes = []
 
-        if context.segment.is_type("alias_expression"):
-            # if context.parent_stack[-1].is_type(*self._target_elems):
-            if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
-                if any(e.name.lower() == "as" for e in context.segment.segments):
-                    if self.aliasing == "implicit":
-                        if context.segment.segments[0].name.lower() == "as":
-
-                            # Remove the AS as we're using implict aliasing
-                            fixes.append(LintFix.delete(context.segment.segments[0]))
-                            anchor = context.raw_segment_pre
-
-                            # Remove whitespace before (if exists) or after (if not)
-                            if (
-                                context.raw_segment_pre is not None
-                                and context.raw_segment_pre.type == "whitespace"
-                            ):
-                                fixes.append(LintFix.delete(context.raw_segment_pre))
-                            elif (
-                                len(context.segment.segments) > 0
-                                and context.segment.segments[1].type == "whitespace"
-                            ):
-                                fixes.append(
-                                    LintFix.delete(context.segment.segments[1])
-                                )
-
-                            return LintResult(anchor=anchor, fixes=fixes)
-
-                elif self.aliasing != "implicit":
-                    insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
-
-                    # Add initial whitespace if we need to...
-                    assert context.raw_segment_pre
-                    if not context.raw_segment_pre.is_type("whitespace", "newline"):
-                        insert_buff.append(WhitespaceSegment())
-
-                    # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(KeywordSegment("AS"))
-
-                    # Add a trailing whitespace if we need to
-                    if not context.segment.segments[0].is_type(
-                        "whitespace",
-                        "newline",
-                    ):
-                        insert_buff.append(WhitespaceSegment())
-
-                    return LintResult(
-                        anchor=context.segment,
-                        fixes=[
-                            LintFix.create_before(
-                                context.segment.segments[0],
-                                insert_buff,
+        assert context.segment.is_type("alias_expression")
+        if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
+            if any(e.raw_upper == "AS" for e in context.segment.segments):
+                if self.aliasing == "implicit":
+                    if context.segment.segments[0].raw_upper == "AS":
+                        self.logger.debug("Removing AS keyword and respacing.")
+                        as_keyword = context.segment.segments[0]
+                        return LintResult(
+                            anchor=as_keyword,
+                            # Generate the fixes to remove and respace accordingly.
+                            fixes=ReflowSequence.from_around_target(
+                                as_keyword,
+                                context.parent_stack[0],
+                                config=context.config,
                             )
-                        ],
+                            .without(as_keyword)
+                            .respace()
+                            .get_fixes(),
+                        )
+
+            elif self.aliasing != "implicit":
+                self.logger.debug("Inserting AS keyword and respacing.")
+                return LintResult(
+                    anchor=context.segment,
+                    # Work out the insertion and reflow fixes.
+                    fixes=ReflowSequence.from_around_target(
+                        context.segment.raw_segments[0],
+                        context.parent_stack[0],
+                        config=context.config,
+                        # Only reflow before, otherwise we catch too much.
+                        sides="before",
                     )
+                    .insert(
+                        KeywordSegment("AS"),
+                        target=context.segment.raw_segments[0],
+                        pos="before",
+                    )
+                    .respace()
+                    .get_fixes(),
+                )
         return None

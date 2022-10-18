@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -49,7 +49,12 @@ bigquery_dialect.insert_lexer_matchers(
     [
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
-        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer(
+            "at_sign_literal",
+            r"@[a-zA-Z_][\w]*",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
+        ),
     ],
     before="equals",
 )
@@ -67,6 +72,7 @@ bigquery_dialect.patch_lexer_matchers(
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
             r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
@@ -74,30 +80,31 @@ bigquery_dialect.patch_lexer_matchers(
             r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
             r'(\\{2})*")',
             CodeSegment,
+            segment_kwargs={"type": "double_quote"},
         ),
     ]
 )
 
 bigquery_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
+    DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
-    SingleQuotedLiteralSegment=NamedParser(
+    SingleQuotedLiteralSegment=TypedParser(
         "single_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=("'",),
     ),
-    DoubleQuotedUDFBody=NamedParser(
+    DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
         type="udf_body",
         trim_chars=('"',),
     ),
-    SingleQuotedUDFBody=NamedParser(
+    SingleQuotedUDFBody=TypedParser(
         "single_quote",
         CodeSegment,
         type="udf_body",
@@ -114,11 +121,9 @@ bigquery_dialect.add(
         allow_trailing=True,
     ),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
-    AtSignLiteralSegment=NamedParser(
+    AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         ansi.LiteralSegment,
-        type="at_sign_literal",
-        trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
@@ -190,6 +195,7 @@ bigquery_dialect.replace(
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
+        Ref("DatePartWeekSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -213,7 +219,7 @@ bigquery_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        NamedParser(
+        TypedParser(
             "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
@@ -232,6 +238,8 @@ bigquery_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    PrimaryKeyGrammar=Nothing(),
+    ForeignKeyGrammar=Nothing(),
 )
 
 
@@ -264,13 +272,6 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
-        "MONDAY",
-        "TUESDAY",
-        "WEDNESDAY",
-        "THURSDAY",
-        "FRIDAY",
-        "SATURDAY",
-        "SUNDAY",
     ]
 )
 
@@ -290,7 +291,6 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
-        "WEEK",
     ]
 )
 
@@ -422,6 +422,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LeaveStatementSegment"),
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
         ],
     )
 
@@ -682,7 +685,7 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 
 
 bigquery_dialect.replace(
-    QuotedIdentifierSegment=NamedParser(
+    QuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
@@ -690,7 +693,7 @@ bigquery_dialect.replace(
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        NamedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
+        TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     # Add three elements to the ansi LiteralGrammar
@@ -744,6 +747,32 @@ class ExtractFunctionNameSegment(BaseSegment):
     )
 
 
+class DatePartWeekSegment(BaseSegment):
+    """WEEK(<WEEKDAY>) in EXTRACT, DATE_DIFF, DATE_TRUNC, LAST_DAY.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_trunc
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#last_day
+    """
+
+    type = "date_part_week"
+    match_grammar: Matchable = Sequence(
+        "WEEK",
+        Bracketed(
+            OneOf(
+                "SUNDAY",
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+            ),
+        ),
+    )
+
+
 class NormalizeFunctionNameSegment(BaseSegment):
     """NORMALIZE function name segment.
 
@@ -787,6 +816,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     OneOf(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref("ExtendedDatetimeUnitSegment"),
                     ),
                     "FROM",
@@ -817,6 +847,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     Delimited(
                         Ref("DatetimeUnitSegment"),
+                        Ref("DatePartWeekSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             ephemeral_name="FunctionContentsGrammar",
@@ -958,7 +989,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
     """
 
     match_grammar = OneOf(  # Parameter type
-        Ref("DatatypeIdentifierSegment"),  # Simple type
+        Sequence(
+            Ref("DatatypeIdentifierSegment"),  # Simple type
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_data_types
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
+        ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
         Ref("StructTypeSegment"),
@@ -1370,7 +1405,6 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
@@ -1442,7 +1476,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        # Although not specified in the BigQuery documentation optinal arguments for
+        # Although not specified in the BigQuery documentation optional arguments for
         # CREATE EXTERNAL TABLE statements can be ordered arbitrarily.
         AnyNumberOf(
             # connection names have the same rules as table names in BigQuery
@@ -1485,8 +1519,67 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_statement
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """A `ALTER MATERIALIZED VIEW SET OPTIONS` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_materialized_view_set_options_statement
+    """
+
+    type = "alter_materialized_view_set_options_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_materialized_view_statement
+    """
+
+    type = "drop_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 class ParameterizedSegment(BaseSegment):
-    """BigQuery allows named and argument based parameters to help preven SQL Injection.
+    """BigQuery allows named and argument based parameters to prevent SQL Injection.
 
     https://cloud.google.com/bigquery/docs/parameterized-queries
     """
@@ -1741,25 +1834,21 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "compression",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "field_delimiter",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "format",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "uri",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),
@@ -1775,19 +1864,16 @@ class ExportStatementSegment(BaseSegment):
                         StringParser(
                             "header",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "overwrite",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                         StringParser(
                             "use_avro_logical_types",
                             CodeSegment,
-                            name="export_option",
                             type="export_option",
                         ),
                     ),

@@ -6,6 +6,7 @@ from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -44,6 +45,7 @@ class Rule_L037(BaseRule):
     """
 
     groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
 
     @staticmethod
     def _get_orderby_info(segment: BaseSegment) -> List[OrderByColumnInfo]:
@@ -55,11 +57,11 @@ class Rule_L037(BaseRule):
         for child_segment in segment.segments:
             if child_segment.is_type("column_reference"):
                 found_column_reference = True
-            elif child_segment.is_type("keyword") and child_segment.name in (
-                "asc",
-                "desc",
+            elif child_segment.is_type("keyword") and child_segment.raw_upper in (
+                "ASC",
+                "DESC",
             ):
-                ordering_reference = child_segment.name
+                ordering_reference = child_segment.raw_upper
             elif found_column_reference and child_segment.type not in [
                 "keyword",
                 "whitespace",
@@ -90,35 +92,33 @@ class Rule_L037(BaseRule):
         DESC and some don't.
         """
         # We only trigger on orderby_clause
-        if context.segment.is_type("orderby_clause"):
-            lint_fixes = []
-            orderby_spec = self._get_orderby_info(context.segment)
-            order_types = {o.order for o in orderby_spec}
-            # If ALL columns or NO columns explicitly specify ASC/DESC, all is
-            # well.
-            if None not in order_types or order_types == {None}:
-                return None
+        lint_fixes = []
+        orderby_spec = self._get_orderby_info(context.segment)
+        order_types = {o.order for o in orderby_spec}
+        # If ALL columns or NO columns explicitly specify ASC/DESC, all is
+        # well.
+        if None not in order_types or order_types == {None}:
+            return None
 
-            # There's a mix of explicit and default sort order. Make everything
-            # explicit.
-            for col_info in orderby_spec:
-                if not col_info.order:
-                    # Since ASC is default in SQL, add in ASC for fix
-                    lint_fixes.append(
-                        LintFix.create_before(
-                            col_info.separator,
-                            [WhitespaceSegment(), KeywordSegment("ASC")],
-                        )
+        # There's a mix of explicit and default sort order. Make everything
+        # explicit.
+        for col_info in orderby_spec:
+            if not col_info.order:
+                # Since ASC is default in SQL, add in ASC for fix
+                lint_fixes.append(
+                    LintFix.create_before(
+                        col_info.separator,
+                        [WhitespaceSegment(), KeywordSegment("ASC")],
                     )
-
-            return [
-                LintResult(
-                    anchor=context.segment,
-                    fixes=lint_fixes,
-                    description=(
-                        "Ambiguous order by clause. Order by clauses should specify "
-                        "order direction for ALL columns or NO columns."
-                    ),
                 )
-            ]
-        return None
+
+        return [
+            LintResult(
+                anchor=context.segment,
+                fixes=lint_fixes,
+                description=(
+                    "Ambiguous order by clause. Order by clauses should specify "
+                    "order direction for ALL columns or NO columns."
+                ),
+            )
+        ]

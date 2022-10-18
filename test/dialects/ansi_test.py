@@ -10,9 +10,13 @@ from sqlfluff.core.parser import Lexer
 @pytest.mark.parametrize(
     "raw,res",
     [
-        ("a b", ["a", " ", "b"]),
-        ("b.c", ["b", ".", "c"]),
-        ("abc \n \t def  ;blah", ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah"]),
+        # NB: The final empty string is the end of file marker.
+        ("a b", ["a", " ", "b", ""]),
+        ("b.c", ["b", ".", "c", ""]),
+        (
+            "abc \n \t def  ;blah",
+            ["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""],
+        ),
     ],
 )
 def test__dialect__ansi__file_lex(raw, res, caplog):
@@ -188,17 +192,17 @@ def test__dialect__ansi_is_whitespace():
 @pytest.mark.parametrize(
     "sql_string, indented_joins,meta_loc",
     [
-        ("select field_1 from my_table as alias_1", True, (1, 5, 8, 14)),
-        ("select field_1 from my_table as alias_1", False, (1, 5, 8, 14)),
+        ("select field_1 from my_table as alias_1", True, (1, 5, 8, 14, 15)),
+        ("select field_1 from my_table as alias_1", False, (1, 5, 8, 14, 15)),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             True,
-            (1, 5, 8, 16, 21, 24, 26, 28, 29, 30),
+            (1, 5, 8, 16, 21, 24, 26, 28, 29, 30, 31),
         ),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             False,
-            (1, 5, 8, 15, 17, 22, 25, 27, 29, 30),
+            (1, 5, 8, 15, 17, 22, 25, 27, 29, 30, 31),
         ),
     ],
 )
@@ -213,7 +217,8 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
     parsed = lnt.parse_string(sql_string)
     # Check that there's nothing unparsable
     assert "unparsable" not in parsed.tree.type_set()
-    # Check all the segments that *should* be whitespace, ARE
+    # Check all the segments that *should* be metas, ARE.
+    # NOTE: This includes the end of file marker.
     res_meta_locs = tuple(
         idx
         for idx, raw_seg in enumerate(parsed.tree.get_raw_segments())

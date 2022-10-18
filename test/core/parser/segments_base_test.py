@@ -8,6 +8,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     BaseFileSegment,
 )
+from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
 
@@ -44,6 +45,48 @@ def test__parser__base_segments_type():
     assert DummySegment.class_is_type("dummy")
     assert DummySegment.class_is_type("base")
     assert DummySegment.class_is_type("base", "foo", "bar")
+
+
+def test__parser__base_segments_class_types():
+    """Test the metaclass ._class_types attribute."""
+    assert DummySegment._class_types == {"dummy", "base"}
+
+
+def test__parser__base_segments_descendant_type_set(raw_seg_list):
+    """Test the .descendant_type_set() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
+
+
+def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
+    """Test the .direct_descendant_type_set() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
+
+
+def test__parser__base_segments_count_segments(raw_seg_list):
+    """Test the .count_segments() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.count_segments() == 4
+    assert test_seg.count_segments(raw_only=True) == 2
+
+
+def test__parser__base_segments_path_to(raw_seg_list):
+    """Test the .path_to() method."""
+    test_seg_a = DummyAuxSegment(raw_seg_list)
+    test_seg_b = DummySegment([test_seg_a])
+    # With a direct parent/child relationship we only get
+    # one element of path.
+    assert test_seg_b.path_to(test_seg_a) == [PathStep(test_seg_b, 0, 1)]
+    # With a three segment chain - we get two path elements.
+    assert test_seg_b.path_to(raw_seg_list[0]) == [
+        PathStep(test_seg_b, 0, 1),
+        PathStep(test_seg_a, 0, 2),
+    ]
+    assert test_seg_b.path_to(raw_seg_list[1]) == [
+        PathStep(test_seg_b, 0, 1),
+        PathStep(test_seg_a, 1, 2),
+    ]
 
 
 def test__parser__base_segments_stubs():
@@ -144,3 +187,19 @@ def test__parser__raw_get_raw_segments(raw_seg_list):
     """Test niche case of calling get_raw_segments on a raw segment."""
     for s in raw_seg_list:
         assert s.get_raw_segments() == [s]
+
+
+def test__parser__raw_segments_with_ancestors(raw_seg_list):
+    """Test raw_segments_with_ancestors.
+
+    This is used in the reflow module to assess parse depth.
+    """
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list[:1]), raw_seg_list[1]])
+    # Result should be the same raw segment, but with appropriate parents
+    assert test_seg.raw_segments_with_ancestors == [
+        (
+            raw_seg_list[0],
+            [PathStep(test_seg, 0, 2), PathStep(test_seg.segments[0], 0, 1)],
+        ),
+        (raw_seg_list[1], [PathStep(test_seg, 1, 2)]),
+    ]

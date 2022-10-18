@@ -30,13 +30,9 @@ STANDARD_CONFIG_INFO_DICT = {
     "hanging_indents": {
         "validation": [True, False],
         "definition": (
-            "Whether hanging indents will be considered when evaluting the "
+            "Whether hanging indents will be considered when evaluating the "
             "indentation of a file."
         ),
-    },
-    "comma_style": {
-        "validation": ["leading", "trailing"],
-        "definition": "The comma style to enforce.",
     },
     "allow_scalar": {
         "validation": [True, False],
@@ -126,7 +122,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "aliasing": {
         "validation": ["implicit", "explicit"],
         "definition": (
-            "Should alias have an explict AS or is implicit aliasing required?"
+            "Should alias have an explicit AS or is implicit aliasing required?"
         ),
     },
     "fully_qualify_join_types": {

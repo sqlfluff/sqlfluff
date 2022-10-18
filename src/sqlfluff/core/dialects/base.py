@@ -9,11 +9,11 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar
-from sqlfluff.core.parser.parsers import BaseParser
+from sqlfluff.core.parser.matchable import Matchable
 
-DialectElementType = Union[Type[BaseSegment], BaseGrammar, BaseParser, SegmentGenerator]
+DialectElementType = Union[Type[BaseSegment], Matchable, SegmentGenerator]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], BaseParser, BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], Matchable]
 
 
 class Dialect:
@@ -343,7 +343,7 @@ class Dialect:
 
         if not found:  # pragma: no cover
             raise ValueError(
-                "Lexer struct insert before '%s' failed because tag never found."
+                f"Lexer struct insert before '{before}' failed because tag never found."
             )
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff

@@ -11,7 +11,7 @@ from unittest import mock
 import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
@@ -81,6 +81,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         # Ends with whitespace stripping, so trailing newline handling should
         # be disabled
         "ends_with_whitespace_stripping.sql",
+        # Access dbt graph nodes
+        "access_graph_nodes.sql",
     ],
 )
 def test__templater_dbt_templating_result(
@@ -118,9 +120,11 @@ def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa
 def _get_fixture_path(template_output_folder_path, fname):
     fixture_path: Path = template_output_folder_path / fname  # Default fixture location
     # Is there a version-specific version of the fixture file?
-    dbt_version_specific_fixture_folder = {(1, 0): "dbt_utils_0.8.0"}.get(
-        DBT_VERSION_TUPLE
-    )
+    if DBT_VERSION_TUPLE >= (1, 0):
+        dbt_version_specific_fixture_folder = "dbt_utils_0.8.0"
+    else:
+        dbt_version_specific_fixture_folder = None
+
     if dbt_version_specific_fixture_folder:
         # Maybe. Determine where it would exist.
         version_specific_path = (
@@ -266,7 +270,7 @@ def test__templater_dbt_skips_file(
     path, reason, dbt_templater, project_dir  # noqa: F811
 ):
     """A disabled dbt model should be skipped."""
-    with pytest.raises(SQLTemplaterSkipFile, match=reason):
+    with pytest.raises(SQLFluffSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
@@ -305,13 +309,14 @@ def _clean_path(glob_expression):
     "path", ["models/my_new_project/issue_1608.sql", "snapshots/issue_1771.sql"]
 )
 def test__dbt_templated_models_fix_does_not_corrupt_file(
-    project_dir, path  # noqa: F811
+    project_dir, path, caplog  # noqa: F811
 ):
     """Test issues where previously "sqlfluff fix" corrupted the file."""
     test_glob = os.path.join(project_dir, os.path.dirname(path), "*FIXED.sql")
     _clean_path(test_glob)
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
+    with caplog.at_level(logging.INFO, logger="sqlfluff.linter"):
+        lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
     try:
         lnt.persist_changes(fixed_file_suffix="FIXED")
         with open(os.path.join(project_dir, path + ".after")) as f:
@@ -373,7 +378,7 @@ def test__templater_dbt_handle_exceptions(
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     assert violations
-    # NB: Replace slashes to deal with different plaform paths being returned.
+    # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
@@ -415,7 +420,7 @@ def test__templater_dbt_handle_database_connection_failure(
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     assert violations
-    # NB: Replace slashes to deal with different plaform paths being returned.
+    # NB: Replace slashes to deal with different platform paths being returned.
     assert (
         violations[0]
         .desc()

@@ -11,7 +11,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.parsers import BaseParser
+from sqlfluff.core.parser.matchable import Matchable
 
 
 def lex(raw, config):
@@ -30,7 +30,7 @@ def lex(raw, config):
 def validate_segment(segmentref, config):
     """Get and validate segment for tests below."""
     Seg = config.get("dialect_obj").ref(segmentref)
-    if isinstance(Seg, BaseParser):
+    if isinstance(Seg, Matchable):
         return Seg
     try:
         if issubclass(Seg, BaseSegment):
@@ -38,7 +38,7 @@ def validate_segment(segmentref, config):
     except TypeError:
         pass
     raise TypeError(
-        "{} is not of type Segment or StringParser. Test is invalid.".format(segmentref)
+        "{} is not of type Segment or Matchable. Test is invalid.".format(segmentref)
     )
 
 
@@ -54,9 +54,13 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
+    # Most segments won't handle the end of file marker. We should strip it.
+    if seg_list[-1].is_type("end_of_file"):
+        seg_list = seg_list[:-1]
+
     # This test is different if we're working with RawSegment
     # derivatives or not.
-    if isinstance(Seg, BaseParser) or issubclass(Seg, RawSegment):
+    if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):
         print("Raw/Parser route...")
         with RootParseContext.from_config(config) as ctx:
             with caplog.at_level(logging.DEBUG):

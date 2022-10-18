@@ -1,14 +1,22 @@
-"""Tests for templaters."""
+"""Tests for the jinja templater.
 
+These tests also test much of the core lexer, especially
+the treatment of templated sections which only really make
+sense to test in the context of a templater which supports
+loops and placeholders.
+"""
+
+from collections import defaultdict
 import logging
 from typing import List, NamedTuple
 
 import pytest
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from jinja2.exceptions import UndefinedError
 
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import JinjaAnalyzer
+from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -588,6 +596,10 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Placeholders and metas
         ("jinja_l_metas/001", False, True),
         ("jinja_l_metas/002", False, True),
+        ("jinja_l_metas/003", False, True),
+        ("jinja_l_metas/004", False, True),
+        ("jinja_l_metas/005", False, True),
+        ("jinja_l_metas/006", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
@@ -610,6 +622,51 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
         code_only=code_only,
         include_meta=include_meta,
     )
+
+
+def test__templater_jinja_block_matching(caplog):
+    """Test the block UUID matching works with a complicated case."""
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+    path = "test/fixtures/templater/jinja_l_metas/002.sql"
+    # Parse the file.
+    p = list(Linter().parse_path(path))
+    parsed = p[0][0]
+    assert parsed
+    # We only care about the template elements
+    template_segments = [
+        seg
+        for seg in parsed.raw_segments
+        if seg.is_type("template_loop", "placeholder")
+    ]
+
+    # Group them together by block UUID
+    assert all(
+        seg.block_uuid for seg in template_segments
+    ), "All templated segments should have a block uuid!"
+    grouped = defaultdict(list)
+    for seg in template_segments:
+        grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
+
+    print(grouped)
+
+    # Now the matching block IDs should be found at the following positions.
+    # NOTE: These are working locations in the rendered file.
+    groups = {
+        "for actions clause 1": [(6, 5), (9, 5), (12, 5), (15, 5)],
+        "for actions clause 2": [(17, 5), (21, 5), (29, 5), (37, 5)],
+        "if loop.first 1": [(18, 9), (20, 9)],
+        "if loop.first 2": [(22, 9), (28, 9)],
+        "if loop.first 3": [(30, 9), (36, 9)],
+    }
+
+    # Check all are accounted for:
+    for clause in groups.keys():
+        for block_uuid, locations in grouped.items():
+            if groups[clause] == locations:
+                print(f"Found {clause}, locations with UUID: {block_uuid}")
+                break
+        else:
+            raise ValueError(f"Couldn't find appropriate grouping of blocks: {clause}")
 
 
 @pytest.mark.parametrize(
@@ -1199,7 +1256,7 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 def test__templater_jinja_large_file_check():
     """Test large file skipping.
 
-    The check is seperately called on each .process() method
+    The check is separately called on each .process() method
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without specific config.
@@ -1218,7 +1275,7 @@ def test__templater_jinja_large_file_check():
         ),
     )
     # Finally check we raise a skip exception when config is set low.
-    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+    with pytest.raises(SQLFluffSkipFile) as excinfo:
         JinjaTemplater().process(
             in_str="SELECT 1",
             fname="<string>",
@@ -1228,3 +1285,44 @@ def test__templater_jinja_large_file_check():
         )
 
     assert "Length of file" in str(excinfo.value)
+
+
+def test_dummy_undefined_fail_with_undefined_error():
+    """Tests that a recursion error bug no longer occurs."""
+    ud = DummyUndefined("name")
+    with pytest.raises(UndefinedError):
+        # This was previously causing a recursion error.
+        ud._fail_with_undefined_error()
+
+
+def test_undefined_magic_methods():
+    """Test all the magic methods defined on DummyUndefined."""
+    ud = DummyUndefined("name")
+
+    # _self_impl
+    assert ud + ud is ud
+    assert ud - ud is ud
+    assert ud / ud is ud
+    assert ud // ud is ud
+    assert ud % ud is ud
+    assert ud**ud is ud
+    assert +ud is ud
+    assert -ud is ud
+    assert ud << ud is ud
+    assert ud[ud] is ud
+    assert ~ud is ud
+    assert ud(ud) is ud
+
+    # _bool_impl
+    assert ud and ud
+    assert ud or ud
+    assert ud ^ ud
+    assert bool(ud)
+    assert ud < ud
+    assert ud <= ud
+    assert ud == ud
+    assert ud != ud
+    assert ud >= ud
+    assert ud > ud
+
+    assert ud + ud is ud

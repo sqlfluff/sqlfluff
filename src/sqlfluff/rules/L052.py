@@ -1,23 +1,24 @@
 """Implementation of Rule L052."""
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, Sequence, cast
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
-from sqlfluff.core.parser.segments.raw import NewlineSegment
+from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional import Segments, sp
+from sqlfluff.utils.functional import Segments, sp
 
 
 class SegmentMoveContext(NamedTuple):
     """Context information for moving a segment."""
 
-    anchor_segment: BaseSegment
+    anchor_segment: RawSegment
     is_one_line: bool
     before_segment: Segments
     whitespace_deletions: Segments
@@ -61,10 +62,12 @@ class Rule_L052(BaseRule):
 
     groups = ("all",)
     config_keywords = ["multiline_newline", "require_final_semicolon"]
-    needs_raw_stack = True
+    crawl_behaviour = RootOnlyCrawler()
 
     @staticmethod
-    def _handle_preceding_inline_comments(before_segment, anchor_segment):
+    def _handle_preceding_inline_comments(
+        before_segment: Sequence[RawSegment], anchor_segment: BaseSegment
+    ):
         """Adjust segments to not move preceding inline comments.
 
         We don't want to move inline comments that are on the same line
@@ -77,9 +80,12 @@ class Rule_L052(BaseRule):
                 s
                 for s in before_segment
                 if s.is_comment
-                and s.name != "block_comment"
+                and not s.is_type("block_comment")
                 and s.pos_marker.working_line_no
-                == anchor_segment.pos_marker.working_line_no
+                # We don't need to handle the case where raw_segments is empty
+                # because it never is. It's either a segment with raw children
+                # or a raw segment which returns [self] as raw_segments.
+                == anchor_segment.raw_segments[-1].pos_marker.working_line_no
             ),
             None,
         )
@@ -92,7 +98,7 @@ class Rule_L052(BaseRule):
         return before_segment, anchor_segment
 
     @staticmethod
-    def _handle_trailing_inline_comments(context, anchor_segment):
+    def _handle_trailing_inline_comments(parent_segment, anchor_segment):
         """Adjust anchor_segment to not move trailing inline comment.
 
         We don't want to move inline comments that are on the same line
@@ -100,25 +106,24 @@ class Rule_L052(BaseRule):
         """
         # See if we have a trailing inline comment on the same line as the preceding
         # segment.
-        for parent_segment in context.parent_stack[::-1]:
-            for comment_segment in parent_segment.recursive_crawl("comment"):
-                if (
-                    comment_segment.pos_marker.working_line_no
-                    == anchor_segment.pos_marker.working_line_no
-                ) and (not comment_segment.is_type("block_comment")):
-                    anchor_segment = comment_segment
+        for comment_segment in parent_segment.recursive_crawl("comment"):
+            if (
+                comment_segment.pos_marker.working_line_no
+                == anchor_segment.pos_marker.working_line_no
+            ) and (not comment_segment.is_type("block_comment")):
+                anchor_segment = comment_segment
 
         return anchor_segment
 
     @staticmethod
-    def _is_one_line_statement(context, segment):
+    def _is_one_line_statement(parent_segment, segment):
         """Check if the statement containing the provided segment is one line."""
         # Find statement segment containing the current segment.
         statement_segment = next(
             (
-                s
-                for s in (context.parent_stack[0].path_to(segment) or [])
-                if s.is_type("statement")
+                ps.segment
+                for ps in (parent_segment.path_to(segment) or [])
+                if ps.segment.is_type("statement")
             ),
             None,
         )
@@ -134,16 +139,29 @@ class Rule_L052(BaseRule):
 
         return False
 
-    def _get_segment_move_context(self, context: RuleContext) -> SegmentMoveContext:
+    def _get_segment_move_context(
+        self, target_segment: RawSegment, parent_segment: BaseSegment
+    ) -> SegmentMoveContext:
         # Locate the segment to be moved (i.e. context.segment) and search back
         # over the raw stack to find the end of the preceding statement.
-        reversed_raw_stack = context.functional.raw_stack.reversed()
-        before_code = reversed_raw_stack.select(loop_while=sp.not_(sp.is_code()))
+        reversed_raw_stack = Segments(*parent_segment.raw_segments).reversed()
+        before_code = reversed_raw_stack.select(
+            loop_while=sp.not_(sp.is_code()), start_seg=target_segment
+        )
         before_segment = before_code.select(sp.not_(sp.is_meta()))
-        anchor_segment = before_code[-1] if before_code else context.segment
-        first_code = reversed_raw_stack.select(sp.is_code()).first()
+        # We're selecting from the raw stack, so we know that before_code is
+        # made of RawSegment elements.
+        anchor_segment = (
+            cast(RawSegment, before_code[-1]) if before_code else target_segment
+        )
+        first_code = reversed_raw_stack.select(
+            sp.is_code(), start_seg=target_segment
+        ).first()
+        self.logger.debug("Semicolon: first_code: %s", first_code)
         is_one_line = (
-            self._is_one_line_statement(context, first_code[0]) if first_code else False
+            self._is_one_line_statement(parent_segment, first_code[0])
+            if first_code
+            else False
         )
 
         # We can tidy up any whitespace between the segment
@@ -154,19 +172,27 @@ class Rule_L052(BaseRule):
             anchor_segment, is_one_line, before_segment, whitespace_deletions
         )
 
-    def _handle_semicolon(self, context: RuleContext) -> Optional[LintResult]:
-        info = self._get_segment_move_context(context)
+    def _handle_semicolon(
+        self, target_segment: RawSegment, parent_segment: BaseSegment
+    ) -> Optional[LintResult]:
+        info = self._get_segment_move_context(target_segment, parent_segment)
         semicolon_newline = self.multiline_newline if not info.is_one_line else False
+        self.logger.debug("Semicolon Newline: %s", semicolon_newline)
 
         # Semi-colon on same line.
         if not semicolon_newline:
-            return self._handle_semicolon_same_line(context, info)
+            return self._handle_semicolon_same_line(
+                target_segment, parent_segment, info
+            )
         # Semi-colon on new line.
         else:
-            return self._handle_semicolon_newline(context, info)
+            return self._handle_semicolon_newline(target_segment, parent_segment, info)
 
     def _handle_semicolon_same_line(
-        self, context: RuleContext, info: SegmentMoveContext
+        self,
+        target_segment: RawSegment,
+        parent_segment: BaseSegment,
+        info: SegmentMoveContext,
     ) -> Optional[LintResult]:
         if not info.before_segment:
             return None
@@ -175,7 +201,8 @@ class Rule_L052(BaseRule):
         # semi-colon and its preceding whitespace and then insert
         # the semi-colon in the correct location.
         fixes = self._create_semicolon_and_delete_whitespace(
-            context,
+            target_segment,
+            parent_segment,
             info.anchor_segment,
             info.whitespace_deletions,
             [
@@ -188,7 +215,10 @@ class Rule_L052(BaseRule):
         )
 
     def _handle_semicolon_newline(
-        self, context: RuleContext, info: SegmentMoveContext
+        self,
+        target_segment: RawSegment,
+        parent_segment: BaseSegment,
+        info: SegmentMoveContext,
     ) -> Optional[LintResult]:
         # Adjust before_segment and anchor_segment for preceding inline
         # comments. Inline comments can contain noqa logic so we need to add the
@@ -208,9 +238,11 @@ class Rule_L052(BaseRule):
 
         # This handles an edge case in which an inline comment comes after
         # the semi-colon.
-        anchor_segment = self._handle_trailing_inline_comments(context, anchor_segment)
+        anchor_segment = self._handle_trailing_inline_comments(
+            parent_segment, anchor_segment
+        )
         fixes = []
-        if anchor_segment is context.segment:
+        if anchor_segment is target_segment:
             fixes.append(
                 LintFix.replace(
                     anchor_segment,
@@ -223,7 +255,8 @@ class Rule_L052(BaseRule):
         else:
             fixes.extend(
                 self._create_semicolon_and_delete_whitespace(
-                    context,
+                    target_segment,
+                    parent_segment,
                     anchor_segment,
                     info.whitespace_deletions,
                     [
@@ -239,13 +272,14 @@ class Rule_L052(BaseRule):
 
     def _create_semicolon_and_delete_whitespace(
         self,
-        context: RuleContext,
+        target_segment: BaseSegment,
+        parent_segment: BaseSegment,
         anchor_segment: BaseSegment,
         whitespace_deletions: Segments,
         create_segments: List[BaseSegment],
     ) -> List[LintFix]:
         anchor_segment = self._choose_anchor_segment(
-            context, "create_after", anchor_segment, filter_meta=True
+            parent_segment, "create_after", anchor_segment, filter_meta=True
         )
         lintfix_fn = LintFix.create_after
         # :TRICKY: Use IdentitySet rather than set() since
@@ -264,36 +298,34 @@ class Rule_L052(BaseRule):
                 create_segments,
             ),
             LintFix.delete(
-                context.segment,
+                target_segment,
             ),
         ]
         fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
         return fixes
 
-    def _ensure_final_semicolon(self, context: RuleContext) -> Optional[LintResult]:
-        # Locate the end of the file.
-        if not self.is_final_segment(context):
-            return None
-
-        # Include current segment for complete stack.
-        complete_stack: List[BaseSegment] = list(context.raw_stack)
-        complete_stack.append(context.segment)
-
+    def _ensure_final_semicolon(
+        self, parent_segment: BaseSegment
+    ) -> Optional[LintResult]:
         # Iterate backwards over complete stack to find
         # if the final semi-colon is already present.
-        anchor_segment = context.segment
+        anchor_segment = parent_segment.segments[-1]
+        trigger_segment = parent_segment.segments[-1]
         semi_colon_exist_flag = False
         is_one_line = False
         before_segment = []
-        for segment in complete_stack[::-1]:
+        for segment in parent_segment.segments[::-1]:
+            anchor_segment = segment
             if segment.is_type("statement_terminator"):
                 semi_colon_exist_flag = True
             elif segment.is_code:
-                is_one_line = self._is_one_line_statement(context, segment)
+                is_one_line = self._is_one_line_statement(parent_segment, segment)
                 break
             elif not segment.is_meta:
                 before_segment.append(segment)
-            anchor_segment = segment
+            trigger_segment = segment
+        self.logger.debug("Trigger on: %s", trigger_segment)
+        self.logger.debug("Anchoring on: %s", anchor_segment)
 
         semicolon_newline = self.multiline_newline if not is_one_line else False
 
@@ -305,7 +337,10 @@ class Rule_L052(BaseRule):
                 fixes = [
                     LintFix.create_after(
                         self._choose_anchor_segment(
-                            context, "create_after", anchor_segment, filter_meta=True
+                            parent_segment,
+                            "create_after",
+                            anchor_segment,
+                            filter_meta=True,
                         ),
                         [
                             SymbolSegment(raw=";", type="statement_terminator"),
@@ -322,10 +357,14 @@ class Rule_L052(BaseRule):
                 ) = self._handle_preceding_inline_comments(
                     before_segment, anchor_segment
                 )
+                self.logger.debug("Revised anchor on: %s", anchor_segment)
                 fixes = [
                     LintFix.create_after(
                         self._choose_anchor_segment(
-                            context, "create_after", anchor_segment, filter_meta=True
+                            parent_segment,
+                            "create_after",
+                            anchor_segment,
+                            filter_meta=True,
                         ),
                         [
                             NewlineSegment(),
@@ -334,22 +373,36 @@ class Rule_L052(BaseRule):
                     )
                 ]
             return LintResult(
-                anchor=anchor_segment,
+                anchor=trigger_segment,
                 fixes=fixes,
             )
         return None
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
         self.multiline_newline: bool
         self.require_final_semicolon: bool
 
-        # First we can simply handle the case of existing semi-colon alignment.
-        result = None
-        if context.segment.is_type("statement_terminator"):
-            result = self._handle_semicolon(context)
-        elif self.require_final_semicolon:
-            result = self._ensure_final_semicolon(context)
+        # We should only be dealing with a root segment
+        assert context.segment.is_type("file")
+        results = []
+        for idx, seg in enumerate(context.segment.segments):
+            res = None
+            # First we can simply handle the case of existing semi-colon alignment.
+            if seg.is_type("statement_terminator"):
+                # If it's a terminator then we know it's a raw.
+                seg = cast(RawSegment, seg)
+                self.logger.debug("Handling semi-colon: %s", seg)
+                res = self._handle_semicolon(seg, context.segment)
+            # Otherwise handle the end of the file separately.
+            elif (
+                self.require_final_semicolon
+                and idx == len(context.segment.segments) - 1
+            ):
+                self.logger.debug("Handling final segment: %s", seg)
+                res = self._ensure_final_semicolon(context.segment)
+            if res:
+                results.append(res)
 
-        return result
+        return results

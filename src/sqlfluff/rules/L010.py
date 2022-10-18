@@ -5,11 +5,19 @@ from typing import Tuple, List, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
+
+
+def is_capitalizable(character: str) -> bool:
+    """Does the character have differing lower and upper-case versions?"""
+    if character.lower() == character.upper():
+        return False
+    return True
 
 
 @document_groups
@@ -48,11 +56,7 @@ class Rule_L010(BaseRule):
     groups: Tuple[str, ...] = ("all", "core")
     lint_phase = "post"
     # Binary operators behave like keywords too.
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "keyword"),
-        ("type", "binary_operator"),
-        ("type", "date_part"),
-    ]
+    crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
     # Skip boolean and null literals (which are also keywords)
     # as they have their own rule (L040)
     _exclude_elements: List[Tuple[str, str]] = [
@@ -66,7 +70,7 @@ class Rule_L010(BaseRule):
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be
@@ -74,19 +78,30 @@ class Rule_L010(BaseRule):
         for what the possible case is.
 
         """
-        # Config type hints
-        self.ignore_words_regex: str
-
         # Skip if not an element of the specified type/name
         parent: Optional[BaseSegment] = (
             context.parent_stack[-1] if context.parent_stack else None
         )
-        if not self.matches_target_tuples(
-            context.segment, self._target_elems, parent
-        ) or self.matches_target_tuples(
-            context.segment, self._exclude_elements, parent
+        if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
+            return [LintResult(memory=context.memory)]
+
+        # Used by L030 (that inherits from this rule)
+        # If it's a qualified function_name (i.e with more than one part to
+        # function_name). Then it is likely an existing user defined function (UDF)
+        # which are case sensitive so ignore for this.
+        if (
+            context.parent_stack[-1].get_type() == "function_name"
+            and len(context.parent_stack[-1].segments) != 1
         ):
-            return LintResult(memory=context.memory)
+            return [LintResult(memory=context.memory)]
+
+        return [self._handle_segment(context.segment, context.memory)]
+
+    def _handle_segment(self, segment, memory) -> LintResult:
+        # NOTE: this mutates the memory field.
+        self.logger.info("_handle_segment: %s, %s", segment, segment.get_type())
+        # Config type hints
+        self.ignore_words_regex: str
 
         # Get the capitalisation policy configuration.
         try:
@@ -103,41 +118,52 @@ class Rule_L010(BaseRule):
             ) = self._init_capitalisation_policy()
 
         # Skip if in ignore list
-        if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
-            return LintResult(memory=context.memory)
+        if ignore_words_list and segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=memory)
 
         # Skip if matches ignore regex
         if self.ignore_words_regex and regex.search(
-            self.ignore_words_regex, context.segment.raw
+            self.ignore_words_regex, segment.raw
         ):
-            return LintResult(memory=context.memory)
+            return LintResult(memory=memory)
 
         # Skip if templated.
-        if context.segment.is_templated:
-            return LintResult(memory=context.memory)
+        if segment.is_templated:
+            return LintResult(memory=memory)
 
-        memory = context.memory
+        # Skip if empty.
+        if not segment.raw:
+            return LintResult(memory=memory)
+
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
-        if context.segment.raw[0] != context.segment.raw[0].upper():
+        for character in segment.raw:
+            if is_capitalizable(character):
+                first_letter_is_lowercase = character != character.upper()
+                break
+            # If none of the characters are letters there will be a parsing
+            # error, so not sure we need this statement
+            first_letter_is_lowercase = False
+
+        if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise", "pascal"])
-            if context.segment.raw != context.segment.raw.lower():
+            if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
         else:
             refuted_cases.update(["lower"])
-            if context.segment.raw != context.segment.raw.upper():
+            if segment.raw != segment.raw.upper():
                 refuted_cases.update(["upper"])
-            if context.segment.raw != context.segment.raw.capitalize():
+            if segment.raw != segment.raw.capitalize():
                 refuted_cases.update(["capitalise"])
-            if not context.segment.raw.isalnum():
+            if not segment.raw.isalnum():
                 refuted_cases.update(["pascal"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
 
         self.logger.debug(
-            f"Refuted cases after segment '{context.segment.raw}': {refuted_cases}"
+            f"Refuted cases after segment '{segment.raw}': {refuted_cases}"
         )
 
         # Skip if no inconsistencies, otherwise compute a concrete policy
@@ -145,8 +171,7 @@ class Rule_L010(BaseRule):
         if cap_policy == "consistent":
             possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
             self.logger.debug(
-                f"Possible cases after segment '{context.segment.raw}': "
-                "{possible_cases}"
+                f"Possible cases after segment '{segment.raw}': {possible_cases}"
             )
             if possible_cases:
                 # Save the latest possible case and skip
@@ -175,7 +200,7 @@ class Rule_L010(BaseRule):
                 )
 
         # Set the fixed to same as initial in case any of below don't match
-        fixed_raw = context.segment.raw
+        fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
             if concrete_policy == "upper":
@@ -193,13 +218,13 @@ class Rule_L010(BaseRule):
             fixed_raw = regex.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
-                context.segment.raw,
+                segment.raw,
             )
 
-        if fixed_raw == context.segment.raw:
+        if fixed_raw == segment.raw:
             # No need to fix
             self.logger.debug(
-                f"Capitalisation of segment '{context.segment.raw}' already OK with "
+                f"Capitalisation of segment '{segment.raw}' already OK with "
                 f"policy '{concrete_policy}', returning with memory {memory}"
             )
             return LintResult(memory=memory)
@@ -216,13 +241,12 @@ class Rule_L010(BaseRule):
 
             # Return the fixed segment
             self.logger.debug(
-                f"INCONSISTENT Capitalisation of segment '{context.segment.raw}', "
+                f"INCONSISTENT Capitalisation of segment '{segment.raw}', "
                 f"fixing to '{fixed_raw}' and returning with memory {memory}"
             )
-
             return LintResult(
-                anchor=context.segment,
-                fixes=[self._get_fix(context.segment, fixed_raw)],
+                anchor=segment,
+                fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
                 description=f"{self._description_elem} must be {consistency}{policy}",
             )

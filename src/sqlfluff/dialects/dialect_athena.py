@@ -9,12 +9,13 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
-    NamedParser,
+    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
     Ref,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
@@ -57,6 +58,12 @@ athena_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
     RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
+    OrcKeywordSegment=StringParser("ORCFILE", KeywordSegment, type="file_format"),
+    ParquetKeywordSegment=StringParser(
+        "PARQUETFILE", KeywordSegment, type="file_format"
+    ),
+    AvroKeywordSegment=StringParser("AVROFILE", KeywordSegment, type="file_format"),
+    IonKeywordSegment=StringParser("IONFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
         "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
@@ -149,7 +156,7 @@ athena_dialect.add(
             )
         ),
     ),
-    BackQuotedIdentifierSegment=NamedParser(
+    BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.LiteralSegment,
         type="quoted_identifier",
@@ -159,12 +166,21 @@ athena_dialect.add(
 
 athena_dialect.replace(
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        NamedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"([_]+|[A-Z0-9_]*[A-Z][A-Z0-9_]*)",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),

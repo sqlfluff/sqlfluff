@@ -2,9 +2,9 @@
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-import sqlfluff.core.rules.functional.segment_predicates as sp
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 @document_groups
@@ -38,6 +38,7 @@ class Rule_L013(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["allow_scalar"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause_element"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Column expression without alias. Use explicit `AS` clause.
@@ -48,15 +49,11 @@ class Rule_L013(BaseRule):
         elements there are.
 
         """
-        functional_context = context.functional
+        functional_context = FunctionalContext(context)
         segment = functional_context.segment
         children = segment.children()
         # If we have an alias its all good
         if children.any(sp.is_type("alias_expression")):
-            return None
-
-        # If this is not a select_clause then this rule doesn't apply
-        if not segment.all(sp.is_type("select_clause_element")):
             return None
 
         # Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
@@ -77,7 +74,7 @@ class Rule_L013(BaseRule):
         ):
             return None
 
-        select_clause_children = children.select(sp.not_(sp.is_name("star")))
+        select_clause_children = children.select(sp.not_(sp.is_type("star")))
         is_complex_clause = _recursively_check_is_complex(select_clause_children)
         if not is_complex_clause:
             return None
@@ -117,7 +114,7 @@ def _recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bo
         return False
 
     first_el = filtered.first()
-    # Anything except a single expresion seg remains
+    # Anything except a single expression seg remains
     # Then it was complex
     if remaining_count > 1 or not first_el.all(sp.is_type("expression")):
         return True

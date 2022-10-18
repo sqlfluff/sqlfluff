@@ -3,9 +3,10 @@
 from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.raw import SymbolSegment
-from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
@@ -13,13 +14,17 @@ from sqlfluff.core.rules import (
     EvalResultType,
     RuleContext,
 )
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment
+
+
+_START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 @document_groups
@@ -72,6 +77,7 @@ class Rule_L028(BaseRule):
         "single_table_references",
         "force_enable",
     ]
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
@@ -92,17 +98,18 @@ class Rule_L028(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        start_types = ["select_statement", "set_expression", "with_compound_statement"]
-        if context.segment.is_type(
-            *start_types
-        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             crawler = SelectCrawler(context.segment, context.dialect)
+            visited: IdentitySet = IdentitySet()
             if crawler.query_tree:
                 # Recursively visit and check each query in the tree.
-                return list(self._visit_queries(crawler.query_tree))
+                return list(self._visit_queries(crawler.query_tree, visited))
         return None
 
-    def _visit_queries(self, query: Query) -> Iterator[LintResult]:
+    def _visit_queries(
+        self, query: Query, visited: IdentitySet
+    ) -> Iterator[LintResult]:
+        select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
@@ -136,8 +143,24 @@ class Rule_L028(BaseRule):
                     self._fix_inconsistent_to,
                     fixable,
                 )
-        for child in query.children:
-            yield from self._visit_queries(child)
+        children = list(query.children)
+        # 'query.children' includes CTEs and "main" queries, but not queries in
+        # the "FROM" list. We want to visit those as well.
+        if select_info:
+            for a in select_info.table_aliases:
+                for q in SelectCrawler.get(query, a.from_expression_element):
+                    if not isinstance(q, Query):
+                        continue
+                    # Check for previously visited selectables to avoid possible
+                    # infinite recursion, e.g.:
+                    #   WITH test1 AS (SELECT i + 1, j + 1 FROM test1)
+                    #   SELECT * FROM test1;
+                    if any(s.selectable in visited for s in q.selectables):
+                        continue
+                    visited.update(s.selectable for s in q.selectables)
+                    children.append(q)
+        for child in children:
+            yield from self._visit_queries(child, visited)
 
 
 def _check_references(

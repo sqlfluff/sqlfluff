@@ -6,6 +6,7 @@ from sqlfluff.core.rules import (
     LintResult,
     RuleContext,
 )
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -25,7 +26,7 @@ def get_rules() -> List[BaseRule]:
 @hookimpl
 def load_default_config() -> dict:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_default_config_file(
+    return ConfigLoader.get_global().load_config_file(
         file_dir=os.path.dirname(__file__),
         file_name="plugin_default_config.cfg",
     )
@@ -72,6 +73,7 @@ class Rule_Example_L001(BaseRule):
 
     groups = ("all",)
     config_keywords = ["forbidden_columns"]
+    crawl_behaviour = SegmentSeekerCrawler({"column_reference"})
 
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""
@@ -85,10 +87,7 @@ class Rule_Example_L001(BaseRule):
         if context.segment.is_type("orderby_clause"):
             for seg in context.segment.segments:
                 col_name = seg.raw.lower()
-                if (
-                    seg.is_type("column_reference")
-                    and col_name in self.forbidden_columns
-                ):
+                if col_name in self.forbidden_columns:
                     return LintResult(
                         anchor=seg,
                         description=f"Column `{col_name}` not allowed in ORDER BY.",

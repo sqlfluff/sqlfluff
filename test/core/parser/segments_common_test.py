@@ -5,6 +5,7 @@ import pytest
 from sqlfluff.core.parser import KeywordSegment, StringParser
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment
+from sqlfluff.core.parser.segments.base import UnparsableSegment
 
 
 @pytest.fixture(scope="module")
@@ -16,7 +17,7 @@ def raw_seg_list(generate_test_segments):
 def test__parser__core_keyword(raw_seg_list):
     """Test the Mystical KeywordSegment."""
     # First make a keyword
-    FooKeyword = StringParser("foo", KeywordSegment)
+    FooKeyword = StringParser("foo", KeywordSegment, type="bar")
     # Check it looks as expected
     assert FooKeyword.template.upper() == "FOO"
     with RootParseContext(dialect=None) as ctx:
@@ -35,10 +36,13 @@ def test__parser__core_keyword(raw_seg_list):
         assert FooKeyword.match([raw_seg_list[1]], parse_context=ctx)
         # Match it against a list slice and check it still works
         assert FooKeyword.match(raw_seg_list[1:], parse_context=ctx)
+        # Check that the types work right. Importantly that the "bar"
+        # type makes it in.
+        assert m.matched_segments[0].class_types == {"base", "keyword", "raw", "bar"}
 
 
 def test__parser__core_ephemeral_segment(raw_seg_list):
-    """Test the Mystical KeywordSegment."""
+    """Test the EphemeralSegment."""
     # First make a keyword
     BarKeyword = StringParser("bar", KeywordSegment)
 
@@ -46,7 +50,7 @@ def test__parser__core_ephemeral_segment(raw_seg_list):
         segments=raw_seg_list[:1],
         pos_marker=None,
         parse_grammar=BarKeyword,
-        name="foobar",
+        ephemeral_name="foo",
     )
 
     with RootParseContext(dialect=None) as ctx:
@@ -56,3 +60,26 @@ def test__parser__core_ephemeral_segment(raw_seg_list):
         elem = res[0]
         assert not isinstance(elem, EphemeralSegment)
         assert isinstance(elem, KeywordSegment)
+
+
+def test__parser__core_ephemeral_unparsable(raw_seg_list):
+    """Test the unparsable EphemeralSegment."""
+    # First make a keyword
+    TestKeyword = StringParser("somethingwedonthave", KeywordSegment)
+
+    ephemeral_segment = EphemeralSegment(
+        segments=raw_seg_list[:1],
+        pos_marker=None,
+        parse_grammar=TestKeyword,
+        ephemeral_name="foo",
+    )
+
+    with RootParseContext(dialect=None) as ctx:
+        # Parse it and make sure we don't get an EphemeralSegment back
+        res = ephemeral_segment.parse(ctx)
+        assert isinstance(res, tuple)
+        elem = res[0]
+        # We should get an unparsable back.
+        assert isinstance(elem, UnparsableSegment)
+        # Check the ephemeral name comes through in the expectation.
+        assert "Expected: 'foo'" in elem.stringify()

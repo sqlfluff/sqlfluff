@@ -99,7 +99,7 @@ double_nested_fail:
       L042:
         forbid_subquery_in: both
 
-double_nested_unfixable_cte_clash:
+double_nested_fail_2:
   fail_str: |
     select
         a.x, a.y, b.z
@@ -109,6 +109,20 @@ double_nested_unfixable_cte_clash:
         select x, z from p_cte
       ) as b
     ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 2
+      line_pos: 20
   configs:
     rules:
       L042:
@@ -127,6 +141,23 @@ unfixable_cte_clash:
         select 1
       ) as b
     ) as c on (a.x = b.x)
+  fix_str: |
+    with "b" as (
+      select x, z from p_cte
+    ),
+    c as (
+      select x, z from (
+        select 1
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join c on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 5
+      line_pos: 20
   configs:
     rules:
       L042:
@@ -458,10 +489,16 @@ issue_3572_correlated_subquery_3:
 issue_3598_avoid_looping_1:
   fail_str: |
     WITH cte1 AS (
-    	SELECT a
-    	FROM (SELECT a)
+        SELECT a
+        FROM (SELECT a)
     )
-
+    SELECT a FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT a),
+    cte1 AS (
+        SELECT a
+        FROM prep_1
+    )
     SELECT a FROM cte1
   configs:
     rules:
@@ -474,8 +511,125 @@ issue_3598_avoid_looping_2:
         SELECT *
         FROM (SELECT * FROM mongo.temp)
     )
-
     SELECT * FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT * FROM mongo.temp),
+    cte1 AS (
+        SELECT *
+        FROM prep_1
+    )
+    SELECT * FROM cte1
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte:
+  fail_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      )
+    )
+    select b.z
+    from b
+  fix_str: |
+    with prep_1 as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from prep_1
+    )
+    select b.z
+    from b
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_2:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from (select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_3:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from(select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from b
   configs:
     rules:
       L042:

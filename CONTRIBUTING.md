@@ -116,7 +116,7 @@ was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfl
 ### Wiki
 
 We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some
-more long form tutorials for contributors, particualrly those new to SQLFluff
+more long form tutorials for contributors, particularly those new to SQLFluff
 or contributing to open source. We welcome
 [contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
 for the wiki.
@@ -131,7 +131,7 @@ but you'll need to do each one explicitly. e.g.
 pip install -e plugins/sqlfluff-templater-dbt/.
 ```
 
-> NOTE: For packages intended to be installed like this, the source code must be directy
+> NOTE: For packages intended to be installed like this, the source code must be directly
 > within a subdirectory with the name of the package and not in a subdirectory such as
 > src. This is due to a restriction in the implementation of setup.py in editable mode.
 
@@ -238,7 +238,7 @@ whenever a new release is published to GitHub.
 
 The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
 
-A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml).
+A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml).
 
 As further PRs are merged, we may need to rerun the release script again (or alternatively just manually updating the branch). This can only be rerun locally (the GitHub Action will exit error if the branch already exists to prevent overwriting it).
 
@@ -259,7 +259,7 @@ Below is the old list of release steps, but many are automated by the process de
 - [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release Notes", then it will basically recreate these notes (though in a slightly different format), but also add a nice "First contributors" section, so can copy that "First contributors" section too and then abandon that new draft ([an issues](https://github.com/release-drafter/release-drafter/issues/1001) has been raised to ask for this in Release Drafter GitHub Action).
 - [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically when displaying Markdown files, like it does for comments. You can use regex in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`, or if using the GitHub generated release notes then can replace `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
 - [ ] For the new contributors section, you can replace `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
-- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). We also don't use [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/) (e.g. `feat`) so make them more English readible. Make same edits locally in [CHANGELOG.md](CHANGELOG.md).
+- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). We also don't use [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/) (e.g. `feat`) so make them more English readable. Make same edits locally in [CHANGELOG.md](CHANGELOG.md).
 - [ ] Add a comment at the top to highlight the main things in this release.
 - [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added that made this a non-patch release.
 - [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.

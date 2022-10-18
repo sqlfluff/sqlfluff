@@ -23,7 +23,7 @@ from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
@@ -41,6 +41,13 @@ if DBT_VERSION_TUPLE >= (1, 0):
     from dbt.flags import PROFILES_DIR
 else:
     from dbt.config.profile import PROFILES_DIR
+
+if DBT_VERSION_TUPLE >= (1, 3):
+    COMPILED_SQL_ATTRIBUTE = "compiled_code"
+    RAW_SQL_ATTRIBUTE = "raw_code"
+else:
+    COMPILED_SQL_ATTRIBUTE = "compiled_sql"
+    RAW_SQL_ATTRIBUTE = "raw_sql"
 
 
 @dataclass
@@ -126,10 +133,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        # Identity function used for macro hooks
-        def identity(x):
-            return x
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -140,9 +143,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        projects = self.dbt_config.load_dependencies()
-        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-        self.dbt_manifest = loader.load()
+        self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
 
         return self.dbt_manifest
 
@@ -392,10 +393,10 @@ class DbtTemplater(JinjaTemplater):
         if not results:
             skip_reason = self._find_skip_reason(fname)
             if skip_reason:
-                raise SQLTemplaterSkipFile(
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because it is {skip_reason}"
                 )
-            raise SQLTemplaterSkipFile(
+            raise SQLFluffSkipFile(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
@@ -484,7 +485,7 @@ class DbtTemplater(JinjaTemplater):
                     fname,
                 )
                 # Additional error logging in case we get a fatal dbt error.
-                raise SQLTemplaterSkipFile(  # pragma: no cover
+                raise SQLFluffSkipFile(  # pragma: no cover
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 ) from err
@@ -498,7 +499,9 @@ class DbtTemplater(JinjaTemplater):
                 # However it's not always present.
                 compiled_sql = node.injected_sql
             else:
-                compiled_sql = node.compiled_sql
+                compiled_sql = getattr(node, COMPILED_SQL_ATTRIBUTE)
+
+            raw_sql = getattr(node, RAW_SQL_ATTRIBUTE)
 
             if not compiled_sql:  # pragma: no cover
                 raise SQLTemplaterError(
@@ -525,7 +528,7 @@ class DbtTemplater(JinjaTemplater):
                 n_trailing_newlines,
             )
             templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
-            templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
+            templater_logger.debug("    Node raw SQL: %r", raw_sql)
             templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
 
             # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
@@ -544,11 +547,11 @@ class DbtTemplater(JinjaTemplater):
             #    1. Check for trailing newlines before compiling by looking at the
             #       raw SQL in the source dbt file. Remember the count of trailing
             #       newlines.
-            #    2. Set node.raw_sql to the original source file contents.
+            #    2. Set node.raw_sql/node.raw_code to the original source file contents.
             #    3. Append the count from #1 above to compiled_sql. (In
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
-            node.raw_sql = source_dbt_sql
+            setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
             # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.

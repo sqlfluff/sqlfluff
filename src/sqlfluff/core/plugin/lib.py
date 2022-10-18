@@ -23,7 +23,7 @@ def get_templaters():
 @hookimpl
 def load_default_config() -> dict:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_default_config_file(
+    return ConfigLoader.get_global().load_config_file(
         file_dir=os.path.join(os.path.dirname(os.path.dirname(__file__))),
         file_name="default_config.cfg",
     )

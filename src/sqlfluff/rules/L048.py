@@ -1,16 +1,17 @@
 """Implementation of Rule L048."""
 
-from typing import Tuple, List
+from typing import List
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.context import RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
-
-from sqlfluff.rules.L006 import Rule_L006
+from sqlfluff.utils.reflow import ReflowSequence
 
 
 @document_groups
 @document_fix_compatible
-class Rule_L048(Rule_L006):
+class Rule_L048(BaseRule):
     """Quoted literals should be surrounded by a single whitespace.
 
     **Anti-pattern**
@@ -37,30 +38,52 @@ class Rule_L048(Rule_L006):
     """
 
     groups = ("all", "core")
-    _require_three_children: bool = False
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"quoted_literal", "date_constructor_literal"}
+    )
 
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "quoted_literal"),
-        ("type", "date_constructor_literal"),
-    ]
+    def _eval(self, context: RuleContext) -> List[LintResult]:
+        """Quoted literals should be surrounded by a single whitespace."""
+        pre_fixes, _, post_fixes = (
+            ReflowSequence.from_around_target(
+                context.segment, context.parent_stack[0], config=context.config
+            )
+            .respace()
+            .get_partitioned_fixes(context.segment)
+        )
 
-    @staticmethod
-    def _missing_whitespace(seg: BaseSegment, before=True) -> bool:
-        """Check whether we're missing whitespace given an adjoining segment.
+        # Filter for only creations, because edits are handled as excess
+        # whitespace in a different rule.
+        pre_fixes = [
+            fix
+            for fix in pre_fixes
+            if fix.edit_type in ("create_before", "create_after")
+        ]
+        post_fixes = [
+            fix
+            for fix in post_fixes
+            if fix.edit_type in ("create_before", "create_after")
+        ]
 
-        This avoids flagging for commas after quoted strings.
-        https://github.com/sqlfluff/sqlfluff/issues/943
-        """
-        simple_res = Rule_L006._missing_whitespace(seg, before=before)
-        if (
-            not before
-            and seg
-            and (
-                seg.is_type("comma", "statement_terminator")
-                or (
-                    seg.is_type("cast_expression") and seg.get_child("casting_operator")
+        violations = []
+
+        # Is it a creation before
+        if pre_fixes:
+            violations.append(
+                LintResult(
+                    context.segment,
+                    fixes=pre_fixes,
+                    description=f"Missing whitespace before {context.segment.raw}",
                 )
             )
-        ):
-            return False
-        return simple_res
+        # Is it a creation after
+        if post_fixes:
+            violations.append(
+                LintResult(
+                    context.segment,
+                    fixes=post_fixes,
+                    description=f"Missing whitespace after {context.segment.raw}",
+                )
+            )
+
+        return violations

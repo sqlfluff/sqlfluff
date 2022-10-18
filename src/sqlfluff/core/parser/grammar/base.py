@@ -2,7 +2,7 @@
 
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, Union, Type, Tuple, Any
+from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -19,8 +19,11 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
-# Either a Grammar or a Segment CLASS
+# Either a Matchable (a grammar or parser) or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
+
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
 @dataclass
@@ -170,7 +173,7 @@ class BaseGrammar(Matchable):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
+    def match(self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -189,12 +192,12 @@ class BaseGrammar(Matchable):
     @classmethod
     def _longest_trimmed_match(
         cls,
-        segments: Tuple["BaseSegment", ...],
-        matchers: List["MatchableType"],
+        segments: Tuple[BaseSegment, ...],
+        matchers: List[MatchableType],
         parse_context: ParseContext,
         trim_noncode=True,
-        terminators: List["MatchableType"] = None,
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+        terminators: List[MatchableType] = None,
+    ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
@@ -278,7 +281,12 @@ class BaseGrammar(Matchable):
         return MatchResult.from_unmatched(segments), None
 
     @classmethod
-    def _look_ahead_match(cls, segments, matchers, parse_context):
+    def _look_ahead_match(
+        cls,
+        segments: Tuple[BaseSegment, ...],
+        matchers: List[MatchableType],
+        parse_context: ParseContext,
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
@@ -302,13 +310,8 @@ class BaseGrammar(Matchable):
             seg=LateBoundJoinSegmentsCurtailed(segments),
         )
 
-        # Do some type munging
-        matchers = list(matchers)
-        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
-            segments = [segments]
-
-        # Have we been passed an empty list?
-        if len(segments) == 0:  # pragma: no cover TODO?
+        # Have we been passed an empty tuple?
+        if not segments:  # pragma: no cover TODO?
             return ((), MatchResult.from_empty(), None)
 
         # Here we enable a performance optimisation. Most of the time in this cycle
@@ -333,7 +336,7 @@ class BaseGrammar(Matchable):
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
             # one we just dump out the whole segment, but splitting off the
-            # first element seperated by whitespace. This is a) faster and
+            # first element separated by whitespace. This is a) faster and
             # also b) prevents some really horrible bugs with bracket matching.
             # See https://github.com/sqlfluff/sqlfluff/issues/433
 
@@ -346,6 +349,7 @@ class BaseGrammar(Matchable):
 
             for matcher, simple in simple_matchers:
                 # Simple will be a tuple of options
+                assert simple
                 for simple_option in simple:
                     # NOTE: We use iter_indices to make sure we capture
                     # all instances of potential matches if there are many.
@@ -412,11 +416,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
         # Make some buffers
-        seg_buff = segments  # pragma: no cover
-        pre_seg_buff = ()  # pragma: no cover
+        seg_buff = segments
+        pre_seg_buff: Tuple[BaseSegment, ...] = ()
 
         # Loop
-        while True:  # pragma: no cover
+        while True:
             # Do we have anything left to match on?
             if seg_buff:
                 # Great, carry on.
@@ -436,6 +440,9 @@ class BaseGrammar(Matchable):
             if mat and not best_simple_match:
                 return (pre_seg_buff, mat, m)
             elif mat:
+                # Given we have mat - we should always have these two.
+                assert m
+                assert best_simple_match
                 # It will be earlier than the simple one if we've even checked,
                 # but there's a chance that this might be *longer*, or just FIRST.
                 pre_lengths = (len(pre_seg_buff), len(best_simple_match[0]))
@@ -455,7 +462,8 @@ class BaseGrammar(Matchable):
                 ):
                     return (pre_seg_buff, mat, m)
                 else:
-                    return best_simple_match
+                    # TODO: Make a test case to cover this.
+                    return best_simple_match  # pragma: no cover
             else:
                 # If there aren't any matches, then advance the buffer and try again.
                 # Two improvements:
@@ -470,12 +478,12 @@ class BaseGrammar(Matchable):
     @classmethod
     def _bracket_sensitive_look_ahead_match(
         cls,
-        segments,
-        matchers,
-        parse_context,
-        start_bracket=None,
-        end_bracket=None,
-        bracket_pairs_set="bracket_pairs",
+        segments: Tuple[BaseSegment, ...],
+        matchers: List[MatchableType],
+        parse_context: ParseContext,
+        start_bracket: Optional[Matchable] = None,
+        end_bracket: Optional[Matchable] = None,
+        bracket_pairs_set: str = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -490,13 +498,8 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-        # Type munging
-        matchers = list(matchers)
-        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
-            segments = [segments]
-
-        # Have we been passed an empty list?
-        if len(segments) == 0:
+        # Have we been passed an empty tuple?
+        if not segments:
             return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
@@ -848,7 +851,7 @@ class Ref(BaseGrammar):
                 "found {!r}".format(self._elements)
             )
 
-    def _get_elem(self, dialect):
+    def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
@@ -863,7 +866,9 @@ class Ref(BaseGrammar):
 
     @match_wrapper(v_level=4)  # Log less for Ref
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -881,9 +886,6 @@ class Ref(BaseGrammar):
             with parse_context.deeper_match() as ctx:
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
-
-        if not elem:  # pragma: no cover
-            raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
         # We rely on segments not being mutated within a given
@@ -928,7 +930,9 @@ class Ref(BaseGrammar):
 class Anything(BaseGrammar):
     """Matches anything."""
 
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Matches... Anything.
 
         Most useful in match grammars, where a later parse grammar
@@ -944,7 +948,9 @@ class Nothing(BaseGrammar):
     dialects.
     """
 
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Matches... nothing.
 
         Useful for placeholders which might be overwritten by other

@@ -2,6 +2,7 @@
 import hashlib
 import io
 import os
+from typing import NamedTuple
 
 import pytest
 import yaml
@@ -28,6 +29,13 @@ from sqlfluff.core.templaters import TemplatedFile
 yaml.add_representer(str, quoted_presenter)
 
 
+class ParseExample(NamedTuple):
+    """A tuple representing an example SQL file to parse."""
+
+    dialect: str
+    sqlfile: str
+
+
 def get_parse_fixtures(fail_on_missing_yml=False):
     """Search for all parsing fixtures."""
     parse_success_examples = []
@@ -44,7 +52,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
             if f.endswith(".sql"):
                 root = f[:-4]
                 # only look for sql files
-                parse_success_examples.append((d, f))
+                parse_success_examples.append(ParseExample(d, f))
                 # Look for the code_only version of the structure
                 y = root + ".yml"
                 if y in dirlist:
@@ -190,19 +198,19 @@ def generate_test_segments():
                 SegClass = NewlineSegment
             elif elem == "(":
                 SegClass = SymbolSegment
-                seg_kwargs = {"name": "bracket_open"}
+                seg_kwargs = {"type": "bracket_open"}
             elif elem == ")":
                 SegClass = SymbolSegment
-                seg_kwargs = {"name": "bracket_close"}
+                seg_kwargs = {"type": "bracket_close"}
             elif elem.startswith("--"):
                 SegClass = CommentSegment
-                seg_kwargs = {"name": "inline_comment"}
+                seg_kwargs = {"type": "inline_comment"}
             elif elem.startswith('"'):
                 SegClass = CodeSegment
-                seg_kwargs = {"name": "double_quote"}
+                seg_kwargs = {"type": "double_quote"}
             elif elem.startswith("'"):
                 SegClass = CodeSegment
-                seg_kwargs = {"name": "single_quote"}
+                seg_kwargs = {"type": "single_quote"}
             else:
                 SegClass = CodeSegment
 

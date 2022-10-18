@@ -2,7 +2,7 @@
 import copy
 from functools import partial
 from typing import (
-    Generator,
+    Iterator,
     List,
     NamedTuple,
     Optional,
@@ -12,7 +12,9 @@ from typing import (
     TypeVar,
     cast,
 )
+
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     CodeSegment,
@@ -21,20 +23,27 @@ from sqlfluff.core.parser.segments.raw import (
     SymbolSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules import (
+    BaseRule,
+    EvalResultType,
+    LintFix,
+    LintResult,
+    RuleContext,
+)
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import (
+from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
-    is_name,
     is_type,
     is_whitespace,
 )
-from sqlfluff.core.rules.functional.segments import Segments
+from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
@@ -43,11 +52,19 @@ from sqlfluff.dialects.dialect_ansi import (
 )
 
 
+_SELECT_TYPES = [
+    "with_compound_statement",
+    "set_expression",
+    "select_statement",
+]
+
+
 class _NestedSubQuerySummary(NamedTuple):
-    parent_clause_type: str
-    parent_select_segments: Segments
-    clause_segments: Segments
-    subquery: BaseSegment
+    query: Query
+    selectable: Selectable
+    table_alias: AliasInfo
+    sc: SelectCrawler
+    select_source_names: Set[str]
 
 
 @document_groups
@@ -92,6 +109,7 @@ class Rule_L042(BaseRule):
 
     groups = ("all",)
     config_keywords = ["forbid_subquery_in"]
+    crawl_behaviour = SegmentSeekerCrawler(set(_SELECT_TYPES))
 
     _config_mapping = {
         "join": ["join_clause"],
@@ -99,143 +117,174 @@ class Rule_L042(BaseRule):
         "both": ["join_clause", "from_expression_element"],
     }
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
-        select_types = [
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
-        ]
         self.forbid_subquery_in: str
-        parent_types = self._config_mapping[self.forbid_subquery_in]
-        segment = context.functional.segment
-        parent_stack = context.functional.parent_stack
-        is_select = segment.all(is_type(*select_types))
-        is_select_child = parent_stack.any(is_type(*select_types))
+        functional_context = FunctionalContext(context)
+        segment = functional_context.segment
+        parent_stack = functional_context.parent_stack
+        is_select = segment.all(is_type(*_SELECT_TYPES))
+        is_select_child = parent_stack.any(is_type(*_SELECT_TYPES))
         if not is_select or is_select_child:
             # Nothing to do.
             return None
 
-        # Gather all possible offending Elements in one crawl
-        nested_subqueries: List[_NestedSubQuerySummary] = []
-        selects = segment.recursive_crawl(*select_types, recurse_into=True)
-        for select in selects.iterate_segments():
-            for res in _find_nested_subqueries(select, context.dialect):
-                if res.parent_clause_type not in parent_types:
-                    continue
-                nested_subqueries.append(res)
+        crawler = SelectCrawler(context.segment, context.dialect)
+        assert crawler.query_tree
 
-        if not nested_subqueries:
-            return None
-        # If there are offending elements calculate fixes
-        return _calculate_fixes(
-            dialect=context.dialect,
-            root_select=segment,
-            nested_subqueries=nested_subqueries,
-            parent_stack=parent_stack,
-        )
+        # generate an instance which will track and shape our output CTE
+        ctes = _CTEBuilder()
+        # Init the output/final select &
+        # populate existing CTEs
+        for cte in crawler.query_tree.ctes.values():
+            ctes.insert_cte(cte.cte_definition_segment)  # type: ignore
 
-
-def _calculate_fixes(
-    dialect: Dialect,
-    root_select: Segments,
-    nested_subqueries: List[_NestedSubQuerySummary],
-    parent_stack: Segments,
-) -> List[LintResult]:
-    """Given the Root select and the offending subqueries calculate fixes."""
-    is_with = root_select.all(is_type("with_compound_statement"))
-    # TODO: consider if we can fix recursive CTEs
-    is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
-    case_preference = _get_case_preference(root_select)
-    # generate an instance which will track and shape our output CTE
-    ctes = _CTEBuilder()
-    # Init the output/final select &
-    # populate existing CTEs
-    for cte in root_select.children(is_type("common_table_expression")):
-        assert isinstance(cte, CTEDefinitionSegment), "TypeGuard"
-        ctes.insert_cte(cte)
-
-    output_select = root_select
-    if is_with:
-        output_select = root_select.children(
-            is_type(
-                "set_expression",
-                "select_statement",
+        is_with = segment.all(is_type("with_compound_statement"))
+        # TODO: consider if we can fix recursive CTEs
+        is_recursive = is_with and len(segment.children(is_keyword("recursive"))) > 0
+        case_preference = _get_case_preference(segment)
+        output_select = segment
+        if is_with:
+            output_select = segment.children(
+                is_type(
+                    "set_expression",
+                    "select_statement",
+                )
             )
-        )
 
-    lint_results: List[LintResult] = []
-    clone_map = SegmentCloneMap(root_select[0])
-    is_new_name = False
-    new_table_ref = None
-    for parent_type, _, this_seg, subquery in nested_subqueries:
-        alias_name, is_new_name = ctes.create_cte_alias(
-            this_seg.children(is_type("alias_expression"))
-        )
-        new_cte = _create_cte_seg(
-            alias_name=alias_name,
-            subquery=clone_map[subquery],
+        # If there are offending elements calculate fixes
+        clone_map = SegmentCloneMap(segment[0])
+        result = self._lint_query(
+            dialect=context.dialect,
+            query=crawler.query_tree,
+            ctes=ctes,
             case_preference=case_preference,
-            dialect=dialect,
+            clone_map=clone_map,
         )
-        ctes.insert_cte(new_cte)
-        this_seg_clone = clone_map[this_seg[0]]
-        assert this_seg_clone.pos_marker, "TypeGuard"
-        new_table_ref = _create_table_ref(alias_name, dialect)
-        this_seg_clone.segments = (new_table_ref,)
-        anchor = subquery
-        # Grab the first keyword or symbol in the subquery to use as the
-        # anchor. This makes the lint warning less likely to be filtered out
-        # if a bit of the subquery happens to be templated.
-        for seg in subquery.recursive_crawl("keyword", "symbol"):
-            anchor = seg
-            break
-        res = LintResult(
-            anchor=anchor,
-            description=f"{parent_type} clauses should not contain "
-            "subqueries. Use CTEs instead",
-            fixes=[],
-        )
-        lint_results.append(res)
 
-    # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
-    # leaves parentheses in a location that causes a syntax error. This is an
-    # unusual corner case. For simplicity, we still generate the lint warning
-    # but don't try to generate a fix. Someone could look at this later (a
-    # correct fix would involve removing the parentheses.)
-    bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
-        "create_table_statement",
-        "bracketed",
-    ]
-    if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
-        # If we have duplicate CTE names just don't fix anything
-        # Return the lint warnings anyway
-        return lint_results
+        if result:
+            lint_result, from_expression, alias_name, subquery_parent = result
+            assert any(
+                from_expression is seg for seg in subquery_parent.recursive_crawl_all()
+            )
+            this_seg_clone = clone_map[from_expression]
+            new_table_ref = _create_table_ref(alias_name, context.dialect)
+            this_seg_clone.segments = [new_table_ref]
+            ctes.replace_with_clone(subquery_parent, clone_map)
 
-    # Add fixes to the last result only
-    edit = [
-        ctes.compose_select(
-            clone_map[output_select[0]],
-            case_preference=case_preference,
-        ),
-    ]
-    lint_results[-1].fixes = [
-        LintFix.replace(
-            root_select[0],
-            edit_segments=edit,
-        )
-    ]
-    if is_new_name:
-        assert lint_results[0].fixes[0].edit
-        assert new_table_ref
-        # If we're creating a new CTE name but the CTE name does not appear in
-        # the fix, discard the lint error. This prevents the rule from looping,
-        # i.e. making the same fix repeatedly.
-        if not any(
-            seg.uuid == new_table_ref.uuid for seg in edit[0].recursive_crawl_all()
-        ):
-            lint_results[-1].fixes = []
-    return lint_results
+            # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+            # leaves parentheses in a location that causes a syntax error. This is an
+            # unusual corner case. For simplicity, we still generate the lint warning
+            # but don't try to generate a fix. Someone could look at this later (a
+            # correct fix would involve removing the parentheses.)
+            bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
+                "create_table_statement",
+                "bracketed",
+            ]
+            if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
+                # If we have duplicate CTE names just don't fix anything
+                # Return the lint warnings anyway
+                return lint_result
+
+            # Compute fix.
+            output_select_clone = clone_map[output_select[0]]
+            fixes = ctes.ensure_space_after_from(
+                output_select[0], output_select_clone, subquery_parent
+            )
+            new_select = ctes.compose_select(
+                output_select_clone, case_preference=case_preference
+            )
+            lint_result.fixes = [
+                LintFix.replace(
+                    segment[0],
+                    edit_segments=[new_select],
+                )
+            ]
+            lint_result.fixes.extend(fixes)
+            return lint_result
+        return None
+
+    def _nested_subqueries(
+        self, query: Query, dialect: Dialect
+    ) -> Iterator[_NestedSubQuerySummary]:
+        parent_types = self._config_mapping[self.forbid_subquery_in]
+        for q in [query] + list(query.ctes.values()):
+            for selectable in q.selectables:
+                if not selectable.select_info:
+                    continue  # pragma: no cover
+                select_source_names = set()
+                for a in selectable.select_info.table_aliases:
+                    # For each table in FROM, return table name and any alias.
+                    if a.ref_str:
+                        select_source_names.add(a.ref_str)
+                    if a.object_reference:
+                        select_source_names.add(a.object_reference.raw)
+                for table_alias in selectable.select_info.table_aliases:
+                    sc = SelectCrawler(table_alias.from_expression_element, dialect)
+                    if sc.query_tree:
+                        path_to = selectable.selectable.path_to(
+                            table_alias.from_expression_element
+                        )
+                        if not (
+                            # The from_expression_element
+                            table_alias.from_expression_element.is_type(*parent_types)
+                            # Or any of it's parents up to the selectable
+                            or any(ps.segment.is_type(*parent_types) for ps in path_to)
+                        ):
+                            continue
+                        if _is_correlated_subquery(
+                            Segments(sc.query_tree.selectables[0].selectable),
+                            select_source_names,
+                            dialect,
+                        ):
+                            continue
+                        yield _NestedSubQuerySummary(
+                            q, selectable, table_alias, sc, select_source_names
+                        )
+
+    def _lint_query(
+        self,
+        dialect: Dialect,
+        query: Query,
+        ctes: "_CTEBuilder",
+        case_preference,
+        clone_map,
+    ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
+        """Given the root query, compute lint warnings."""
+        nsq: _NestedSubQuerySummary
+        for nsq in self._nested_subqueries(query, dialect):
+            alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
+            # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
+            anchor = nsq.table_alias.from_expression_element.segments[0]
+            new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
+                alias_name=alias_name,
+                subquery=clone_map[anchor],
+                case_preference=case_preference,
+                dialect=dialect,
+            )
+            ctes.insert_cte(new_cte)
+
+            # Grab the first keyword or symbol in the subquery to
+            # use as the anchor. This makes the lint warning less
+            # likely to be filtered out if a bit of the subquery
+            # happens to be templated.
+            anchor = next(anchor.recursive_crawl("keyword", "symbol"))
+            res = LintResult(
+                anchor=anchor,
+                description=f"{nsq.query.selectables[0].selectable.type} clauses "
+                "should not contain subqueries. Use CTEs instead",
+                fixes=[],
+            )
+            if len(nsq.query.selectables) == 1:
+                return (
+                    res,
+                    # FromExpressionElementSegment, parent of original "anchor" segment
+                    nsq.table_alias.from_expression_element,
+                    alias_name,  # Name of CTE we're creating from the nested query
+                    # Query with the subquery: 'select a from (select x from b)'
+                    nsq.query.selectables[0].selectable,
+                )
+        return None
 
 
 def _get_first_select_statement_descendant(
@@ -250,27 +299,6 @@ def _get_first_select_statement_descendant(
     return None  # pragma: no cover
 
 
-def _get_sources_from_select(segment: BaseSegment, dialect: Dialect) -> Set[str]:
-    """Given segment, return set of table or alias names it queries from."""
-    result = set()
-    select = None
-    if segment.is_type("select_statement"):
-        select = segment
-    elif segment.is_type("with_compound_statement"):
-        # For WITH statement, process the main query underneath.
-        select = _get_first_select_statement_descendant(segment)
-    if select and select.is_type("select_statement"):
-        select_info = get_select_statement_info(select, dialect)
-        if select_info:
-            for a in select_info.table_aliases:
-                # For each table in FROM, return table name and any alias.
-                if a.ref_str:
-                    result.add(a.ref_str)
-                if a.object_reference:
-                    result.add(a.object_reference.raw)
-    return result
-
-
 def _is_correlated_subquery(
     nested_select: Segments, select_source_names: Set[str], dialect: Dialect
 ):
@@ -278,8 +306,6 @@ def _is_correlated_subquery(
 
     https://en.wikipedia.org/wiki/Correlated_subquery
     """
-    if not nested_select:
-        return False  # pragma: no cover
     select_statement = _get_first_select_statement_descendant(nested_select[0])
     if not select_statement:
         return False  # pragma: no cover
@@ -294,51 +320,6 @@ def _is_correlated_subquery(
                 if tr.part in select_source_names:
                     return True
     return False
-
-
-def _find_nested_subqueries(
-    select: Segments,
-    dialect: Dialect,
-) -> Generator[_NestedSubQuerySummary, None, None]:
-    """Find possible offending elements and return enough to fix them."""
-    select_types = [
-        "with_compound_statement",
-        "set_expression",
-        "select_statement",
-    ]
-    from_clause = select.children().first(is_type("from_clause")).children()
-    offending_types = ["join_clause", "from_expression_element"]
-    select_source_names = _get_sources_from_select(select[0], dialect)
-
-    # Match any of the types we care about
-    for this_seg in from_clause.children(is_type(*offending_types)).iterate_segments():
-        parent_type = this_seg[0].get_type()
-        # Ensure we are at the right depth (from_expression_element)
-        if not this_seg.all(is_type("from_expression_element")):
-            this_seg = this_seg.children(
-                is_type("from_expression_element"),
-            )
-
-        table_expression_el = this_seg.children(
-            is_type("table_expression"),
-        )
-
-        # Is it bracketed? If so, lint that instead.
-        bracketed_expression = table_expression_el.children(
-            is_type("bracketed"),
-        )
-        nested_select = bracketed_expression or table_expression_el
-        # If we find a child with a "problem" type, raise an issue.
-        # If not, we're fine.
-        seg = nested_select.children(is_type(*select_types))
-        if not seg:
-            # If there is no match there is no error
-            continue
-        # Type, parent_select, parent_sequence
-        if not _is_correlated_subquery(nested_select, select_source_names, dialect):
-            yield _NestedSubQuerySummary(
-                parent_type, select, this_seg, table_expression_el[0]
-            )
 
 
 class _CTEBuilder:
@@ -367,7 +348,9 @@ class _CTEBuilder:
     def insert_cte(self, cte: CTEDefinitionSegment):
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
-        inbound_subquery = Segments(cte).children().last()
+        inbound_subquery = (
+            Segments(cte).children().last(lambda seg: bool(seg.pos_marker))
+        )
         insert_position = next(
             (
                 i
@@ -379,14 +362,11 @@ class _CTEBuilder:
 
         self.ctes.insert(insert_position, cte)
 
-    def create_cte_alias(
-        self, alias_segment: Optional[Segments] = None
-    ) -> Tuple[str, bool]:
+    def create_cte_alias(self, alias: Optional[AliasInfo]) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
-        if alias_segment:
+        if alias and alias.aliased and alias.ref_str:
             # If we know the name use it
-            name = alias_segment.children().last()[0].raw
-            return name, False
+            return alias.ref_str, False
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
@@ -396,7 +376,7 @@ class _CTEBuilder:
         return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
-        """Return a valid list of CTES with required padding Segements."""
+        """Return a valid list of CTES with required padding segments."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
             cte_segments = cte_segments + [
@@ -406,23 +386,10 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(self, output_select: BaseSegment, case_preference: str):
+    def compose_select(
+        self, output_select_clone: BaseSegment, case_preference: str
+    ) -> BaseSegment:
         """Compose our final new CTE."""
-        # Ensure there's whitespace between "FROM" and the CTE table name.
-        from_clause = output_select.get_child("from_clause")
-        from_clause_children = Segments(*from_clause.segments)
-        from_segment = from_clause_children.first(is_keyword("from"))
-        if from_segment and not from_clause_children.select(
-            start_seg=from_segment[0], loop_while=is_whitespace()
-        ):
-            idx_from = from_clause_children.index(from_segment[0])
-            # Insert whitespace between "FROM" and the CTE table name.
-            from_clause.segments = list(
-                from_clause_children[: idx_from + 1]
-                + (WhitespaceSegment(),)
-                + from_clause_children[idx_from + 1 :]
-            )
-
         # Compose the CTE.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
@@ -431,22 +398,86 @@ class _CTEBuilder:
                     WhitespaceSegment(),
                     *self.get_cte_segments(),
                     NewlineSegment(),
-                    output_select,
+                    output_select_clone,
                 ]
             )
         )
         return new_select
 
+    def ensure_space_after_from(
+        self,
+        output_select: BaseSegment,
+        output_select_clone: BaseSegment,
+        subquery_parent: BaseSegment,
+    ):
+        """Ensure there's whitespace between "FROM" and the CTE table name."""
+        fixes = []
+        if subquery_parent is output_select:
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(output_select_clone)
+            if missing_space_after_from:
+                # Case 1: from_clause is a child of cloned "output_select_clone"
+                # that will be inserted by a fix. We can directly manipulate the
+                # "segments" list. to insert whitespace between "FROM" and the
+                # CTE table name.
+                idx_from = from_clause_children.index(from_segment[0])
+                from_clause.segments = list(
+                    from_clause_children[: idx_from + 1]
+                    + (WhitespaceSegment(),)
+                    + from_clause_children[idx_from + 1 :]
+                )
+        else:
+            (
+                missing_space_after_from,
+                from_clause,
+                from_clause_children,
+                from_segment,
+            ) = self._missing_space_after_from(subquery_parent)
+            if missing_space_after_from:
+                # Case 2. from_segment is in the current parse tree, so we can't
+                # modify it directly. Create a LintFix to do it.
+                fixes.append(
+                    LintFix.create_after(from_segment[0], [WhitespaceSegment()])
+                )
+        return fixes
+
+    @staticmethod
+    def _missing_space_after_from(segment):
+        missing_space_after_from = False
+        from_clause_children = None
+        from_segment = None
+        from_clause = segment.get_child("from_clause")
+        if from_clause is not None:
+            from_clause_children = Segments(*from_clause.segments)
+            from_segment = from_clause_children.first(is_keyword("from"))
+            if from_segment and not from_clause_children.select(
+                start_seg=from_segment[0], loop_while=is_whitespace()
+            ):
+                missing_space_after_from = True
+        return missing_space_after_from, from_clause, from_clause_children, from_segment
+
+    def replace_with_clone(self, segment, clone_map):
+        for idx, cte in enumerate(self.ctes):
+            if any(segment is seg for seg in cte.recursive_crawl_all()):
+                self.ctes[idx] = clone_map[self.ctes[idx]]
+                return
+
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     """Is the child actually between the start and end markers of the parent."""
-    assert len(maybe_child) == 1, "Cannot assess Childness of multiple Segments"
-    assert len(maybe_parent) == 1, "Cannot assess Childness of multiple Parents"
+    assert (
+        len(maybe_child) == 1
+    ), "Cannot assess child relationship of multiple segments"
+    assert (
+        len(maybe_parent) == 1
+    ), "Cannot assess child relationship of multiple parents"
     child_markers = maybe_child[0].pos_marker
     parent_pos = maybe_parent[0].pos_marker
-    if not parent_pos or not child_markers:
-        return False  # pragma: no cover
-
+    assert parent_pos and child_markers
     if child_markers < parent_pos.start_point_marker():
         return False  # pragma: no cover
 

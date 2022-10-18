@@ -23,7 +23,15 @@ from click.testing import CliRunner
 
 # We import the library directly here to get the version
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
+from sqlfluff.cli.commands import (
+    lint,
+    version,
+    rules,
+    fix,
+    parse,
+    dialects,
+    get_config,
+)
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
@@ -104,7 +112,7 @@ def test__cli__command_directed():
         args=[
             lint,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
@@ -155,7 +163,7 @@ def test__cli__command_no_dialect():
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified as commandline option.
     result = invoke_assert_code(
         ret_code=1,
@@ -178,7 +186,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
 def test__cli__command_parse_error_dialect_implicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified in .sqlfluff config.
     result = invoke_assert_code(
         ret_code=1,
@@ -272,7 +280,15 @@ def test__cli__command_lint_stdin(command):
     "command",
     [
         # Test basic linting
-        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
+        (
+            lint,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Original tests from test__cli__command_lint
         (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
@@ -289,7 +305,8 @@ def test__cli__command_lint_stdin(command):
                 "L051",
             ],
         ),
-        # Test basic linting with specific logger
+        # Test basic linting with specific logger.
+        # Also test short rule exclusion.
         (
             lint,
             [
@@ -298,12 +315,20 @@ def test__cli__command_lint_stdin(command):
                 "-vvv",
                 "--logger",
                 "parser",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
         # Check basic parsing
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
+        (
+            parse,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Test basic parsing with very high verbosity
         (
             parse,
@@ -311,7 +336,7 @@ def test__cli__command_lint_stdin(command):
                 "-n",
                 "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
-                "--exclude-rules",
+                "-e",
                 "L051",
             ],
         ),
@@ -344,11 +369,24 @@ def test__cli__command_lint_stdin(command):
             ],
         ),
         # Check linting works in specifying rules
-        (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
+        (
+            lint,
+            [
+                "-n",
+                "--rules",
+                "L001",
+                "test/fixtures/linter/operator_errors.sql",
+            ],
+        ),
         # Check linting works in specifying multiple rules
         (
             lint,
-            ["-n", "--rules", "L001,L002", "test/fixtures/linter/operator_errors.sql"],
+            [
+                "-n",
+                "--rules",
+                "L001,L002",
+                "test/fixtures/linter/operator_errors.sql",
+            ],
         ),
         # Check linting works with both included and excluded rules
         (
@@ -403,6 +441,8 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
+        # Check timing outputs doesn't raise exceptions
+        (lint, ["test/fixtures/cli/passing_a.sql", "--persist-timing", "test.csv"]),
     ],
 )
 def test__cli__command_lint_parse(command):
@@ -418,7 +458,12 @@ def test__cli__command_lint_parse(command):
         (
             (
                 fix,
-                ["--rules", "L001", "test/fixtures/cli/fail_many.sql", "-vvvvvvv"],
+                [
+                    "--rules",
+                    "L001",
+                    "test/fixtures/cli/fail_many.sql",
+                    "-vvvvvvv",
+                ],
                 "y",
             ),
             1,
@@ -590,7 +635,8 @@ def generic_roundtrip_test(
     old_mode = stat.S_IMODE(status.st_mode)
     # Check that we first detect the issue
     invoke_assert_code(
-        ret_code=1, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
+        ret_code=1,
+        args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]],
     )
     # Fix the file (in force mode)
     if force:
@@ -658,7 +704,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate {{ condition }}
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -671,7 +718,8 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3  -- noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            # Test the short versions of the options.
+            ["--force", "-x", "FIXED", "-r", "L010"],
             None,
             1,
         ),
@@ -780,7 +828,9 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
                 fix_args
                 + [
                     "-f",
-                    "--dialect=ansi",
+                    # Use the short dialect option
+                    "-d",
+                    "ansi",
                 ]
             )
         assert exit_code == e.value.code
@@ -831,7 +881,10 @@ where processdate ! 3
     else:
         assert method == "config-file"
         with open(str(tmpdir / ".sqlfluff"), "w") as f:
-            print(f"[sqlfluff]\nfix_even_unparsable = {fix_even_unparsable}", file=f)
+            print(
+                f"[sqlfluff]\nfix_even_unparsable = {fix_even_unparsable}",
+                file=f,
+            )
     # TRICKY: Switch current directory to the one with the SQL file. Otherwise,
     # the setting doesn't work. That's because SQLFluff reads it in
     # sqlfluff.cli.commands.fix(), prior to reading any file-specific settings
@@ -928,7 +981,11 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     "stdin,rules,stdout",
     [
         ("select * from t", "L003", "select * from t"),  # no change
-        (" select * from t", "L003", "select * from t"),  # fix preceding whitespace
+        (
+            " select * from t",
+            "L003",
+            "select * from t",
+        ),  # fix preceding whitespace
         # L031 fix aliases in joins
         (
             "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) "
@@ -945,7 +1002,10 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
 def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
     result = invoke_assert_code(
-        args=[fix, ("-", "--rules", rules, "--disable_progress_bar", "--dialect=ansi")],
+        args=[
+            fix,
+            ("-", "--rules", rules, "--disable-progress-bar", "--dialect=ansi"),
+        ],
         cli_input=stdin,
     )
     assert result.output == stdout
@@ -978,7 +1038,7 @@ def test__cli__command_fix_stdin_safety():
 
     # just prints the very same thing
     result = invoke_assert_code(
-        args=[fix, ("-", "--disable_progress_bar", "--dialect=ansi")],
+        args=[fix, ("-", "--disable-progress-bar", "--dialect=ansi")],
         cli_input=perfect_sql,
     )
     assert result.output.strip() == perfect_sql
@@ -991,7 +1051,7 @@ def test__cli__command_fix_stdin_safety():
             "create TABLE {{ params.dsfsdfds }}.t (a int)",
             1,
             "-v",
-            "Fix aborted due to unparseable template variables.",
+            "Fix aborted due to unparsable template variables.",
         ),  # template error
         ("create TABLE a.t (a int)", 0, "", ""),  # fixable error
         ("create table a.t (a int)", 0, "", ""),  # perfection
@@ -1119,7 +1179,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
                 "L010",
                 "--format",
                 serialize,
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--dialect=ansi",
             ),
         ],
@@ -1164,7 +1224,7 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
         "--nocolor",
         "--dialect",
         "ansi",
-        "--disable_progress_bar",
+        "--disable-progress-bar",
         fpath,
         "--write-output",
         output_file,
@@ -1195,7 +1255,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         fpath,
         "--format",
         serialize,
-        "--disable_progress_bar",
+        "--disable-progress-bar",
     )
 
     if write_file:
@@ -1252,7 +1312,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "github-annotation",
                 "--annotation-level",
                 "warning",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1363,7 +1423,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
                 "github-annotation-native",
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1407,7 +1467,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1422,7 +1482,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "failure",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1537,7 +1597,8 @@ def test_cli_get_default_config():
 
 
 @patch(
-    "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
+    "sqlfluff.core.linter.linter.progress_bar_configuration",
+    disable_progress_bar=False,
 )
 class TestProgressBars:
     """Progress bars test cases.
@@ -1558,6 +1619,25 @@ class TestProgressBars:
             args=[
                 lint,
                 [
+                    "--disable-progress-bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
+        assert "\rparsing: 0it" not in raw_output
+        assert "\r\rlint by rules:" not in raw_output
+
+    def test_cli_lint_disabled_progress_bar_deprecated_option(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """Same as above but checks additionally if deprecation warning is printed."""
+        result = invoke_assert_code(
+            args=[
+                lint,
+                [
                     "--disable_progress_bar",
                     "test/fixtures/linter/passing.sql",
                 ],
@@ -1568,6 +1648,10 @@ class TestProgressBars:
         assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) in raw_output
 
     def test_cli_lint_enabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock
@@ -1650,7 +1734,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
         ],
@@ -1670,7 +1754,7 @@ def test__cli__fix_multiple_errors_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
@@ -1701,3 +1785,34 @@ def test__cli__fix_multiple_errors_show_errors():
         "L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in "
         "select with more than" in result.output
     )
+
+
+def test__cli__multiple_files__fix_multiple_errors_show_errors():
+    """Basic check of lint ensures with multiple files, filenames are listed."""
+    sql_path = "test/fixtures/linter/multiple_sql_errors.sql"
+    indent_path = "test/fixtures/linter/indentation_errors.sql"
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--disable-progress-bar",
+                "--show-lint-violations",
+                sql_path,
+                indent_path,
+            ],
+        ],
+    )
+
+    unfixable_error_msg = "==== lint for unfixable violations ===="
+    assert unfixable_error_msg in result.output
+
+    indent_pass_msg = f"== [{os.path.normpath(indent_path)}] PASS"
+    multi_fail_msg = f"== [{os.path.normpath(sql_path)}] FAIL"
+
+    unfix_err_log = result.output[result.output.index(unfixable_error_msg) :]
+    assert indent_pass_msg in unfix_err_log
+    assert multi_fail_msg in unfix_err_log
+
+    # Assert that they are sorted in alphabetical order
+    assert unfix_err_log.index(indent_pass_msg) < unfix_err_log.index(multi_fail_msg)

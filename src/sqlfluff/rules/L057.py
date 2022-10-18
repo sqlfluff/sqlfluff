@@ -4,6 +4,7 @@ from typing import Optional, Set
 import regex
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
@@ -52,6 +53,7 @@ class Rule_L057(BaseRule):
         "ignore_words",
         "ignore_words_regex",
     ]
+    crawl_behaviour = SegmentSeekerCrawler({"quoted_identifier", "naked_identifier"})
 
     def _get_additional_allowed_characters(self, dialect_name: str) -> str:
         """Returns additional allowed characters, with adjustments for dialect."""
@@ -73,9 +75,8 @@ class Rule_L057(BaseRule):
         self.ignore_words: str
         self.ignore_words_regex: str
 
-        # Exit early if not a single identifier.
-        if not context.segment.is_type("naked_identifier", "quoted_identifier"):
-            return None
+        # Confirm it's a single identifier.
+        assert context.segment.is_type("naked_identifier", "quoted_identifier")
 
         # Get the ignore_words_list configuration.
         try:
@@ -135,7 +136,7 @@ class Rule_L057(BaseRule):
                 identifier = identifier.replace(".", "")
 
             # SparkSQL file references for direct file query
-            # are quoted in back ticks to allow for identfiers common
+            # are quoted in back ticks to allow for identifiers common
             # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
             #
@@ -146,7 +147,7 @@ class Rule_L057(BaseRule):
             if context.dialect.name in ["sparksql"] and context.parent_stack:
 
                 # SparkSQL file references for direct file query
-                # are quoted in back ticks to allow for identfiers common
+                # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing
                 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
                 #
