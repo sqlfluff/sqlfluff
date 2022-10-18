@@ -1070,6 +1070,7 @@ class UpdateStatisticsStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("DelimiterGrammar", optional=True),
+        Sequence("WITH", OneOf("FULLSCAN", "RESAMPLE"), optional=True),
     )
 
 

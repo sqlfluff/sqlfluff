@@ -67,7 +67,7 @@ class IdentifierSegment(CodeSegment):
 
 
 class LiteralSegment(CodeSegment):
-    """An literal segment.
+    """A literal segment.
 
     Defined here for type inheritance.
     """
@@ -76,7 +76,7 @@ class LiteralSegment(CodeSegment):
 
 
 class LiteralKeywordSegment(KeywordSegment):
-    """An keyword style literal segment.
+    """A keyword style literal segment.
 
     Defined here for type inheritance.
     """
@@ -85,7 +85,7 @@ class LiteralKeywordSegment(KeywordSegment):
 
 
 class BinaryOperatorSegment(CodeSegment):
-    """An binary operator segment.
+    """A binary operator segment.
 
     Defined here for type inheritance.
     """
@@ -94,7 +94,7 @@ class BinaryOperatorSegment(CodeSegment):
 
 
 class CompositeBinaryOperatorSegment(BaseSegment):
-    """An composite binary operator segment.
+    """A composite binary operator segment.
 
     Defined here for type inheritance.
     """
@@ -103,7 +103,7 @@ class CompositeBinaryOperatorSegment(BaseSegment):
 
 
 class ComparisonOperatorSegment(CodeSegment):
-    """An comparison operator segment.
+    """A comparison operator segment.
 
     Defined here for type inheritance.
     """
@@ -112,7 +112,7 @@ class ComparisonOperatorSegment(CodeSegment):
 
 
 class CompositeComparisonOperatorSegment(BaseSegment):
-    """An comparison operator segment.
+    """A comparison operator segment.
 
     Defined here for type inheritance.
     """
@@ -391,12 +391,12 @@ ansi_dialect.add(
     NumericLiteralSegment=TypedParser(
         "numeric_literal", LiteralSegment, type="numeric_literal"
     ),
-    # NullSegment is defined separately to the keyword so we can give it a different
+    # NullSegment is defined separately to the keyword, so we can give it a different
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
-    # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
+    # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
     ),
@@ -656,6 +656,24 @@ ansi_dialect.add(
     ),
     TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
     DefaultValuesGrammar=Sequence("DEFAULT", "VALUES"),
+    ObjectReferenceDelimiterGrammar=OneOf(
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+    ),
+    ObjectReferenceTerminatorGrammar=OneOf(
+        "ON",
+        "AS",
+        "USING",
+        Ref("CommaSegment"),
+        Ref("CastOperatorSegment"),
+        Ref("StartSquareBracketSegment"),
+        Ref("StartBracketSegment"),
+        Ref("BinaryOperatorGrammar"),
+        Ref("ColonSegment"),
+        Ref("DelimiterGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        BracketedSegment,
+    ),
 )
 
 
@@ -806,23 +824,8 @@ class ObjectReferenceSegment(BaseSegment):
     # match grammar (don't allow whitespace)
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("StartSquareBracketSegment"),
-            Ref("StartBracketSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-            BracketedSegment,
-        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminator=Ref("ObjectReferenceTerminatorGrammar"),
         allow_gaps=False,
     )
 
@@ -1179,7 +1182,7 @@ class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
     Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
+    aggregate functions and other functions. For now,
     we treat them the same because they look the same
     for our purposes.
     """
@@ -1586,7 +1589,7 @@ class JoinClauseSegment(BaseSegment):
 
         from_expression = self.get_child("from_expression_element")
         alias: AliasInfo = from_expression.get_eventual_alias()
-        # Only append if non null. A None reference, may
+        # Only append if non-null. A None reference, may
         # indicate a generator expression or similar.
         if alias:
             buff.append((from_expression, alias))
@@ -1603,7 +1606,7 @@ class JoinClauseSegment(BaseSegment):
             aliases: List[
                 Tuple[BaseSegment, AliasInfo]
             ] = join_clause.get_eventual_aliases()
-            # Only append if non null. A None reference, may
+            # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             if aliases:
                 buff = buff + aliases
@@ -1673,7 +1676,7 @@ class FromClauseSegment(BaseSegment):
         # Iterate through the potential sources of aliases
         for clause in direct_table_children:
             alias: AliasInfo = clause.get_eventual_alias()
-            # Only append if non null. A None reference, may
+            # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             table_expr = (
                 clause
@@ -1684,7 +1687,7 @@ class FromClauseSegment(BaseSegment):
                 buff.append((table_expr, alias))
         for clause in join_clauses:
             aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
-            # Only append if non null. A None reference, may
+            # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             if aliases:
                 buff = buff + aliases
@@ -1886,7 +1889,7 @@ ansi_dialect.add(
             Ref("TypelessStructSegment"),
             Ref("TypelessArraySegment"),
             Ref("ColumnReferenceSegment"),
-            # For triggers we allow "NEW.*" but not just "*" nor "a.b.*"
+            # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
                 Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
@@ -2000,7 +2003,7 @@ class BitwiseRShiftSegment(CompositeBinaryOperatorSegment):
 
 
 class ExpressionSegment(BaseSegment):
-    """A expression, either arithmetic or boolean.
+    """An expression, either arithmetic or boolean.
 
     NB: This is potentially VERY recursive and
 
@@ -2343,7 +2346,7 @@ class CTEDefinitionSegment(BaseSegment):
     def get_identifier(self) -> BaseSegment:
         """Gets the identifier of this CTE.
 
-        Note: it blindly get the first identifier it finds
+        Note: it blindly gets the first identifier it finds
         which given the structure of a CTE definition is
         usually the right one.
         """
@@ -2424,7 +2427,7 @@ class InsertStatementSegment(BaseSegment):
         "INTO",
         Ref("TableReferenceSegment"),
         OneOf(
-            # As SelectableGrammar can be bracketed too, the parse gets confused
+            # As SelectableGrammar can be bracketed too, the parse gets confused,
             # so we need slightly odd syntax here to allow those to parse (rather
             # than just add optional=True to BracketedColumnReferenceListGrammar).
             Ref("SelectableGrammar"),
@@ -3820,7 +3823,7 @@ class SamplingExpressionSegment(BaseSegment):
 
 
 class LocalAliasSegment(BaseSegment):
-    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+    """The `LOCAL.ALIAS` syntax allows to use an alias name of a column within clauses.
 
     A hookpoint for other dialects e.g. Exasol.
     """

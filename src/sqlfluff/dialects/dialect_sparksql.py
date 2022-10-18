@@ -346,6 +346,26 @@ sparksql_dialect.replace(
         # Add arrow operators for lambdas (e.g. aggregate)
         Ref("RightArrowOperator"),
     ),
+    # Support for colon sign operator (Databricks SQL)
+    ObjectReferenceDelimiterGrammar=OneOf(
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+        Ref("ColonSegment"),
+    ),
+    # Support for colon sign operator (Databricks SQL)
+    ObjectReferenceTerminatorGrammar=OneOf(
+        "ON",
+        "AS",
+        "USING",
+        Ref("CommaSegment"),
+        Ref("CastOperatorSegment"),
+        Ref("StartSquareBracketSegment"),
+        Ref("StartBracketSegment"),
+        Ref("BinaryOperatorGrammar"),
+        Ref("DelimiterGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        ansi.BracketedSegment,
+    ),
 )
 
 sparksql_dialect.add(
