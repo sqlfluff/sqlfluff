@@ -5856,6 +5856,32 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     )
 
 
+class FrameClauseSegment(ansi.FrameClauseSegment):
+    """A frame clause for window functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions-analytic.html#window-frame-syntax-and-usage
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ReferencedVariableNameSegment"),
+                "UNBOUNDED",
+            ),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )
+
+
 class DropProcedureStatementSegment(BaseSegment):
     """A snowflake `DROP PROCEDURE ...` statement.
 
