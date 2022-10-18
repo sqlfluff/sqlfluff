@@ -1531,40 +1531,38 @@ class JoinClauseSegment(BaseSegment):
             Ref("JoinTypeKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Sequence(
-                Ref("FromExpressionElementSegment"),
-                AnyNumberOf(Ref("NestedJoinGrammar")),
-                Conditional(Indent, indented_using_on=True),
-                # NB: this is optional
-                OneOf(
-                    # ON clause
-                    Ref("JoinOnConditionSegment"),
-                    # USING clause
-                    Sequence(
-                        "USING",
-                        Indent,
-                        Bracketed(
-                            # NB: We don't use BracketedColumnReferenceListGrammar
-                            # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or
-                            # ColumnReferenceSegment.
-                            # This is a) so that we don't lint it as a reference and
-                            # b) because the column will probably be returned anyway
-                            # during parsing.
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                                ephemeral_name="UsingClauseContents",
-                            )
-                        ),
-                        Dedent,
-                    ),
-                    # Unqualified joins *are* allowed. They just might not
-                    # be a good idea.
-                    optional=True,
-                ),
-                Conditional(Dedent, indented_using_on=True),
-            ),
+            Ref("FromExpressionElementSegment"),
+            AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
+            Conditional(Indent, indented_using_on=True),
+            # NB: this is optional
+            OneOf(
+                # ON clause
+                Ref("JoinOnConditionSegment"),
+                # USING clause
+                Sequence(
+                    "USING",
+                    Indent,
+                    Bracketed(
+                        # NB: We don't use BracketedColumnReferenceListGrammar
+                        # here because we're just using SingleIdentifierGrammar,
+                        # rather than ObjectReferenceSegment or
+                        # ColumnReferenceSegment.
+                        # This is a) so that we don't lint it as a reference and
+                        # b) because the column will probably be returned anyway
+                        # during parsing.
+                        Delimited(
+                            Ref("SingleIdentifierGrammar"),
+                            ephemeral_name="UsingClauseContents",
+                        )
+                    ),
+                    Dedent,
+                ),
+                # Unqualified joins *are* allowed. They just might not
+                # be a good idea.
+                optional=True,
+            ),
+            Conditional(Dedent, indented_using_on=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(

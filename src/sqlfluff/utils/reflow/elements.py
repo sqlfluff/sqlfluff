@@ -149,13 +149,22 @@ class ReflowPoint(ReflowElement):
         seg = self._get_indent_segment()
         return seg.raw if seg else ""
 
-    def get_indent_impulse(self) -> int:
-        """Get the change in intended indent balance from this point."""
-        return sum(
-            cast(Indent, seg).indent_val
-            for seg in self.segments
-            if seg.is_type("indent")
-        )
+    def get_indent_impulse(self) -> Tuple[int, int]:
+        """Get the change in intended indent balance from this point.
+
+        Returns:
+            :obj:`tuple` of :obj:`int`: The first value is the raw
+                impulse. The second is the deepest tough in the indent
+                through the values to allow wiping of buffers.
+        """
+        trough = 0
+        running_sum = 0
+        for seg in self.segments:
+            if seg.is_type("indent"):
+                running_sum += cast(Indent, seg).indent_val
+            if running_sum < trough:
+                trough = running_sum
+        return running_sum, trough
 
     def indent_to(
         self,

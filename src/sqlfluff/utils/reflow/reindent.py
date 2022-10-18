@@ -187,6 +187,49 @@ def _revise_templated_lines(
     return new_lines
 
 
+def _revise_comment_lines(
+    lines: List[_ReindentLine], elements: ReflowSequenceType
+) -> List[_ReindentLine]:
+    """Given an initial set of individual lines. Revise comment ones.
+
+    We do this to ensure that lines with comments are aligned to
+    the following non-comment element.
+    """
+    new_lines: List[_ReindentLine] = []
+    comment_line_buffer: List[_ReindentLine] = []
+    for line in lines:
+        is_comment_only_line = all(
+            all(seg.is_type("comment") for seg in elem.segments)
+            for elem in elements[line.start_point_idx : line.end_point_idx]
+            if not isinstance(elem, ReflowPoint)
+        )
+        if is_comment_only_line:
+            comment_line_buffer.append(line)
+        else:
+            # Not a comment only line, if there's a buffer anchor
+            # to this one.
+            for comment_line in comment_line_buffer:
+                # There is a mutation risk here but we don't plan
+                # on reusing the initial buffer so it's probably ok.
+                comment_line.initial_indent_balance = line.initial_indent_balance
+                new_lines.append(comment_line)
+                reflow_logger.debug(
+                    "Comment Only Line: %s. Anchoring to %s", comment_line, line
+                )
+            # Reset the buffer
+            comment_line_buffer = []
+            # Keep the line itself.
+            new_lines.append(line)
+    # Any trailing comments should be anchored the baseline.
+    for comment_line in comment_line_buffer:
+        comment_line.initial_indent_balance = 0
+        new_lines.append(comment_line)
+        reflow_logger.debug(
+            "Comment Only Line: %s. Anchoring to baseline", comment_line
+        )
+    return new_lines
+
+
 def map_reindent_lines(
     elements: ReflowSequenceType, initial_balance: int = 0
 ) -> List[_ReindentLine]:
@@ -211,15 +254,19 @@ def map_reindent_lines(
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
             last_pt_idx = idx
-            indent_impulse = elem.get_indent_impulse()
-            indent_balance += indent_impulse
+            indent_impulse, indent_trough = elem.get_indent_impulse()
 
             # If our current indent balance is less than any untaken indent
             # levels then remove them.
-            if any(x > indent_balance for x in untaken_indents):
+            # NOTE: We compare to the trough rather than the overall indent,
+            # so that we clear the right depth of the buffer in the case of
+            # a point which goes down then back up in it's indents.
+            if any(x > indent_balance + indent_trough for x in untaken_indents):
                 untaken_indents = tuple(
-                    x for x in untaken_indents if x <= indent_balance
+                    x for x in untaken_indents if x <= indent_balance + indent_trough
                 )
+
+            indent_balance += indent_impulse
 
             # Have we found a newline?
             # We skip the trivial matches (mostly to avoid a weird start).
@@ -262,7 +309,11 @@ def map_reindent_lines(
             )
         )
 
-    return _revise_templated_lines(result, elements)
+    # Revise templated indents
+    result = _revise_templated_lines(result, elements)
+    # Revise comment indents
+    result = _revise_comment_lines(result, elements)
+    return result
 
 
 def lint_reindent_lines(
