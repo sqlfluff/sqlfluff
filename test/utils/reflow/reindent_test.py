@@ -270,7 +270,8 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
         else:
             print(idx, repr(elem.raw))
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        assert map_reindent_lines(seq.elements) == lines
+        result_lines, _, _ = map_reindent_lines(seq.elements)
+        assert result_lines == lines
 
 
 @pytest.mark.parametrize(
@@ -338,12 +339,12 @@ def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, ca
     print(root.stringify())
     seq = ReflowSequence.from_root(root, config=default_config)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        lines = map_reindent_lines(seq.elements)
+        lines, elements, _ = map_reindent_lines(seq.elements)
         for idx, line in enumerate(lines):
             print(idx, line)
         # We're not testing the fixes directly at this stage.
         result, _ = lint_reindent_lines(
-            seq.elements, lines, indent_unit="space", tab_space_size=2
+            elements, lines, indent_unit="space", tab_space_size=2
         )
 
     result_raw = "".join(elem.raw for elem in result)
