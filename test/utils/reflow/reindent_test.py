@@ -10,6 +10,7 @@ import logging
 import pytest
 
 from sqlfluff.core import Linter
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.utils.reflow.elements import ReflowBlock
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
@@ -339,13 +340,21 @@ def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, ca
     print(root.stringify())
     seq = ReflowSequence.from_root(root, config=default_config)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        lines, elements, _ = map_reindent_lines(seq.elements)
+        lines, elements, fixes_a = map_reindent_lines(seq.elements)
         for idx, line in enumerate(lines):
             print(idx, line)
         # We're not testing the fixes directly at this stage.
-        result, _ = lint_reindent_lines(
+        result, fixes_b = lint_reindent_lines(
             elements, lines, indent_unit="space", tab_space_size=2
         )
 
     result_raw = "".join(elem.raw for elem in result)
     assert result_raw == raw_sql_out
+
+    # Now we've checked the elements - check that applying the fixes gets us to
+    # the same place.
+    anchor_info = BaseSegment.compute_anchor_edit_info(fixes_a + fixes_b)
+    fixed_tree, _, _ = root.apply_fixes(
+        default_config.get("dialect_obj"), "TEST", anchor_info
+    )
+    assert fixed_tree.raw == raw_sql_out
