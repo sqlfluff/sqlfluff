@@ -230,13 +230,31 @@ def _revise_comment_lines(
     return new_lines
 
 
+def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
+    """Construct a single indent unit."""
+    if indent_unit == "tab":
+        return "\t"
+    elif indent_unit == "space":
+        return " " * tab_space_size
+    else:
+        raise SQLFluffUserError(
+            f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
+        )
+
+
 def map_reindent_lines(
-    elements: ReflowSequenceType, initial_balance: int = 0
+    elements: ReflowSequenceType, initial_balance: int = 0, single_indent: str = "    "
 ) -> Tuple[List[_ReindentLine], ReflowSequenceType, List[LintFix]]:
     """Scan the sequence to map individual lines to indent.
 
     This method also catches any hanging indents and inserts
-    additional newlines to correct them.
+    additional newlines to correct them. The indent of those
+    lines is fixed in line with the lint function.
+
+    TODO: This method has become a little convoluted and should
+    be refactored, ideally to separate mapping and the handling
+    of hanging indents. At least The part which calculates the
+    new indent should probably be modularised.
     """
     init_idx = 0
     last_pt_idx = 0
@@ -289,13 +307,18 @@ def map_reindent_lines(
                     # Coerce a new line break in where that untaken indent was.
                     target_point_idx = untaken_points[indent_balance]
                     target_point = cast(ReflowPoint, elements[target_point_idx])
-                    new_fixes, new_point = target_point.indent_to(next_indent)
-                    new_elements[target_point_idx] = new_point
-                    fixes += new_fixes
                     # modify the untaken indents
                     untaken_indents = tuple(
                         x for x in untaken_indents if x != indent_balance
                     )
+                    # Rather than just copy the next line, which would mean `next_indent`
+                    # we're instead going to fix that indent at the same time.
+                    desired_indent = single_indent * (
+                        indent_balance - len(untaken_indents)
+                    )
+                    new_fixes, new_point = target_point.indent_to(desired_indent)
+                    new_elements[target_point_idx] = new_point
+                    fixes += new_fixes
                     reflow_logger.debug(
                         "Hanging indent detected @ %s. Correcting...",
                         elements[target_point_idx],
@@ -318,7 +341,7 @@ def map_reindent_lines(
                                 target_point_idx,
                                 idx,
                                 indent_balance,
-                                next_indent,
+                                desired_indent,
                                 # Detect template markers alone on lines at this stage, because
                                 # we'll handle them a bit differently later.
                                 _is_template_only(elements[target_point_idx : idx + 1]),
@@ -377,8 +400,7 @@ def map_reindent_lines(
 def lint_reindent_lines(
     elements: ReflowSequenceType,
     lines: List[_ReindentLine],
-    indent_unit: str,
-    tab_space_size: int,
+    single_indent: str = "    ",
 ) -> Tuple[ReflowSequenceType, List[LintFix]]:
     """Given _ReindentLines, lint what we've got.
 
@@ -393,15 +415,6 @@ def lint_reindent_lines(
     Additionally, an indent balance of 0, implies there should
     be no indent, regardless of previous lines.
     """
-    if indent_unit == "tab":
-        single_indent = "\t"
-    elif indent_unit == "space":
-        single_indent = " " * tab_space_size
-    else:
-        raise SQLFluffUserError(
-            f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
-        )
-
     fixes: List[LintFix] = []
     element_buffer = elements.copy()
     # Iterate through the lines.
