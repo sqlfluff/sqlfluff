@@ -1003,13 +1003,6 @@ test_fail_snowflake_merge_statement:
     core:
       dialect: snowflake
 
-test_pass_hanging_indents_allowed_in_default:
-  pass_str: |
-    SELECT
-        a.line + (a.with
-                  + a.hanging_indent) as actually_ok,
-    FROM tbl as a
-
 test_fail_hanging_indents_convert_to_normal_indent:
   fail_str: |
     SELECT
@@ -1018,13 +1011,10 @@ test_fail_hanging_indents_convert_to_normal_indent:
     FROM tbl as a
   fix_str: |
     SELECT
-        a.line + (a.with
+        a.line + (
+            a.with
             + a.hanging_indent) as actually_not_ok,
     FROM tbl as a
-  configs:
-    rules:
-      L003:
-        hanging_indents: false
 
 test_fail_hanging_indents_fix_mixed_indents:
   fail_str: |
@@ -1051,10 +1041,6 @@ test_fail_hanging_indents_fix_mixed_indents:
             )
         ) as some_harder_problems
     FROM tbl as a
-  configs:
-    rules:
-      L003:
-        hanging_indents: false
 
 test_pass_indented_procedure_parameters:
   pass_str: |

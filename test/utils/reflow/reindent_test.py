@@ -340,6 +340,11 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             "select 1,\n       2",
             "select\n  1,\n  2",
         ),
+        # A hanging example where we're modifying a currently empty point.
+        (
+            "select greatest(1,\n2)",
+            "select greatest(\n  1,\n  2)",
+        ),
     ],
 )
 def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, caplog):

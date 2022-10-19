@@ -42,11 +42,10 @@ REMOVED_CONFIGS = [
     _RemovedConfig(
         ("rules", "L003", "hanging_indents"),
         (
-            "The hanging_indents config has moved "
-            "from sqlfluff:rules:L003 to sqlfluff:indentation."
+            "Hanging indents are no longer supported in SQLFluff "
+            "from version 2.0.0 onwards. See "
+            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
         ),
-        ("indentation", "hanging_indents"),
-        (lambda x: x),
     ),
     _RemovedConfig(
         ("rules", "tab_space_size"),

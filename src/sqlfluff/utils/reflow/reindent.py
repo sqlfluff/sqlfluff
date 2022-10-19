@@ -316,7 +316,12 @@ def map_reindent_lines(
                     desired_indent = single_indent * (
                         indent_balance - len(untaken_indents)
                     )
-                    new_fixes, new_point = target_point.indent_to(desired_indent)
+                    # Anchor the fix on the following block to cover the case that the point
+                    # is currently empty.
+                    new_fixes, new_point = target_point.indent_to(
+                        desired_indent,
+                        before=elements[target_point_idx + 1].segments[0],
+                    )
                     new_elements[target_point_idx] = new_point
                     fixes += new_fixes
                     reflow_logger.debug(
@@ -350,6 +355,10 @@ def map_reindent_lines(
                             ),
                         ]
                     )
+                # TODO: We probably *also* need to insert additional line breaks where we
+                # go below the starting indent balance of the line (sensitive to the untaken indents).
+                # NOTE: THIS IS TURNING INTO A KIND OF REBREAK FUNCTION. ENSURING WE HAVE
+                # LINE BREAKS IN ALL THE PLACES THERE SHOULD BE.
                 else:
                     result.append(
                         _ReindentLine(
