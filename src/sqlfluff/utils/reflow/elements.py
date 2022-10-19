@@ -50,7 +50,7 @@ class ReflowElement:
         return "".join(seg.raw for seg in self.segments)
 
     def num_newlines(self) -> int:
-        """Count the number of newlines this element contains."""
+        """Return the number of newlines in this element."""
         return sum(bool("newline" in seg.class_types) for seg in self.segments)
 
 
@@ -58,15 +58,15 @@ class ReflowElement:
 class ReflowBlock(ReflowElement):
     """Class for keeping track of elements to reflow.
 
-    This class, and it's sibling :obj:`ReflowPoint`, should not
+    This class, and its sibling :obj:`ReflowPoint`, should not
     normally be manipulated directly by rules, but instead should
-    normally be manipulated only via the :obj:`ReflowSequence`.
+    be manipulated using :obj:`ReflowSequence`.
 
     It holds segments to reflow and also exposes configuration
-    around how they are expected to reflow around others. Typically
+    regarding how they are expected to reflow around others. Typically
     it holds only a single element, which is usually code or a
     templated element. Because reflow operations control spacing,
-    it would be very unusual for this object to be modified, as
+    it would be very unusual for this object to be modified; as
     such it exposes relatively few methods.
 
     The attributes exposed are designed to be "post configuration"
@@ -83,7 +83,7 @@ class ReflowBlock(ReflowElement):
     #: See :ref:`layoutspacingconfig`
     line_position: Optional[str]
     #: Metadata on the depth of this segment within the parse tree
-    #: which is used in inferring how and were line breaks should
+    #: which is used in inferring how and where line breaks should
     #: exist.
     depth_info: DepthInfo
     #: Desired spacing configurations for parent segments
@@ -132,15 +132,15 @@ class ReflowBlock(ReflowElement):
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
-    This class, and it's sibling :obj:`ReflowBlock`, should not
+    This class, and its sibling :obj:`ReflowBlock`, should not
     normally be manipulated directly by rules, but instead should
-    normally be manipulated only via the :obj:`ReflowSequence`.
+     be manipulated using :obj:`ReflowSequence`.
 
     It holds segments which can be changed during a reflow operation
-    such as whitespace and newlines. :obj:`Indent` and :obj:`Dedent`
-    elements will also sit in points.
+    such as whitespace and newlines.It may also contain  :obj:`Indent` and :obj:`Dedent`
+    elements.
 
-    It holds no configuration and is influenced by the blocks either
+    It holds no configuration and is influenced by the blocks on either
     side, so that any operations on it usually have that configuration
     passed in as required.
     """

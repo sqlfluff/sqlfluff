@@ -147,7 +147,7 @@ Reflow Internals
 Many rules supported by SQLFluff involve the spacing and layout of different
 elements, either to enforce a particular layout or just to add or remove
 code elements in a way sensitive to the exiting layout configuration. The
-way this is achieved is through a some centralised utilities in the
+way this is achieved is through some centralised utilities in the
 `sqlfluff.utils.reflow` module.
 
 This module aims to achieve several things:
@@ -165,7 +165,7 @@ This module aims to achieve several things:
 
 To support this, the module provides a :code:`ReflowSequence` class which
 allows access to all of the relevant operations which can be used to
-re-layout sections of code, or even a whole file. Unless there is a very
+reformat sections of code, or even a whole file. Unless there is a very
 good reason, all rules should use this same approach to ensure consistent
 treatment of layout.
 

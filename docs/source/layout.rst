@@ -34,8 +34,8 @@ viewpoint see :ref:`config`.
 Spacing
 -------
 
-Of the different elements of whitespace, spacing it likely the least
-controversial. By default all elements are separated by a single space
+Of the different elements of whitespace, spacing is likely the least
+controversial. By default, all elements are separated by a single space
 character. Except for very specific circumstances (see section on
 :ref:`alignedelements`), any additional space between elements is
 usually unwanted and a distraction for the reader. There are however
@@ -109,7 +109,7 @@ with eachother. The configuration to achieve this layout is:
 Line Breaks
 -----------
 
-When controlling line breaks we are trying to achieve a few different things:
+When controlling line breaks, we are trying to achieve a few different things:
 
 #. Do we have *enough* line breaks that *line length* doesn't become
    excessive. Long lines are hard to read, especially given that readers
@@ -117,7 +117,7 @@ When controlling line breaks we are trying to achieve a few different things:
    (of course) configurable, but the default is 80 characters (in line with
    the `dbt Labs SQL style guide`_.)
 
-#. Are the positioning of *blank lines* (i.e. lines with nothing other
+#. Is the positioning of *blank lines* (i.e. lines with nothing other
    than whitespace on them) appropriate. There are some circumstances
    where a blank line is *desired* (e.g. between CTEs). There are others
    where they are not, in particular *multiple blank lines*, for example
@@ -127,7 +127,7 @@ When controlling line breaks we are trying to achieve a few different things:
    consistently with regards to other elements around them. This is most
    common when it comes to *commas*, and whether they should be *leading*
    (e.g. :code:`, my_column`) or *trailing* (e.g. :code:`my_column,`). In
-   less common cases it may also be desirable for some elements to have both
+   less common cases, it may also be desirable for some elements to have both
    and line break *before and after* (e.g. a set operator such as `UNION`).
 
 
@@ -135,13 +135,13 @@ Indentation
 -----------
 
 Lastly, given we have multiple lines of SQL, to what extent should we indent
-some lines to provide visual queues to the structure of that SQL. It's
-important to note that SQL is *not* whitespace sensitive in it's
+some lines to provide visual cues to the structure of that SQL. It's
+important to note that SQL is *not* whitespace sensitive in its
 interpretation and that means that any principles we apply here are entirely
 for the benefit of humans. *Your database doesn't care*.
 
 The indentation therefore should be treated as a *hint* to the reader of
-the structure of the code. This explains the commons practice within most
+the structure of the code. This explains the common practice within most
 languages that nested elements (for example the contents of a set of brackets
 in a function call) should be indented one step from the outer elements. It's
 also convention that elements *with the same level* in a nested structure
@@ -191,7 +191,7 @@ are necessarily only on one line.
 *  *Inline comments* can be on the same line as other code, but are
    subject to the same line-length restrictions. If they don't fit
    on the same line (or if it just looks nicer) they can also be
-   the only element on a line. In this latter case they should be
+   the only element on a line. In this latter case, they should be
    aligned with the first code element *following* the comment.
 
    .. code-block:: sql
@@ -213,7 +213,7 @@ are necessarily only on one line.
       When fixing issues with comment indentation, SQLFluff
       will attempt to keep comments in their original position
       but if line length concerns make this difficult, it will
-      either abort the fix, or move *same line* comments up and
+      either abandon the fix, or move *same line* comments up and
       *before* the line they are currently on. This is in line
       with the assumption that comments on their own line refer
       to the elements of code which they come *before*, not *after*.
@@ -325,13 +325,13 @@ More complex templated cases are usually characterised by templated
 tags *cutting across the parse tree*. This more formally is where the
 opening and closing tags of a templated section exist at different
 levels in the parsed structure. Starting in version 2.x, these will
-be treated differently (pre version 2.x situations like this may
-be handled inconsistently or even unexpectedly).
+be treated differently (Prior to version 2.x, situations like this were sometimes
+handled inconsistently or incorrectly).
 
-Indentation should act as a visual clue to the structure of the
-written SQL, and as such, the most important thing is that tags
-belonging to the same structure exist on the same level of indentation.
-In the example below this is the opening and closing elements of the
+Indentation should act as a visual cue to the structure of the
+written SQL, and as such, the most important thing is that template tags
+belonging to the same block structure use the same indentation.
+In the example below, this is the opening and closing elements of the
 second :code:`if` statement. If treated as a simple case, these tags
 would have different indents, because they are at different levels of
 the parse tree and so clearly there is a conflict to be resolved.
@@ -376,14 +376,13 @@ Configuring Layout
 
 Configuration for layout is spread across three places:
 
-#. Configuration for what indentation is expected to be present
-   within particular dialect elements is controlled by the parser.
+#. Indent behavior for particular dialect elements is controlled by the parser.
    This is because in the background SQLFluff inserts :code:`Indent`
    and :code:`Dedent` tokens into the parse tree where those things
    are expected. For more detail see :ref:`layoutindentconfig`.
 
 #. Configuration for the spacing and line position of particular
-   types of element (such as commas or operators) in set in the
+   types of element (such as commas or operators) is set in the
    :code:`layout` section of the config file. For more detail see
    :ref:`layoutspacingconfig`.
 
@@ -502,7 +501,7 @@ indented within the :code:`WITH` clause:
 
    SELECT 1 FROM some_cte
 
-By default, *SQLFluff* aims to follow the indentation most common approach
+By default, *SQLFluff* aims to follow the most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
@@ -514,7 +513,7 @@ Configuring layout and spacing
 
 The :code:`[sqlfluff:layout]` section of the config controls the treatment of
 spacing and line breaks across all rules. The syntax of this section is very
-expressive, however in normal use, only very small alterations should be
+expressive; however in normal use, only very small alterations should be
 necessary from the :ref:`defaultconfig`.
 
 The syntax of the section headings here select by *type*, which corresponds
@@ -531,7 +530,7 @@ Within these configurable sections there are a few key elements which are
 available:
 
 *  **Spacing Elements**: :code:`spacing_before`, :code:`spacing_after` and
-   :code:`spacing_within`. For each of these options there are a few possible
+   :code:`spacing_within`. For each of these options, there are a few possible
    settings:
 
    *  The default spacing for all elements is :code:`single` unless otherwise
@@ -544,7 +543,7 @@ available:
       breaks may be allowed, but if not they should *touch* the element before.
 
    *  The value of :code:`inline` is effectively the same as :code:`touch`
-      but in addition, no line breaks are allowed. This best illustrated
+      but in addition, no line breaks are allowed. This is best illustrated
       by the :code:`spacing_within` a qualified identifier like
       :code:`my_schema.my_table`.
 
@@ -554,7 +553,7 @@ available:
 
    *  :code:`trailing` and :code:`leading`, which are most common in the
       placement of commas. Both of these settings *also* allow the option
-      of a comma on it's own on a line, or in the middle of a line, *but*
+      of a comma on its own on a line, or in the middle of a line, *but*
       if there is a line break on *either side* then they make sure it's
       on the *correct side*. By default we assume *trailing* commas, but if
       you (or your organisation) have settled on *leading* commas then
@@ -565,7 +564,7 @@ available:
          [sqlfluff:layout:type:comma]
          line_position = leading
 
-   *  :code:`alone`, which means if there is a line break on either side
+   *  :code:`alone`, which means if there is a line break on either side,
       then there must be a line break on *both sides* (i.e. that it should
       be the only thing on that line.
 
