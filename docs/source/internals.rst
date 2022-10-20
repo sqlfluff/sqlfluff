@@ -146,14 +146,14 @@ Reflow Internals
 
 Many rules supported by SQLFluff involve the spacing and layout of different
 elements, either to enforce a particular layout or just to add or remove
-code elements in a way sensitive to the exiting layout configuration. The
+code elements in a way sensitive to the existing layout configuration. The
 way this is achieved is through some centralised utilities in the
 `sqlfluff.utils.reflow` module.
 
 This module aims to achieve several things:
 * Less code duplication by implementing reflow logic in only one place.
 
-* Provide a streamline interface for rules to easily utilise reflow logic.
+* Provide a streamlined interface for rules to easily utilise reflow logic.
 
   * Given this requirement, it's important that reflow utilities work
     within the existing framework for applying fixes to potentially

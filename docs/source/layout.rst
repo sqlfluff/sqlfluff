@@ -40,14 +40,15 @@ character. Except for very specific circumstances (see section on
 :ref:`alignedelements`), any additional space between elements is
 usually unwanted and a distraction for the reader. There are however
 several common cases where *no whitespace* is more appropriate, which
-fall into two cases.
+fall into two cases (for more details on where to configure these see
+:ref:`layoutspacingconfig`).
 
 #. *No whitespace but a newline is allowed.* This option is configured
-   using the :code:`touch` setting. The most common example of
-   this is the spacing around commas. For example :code:`SELECT a , b`
-   would be unusual and more normally be written :code:`SELECT a, b`.
-   Inserting a newline between the :code:`a` and comma would not
-   cause issues and may even be desired, for example:
+   using the :code:`touch` option in the :code:`spacing_*` configuration
+   settings. The most common example of this is the spacing around commas.
+   For example :code:`SELECT a , b` would be unusual and more normally be
+   written :code:`SELECT a, b`. Inserting a newline between the :code:`a`
+   and comma would not cause issues and may even be desired, for example:
 
    .. code-block:: sql
 
@@ -61,11 +62,12 @@ fall into two cases.
       FROM tbl_a
 
 #. *No whitespace and a newline is not allowed.* This option is
-   configured using the :code:`inline` setting. The most common example
-   of this is spacing within the parts of qualified identifier e.g.
-   :code:`my_schema.my_table`. If a newline were present between the
-   :code:`.` and either :code:`my_schema` or :code:`my_table`, then
-   the expression would not parse and so no newlines should be allowed.
+   configured using the :code:`inline` option in the :code:`spacing_*`
+   configuration settings. The most common example of this is spacing
+   within the parts of qualified identifier e.g. :code:`my_schema.my_table`.
+   If a newline were present between the :code:`.` and either
+   :code:`my_schema` or :code:`my_table`, then the expression would not
+   parse and so no newlines should be allowed.
 
 
 .. _alignedelements:
@@ -86,7 +88,7 @@ be configured to achieve layouts like:
    FROM foo AS bar
 
 In this example, the alias expressions are all aligned with each other.
-Practically to configure this, SQLFluff needs to know what elements to
+To configure this, SQLFluff needs to know what elements to
 align and how far to search to find elements which should be aligned
 with eachother. The configuration to achieve this layout is:
 

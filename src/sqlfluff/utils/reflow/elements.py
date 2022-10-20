@@ -134,11 +134,11 @@ class ReflowPoint(ReflowElement):
 
     This class, and its sibling :obj:`ReflowBlock`, should not
     normally be manipulated directly by rules, but instead should
-     be manipulated using :obj:`ReflowSequence`.
+    be manipulated using :obj:`ReflowSequence`.
 
     It holds segments which can be changed during a reflow operation
-    such as whitespace and newlines.It may also contain  :obj:`Indent` and :obj:`Dedent`
-    elements.
+    such as whitespace and newlines.It may also contain :obj:`Indent`
+    and :obj:`Dedent` elements.
 
     It holds no configuration and is influenced by the blocks on either
     side, so that any operations on it usually have that configuration
