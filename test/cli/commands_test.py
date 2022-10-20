@@ -34,6 +34,7 @@ from sqlfluff.cli.commands import (
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
+from sqlfluff.utils.testing.cli import invoke_assert_code
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
 
@@ -68,33 +69,6 @@ def logging_cleanup():
 def contains_ansi_escape(s: str) -> bool:
     """Does the string contain ANSI escape codes (e.g. color)?"""
     return re_ansi_escape.search(s) is not None
-
-
-def invoke_assert_code(
-    ret_code=0,
-    args=None,
-    kwargs=None,
-    cli_input=None,
-    mix_stderr=True,
-    output_contains="",
-):
-    """Invoke a command and check return code."""
-    args = args or []
-    kwargs = kwargs or {}
-    if cli_input:
-        kwargs["input"] = cli_input
-    runner = CliRunner(mix_stderr=mix_stderr)
-    result = runner.invoke(*args, **kwargs)
-    # Output the CLI code for debugging
-    print(result.output)
-    # Check return codes
-    if output_contains != "":
-        assert output_contains in result.output
-    if ret_code == 0:
-        if result.exception:
-            raise result.exception
-    assert ret_code == result.exit_code
-    return result
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
