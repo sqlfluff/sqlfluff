@@ -46,17 +46,18 @@ def test_dbt_target_dir(tmpdir):
     https://github.com/sqlfluff/sqlfluff/issues/2895
     """
     tmp_base_dir = str(tmpdir)
-    tmp_project_dir = os.path.join(tmp_base_dir, "dir1", "dir2", "dbt_project")
-    os.makedirs(os.path.dirname(tmp_project_dir))
+    tmp_dbt_dir = os.path.join(tmp_base_dir, "dir1", "dir2", "dbt")
+    # tmp_project_dir = os.path.join(tmp_dbt_dir, "dbt_project")
+    os.makedirs(os.path.dirname(tmp_dbt_dir))
     shutil.copytree(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project",
-        tmp_project_dir,
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
+        tmp_dbt_dir,
     )
     old_cwd = os.getcwd()
     # Invoke SQLFluff from <<tmpdir>>, linting a file in the dbt project at
-    # <<tmp_project_dir>>/dir1/dir2. Prior to the bug fix, a "target" directory
-    # would incorrectly be created in <<tmp_project_dir>>. (It should be created
-    # in <<tmp_project_dir>>/dir1/dir2/dbt_project.)
+    # <<tmp_project_dir>>/dir1/dir2/dbt/dbt_project. Prior to the bug fix, a
+    # "target" directory would incorrectly be created in <<tmp_project_dir>>.
+    # (It should be created in <<tmp_project_dir>>/dir1/dir2/dbt/dbt_project.)
     os.chdir(tmp_base_dir)
     with open("pyproject.toml", "w") as f:
         print(
@@ -65,7 +66,7 @@ templater = "dbt"
 dialect = "postgres"
 
 [tool.sqlfluff.templater.dbt]
-project_dir = "dir1/dir2/dbt_project"
+project_dir = "dir1/dir2/dbt/dbt_project"
 """,
             file=f,
         )
@@ -75,11 +76,11 @@ project_dir = "dir1/dir2/dbt_project"
             args=[
                 lint,
                 [
-                    "dir1/dir2/dbt_project/models/my_new_project/use_dbt_utils.sql",
+                    "dir1/dir2/dbt/dbt_project/models/my_new_project/use_dbt_utils.sql",
                 ],
             ],
         )
         assert not os.path.exists("target")
-        assert os.path.exists("dir1/dir2/dbt_project/target")
+        assert os.path.exists("dir1/dir2/dbt/dbt_project/target")
     finally:
         os.chdir(old_cwd)
