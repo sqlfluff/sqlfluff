@@ -337,7 +337,7 @@ the first element.
 Hanging indents have been supported in SQLFluff up to the 1.x
 versions, however **they will no longer by supported from 2.0.0**
 onwards. This is due to the ambiguity which they bring to
-fixing poorly formatted sql. Take the following code:
+fixing poorly formatted SQL. Take the following code:
 
 .. code-block:: sql
 
@@ -625,7 +625,7 @@ available:
 
    *  The value of :code:`inline` is effectively the same as :code:`touch`
       but in addition, no line breaks are allowed. This is best illustrated
-      by the :code:`spacing_within` a qualified identifier like
+      by the spacing found in a qualified identifier like
       :code:`my_schema.my_table`.
 
 *  **Line Position**: set using the :code:`line_position` option. By default
