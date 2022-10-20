@@ -203,7 +203,7 @@ When controlling line breaks, we are trying to achieve a few different things:
    common when it comes to *commas*, and whether they should be *leading*
    (e.g. :code:`, my_column`) or *trailing* (e.g. :code:`my_column,`). In
    less common cases, it may also be desirable for some elements to have both
-   and line break *before and after* (e.g. a set operator such as `UNION`).
+   a line break *before and after* (e.g. a set operator such as `UNION`).
 
 
 Indentation
@@ -235,6 +235,12 @@ surroundings. As an example:
 
 Comment Indents
 ^^^^^^^^^^^^^^^
+
+.. note::
+
+      The notes here about block comments are not implemented prior
+      to 2.0.x. They should be coming in that release or soon after.
+
 
 **Comments** are dealt with differently, depending on whether they're
 *block* comments (:code:`/* like this */`), which might optionally
