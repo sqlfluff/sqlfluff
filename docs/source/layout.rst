@@ -123,7 +123,7 @@ the least obvious. The following example illustrates the impact it has.
          c     AS first_column
          d + e AS second_column
    )
-   
+
    SELECT
       a           AS first_column,
       (a + b) / 2 AS third_column
@@ -140,7 +140,7 @@ the least obvious. The following example illustrates the impact it has.
          c     AS first_column
          d + e AS second_column
    )
-   
+
    SELECT
       a           AS first_column,
       (a + b) / 2 AS third_column
@@ -157,7 +157,7 @@ the least obvious. The following example illustrates the impact it has.
          c        AS first_column
          d + e    AS second_column
    )
-   
+
    SELECT
       a           AS first_column,
       (a + b) / 2 AS third_column
@@ -174,7 +174,7 @@ the least obvious. The following example illustrates the impact it has.
          c        AS first_column
          d + e    AS second_column
    )
-   
+
    SELECT
       a           AS first_column,
       (a + b) / 2 AS third_column
