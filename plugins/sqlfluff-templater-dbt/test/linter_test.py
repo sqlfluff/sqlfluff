@@ -2,6 +2,7 @@
 
 import os
 import os.path
+import shutil
 
 import pytest
 
@@ -39,11 +40,16 @@ def test__linter__lint_ephemeral_3_level(project_dir):  # noqa
     lntr.lint_path(path=model_file_path)
 
 
-def test_dbt_target_dir():
+def test_dbt_target_dir(tmpdir):
     """Test with dbt project in subdir that target/ is created in the correct place.
 
     https://github.com/sqlfluff/sqlfluff/issues/2895
     """
+    old_path = os.path.abspath(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/.sqlfluff"
+    )
+    new_path = str(tmpdir.join(".sqlfluff"))
+    shutil.move(old_path, new_path)
     assert not os.path.exists("target")
     with open("pyproject.toml", "w") as f:
         print(
@@ -73,3 +79,4 @@ project_dir = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
         )
     finally:
         os.unlink("pyproject.toml")
+        shutil.move(new_path, old_path)
