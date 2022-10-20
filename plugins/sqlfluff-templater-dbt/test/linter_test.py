@@ -45,12 +45,19 @@ def test_dbt_target_dir(tmpdir):
 
     https://github.com/sqlfluff/sqlfluff/issues/2895
     """
-    old_path = os.path.abspath(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/.sqlfluff"
+    tmp_base_dir = str(tmpdir)
+    tmp_project_dir = os.path.join(tmp_base_dir, "dir1", "dir2", "dbt_project")
+    os.makedirs(os.path.dirname(tmp_project_dir))
+    shutil.copytree(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project",
+        tmp_project_dir,
     )
-    new_path = str(tmpdir.join(".sqlfluff"))
-    shutil.move(old_path, new_path)
-    assert not os.path.exists("target")
+    old_cwd = os.getcwd()
+    # Invoke SQLFluff from <<tmpdir>>, linting a file in the dbt project at
+    # <<tmp_project_dir>>/dir1/dir2. Prior to the bug fix, a "target" directory
+    # would incorrectly be created in <<tmp_project_dir>>. (It should be created
+    # in <<tmp_project_dir>>/dir1/dir2/dbt_project.)
+    os.chdir(tmp_base_dir)
     with open("pyproject.toml", "w") as f:
         print(
             """[tool.sqlfluff.core]
@@ -58,7 +65,7 @@ templater = "dbt"
 dialect = "postgres"
 
 [tool.sqlfluff.templater.dbt]
-project_dir = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
+project_dir = "dir1/dir2/dbt_project"
 """,
             file=f,
         )
@@ -68,15 +75,11 @@ project_dir = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
             args=[
                 lint,
                 [
-                    "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/"
-                    "dbt_project/models/my_new_project/use_dbt_utils.sql",
+                    "dir1/dir2/dbt_project/models/my_new_project/use_dbt_utils.sql",
                 ],
             ],
         )
         assert not os.path.exists("target")
-        assert os.path.exists(
-            "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/target"
-        )
+        assert os.path.exists("dir1/dir2/dbt_project/target")
     finally:
-        os.unlink("pyproject.toml")
-        shutil.move(new_path, old_path)
+        os.chdir(old_cwd)
