@@ -47,7 +47,9 @@ class DbtTemplater(JinjaTemplater):
         self.formatter = None
         self.project_dir = None
         self.profiles_dir = None
-        self.dbt_project_container: DbtProjectContainer = kwargs.pop("dbt_project_container")
+        self.dbt_project_container: DbtProjectContainer = kwargs.pop(
+            "dbt_project_container"
+        )
         super().__init__(**kwargs)
 
     def _get_profiles_dir(self):
@@ -114,17 +116,24 @@ class DbtTemplater(JinjaTemplater):
 
     def config_pairs(self):  # pragma: no cover
         """Returns info about the given templater for output by the cli."""
-        return [("templater", self.name), ("dbt", get_installed_version().to_version_string())]
+        return [
+            ("templater", self.name),
+            ("dbt", get_installed_version().to_version_string()),
+        ]
 
     def _find_node(self, project, fname):
-        expected_node_path = os.path.relpath(fname, start=os.path.abspath(project.args.project_dir))
+        expected_node_path = os.path.relpath(
+            fname, start=os.path.abspath(project.args.project_dir)
+        )
         node = project.get_node_by_path(expected_node_path)
         if node:
             return node
         skip_reason = self._find_skip_reason(project, expected_node_path)
         if skip_reason:
             raise SQLFluffSkipFile(f"Skipped file {fname} because it is {skip_reason}")
-        raise SQLFluffSkipFile(f"File {fname} was not found in dbt project")  # pragma: no cover
+        raise SQLFluffSkipFile(
+            f"File {fname} was not found in dbt project"
+        )  # pragma: no cover
 
     @large_file_check
     def process(
@@ -137,12 +146,15 @@ class DbtTemplater(JinjaTemplater):
     ):
         """Compile a dbt model and return the compiled SQL."""
         try:
-            return self._unsafe_process(os.path.abspath(fname) if fname else None, in_str, config)
+            return self._unsafe_process(
+                os.path.abspath(fname) if fname else None, in_str, config
+            )
         except DbtCompilationException as e:
             if e.node:
                 return None, [
                     SQLTemplaterError(
-                        f"dbt compilation error on file '{e.node.original_file_path}', " f"{e.msg}"
+                        f"dbt compilation error on file '{e.node.original_file_path}', "
+                        f"{e.msg}"
                     )
                 ]
             else:
@@ -165,17 +177,19 @@ class DbtTemplater(JinjaTemplater):
                     return "disabled"
         return None
 
-    def _unsafe_process(self, fname: Optional[str], in_str: str, config: FluffConfig = None):
+    def _unsafe_process(
+        self, fname: Optional[str], in_str: str, config: FluffConfig = None
+    ):
         # Get project
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
             self.project_dir
         )
         if not osmosis_dbt_project:
             osmosis_dbt_project = self.dbt_project_container.add_project(
-                #name_override=x_dbt_project,
+                # name_override=x_dbt_project,
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
-                #target=target,
+                # target=target,
             )
 
         # Use path if valid, prioritize it as the in_str
