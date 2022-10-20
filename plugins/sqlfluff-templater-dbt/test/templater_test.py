@@ -375,8 +375,8 @@ def test__templater_dbt_handle_exceptions(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
         )
     finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
@@ -417,8 +417,8 @@ def test__templater_dbt_handle_database_connection_failure(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
     finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert (
