@@ -53,23 +53,24 @@ def test_dbt_target_dir(tmpdir):
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
         tmp_dbt_dir,
     )
+    os.unlink(os.path.join(tmp_dbt_dir, ".sqlfluff"))
     old_cwd = os.getcwd()
     # Invoke SQLFluff from <<tmpdir>>, linting a file in the dbt project at
     # <<tmp_project_dir>>/dir1/dir2/dbt/dbt_project. Prior to the bug fix, a
     # "target" directory would incorrectly be created in <<tmp_project_dir>>.
     # (It should be created in <<tmp_project_dir>>/dir1/dir2/dbt/dbt_project.)
     os.chdir(tmp_base_dir)
-    with open("pyproject.toml", "w") as f:
+    with open(".sqlfluff", "w") as f:
         print(
-            """[tool.sqlfluff.core]
-templater = "dbt"
-dialect = "postgres"
+            """[sqlfluff]
+templater = dbt
+dialect = postgres
 
-[tool.sqlfluff.templater.dbt]
-project_dir = "{tmp_base_dir}/dir1/dir2/dbt/dbt_project"
-profiles_dir = "{tmp_base_dir}/dir1/dir2/dbt/profiles_yml"
+[sqlfluff:templater:dbt]
+project_dir = {tmp_base_dir}/dir1/dir2/dbt/dbt_project
+profiles_dir = {old_cwd}/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml
 """.format(
-                tmp_base_dir=tmp_base_dir
+                old_cwd=old_cwd, tmp_base_dir=tmp_base_dir
             ),
             file=f,
         )
