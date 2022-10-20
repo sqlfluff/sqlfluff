@@ -4,7 +4,18 @@ import fnmatch
 import os
 import time
 import logging
-from typing import Any, List, Sequence, Optional, Tuple, cast, Iterable, Iterator, Set
+from typing import (
+    Any,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    cast,
+)
 
 import pathspec
 import regex
@@ -59,7 +70,7 @@ class Linter:
         formatter: Any = None,
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
-        user_rules: Optional[List[BaseRule]] = None,
+        user_rules: Optional[List[Type[BaseRule]]] = None,
         exclude_rules: Optional[List[str]] = None,
     ) -> None:
         # Store the config object
