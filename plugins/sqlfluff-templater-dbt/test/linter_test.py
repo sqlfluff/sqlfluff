@@ -66,8 +66,11 @@ templater = "dbt"
 dialect = "postgres"
 
 [tool.sqlfluff.templater.dbt]
-project_dir = "dir1/dir2/dbt/dbt_project"
-""",
+project_dir = "{tmp_base_dir}/dir1/dir2/dbt/dbt_project"
+profiles_dir = "{tmp_base_dir}/dir1/dir2/dbt/profiles_yml"
+""".format(
+                tmp_base_dir=tmp_base_dir
+            ),
             file=f,
         )
     try:
