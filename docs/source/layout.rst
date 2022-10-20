@@ -105,7 +105,80 @@ with eachother. The configuration to achieve this layout is:
    # in this example would likely be the boundary of a CTE. Stopping
    # when we hit brackets is usually a good rule of thumb for this
    # configuration.
-   align_boundary = bracketed
+   align_scope = bracketed
+
+Of these configuration values, the :code:`align_scope` is potentially
+the least obvious. The following example illustrates the impact it has.
+
+.. code-block:: sql
+
+   -- With
+   --    align_scope = bracketed
+   --    align_within = select_clause
+
+   WITH foo as (
+      SELECT
+         a,
+         b,
+         c     AS first_column
+         d + e AS second_column
+   )
+   
+   SELECT
+      a           AS first_column,
+      (a + b) / 2 AS third_column
+   FROM foo AS bar;
+
+   -- With
+   --    align_scope = bracketed
+   --    align_within = statement
+
+   WITH foo as (
+      SELECT
+         a,
+         b,
+         c     AS first_column
+         d + e AS second_column
+   )
+   
+   SELECT
+      a           AS first_column,
+      (a + b) / 2 AS third_column
+   FROM foo       AS bar
+
+   -- With
+   --    align_scope = file
+   --    align_within = select_clause
+
+   WITH foo as (
+      SELECT
+         a,
+         b,
+         c        AS first_column
+         d + e    AS second_column
+   )
+   
+   SELECT
+      a           AS first_column,
+      (a + b) / 2 AS third_column
+   FROM foo AS bar
+
+   -- With
+   --    align_scope = file
+   --    align_within = statement
+
+   WITH foo as (
+      SELECT
+         a,
+         b,
+         c        AS first_column
+         d + e    AS second_column
+   )
+   
+   SELECT
+      a           AS first_column,
+      (a + b) / 2 AS third_column
+   FROM foo       AS bar
 
 
 Line Breaks
