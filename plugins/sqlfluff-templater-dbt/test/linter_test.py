@@ -6,6 +6,8 @@ import os.path
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.cli.commands import lint
+from sqlfluff.utils.testing.cli import invoke_assert_code
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 
 
@@ -35,3 +37,39 @@ def test__linter__lint_ephemeral_3_level(project_dir):  # noqa
     lntr = Linter(config=conf)
     model_file_path = os.path.join(project_dir, "models/ephemeral_3_level")
     lntr.lint_path(path=model_file_path)
+
+
+def test_dbt_target_dir():
+    """Test with dbt project in subdir that target/ is created in the correct place.
+
+    https://github.com/sqlfluff/sqlfluff/issues/2895
+    """
+    assert not os.path.exists("target")
+    with open("pyproject.toml", "w") as f:
+        print(
+            """[tool.sqlfluff.core]
+templater = "dbt"
+dialect = "postgres"
+
+[tool.sqlfluff.templater.dbt]
+project_dir = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
+""",
+            file=f,
+        )
+    try:
+        invoke_assert_code(
+            ret_code=0,
+            args=[
+                lint,
+                [
+                    "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/"
+                    "dbt_project/models/my_new_project/use_dbt_utils.sql",
+                ],
+            ],
+        )
+        assert not os.path.exists("target")
+        assert os.path.exists(
+            "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/target"
+        )
+    finally:
+        os.unlink("pyproject.toml")
