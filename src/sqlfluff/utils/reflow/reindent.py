@@ -59,10 +59,77 @@ def _is_template_only(elements: ReflowSequenceType):
     )
 
 
-def _revise_templated_lines(
-    lines: List[_ReindentLine], elements: ReflowSequenceType
-) -> List[_ReindentLine]:
+@dataclass(frozen=True)
+class _IndentPoint:
+    """Temporary structure for holding metadata about an indented ReflowPoint.
+
+    We only evaluate point which either *are* line breaks or
+    contain Indent/Dedent segments.
+    """
+
+    idx: int
+    indent_impulse: int
+    indent_trough: int
+    initial_indent_balance: int
+    last_line_break_idx: Optional[int]
+    is_line_break: bool
+    # NOTE: an "untaken indent" is referenced by the value we go *up* to.
+    # i.e. An Indent segment which takes the balance from 1 to 2 but with
+    # no newline is an untaken indent of value 2.
+    # It also only covers untaken indents _before_ this point. If this point
+    # is _also_ an untaken indent, we should be able to infer that ourselves.
+    untaken_indents: Tuple[int, ...]
+
+    @property
+    def closing_indent_balance(self):
+        return self.initial_indent_balance + self.indent_impulse
+
+
+@dataclass
+class _IndentLine:
+    """Temporary structure for handing a line of indent points.
+
+    Mutable so that we can adjust the initial indent balance
+    for things like comments and templated elements, after
+    constructing all the metadata for the points on the line.
+    """
+
+    initial_indent_balance: int
+    indent_points: List[_IndentPoint]
+
+    @classmethod
+    def from_points(cls, indent_points: List[_IndentPoint]):
+        # Catch edge case for first line where we'll start with a block if no initial indent.
+        if indent_points[-1].last_line_break_idx:
+            starting_balance = indent_points[0].closing_indent_balance
+        else:
+            starting_balance = 0
+        return cls(starting_balance, indent_points)
+
+    def _iter_block_segments(
+        self, elements: ReflowSequenceType
+    ) -> Iterator[RawSegment]:
+        for element in elements[self.indent_points[0].idx : self.indent_points[-1].idx]:
+            if isinstance(element, ReflowPoint):
+                continue
+            yield from element.segments
+
+    def is_all_comments(self, elements: ReflowSequenceType) -> bool:
+        return all(
+            seg.is_type("comment") for seg in self._iter_block_segments(elements)
+        )
+
+    def is_all_templates(self, elements: ReflowSequenceType) -> bool:
+        return all(
+            seg.is_type("placeholder", "template_loop")
+            for seg in self._iter_block_segments(elements)
+        )
+
+
+def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
     """Given an initial set of individual lines. Revise templated ones.
+
+    NOTE: This mutates the `line` argument.
 
     We do this to ensure that templated lines are _somewhat_ consistent.
 
@@ -187,10 +254,10 @@ def _revise_templated_lines(
     return new_lines
 
 
-def _revise_comment_lines(
-    lines: List[_ReindentLine], elements: ReflowSequenceType
-) -> List[_ReindentLine]:
+def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
     """Given an initial set of individual lines. Revise comment ones.
+
+    NOTE: This mutates the `line` argument.
 
     We do this to ensure that lines with comments are aligned to
     the following non-comment element.
@@ -200,7 +267,7 @@ def _revise_comment_lines(
     for line in lines:
         is_comment_only_line = all(
             all(seg.is_type("comment") for seg in elem.segments)
-            for elem in elements[line.start_point_idx : line.end_point_idx]
+            for elem in elements[line.idx : line.end_point_idx]
             if not isinstance(elem, ReflowPoint)
         )
         if is_comment_only_line:
@@ -240,54 +307,6 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
         raise SQLFluffUserError(
             f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
         )
-
-
-@dataclass(frozen=True)
-class _IndentPoint:
-    """Temporary structure for holding metadata about an indented ReflowPoint.
-
-    We only evaluate point which either *are* line breaks or
-    contain Indent/Dedent segments.
-    """
-
-    idx: int
-    indent_impulse: int
-    indent_trough: int
-    initial_indent_balance: int
-    last_line_break_idx: Optional[int]
-    is_line_break: bool
-    # NOTE: an "untaken indent" is referenced by the value we go *up* to.
-    # i.e. An Indent segment which takes the balance from 1 to 2 but with
-    # no newline is an untaken indent of value 2.
-    # It also only covers untaken indents _before_ this point. If this point
-    # is _also_ an untaken indent, we should be able to infer that ourselves.
-    untaken_indents: Tuple[int, ...]
-
-    @property
-    def closing_indent_balance(self):
-        return self.initial_indent_balance + self.indent_impulse
-
-
-@dataclass
-class _IndentLine:
-    """Temporary structure for handing a line of indent points.
-
-    Mutable so that we can adjust the initial indent balance
-    for things like comments and templated elements, after
-    constructing all the metadata for the points on the line.
-    """
-
-    initial_indent_balance: int
-    indent_points: List[_IndentPoint]
-
-    @classmethod
-    def from_points(cls, indent_points: List[_IndentPoint]):
-        # Catch edge case for first line where we'll start with a block if no initial indent.
-        if indent_points[-1].last_line_break_idx:
-            starting_balance = indent_points[0].closing_indent_balance
-        else:
-            starting_balance = 0
-        return cls(starting_balance, indent_points)
 
 
 def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
@@ -357,9 +376,9 @@ def _map_line_buffers(elements: ReflowSequenceType) -> List[_IndentLine]:
     # Handle potential final line
     if len(point_buffer) > 1:
         lines.append(_IndentLine.from_points(point_buffer))
-    
+
     return lines
-  
+
 
 def _evaluate_indent_point_buffer(
     elements: ReflowSequenceType,
@@ -523,9 +542,13 @@ def lint_indent_points(
     # First map the line buffers.
     lines = _map_line_buffers(elements)
 
-    
-    # TODO: HERE IS WHERE WE SHOULD ADJUST FOR COMMENTS AND TEMPLATES
-    
+    # TODO: RE-ENABLE
+    # Revise templated indents
+    # _revise_templated_lines(lines, elements)
+    # Revise comment indents
+    # _revise_comment_lines(lines, elements)
+    # SKIP ELEMENTS WE'RE NOT SUPPOSED TO REINDENT IN (i.e. scripts).
+
     # Last: handle each of the lines.
     fixes = []
     forced_indents = []
@@ -536,241 +559,3 @@ def lint_indent_points(
         )
 
     return elem_buffer, fixes
-
-
-def map_reindent_lines(
-    elements: ReflowSequenceType, initial_balance: int = 0, single_indent: str = "    "
-) -> Tuple[List[_ReindentLine], ReflowSequenceType, List[LintFix]]:
-    """Scan the sequence to map individual lines to indent.
-
-    This method also catches any hanging indents and inserts
-    additional newlines to correct them. The indent of those
-    lines is fixed in line with the lint function.
-
-    TODO: This method has become a little convoluted and should
-    be refactored, ideally to separate mapping and the handling
-    of hanging indents. At least The part which calculates the
-    new indent should probably be modularised.
-    """
-    init_idx = 0
-    last_pt_idx = 0
-    if elements and isinstance(elements[0], ReflowPoint):
-        indent = elements[0].get_indent()
-        # The initial point is a special case where we allow
-        # .raw if .get_indent() returns None. That's because
-        # the initial point may have no newline (i.e. the start
-        # of the file).
-        if indent is None:
-            indent = elements[0].raw
-    else:
-        indent = ""
-    indent_balance = initial_balance
-    last_indent_balance = indent_balance
-    result: List[_ReindentLine] = []
-    untaken_indents: Tuple[int, ...] = ()
-    last_untaken_indents = untaken_indents
-    new_elements = elements.copy()
-    untaken_points: Dict[int, int] = {}
-    fixes: List[LintFix] = []
-    for idx, elem in enumerate(elements):
-        if isinstance(elem, ReflowPoint):
-            last_pt_idx = idx
-            indent_impulse, indent_trough = elem.get_indent_impulse()
-
-            # If our current indent balance is less than any untaken indent
-            # levels then remove them.
-            # NOTE: We compare to the trough rather than the overall indent,
-            # so that we clear the right depth of the buffer in the case of
-            # a point which goes down then back up in it's indents.
-            if any(x > indent_balance + indent_trough for x in untaken_indents):
-                untaken_indents = tuple(
-                    x for x in untaken_indents if x <= indent_balance + indent_trough
-                )
-
-            indent_balance += indent_impulse
-
-            # Have we found a newline?
-            # We skip the trivial matches (mostly to avoid a weird start).
-            if "newline" in elem.class_types and idx != init_idx:
-                next_indent = elem.get_indent() or ""
-
-                # Hanging detection. Is the indent balance at the start of the next
-                # line, greater than the previous, but untaken?
-                if (
-                    indent_balance > last_indent_balance
-                    and indent_balance in untaken_indents
-                ):
-                    # Coerce a new line break in where that untaken indent was.
-                    target_point_idx = untaken_points[indent_balance]
-                    target_point = cast(ReflowPoint, elements[target_point_idx])
-                    # modify the untaken indents
-                    untaken_indents = tuple(
-                        x for x in untaken_indents if x != indent_balance
-                    )
-                    # Rather than just copy the next line, which would mean `next_indent`
-                    # we're instead going to fix that indent at the same time.
-                    desired_indent = single_indent * (
-                        indent_balance - len(untaken_indents)
-                    )
-                    # Anchor the fix on the following block to cover the case that the point
-                    # is currently empty.
-                    new_fixes, new_point = target_point.indent_to(
-                        desired_indent,
-                        before=elements[target_point_idx + 1].segments[0],
-                    )
-                    new_elements[target_point_idx] = new_point
-                    fixes += new_fixes
-                    reflow_logger.debug(
-                        "Hanging indent detected @ %s. Correcting...",
-                        elements[target_point_idx],
-                    )
-                    # Append TWO lines, now that we've split them
-                    result.extend(
-                        [
-                            _ReindentLine(
-                                init_idx,
-                                target_point_idx,
-                                last_indent_balance,
-                                indent,
-                                # Detect template markers alone on lines at this stage, because
-                                # we'll handle them a bit differently later.
-                                _is_template_only(elements[init_idx:target_point_idx]),
-                                # Only report untaken indents less than the balance
-                                untaken_indents=untaken_indents,
-                            ),
-                            _ReindentLine(
-                                target_point_idx,
-                                idx,
-                                indent_balance,
-                                desired_indent,
-                                # Detect template markers alone on lines at this stage, because
-                                # we'll handle them a bit differently later.
-                                _is_template_only(elements[target_point_idx : idx + 1]),
-                                # Only report untaken indents less than the balance
-                                untaken_indents=untaken_indents,
-                            ),
-                        ]
-                    )
-                # TODO: We probably *also* need to insert additional line breaks where we
-                # go below the starting indent balance of the line (sensitive to the untaken indents).
-                # NOTE: THIS IS TURNING INTO A KIND OF REBREAK FUNCTION. ENSURING WE HAVE
-                # LINE BREAKS IN ALL THE PLACES THERE SHOULD BE.
-                else:
-                    result.append(
-                        _ReindentLine(
-                            init_idx,
-                            idx,
-                            last_indent_balance,
-                            indent,
-                            # Detect template markers alone on lines at this stage, because
-                            # we'll handle them a bit differently later.
-                            _is_template_only(elements[init_idx : idx + 1]),
-                            # Only report untaken indents less than the balance
-                            untaken_indents=last_untaken_indents,
-                        )
-                    )
-                # Set the index and indent for next time
-                indent = next_indent
-                init_idx = idx
-                last_indent_balance = indent_balance
-                last_untaken_indents = untaken_indents
-            elif indent_impulse > 0:
-                # If there's no newline, but there _is_ a positive impulse
-                # then this is an untaken indent. Keep track of it.
-                untaken_indents = untaken_indents + (indent_balance,)
-                untaken_points[indent_balance] = idx
-
-    # Do we have meaningful content at the end.
-    # NOTE: we don't handle any indent before the end_of_file segment.
-    # Which is why we use last_pt_idx not just len(elements).
-    if last_pt_idx - init_idx > 1:
-        result.append(
-            _ReindentLine(
-                init_idx,
-                last_pt_idx,
-                last_indent_balance,
-                indent,
-                _is_template_only(elements[init_idx : last_pt_idx + 1]),
-                untaken_indents=last_untaken_indents,
-            )
-        )
-
-    # Revise templated indents
-    result = _revise_templated_lines(result, elements)
-    # Revise comment indents
-    result = _revise_comment_lines(result, elements)
-    return result, new_elements, fixes
-
-
-def lint_reindent_lines(
-    elements: ReflowSequenceType,
-    lines: List[_ReindentLine],
-    single_indent: str = "    ",
-) -> Tuple[ReflowSequenceType, List[LintFix]]:
-    """Given _ReindentLines, lint what we've got.
-
-    Each line is evaluated based on the indent balance
-    at that point and how many of those previous opportunities
-    for an indent were actually _taken_.
-
-    The advantage of this approach is that we're not comparing
-    to a specific line. We're simply indenting where there
-    should be indents and not where there shouldn't.
-
-    Additionally, an indent balance of 0, implies there should
-    be no indent, regardless of previous lines.
-    """
-    fixes: List[LintFix] = []
-    element_buffer = elements.copy()
-    # Iterate through the lines.
-    for line in lines:
-        start_point = cast(ReflowPoint, element_buffer[line.start_point_idx])
-
-        # Handle the zero case first.
-        if line.initial_indent_balance == 0:
-            # If there's an indent, remove it.
-            if line.current_indent:
-                reflow_logger.debug(
-                    "Reindent. Line %s. Zero line with indent. Fixing.", line
-                )
-                # The first line gets special handling, because it
-                # contains no newline.
-                if line.start_point_idx == 0:
-                    if start_point.segments:
-                        new_fixes = [
-                            LintFix.delete(seg) for seg in start_point.segments
-                        ]
-                        new_point = ReflowPoint(())
-                    else:
-                        new_fixes, new_point = [], start_point
-                # Otherwise use the normal indent logic
-                else:
-                    new_fixes, new_point = start_point.indent_to("")
-                fixes.extend(new_fixes)
-                # Replace with new point
-                element_buffer[line.start_point_idx] = new_point
-            continue
-
-        # Otherwise we want an indent. Work out what it *should* be first.
-        # Then coerce it to be that if it's not.
-        desired_indent = single_indent * (
-            line.initial_indent_balance - len(line.untaken_indents)
-        )
-
-        if line.current_indent == desired_indent:
-            pass
-        else:
-            # It's not good. Adjust it.
-            reflow_logger.debug(
-                "Reindent. Line %s. %r != %r. Fixing",
-                line,
-                line.current_indent,
-                desired_indent,
-            )
-            new_fixes, new_point = start_point.indent_to(desired_indent)
-            fixes.extend(new_fixes)
-            # Replace with new point
-            element_buffer[line.start_point_idx] = new_point
-
-    # Return the adjusted buffers.
-    return element_buffer, fixes

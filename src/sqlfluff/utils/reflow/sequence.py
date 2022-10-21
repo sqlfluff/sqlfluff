@@ -13,8 +13,7 @@ from sqlfluff.utils.reflow.depthmap import DepthMap
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
-    lint_reindent_lines,
-    map_reindent_lines,
+    lint_indent_points,
     construct_single_indent,
 )
 
@@ -554,40 +553,12 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        # Delegate to the rebreak algorithm
-        lines, elem_buff, fixes_a = map_reindent_lines(
-            self.elements, 0, single_indent=single_indent
-        )
-
-        # Skip elements we're configured to no indent
-        filtered_lines = []
-        for line in lines:
-            for block in elem_buff[line.start_point_idx : line.end_point_idx]:
-                if isinstance(block, ReflowBlock):
-                    if any(
-                        self.reflow_config.skip_indentation_in.intersection(types)
-                        for types in block.depth_info.stack_class_types
-                    ):
-                        reflow_logger.debug(
-                            "Skipping line %s because it is within one of %s",
-                            line,
-                            self.reflow_config.skip_indentation_in,
-                        )
-                        break
-            else:
-                # it's good - keep it.
-                filtered_lines.append(line)
-
-        elem_buff, fixes_b = lint_reindent_lines(
-            elem_buff,
-            filtered_lines,
-            single_indent=single_indent,
-        )
+        elements, fixes = lint_indent_points(self.elements, single_indent=single_indent)
 
         return ReflowSequence(
-            elements=elem_buff,
+            elements=elements,
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=fixes_a + fixes_b,
+            embodied_fixes=fixes,
         )

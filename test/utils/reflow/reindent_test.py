@@ -11,13 +11,10 @@ import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.utils.reflow.elements import ReflowBlock
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 from sqlfluff.utils.reflow.reindent import (
     deduce_line_indent,
-    map_reindent_lines,
-    _ReindentLine,
     lint_indent_points,
 )
 
@@ -233,9 +230,7 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
     seq = ReflowSequence.from_root(root, config=default_config)
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        elements, fixes = lint_indent_points(
-            seq.elements, single_indent="  "
-        )
+        elements, fixes = lint_indent_points(seq.elements, single_indent="  ")
 
     result_raw = "".join(elem.raw for elem in elements)
     assert result_raw == raw_sql_out, "Raw Element Check Failed!"
