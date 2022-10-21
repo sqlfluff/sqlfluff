@@ -125,6 +125,39 @@ class _IndentLine:
             for seg in self._iter_block_segments(elements)
         )
 
+    def desired_indent_units(self, forced_indents: List[int]):
+        # TODO: I don't quite understand this logic. It works tho.
+        # DOCUMENT THIS!!!!!
+        if self.indent_points[0].indent_trough:
+            # This says (I think) - purge any untaken indents which happened
+            # before the trough (or at least only _keep_ any which would have remained.)
+            relevant_untaken_indents = [
+                i
+                for i in self.indent_points[0].untaken_indents
+                if i
+                <= self.initial_indent_balance
+                + (
+                    self.indent_points[0].indent_impulse
+                    + self.indent_points[0].indent_trough
+                )
+            ]
+        else:
+            relevant_untaken_indents = self.indent_points[0].untaken_indents
+
+        reflow_logger.debug(
+            "Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, iII: %s, iIT: %s",
+            self.initial_indent_balance,
+            relevant_untaken_indents,
+            self.indent_points[0].untaken_indents,
+            self.indent_points[0].indent_impulse,
+            self.indent_points[0].indent_trough,
+        )
+        return (
+            self.initial_indent_balance
+            - len(relevant_untaken_indents)
+            + len(forced_indents)
+        )
+
 
 def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
     """Given an initial set of individual lines. Revise templated ones.
@@ -397,7 +430,14 @@ def _evaluate_indent_point_buffer(
 
     # New indents on the way down
     # There's a jump on the way down which *wasn't* an untaken one.
-    reflow_logger.debug("Evaluate Line: %s. FI %s", indent_line, forced_indents)
+    reflow_logger.debug(
+        "Evaluate Line #%s. FI %s",
+        elements[indent_line.indent_points[0].idx + 1]
+        .segments[0]
+        .pos_marker.working_line_no,
+        forced_indents,
+    )
+    reflow_logger.info("Evaluate Line: %s. FI %s", indent_line, forced_indents)
     fixes = []
 
     # Catch edge case for first line where we'll start with a block if no initial indent.
@@ -411,8 +451,8 @@ def _evaluate_indent_point_buffer(
         current_indent = ""
 
     # First handle starting indent.
-    desired_starting_indent = single_indent * (
-        starting_balance - len(indent_points[0].untaken_indents) + len(forced_indents)
+    desired_starting_indent = (
+        indent_line.desired_indent_units(forced_indents) * single_indent
     )
     initial_point = elements[indent_points[0].idx]
     closing_balance = indent_points[-1].closing_indent_balance
@@ -438,12 +478,22 @@ def _evaluate_indent_point_buffer(
 
     # Then check for new lines. Either on the way up...
     if closing_balance > starting_balance:
+        if indent_points[-1].indent_trough:
+            closing_trough = (
+                indent_points[-1].initial_indent_balance
+                + indent_points[-1].indent_trough
+            )
+        else:
+            closing_trough = (
+                indent_points[-1].initial_indent_balance
+                + indent_points[-1].indent_impulse
+            )
         # On the way up we're looking for whether the ending balance
         # was an untaken indent on the way up.
-        if closing_balance in indent_points[-1].untaken_indents:
+        if closing_trough in indent_points[-1].untaken_indents:
             # It was! Force a new indent there.
             for ip in indent_points:
-                if ip.closing_indent_balance == closing_balance:
+                if ip.closing_indent_balance == closing_trough:
                     target_point_idx = ip.idx
                     desired_indent = single_indent * (
                         ip.closing_indent_balance - len(ip.untaken_indents)
