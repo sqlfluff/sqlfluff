@@ -262,39 +262,34 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
     We do this to ensure that lines with comments are aligned to
     the following non-comment element.
     """
-    new_lines: List[_ReindentLine] = []
-    comment_line_buffer: List[_ReindentLine] = []
-    for line in lines:
-        is_comment_only_line = all(
-            all(seg.is_type("comment") for seg in elem.segments)
-            for elem in elements[line.idx : line.end_point_idx]
-            if not isinstance(elem, ReflowPoint)
-        )
-        if is_comment_only_line:
-            comment_line_buffer.append(line)
+    # new_lines: List[_ReindentLine] = []
+    comment_line_buffer: List[int] = []
+
+    # Slice to avoid copying
+    for idx, line in enumerate(lines[:]):
+        if line.is_all_comments(elements):
+            comment_line_buffer.append(idx)
         else:
             # Not a comment only line, if there's a buffer anchor
             # to this one.
-            for comment_line in comment_line_buffer:
-                # There is a mutation risk here but we don't plan
-                # on reusing the initial buffer so it's probably ok.
-                comment_line.initial_indent_balance = line.initial_indent_balance
-                new_lines.append(comment_line)
+            for comment_line_idx in comment_line_buffer:
                 reflow_logger.debug(
-                    "Comment Only Line: %s. Anchoring to %s", comment_line, line
+                    "Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
+                # Mutate reference lines to match this one.
+                lines[
+                    comment_line_idx
+                ].initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
-            # Keep the line itself.
-            new_lines.append(line)
+
     # Any trailing comments should be anchored the baseline.
-    for comment_line in comment_line_buffer:
-        comment_line.initial_indent_balance = 0
-        new_lines.append(comment_line)
+    for comment_line_idx in comment_line_buffer:
+        # Mutate reference lines to match this one.
+        lines[comment_line_idx].initial_indent_balance = 0
         reflow_logger.debug(
-            "Comment Only Line: %s. Anchoring to baseline", comment_line
+            "Comment Only Line: %s. Anchoring to baseline", comment_line_idx
         )
-    return new_lines
 
 
 def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
@@ -481,7 +476,7 @@ def _evaluate_indent_point_buffer(
                 continue
             # It's negative, is it untaken?
             if (
-                ip.closing_indent_balance in ip.untaken_indents
+                ip.initial_indent_balance in ip.untaken_indents
                 and ip.initial_indent_balance not in forced_indents
             ):
                 # Yep, untaken.
@@ -546,7 +541,7 @@ def lint_indent_points(
     # Revise templated indents
     # _revise_templated_lines(lines, elements)
     # Revise comment indents
-    # _revise_comment_lines(lines, elements)
+    _revise_comment_lines(lines, elements)
     # SKIP ELEMENTS WE'RE NOT SUPPOSED TO REINDENT IN (i.e. scripts).
 
     # Last: handle each of the lines.
