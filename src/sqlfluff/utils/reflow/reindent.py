@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 import logging
-from typing import Dict, List, Set, Tuple, cast
+from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple, cast
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -244,6 +244,12 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
 
 @dataclass(frozen=True)
 class _IndentPoint:
+    """Temporary structure for holding metadata about an indented ReflowPoint.
+
+    We only evaluate point which either *are* line breaks or
+    contain Indent/Dedent segments.
+    """
+
     idx: int
     indent_impulse: int
     indent_trough: int
@@ -260,6 +266,28 @@ class _IndentPoint:
     @property
     def closing_indent_balance(self):
         return self.initial_indent_balance + self.indent_impulse
+
+
+@dataclass
+class _IndentLine:
+    """Temporary structure for handing a line of indent points.
+
+    Mutable so that we can adjust the initial indent balance
+    for things like comments and templated elements, after
+    constructing all the metadata for the points on the line.
+    """
+
+    initial_indent_balance: int
+    indent_points: List[_IndentPoint]
+
+    @classmethod
+    def from_points(cls, indent_points: List[_IndentPoint]):
+        # Catch edge case for first line where we'll start with a block if no initial indent.
+        if indent_points[-1].last_line_break_idx:
+            starting_balance = indent_points[0].closing_indent_balance
+        else:
+            starting_balance = 0
+        return cls(starting_balance, indent_points)
 
 
 def crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
@@ -284,7 +312,8 @@ def crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
                 )
                 last_line_break_idx = idx
             # Is it otherwise meaningful as an indent point?
-            elif indent_impulse or indent_trough:
+            # NOTE, a point at idx zero is meaningful because it's like an indent.
+            elif indent_impulse or indent_trough or idx == 0:
                 yield _IndentPoint(
                     idx,
                     indent_impulse,
@@ -309,7 +338,7 @@ def crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
 
 def _evaluate_indent_point_buffer(
     elements: ReflowSequenceType,
-    indent_points: List[_IndentPoint],
+    indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
 ) -> List[LintFix]:
@@ -329,16 +358,18 @@ def _evaluate_indent_point_buffer(
 
     # New indents on the way down
     # There's a jump on the way down which *wasn't* an untaken one.
-    reflow_logger.debug("Evaluate Line: %s. FI %s", indent_points, forced_indents)
+    reflow_logger.debug("Evaluate Line: %s. FI %s", indent_line, forced_indents)
     fixes = []
 
     # Catch edge case for first line where we'll start with a block if no initial indent.
+    starting_balance = indent_line.initial_indent_balance
+    indent_points = indent_line.indent_points
     if indent_points[-1].last_line_break_idx:
         current_indent = elements[indent_points[-1].last_line_break_idx].get_indent()
-        starting_balance = indent_points[0].closing_indent_balance
+    elif isinstance(elements[0], ReflowPoint):
+        current_indent = elements[0].raw
     else:
         current_indent = ""
-        starting_balance = 0
 
     # First handle starting indent.
     desired_starting_indent = single_indent * (
@@ -354,10 +385,15 @@ def _evaluate_indent_point_buffer(
             current_indent,
             desired_starting_indent,
         )
-        new_fixes, new_point = initial_point.indent_to(
-            desired_starting_indent,
-            before=elements[indent_points[0].idx + 1].segments[0],
-        )
+        # Initial point gets special handling:
+        if indent_points[0].idx == 0:
+            new_fixes = [LintFix.delete(seg) for seg in initial_point.segments]
+            new_point = ReflowPoint(())
+        else:
+            new_fixes, new_point = initial_point.indent_to(
+                desired_starting_indent,
+                before=elements[indent_points[0].idx + 1].segments[0],
+            )
         elements[indent_points[0].idx] = new_point
         fixes += new_fixes
 
@@ -371,7 +407,7 @@ def _evaluate_indent_point_buffer(
                 if ip.closing_indent_balance == closing_balance:
                     target_point_idx = ip.idx
                     desired_indent = single_indent * (
-                        ip.initial_indent_balance - len(ip.untaken_indents)
+                        ip.closing_indent_balance - len(ip.untaken_indents)
                     )
                     break
             else:
@@ -393,15 +429,15 @@ def _evaluate_indent_point_buffer(
     # Or the way down.
     elif closing_balance < starting_balance:
         # On the way down we're looking for indents which *were* taken on
-        # The way up, but currently aren't on the way down.
-        for ip in indent_points:
+        # The way up, but currently aren't on the way down. We slice so
+        # that the _last_ point isn't evaluated, because that's fine.
+        for ip in indent_points[:-1]:
             # Is line break, or positive indent?
             if ip.is_line_break or ip.indent_impulse >= 0:
                 continue
             # It's negative, is it untaken?
-            # TODO: Probably refactor this to be a set operation?
             if (
-                ip.initial_indent_balance in ip.untaken_indents
+                ip.closing_indent_balance in ip.untaken_indents
                 and ip.initial_indent_balance not in forced_indents
             ):
                 # Yep, untaken.
@@ -460,10 +496,13 @@ def lint_indent_points(
     having line breaks in the right place, but if we're inserting a line
     break, we need to also know how much to indent by.
     """
-    forced_indents = []
+
     elem_buffer = elements.copy()
     line_buffer = []
     fixes = []
+
+    # First build up the buffer of lines.
+    lines = []
     for indent_point in indent_points:
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
@@ -472,17 +511,25 @@ def lint_indent_points(
         if not indent_point.is_line_break:
             continue
 
-        # If it *is* a line break, then we evaluate it.
-        fixes += _evaluate_indent_point_buffer(
-            elem_buffer, line_buffer, single_indent, forced_indents
-        )
+        # If it *is* a line break, then store it.
+        lines.append(_IndentLine.from_points(line_buffer))
         # Reset the buffer
         line_buffer = [indent_point]
 
     # Handle potential final line
     if len(line_buffer) > 1:
+        lines.append(_IndentLine.from_points(line_buffer))
+
+    
+    # TODO: HERE IS WHERE WE SHOULD ADJUST FOR COMMENTS AND TEMPLATES
+    
+
+
+    # Last: handle each of the lines.
+    forced_indents = []
+    for line in lines:
         fixes += _evaluate_indent_point_buffer(
-            elem_buffer, line_buffer, single_indent, forced_indents
+            elem_buffer, line, single_indent, forced_indents
         )
 
     return elem_buffer, fixes

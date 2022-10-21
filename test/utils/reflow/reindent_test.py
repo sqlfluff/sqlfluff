@@ -19,6 +19,8 @@ from sqlfluff.utils.reflow.reindent import (
     map_reindent_lines,
     _ReindentLine,
     lint_reindent_lines,
+    crawl_indent_points,
+    lint_indent_points,
 )
 
 
@@ -343,12 +345,12 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
         # A hanging example where we're modifying a currently empty point.
         (
             "select greatest(1,\n2)",
-            "select greatest(\n  1,\n  2)",
+            "select greatest(\n  1,\n  2\n)",
         ),
     ],
 )
-def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, caplog):
-    """Test the lint_reindent_lines() method indirectly.
+def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, caplog):
+    """Test the lint_indent_points() method directly.
 
     Rather than testing directly, for brevity we check
     the raw output it produces. This results in a more
@@ -357,21 +359,19 @@ def test_reflow__lint_reindent_lines(raw_sql_in, raw_sql_out, default_config, ca
     root = parse_ansi_string(raw_sql_in, default_config)
     print(root.stringify())
     seq = ReflowSequence.from_root(root, config=default_config)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        lines, elements, fixes_a = map_reindent_lines(seq.elements, single_indent="  ")
-        for idx, line in enumerate(lines):
-            print(idx, line)
-        # We're not testing the fixes directly at this stage.
-        result, fixes_b = lint_reindent_lines(elements, lines, single_indent="  ")
 
-    result_raw = "".join(elem.raw for elem in result)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
+        elements, fixes = lint_indent_points(
+            seq.elements, crawl_indent_points(seq.elements), single_indent="  "
+        )
+
+    result_raw = "".join(elem.raw for elem in elements)
     assert result_raw == raw_sql_out, "Raw Element Check Failed!"
 
     # Now we've checked the elements - check that applying the fixes gets us to
     # the same place.
-    print("FIXES A:", fixes_a)
-    print("FIXES B:", fixes_b)
-    anchor_info = BaseSegment.compute_anchor_edit_info(fixes_a + fixes_b)
+    print("FIXES:", fixes)
+    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
     fixed_tree, _, _ = root.apply_fixes(
         default_config.get("dialect_obj"), "TEST", anchor_info
     )
