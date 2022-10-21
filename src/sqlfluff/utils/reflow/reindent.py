@@ -382,9 +382,9 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             # Update values
             indent_balance += indent_impulse
 
-            # Strip any untaken indents above the trough.
+            # Strip any untaken indents above the new balance.
             untaken_indents = tuple(
-                x for x in untaken_indents if x <= indent_balance + indent_trough
+                x for x in untaken_indents if x <= indent_balance
             )
 
 
