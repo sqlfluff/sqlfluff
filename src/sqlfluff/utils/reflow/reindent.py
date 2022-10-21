@@ -290,7 +290,7 @@ class _IndentLine:
         return cls(starting_balance, indent_points)
 
 
-def crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
+def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
     """Crawl through a reflow sequence, mapping existing indents."""
     last_line_break_idx = None
     indent_balance = 0
@@ -335,6 +335,31 @@ def crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
                 x for x in untaken_indents if x <= indent_balance + indent_trough
             )
 
+
+def _map_line_buffers(elements: ReflowSequenceType) -> List[_IndentLine]:
+    """Map the existing elements, building up a list of _IndentLine"""
+    # First build up the buffer of lines.
+    lines = []
+    point_buffer = []
+    for indent_point in _crawl_indent_points(elements):
+        # We evaluate all the points in a line at the same time, so
+        # we first build up a buffer.
+        point_buffer.append(indent_point)
+
+        if not indent_point.is_line_break:
+            continue
+
+        # If it *is* a line break, then store it.
+        lines.append(_IndentLine.from_points(point_buffer))
+        # Reset the buffer
+        point_buffer = [indent_point]
+
+    # Handle potential final line
+    if len(point_buffer) > 1:
+        lines.append(_IndentLine.from_points(point_buffer))
+    
+    return lines
+  
 
 def _evaluate_indent_point_buffer(
     elements: ReflowSequenceType,
@@ -385,8 +410,8 @@ def _evaluate_indent_point_buffer(
             current_indent,
             desired_starting_indent,
         )
-        # Initial point gets special handling:
-        if indent_points[0].idx == 0:
+        # Initial point gets special handling it it has no newlines.
+        if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
             new_fixes = [LintFix.delete(seg) for seg in initial_point.segments]
             new_point = ReflowPoint(())
         else:
@@ -473,7 +498,6 @@ def _evaluate_indent_point_buffer(
 
 def lint_indent_points(
     elements: ReflowSequenceType,
-    indent_points: Iterable[_IndentPoint],
     single_indent: str,
 ) -> Tuple[ReflowSequenceType, List[LintFix]]:
     """Lint the indent points to check we have line breaks where we should.
@@ -496,37 +520,16 @@ def lint_indent_points(
     having line breaks in the right place, but if we're inserting a line
     break, we need to also know how much to indent by.
     """
-
-    elem_buffer = elements.copy()
-    line_buffer = []
-    fixes = []
-
-    # First build up the buffer of lines.
-    lines = []
-    for indent_point in indent_points:
-        # We evaluate all the points in a line at the same time, so
-        # we first build up a buffer.
-        line_buffer.append(indent_point)
-
-        if not indent_point.is_line_break:
-            continue
-
-        # If it *is* a line break, then store it.
-        lines.append(_IndentLine.from_points(line_buffer))
-        # Reset the buffer
-        line_buffer = [indent_point]
-
-    # Handle potential final line
-    if len(line_buffer) > 1:
-        lines.append(_IndentLine.from_points(line_buffer))
+    # First map the line buffers.
+    lines = _map_line_buffers(elements)
 
     
     # TODO: HERE IS WHERE WE SHOULD ADJUST FOR COMMENTS AND TEMPLATES
     
-
-
     # Last: handle each of the lines.
+    fixes = []
     forced_indents = []
+    elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         fixes += _evaluate_indent_point_buffer(
             elem_buffer, line, single_indent, forced_indents

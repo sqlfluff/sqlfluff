@@ -18,8 +18,6 @@ from sqlfluff.utils.reflow.reindent import (
     deduce_line_indent,
     map_reindent_lines,
     _ReindentLine,
-    lint_reindent_lines,
-    crawl_indent_points,
     lint_indent_points,
 )
 
@@ -130,154 +128,6 @@ def test_reflow__deduce_line_indent(
 
 
 @pytest.mark.parametrize(
-    "raw_sql_in,lines",
-    [
-        # Trivial
-        (
-            "select 1",
-            [
-                _ReindentLine(0, 3, 0, ""),
-            ],
-        ),
-        # Trivial with trailing newline
-        (
-            "select 1\n",
-            [
-                _ReindentLine(0, 3, 0, ""),
-            ],
-        ),
-        # Trivial with leading newline
-        (
-            "\nselect 1",
-            [
-                _ReindentLine(0, 4, 0, ""),
-            ],
-        ),
-        # Trivial with leading and trailing newline
-        (
-            "\nselect 1\n",
-            [
-                _ReindentLine(0, 4, 0, ""),
-            ],
-        ),
-        # Simple without trailing newline
-        (
-            "select\n  1",
-            [
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 3, 1, "  "),
-            ],
-        ),
-        # Simple with trailing newline
-        (
-            "select\n  1\n",
-            [
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 3, 1, "  "),
-            ],
-        ),
-        # Example with an _untaken_ indents.
-        # It's a little contrived but should illustrate the point.
-        (
-            "select (\n3)\n",
-            [
-                _ReindentLine(0, 3, 0, ""),
-                _ReindentLine(3, 7, 2, "", untaken_indents=(1,)),
-            ],
-        ),
-        (
-            "select (((\n((\n3\n))\n)))",
-            [
-                _ReindentLine(0, 7, 0, ""),
-                _ReindentLine(7, 11, 4, "", untaken_indents=(1, 2, 3)),
-                _ReindentLine(11, 13, 6, "", untaken_indents=(1, 2, 3, 5)),
-                _ReindentLine(13, 17, 5, "", untaken_indents=(1, 2, 3, 5)),
-                _ReindentLine(17, 23, 3, "", untaken_indents=(1, 2, 3)),
-            ],
-        ),
-        # More complex examples including templating.
-        (
-            "select\n  1\n  {% if false %}\n    + 2\n  {% endif %}",
-            [
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 3, 1, "  "),
-                _ReindentLine(3, 5, 0, "  ", True),
-            ],
-        ),
-        (
-            "select\n  1\n  {% if true %}\n    + 2\n  {% endif %}",
-            [
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 3, 1, "  "),
-                _ReindentLine(3, 5, 1, "  ", True),
-                _ReindentLine(5, 9, 2, "    "),
-                # NOTE: This indent balance is 1 not 0 despite the placement
-                # of the dedent segment. This is because we "hoist" the closing
-                # tag to match the opening one where possible.
-                _ReindentLine(9, 11, 1, "  ", True),
-            ],
-        ),
-        (
-            "select\n  1\n  {% if true %}\n    , 2\n  FROM a\n{% endif %}",
-            [
-                # NOTE: Here because we can't hoist "up" we pull the opening
-                # tag down to match the closing indent balance.
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 3, 1, "  "),
-                _ReindentLine(3, 5, 0, "  ", True),  # Here's the sunken element.
-                # These next two lines aren't further indented either.
-                _ReindentLine(5, 9, 1, "    "),
-                _ReindentLine(9, 13, 0, "  "),
-                # The final tag then sits on the baseline.
-                _ReindentLine(13, 15, 0, "", True),
-            ],
-        ),
-        (
-            "select\n  0,\n  {% for i in [1, 2, 3] %}\n    i,\n  {% endfor %}\n  4",
-            [
-                _ReindentLine(0, 1, 0, ""),
-                _ReindentLine(1, 5, 1, "  "),
-                _ReindentLine(5, 7, 1, "  ", True),
-                _ReindentLine(7, 11, 2, "    "),
-                _ReindentLine(11, 13, 1, "  ", True),  # Loop Marker
-                _ReindentLine(13, 17, 2, "    "),
-                _ReindentLine(17, 19, 1, "  ", True),  # Loop Marker
-                _ReindentLine(19, 23, 2, "    "),
-                _ReindentLine(23, 25, 1, "  ", True),
-                _ReindentLine(25, 27, 1, "  "),
-            ],
-        ),
-        # Test that we don't get them for empty lines.
-        (
-            "\n\n  \n\nselect\n\n\n\n  \n\n     1\n\n  \n\n",
-            [
-                # Only two lines here
-                _ReindentLine(0, 2, 0, ""),
-                _ReindentLine(2, 4, 1, "     "),
-            ],
-        ),
-    ],
-)
-def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
-    """Test the map_reindent_lines() method directly."""
-    # Run the lexer at debug level here, so we can see
-    # creation of indents and dedents.
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.lexer"):
-        root = parse_ansi_string(raw_sql_in, default_config)
-    print(root.stringify())
-    seq = ReflowSequence.from_root(root, config=default_config)
-    # Logging to assist debugging
-    for idx, elem in enumerate(seq.elements):
-        if isinstance(elem, ReflowBlock) and "placeholder" in elem.class_types:
-            print(idx, repr(elem.segments[0].source_str))
-        else:
-            print(idx, repr(elem.raw))
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        result_lines, _, _ = map_reindent_lines(seq.elements, single_indent="  ")
-        assert result_lines == lines
-
-
-@pytest.mark.parametrize(
     "raw_sql_in,raw_sql_out",
     [
         # Trivial
@@ -289,6 +139,11 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
         (
             "      select 1",
             "select 1",
+        ),
+        # Trailing Newline
+        (
+            "      select 1\n",
+            "select 1\n",
         ),
         # Basic Multiline
         (
@@ -310,6 +165,10 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             "   select ((((\n1\n))))",
             "select ((((\n  1\n))))",
         ),
+        (
+            "select (((\n((\n3\n))\n)))",
+            "select (((\n  ((\n    3\n  ))\n)))",
+        ),
         # ### Templated Multiline Cases ###
         # NOTE: the templated tags won't show here, but they
         # should still be indented.
@@ -329,6 +188,11 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             # when taking this option.
             "select\n  1\n\n  ,2\nFROM a\n",
         ),
+        # Template loops:
+        (
+            "select\n  0,\n  {% for i in [1, 2, 3] %}\n    {{i}},\n  {% endfor %}\n  4",
+            "select\n  0,\n  \n    1,\n  \n    2,\n  \n    3,\n  \n  4",
+        ),
         # Correction and handling of hanging indents
         (
             "select 1, 2",
@@ -347,6 +211,14 @@ def test_reflow__map_reindent_lines(raw_sql_in, lines, default_config, caplog):
             "select greatest(1,\n2)",
             "select greatest(\n  1,\n  2\n)",
         ),
+        # Test handling of many blank lines.
+        # NOTE:
+        #    1. Initial whitespace should remain, because it's not an indent.
+        #    2. Blank lines should also remain, because they're also not an indent.
+        (
+            "\n\n  \n\nselect\n\n\n\n    \n\n     1\n\n       \n\n",
+            "\n\n  \n\nselect\n\n\n\n    \n\n  1\n\n       \n\n",
+        ),
     ],
 )
 def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, caplog):
@@ -362,7 +234,7 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         elements, fixes = lint_indent_points(
-            seq.elements, crawl_indent_points(seq.elements), single_indent="  "
+            seq.elements, single_indent="  "
         )
 
     result_raw = "".join(elem.raw for elem in elements)
