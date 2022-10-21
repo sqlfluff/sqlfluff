@@ -131,32 +131,37 @@ class _IndentLine:
         if self.indent_points[0].indent_trough:
             # This says (I think) - purge any untaken indents which happened
             # before the trough (or at least only _keep_ any which would have remained.)
+            # NEEEDS MORE TESTS.
+            # Minus signs are really hard to get wrong here.
             relevant_untaken_indents = [
                 i
                 for i in self.indent_points[0].untaken_indents
                 if i
                 <= self.initial_indent_balance
-                + (
+                - (
                     self.indent_points[0].indent_impulse
-                    + self.indent_points[0].indent_trough
+                    - self.indent_points[0].indent_trough
                 )
             ]
         else:
             relevant_untaken_indents = self.indent_points[0].untaken_indents
 
+        desired_indent = (
+            self.initial_indent_balance
+            - len(relevant_untaken_indents)
+            + len(forced_indents)
+        )
+
         reflow_logger.debug(
-            "Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, iII: %s, iIT: %s",
+            "Desired Indent Calculation: IB: %s, RUI: %s, UIL: %s, iII: %s, iIT: %s. = %s",
             self.initial_indent_balance,
             relevant_untaken_indents,
             self.indent_points[0].untaken_indents,
             self.indent_points[0].indent_impulse,
             self.indent_points[0].indent_trough,
+            desired_indent,
         )
-        return (
-            self.initial_indent_balance
-            - len(relevant_untaken_indents)
-            + len(forced_indents)
-        )
+        return desired_indent
 
 
 def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
