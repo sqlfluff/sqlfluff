@@ -351,27 +351,31 @@ test_jinja_with_disbalanced_pairs:
     FROM orders
 
 test_fail_attempted_hanger_fix:
-  # It's almost a hanger and so should be corrected to one.
+  # Check messy hanger correction.
+  # TODO: Check we agree with this fix.
+  # I think while unconventional, it is technically correct.
   fail_str: |
     SELECT coalesce(foo,
                   bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(foo,
-                    bar)
+    SELECT coalesce(
+        foo,
+        bar
+    )
     FROM tbl
 
 test_fail_possible_hanger_fix:
-  # It's not even close to a hanging indent, but we should
-  # still attempt this, although this is potentially a questionable
-  # fix and could be an approach we change in the future.
+  # Same note as above, but with a messier example.
   fail_str: |
     SELECT coalesce(foo,
      bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(foo,
-                    bar)
+    SELECT coalesce(
+        foo,
+        bar
+    )
     FROM tbl
 
 test_fail_consecutive_hangers:
@@ -387,12 +391,13 @@ test_fail_consecutive_hangers:
   fix_str: |
     select *
     from foo
-    where a like 'a%'
-          and b like 'b%'
-          and c like 'c%'
-          and d like 'd%'
-          and e like 'e%'
-          and f like 'f%'
+    where
+        a like 'a%'
+        and b like 'b%'
+        and c like 'c%'
+        and d like 'd%'
+        and e like 'e%'
+        and f like 'f%'
 
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
@@ -1004,6 +1009,7 @@ test_fail_snowflake_merge_statement:
       dialect: snowflake
 
 test_fail_hanging_indents_convert_to_normal_indent:
+  # This takes advantage of new indent treatment in 2.0.x
   fail_str: |
     SELECT
         a.line + (a.with
@@ -1013,10 +1019,12 @@ test_fail_hanging_indents_convert_to_normal_indent:
     SELECT
         a.line + (
             a.with
-            + a.hanging_indent) as actually_not_ok,
+            + a.hanging_indent
+        ) as actually_not_ok,
     FROM tbl as a
 
 test_fail_hanging_indents_fix_mixed_indents:
+  # The tab is removed.
   fail_str: |
     SELECT
         a.line + (
