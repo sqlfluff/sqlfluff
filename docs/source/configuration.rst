@@ -196,9 +196,10 @@ See also: `Ignoring Errors & Files`_.
 Layout & Spacing Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :code:`[sqlfluff:layout]` section of the config controls the treatment of
-spacing and line breaks across all rules. To understand more about this section,
-see the section of the docs dedicated to layout: :ref:`layoutconfig`.
+The :code:`[sqlfluff:layout]` section of the config controls the
+treatment of spacing and line breaks across all rules. To understand
+more about this section, see the section of the docs dedicated to
+layout: :ref:`layoutconfig`.
 
 
 .. _templateconfig:

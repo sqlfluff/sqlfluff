@@ -144,7 +144,7 @@ the least obvious. The following example illustrates the impact it has.
    SELECT
       a           AS first_column,
       (a + b) / 2 AS third_column
-   FROM foo       AS bar
+   FROM foo       AS bar            -- Now the FROM alias is also aligned.
 
    -- With
    --    align_scope = file
@@ -154,8 +154,8 @@ the least obvious. The following example illustrates the impact it has.
       SELECT
          a,
          b,
-         c        AS first_column
-         d + e    AS second_column
+         c        AS first_column   -- Now the aliases here are aligned
+         d + e    AS second_column  -- with the outer query.
    )
 
    SELECT
