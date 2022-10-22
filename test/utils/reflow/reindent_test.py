@@ -336,32 +336,32 @@ def test_reflow__deduce_line_indent(
                 # No point at the start.
                 # NOTE: Abbreviated notation given much is the same as above.
                 # After SELECT
-                _IndentPoint(1,1,0,0,None,False,()),
-                _IndentPoint(3,-1,-1,1,None,True,(1,)),
-                _IndentPoint(5,1,0,0,3,False,()),
-                _IndentPoint(7,-1,-1,1,3,True,(1,)),
+                _IndentPoint(1, 1, 0, 0, None, False, ()),
+                _IndentPoint(3, -1, -1, 1, None, True, (1,)),
+                _IndentPoint(5, 1, 0, 0, 3, False, ()),
+                _IndentPoint(7, -1, -1, 1, 3, True, (1,)),
                 # JOIN
-                _IndentPoint(9,1,0,0,7,False,()),
+                _IndentPoint(9, 1, 0, 0, 7, False, ()),
                 # TRICKY POINT (we're between "t2" and "ON").
                 # The indent between Join and t2 wasn't taken, but we're
                 # also climbing down from that here. It should be in the
                 # untaken indents _here_ but not passed forward. There is
                 # however another indent opportunity here which ALSO isn't
                 # taken, so that one *should* be passed forward.
-                _IndentPoint(11,0,-1,1,7,False,(1,)),
+                _IndentPoint(11, 0, -1, 1, 7, False, (1,)),
                 # TRICKY POINT (we're between "ON" and "true").
                 # Default is indented_on_contents = True.
                 # This means that there is an additional indent here.
                 # It's not taken though. The incoming balance of 1
                 # isn't taken yet either (hence a 1 in the untaken indent).
-                _IndentPoint(13,1,0,1,7,False,(1,)),
+                _IndentPoint(13, 1, 0, 1, 7, False, (1,)),
                 # Between "true" and "AND".
                 # Balance is 2, but both untaken.
-                _IndentPoint(15,0,0,2,7,True,(1, 2)),
+                _IndentPoint(15, 0, 0, 2, 7, True, (1, 2)),
                 # End point
-                _IndentPoint(19,-2,-2,2,15,False,(1, 2)),
-            ]
-        )
+                _IndentPoint(19, -2, -2, 2, 15, False, (1, 2)),
+            ],
+        ),
     ],
 )
 def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):

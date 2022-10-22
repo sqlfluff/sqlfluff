@@ -10,7 +10,7 @@ from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
 from sqlfluff.core.rules.base import LintFix
-from sqlfluff.utils.reflow.elements import ReflowPoint, ReflowSequenceType
+from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 
 
 # We're in the utils module, but users will expect reflow
@@ -84,9 +84,7 @@ class _IndentLine:
             starting_balance = 0
         return cls(starting_balance, indent_points)
 
-    def _iter_block_segments(
-        self, elements: ReflowSequenceType
-    ) -> Iterator[RawSegment]:
+    def iter_blocks(self, elements: ReflowSequenceType) -> Iterator[ReflowBlock]:
         # Edge case for initial lines (i.e. where last_line_break is None)
         if self.indent_points[-1].last_line_break_idx is None:
             range_slice = slice(None, self.indent_points[-1].idx)
@@ -95,7 +93,13 @@ class _IndentLine:
         for element in elements[range_slice]:
             if isinstance(element, ReflowPoint):
                 continue
-            yield from element.segments
+            yield element
+
+    def _iter_block_segments(
+        self, elements: ReflowSequenceType
+    ) -> Iterator[RawSegment]:
+        for block in self.iter_blocks(elements):
+            yield from block.segments
 
     def is_all_comments(self, elements: ReflowSequenceType) -> bool:
         # check there *are* segments - TODO DOCSRTINGS BETTER
@@ -329,7 +333,7 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
 
 def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
     """Crawl through a reflow sequence, mapping existing indents.
-    
+
     This is where *most* of the logic for smart indentation
     happens. The values returned here have a large impact on
     exactly how indentation is treated.
@@ -360,7 +364,12 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             # NOTE: a point at idx zero is meaningful because it's like an indent.
             # NOTE: Last edge case. If we haven't yielded yet, but the
             # next element is the end of the file. Yield.
-            elif indent_impulse or indent_trough or idx == 0 or elements[idx + 1].segments[0].is_type("end_of_file"):
+            elif (
+                indent_impulse
+                or indent_trough
+                or idx == 0
+                or elements[idx + 1].segments[0].is_type("end_of_file")
+            ):
                 yield _IndentPoint(
                     idx,
                     indent_impulse,
@@ -389,7 +398,7 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             if indent_impulse > indent_trough and "newline" not in elem.class_types:
                 for i in range(indent_trough, indent_impulse):
                     untaken_indents += (indent_balance + i + 1,)
-            
+
             # Update values
             indent_balance += indent_impulse
 
@@ -574,6 +583,7 @@ def _evaluate_indent_point_buffer(
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
+    skip_indentation_in: Set[str] = set(),
 ) -> Tuple[ReflowSequenceType, List[LintFix]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -603,7 +613,21 @@ def lint_indent_points(
     _revise_templated_lines(lines, elements)
     # Revise comment indents
     _revise_comment_lines(lines, elements)
-    # SKIP ELEMENTS WE'RE NOT SUPPOSED TO REINDENT IN (i.e. scripts).
+
+    # Skip elements we're configured to not touch (i.e. scripts)
+    for line in lines[:]:
+        for block in line.iter_blocks(elements):
+            if any(
+                skip_indentation_in.intersection(types)
+                for types in block.depth_info.stack_class_types
+            ):
+                reflow_logger.debug(
+                    "Skipping line %s because it is within one of %s",
+                    line,
+                    skip_indentation_in,
+                )
+                lines.remove(line)
+                break
 
     # Last: handle each of the lines.
     fixes = []

@@ -553,7 +553,11 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        elements, fixes = lint_indent_points(self.elements, single_indent=single_indent)
+        elements, fixes = lint_indent_points(
+            self.elements,
+            single_indent=single_indent,
+            skip_indentation_in=self.reflow_config.skip_indentation_in,
+        )
 
         return ReflowSequence(
             elements=elements,
