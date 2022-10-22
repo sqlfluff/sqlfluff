@@ -90,7 +90,7 @@ be configured to achieve layouts like:
 In this example, the alias expressions are all aligned with each other.
 To configure this, SQLFluff needs to know what elements to
 align and how far to search to find elements which should be aligned
-with eachother. The configuration to achieve this layout is:
+with each other. The configuration to achieve this layout is:
 
 .. code-block:: ini
 
