@@ -74,6 +74,8 @@ For example, a snippet from a :code:`pyproject.toml` file:
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
 .. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
+.. _nesting:
+
 Nesting
 -------
 
@@ -106,6 +108,41 @@ steps overriding those from earlier:
 
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
+
+In-File Configuration Directives
+--------------------------------
+
+In addition to configuration files mentioned above, SQLFluff also supports
+comment based configuration switching in files. This allows specific SQL
+file to modify a default configuration if they have specific needs.
+
+When used, these apply to the whole file, and are parsed from the file in
+an initial step before the rest of the file is properly parsed. This means
+they can be used for both rule configuration and also for parsing
+configuration.
+
+To use these, the syntax must start as an *inline sql comment* beginning
+with :code:`sqlfluff` (i.e. :code:`-- sqlfluff`). The line is then interpreted
+as a colon-seperated address of the configuation value you wish to set.
+A few common examples are shown below:
+
+.. code-block:: sql
+
+    -- Set Indented Joins
+    -- sqlfluff:indentation:indented_joins:true
+    -- Set a smaller indent for this file
+    -- sqlfluff:indentation:tab_space_size:2
+    -- Set keywords to be capitalised
+    -- sqlfluff:rules:L010:capitalisation_policy:upper
+
+    SELECT *
+    FROM a
+      JOIN b USING(c)
+
+We recommend only using this configuration approach for configuration that
+applies to one file in isolation. For configuration changes for areas of
+a project or for whole projects we recommend :ref:`nesting` of configuration
+files.
 
 .. _ruleconfig:
 
