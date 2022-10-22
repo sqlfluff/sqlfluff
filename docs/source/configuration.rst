@@ -118,7 +118,8 @@ file to modify a default configuration if they have specific needs.
 
 When used, these apply to the whole file, and are parsed from the file in
 an initial step before the rest of the file is properly parsed. This means
-they can be used for both rule configuration and also for parsing configuration.
+they can be used for both rule configuration and also for parsing
+configuration.
 
 To use these, the syntax must start as an *inline sql comment* beginning
 with :code:`sqlfluff` (i.e. :code:`-- sqlfluff`). The line is then interpreted
