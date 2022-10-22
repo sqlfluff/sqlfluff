@@ -355,10 +355,11 @@ This ambiguity is unhelpful, both for SQLFluff as a tool,
 but also for people who write SQL that there two ways of
 indenting their SQL. Given SQLFluff aims to provide consistency
 in SQL layout and remove some of the burden of needing to make
-choices like this - and that nobody is thinking of using *only*
-hanging indents - the only route left to consistency is to
-**not allow hanging indents**. Starting in 2.0.0, any hanging
-indents detected will be converted to traditional indents.
+choices like this - and that it would be very unusual to keep
+*only hanging indents and disable traditional ones* - the only
+route left to consistency is to **not allow hanging indents**.
+Starting in 2.0.0, any hanging indents detected will be
+converted to traditional indents.
 
 .. _templatedindents:
 
