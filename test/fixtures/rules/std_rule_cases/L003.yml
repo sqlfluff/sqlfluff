@@ -227,18 +227,28 @@ test_pass_indented_on_contents_default:
         s.b
     FROM r
     JOIN s
-        ON r.a = s.a
+        ON
+            r.a = s.a
             AND true
 
 test_pass_indented_on_contents_true:
   # Test indented_on_contents when true (default)
-  pass_str: |
+  fail_str: |
     SELECT
         r.a,
         s.b
     FROM r
     JOIN s
         ON r.a = s.a
+            AND true
+  fix_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON
+            r.a = s.a
             AND true
   configs:
     indentation:
@@ -257,7 +267,8 @@ test_pass_indented_on_contents_false:
   configs:
     indentation:
       indented_on_contents: false
-test_fail_indented_on_contents_default_fix:
+
+test_fail_indented_on_contents_default_fix_a:
   # Default config for indented_on_contents is true
   fail_str: |
     SELECT *
@@ -269,8 +280,24 @@ test_fail_indented_on_contents_default_fix:
     SELECT *
     FROM t1
     JOIN t2
-        ON true
+        ON
+            true
             AND true
+
+test_fail_indented_on_contents_default_fix_b:
+  # Default config for indented_on_contents is true.
+  # This is an alternate interpretation of untaken indents.
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2 ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2 ON
+        true
+        AND true
 
 test_fail_indented_on_contents_false_fix:
   fail_str: |

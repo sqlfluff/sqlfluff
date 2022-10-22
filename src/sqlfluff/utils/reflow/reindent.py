@@ -328,7 +328,15 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
 
 
 def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
-    """Crawl through a reflow sequence, mapping existing indents."""
+    """Crawl through a reflow sequence, mapping existing indents.
+    
+    This is where *most* of the logic for smart indentation
+    happens. The values returned here have a large impact on
+    exactly how indentation is treated.
+
+    TODO: Once this function *works*, there's definitely headroom
+    for simplification and optimisation. We should do that.
+    """
     last_line_break_idx = None
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
@@ -349,8 +357,10 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
                 )
                 last_line_break_idx = idx
             # Is it otherwise meaningful as an indent point?
-            # NOTE, a point at idx zero is meaningful because it's like an indent.
-            elif indent_impulse or indent_trough or idx == 0:
+            # NOTE: a point at idx zero is meaningful because it's like an indent.
+            # NOTE: Last edge case. If we haven't yielded yet, but the
+            # next element is the end of the file. Yield.
+            elif indent_impulse or indent_trough or idx == 0 or elements[idx + 1].segments[0].is_type("end_of_file"):
                 yield _IndentPoint(
                     idx,
                     indent_impulse,
@@ -360,29 +370,28 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
                     False,
                     untaken_indents,
                 )
-                # Are there untaken positive indents in here?
-                for i in range(0, indent_impulse):
-                    untaken_indents += (indent_balance + i + 1,)
-            # Last edge case. If we haven't yielded yet, but the
-            # next element is the end of the file. Yield.
-            elif elements[idx + 1].segments[0].is_type("end_of_file"):
-                # We don't do any other configuration here, it's going
-                # to be the last one anyway.
-                yield _IndentPoint(
-                    idx,
-                    indent_impulse,
-                    indent_trough,
-                    indent_balance,
-                    last_line_break_idx,
-                    True,
-                    untaken_indents,
-                )
-
-            # Update values
-            indent_balance += indent_impulse
 
             # Strip any untaken indents above the new balance.
-            untaken_indents = tuple(x for x in untaken_indents if x <= indent_balance)
+            # NOTE: We strip back to the trough, not just the end point
+            # if the trough was lower than the impulse.
+            untaken_indents = tuple(
+                x
+                for x in untaken_indents
+                if x
+                <= (
+                    indent_balance + indent_impulse + indent_trough
+                    if indent_trough < indent_impulse
+                    else indent_balance + indent_impulse
+                )
+            )
+
+            # After stripping, we may have to add them back in.
+            if indent_impulse > indent_trough and "newline" not in elem.class_types:
+                for i in range(indent_trough, indent_impulse):
+                    untaken_indents += (indent_balance + i + 1,)
+            
+            # Update values
+            indent_balance += indent_impulse
 
 
 def _map_line_buffers(elements: ReflowSequenceType) -> List[_IndentLine]:
