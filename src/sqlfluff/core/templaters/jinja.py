@@ -524,6 +524,12 @@ class DummyUndefined(jinja2.Undefined):
     in normal contexts.
     """
 
+    # Tell Jinja this object is safe to call and does not alter data.
+    # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
+    # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    alters_data = False
+
     def __init__(self, name):
         super().__init__()
         self.name = name
