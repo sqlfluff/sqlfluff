@@ -169,7 +169,7 @@ def test_reflow__deduce_line_indent(
         # ### Templated Multiline Cases ###
         # NOTE: the templated tags won't show here, but they
         # should still be indented.
-        # Trailing tag
+        # Trailing tag. NOTE: Last tag indented
         (
             "select\n1\n{% if true %}\n+ 2\n{% endif %}",
             "select\n  1\n  \n    + 2\n  ",
@@ -184,6 +184,11 @@ def test_reflow__deduce_line_indent(
             # We also shouldn't indent the contents between them either
             # when taking this option.
             "select\n  1\n\n  ,2\nFROM a\n",
+        ),
+        # Template tags at file ends
+        (
+            "{% if true %}\nSELECT 1\n{% endif %}",
+            "\n  SELECT 1\n",
         ),
         # Template loops:
         (
