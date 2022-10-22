@@ -414,6 +414,12 @@ class JinjaTemplater(PythonTemplater):
         class UndefinedRecorder:
             """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
+            # Tell Jinja this object is safe to call and does not alter data.
+            # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+            unsafe_callable = False
+            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+            alters_data = False
+
             @classmethod
             def create(cls, name):
                 return UndefinedRecorder(name=name)
@@ -429,6 +435,9 @@ class JinjaTemplater(PythonTemplater):
             def __getattr__(self, item):
                 undefined_variables.add(self.name)
                 return UndefinedRecorder(f"{self.name}.{item}")
+
+            def __call__(self, *args, **kwargs):
+                return UndefinedRecorder(f"{self.name}()")
 
         Undefined = (
             UndefinedRecorder
