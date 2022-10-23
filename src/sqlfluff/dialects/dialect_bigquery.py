@@ -1424,7 +1424,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Sequence(
-            OneOf("COPY", "LIKE"),
+            OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
             optional=True,
         ),
