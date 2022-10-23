@@ -262,8 +262,10 @@ def test_reflow__deduce_line_indent(
                     is_line_break=False,
                     untaken_indents=(),
                 ),
-                # Before JOIN (-1 balance to take us back to baseline (in line with FROM))
-                # NOTE: It keeps the untaken indent from the previous point, but shouldn't use it.
+                # Before JOIN (-1 balance to take us back to
+                # baseline (in line with FROM))
+                # NOTE: It keeps the untaken indent from the
+                # previous point, but shouldn't use it.
                 _IndentPoint(
                     idx=19,
                     indent_impulse=-1,
@@ -296,9 +298,9 @@ def test_reflow__deduce_line_indent(
                     untaken_indents=(1,),
                 ),
                 # After ON. Default is indented_on_contents = True, so there is
-                # an indent here. We *SHOULDNT* have an untaken indent here, because while
-                # there was one at the last point, the trough of the last point should
-                # have cleared it.
+                # an indent here. We *SHOULDNT* have an untaken indent here,
+                # because while there was one at the last point, the trough
+                # of the last point should have cleared it.
                 _IndentPoint(
                     idx=25,
                     indent_impulse=1,
