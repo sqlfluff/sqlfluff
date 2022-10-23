@@ -438,7 +438,8 @@ test_fail_clean_reindent_fix:
   fix_str: |
     SELECT coalesce(
         foo,
-        bar)
+        bar
+    )
     FROM tbl
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
@@ -887,18 +888,25 @@ test_pass_tsql_update_indent:
       dialect: tsql
 
 test_pass_tsql_declare_indent:
-  pass_str: |
+  fail_str: |
     DECLARE @prv_qtr_1st_dt DATETIME,
             @last_qtr INT,
             @last_qtr_first_mn INT,
             @last_qtr_yr INT;
+  fix_str: |
+    DECLARE
+        @prv_qtr_1st_dt DATETIME,
+        @last_qtr INT,
+        @last_qtr_first_mn INT,
+        @last_qtr_yr INT;
   configs:
     core:
       dialect: tsql
 
 test_pass_tsql_set_indent:
   pass_str: |
-    SET @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR(4)) + '-' +
+    SET
+        @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR(4)) + '-' +
         CAST(@last_qtr_first_mn AS VARCHAR(2)) + '-01'
   configs:
     core:
@@ -906,7 +914,8 @@ test_pass_tsql_set_indent:
 
 test_pass_tsql_set_indent_multiple_params:
   pass_str: |
-    SET @param1 = 1,
+    SET
+        @param1 = 1,
         @param2 = 2
   configs:
     core:
@@ -1025,8 +1034,8 @@ test_fail_snowflake_merge_statement:
             OR
             foo IN ('BAR','FOO')
     ) as src
-    on
-        src.foo = tgt.foo
+        on
+            src.foo = tgt.foo
     when matched then
         update set
             tgt.foo = src.foo
