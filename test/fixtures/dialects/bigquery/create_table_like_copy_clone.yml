@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aacbfd74b1f2cecaa82d12e782eef7eb48f8e0d7c8ef6de4a15ff59997d21800
+_hash: 869b2c22122776e9f684dd77b16ecefad889234f272869af126fd0d87aa20fd8
 file:
 - statement:
     create_table_statement:
@@ -63,4 +63,18 @@ file:
       - naked_identifier: mydataset
       - dot: .
       - naked_identifier: sourcetable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable_clone
+    unparsable:
+    - raw: CLONE
+    - raw: mydataset
+    - raw: .
+    - raw: sourcetable
 - statement_terminator: ;
