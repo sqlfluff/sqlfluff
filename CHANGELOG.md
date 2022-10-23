@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.0] - 2022-10-22
+## [1.4.0] - 2022-10-23
 
 ## Highlights
 
@@ -43,6 +43,7 @@ There have also been first time contributions from **8 new contributors**! ðŸŽ‰ð
 
 ## Whatâ€™s Changed
 
+* Fix Jinja templater issue where undefined callable threw an exception [#3982](https://github.com/sqlfluff/sqlfluff/pull/3982) [@barrywhart](https://github.com/barrywhart)
 * Reflow Documentation V1 [#3970](https://github.com/sqlfluff/sqlfluff/pull/3970) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Allow lambda argument columns to be unqualified [#3971](https://github.com/sqlfluff/sqlfluff/pull/3971) [@olagjo](https://github.com/olagjo)
 * document inline configuration [#3981](https://github.com/sqlfluff/sqlfluff/pull/3981) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -94,8 +95,8 @@ There have also been first time contributions from **8 new contributors**! ðŸŽ‰ð
 * Reflow centralisation 1: Scope + Respace [#3824](https://github.com/sqlfluff/sqlfluff/pull/3824) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Update github badge and add docker badge [#3884](https://github.com/sqlfluff/sqlfluff/pull/3884) [@alanmcruickshank](https://github.com/alanmcruickshank)
 
-## New Contributors
 
+## New Contributors
 * [@kianmeng](https://github.com/kianmeng) made their first contribution in [#3901](https://github.com/sqlfluff/sqlfluff/pull/3901)
 * [@KingMichaelPark](https://github.com/KingMichaelPark) made their first contribution in [#3903](https://github.com/sqlfluff/sqlfluff/pull/3903)
 * [@hectcastro](https://github.com/hectcastro) made their first contribution in [#3923](https://github.com/sqlfluff/sqlfluff/pull/3923)
