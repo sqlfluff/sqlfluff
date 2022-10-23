@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c016dda202d7df66b87ee1595c2c887fc8752ccbeaccb08752ce467a20e75d5
+_hash: e420ce149b11c2ab44311a50476ee4c4f43a319f0b7b6a34155d1edc20d13011
 file:
 - statement:
     alter_pipe_segment:
@@ -82,12 +82,14 @@ file:
     - keyword: set
     - tag_equals:
       - keyword: tag
-      - naked_identifier: tag1
+      - tag_reference:
+          naked_identifier: tag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value1'"
       - comma: ','
-      - naked_identifier: tag2
+      - tag_reference:
+          naked_identifier: tag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value2'"
@@ -118,7 +120,9 @@ file:
         naked_identifier: mypipe
     - keyword: unset
     - keyword: tag
-    - naked_identifier: foo
+    - tag_reference:
+        naked_identifier: foo
     - comma: ','
-    - naked_identifier: bar
+    - tag_reference:
+        naked_identifier: bar
 - statement_terminator: ;
