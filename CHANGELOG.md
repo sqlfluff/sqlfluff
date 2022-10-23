@@ -14,6 +14,33 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release brings several internal changes, and acts as a prelude to 2.0.0 which
+will be released fairly soon. In particular, the following config values have changed:
+- `sqlfluff:rules:L007:operator_new_lines` has been changed to
+  `sqlfluff:layout:type:binary_operator:line_position`.
+- `sqlfluff:rules:comma_style` and `sqlfluff:rules:L019:comma_style` have both been
+  consolidated into `sqlfluff:layout:type:comma:line_position`.
+
+If any of these values have been set in your config, they will be automatically
+translated to the new values at runtime, and a warning will be shown. To silence
+the warning, update your config file to the new values. For more details on
+configuring layout (including some changes yet to come in future versions)
+see [the docs](https://docs.sqlfluff.com/en/latest/layout.html#configuring-layout).
+
+These changes are driven by underlying centralisation in the routines which control
+layout. While for this release, no breaking changes are expected - you may find
+slight differences in how SQLFluff handles edge cases. We believe in the majority
+of cases these are _more_ consistent, but if you find any which are problematic
+then do post an issue on GitHub as usual.
+
+Other highlights from this release:
+- Better dbt supportfor graph nodes and avoiding dependency conflicts.
+- Numerous dialect improvements to T-SQL, MySQL, SparkSQL, SQLite, Athena
+  Snowflake, Hive, Postgres & Databricks.
+
+There have also been first time contributions from **8 new contributors**! 🎉🎉🎉
+
+
 ## What’s Changed
 
 * Reflow Documentation V1 [#3970](https://github.com/sqlfluff/sqlfluff/pull/3970) [@alanmcruickshank](https://github.com/alanmcruickshank)
