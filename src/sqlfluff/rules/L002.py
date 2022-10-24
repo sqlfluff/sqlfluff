@@ -55,7 +55,7 @@ class Rule_L002(BaseRule):
         """
         # Config type hints
         # TODO: Migrate to reflow?
-        tab_space_size:int = context.config.get("tab_space_size", ["indentation"])
+        tab_space_size: int = context.config.get("tab_space_size", ["indentation"])
 
         if context.segment.is_type("whitespace"):
             if " " in context.segment.raw and "\t" in context.segment.raw:

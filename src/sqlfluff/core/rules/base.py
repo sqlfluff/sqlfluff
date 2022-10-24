@@ -32,7 +32,6 @@ from typing import (
 )
 from collections import namedtuple
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective

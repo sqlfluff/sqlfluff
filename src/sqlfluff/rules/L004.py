@@ -8,6 +8,8 @@ from sqlfluff.core.rules.doc_decorators import (
     document_groups,
 )
 
+from sqlfluff.utils.reflow.reindent import construct_single_indent
+
 
 @document_groups
 @document_fix_compatible
@@ -55,15 +57,13 @@ class Rule_L004(BaseRule):
     def _eval(self, context: RuleContext) -> LintResult:
         """Incorrect indentation found in file."""
         # Config type hints
-        tab_space_size:int = context.config.get("tab_space_size", ["indentation"])
-        indent_unit:str = context.config.get("indent_unit", ["indentation"])
+        tab_space_size: int = context.config.get("tab_space_size", ["indentation"])
+        indent_unit: str = context.config.get("indent_unit", ["indentation"])
 
         tab = "\t"
         space = " "
-        correct_indent = self.indent
-        wrong_indent = (
-            tab if indent_unit == "space" else space * tab_space_size
-        )
+        correct_indent = construct_single_indent(indent_unit, tab_space_size)
+        wrong_indent = tab if indent_unit == "space" else space * tab_space_size
         if (
             context.segment.is_type("whitespace")
             and wrong_indent in context.segment.raw
