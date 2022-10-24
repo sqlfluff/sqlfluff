@@ -240,8 +240,13 @@ class ReflowPoint(ReflowElement):
                     if self.segments[idx].is_type("newline"):
                         break
                 new_indent = WhitespaceSegment(desired_indent)
+                # Rather than doing a `create_after` here, we're
+                # going to do a replace. This is effectively to give a hint
+                # to the linter that this is safe to do before a templated
+                # placeholder. This solves some potential bugs - although
+                # it feels a bit like a workaround.
                 return [
-                    LintFix.create_after(self.segments[idx], [new_indent])
+                    LintFix.replace(self.segments[idx], [self.segments[idx], new_indent])
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
                 )
