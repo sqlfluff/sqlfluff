@@ -43,8 +43,10 @@ def has_untemplated_newline(point: ReflowPoint) -> bool:
     if "newline" not in point.class_types:
         return False
     for seg in point.segments:
-        # Make sure it's not templated
-        if seg.is_type("newline") and not seg.is_templated:
+        # Make sure it's not templated.
+        # NOTE: An insertion won't have a pos_marker. But that
+        # also means it's not templated.
+        if seg.is_type("newline") and (not seg.pos_marker or not seg.is_templated):
             return True
     return False
 
@@ -500,7 +502,10 @@ def _evaluate_indent_point_buffer(
             )
 
     if indent_seg:
-        if not indent_seg.is_templated:
+        # We have to check pos marker before checking is templated.
+        # Insertions don't have pos_markers - so aren't templated,
+        # but also don't support calling is_templated.
+        if not indent_seg.pos_marker or not indent_seg.is_templated:
             current_indent = indent_seg.raw
         else:
             # It's templated. Handle this.
