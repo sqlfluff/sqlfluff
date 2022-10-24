@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 264ee2e99d6b6cbf570585634d2a9951d01685e48da47c447d54eb33ea4e5c5f
+_hash: 4665ce4dc4718052ca9b6e69c12240d80062e18fdd955eda3471183c70e3a40e
 file:
 - statement:
     alter_warehouse_statement:
@@ -180,7 +180,8 @@ file:
     - keyword: set
     - tag_equals:
         keyword: TAG
-        naked_identifier: thetag
+        tag_reference:
+          naked_identifier: thetag
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'tag1'"
@@ -193,12 +194,14 @@ file:
     - keyword: set
     - tag_equals:
       - keyword: TAG
-      - naked_identifier: thetag1
+      - tag_reference:
+          naked_identifier: thetag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'tag1'"
       - comma: ','
-      - naked_identifier: thetag2
+      - tag_reference:
+          naked_identifier: thetag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'tag2'"
