@@ -209,11 +209,11 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             assert line.indent_points[-1].idx - line.indent_points[0].idx in (0, 2)
             segment = elements[line.indent_points[-1].idx - 1].segments[0]
             assert segment.is_type("placeholder", "template_loop")
-            # We should expect all of them to have a block uuid.
-            # If not, this logic should probably be extended, maybe
-            # just skip them here and leave them where they are?
-            assert segment.block_uuid  # type: ignore
-            grouped[segment.block_uuid].append(idx)  # type: ignore
+            # If it's not got a block uuid, it's not a block, so it
+            # should just be indented as usual. No need to revise.
+            # e.g. comments or variables
+            if segment.block_uuid:  # type: ignore
+                grouped[segment.block_uuid].append(idx)  # type: ignore
 
     for group_uuid in grouped.keys():
         reflow_logger.debug("Evaluating Group UUID: %s", group_uuid)
