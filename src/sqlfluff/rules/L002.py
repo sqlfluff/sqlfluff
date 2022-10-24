@@ -45,7 +45,6 @@ class Rule_L002(BaseRule):
     """
 
     groups = ("all", "core")
-    config_keywords = ["tab_space_size"]
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -55,7 +54,8 @@ class Rule_L002(BaseRule):
         multiple kinds of whitespace.
         """
         # Config type hints
-        self.tab_space_size: int
+        # TODO: Migrate to reflow?
+        tab_space_size:int = context.config.get("tab_space_size", ["indentation"])
 
         if context.segment.is_type("whitespace"):
             if " " in context.segment.raw and "\t" in context.segment.raw:
@@ -71,7 +71,7 @@ class Rule_L002(BaseRule):
                                 [
                                     context.segment.edit(
                                         context.segment.raw.replace(
-                                            "\t", " " * self.tab_space_size
+                                            "\t", " " * tab_space_size
                                         )
                                     ),
                                 ],

@@ -48,7 +48,6 @@ class Rule_L004(BaseRule):
     """
 
     groups = ("all", "core")
-    config_keywords = ["indent_unit", "tab_space_size"]
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     # TODO fix indents after text:
@@ -56,14 +55,14 @@ class Rule_L004(BaseRule):
     def _eval(self, context: RuleContext) -> LintResult:
         """Incorrect indentation found in file."""
         # Config type hints
-        self.tab_space_size: int
-        self.indent_unit: str
+        tab_space_size:int = context.config.get("tab_space_size", ["indentation"])
+        indent_unit:str = context.config.get("indent_unit", ["indentation"])
 
         tab = "\t"
         space = " "
         correct_indent = self.indent
         wrong_indent = (
-            tab if self.indent_unit == "space" else space * self.tab_space_size
+            tab if indent_unit == "space" else space * tab_space_size
         )
         if (
             context.segment.is_type("whitespace")
@@ -78,8 +77,8 @@ class Rule_L004(BaseRule):
             # unless we are converted tabs to spaces (indent_unit = space)
             if (
                 (
-                    self.indent_unit == "space"
-                    or context.segment.raw.count(space) % self.tab_space_size == 0
+                    indent_unit == "space"
+                    or context.segment.raw.count(space) % tab_space_size == 0
                 )
                 # Only attempt a fix at the start of a newline for now
                 and (pre_seg is None or pre_seg.is_type("newline"))

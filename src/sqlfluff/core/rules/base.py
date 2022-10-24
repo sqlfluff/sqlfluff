@@ -602,16 +602,6 @@ class BaseRule:
         if not ignored:
             new_fixes.extend(res.fixes)
 
-    @cached_property
-    def indent(self) -> str:
-        """String for a single indent, based on configuration."""
-        self.tab_space_size: int
-        self.indent_unit: str
-
-        tab = "\t"
-        space = " "
-        return space * self.tab_space_size if self.indent_unit == "space" else tab
-
     @staticmethod
     def filter_meta(segments, keep_meta=False):
         """Filter the segments to non-meta.

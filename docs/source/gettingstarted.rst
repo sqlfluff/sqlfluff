@@ -231,7 +231,7 @@ put the following content:
     [sqlfluff]
     dialect = ansi
 
-    [sqlfluff:rules]
+    [sqlfluff:indentation]
     tab_space_size = 2
 
     [sqlfluff:rules:L010]
@@ -249,8 +249,8 @@ file has been fixed accordingly.
 .. code-block:: sql
 
     select
-    c as bar,
-    a + b as foo
+      c as bar,
+      a + b as foo
     from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.

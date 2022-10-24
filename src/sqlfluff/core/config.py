@@ -57,6 +57,42 @@ REMOVED_CONFIGS = [
         (lambda x: x),
     ),
     _RemovedConfig(
+        ("rules", "L002", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L004", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L016", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
         ("rules", "indent_unit"),
         (
             "The indent_unit config has moved "
