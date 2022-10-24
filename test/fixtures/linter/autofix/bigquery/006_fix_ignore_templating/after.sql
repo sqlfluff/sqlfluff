@@ -11,7 +11,8 @@ SELECT * EXCEPT({% include query %}) FROM
             FROM tbl1
             {% endif %}
         INNER JOIN tbl2
-            ON tbl1.the_name = tbl2.the_name
+            ON
+                tbl1.the_name = tbl2.the_name
                 AND tbl1.run_id = tbl2.run_id
         WHERE {{ run_rnk }} = {% include "foobar.sql" %}
     )

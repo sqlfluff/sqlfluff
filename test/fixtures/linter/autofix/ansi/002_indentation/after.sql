@@ -8,10 +8,14 @@ SELECT
     (
         a.over_indented_line
     ) as bar,
-    a.line + (a.with
-              + a.hanging_indent) as actually_ok,
-    a.line + (a.with
-              + a.bad_hanging_indent) as problem,
+    a.line + (
+        a.with
+        + a.hanging_indent
+    ) as actually_ok,
+    a.line + (
+        a.with
+        + a.bad_hanging_indent
+    ) as problem,
     a.line + (
         a.something_indented_well
         + least(
