@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.0] - 2022-10-23
+## [1.4.0] - 2022-10-25
 
 ## Highlights
 
@@ -43,6 +43,7 @@ There have also been first time contributions from **8 new contributors**! 🎉�
 
 ## What’s Changed
 
+* Snowflake tag reference segment [#3985](https://github.com/sqlfluff/sqlfluff/pull/3985) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Fix Jinja templater issue where undefined callable threw an exception [#3982](https://github.com/sqlfluff/sqlfluff/pull/3982) [@barrywhart](https://github.com/barrywhart)
 * Reflow Documentation V1 [#3970](https://github.com/sqlfluff/sqlfluff/pull/3970) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Allow lambda argument columns to be unqualified [#3971](https://github.com/sqlfluff/sqlfluff/pull/3971) [@olagjo](https://github.com/olagjo)
