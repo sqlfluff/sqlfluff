@@ -37,20 +37,20 @@ class ReflowElement:
         return set(chain.from_iterable(seg.class_types for seg in segments))
 
     @property
-    def class_types(self):
-        """The set of contained class types.
+    def class_types(self) -> Set[str]:
+        """Get the set of contained class types.
 
-        Parallel to BaseSegment.class_types
+        Parallel to `BaseSegment.class_types`
         """
         return self._class_types(self.segments)
 
     @property
-    def raw(self):
+    def raw(self) -> str:
         """Get the current raw representation."""
         return "".join(seg.raw for seg in self.segments)
 
     def num_newlines(self) -> int:
-        """How many newlines does this element contain?"""
+        """Return the number of newlines in this element."""
         return sum(bool("newline" in seg.class_types) for seg in self.segments)
 
 
@@ -58,40 +58,55 @@ class ReflowElement:
 class ReflowBlock(ReflowElement):
     """Class for keeping track of elements to reflow.
 
+    This class, and its sibling :obj:`ReflowPoint`, should not
+    normally be manipulated directly by rules, but instead should
+    be manipulated using :obj:`ReflowSequence`.
+
     It holds segments to reflow and also exposes configuration
-    around how they are expected to reflow around others.
+    regarding how they are expected to reflow around others. Typically
+    it holds only a single element, which is usually code or a
+    templated element. Because reflow operations control spacing,
+    it would be very unusual for this object to be modified; as
+    such it exposes relatively few methods.
 
     The attributes exposed are designed to be "post configuration"
     i.e. they should reflect configuration appropriately.
-
-    NOTE: These are the smallest unit of "work" within
-    the reflow methods, and may contain meta segments.
     """
 
-    # Options for spacing rules are:
-    # - single:         the default (one single space)
-    # - touch:          no whitespace
-    # - any:            don't enforce any spacing rules
+    #: Desired spacing before this block.
+    #: See :ref:`layoutspacingconfig`
     spacing_before: str
+    #: Desired spacing after this block.
+    #: See :ref:`layoutspacingconfig`
     spacing_after: str
-    # - None:           the default (no particular preference)
-    # - leading:        prefer newline before
-    # - trailing:       prefer newline after
+    #: Desired line position for this block.
+    #: See :ref:`layoutspacingconfig`
     line_position: Optional[str]
-    # The depth info is used in determining where to put line breaks.
+    #: Metadata on the depth of this segment within the parse tree
+    #: which is used in inferring how and where line breaks should
+    #: exist.
     depth_info: DepthInfo
-    # This stores relevant configs for segments in the stack.
+    #: Desired spacing configurations for parent segments
+    #: of the segment in this block.
+    #: See :ref:`layoutspacingconfig`
     stack_spacing_configs: Dict[int, str]
+    #: Desired line position configurations for parent segments
+    #: of the segment in this block.
+    #: See :ref:`layoutspacingconfig`
     line_position_configs: Dict[int, str]
 
     @classmethod
     def from_config(
         cls: Type["ReflowBlock"], segments, config: ReflowConfig, depth_info: DepthInfo
     ) -> "ReflowBlock":
-        """Extendable constructor which accepts config."""
+        """Construct a ReflowBlock while extracting relevant configuration.
+
+        This is the primary route to construct a ReflowBlock, as
+        is allows all of the inference of the spacing and position
+        configuration from the segments it contains and the
+        appropriate config objects.
+        """
         block_config = config.get_block_config(cls._class_types(segments), depth_info)
-        # Populate any spacing_within config.
-        # TODO: This needs decent unit tests - not just what happens in rules.
         stack_spacing_configs = {}
         line_position_configs = {}
         for hash, class_types in zip(
@@ -117,11 +132,17 @@ class ReflowBlock(ReflowElement):
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
-    It holds segments which can be changed during a reflow operation
-    such as whitespace and newlines.
+    This class, and its sibling :obj:`ReflowBlock`, should not
+    normally be manipulated directly by rules, but instead should
+    be manipulated using :obj:`ReflowSequence`.
 
-    It holds no configuration and is influenced by the blocks either
-    side.
+    It holds segments which can be changed during a reflow operation
+    such as whitespace and newlines.It may also contain :obj:`Indent`
+    and :obj:`Dedent` elements.
+
+    It holds no configuration and is influenced by the blocks on either
+    side, so that any operations on it usually have that configuration
+    passed in as required.
     """
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
@@ -152,8 +173,8 @@ class ReflowPoint(ReflowElement):
         be introduced and any trailing whitespace will be effectively
         removed.
 
-        More specifically, the newline is _inserted_ before the existing
-        whitespace, with the new indent being a replacement for that
+        More specifically, the newline is *inserted before* the existing
+        whitespace, with the new indent being a *replacement* for that
         same whitespace.
         """
         # Get the indent (or in the case of no newline, the last whitespace)
@@ -258,7 +279,7 @@ class ReflowPoint(ReflowElement):
 
         Note that the `strip_newlines` functionality exists here as a slight
         exception to pure respacing, but as a very simple case of positioning
-        line breaks. The default operation of `respace` does not enable it
+        line breaks. The default operation of `respace` does not enable it,
         however it exists as a convenience for rules which wish to use it.
         """
         pre_constraint, post_constraint, strip_newlines = determine_constraints(

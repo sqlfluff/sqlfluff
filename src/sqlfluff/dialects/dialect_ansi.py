@@ -974,6 +974,12 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
     type = "sequence_reference"
 
 
+class TagReferenceSegment(ObjectReferenceSegment):
+    """A reference to a tag."""
+
+    type = "tag_reference"
+
+
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
@@ -1148,7 +1154,9 @@ class WindowSpecificationSegment(BaseSegment):
 
     type = "window_specification"
     match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")),  # "Base" window name
+        Ref(
+            "SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")
+        ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
@@ -2707,7 +2715,7 @@ class StructTypeSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
-    type = "create_table_statement"
+    type = "" "create_table_statement"
     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar: Matchable = Sequence(

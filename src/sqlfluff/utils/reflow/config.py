@@ -71,8 +71,8 @@ class ReflowConfig:
                     # NOTE: A `boundary` is only applicable if `within` is present.
                     if config_dict[seg_type].get("align_within", None):
                         new_key += ":" + config_dict[seg_type]["align_within"]
-                        if config_dict[seg_type].get("align_boundary", None):
-                            new_key += ":" + config_dict[seg_type]["align_boundary"]
+                        if config_dict[seg_type].get("align_scope", None):
+                            new_key += ":" + config_dict[seg_type]["align_scope"]
                     config_dict[seg_type][key] = new_key
         return cls(_config_dict=config_dict, config_types=config_types)
 

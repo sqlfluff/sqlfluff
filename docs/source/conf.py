@@ -45,6 +45,8 @@ extensions = [
     "sphinx.ext.napoleon",
     # Documenting click commands
     "sphinx_click.ext",
+    # Redirects
+    "sphinx_reredirects",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -94,6 +96,15 @@ html_theme_options = {
     "github_count": "true",
     # Codecov button
     "codecov_button": True,
+}
+
+# -- Options for redirects ---------------------------------------------
+# https://documatt.gitlab.io/sphinx-reredirects/usage.html
+
+redirects = {
+    # There's an old link to /indentation in config files.
+    # That should point to the layout section now.
+    "indentation": "layout.html#configuring-indent-locations",
 }
 
 

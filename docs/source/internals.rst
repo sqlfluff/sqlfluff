@@ -1,5 +1,5 @@
-Architecture
-============
+Internals
+=========
 
 It is recommended that the following is read in conjunction with exploring
 the codebase. `dialect_ansi.py` in particular is helpful to understand the
@@ -9,8 +9,17 @@ on our Wiki_ including a `Contributing Dialect Changes`_ guide.
 .. _Wiki: https://github.com/sqlfluff/sqlfluff/wiki/
 .. _`Contributing Dialect Changes`: https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes
 
+
+Architecture
+------------
+
+At a high level, the behaviour of SQLFluff is divided into a few key stages.
+Whether calling `sqlfluff lint`, `sqlfluff fix` or `sqlfluff parse`, the
+internal flow is largely the same.
+
+
 Stage 1, the templater
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 This stage only applies to templated SQL, most commonly Jinja and dbt. Vanilla
 SQL is sent straight to stage 2, the lexer.
@@ -33,14 +42,14 @@ For more details on how to configure the templater see :ref:`templateconfig`.
 
 
 Stage 2, the lexer
-------------------
+^^^^^^^^^^^^^^^^^^
 
 The lexer takes SQL and separates it into segments of whitespace and
 code. No meaning is imparted; that is the job of the parser.
 
 
 Stage 3, the parser
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 The parser is arguably the most complicated element of SQLFluff, and is
 relied on by all the other elements of the tool to do most of the heavy
@@ -117,7 +126,7 @@ to keep in mind.
 
 
 Stage 4, the linter
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 Given the complete parse tree, rule classes check for linting errors by
 traversing the tree, looking for segments and patterns of concern. If
@@ -128,3 +137,45 @@ Some rules are able to *fix* the problems they find. If this is the case,
 the rule will return a list of fixes, which describe changes to be made to
 the tree. This can include edits, inserts, or deletions. Once the fixes
 have been applied, the updated tree is written to the original file.
+
+
+.. _reflowinternals:
+
+Reflow Internals
+----------------
+
+Many rules supported by SQLFluff involve the spacing and layout of different
+elements, either to enforce a particular layout or just to add or remove
+code elements in a way sensitive to the existing layout configuration. The
+way this is achieved is through some centralised utilities in the
+`sqlfluff.utils.reflow` module.
+
+This module aims to achieve several things:
+* Less code duplication by implementing reflow logic in only one place.
+
+* Provide a streamlined interface for rules to easily utilise reflow logic.
+
+  * Given this requirement, it's important that reflow utilities work
+    within the existing framework for applying fixes to potentially
+    templated code. We achieve this by returning `LintFix` objects which
+    can then be returned by each rule wanting to use this logic.
+
+* Provide a consistent way of *configuring* layout requirements. For more
+  details on configuration see :ref:`layoutconfig`.
+
+To support this, the module provides a :code:`ReflowSequence` class which
+allows access to all of the relevant operations which can be used to
+reformat sections of code, or even a whole file. Unless there is a very
+good reason, all rules should use this same approach to ensure consistent
+treatment of layout.
+
+.. autoclass:: sqlfluff.utils.reflow.ReflowSequence
+   :members:
+
+.. autoclass:: sqlfluff.utils.reflow.elements.ReflowPoint
+   :members:
+   :inherited-members:
+
+.. autoclass:: sqlfluff.utils.reflow.elements.ReflowBlock
+   :members:
+   :inherited-members:
