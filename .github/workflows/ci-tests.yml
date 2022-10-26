@@ -139,7 +139,7 @@ jobs:
       with:
         files: ./coverage.xml
   python-windows-tests:
-    runs-on: windows-latest
+    runs-on: windows-2022
     name: Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
