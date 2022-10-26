@@ -600,6 +600,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/004", False, True),
         ("jinja_l_metas/005", False, True),
         ("jinja_l_metas/006", False, True),
+        ("jinja_l_metas/007", False, True),
+        ("jinja_l_metas/008", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
@@ -729,6 +731,35 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{{ my_query }}", "templated", 83),
                 ("\n", "literal", 97),
             ],
+        ),
+        # Tests for jinja blocks that consume whitespace.
+
+        (
+            """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
+            [
+                ('SELECT 1 FROM ', 'literal', 0),
+                ('{%+if true-%}', 'block_start', 14),
+                (' ', 'literal', 27),
+                ("{{ref('foo')}}", 'templated', 28),
+                (' ', 'literal', 42),
+                ('{%-endif%}', 'block_end', 43),
+            ]
+        ),
+        (
+            """{% for item in some_list -%}
+    SELECT *
+    FROM some_table
+{{ "UNION ALL\n" if not loop.last }}
+{%- endfor %}""",
+            [
+                ('{% for item in some_list -%}', 'block_start', 0),
+                # This gets consumed in the templated file, but it's still here.
+                ('\n    ', 'literal', 28),
+                ('SELECT *\n    FROM some_table\n', 'literal', 33),
+                ('{{ "UNION ALL\n" if not loop.last }}', 'templated', 62),
+                ('\n', 'literal', 97),
+                ('{%- endfor %}', 'block_end', 98),
+            ]
         ),
     ],
 )

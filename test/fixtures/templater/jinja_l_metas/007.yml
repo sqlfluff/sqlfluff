@@ -1,0 +1,28 @@
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        indent: ""
+        whitespace: ' '
+        select_clause_element:
+          numeric_literal: '1'
+      whitespace: ' '
+      dedent: ""
+      from_clause:
+      - keyword: FROM
+      - whitespace: ' '
+      - placeholder: '{%+if true-%}'
+      - placeholder: ' '
+      - indent: ""
+      - from_expression:
+          indent: ""
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+          dedent: ""
+- dedent: ""
+- placeholder: ' '
+- placeholder: '{%-endif%}'
+- end_of_file: ""
