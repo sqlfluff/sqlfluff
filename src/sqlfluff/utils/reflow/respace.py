@@ -133,7 +133,7 @@ def _determine_aligned_inline_spacing(
     next_seg: RawSegment,
     segment_type: str,
     align_within: Optional[str],
-    align_boundary: Optional[str],
+    align_scope: Optional[str],
 ) -> str:
     """Work out spacing for instance of an `align` constraint."""
     # Find the level of segment that we're aligning.
@@ -142,7 +142,7 @@ def _determine_aligned_inline_spacing(
     for ps in root_segment.path_to(next_seg)[::-1]:
         if ps.segment.is_type(align_within):
             parent_segment = ps.segment
-        if ps.segment.is_type(align_boundary):
+        if ps.segment.is_type(align_scope):
             break
 
     if not parent_segment:
@@ -155,7 +155,7 @@ def _determine_aligned_inline_spacing(
     for sibling in parent_segment.recursive_crawl(segment_type):
         # Purge any siblings with a boundary between them
         if not any(
-            ps.segment.is_type(align_boundary) for ps in parent_segment.path_to(sibling)
+            ps.segment.is_type(align_scope) for ps in parent_segment.path_to(sibling)
         ):
             siblings.append(sibling)
         else:
@@ -261,12 +261,12 @@ def handle_respace__inline_with_space(
             alignment_config = post_constraint.split(":")
             seg_type = alignment_config[1]
             align_within = alignment_config[2] if len(alignment_config) > 2 else None
-            align_boundary = alignment_config[3] if len(alignment_config) > 3 else None
+            align_scope = alignment_config[3] if len(alignment_config) > 3 else None
             reflow_logger.debug(
                 "    Alignment Config: %s, %s, %s, %s",
                 seg_type,
                 align_within,
-                align_boundary,
+                align_scope,
                 next_block.segments[0].pos_marker.working_line_pos,
             )
 
@@ -276,7 +276,7 @@ def handle_respace__inline_with_space(
                 next_block.segments[0],
                 seg_type,
                 align_within,
-                align_boundary,
+                align_scope,
             )
         else:
             desired_space = " "

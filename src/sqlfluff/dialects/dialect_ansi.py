@@ -974,6 +974,12 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
     type = "sequence_reference"
 
 
+class TagReferenceSegment(ObjectReferenceSegment):
+    """A reference to a tag."""
+
+    type = "tag_reference"
+
+
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
