@@ -3534,6 +3534,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
+        Bracketed(Ref("StatementSegment")),
     )
 
     def get_table_references(self):
