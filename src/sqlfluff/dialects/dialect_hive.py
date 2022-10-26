@@ -1017,3 +1017,55 @@ class SortByClauseSegment(ansi.OrderByClauseSegment):
         ),
         Dedent,
     )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    Full Apache Hive `CREATE ALTER` reference here:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-AlterTable
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                ),
+                # Add things
+                Sequence(
+                    OneOf("ADD", "MODIFY"),
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                        ),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+                # Exchange
+                Sequence(
+                    "EXCHANGE",
+                    Ref("PartitionSpecGrammar"),
+                    "WITH",
+                    "TABLE",
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+        ),
+    )
