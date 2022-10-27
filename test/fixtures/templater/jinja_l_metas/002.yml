@@ -5,8 +5,10 @@ file:
       - keyword: SELECT
       - indent: ''
       - newline: "\n"
-      # NB: We *shouldn't* have a template_loop here.
-      - whitespace: '          '
+      # NB: We end up with double whitespace here
+      # because one is literal and one is templated.
+      - whitespace: '    '
+      - whitespace: '      '
       - select_clause_element:
           column_reference:
             naked_identifier: c2

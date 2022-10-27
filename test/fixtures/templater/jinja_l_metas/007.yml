@@ -1,20 +1,22 @@
 file:
 - statement:
     select_statement:
-      select_clause:
+    - select_clause:
         keyword: SELECT
         indent: ""
         whitespace: ' '
         select_clause_element:
           numeric_literal: '1'
-      whitespace: ' '
-      dedent: ""
-      from_clause:
+    - whitespace: ' '
+    - placeholder: '{{ " + 2" if false }}'
+    - whitespace: ' '
+    - dedent: ""
+    - from_clause:
       - keyword: FROM
       - whitespace: ' '
       - placeholder: '{%+if true-%}'
-      - placeholder: ' '
       - indent: ""
+      - placeholder: ' '
       - from_expression:
           indent: ""
           from_expression_element:
@@ -22,7 +24,7 @@ file:
               table_reference:
                 naked_identifier: foo
           dedent: ""
-- dedent: ""
 - placeholder: ' '
+- dedent: ""
 - placeholder: '{%-endif%}'
 - end_of_file: ""

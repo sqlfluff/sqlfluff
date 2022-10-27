@@ -1,1 +1,1 @@
-SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}
+SELECT 1 {{ " + 2" if false }} FROM {%+if true-%} {{ref('foo')}} {%-endif%}
