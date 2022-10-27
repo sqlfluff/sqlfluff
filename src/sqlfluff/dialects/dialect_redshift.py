@@ -2352,6 +2352,7 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Sequence(
+                Ref.keyword("APPROXIMATE", optional=True),
                 Ref(
                     "FunctionNameSegment",
                     exclude=OneOf(
