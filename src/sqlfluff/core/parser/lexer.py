@@ -634,7 +634,7 @@ def _iter_segments(
                         yield element.to_segment(
                             pos_marker=PositionMarker(
                                 tfs.source_slice,
-                                tfs.template_slice,
+                                tfs.templated_slice,
                                 templated_file,
                             ),
                             # Subdivide the existing segment.
