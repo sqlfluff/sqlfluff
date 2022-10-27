@@ -166,7 +166,7 @@ class TemplateSegment(MetaSegment):
         templated_slice: slice,
         block_type: str,
         templated_file: TemplatedFile,
-        block_uuid: Optional[UUID] = None
+        block_uuid: Optional[UUID] = None,
     ):
         """Construct template segment from slice of a source file."""
         pos_marker = PositionMarker(

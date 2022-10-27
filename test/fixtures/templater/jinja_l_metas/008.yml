@@ -1,7 +1,7 @@
 file:
   - placeholder: "{% for item in [1,2] -%}"
-  - placeholder: "\n"
   - indent: ""
+  - placeholder: "\n"
   - statement:
       set_expression:
       - select_statement:
@@ -31,9 +31,11 @@ file:
         - whitespace: ' '
         - keyword: ALL
       - newline: "\n"
+      - placeholder: "\n"
       - dedent: ""
       - template_loop: ""
       - indent: ""
+      - placeholder: "\n"
       - select_statement:
           select_clause:
             keyword: SELECT
@@ -56,8 +58,8 @@ file:
                     naked_identifier: some_table
               dedent: ""
   - newline: "\n"
-  - dedent: ""
   - placeholder: '{{ "UNION ALL\n" if not loop.last }}'
   - placeholder: "\n"
+  - dedent: ""
   - placeholder: '{%- endfor %}'
   - end_of_file: ""

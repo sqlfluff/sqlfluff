@@ -639,7 +639,10 @@ def test__templater_jinja_block_matching(caplog):
         seg
         for seg in parsed.raw_segments
         if seg.is_type("template_loop")
-        or (seg.is_type("placeholder") and seg.block_type in ("block_start", "block_end", "block_mid"))
+        or (
+            seg.is_type("placeholder")
+            and seg.block_type in ("block_start", "block_end", "block_mid")
+        )
     ]
 
     # Group them together by block UUID

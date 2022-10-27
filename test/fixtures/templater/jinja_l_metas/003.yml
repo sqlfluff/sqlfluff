@@ -11,5 +11,9 @@ file:
         dedent: ""
   - newline: "\n"
   - whitespace: '  '
-  - placeholder: '{% if false %}... [11 unused template characters] ...{% endif %}'
+  - placeholder: '{% if false %}'
+  - indent: ""
+  - placeholder: '... [11 unused template characters] ...'
+  - dedent: ""
+  - placeholder: '{% endif %}'
   - end_of_file: ""
