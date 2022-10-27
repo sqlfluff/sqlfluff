@@ -389,12 +389,13 @@ def _handle_zero_length_slice(
 
     # We've got a zero slice. This could be a block, unrendered templates
     # or unrendered code (either because of loops of consumption).
-    yield TemplateSegment.from_slice(
-        tfs.source_slice,
-        tfs.templated_slice,
-        tfs.slice_type,
-        templated_file,
-    )
+    if not _is_zero_slice(tfs.source_slice):
+        yield TemplateSegment.from_slice(
+            tfs.source_slice,
+            tfs.templated_slice,
+            tfs.slice_type,
+            templated_file,
+        )
     return
 
 
