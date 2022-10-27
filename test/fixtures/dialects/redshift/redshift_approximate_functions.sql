@@ -7,3 +7,7 @@ join date on listing.dateid = date.dateid
 group by date.caldate;
 
 select approximate count(distinct pricepaid) from sales;
+
+select count(distinct pricepaid) from sales;
+
+select approximate(foo) from bar;
