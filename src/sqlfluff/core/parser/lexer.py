@@ -33,6 +33,10 @@ def _is_zero_slice(s: slice) -> bool:
     return s.stop == s.start
 
 
+def _to_zero_slice(i: int) -> slice:
+    return slice(i, i)
+
+
 class LexedElement(NamedTuple):
     """An element matched during lexing."""
 
@@ -532,6 +536,7 @@ def _iter_segments(
 ) -> Iterator[RawSegment]:
     # An index to track where we've got to in the templated file.
     tfs_idx = 0
+    block_stack: List[UUID] = []
 
     # Now work out source slices, and add in template placeholders.
     for idx, element in enumerate(lexed_elements):
@@ -558,13 +563,18 @@ def _iter_segments(
         # placeholders for any variables which return a non-zero length of
         # code. We do add placeholders for others.
 
+        # The amount of the current element which has already been consumed.
         consumed_element_length = 0
+        # The position in the source which we still need to yield from.
         stashed_source_idx = None
+        # The types which we still need to yield from.
         stashed_slice_types = []
+        # The distance to skip ahead to [defaults to not skipping].
         skip_to_tfs_idx = tfs_idx
         for tfs_idx, tfs in enumerate(templated_file_slices[tfs_idx:], tfs_idx):
             lexer_logger.debug("      %s: %s", tfs_idx, tfs)
 
+            # If a skip is configured. Skip ahead.
             if skip_to_tfs_idx and skip_to_tfs_idx > tfs_idx:
                 lexer_logger.debug("     Skipping ahead...")
                 continue
@@ -690,9 +700,8 @@ def _iter_segments(
                         continue
             elif tfs.slice_type == "templated":
                 # Found a templated slice. Does it have length in the templated file?
-                if tfs.templated_slice.start != tfs.templated_slice.stop:
-                    # Yes it has length
-
+                # If it doesn't, then we'll pick it up next.
+                if not _is_zero_slice(tfs.templated_slice):
                     # Is our current element totally contained in this slice?
                     if element.template_slice.stop <= tfs.templated_slice.stop:
                         lexer_logger.debug("     Contained templated slice.")
@@ -779,27 +788,14 @@ def _iter_segments(
                             )
                         # Move on to the next template slice
                         continue
-                else:
-                    # It has no length in the templated file. That means we
-                    # should create a placeholder for it.
-                    yield TemplateSegment.from_slice(
-                        tfs.source_slice,
-                        tfs.templated_slice,
-                        tfs.slice_type,
-                        templated_file,
-                    )
-                    continue
-
-            elif tfs.slice_type in ("block_start", "block_end", "comment", "block_mid"):
-                # Found something which should have a zero length in the templated file.
-                assert (
-                    tfs.templated_slice.start == tfs.templated_slice.stop
-                ), f"Expected zero length for {tfs}"
+            
+            # Is it a zero slice?
+            elif _is_zero_slice(tfs.templated_slice):
 
                 # First check for jumps. Backward initially, because in the backward
                 # case we don't render the element we find first.
                 # That requires being able to look past to the next element.
-                if tfs_idx < len(templated_file_slices) - 1:
+                if tfs.slice_type.startswith("block") and tfs_idx < len(templated_file_slices) - 1:
                     next_tfs = templated_file_slices[tfs_idx + 1]
                     # Look for potential backward jump
                     if next_tfs.source_slice.start < tfs.source_slice.start:
@@ -820,16 +816,101 @@ def _iter_segments(
                             )
 
                         yield TemplateLoop(
-                            pos_marker=pos_marker, block_uuid=None
-                        )  ## block_uuid should be here
+                            pos_marker=pos_marker, block_uuid=block_stack[-1]
+                        )
 
                         if add_indents:
                             yield Indent(
                                 is_template=True,
                                 pos_marker=pos_marker,
                             )
-                        # Move on to the next templated slice. Skip this one.
+                        # Move on to the next templated slice. Don't render this directly.
                         continue
+                
+                # Then handle blocks (which aren't jumps backward)
+                if tfs.slice_type.startswith("block"):
+                    # It's a block. Yield a placeholder with potential indents.
+                    if add_indents and tfs.slice_type in ("block_end", "block_mid"):
+                        yield Dedent(
+                            is_template=True,
+                            pos_marker=PositionMarker.from_point(
+                                tfs.source_slice.start,
+                                tfs.templated_slice.start,
+                                templated_file,
+                            ),
+                        )
+
+                    # Update block stack
+                    if tfs.slice_type == "block_start":
+                        block_stack.append(uuid4())
+
+                    yield TemplateSegment.from_slice(
+                        tfs.source_slice,
+                        tfs.templated_slice,
+                        block_type=tfs.slice_type,
+                        templated_file=templated_file,
+                        block_uuid=block_stack[-1],
+                    )
+
+                    # Update block stack
+                    if tfs.slice_type == "block_end":
+                        block_stack.pop()
+
+                    if add_indents and tfs.slice_type in ("block_start", "block_mid"):
+                        yield Indent(
+                            is_template=True,
+                            pos_marker=PositionMarker.from_point(
+                                tfs.source_slice.stop,
+                                tfs.templated_slice.stop,
+                                templated_file,
+                            ),
+                        )
+                    
+                    # Before we move on, we might have a _forward_ jump to the next
+                    # element. That element can handle itself, but we'll add a
+                    # placeholder for it here before we move on.
+                    if tfs_idx < len(templated_file_slices) - 1:
+                        next_tfs = templated_file_slices[tfs_idx + 1]
+
+                        # Identify whether we have a skip.
+                        skipped_chars = (
+                            next_tfs.source_slice.start - tfs.source_slice.stop
+                        )
+                        placeholder_str = ""
+                        if skipped_chars >= 10:
+                            placeholder_str = (
+                                f"... [{skipped_chars} unused template "
+                                "characters] ..."
+                            )
+                        elif skipped_chars:
+                            placeholder_str = "..."
+
+                        # Handle it if we do.
+                        if placeholder_str:
+                            lexer_logger.debug(
+                                "      Forward jump detected. Inserting placeholder"
+                            )
+                            yield TemplateSegment(
+                                pos_marker=PositionMarker(
+                                    slice(
+                                        tfs.source_slice.stop,
+                                        next_tfs.source_slice.start
+                                    ),
+                                    # Zero slice in the template.
+                                    tfs.templated_slice,
+                                    templated_file,
+                                ),
+                                source_str=placeholder_str,
+                                block_type="skipped_source",
+                            )
+
+                    # Move on
+                    continue
+
+                
+                # We've got a zero slice. This could be a block, unrendered templates
+                # or unrendered code (either because of loops of consumption).
+                raise NotImplementedError(f"Zero slice: {tfs}")
 
                 # Add a placeholder.
                 # TODO: Add block uuids here too.
@@ -1113,19 +1194,14 @@ class Lexer:
         self, elements: List[TemplateElement], templated_file: TemplatedFile
     ) -> Tuple[RawSegment, ...]:
         """Convert a tuple of lexed elements into a tuple of segments."""
-        # Working buffer to build up segments
-        segment_buffer: List[RawSegment] = []
-        block_stack: List[UUID] = []
-
+        lexer_logger.info("Elements to Segments.")    
         add_indents = self.config.get("template_blocks_indent", "indentation")
-
-        lexer_logger.info("Elements to Segments.")
-        segment_buffer = list(
+        # Delegate to _iter_segments
+        segment_buffer: List[RawSegment] = list(
             _iter_segments(
                 elements, templated_file.sliced_file, templated_file, add_indents
             )
         )
-
         # Add an end of file marker
         segment_buffer.append(
             EndOfFile(
@@ -1134,7 +1210,6 @@ class Lexer:
                 else PositionMarker.from_point(0, 0, templated_file)
             )
         )
-
         # Convert to tuple before return
         return tuple(segment_buffer)
 

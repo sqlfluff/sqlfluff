@@ -113,7 +113,11 @@ file:
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
-        - placeholder: '{% else %}... [103 unused template characters] ...{% endif %}'
+        - placeholder: '{% else %}'
+        - indent: ''
+        - placeholder: '... [103 unused template characters] ...'
+        - dedent: ''
+        - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - dedent: ''
@@ -121,7 +125,11 @@ file:
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
+        - placeholder: '{% if loop.first %}'
+        - indent: ''
+        - placeholder: '... [49 unused template characters] ...'
+        - dedent: ''
+        - placeholder: '{% else %}'
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
@@ -164,7 +172,11 @@ file:
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
+        - placeholder: '{% if loop.first %}'
+        - indent: ''
+        - placeholder: '... [49 unused template characters] ...'
+        - dedent: ''
+        - placeholder: '{% else %}'
         - indent: ''
         - newline: "\n"
         - whitespace: '        '

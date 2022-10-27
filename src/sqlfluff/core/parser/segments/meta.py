@@ -166,6 +166,7 @@ class TemplateSegment(MetaSegment):
         templated_slice: slice,
         block_type: str,
         templated_file: TemplatedFile,
+        block_uuid: Optional[UUID] = None
     ):
         """Construct template segment from slice of a source file."""
         pos_marker = PositionMarker(
@@ -177,6 +178,7 @@ class TemplateSegment(MetaSegment):
             pos_marker=pos_marker,
             source_str=templated_file.source_str[source_slice],
             block_type=block_type,
+            block_uuid=block_uuid,
         )
 
     def to_tuple(self, code_only=False, show_raw=False, include_meta=False):

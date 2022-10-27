@@ -638,7 +638,8 @@ def test__templater_jinja_block_matching(caplog):
     template_segments = [
         seg
         for seg in parsed.raw_segments
-        if seg.is_type("template_loop", "placeholder")
+        if seg.is_type("template_loop")
+        or (seg.is_type("placeholder") and seg.block_type in ("block_start", "block_end", "block_mid"))
     ]
 
     # Group them together by block UUID
@@ -656,9 +657,9 @@ def test__templater_jinja_block_matching(caplog):
     groups = {
         "for actions clause 1": [(6, 5), (9, 5), (12, 5), (15, 5)],
         "for actions clause 2": [(17, 5), (21, 5), (29, 5), (37, 5)],
-        "if loop.first 1": [(18, 9), (20, 9)],
-        "if loop.first 2": [(22, 9), (28, 9)],
-        "if loop.first 3": [(30, 9), (36, 9)],
+        "if loop.first 1": [(18, 9), (20, 9), (20, 9)],
+        "if loop.first 2": [(22, 9), (22, 9), (28, 9)],
+        "if loop.first 3": [(30, 9), (30, 9), (36, 9)],
     }
 
     # Check all are accounted for:
