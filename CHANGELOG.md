@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.0] - 2022-10-25
+## [1.4.0] - 2022-10-27
 
 ## Highlights
 
@@ -38,11 +38,17 @@ Other highlights from this release:
 - Numerous dialect improvements to T-SQL, MySQL, SparkSQL, SQLite, Athena
   Snowflake, Hive, Postgres & Databricks.
 
-There have also been first time contributions from **8 new contributors**! 🎉🎉🎉
+There have also been first time contributions from **10 new contributors**! 🎉🎉🎉
 
 
 ## What’s Changed
 
+* Hive: Add support for EXCHANGE PARTITION in ALTER TABLE [#3991](https://github.com/sqlfluff/sqlfluff/pull/3991) [@nahuelverdugo](https://github.com/nahuelverdugo)
+* Resolve parse error on multiple bracketed statements [#3994](https://github.com/sqlfluff/sqlfluff/pull/3994) [@yoichi](https://github.com/yoichi)
+* Enable parsing of CLONE keyword in bigquery dialect [#3984](https://github.com/sqlfluff/sqlfluff/pull/3984) [@realLyans](https://github.com/realLyans)
+* BigQuery: allow nesting of SetExpressionSegment [#3990](https://github.com/sqlfluff/sqlfluff/pull/3990) [@yoichi](https://github.com/yoichi)
+* feat(clickhouse): Support non-standard CREATE TABLE statement [#3986](https://github.com/sqlfluff/sqlfluff/pull/3986) [@tomasfarias](https://github.com/tomasfarias)
+* Fix Windows CI check [#3992](https://github.com/sqlfluff/sqlfluff/pull/3992) [@greg-finley](https://github.com/greg-finley)
 * Snowflake tag reference segment [#3985](https://github.com/sqlfluff/sqlfluff/pull/3985) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Fix Jinja templater issue where undefined callable threw an exception [#3982](https://github.com/sqlfluff/sqlfluff/pull/3982) [@barrywhart](https://github.com/barrywhart)
 * Reflow Documentation V1 [#3970](https://github.com/sqlfluff/sqlfluff/pull/3970) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -106,6 +112,8 @@ There have also been first time contributions from **8 new contributors**! 🎉�
 * [@CommonCrisis](https://github.com/CommonCrisis) made their first contribution in [#3898](https://github.com/sqlfluff/sqlfluff/pull/3898)
 * [@krokofant](https://github.com/krokofant) made their first contribution in [#3949](https://github.com/sqlfluff/sqlfluff/pull/3949)
 * [@Samyak2](https://github.com/Samyak2) made their first contribution in [#3977](https://github.com/sqlfluff/sqlfluff/pull/3977)
+* [@realLyans](https://github.com/realLyans) made their first contribution in [#3984](https://github.com/sqlfluff/sqlfluff/pull/3984)
+* [@nahuelverdugo](https://github.com/nahuelverdugo) made their first contribution in [#3991](https://github.com/sqlfluff/sqlfluff/pull/3991)
 
 ## [1.3.2] - 2022-09-27
 
