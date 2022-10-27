@@ -733,17 +733,16 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
             ],
         ),
         # Tests for jinja blocks that consume whitespace.
-
         (
             """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
             [
-                ('SELECT 1 FROM ', 'literal', 0),
-                ('{%+if true-%}', 'block_start', 14),
-                (' ', 'literal', 27),
-                ("{{ref('foo')}}", 'templated', 28),
-                (' ', 'literal', 42),
-                ('{%-endif%}', 'block_end', 43),
-            ]
+                ("SELECT 1 FROM ", "literal", 0),
+                ("{%+if true-%}", "block_start", 14),
+                (" ", "literal", 27),
+                ("{{ref('foo')}}", "templated", 28),
+                (" ", "literal", 42),
+                ("{%-endif%}", "block_end", 43),
+            ],
         ),
         (
             """{% for item in some_list -%}
@@ -752,14 +751,14 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 {{ "UNION ALL\n" if not loop.last }}
 {%- endfor %}""",
             [
-                ('{% for item in some_list -%}', 'block_start', 0),
+                ("{% for item in some_list -%}", "block_start", 0),
                 # This gets consumed in the templated file, but it's still here.
-                ('\n    ', 'literal', 28),
-                ('SELECT *\n    FROM some_table\n', 'literal', 33),
-                ('{{ "UNION ALL\n" if not loop.last }}', 'templated', 62),
-                ('\n', 'literal', 97),
-                ('{%- endfor %}', 'block_end', 98),
-            ]
+                ("\n    ", "literal", 28),
+                ("SELECT *\n    FROM some_table\n", "literal", 33),
+                ('{{ "UNION ALL\n" if not loop.last }}', "templated", 62),
+                ("\n", "literal", 97),
+                ("{%- endfor %}", "block_end", 98),
+            ],
         ),
     ],
 )

@@ -75,7 +75,7 @@ class RawFileSlice(NamedTuple):
 
     def is_source_only_slice(self):
         """Based on its slice_type, does it only appear in the *source*?
-        
+
         There are some slice types which are automatically source only.
         There are *also* some which are source only because they render
         to an empty string.

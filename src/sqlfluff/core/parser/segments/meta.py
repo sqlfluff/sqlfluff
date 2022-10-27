@@ -8,6 +8,8 @@ from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
 from typing import Optional, List
 
+from sqlfluff.core.templaters.base import TemplatedFile
+
 
 class MetaSegment(RawSegment):
     """A segment which is empty but indicates where something should be."""
@@ -156,6 +158,26 @@ class TemplateSegment(MetaSegment):
     def _suffix(self):
         """Also output what it's a placeholder for."""
         return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
+
+    @classmethod
+    def from_slice(
+        cls,
+        source_slice: slice,
+        templated_slice: slice,
+        block_type: str,
+        templated_file: TemplatedFile,
+    ):
+        """Construct template segment from slice of a source file."""
+        pos_marker = PositionMarker(
+            source_slice,
+            templated_slice,
+            templated_file,
+        )
+        return cls(
+            pos_marker=pos_marker,
+            source_str=templated_file.source_str[source_slice],
+            block_type=block_type,
+        )
 
     def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
         """Return a tuple structure from this segment.
