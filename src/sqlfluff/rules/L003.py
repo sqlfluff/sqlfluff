@@ -915,7 +915,7 @@ class _TemplateLineInterpreter:
             yield (seg.type, raw_str)
 
     def get_adjacent_type_pairs(self):
-        """Produce a list of pairs of each sequenctial combo of two."""
+        """Produce a list of pairs of each sequential combo of two."""
         if self._adjacent_pairs:
             return self._adjacent_pairs
         iterable = self.list_segment_and_raw_segment_types()
