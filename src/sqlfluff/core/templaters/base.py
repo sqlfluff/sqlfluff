@@ -450,7 +450,6 @@ class TemplatedFile:
         The results are NECESSARILY sorted.
         """
         ret_buff = []
-        templater_logger.warning(self.raw_sliced)
         for elem in self.raw_sliced:
             if elem.is_source_only_slice():
                 ret_buff.append(elem)

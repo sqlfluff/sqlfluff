@@ -761,7 +761,7 @@ class Lexer:
                 elements, templated_file.sliced_file, templated_file, add_indents
             )
         )
-        lexer_logger.warning("SADFKLADJ: %s", segment_buffer)
+
         # Add an end of file marker
         segment_buffer.append(
             EndOfFile(
