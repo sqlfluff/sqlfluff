@@ -17,6 +17,7 @@ missing.
 import bdb
 import copy
 import fnmatch
+from itertools import chain
 import logging
 import pathlib
 import regex
@@ -331,6 +332,26 @@ class LintFix:
             # We return an empty set because this edit doesn't touch anything
             # in the source.
             return set()
+        elif (
+            self.edit_type == "replace"
+            and all(edit.is_type("raw") for edit in self.edit)
+            and all(edit._source_fixes for edit in self.edit)
+        ):
+            # This is just source fixes. We can go directly to the touched raw
+            # slices and only if they overlap directly.
+            rules_logger.debug("Source only fix.")
+            source_edit_slices = [
+                fix.source_slice
+                for fix in chain.from_iterable(edit._source_fixes for edit in self.edit)
+            ]
+            rules_logger.warning("Source only slices: %s", source_edit_slices)
+            if len(source_edit_slices) > 1:  # pragma: no cover
+                raise NotImplementedError(
+                    "Unable to handle multiple source only slices."
+                )
+            return templated_file.raw_slices_spanning_source_slice(
+                source_edit_slices[0]
+            )
 
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the

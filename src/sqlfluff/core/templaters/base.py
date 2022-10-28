@@ -74,7 +74,13 @@ class RawFileSlice(NamedTuple):
         return slice(self.source_idx, self.end_source_idx())
 
     def is_source_only_slice(self):
-        """Based on its slice_type, does it only appear in the *source*?"""
+        """Based on its slice_type, does it only appear in the *source*?
+
+        There are some slice types which are automatically source only.
+        There are *also* some which are source only because they render
+        to an empty string.
+        """
+        # TODO: should any new logic go here?
         return self.slice_type in ("comment", "block_end", "block_start", "block_mid")
 
 
@@ -248,6 +254,10 @@ class TemplatedFile:
         start_idx = start_idx or 0
         first_idx = None
         last_idx = start_idx
+        # Work through the sliced file, starting at the start_idx if given
+        # as an optimisation hint. The sliced_file is a list of TemplatedFileSlice
+        # which reference parts of the templated file and where they exist in the
+        # source.
         for idx, elem in enumerate(self.sliced_file[start_idx:]):
             last_idx = idx + start_idx
             if elem[2].stop >= templated_pos:

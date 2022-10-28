@@ -1,5 +1,9 @@
 file:
-  - placeholder: '{% set some_condition %}...{% endset %}'
+  - placeholder: '{% set some_condition %}'
+  - indent: ''
+  - placeholder: 'TRUE'
+  - dedent: ''
+  - placeholder: '{% endset %}'
   - newline: "\n"
   - newline: "\n"
   - statement:

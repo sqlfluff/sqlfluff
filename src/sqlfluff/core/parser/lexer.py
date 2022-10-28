@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Optional, List, Tuple, Union, NamedTuple
+from typing import Iterator, Optional, List, Tuple, Union, NamedTuple
 from uuid import UUID, uuid4
 import regex
 
@@ -19,10 +19,18 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.templaters.base import RawFileSlice
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
+
+
+def _slice_length(s: slice) -> int:
+    return s.stop - s.start
+
+
+def _is_zero_slice(s: slice) -> bool:
+    return s.stop == s.start
 
 
 class LexedElement(NamedTuple):
@@ -46,9 +54,11 @@ class TemplateElement(NamedTuple):
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker):
+    def to_segment(self, pos_marker, subslice=None):
         """Create a segment from this lexed element."""
-        return self.matcher.construct_segment(self.raw, pos_marker=pos_marker)
+        return self.matcher.construct_segment(
+            self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
+        )
 
 
 class LexMatch(NamedTuple):
@@ -256,245 +266,414 @@ class RegexLexer(StringLexer):
         return None
 
 
-def _generate_template_loop_segments(
-    source_slice: slice,
-    last_source_slice: slice,
-    templated_idx: int,
-    templated_file: TemplatedFile,
-    block_uuid: UUID,
-) -> List[RawSegment]:
-    """Detect when we've gone backward in the source.
-
-    NOTE: If it's the _same_ slice then don't insert a marker
-    because we're probably just within a single templated
-    section.
-    """
-    if (
-        last_source_slice
-        and last_source_slice.stop > source_slice.start
-        and last_source_slice.stop != source_slice.stop
-        and last_source_slice != source_slice
-    ):
-        # If we have, insert a loop marker to reflect that.
-        lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
-        # TemplateLoops should have a dedent before and an indent after.
-        # The position maker is the same for all of them.
-        pos_marker = PositionMarker.from_point(
-            last_source_slice.stop,
-            templated_idx,
-            templated_file,
-        )
-        return [
-            Dedent(
-                is_template=True,
-                pos_marker=pos_marker,
-            ),
-            TemplateLoop(pos_marker=pos_marker, block_uuid=block_uuid),
-            Indent(
-                is_template=True,
-                pos_marker=pos_marker,
-            ),
-        ]
-    else:
-        return []
-
-
-def _generate_placeholder_segments(
-    source_slice: slice,
-    # NOTE: no last_source_slice implies start of file.
-    last_source_slice: Optional[slice],
-    template_slice: slice,
-    source_only_slices: List[RawFileSlice],
+def _handle_zero_length_slice(
+    tfs: TemplatedFileSlice,
+    next_tfs: Optional[TemplatedFileSlice],
+    block_stack: List[UUID],
     templated_file: TemplatedFile,
     add_indents: bool,
-    block_uuid_stack: List[UUID],
-) -> Tuple[List[RawSegment], slice, List[UUID]]:
-    """Generate any template placeholder segments.
+):
+    """Generate placeholders and loop segments from a zero length slice.
 
-    The input source_slice, will potentially include not just
-    elements from the templated file, but also sections of
-    template code which no longer appear in the rendered file.
+    This method checks for:
+    1. Backward jumps (inserting :obj:`TemplateLoop`).
+    2. Forward jumps (inserting :obj:`TemplateSegment`).
+    3. Blocks (inserting :obj:`TemplateSegment`).
+    4. Unrendered template elements(inserting :obj:`TemplateSegment`).
 
-    This code extracts them, adjusts the source_slice and generates
-    appropriate template segments to insert.
+    For blocks and loops, :obj:`Indent` and :obj:`Dedent` segments are
+    yielded around them as appropriate.
 
-    The block stack is to provide a consistent reference between template tags
-    of the same expression (i.e. link an {% if .. %} and an
-    {% endif %}. This is useful metadata for any downstream
-    edits we might want to make and keep their position in line.
-
-    NOTE: For reasons which aren't well documented, any literal
-    elements will come at the end of the source_slice, and any
-    source only elements will usually come at the start. This
-    code takes advantage of that.
+    NOTE: block_stack is _mutated_ by this method.
     """
-    so_slices = []
-    block_stack = block_uuid_stack.copy()
-    # First check whether we've got any relevant source only slices for
-    # this position in the file.
-    if last_source_slice != source_slice:
-        for source_only_slice in source_only_slices:
-            # If it's later in the source, stop looking. Any later
-            # ones *also* won't match.
-            if source_only_slice.source_idx >= source_slice.stop:
-                break
-            elif source_only_slice.source_idx >= source_slice.start:
-                so_slices.append(source_only_slice)
+    assert _is_zero_slice(tfs.templated_slice)
+    # First check for jumps. Backward initially, because in the backward
+    # case we don't render the element we find first.
+    # That requires being able to look past to the next element.
+    if tfs.slice_type.startswith("block") and next_tfs:
+        # Look for potential backward jump
+        if next_tfs.source_slice.start < tfs.source_slice.start:
+            lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
+            # If we're here remember we're on the tfs which is the block end
+            # i.e. not the thing we want to render.
+            pos_marker = PositionMarker.from_point(
+                tfs.source_slice.start,
+                tfs.templated_slice.start,
+                templated_file,
+            )
+            if add_indents:
+                yield Dedent(
+                    is_template=True,
+                    pos_marker=pos_marker,
+                )
 
-    # No relevant source only slices in this instance. Return
-    if not so_slices:
-        return [], source_slice, block_stack
+            yield TemplateLoop(pos_marker=pos_marker, block_uuid=block_stack[-1])
 
-    lexer_logger.debug("    Collected Source Only Slices")
-    for so_slice in so_slices:
-        lexer_logger.debug("       %s", so_slice)
+            if add_indents:
+                yield Indent(
+                    is_template=True,
+                    pos_marker=pos_marker,
+                )
+            # Move on to the next templated slice. Don't render this directly.
+            return
 
-    # Calculate some things which will be useful
-    templ_str = templated_file.templated_str[template_slice]
-    source_str = templated_file.source_str[source_slice]
+    # Then handle blocks (which aren't jumps backward)
+    if tfs.slice_type.startswith("block"):
+        # It's a block. Yield a placeholder with potential indents.
+        if add_indents and tfs.slice_type in ("block_end", "block_mid"):
+            yield Dedent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    tfs.source_slice.start,
+                    tfs.templated_slice.start,
+                    templated_file,
+                ),
+            )
 
-    # For reasons which aren't entirely clear right now, if there is
-    # an included literal, it will always be at the end. Let's see if it's
-    # there.
-    if source_str.endswith(templ_str):
-        existing_len = len(templ_str)
-    else:
-        existing_len = 0
+        # Update block stack
+        if tfs.slice_type == "block_start":
+            block_stack.append(uuid4())
 
-    # Calculate slices, without any existing literal.
-    placeholder_slice = slice(source_slice.start, source_slice.stop - existing_len)
-    placeholder_str = source_str[:-existing_len]
-    source_slice = slice(source_slice.stop - existing_len, source_slice.stop)
+        yield TemplateSegment.from_slice(
+            tfs.source_slice,
+            tfs.templated_slice,
+            block_type=tfs.slice_type,
+            templated_file=templated_file,
+            block_uuid=block_stack[-1],
+        )
 
-    # If it doesn't manage to extract a placeholder string from the source
-    # just concatenate the source only strings. There is almost always
-    # only one of them.
-    if not placeholder_str:
-        placeholder_str = "".join(s.raw for s in so_slices)
+        # Update block stack
+        if tfs.slice_type == "block_end":
+            block_stack.pop()
 
-    # The Jinja templater sometimes returns source-only slices with
-    # gaps between. For example, in this section:
-    #
-    #   {% else %}
-    #   JOIN
-    #       {{action}}_raw_effect_sizes
-    #   USING
-    #       ({{ states }})
-    #   {% endif %}
-    #
-    # we might get {% else %} and {% endif %} slices, without the
-    # 4 lines between. This indicates those lines were not executed
-    # In this case, generate a placeholder where the skipped code is
-    # omitted but noted with a brief string, e.g.:
-    #
-    # "{% else %}... [103 unused template characters] ...{% endif %}".
-    #
-    # This is more readable -- it would be REALLY confusing for a
-    # placeholder to include code that wasn't even executed!!
-    if len(so_slices) >= 2:
-        has_gap = False
-        gap_placeholder_parts = []
-        last_slice = None
-        # For each slice...
-        for so_slice in so_slices:
-            # If it's not the first slice, was there a gap?
-            if last_slice:
-                end_last = last_slice.source_idx + len(last_slice.raw)
-                chars_skipped = so_slice.source_idx - end_last
-                if chars_skipped:
-                    # Yes, gap between last_slice and so_slice.
-                    has_gap = True
+        if add_indents and tfs.slice_type in ("block_start", "block_mid"):
+            yield Indent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    tfs.source_slice.stop,
+                    tfs.templated_slice.stop,
+                    templated_file,
+                ),
+            )
 
-                    # Generate a string documenting the gap.
-                    if chars_skipped >= 10:
-                        gap_placeholder_parts.append(
-                            f"... [{chars_skipped} unused template " "characters] ..."
+        # Before we move on, we might have a _forward_ jump to the next
+        # element. That element can handle itself, but we'll add a
+        # placeholder for it here before we move on.
+        if next_tfs:
+            # Identify whether we have a skip.
+            skipped_chars = next_tfs.source_slice.start - tfs.source_slice.stop
+            placeholder_str = ""
+            if skipped_chars >= 10:
+                placeholder_str = (
+                    f"... [{skipped_chars} unused template " "characters] ..."
+                )
+            elif skipped_chars:
+                placeholder_str = "..."
+
+            # Handle it if we do.
+            if placeholder_str:
+                lexer_logger.debug("      Forward jump detected. Inserting placeholder")
+                yield TemplateSegment(
+                    pos_marker=PositionMarker(
+                        slice(tfs.source_slice.stop, next_tfs.source_slice.start),
+                        # Zero slice in the template.
+                        tfs.templated_slice,
+                        templated_file,
+                    ),
+                    source_str=placeholder_str,
+                    block_type="skipped_source",
+                )
+
+        # Move on
+        return
+
+    # We've got a zero slice. This could be a block, unrendered templates
+    # or unrendered code (either because of loops of consumption).
+    if not _is_zero_slice(tfs.source_slice):
+        yield TemplateSegment.from_slice(
+            tfs.source_slice,
+            tfs.templated_slice,
+            tfs.slice_type,
+            templated_file,
+        )
+    return
+
+
+def _iter_segments(
+    lexed_elements: List[TemplateElement],
+    templated_file_slices: List[TemplatedFileSlice],
+    templated_file: TemplatedFile,
+    add_indents: bool = True,
+) -> Iterator[RawSegment]:
+    # An index to track where we've got to in the templated file.
+    tfs_idx = 0
+    block_stack: List[UUID] = []
+
+    # Now work out source slices, and add in template placeholders.
+    for idx, element in enumerate(lexed_elements):
+        # We're working through elements in the rendered file.
+        # When they enter this code they don't have a position in the source.
+        # We already have a map of how templated elements map to the source file
+        # so we work through them to work out what's going on. In theory we can
+        # step through the two lists in lock step.
+
+        # i.e. we worked through the lexed elements, but check off the templated
+        # file slices as we go.
+
+        # Output the slice as we lex.
+        lexer_logger.debug("  %s: %s. [tfs_idx = %s]", idx, element, tfs_idx)
+
+        # All lexed elements, by definition, have a position in the templated
+        # file. That means we've potentially got zero-length elements we also
+        # need to consider. We certainly need to consider templated slices
+        # at tfs_idx. But we should consider some others after that which we
+        # might also need to consider.
+
+        # A lexed element is either a literal in the raw file or the result
+        # (or part of the result) of a template placeholder. We don't make
+        # placeholders for any variables which return a non-zero length of
+        # code. We do add placeholders for others.
+
+        # The amount of the current element which has already been consumed.
+        consumed_element_length = 0
+        # The position in the source which we still need to yield from.
+        stashed_source_idx = None
+
+        for tfs_idx, tfs in enumerate(templated_file_slices[tfs_idx:], tfs_idx):
+            lexer_logger.debug("      %s: %s", tfs_idx, tfs)
+
+            # Is it a zero slice?
+            if _is_zero_slice(tfs.templated_slice):
+                next_tfs = (
+                    templated_file_slices[tfs_idx + 1]
+                    if tfs_idx + 1 < len(templated_file_slices)
+                    else None
+                )
+                yield from _handle_zero_length_slice(
+                    tfs, next_tfs, block_stack, templated_file, add_indents
+                )
+                continue
+
+            if tfs.slice_type == "literal":
+                # There's a literal to deal with here. Yield as much as we can.
+
+                # Can we cover this whole lexed element with the current templated
+                # slice without moving on?
+                tfs_offset = tfs.source_slice.start - tfs.templated_slice.start
+                # NOTE: Greater than OR EQUAL, to include the case of it matching
+                # length exactly.
+                if element.template_slice.stop <= tfs.templated_slice.stop:
+                    lexer_logger.debug(
+                        "     Consuming whole from literal. Existing Consumed: %s",
+                        consumed_element_length,
+                    )
+                    # If we have a stashed start use that. Otherwise infer start.
+                    if stashed_source_idx is not None:
+                        slice_start = stashed_source_idx
+                    else:
+                        slice_start = (
+                            element.template_slice.start
+                            + consumed_element_length
+                            + tfs_offset
+                        )
+                    yield element.to_segment(
+                        pos_marker=PositionMarker(
+                            slice(
+                                slice_start,
+                                element.template_slice.stop + tfs_offset,
+                            ),
+                            element.template_slice,
+                            templated_file,
+                        ),
+                        subslice=slice(consumed_element_length, None),
+                    )
+
+                    # If it was an exact match, consume the templated element too.
+                    if element.template_slice.stop == tfs.templated_slice.stop:
+                        tfs_idx += 1
+                    # In any case, we're done with this element. Move on
+                    break
+                elif element.template_slice.start == tfs.templated_slice.stop:
+                    # Did we forget to move on from the last tfs and there's
+                    # overlap?
+                    # NOTE: If the rest of the logic works, this should never
+                    # happen. Unless it's got a zero length in the rendered file
+                    # i.e. it's a consumed bit of whitespace or similar.
+                    if _is_zero_slice(tfs.templated_slice):
+                        lexer_logger.debug("     Found consumed literal.")
+                        yield TemplateSegment.from_slice(
+                            tfs.source_slice,
+                            tfs.templated_slice,
+                            tfs.slice_type,
+                            templated_file,
                         )
                     else:
-                        gap_placeholder_parts.append("...")
-            # Now add the slice's source.
-            gap_placeholder_parts.append(so_slice.raw)
-            last_slice = so_slice
-        if has_gap:
-            placeholder_str = "".join(gap_placeholder_parts)
-    lexer_logger.debug(
-        "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
-        existing_len,
-        placeholder_slice,
-        source_slice,
-        placeholder_str,
-        templ_str,
-    )
+                        lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                    continue  # pragma: no cover
+                else:
+                    # This means that the current lexed element spans across
+                    # multiple templated file slices.
+                    lexer_logger.debug("     Consuming whole spanning literal")
+                    # This almost certainly means there's a templated element
+                    # in the middle of a whole lexed element.
 
-    # Calculate potential indent/dedent
-    segment_buffer: List[RawSegment] = []
-    block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
-    lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
-    trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
-    lexer_logger.debug(
-        "    Block Slices: %s. Lead: %s, Trail: %s, Add: %s",
-        block_slices,
-        lead_dedent,
-        trail_indent,
-        add_indents,
-    )
+                    # What we do here depends on whether we're allowed to split
+                    # lexed elements. This is basically only true if it's whitespace.
+                    # NOTE: We should probably make this configurable on the
+                    # matcher object, but for now we're going to look for the
+                    # name of the lexer.
+                    if element.matcher.name == "whitespace":
+                        # We *can* split it!
+                        # Consume what we can from this slice and move on.
+                        lexer_logger.debug(
+                            "     Consuming split whitespace from literal. "
+                            "Existing Consumed: %s",
+                            consumed_element_length,
+                        )
+                        if stashed_source_idx is not None:
+                            raise NotImplementedError(
+                                "Found literal whitespace with stashed idx!"
+                            )
+                        incremental_length = (
+                            tfs.templated_slice.stop - element.template_slice.start
+                        )
+                        yield element.to_segment(
+                            pos_marker=PositionMarker(
+                                slice(
+                                    element.template_slice.start
+                                    + consumed_element_length
+                                    + tfs_offset,
+                                    tfs.templated_slice.stop + tfs_offset,
+                                ),
+                                element.template_slice,
+                                templated_file,
+                            ),
+                            # Subdivide the existing segment.
+                            subslice=slice(
+                                consumed_element_length,
+                                consumed_element_length + incremental_length,
+                            ),
+                        )
+                        consumed_element_length += incremental_length
+                        continue
+                    else:
+                        # We can't split it. We're going to end up yielding a segment
+                        # which spans multiple slices. Stash the type, and if we haven't
+                        # set the start yet, stash it too.
+                        lexer_logger.debug("     Spilling over literal slice.")
+                        if stashed_source_idx is None:
+                            stashed_source_idx = (
+                                element.template_slice.start + tfs_offset
+                            )
+                            lexer_logger.debug(
+                                "     Stashing a source start. %s", stashed_source_idx
+                            )
+                        continue
 
-    # Update block stack
-    block_uuid = None
-    for so_slice in so_slices:
-        if so_slice.slice_type == "block_end":
-            block_uuid = block_stack.pop()
-        elif so_slice.slice_type == "block_start":
-            block_uuid = uuid4()
-            block_stack.append(block_uuid)
+            elif tfs.slice_type == "templated":
+                # Found a templated slice. Does it have length in the templated file?
+                # If it doesn't, then we'll pick it up next.
+                if not _is_zero_slice(tfs.templated_slice):
+                    # Is our current element totally contained in this slice?
+                    if element.template_slice.stop <= tfs.templated_slice.stop:
+                        lexer_logger.debug("     Contained templated slice.")
+                        # Yes it is. Add lexed element with source slices as the whole
+                        # span of the source slice for the file slice.
+                        # If we've got an existing stashed source start, use that
+                        # as the start of the source slice.
+                        if stashed_source_idx is not None:
+                            slice_start = stashed_source_idx
+                        else:
+                            slice_start = (
+                                tfs.source_slice.start + consumed_element_length
+                            )
+                        yield element.to_segment(
+                            pos_marker=PositionMarker(
+                                slice(
+                                    slice_start,
+                                    # The end in the source is the end of the templated
+                                    # slice. We can't subdivide any better.
+                                    tfs.source_slice.stop,
+                                ),
+                                element.template_slice,
+                                templated_file,
+                            ),
+                            subslice=slice(consumed_element_length, None),
+                        )
 
-    # Add a dedent if appropriate.
-    if lead_dedent and add_indents:
-        lexer_logger.debug("      DEDENT")
-        segment_buffer.append(
-            Dedent(
-                is_template=True,
-                pos_marker=PositionMarker.from_point(
-                    placeholder_slice.start,
-                    template_slice.start,
-                    templated_file,
-                ),
-            )
+                        # If it was an exact match, consume the templated element too.
+                        if element.template_slice.stop == tfs.templated_slice.stop:
+                            tfs_idx += 1
+                        # Carry on to the next lexed element
+                        break
+                    # We've got an element which extends beyond this templated slice.
+                    # This means that a _single_ lexed element claims both some
+                    # templated elements and some non-templated elements. That could
+                    # include all kinds of things (and from here we don't know what
+                    # else is yet to come, comments, blocks, literals etc...).
+
+                    # What we do here depends on whether the current lexed element is
+                    # separable or not. If it is (i.e. it's whitespace), then we split
+                    # and claim what we can. If it's not then we don't yield the lexed
+                    # element yet, but stash a start position in the source and move
+                    # on to the next file slice before returning.
+                    elif element.matcher.name == "whitespace":
+                        # Consume what we can from this slice and move on.
+                        # Because we're currently in a templated element, the start
+                        # position in the source is always the start in the template.
+                        # i.e. we don't consume _partial_ elements of a templated tag
+                        # in the source.
+                        if stashed_source_idx is not None:
+                            raise NotImplementedError(
+                                "Found templated whitespace with stashed idx!"
+                            )
+                        lexer_logger.debug(
+                            "     Consuming split whitespace from templated. "
+                            "Offset: %s",
+                            consumed_element_length,
+                        )
+                        yield element.to_segment(
+                            pos_marker=PositionMarker(
+                                tfs.source_slice,
+                                tfs.templated_slice,
+                                templated_file,
+                            ),
+                            # Subdivide the existing segment.
+                            subslice=slice(0, _slice_length(tfs.templated_slice)),
+                        )
+
+                        consumed_element_length = _slice_length(tfs.templated_slice)
+                        # Move on to the next templated slice because we just consumed
+                        # the whole thing.
+                        continue
+                    else:
+                        # Stash the source idx for later when we do make a segment.
+                        lexer_logger.debug("     Spilling over templated slice.")
+                        if stashed_source_idx is None:
+                            stashed_source_idx = tfs.source_slice.start
+                            lexer_logger.debug(
+                                "     Stashing a source start as lexed element spans "
+                                "over the end of a template slice. %s",
+                                stashed_source_idx,
+                            )
+                        # Move on to the next template slice
+                        continue
+
+            raise NotImplementedError(
+                f"Unable to process slice: {tfs}"
+            )  # pragma: no cover
+
+    # If templated elements are left, yield them.
+    # We can assume they're all zero length if we're here.
+    for tfs_idx, tfs in enumerate(templated_file_slices[tfs_idx:], tfs_idx):
+        next_tfs = (
+            templated_file_slices[tfs_idx + 1]
+            if tfs_idx + 1 < len(templated_file_slices)
+            else None
         )
-
-    # Always add a placeholder
-    segment_buffer.append(
-        TemplateSegment(
-            pos_marker=PositionMarker(
-                placeholder_slice,
-                slice(
-                    template_slice.start,
-                    template_slice.start,
-                ),
-                templated_file,
-            ),
-            source_str=placeholder_str,
-            block_type=so_slices[0].slice_type if len(so_slices) == 1 else "compound",
-            block_uuid=block_uuid,
+        yield from _handle_zero_length_slice(
+            tfs, next_tfs, block_stack, templated_file, add_indents
         )
-    )
-    lexer_logger.debug("      Placeholder: %s, %r", segment_buffer[-1], placeholder_str)
-
-    # Add an indent if appropriate.
-    if trail_indent and add_indents:
-        lexer_logger.debug("      INDENT")
-        segment_buffer.append(
-            Indent(
-                is_template=True,
-                pos_marker=PositionMarker.from_point(
-                    placeholder_slice.stop,
-                    template_slice.start,
-                    templated_file,
-                ),
-            )
-        )
-
-    return segment_buffer, source_slice, block_stack
 
 
 class Lexer:
@@ -574,85 +753,14 @@ class Lexer:
         self, elements: List[TemplateElement], templated_file: TemplatedFile
     ) -> Tuple[RawSegment, ...]:
         """Convert a tuple of lexed elements into a tuple of segments."""
-        # Working buffer to build up segments
-        segment_buffer: List[RawSegment] = []
-        block_stack: List[UUID] = []
-
-        add_indents = self.config.get("template_blocks_indent", "indentation")
-
         lexer_logger.info("Elements to Segments.")
-        # Get the templated slices to re-insert tokens for them
-        source_only_slices = templated_file.source_only_slices()
-        lexer_logger.info("Source-only slices: %s", source_only_slices)
-        stash_source_slice, last_source_slice = None, None
-
-        # Now work out source slices, and add in template placeholders.
-        for idx, element in enumerate(elements):
-            # Calculate Source Slice
-            if idx != 0:
-                last_source_slice = stash_source_slice
-            source_slice = templated_file.templated_slice_to_source_slice(
-                element.template_slice
+        add_indents = self.config.get("template_blocks_indent", "indentation")
+        # Delegate to _iter_segments
+        segment_buffer: List[RawSegment] = list(
+            _iter_segments(
+                elements, templated_file.sliced_file, templated_file, add_indents
             )
-            stash_source_slice = source_slice
-            # Output the slice as we lex.
-            lexer_logger.debug(
-                "  %s, %s, %s, %r",
-                idx,
-                element,
-                source_slice,
-                templated_file.templated_str[element.template_slice],
-            )
-
-            # Detect template loops
-            if last_source_slice:
-                segment_buffer.extend(
-                    _generate_template_loop_segments(
-                        source_slice,
-                        last_source_slice,
-                        element.template_slice.start,
-                        templated_file,
-                        block_uuid=block_stack[-1] if block_stack else None,
-                    )
-                )
-
-            # Generate template segments and adjust source slice accordingly
-            placeholders, source_slice, block_stack = _generate_placeholder_segments(
-                source_slice,
-                last_source_slice,
-                element.template_slice,
-                source_only_slices,
-                templated_file,
-                add_indents,
-                block_stack,
-            )
-            segment_buffer.extend(placeholders)
-
-            # Add the actual segment
-            segment_buffer.append(
-                element.to_segment(
-                    pos_marker=PositionMarker(
-                        source_slice,
-                        element.template_slice,
-                        templated_file,
-                    ),
-                )
-            )
-
-            # Generate placeholders for any source-only slices that *follow*
-            # the last element. This happens, for example, if a Jinja templated
-            # file ends with "{% endif %}", and there's no trailing newline.
-            if last_source_slice and idx == len(elements) - 1:
-                placeholders, _, _ = _generate_placeholder_segments(
-                    slice(source_slice.stop, len(templated_file.source_str)),
-                    last_source_slice,
-                    slice(element.template_slice.stop, element.template_slice.stop),
-                    source_only_slices,
-                    templated_file,
-                    add_indents,
-                    block_stack,
-                )
-                segment_buffer.extend(placeholders)
+        )
 
         # Add an end of file marker
         segment_buffer.append(
@@ -662,7 +770,6 @@ class Lexer:
                 else PositionMarker.from_point(0, 0, templated_file)
             )
         )
-
         # Convert to tuple before return
         return tuple(segment_buffer)
 

@@ -16,7 +16,8 @@ file:
             - whitespace: ' '
             - numeric_literal: '1'
         dedent: ""
+  - placeholder: "\n"
   - dedent: ""
-  - placeholder: "\n{%- endif %}"
+  - placeholder: "{%- endif %}"
   - newline: "\n"
   - end_of_file: ""
