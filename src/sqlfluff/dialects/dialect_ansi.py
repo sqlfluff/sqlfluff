@@ -674,6 +674,32 @@ ansi_dialect.add(
         Ref("JoinLikeClauseGrammar"),
         BracketedSegment,
     ),
+    AlterTableOptionsGrammar=OneOf(
+        # Table options
+        Sequence(
+            Ref("ParameterNameSegment"),
+            Ref("EqualsSegment", optional=True),
+            OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+        ),
+        # Add things
+        Sequence(
+            OneOf("ADD", "MODIFY"),
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnDefinitionSegment"),
+            OneOf(
+                Sequence(OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")),
+                # Bracketed Version of the same
+                Ref("BracketedColumnReferenceListGrammar"),
+                optional=True,
+            ),
+        ),
+        # Rename
+        Sequence(
+            "RENAME",
+            OneOf("AS", "TO", optional=True),
+            Ref("TableReferenceSegment"),
+        ),
+    ),
 )
 
 
@@ -974,6 +1000,12 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
     type = "sequence_reference"
 
 
+class TagReferenceSegment(ObjectReferenceSegment):
+    """A reference to a tag."""
+
+    type = "tag_reference"
+
+
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
@@ -1148,7 +1180,9 @@ class WindowSpecificationSegment(BaseSegment):
 
     type = "window_specification"
     match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar", optional=True),  # "Base" window name
+        Ref(
+            "SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")
+        ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
@@ -2863,34 +2897,7 @@ class AlterTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Delimited(
-            OneOf(
-                # Table options
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                ),
-                # Add things
-                Sequence(
-                    OneOf("ADD", "MODIFY"),
-                    Ref.keyword("COLUMN", optional=True),
-                    Ref("ColumnDefinitionSegment"),
-                    OneOf(
-                        Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                        ),
-                        # Bracketed Version of the same
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        optional=True,
-                    ),
-                ),
-                # Rename
-                Sequence(
-                    "RENAME",
-                    OneOf("AS", "TO", optional=True),
-                    Ref("TableReferenceSegment"),
-                ),
-            ),
+            Ref("AlterTableOptionsGrammar"),
         ),
     )
 
@@ -3529,6 +3536,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
+        Bracketed(Ref("StatementSegment")),
     )
 
     def get_table_references(self):
