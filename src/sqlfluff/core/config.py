@@ -383,17 +383,36 @@ class ConfigLoader:
     ) -> List[ConfigElemType]:
         """Validate config elements against removed list."""
         config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
-        new_configs = []
-        for k, v in configs:
+        # Materialise the configs into a list to we can iterate twice.
+        new_configs = list(configs)
+        defined_keys = {k for k, _ in new_configs}
+        validated_configs = []
+        for k, v in new_configs:
             if k in config_map.keys():
                 formatted_key = ":".join(k)
                 removed_option = config_map[k]
                 # Is there a mapping option?
                 if removed_option.translation_func and removed_option.new_path:
+                    formatted_new_key = ":".join(removed_option.new_path)
+                    # Before mutating, check we haven't _also_ set the new value.
+                    if removed_option.new_path in defined_keys:
+                        # Raise an warning.
+                        config_logger.warning(
+                            f"\nWARNING: Config file {file_path} set a deprecated "
+                            f"config value `{formatted_key}` (which can be migrated) "
+                            f"but ALSO set the value it would be migrated to. The new "
+                            f"value (`{removed_option.new_path}`) take precedence. "
+                            "Please update your configuration to remove this warning. "
+                            f"\n\n{removed_option.warning}\n\n"
+                            "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                            " for more details.\n"
+                        )
+                        # continue to NOT add keep this value in the set
+                        continue
+
                     # Mutate and warn.
                     v = removed_option.translation_func(v)
                     k = removed_option.new_path
-                    formatted_new_key = ":".join(k)
                     # NOTE: At the stage of emitting this warning, we may not yet
                     # have set up red logging because we haven't yet loaded the config
                     # file. For that reason, this error message has a bit more padding.
@@ -416,8 +435,8 @@ class ConfigLoader:
                         " for more details."
                     )
 
-            new_configs.append((k, v))
-        return new_configs
+            validated_configs.append((k, v))
+        return validated_configs
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None

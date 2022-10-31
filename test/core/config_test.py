@@ -256,7 +256,11 @@ def test__config__glob_exclude_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_exclude"))
+    lntr = Linter(
+        config=FluffConfig.from_path(
+            "test/fixtures/config/glob_exclude", overrides={"dialect": "ansi"}
+        )
+    )
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -273,7 +277,11 @@ def test__config__glob_include_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_include"))
+    lntr = Linter(
+        config=FluffConfig.from_path(
+            "test/fixtures/config/glob_include", overrides={"dialect": "ansi"}
+        )
+    )
     lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -290,7 +298,9 @@ def test__config__rules_set_to_none():
     Ensure that all rules are still run.
     """
     lntr = Linter(
-        config=FluffConfig.from_path("test/fixtures/config/rules_set_to_none")
+        config=FluffConfig.from_path(
+            "test/fixtures/config/rules_set_to_none", overrides={"dialect": "ansi"}
+        )
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
     violations = lnt.check_tuples(by_path=True)
@@ -303,7 +313,10 @@ def test__config__rules_set_to_none():
 def test__config__rules_group_with_exclude():
     """Test linting when a rules group is selected and rules are excluded."""
     lntr = Linter(
-        config=FluffConfig.from_path("test/fixtures/config/rules_group_with_exclude")
+        config=FluffConfig.from_path(
+            "test/fixtures/config/rules_group_with_exclude",
+            overrides={"dialect": "ansi"},
+        )
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
@@ -396,3 +409,24 @@ def test__config__validate_configs_indirect():
                 "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )
+
+
+def test__config__validate_configs_precedence_same_file():
+    """Test _validate_configs method of FluffConfig where there's a conflict."""
+    # Check with a known conflicted value
+    old_key = ("rules", "L007", "operator_new_lines")
+    new_key = ("layout", "type", "binary_operator", "line_position")
+    # Check it's still conflicted.
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    # Test config
+    test_config = [(new_key, "foo"), (old_key, "foo")]
+    assert len(test_config) == 2
+    res = ConfigLoader._validate_configs(test_config, "<test>")
+    assert len(res) == 1
+    # Check that the old key isn't there.
+    assert not any(k == old_key for k, _ in res)
