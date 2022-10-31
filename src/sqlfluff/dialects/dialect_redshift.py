@@ -1943,7 +1943,7 @@ class RowFormatDelimitedSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
-    type = "row_format_deimited_segment"
+    type = "row_format_delimited_segment"
 
     match_grammar = AnySetOf(
         Sequence(
@@ -2352,12 +2352,25 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Sequence(
-                Ref(
-                    "FunctionNameSegment",
-                    exclude=OneOf(
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("ValuesClauseSegment"),
-                        Ref("ConvertFunctionNameSegment"),
+                OneOf(
+                    Ref(
+                        "FunctionNameSegment",
+                        exclude=OneOf(
+                            Ref("DatePartFunctionNameSegment"),
+                            Ref("ValuesClauseSegment"),
+                            Ref("ConvertFunctionNameSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        Ref.keyword("APPROXIMATE"),
+                        Ref(
+                            "FunctionNameSegment",
+                            exclude=OneOf(
+                                Ref("DatePartFunctionNameSegment"),
+                                Ref("ValuesClauseSegment"),
+                                Ref("ConvertFunctionNameSegment"),
+                            ),
+                        ),
                     ),
                 ),
                 Bracketed(
