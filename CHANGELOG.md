@@ -14,13 +14,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a fix to the configuration migration from 1.4.0. In that release, the configuration
+of leading/trailing operators would be migrated the wrong way around.
+
 ## What’s Changed
 
 * hotfix to config migration [#4005](https://github.com/sqlfluff/sqlfluff/pull/4005) [@alanmcruickshank](https://github.com/alanmcruickshank)
-
-## New Contributors
-
-
 
 ## [1.4.0] - 2022-10-31
 
