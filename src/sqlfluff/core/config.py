@@ -401,13 +401,13 @@ class ConfigLoader:
                             f"\nWARNING: Config file {file_path} set a deprecated "
                             f"config value `{formatted_key}` (which can be migrated) "
                             f"but ALSO set the value it would be migrated to. The new "
-                            f"value (`{removed_option.new_path}`) take precedence. "
+                            f"value (`{removed_option.new_path}`) takes precedence. "
                             "Please update your configuration to remove this warning. "
                             f"\n\n{removed_option.warning}\n\n"
                             "See https://docs.sqlfluff.com/en/stable/configuration.html"
                             " for more details.\n"
                         )
-                        # continue to NOT add keep this value in the set
+                        # continue to NOT add this value in the set
                         continue
 
                     # Mutate and warn.
