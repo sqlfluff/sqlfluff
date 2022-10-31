@@ -333,6 +333,11 @@ def _handle_zero_length_slice(
         # Update block stack
         if tfs.slice_type == "block_start":
             block_stack.append(uuid4())
+            lexer_logger.debug(
+                "        Incrementing block stack with %s before %s",
+                block_stack[-1],
+                templated_file.source_str[tfs.source_slice],
+            )
 
         yield TemplateSegment.from_slice(
             tfs.source_slice,
@@ -344,6 +349,11 @@ def _handle_zero_length_slice(
 
         # Update block stack
         if tfs.slice_type == "block_end":
+            lexer_logger.debug(
+                "        Popping block stack with %s after %s",
+                block_stack[-1],
+                templated_file.source_str[tfs.source_slice],
+            )
             block_stack.pop()
 
         if add_indents and tfs.slice_type in ("block_start", "block_mid"):

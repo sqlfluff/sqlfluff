@@ -364,6 +364,30 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(19, -2, -2, 2, 15, False, (1, 2)),
             ],
         ),
+        # Templated case
+        (
+            "SELECT\n"
+            "    {{ 'a' }}\n"
+            "    {% for c in ['d', 'e'] %}\n"
+            "    ,{{ c }}_val\n"
+            "    {% endfor %}\n",
+            [
+                # No initial indent (this is the first newline).
+                _IndentPoint(1, 1, 0, 0, None, True, ()),
+                # point after a
+                _IndentPoint(3, 0, 0, 1, 1, True, ()),
+                # point after for
+                _IndentPoint(5, 1, 0, 1, 3, True, ()),
+                # point after d_val
+                _IndentPoint(9, -1, -1, 2, 5, True, ()),
+                # point after loop
+                _IndentPoint(11, 1, 0, 1, 9, True, ()),
+                # point after e_val
+                _IndentPoint(15, -2, -2, 2, 11, True, ()),
+                # point after endfor
+                _IndentPoint(17, 0, 0, 0, 15, True, ()),
+            ],
+        ),
     ],
 )
 def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):
@@ -472,6 +496,61 @@ def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, cap
         (
             "\n\n  \n\nselect\n\n\n\n    \n\n     1\n\n       \n\n",
             "\n\n  \n\nselect\n\n\n\n    \n\n  1\n\n       \n\n",
+        ),
+        # Templated cases.
+        # NOTE: We're just rendering the fixed file in the templated space
+        # so that for these tests we don't touch the fix routines. That's
+        # why the template tags aren't visible - BUT THEIR INDENTS SHOULD BE.
+        # This one is useful for ensuring the tags have the same indent.
+        # ... first with a FROM
+        (
+            "SELECT\n"
+            "    {{ 'a' }}\n"
+            "    {% for c in ['d', 'e'] %}\n"
+            "    ,{{ c }}_val\n"
+            "    {% endfor %}\n"
+            "FROM foo",
+            "SELECT\n"
+            "  a\n"
+            "  \n"
+            "    ,d_val\n"
+            "  \n"
+            "    ,e_val\n"
+            "  \n"
+            "FROM foo",
+        ),
+        # ... then without a FROM
+        (
+            "SELECT\n"
+            "    {{ 'a' }}\n"
+            "    {% for c in ['d', 'e'] %}\n"
+            "    ,{{ c }}_val\n"
+            "    {% endfor %}\n",
+            "SELECT\n  a\n  \n    ,d_val\n  \n    ,e_val\n  \n",
+        ),
+        # This one is useful for if statements get handled right.
+        # NOTE: There's a template loop in the middle.
+        (
+            "SELECT\n"
+            "  {{ 'a' }}\n"
+            "  {% for c in ['d', 'e'] %}\n"
+            " {% if c == 'd' %}\n"
+            "  ,{{ c }}_val_a\n"
+            "    {% else %}\n"
+            "  ,{{ c }}_val_b\n"
+            "{% endif %}\n"
+            "  {% endfor %}\n",
+            "SELECT\n"
+            "  a\n"
+            "  \n"
+            "    \n"
+            "      ,d_val_a\n"
+            "    \n"
+            "  \n"
+            "    \n"
+            "      ,e_val_b\n"
+            "    \n"
+            "  \n",
         ),
     ],
 )

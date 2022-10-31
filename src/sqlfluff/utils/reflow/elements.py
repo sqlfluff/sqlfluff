@@ -246,7 +246,9 @@ class ReflowPoint(ReflowElement):
                 # placeholder. This solves some potential bugs - although
                 # it feels a bit like a workaround.
                 return [
-                    LintFix.replace(self.segments[idx], [self.segments[idx], new_indent])
+                    LintFix.replace(
+                        self.segments[idx], [self.segments[idx], new_indent]
+                    )
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
                 )

@@ -174,7 +174,7 @@ class _IndentLine:
 def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
     """Given an initial set of individual lines. Revise templated ones.
 
-    NOTE: This mutates the `line` argument.
+    NOTE: This mutates the `lines` argument.
 
     We do this to ensure that templated lines are _somewhat_ consistent.
 
@@ -202,13 +202,13 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     """
     # Because we want to modify the original lines, we're going
     # to use their list index to keep track of them.
+    depths = defaultdict(list)
     grouped = defaultdict(list)
     for idx, line in enumerate(lines):
         if line.is_all_templates(elements):
-            # I think we can assume they're a single block.
-            # OR - this is the edge case of the start of a file
-            assert len(line.indent_points) in (1, 2)
-            assert line.indent_points[-1].idx - line.indent_points[0].idx in (0, 2)
+            # We can't assume they're all a single block.
+            # But if they _start_ with a block, we should
+            # respect the indent of that block.
             segment = elements[line.indent_points[-1].idx - 1].segments[0]
             assert segment.is_type("placeholder", "template_loop")
             # If it's not got a block uuid, it's not a block, so it
@@ -216,13 +216,24 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             # e.g. comments or variables
             if segment.block_uuid:  # type: ignore
                 grouped[segment.block_uuid].append(idx)  # type: ignore
+                depths[segment.block_uuid].append(line.initial_indent_balance)
 
-    for group_uuid in grouped.keys():
+    # Sort through the lines, so we do to *most* indented first.
+    sorted_group_indices = sorted(
+        grouped.keys(), key=lambda x: max(depths[x]), reverse=True
+    )
+    reflow_logger.debug("Sorted Group UUIDs: %s", sorted_group_indices)
+
+    for group_uuid in sorted_group_indices:
         reflow_logger.debug("Evaluating Group UUID: %s", group_uuid)
 
         group_lines = grouped[group_uuid]
         for idx in group_lines:
-            reflow_logger.debug("    Line %s: %s", idx, lines[idx])
+            reflow_logger.debug(
+                "    Line %s: Initial Balance: %s",
+                idx,
+                lines[idx].initial_indent_balance,
+            )
 
         # Check for case 1.
         if len(set(lines[idx].initial_indent_balance for idx in group_lines)) == 1:
@@ -235,46 +246,59 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         options: List[Set[int]] = []
         for idx in group_lines:
             line = lines[idx]
-            start_point_idx = line.indent_points[0].idx
-            steps: Set[int] = set()
+            steps: Set[int] = {line.initial_indent_balance}
             # Run backward through the pre point.
             indent_balance = line.initial_indent_balance
-            for seg in elements[start_point_idx].segments[::-1]:
+            for seg in elements[line.indent_points[0].idx].segments[::-1]:
                 if seg.is_type("indent"):
                     # Minus because we're going backward.
                     indent_balance -= cast(Indent, seg).indent_val
                 steps.add(indent_balance)
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
-            for seg in elements[start_point_idx].segments:
+            for seg in elements[line.indent_points[-1].idx].segments:
                 if seg.is_type("indent"):
-                    # Minus because we're going backward.
+                    # Positive because we're going forward.
                     indent_balance += cast(Indent, seg).indent_val
                 steps.add(indent_balance)
+            reflow_logger.debug("    Line %s: Options: %s", idx, steps)
             options.append(steps)
 
         # We should also work out what all the indents are _between_
         # these options and make sure we don't go above that.
         first_line_idx = group_lines[0]
         last_line_idx = group_lines[-1]
+        intermediate_lines = [
+            line
+            for line in lines[first_line_idx + 1 : last_line_idx]
+            # Exclude lines which are in the group to avoid
+            # issues with loop markers.
+            if line not in [lines[idx] for idx in group_lines]
+        ]
         reflow_logger.debug(
-            "    Intermediate Lines: %s", lines[first_line_idx + 1 : last_line_idx]
+            "    Intermediate Lines: %s",
+            [line.initial_indent_balance for line in intermediate_lines],
         )
         limit_indent = min(
-            line.initial_indent_balance
-            for line in lines[first_line_idx + 1 : last_line_idx]
+            # Minus one to reverse the effect that the block has
+            # already had.
+            line.initial_indent_balance - 1
+            for line in intermediate_lines
         )
 
         # Evaluate options.
         overlap = set.intersection(*options)
+        reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
         # we'll effectively remove the effects of the indents between the elements.
-        overlap = {i for i in overlap if i <= limit_indent - 1}
+        overlap = {i for i in overlap if i <= limit_indent}
         reflow_logger.debug("    Overlap: %s, Limit: %s", overlap, limit_indent)
         # Is there a mutually agreeable option?
         if overlap:
-            best_indent = min(overlap)
+            # Go for the deeper option if there's flexibility, because this
+            # will usually involve moving the fewest options.
+            best_indent = max(overlap)
             reflow_logger.debug(
                 "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
             )
@@ -300,7 +324,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
 def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
     """Given an initial set of individual lines. Revise comment ones.
 
-    NOTE: This mutates the `line` argument.
+    NOTE: This mutates the `lines` argument.
 
     We do this to ensure that lines with comments are aligned to
     the following non-comment element.
@@ -467,11 +491,23 @@ def _evaluate_indent_point_buffer(
     # New indents on the way down
     # There's a jump on the way down which *wasn't* an untaken one.
     reflow_logger.debug(
-        "Evaluate Line #%s. FI %s",
+        "Evaluate Line #%s [source line #%s]. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
+        elements[indent_line.indent_points[0].idx + 1]
+        .segments[0]
+        .pos_marker.source_position()[0],
         forced_indents,
+    )
+    reflow_logger.debug(
+        "   Line Segments: %s",
+        [
+            elem.segments
+            for elem in elements[
+                indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
+            ]
+        ],
     )
     reflow_logger.info("Evaluate Line: %s. FI %s", indent_line, forced_indents)
     fixes = []
@@ -682,7 +718,6 @@ def lint_indent_points(
     # First map the line buffers.
     lines = _map_line_buffers(elements)
 
-    # TODO: RE-ENABLE
     # Revise templated indents
     _revise_templated_lines(lines, elements)
     # Revise comment indents
