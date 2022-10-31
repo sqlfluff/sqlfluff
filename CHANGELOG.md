@@ -10,6 +10,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.1] - 2022-10-31
+
+## Highlights
+
+## What’s Changed
+
+* hotfix to config migration [#4005](https://github.com/sqlfluff/sqlfluff/pull/4005) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+
+
 ## [1.4.0] - 2022-10-31
 
 ## Highlights
