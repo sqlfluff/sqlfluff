@@ -1852,45 +1852,17 @@ class CreateRlsPolicyStatementSegment(BaseSegment):
     )
 
 
-class AttachRlsPolicyStatementSegment(BaseSegment):
-    """An `ATTACH RLS POLICY` statement.
+class ManageRlsPolicyStatementSegment(BaseSegment):
+    """An `ATTACH/DETACH RLS POLICY` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_RLS_POLICY.html
-    """
-
-    type = "attach_rls_policy_statement"
-    match_grammar = Sequence(
-        "ATTACH",
-        "RLS",
-        "POLICY",
-        Ref("ObjectReferenceSegment"),
-        "ON",
-        Ref.keyword("TABLE", optional=True),
-        Delimited(
-            Ref("TableReferenceSegment"),
-        ),
-        "TO",
-        Delimited(
-            OneOf(
-                Sequence(
-                    Ref.keyword("ROLE", optional=True),
-                    Ref("RoleReferenceSegment"),
-                ),
-                "PUBLIC",
-            ),
-        ),
-    )
-
-
-class DetachRlsPolicyStatementSegment(BaseSegment):
-    """A `DETACH RLS POLICY` statement.
-
     https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_RLS_POLICY.html
     """
 
-    type = "detach_rls_policy_statement"
+    # 1 statement for both ATTACH and DETACH since same syntax
+    type = "manage_rls_policy_statement"
     match_grammar = Sequence(
-        "DETACH",
+        OneOf("ATTACH", "DETACH"),
         "RLS",
         "POLICY",
         Ref("ObjectReferenceSegment"),
@@ -1899,7 +1871,7 @@ class DetachRlsPolicyStatementSegment(BaseSegment):
         Delimited(
             Ref("TableReferenceSegment"),
         ),
-        "FROM",
+        OneOf("TO", "FROM"),
         Delimited(
             OneOf(
                 Sequence(
@@ -2027,8 +1999,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("CreateRlsPolicyStatementSegment"),
-            Ref("AttachRlsPolicyStatementSegment"),
-            Ref("DetachRlsPolicyStatementSegment"),
+            Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
         ],
     )

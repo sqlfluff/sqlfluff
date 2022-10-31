@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dfaec647dd279e6d251a70f8240974c4913429ebb28d6b325a1cac6d9cabd263
+_hash: 132626be2d39562d6e274d1fc81e4129e591519f73f638a62e5cfb1d6bb87a15
 file:
 - statement:
-    attach_rls_policy_statement:
+    manage_rls_policy_statement:
     - keyword: ATTACH
     - keyword: RLS
     - keyword: POLICY
@@ -25,7 +25,7 @@ file:
         naked_identifier: dbadmin
 - statement_terminator: ;
 - statement:
-    attach_rls_policy_statement:
+    manage_rls_policy_statement:
     - keyword: ATTACH
     - keyword: RLS
     - keyword: POLICY
