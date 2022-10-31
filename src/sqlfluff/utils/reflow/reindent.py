@@ -9,6 +9,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
+from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 
@@ -209,13 +210,15 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             # We can't assume they're all a single block.
             # But if they _start_ with a block, we should
             # respect the indent of that block.
-            segment = elements[line.indent_points[-1].idx - 1].segments[0]
+            segment = cast(
+                MetaSegment, elements[line.indent_points[-1].idx - 1].segments[0]
+            )
             assert segment.is_type("placeholder", "template_loop")
             # If it's not got a block uuid, it's not a block, so it
             # should just be indented as usual. No need to revise.
             # e.g. comments or variables
-            if segment.block_uuid:  # type: ignore
-                grouped[segment.block_uuid].append(idx)  # type: ignore
+            if segment.block_uuid:
+                grouped[segment.block_uuid].append(idx)
                 depths[segment.block_uuid].append(line.initial_indent_balance)
 
     # Sort through the lines, so we do to *most* indented first.

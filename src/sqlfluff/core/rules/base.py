@@ -39,6 +39,7 @@ from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -334,23 +335,28 @@ class LintFix:
             return set()
         elif (
             self.edit_type == "replace"
-            and all(edit.is_type("raw") for edit in self.edit)
-            and all(edit._source_fixes for edit in self.edit)
+            and all(edit.is_type("raw") for edit in cast(List[RawSegment], self.edit))
+            and all(edit._source_fixes for edit in cast(List[RawSegment], self.edit))
         ):
             # This is just source fixes. We can go directly to the touched raw
             # slices and only if they overlap directly.
             rules_logger.debug("Source only fix.")
             source_edit_slices = [
                 fix.source_slice
-                for fix in chain.from_iterable(edit._source_fixes for edit in self.edit)
+                # We can assume they're all raw and all have source fixes, because we
+                # check that above.
+                for fix in chain.from_iterable(
+                    cast(List[SourceFix], edit._source_fixes)
+                    for edit in cast(List[RawSegment], self.edit)
+                )
             ]
             rules_logger.warning("Source only slices: %s", source_edit_slices)
             if len(source_edit_slices) > 1:  # pragma: no cover
                 raise NotImplementedError(
                     "Unable to handle multiple source only slices."
                 )
-            return templated_file.raw_slices_spanning_source_slice(
-                source_edit_slices[0]
+            return set(
+                templated_file.raw_slices_spanning_source_slice(source_edit_slices[0])
             )
 
         # TRICKY: For creations at the end of the file, there won't be an
