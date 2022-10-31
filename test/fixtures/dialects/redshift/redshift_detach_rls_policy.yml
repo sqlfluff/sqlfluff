@@ -1,0 +1,45 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b77a422a34bd2db7cd8b5988184ab0b53fe27f35b57d969dc174829dd06445b1
+file:
+- statement:
+    detach_rls_policy_statement:
+    - keyword: DETACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: policy_concerts
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tickit_category_redshift
+    - keyword: FROM
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: analyst
+    - comma: ','
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: dbadmin
+- statement_terminator: ;
+- statement:
+    detach_rls_policy_statement:
+    - keyword: DETACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: policy_concerts
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tickit_category_redshift
+    - keyword: FROM
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: role1
+    - comma: ','
+    - role_reference:
+        naked_identifier: user1
+- statement_terminator: ;

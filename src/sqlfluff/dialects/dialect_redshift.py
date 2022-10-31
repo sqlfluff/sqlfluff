@@ -1816,6 +1816,123 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class CreateRlsPolicyStatementSegment(BaseSegment):
+    """A `CREATE RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_RLS_POLICY.html
+    """
+
+    type = "create_rls_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "RLS",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Ref("AliasExpressionSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    )
+
+
+class AttachRlsPolicyStatementSegment(BaseSegment):
+    """An `ATTACH RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_RLS_POLICY.html
+    """
+
+    type = "attach_rls_policy_statement"
+    match_grammar = Sequence(
+        "ATTACH",
+        "RLS",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        "TO",
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref.keyword("ROLE", optional=True),
+                    Ref("RoleReferenceSegment"),
+                ),
+                "PUBLIC",
+            ),
+        ),
+    )
+
+
+class DetachRlsPolicyStatementSegment(BaseSegment):
+    """A `DETACH RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_RLS_POLICY.html
+    """
+
+    type = "detach_rls_policy_statement"
+    match_grammar = Sequence(
+        "DETACH",
+        "RLS",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        "FROM",
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref.keyword("ROLE", optional=True),
+                    Ref("RoleReferenceSegment"),
+                ),
+                "PUBLIC",
+            ),
+        ),
+    )
+
+
+class DropRlsPolicyStatementSegment(BaseSegment):
+    """A `DROP RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_RLS_POLICY.html
+    """
+
+    type = "drop_rls_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RLS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -1909,6 +2026,10 @@ class StatementSegment(postgres.StatementSegment):
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
+            Ref("CreateRlsPolicyStatementSegment"),
+            Ref("AttachRlsPolicyStatementSegment"),
+            Ref("DetachRlsPolicyStatementSegment"),
+            Ref("DropRlsPolicyStatementSegment"),
         ],
     )
 
