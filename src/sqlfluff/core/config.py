@@ -47,7 +47,7 @@ REMOVED_CONFIGS = [
             ":binary_operator)."
         ),
         ("layout", "type", "binary_operator", "line_position"),
-        (lambda x: "trailing" if x == "after" else "leading"),
+        (lambda x: "trailing" if x == "before" else "leading"),
     ),
     _RemovedConfig(
         ("rules", "comma_style"),
