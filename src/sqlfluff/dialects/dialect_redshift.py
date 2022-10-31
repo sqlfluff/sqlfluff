@@ -1829,7 +1829,7 @@ class CreateRlsPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("ObjectReferenceSegment"),
         Sequence(
-            Ref.keyword("WITH"),
+            "WITH",
             Bracketed(
                 Delimited(
                     Sequence(
