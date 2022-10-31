@@ -1909,6 +1909,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
+            Ref("CreateExternalFunctionStatementSegment"),
         ],
     )
 
@@ -2378,5 +2379,39 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("CommaSegment"),
                 Ref("ExpressionSegment"),
             ),
+        ),
+    )
+
+
+class CreateExternalFunctionStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL FUNCTION` segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_FUNCTION.html
+    """
+
+    type = "create_external_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                Ref("DatatypeSegment"),
+                optional=True,
+            ),
+        ),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        OneOf("VOLATILE", "STABLE", "IMMUTABLE"),
+        OneOf("LAMBDA", "SAGEMAKER"),
+        Ref("QuotedLiteralSegment"),
+        "IAM_ROLE",
+        OneOf("DEFAULT", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "RETRY_TIMEOUT",
+            Ref("NumericLiteralSegment"),
+            optional=True,
         ),
     )
