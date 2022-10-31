@@ -1209,3 +1209,28 @@ test_tsql_outer_apply_indentation_fix:
   configs:
     core:
       dialect: tsql
+
+test_fail_consuming_whitespace:
+  # Test that this works even with tags which consume whitespace.
+  fail_str: |
+    {% for item in [1, 2] -%}
+    SELECT *
+    FROM some_table
+    {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+  fix_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+
+test_pass_consuming_whitespace_stable:
+  # Test for stability in fixes with loops and consuming tags.
+  # https://github.com/sqlfluff/sqlfluff/issues/3185
+  pass_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
