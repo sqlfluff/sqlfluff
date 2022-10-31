@@ -256,11 +256,7 @@ def test__config__glob_exclude_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(
-        config=FluffConfig.from_path(
-            "test/fixtures/config/glob_exclude", overrides={"dialect": "ansi"}
-        )
-    )
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_exclude"))
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -277,11 +273,7 @@ def test__config__glob_include_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(
-        config=FluffConfig.from_path(
-            "test/fixtures/config/glob_include", overrides={"dialect": "ansi"}
-        )
-    )
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_include"))
     lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -298,9 +290,7 @@ def test__config__rules_set_to_none():
     Ensure that all rules are still run.
     """
     lntr = Linter(
-        config=FluffConfig.from_path(
-            "test/fixtures/config/rules_set_to_none", overrides={"dialect": "ansi"}
-        )
+        config=FluffConfig.from_path("test/fixtures/config/rules_set_to_none")
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
     violations = lnt.check_tuples(by_path=True)
@@ -313,10 +303,7 @@ def test__config__rules_set_to_none():
 def test__config__rules_group_with_exclude():
     """Test linting when a rules group is selected and rules are excluded."""
     lntr = Linter(
-        config=FluffConfig.from_path(
-            "test/fixtures/config/rules_group_with_exclude",
-            overrides={"dialect": "ansi"},
-        )
+        config=FluffConfig.from_path("test/fixtures/config/rules_group_with_exclude")
     )
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
