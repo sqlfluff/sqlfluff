@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.0] - 2022-10-27
+## [1.4.0] - 2022-10-31
 
 ## Highlights
 
@@ -43,6 +43,7 @@ There have also been first time contributions from **10 new contributors**! 🎉
 
 ## What’s Changed
 
+* Snowflake partition nonreserved keyword [#3972](https://github.com/sqlfluff/sqlfluff/pull/3972) [@YilangHe](https://github.com/YilangHe)
 * Hive: Add support for EXCHANGE PARTITION in ALTER TABLE [#3991](https://github.com/sqlfluff/sqlfluff/pull/3991) [@nahuelverdugo](https://github.com/nahuelverdugo)
 * Resolve parse error on multiple bracketed statements [#3994](https://github.com/sqlfluff/sqlfluff/pull/3994) [@yoichi](https://github.com/yoichi)
 * Enable parsing of CLONE keyword in bigquery dialect [#3984](https://github.com/sqlfluff/sqlfluff/pull/3984) [@realLyans](https://github.com/realLyans)
@@ -114,6 +115,7 @@ There have also been first time contributions from **10 new contributors**! 🎉
 * [@Samyak2](https://github.com/Samyak2) made their first contribution in [#3977](https://github.com/sqlfluff/sqlfluff/pull/3977)
 * [@realLyans](https://github.com/realLyans) made their first contribution in [#3984](https://github.com/sqlfluff/sqlfluff/pull/3984)
 * [@nahuelverdugo](https://github.com/nahuelverdugo) made their first contribution in [#3991](https://github.com/sqlfluff/sqlfluff/pull/3991)
+* [@YilangHe](https://github.com/YilangHe) made their first contribution in [#3972](https://github.com/sqlfluff/sqlfluff/pull/3972)
 
 ## [1.3.2] - 2022-09-27
 
