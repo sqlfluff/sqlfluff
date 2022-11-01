@@ -46,7 +46,17 @@ redshift_dialect.sets("reserved_keywords").update(
 
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(
-    ["current_date", "sysdate", "current_timestamp"]
+    [
+        "current_date",
+        "sysdate",
+        "current_time",
+        "current_timestamp",
+        "user",
+        "current_user",
+        "current_aws_account",
+        "current_namespace",
+        "current_user_id",
+    ]
 )
 
 redshift_dialect.sets("date_part_function_name").update(
