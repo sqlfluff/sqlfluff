@@ -201,6 +201,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     tags. This might fail. As we battle-test this feature
     there may be some interesting bugs which come up!
     """
+    reflow_logger.debug("# Revise templated lines.")
     # Because we want to modify the original lines, we're going
     # to use their list index to keep track of them.
     depths = defaultdict(list)
@@ -225,10 +226,10 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     sorted_group_indices = sorted(
         grouped.keys(), key=lambda x: max(depths[x]), reverse=True
     )
-    reflow_logger.debug("Sorted Group UUIDs: %s", sorted_group_indices)
+    reflow_logger.debug("  Sorted Group UUIDs: %s", sorted_group_indices)
 
     for group_uuid in sorted_group_indices:
-        reflow_logger.debug("Evaluating Group UUID: %s", group_uuid)
+        reflow_logger.debug("  Evaluating Group UUID: %s", group_uuid)
 
         group_lines = grouped[group_uuid]
         for idx in group_lines:
@@ -332,6 +333,7 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
     We do this to ensure that lines with comments are aligned to
     the following non-comment element.
     """
+    reflow_logger.debug("# Revise comment lines.")
     # new_lines: List[_ReindentLine] = []
     comment_line_buffer: List[int] = []
 
@@ -344,7 +346,7 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
             # to this one.
             for comment_line_idx in comment_line_buffer:
                 reflow_logger.debug(
-                    "Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
+                    "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
                 lines[
@@ -358,7 +360,7 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
         # Mutate reference lines to match this one.
         lines[comment_line_idx].initial_indent_balance = 0
         reflow_logger.debug(
-            "Comment Only Line: %s. Anchoring to baseline", comment_line_idx
+            "  Comment Only Line: %s. Anchoring to baseline", comment_line_idx
         )
 
 
@@ -494,7 +496,7 @@ def _evaluate_indent_point_buffer(
     # New indents on the way down
     # There's a jump on the way down which *wasn't* an untaken one.
     reflow_logger.debug(
-        "Evaluate Line #%s [source line #%s]. FI %s",
+        "  Evaluate Line #%s [source line #%s]. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -512,7 +514,7 @@ def _evaluate_indent_point_buffer(
             ]
         ],
     )
-    reflow_logger.info("Evaluate Line: %s. FI %s", indent_line, forced_indents)
+    reflow_logger.info("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
     fixes = []
 
     # Catch edge case for first line where we'll start with a block if
@@ -592,7 +594,7 @@ def _evaluate_indent_point_buffer(
 
     if current_indent != desired_starting_indent:
         reflow_logger.debug(
-            "  Correcting indent @ line %s. Existing indent: %r -> %r",
+            "    Correcting indent @ line %s. Existing indent: %r -> %r",
             elements[indent_points[0].idx + 1].segments[0].pos_marker.working_line_no,
             current_indent,
             desired_starting_indent,
@@ -635,7 +637,7 @@ def _evaluate_indent_point_buffer(
             else:
                 NotImplementedError("We should always find the relevant point.")
             reflow_logger.debug(
-                "  Detected missing +ve line break @ line %s. Indenting to %r",
+                "    Detected missing +ve line break @ line %s. Indenting to %r",
                 elements[target_point_idx + 1].segments[0].pos_marker.working_line_no,
                 desired_indent,
             )
@@ -672,7 +674,7 @@ def _evaluate_indent_point_buffer(
                 + len(forced_indents)
             )
             reflow_logger.debug(
-                "  Detected missing -ve line break @ line %s. Indenting to %r",
+                "    Detected missing -ve line break @ line %s. Indenting to %r",
                 elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
                 desired_indent,
             )
@@ -741,6 +743,7 @@ def lint_indent_points(
                 lines.remove(line)
                 break
 
+    reflow_logger.debug("# Evaluate indent point buffer.")
     # Last: handle each of the lines.
     fixes = []
     # NOTE: forced_indents is mutated by _evaluate_indent_point_buffer
