@@ -9,6 +9,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
+from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
@@ -547,6 +548,9 @@ def _evaluate_indent_point_buffer(
     elif isinstance(elements[0], ReflowPoint):
         # No last_line_break_idx, but this is a point. It's the first line.
         # Get the last whitespace element.
+        # TODO: We don't currently handle the leading swallowed whitespace case.
+        # That could be added here, but it's an edge case which can be done
+        # at a later date easily. For now it won't get picked up.
         for indent_seg in elements[0].segments[::-1]:
             if indent_seg.is_type("whitespace"):
                 break
@@ -559,7 +563,10 @@ def _evaluate_indent_point_buffer(
         # We have to check pos marker before checking is templated.
         # Insertions don't have pos_markers - so aren't templated,
         # but also don't support calling is_templated.
-        if not indent_seg.pos_marker or not indent_seg.is_templated:
+        if indent_seg.is_type("placeholder"):
+            # It's a consumed indent.
+            current_indent = indent_seg.source_str.split("\n")[-1] or ""
+        elif not indent_seg.pos_marker or not indent_seg.is_templated:
             current_indent = indent_seg.raw
         else:
             # It's templated. Handle this.
@@ -599,9 +606,8 @@ def _evaluate_indent_point_buffer(
         current_indent = ""
 
     # First handle starting indent.
-    desired_starting_indent = (
-        indent_line.desired_indent_units(forced_indents) * single_indent
-    )
+    desired_indent_units = indent_line.desired_indent_units(forced_indents)
+    desired_starting_indent = desired_indent_units * single_indent
     initial_point = cast(ReflowPoint, elements[indent_points[0].idx])
     closing_balance = indent_points[-1].closing_indent_balance
 
@@ -616,6 +622,36 @@ def _evaluate_indent_point_buffer(
         if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
             new_fixes = [LintFix.delete(seg) for seg in initial_point.segments]
             new_point = ReflowPoint(())
+        # Placeholder indents also get special treatment
+        elif indent_seg and indent_seg.is_type("placeholder"):
+            # From here we do a _source edit_ to edit the placeholder.
+            # Back calculate the source slice from the length of the current indent.
+            source_slice = slice(
+                indent_seg.pos_marker.source_slice.stop - len(current_indent),
+                indent_seg.pos_marker.source_slice.stop,
+            )
+            new_placeholder = indent_seg.edit(
+                source_fixes=[
+                    SourceFix(
+                        desired_starting_indent,
+                        source_slice,
+                        indent_seg.pos_marker.templated_slice,
+                    )
+                ],
+                source_str=indent_seg.source_str[: -len(current_indent)]
+                + desired_starting_indent,
+            )
+            new_fixes = [
+                LintFix.replace(
+                    indent_seg,
+                    [new_placeholder],
+                )
+            ]
+            new_segments = [
+                new_placeholder if seg is indent_seg else seg
+                for seg in initial_point.segments
+            ]
+            new_point = ReflowPoint(tuple(new_segments))
         else:
             new_fixes, new_point = initial_point.indent_to(
                 desired_starting_indent,

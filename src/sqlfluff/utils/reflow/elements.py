@@ -56,7 +56,17 @@ class ReflowElement:
 
     def num_newlines(self) -> int:
         """Return the number of newlines in this element."""
-        return sum(bool("newline" in seg.class_types) for seg in self.segments)
+        return sum(
+            bool(
+                "newline" in seg.class_types
+                or (
+                    "placeholder" in seg.class_types
+                    and seg.block_type == "literal"
+                    and "\n" in seg.source_str
+                )
+            )
+            for seg in self.segments
+        )
 
 
 @dataclass(frozen=True)
@@ -158,6 +168,13 @@ class ReflowPoint(ReflowElement):
                 return indent
             elif seg.is_type("whitespace"):
                 indent = seg
+            elif seg.is_type("placeholder") and "\n" in seg.source_str:
+                # Consumed whitespace case.
+                # NOTE: In this situation, we're not looking for
+                # separate newline and indent segments, we're
+                # making the assumption that they'll be together
+                # which I think is a safe one for now.
+                return seg
         # i.e. if we never find a newline, it's not an indent.
         return None
 
@@ -168,6 +185,9 @@ class ReflowPoint(ReflowElement):
             return None
         # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
+        if seg.is_type("placeholder"):
+            # Return last bit after newline.
+            return seg.source_str.split("\n")[-1]
         return seg.raw if seg else ""
 
     def get_indent_impulse(self) -> Tuple[int, int]:

@@ -1210,11 +1210,27 @@ test_tsql_outer_apply_indentation_fix:
     core:
       dialect: tsql
 
-test_fail_consuming_whitespace:
+test_fail_consuming_whitespace_a:
   # Test that this works even with tags which consume whitespace.
   fail_str: |
     {% for item in [1, 2] -%}
     SELECT *
+    FROM some_table
+    {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+  fix_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+
+test_fail_consuming_whitespace_b:
+  # Additional test to make sure that crazy things don't happen
+  # with the first newline.
+  fail_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
     FROM some_table
     {{ 'UNION ALL\n' if not loop.last }}
     {%- endfor %}

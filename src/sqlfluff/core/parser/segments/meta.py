@@ -194,7 +194,10 @@ class TemplateSegment(MetaSegment):
             return (self.get_type(), self.raw)
 
     def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+        self,
+        raw: Optional[str] = None,
+        source_fixes: Optional[List[SourceFix]] = None,
+        source_str: str = None,
     ):
         """Create a new segment, with exactly the same position but different content.
 
@@ -212,7 +215,7 @@ class TemplateSegment(MetaSegment):
             )  # pragma: no cover
         return self.__class__(
             pos_marker=self.pos_marker,
-            source_str=self.source_str,
+            source_str=source_str if source_str is not None else self.source_str,
             block_type=self.block_type,
             source_fixes=source_fixes or self.source_fixes,
             block_uuid=self.block_uuid,
