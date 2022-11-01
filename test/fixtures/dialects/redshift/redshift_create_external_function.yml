@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9db49731b4e06b6a0486281c54080e77b08d247336fe87e9af39fc4440484dce
+_hash: 25cb0e2271a3860624b6f961f047f00d5544a72ee2ee0726548a7b0009985c04
 file:
 - statement:
     create_external_function_statement:
@@ -53,4 +53,27 @@ file:
     - quoted_literal: "'arn:aws:iam::123456789012:role/Redshift-Exfunc-Test'"
     - keyword: RETRY_TIMEOUT
     - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exfunc_foo
+    - bracketed:
+        start_bracket: (
+        data_type:
+          keyword: varchar
+        end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: int
+    - keyword: IMMUTABLE
+    - keyword: SAGEMAKER
+    - quoted_literal: "'some_endpoint_name'"
+    - keyword: IAM_ROLE
+    - keyword: default
 - statement_terminator: ;
