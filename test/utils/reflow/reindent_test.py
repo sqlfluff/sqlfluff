@@ -390,11 +390,11 @@ def test_reflow__deduce_line_indent(
         ),
         # Templated case (with consuming whitespace)
         (
-            "{% for item in [1, 2] %}\n"  # -
+            "{% for item in [1, 2] -%}\n"
             "SELECT *\n"
             "FROM some_table\n"
             "{{ 'UNION ALL\n' if not loop.last }}\n"
-            "{% endfor %}",  # -
+            "{%- endfor %}",
             [
                 # No initial indent (this is the first newline).
                 # Importantly this first point - IS a newline

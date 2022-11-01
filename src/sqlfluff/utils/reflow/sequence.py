@@ -159,7 +159,13 @@ class ReflowSequence:
         for seg in segments:
             # NOTE: end_of_file is block-like rather than point-like.
             # This is to facilitate better evaluation of the ends of files.
-            if seg.is_type("whitespace", "newline", "indent"):
+            # NOTE: This also allows us to include literal placeholders for
+            # whitespace only strings.
+            if seg.is_type("whitespace", "newline", "indent") or (
+                seg.is_type("placeholder")
+                and seg.block_type == "literal"
+                and seg.source_str.isspace()
+            ):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)
                 continue

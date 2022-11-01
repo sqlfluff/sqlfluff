@@ -9,7 +9,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
-from sqlfluff.core.parser.segments.meta import MetaSegment
+from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 
@@ -39,16 +39,27 @@ def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> st
 
 
 def has_untemplated_newline(point: ReflowPoint) -> bool:
-    """Determine whether a point contains any literal newlines."""
-    # If there are no newlines at all - then False.
-    if "newline" not in point.class_types:
+    """Determine whether a point contains any literal newlines.
+
+    NOTE: We check for standard literal newlines, but also
+    potential placeholder newlines which have been consumed.
+    """
+    # If there are no newlines (or placeholders) at all - then False.
+    if not point.class_types.intersection({"newline", "placeholder"}):
         return False
+
     for seg in point.segments:
         # Make sure it's not templated.
         # NOTE: An insertion won't have a pos_marker. But that
         # also means it's not templated.
         if seg.is_type("newline") and (not seg.pos_marker or not seg.is_templated):
             return True
+        if seg.is_type("placeholder"):
+            seg = cast(TemplateSegment, seg)
+            if seg.block_type != "literal":
+                continue
+            if "\n" in seg.source_str:
+                return True
     return False
 
 
@@ -405,6 +416,7 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
                     untaken_indents,
                 )
                 last_line_break_idx = idx
+                has_newline = True
             # Is it otherwise meaningful as an indent point?
             # NOTE: a point at idx zero is meaningful because it's like an indent.
             # NOTE: Last edge case. If we haven't yielded yet, but the
@@ -424,6 +436,7 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
                     False,
                     untaken_indents,
                 )
+                has_newline = False
 
             # Strip any untaken indents above the new balance.
             # NOTE: We strip back to the trough, not just the end point
@@ -440,7 +453,7 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             )
 
             # After stripping, we may have to add them back in.
-            if indent_impulse > indent_trough and "newline" not in elem.class_types:
+            if indent_impulse > indent_trough and not has_newline:
                 for i in range(indent_trough, indent_impulse):
                     untaken_indents += (indent_balance + i + 1,)
 
