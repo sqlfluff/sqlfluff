@@ -1,0 +1,1 @@
+SELECT * FROM T WHERE COL > ?
