@@ -10,6 +10,21 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.1] - 2022-10-31
+
+## Highlights
+
+This is a fix to the configuration migration from 1.4.0. In that release, the configuration
+of leading/trailing operators would be migrated the wrong way around and precedence between
+new and old configuration values behaved unexpectedly.
+
+## What’s Changed
+
+* Config precedence [#4007](https://github.com/sqlfluff/sqlfluff/pull/4007) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Redshift CREATE/ATTACH/DETACH/DROP RLS POLICY statements [#4004](https://github.com/sqlfluff/sqlfluff/pull/4004) [@rpr-ableton](https://github.com/rpr-ableton)
+* Redshift: Add support for APPROXIMATE functions [#3997](https://github.com/sqlfluff/sqlfluff/pull/3997) [@rpr-ableton](https://github.com/rpr-ableton)
+* hotfix to config migration [#4005](https://github.com/sqlfluff/sqlfluff/pull/4005) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
 ## [1.4.0] - 2022-10-31
 
 ## Highlights
