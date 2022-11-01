@@ -388,6 +388,47 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(17, 0, 0, 0, 15, True, ()),
             ],
         ),
+        # Templated case (with consuming whitespace)
+        (
+            "{% for item in [1, 2] %}\n"  # -
+            "SELECT *\n"
+            "FROM some_table\n"
+            "{{ 'UNION ALL\n' if not loop.last }}\n"
+            "{% endfor %}",  # -
+            [
+                # No initial indent (this is the first newline).
+                # Importantly this first point - IS a newline
+                # even though that newline segment is consumed
+                # it should still be True here.
+                _IndentPoint(1, 1, 0, 0, None, True, ()),
+                # point between SELECT & *
+                _IndentPoint(3, 1, 0, 1, 1, False, ()),
+                # point after *
+                _IndentPoint(5, -1, -1, 2, 1, True, (2,)),
+                # point after FROM
+                _IndentPoint(7, 1, 0, 1, 5, False, ()),
+                # point after some_table
+                _IndentPoint(9, -1, -1, 2, 5, True, (2,)),
+                # point after ALL (we dedent down to the loop marker).
+                _IndentPoint(13, -1, -1, 1, 9, True, ()),
+                # There should be a loop marker here.
+                # point after loop marker and before SELECT
+                # (we indent back up after the loop).
+                _IndentPoint(15, 1, 0, 0, 13, True, ()),
+                # point between SELECT & *
+                _IndentPoint(17, 1, 0, 1, 15, False, ()),
+                # point after *
+                _IndentPoint(19, -1, -1, 2, 15, True, (2,)),
+                # point after FROM
+                _IndentPoint(21, 1, 0, 1, 19, False, ()),
+                # point after some_table (and before unused placeholder)
+                _IndentPoint(23, -1, -1, 2, 19, True, (2,)),
+                # Point after placeholder and dedenting down to endfor
+                _IndentPoint(25, -1, -1, 1, 23, True, ()),
+                # Point between endfor and end-of-file
+                _IndentPoint(27, 0, 0, 0, 25, False, ()),
+            ],
+        ),
     ],
 )
 def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):
