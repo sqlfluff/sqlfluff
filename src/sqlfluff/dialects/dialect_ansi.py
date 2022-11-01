@@ -208,6 +208,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
         StringLexer("not", "!", CodeSegment),
+        StringLexer("parameter_marker", "?", CodeSegment),
         StringLexer("dot", ".", CodeSegment),
         StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
         StringLexer("plus", "+", CodeSegment),
@@ -327,6 +328,7 @@ ansi_dialect.add(
         ">", SymbolSegment, type="raw_comparison_operator"
     ),
     RawLessThanSegment=StringParser("<", SymbolSegment, type="raw_comparison_operator"),
+    ParameterMarkerSegment=StringParser("?", SymbolSegment, type="parameter_marker"),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
@@ -445,6 +447,7 @@ ansi_dialect.add(
     # e.g. INTO is optional in BIGQUERY
     MergeIntoLiteralGrammar=Sequence("MERGE", "INTO"),
     LiteralGrammar=OneOf(
+        Ref("ParameterMarkerSegment"),
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
