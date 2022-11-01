@@ -37,6 +37,7 @@ from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
+from sqlfluff.core.slice_helpers import zero_slice
 
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
@@ -1613,15 +1614,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
-                    yield FixPatch.infer_from_template(
-                        slice(
+                    yield FixPatch(
+                        # It's an insertion so all of the slices are zero length
+                        source_slice=zero_slice(segment.pos_marker.source_slice.start),
+                        templated_slice=zero_slice(
                             segment.pos_marker.templated_slice.start
-                            - max(start_diff, 0),
-                            segment.pos_marker.templated_slice.start,
                         ),
-                        insert_buff,
                         patch_category="mid_point",
-                        templated_file=templated_file,
+                        fixed_raw=insert_buff,
+                        templated_str="",
+                        source_str="",
                     )
 
                     insert_buff = ""

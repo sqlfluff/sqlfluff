@@ -269,11 +269,12 @@ class LintedFile(NamedTuple):
         # Generate patches from the fixed tree. In the process we sort
         # and deduplicate them so that the resultant list is in the
         # the right order for the source file without any duplicates.
-        # TODO: Requires a mechanism for generating patches for source only
-        # fixes.
         filtered_source_patches = self._generate_source_patches(
             self.tree, self.templated_file
         )
+        linter_logger.debug("Filtered source patches:")
+        for idx, patch in enumerate(filtered_source_patches):
+            linter_logger.debug("    %s: %s", idx, patch)
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
@@ -282,7 +283,6 @@ class LintedFile(NamedTuple):
 
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
-        # TODO: This is the last hurdle for source only fixes.
         slice_buff = self._slice_source_file_using_patches(
             filtered_source_patches, source_only_slices, self.templated_file.source_str
         )

@@ -20,17 +20,10 @@ from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.templaters.base import TemplatedFileSlice
+from sqlfluff.core.slice_helpers import slice_length, is_zero_slice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
-
-
-def _slice_length(s: slice) -> int:
-    return s.stop - s.start
-
-
-def _is_zero_slice(s: slice) -> bool:
-    return s.stop == s.start
 
 
 class LexedElement(NamedTuple):
@@ -286,7 +279,7 @@ def _handle_zero_length_slice(
 
     NOTE: block_stack is _mutated_ by this method.
     """
-    assert _is_zero_slice(tfs.templated_slice)
+    assert is_zero_slice(tfs.templated_slice)
     # First check for jumps. Backward initially, because in the backward
     # case we don't render the element we find first.
     # That requires being able to look past to the next element.
@@ -399,7 +392,7 @@ def _handle_zero_length_slice(
 
     # We've got a zero slice. This could be a block, unrendered templates
     # or unrendered code (either because of loops of consumption).
-    if not _is_zero_slice(tfs.source_slice):
+    if not is_zero_slice(tfs.source_slice):
         yield TemplateSegment.from_slice(
             tfs.source_slice,
             tfs.templated_slice,
@@ -453,7 +446,7 @@ def _iter_segments(
             lexer_logger.debug("      %s: %s", tfs_idx, tfs)
 
             # Is it a zero slice?
-            if _is_zero_slice(tfs.templated_slice):
+            if is_zero_slice(tfs.templated_slice):
                 next_tfs = (
                     templated_file_slices[tfs_idx + 1]
                     if tfs_idx + 1 < len(templated_file_slices)
@@ -509,7 +502,7 @@ def _iter_segments(
                     # NOTE: If the rest of the logic works, this should never
                     # happen. Unless it's got a zero length in the rendered file
                     # i.e. it's a consumed bit of whitespace or similar.
-                    if _is_zero_slice(tfs.templated_slice):
+                    if is_zero_slice(tfs.templated_slice):
                         lexer_logger.debug("     Found consumed literal.")
                         yield TemplateSegment.from_slice(
                             tfs.source_slice,
@@ -583,7 +576,7 @@ def _iter_segments(
             elif tfs.slice_type == "templated":
                 # Found a templated slice. Does it have length in the templated file?
                 # If it doesn't, then we'll pick it up next.
-                if not _is_zero_slice(tfs.templated_slice):
+                if not is_zero_slice(tfs.templated_slice):
                     # Is our current element totally contained in this slice?
                     if element.template_slice.stop <= tfs.templated_slice.stop:
                         lexer_logger.debug("     Contained templated slice.")
@@ -649,10 +642,10 @@ def _iter_segments(
                                 templated_file,
                             ),
                             # Subdivide the existing segment.
-                            subslice=slice(0, _slice_length(tfs.templated_slice)),
+                            subslice=slice(0, slice_length(tfs.templated_slice)),
                         )
 
-                        consumed_element_length = _slice_length(tfs.templated_slice)
+                        consumed_element_length = slice_length(tfs.templated_slice)
                         # Move on to the next templated slice because we just consumed
                         # the whole thing.
                         continue
