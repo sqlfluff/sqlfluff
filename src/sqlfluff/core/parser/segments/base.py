@@ -1563,11 +1563,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # First yield any source fixes
             yield from self._iter_source_fix_patches(templated_file)
             # Then yield the position in the source file and the patch
-            yield FixPatch.infer_from_template(
-                self.pos_marker.templated_slice,
-                self.raw,
+            yield FixPatch(
+                source_slice=self.pos_marker.source_slice,
+                templated_slice=self.pos_marker.templated_slice,
                 patch_category="literal",
-                templated_file=templated_file,
+                fixed_raw=self.raw,
+                templated_str=templated_file.templated_str[self.pos_marker.templated_slice],
+                source_str=templated_file.source_str[self.pos_marker.source_slice],
             )
         # Can we go deeper?
         elif not self.segments:
