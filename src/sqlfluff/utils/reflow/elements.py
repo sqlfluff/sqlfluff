@@ -185,7 +185,7 @@ class ReflowPoint(ReflowElement):
             return None
         # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
-        if seg.is_type("placeholder"):
+        if seg and seg.is_type("placeholder"):
             # Return last bit after newline.
             return seg.source_str.split("\n")[-1]
         return seg.raw if seg else ""
