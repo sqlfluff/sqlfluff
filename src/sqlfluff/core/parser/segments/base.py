@@ -1607,6 +1607,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
                 # If we get here, then we know it's an original. Check for deletions at
                 # the point before this segment (vs the TEMPLATED).
+                # Deletions in this sense could also mean source consumption.
                 start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
                 # Check to see whether there's a discontinuity before the current
@@ -1615,10 +1616,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
                     yield FixPatch(
-                        # It's an insertion so all of the slices are zero length
-                        source_slice=zero_slice(segment.pos_marker.source_slice.start),
-                        templated_slice=zero_slice(
-                            segment.pos_marker.templated_slice.start
+                        # Whether the source slice is zero depends on the start_diff.
+                        # A non-zero start diff implies a deletion, or more likely
+                        # a consumed element of the source. We can use the tracking
+                        # markers from the last segment to recreate where this element
+                        # should be inserted in both source and template.
+                        source_slice=slice(
+                            source_idx,
+                            segment.pos_marker.source_slice.start,
+                        ),
+                        templated_slice=slice(
+                            templated_idx,
+                            segment.pos_marker.templated_slice.start,
                         ),
                         patch_category="mid_point",
                         fixed_raw=insert_buff,
