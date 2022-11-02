@@ -350,7 +350,7 @@ class LintFix:
                     for edit in cast(List[RawSegment], self.edit)
                 )
             ]
-            rules_logger.warning("Source only slices: %s", source_edit_slices)
+
             if len(source_edit_slices) > 1:  # pragma: no cover
                 raise NotImplementedError(
                     "Unable to handle multiple source only slices."

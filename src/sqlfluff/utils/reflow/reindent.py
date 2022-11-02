@@ -9,7 +9,6 @@ from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
-from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
@@ -623,35 +622,6 @@ def _evaluate_indent_point_buffer(
             new_fixes = [LintFix.delete(seg) for seg in initial_point.segments]
             new_point = ReflowPoint(())
         # Placeholder indents also get special treatment
-        elif indent_seg and indent_seg.is_type("placeholder"):
-            # From here we do a _source edit_ to edit the placeholder.
-            # Back calculate the source slice from the length of the current indent.
-            source_slice = slice(
-                indent_seg.pos_marker.source_slice.stop - len(current_indent),
-                indent_seg.pos_marker.source_slice.stop,
-            )
-            new_placeholder = indent_seg.edit(
-                source_fixes=[
-                    SourceFix(
-                        desired_starting_indent,
-                        source_slice,
-                        indent_seg.pos_marker.templated_slice,
-                    )
-                ],
-                source_str=indent_seg.source_str[: -len(current_indent)]
-                + desired_starting_indent,
-            )
-            new_fixes = [
-                LintFix.replace(
-                    indent_seg,
-                    [new_placeholder],
-                )
-            ]
-            new_segments = [
-                new_placeholder if seg is indent_seg else seg
-                for seg in initial_point.segments
-            ]
-            new_point = ReflowPoint(tuple(new_segments))
         else:
             new_fixes, new_point = initial_point.indent_to(
                 desired_starting_indent,

@@ -37,7 +37,6 @@ from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
-from sqlfluff.core.slice_helpers import zero_slice
 
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
@@ -1568,7 +1567,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 templated_slice=self.pos_marker.templated_slice,
                 patch_category="literal",
                 fixed_raw=self.raw,
-                templated_str=templated_file.templated_str[self.pos_marker.templated_slice],
+                templated_str=templated_file.templated_str[
+                    self.pos_marker.templated_slice
+                ],
                 source_str=templated_file.source_str[self.pos_marker.source_slice],
             )
         # Can we go deeper?

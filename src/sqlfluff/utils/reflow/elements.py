@@ -10,7 +10,9 @@ from sqlfluff.core.parser.segments import (
     RawSegment,
     NewlineSegment,
     WhitespaceSegment,
+    TemplateSegment,
     Indent,
+    SourceFix,
 )
 from sqlfluff.core.rules.base import LintFix
 
@@ -222,6 +224,9 @@ class ReflowPoint(ReflowElement):
         More specifically, the newline is *inserted before* the existing
         whitespace, with the new indent being a *replacement* for that
         same whitespace.
+
+        For placeholder newlines or indents we generate appropriate
+        source fixes.
         """
         # Get the indent (or in the case of no newline, the last whitespace)
         indent_seg = self._get_indent_segment()
@@ -231,7 +236,45 @@ class ReflowPoint(ReflowElement):
             desired_indent,
             self.num_newlines(),
         )
-        if self.num_newlines():
+
+        if indent_seg and indent_seg.is_type("placeholder"):
+            # Handle the placeholder case.
+            indent_seg = cast(TemplateSegment, indent_seg)
+            # There should always be a newline, so assert that.
+            assert "\n" in indent_seg.source_str
+            # We should always replace the section _containing_ the
+            # newline, rather than just bluntly inserting. This
+            # makes slicing later easier.
+            current_indent = indent_seg.source_str.split("\n")[-1]
+            source_slice = slice(
+                # Minus _one more_ for to cover the newline too.
+                indent_seg.pos_marker.source_slice.stop - len(current_indent) - 1,
+                indent_seg.pos_marker.source_slice.stop,
+            )
+            new_placeholder = indent_seg.edit(
+                source_fixes=[
+                    SourceFix(
+                        "\n" + desired_indent,
+                        source_slice,
+                        # The templated slice is going to be a zero slice _anyway_.
+                        indent_seg.pos_marker.templated_slice,
+                    )
+                ],
+                source_str=indent_seg.source_str[: -len(current_indent)]
+                + desired_indent,
+            )
+            new_fixes = [
+                LintFix.replace(
+                    indent_seg,
+                    [new_placeholder],
+                )
+            ]
+            new_segments = [
+                new_placeholder if seg is indent_seg else seg for seg in self.segments
+            ]
+            return new_fixes, ReflowPoint(tuple(new_segments))
+
+        elif self.num_newlines():
             # There is already a newline. Is there an indent?
             if indent_seg:
                 # Coerce existing indent to desired.
@@ -272,6 +315,7 @@ class ReflowPoint(ReflowElement):
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
                 )
+
         else:
             # There isn't currently a newline.
             new_newline = NewlineSegment()

@@ -675,6 +675,9 @@ class Linter:
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
+        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
+        linter_logger.info("\n" + tree.stringify())
+
         return tree, initial_linting_errors, ignore_buff
 
     @classmethod
