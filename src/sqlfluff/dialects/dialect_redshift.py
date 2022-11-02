@@ -1170,11 +1170,7 @@ class CreateLibraryStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            "OR",
-            "REPLACE",
-            optional=True,
-        ),
+        Ref("OrReplaceGrammar", optional=True),
         "LIBRARY",
         Ref("ObjectReferenceSegment"),
         "LANGUAGE",
@@ -1553,7 +1549,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListSegment"),
@@ -2507,7 +2503,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
     type = "create_external_function_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "EXTERNAL",
         "FUNCTION",
         Ref("FunctionNameSegment"),

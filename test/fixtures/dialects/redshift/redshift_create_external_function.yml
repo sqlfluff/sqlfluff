@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25cb0e2271a3860624b6f961f047f00d5544a72ee2ee0726548a7b0009985c04
+_hash: e9e8c7b96572640d071f118c262ce88d4bbc53f8871dd14bcb4d4e7da2ff0b0e
 file:
 - statement:
     create_external_function_statement:
@@ -40,8 +40,6 @@ file:
         function_name_identifier: exfunc_upper
     - bracketed:
         start_bracket: (
-        data_type:
-          keyword: varchar
         end_bracket: )
     - keyword: RETURNS
     - data_type:

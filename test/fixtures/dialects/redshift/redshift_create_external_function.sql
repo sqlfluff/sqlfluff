@@ -4,7 +4,7 @@ STABLE
 LAMBDA 'lambda_sum'
 IAM_ROLE 'arn:aws:iam::123456789012:role/Redshift-Exfunc-Test';
 
-CREATE OR REPLACE EXTERNAL FUNCTION exfunc_upper(varchar)
+CREATE OR REPLACE EXTERNAL FUNCTION exfunc_upper()
 RETURNS varchar
 STABLE
 LAMBDA 'exfunc_sleep_3'
