@@ -1618,6 +1618,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
+
+                    # For the start of the next segment, we need the position of the
+                    # first raw, not the pos marker of the whole thing. That accounts
+                    # better for loops.
+                    first_segment_pos = segment.raw_segments[0].pos_marker
                     yield FixPatch(
                         # Whether the source slice is zero depends on the start_diff.
                         # A non-zero start diff implies a deletion, or more likely
@@ -1626,11 +1631,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         # should be inserted in both source and template.
                         source_slice=slice(
                             source_idx,
-                            segment.pos_marker.source_slice.start,
+                            first_segment_pos.source_slice.start,
                         ),
                         templated_slice=slice(
                             templated_idx,
-                            segment.pos_marker.templated_slice.start,
+                            first_segment_pos.templated_slice.start,
                         ),
                         patch_category="mid_point",
                         fixed_raw=insert_buff,

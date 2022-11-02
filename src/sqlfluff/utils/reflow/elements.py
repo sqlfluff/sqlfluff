@@ -228,6 +228,7 @@ class ReflowPoint(ReflowElement):
         For placeholder newlines or indents we generate appropriate
         source fixes.
         """
+        assert "\n" not in desired_indent, "Newline found in desired indent."
         # Get the indent (or in the case of no newline, the last whitespace)
         indent_seg = self._get_indent_segment()
         reflow_logger.debug(
