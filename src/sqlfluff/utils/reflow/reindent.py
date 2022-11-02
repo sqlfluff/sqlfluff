@@ -553,6 +553,9 @@ def _evaluate_indent_point_buffer(
         for indent_seg in elements[0].segments[::-1]:
             if indent_seg.is_type("whitespace"):
                 break
+        # Handle edge case of no whitespace, but with newline.
+        if not indent_seg.is_type("whitespace"):
+            indent_seg = None
         else:
             NotImplementedError(
                 "Cannot find whitespace in leading point. Report this as a bug."
@@ -605,6 +608,7 @@ def _evaluate_indent_point_buffer(
         current_indent = ""
 
     # First handle starting indent.
+    assert "\n" not in current_indent, f"Found newline in indent: {indent_seg}"
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
     desired_starting_indent = desired_indent_units * single_indent
     initial_point = cast(ReflowPoint, elements[indent_points[0].idx])
