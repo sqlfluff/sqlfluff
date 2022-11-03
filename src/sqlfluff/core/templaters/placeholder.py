@@ -35,6 +35,8 @@ KNOWN_STYLES = {
     "dollar": regex.compile(
         r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
     ),
+    # e.g. USE ${flyway:database}.schema_name;
+    "flyway_var": regex.compile(r"\${?(?P<param_name>\w+[:\w_]+)}?", regex.UNICODE),
     # e.g. WHERE bla = ?
     "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
     # e.g. WHERE bla = $3 or WHERE bla = ${3}

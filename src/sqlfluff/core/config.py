@@ -302,7 +302,7 @@ class ConfigLoader:
         # Disable interpolation so we can load macros
         kw: Dict = {}
         kw["interpolation"] = None
-        config = configparser.ConfigParser(**kw)
+        config = configparser.ConfigParser(delimiters="=", **kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
