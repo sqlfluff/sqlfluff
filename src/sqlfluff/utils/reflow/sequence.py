@@ -6,6 +6,7 @@ from typing import Iterator, List, Optional, Sequence, Tuple, cast, Type
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments import TemplateSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
@@ -163,8 +164,8 @@ class ReflowSequence:
             # whitespace only strings.
             if seg.is_type("whitespace", "newline", "indent") or (
                 seg.is_type("placeholder")
-                and seg.block_type == "literal"
-                and seg.source_str.isspace()
+                and cast(TemplateSegment, seg).block_type == "literal"
+                and cast(TemplateSegment, seg).source_str.isspace()
             ):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)

@@ -567,7 +567,9 @@ def _evaluate_indent_point_buffer(
         # but also don't support calling is_templated.
         if indent_seg.is_type("placeholder"):
             # It's a consumed indent.
-            current_indent = indent_seg.source_str.split("\n")[-1] or ""
+            current_indent = (
+                cast(TemplateSegment, indent_seg).source_str.split("\n")[-1] or ""
+            )
         elif not indent_seg.pos_marker or not indent_seg.is_templated:
             current_indent = indent_seg.raw
         else:

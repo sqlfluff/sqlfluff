@@ -63,8 +63,8 @@ class ReflowElement:
                 "newline" in seg.class_types
                 or (
                     "placeholder" in seg.class_types
-                    and seg.block_type == "literal"
-                    and "\n" in seg.source_str
+                    and cast(TemplateSegment, seg).block_type == "literal"
+                    and "\n" in cast(TemplateSegment, seg).source_str
                 )
             )
             for seg in self.segments
@@ -170,7 +170,10 @@ class ReflowPoint(ReflowElement):
                 return indent
             elif seg.is_type("whitespace"):
                 indent = seg
-            elif seg.is_type("placeholder") and "\n" in seg.source_str:
+            elif (
+                seg.is_type("placeholder")
+                and "\n" in cast(TemplateSegment, seg).source_str
+            ):
                 # Consumed whitespace case.
                 # NOTE: In this situation, we're not looking for
                 # separate newline and indent segments, we're
@@ -189,7 +192,7 @@ class ReflowPoint(ReflowElement):
         seg = self._get_indent_segment()
         if seg and seg.is_type("placeholder"):
             # Return last bit after newline.
-            return seg.source_str.split("\n")[-1]
+            return cast(TemplateSegment, seg).source_str.split("\n")[-1]
         return seg.raw if seg else ""
 
     def get_indent_impulse(self) -> Tuple[int, int]:
