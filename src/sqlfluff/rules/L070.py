@@ -219,7 +219,6 @@ class Rule_L070(BaseRule):
                 select_list = selectable.select_info.select_targets
                 select_target_counts.add(len(select_list))
 
-        # check to see if
         
         return (select_target_counts, resolved_wildcard)
 
