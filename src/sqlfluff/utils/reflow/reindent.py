@@ -689,6 +689,22 @@ def _evaluate_indent_point_buffer(
             ):
                 # Yep, untaken.
                 continue
+            # Edge Case: Semicolons. For now, semicolon placement is a little
+            # more complicated than what we do here. For now we don't (by
+            # default) introduce missing -ve indents before semicolons.
+            # TODO: Review whether this is a good idea, or whether this should be
+            # more configurable.
+            if (
+                elements[ip.idx + 1 :]
+                and "statement_terminator" in elements[ip.idx + 1].class_types
+            ):
+                reflow_logger.debug(
+                    "    Detected missing -ve line break @ line %s, before "
+                    "semicolon. Ignoring...",
+                    elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
+                )
+                continue
+
             # It's negative, not a line break and was taken on the way up.
             # This *should* be an indent!
             desired_indent = single_indent * (
