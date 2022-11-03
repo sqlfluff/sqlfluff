@@ -10,9 +10,11 @@ line_position = leading
 [sqlfluff:layout:type:comparison_operator]
 line_position = leading
 
+[sqlfluff:indentation]
+tab_space_size = 2
+
 # Some rules can be configured directly from the config common to other rules.
 [sqlfluff:rules]
-tab_space_size = 2
 max_line_length = 120
 
 [sqlfluff:rules:L010]  # Keywords

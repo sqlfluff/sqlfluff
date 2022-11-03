@@ -1,8 +1,5 @@
 [sqlfluff]
 dialect = snowflake
 
-[sqlfluff:rules]
+[sqlfluff:indentation]
 tab_space_size = 2
-
-[sqlfluff:rules:L003]
-hanging_indents = False
