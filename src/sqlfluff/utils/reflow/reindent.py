@@ -694,6 +694,8 @@ def _evaluate_indent_point_buffer(
             # default) introduce missing -ve indents before semicolons.
             # TODO: Review whether this is a good idea, or whether this should be
             # more configurable.
+            # NOTE: This could potentially lead to a weird situation if two statments
+            # are already on the same line. That's a bug to solve later.
             if (
                 elements[ip.idx + 1 :]
                 and "statement_terminator" in elements[ip.idx + 1].class_types
