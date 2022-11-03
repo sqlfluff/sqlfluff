@@ -49,14 +49,27 @@ class Rule_L070(BaseRule):
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
-    def _find_all_ctes(self, query: Query, cte_dict):
+    def _find_all_ctes_utils(self, query: Query, cte_dict):
         """Generate a list of all ctes in a query"""
         cte_dict = cte_dict | query.ctes
         for cte_name, cte in query.ctes.items():
-            cte_dict = self._find_all_ctes(cte, cte_dict)
+            cte_dict = self._find_all_ctes_utils(cte, cte_dict)
         return cte_dict
 
-    #
+    def _find_all_ctes(self, context: RuleContext, cte_dict):
+        # cte_dict = {}
+        for i in range(len(context.parent_stack)):
+            if context.parent_stack[i].type != 'common_table_expression':
+                parent_query = SelectCrawler(
+                        context.parent_stack[i], context.dialect
+                    ).query_tree
+                cte_dict = cte_dict | self._find_all_ctes_utils(parent_query, cte_dict)
+
+                crawler = SelectCrawler(context.segment, context.dialect)
+
+        return cte_dict
+
+
     def __resolve_wildcard(
         self,
         context: RuleContext,
@@ -87,6 +100,8 @@ class Rule_L070(BaseRule):
                                 )[0]
                                 if isinstance(select_info_target, str):
                                     cte = None
+                                    # handles case where cte is in subquery
+                                    cte_child = query.lookup_cte(wildcard_table)
                                     if select_info_target.upper() in all_ctes:
                                         cte = all_ctes[select_info_target.upper()]
                                     if cte:
@@ -97,8 +112,17 @@ class Rule_L070(BaseRule):
                                             resolve_targets,
                                             all_ctes,
                                         )
+                                    elif cte_child:
+                                        self.__resolve_wildcard(
+                                            context,
+                                            cte_child,
+                                            parent_query,
+                                            resolve_targets,
+                                            all_ctes,
+                                        )
                                     else:
                                         resolve_targets.append(wildcard)
+
                                 # if select_info_target is not a string, process as a subquery
                                 else:
                                     self.__resolve_wildcard(
@@ -110,12 +134,21 @@ class Rule_L070(BaseRule):
                                     )
                             else:
                                 cte = None
+                                cte_child = query.lookup_cte(wildcard_table)
                                 if wildcard_table.upper() in all_ctes:
                                     cte = all_ctes[wildcard_table.upper()]
                                 if cte:
                                     self.__resolve_wildcard(
                                         context,
                                         cte,
+                                        parent_query,
+                                        resolve_targets,
+                                        all_ctes,
+                                    )
+                                elif cte_child:
+                                    self.__resolve_wildcard(
+                                        context,
+                                        cte_child,
                                         parent_query,
                                         resolve_targets,
                                         all_ctes,
@@ -137,12 +170,12 @@ class Rule_L070(BaseRule):
                 resolve_targets.extend(
                     [target for target in selectable.select_info.select_targets]
                 )
+
         return resolve_targets
 
-    def _get_select_target_counts(self, context: RuleContext, crawler: Query):
+    def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
         """ Given a set expression, get the number of select targets in each query """
         select_list = None
-
         select_target_counts = set()
         set_selectables = crawler.query_tree.selectables
         resolved_wildcard = True
@@ -150,23 +183,25 @@ class Rule_L070(BaseRule):
         # for each selectable in the set, add the number of select targets to a set; in the end
         # length of the set should be one (one size)
         for selectable in set_selectables:
-
             # if the set query contains a wildcard, attempt to resolve wildcard to a list of
             # select targets that can be counted
             if selectable.get_wildcard_info():
                 parent_query = SelectCrawler(
                     context.parent_stack[0], context.dialect
                 ).query_tree
-                # to start, get a list of all of the ctes in the parent to check whether they resolve
+                # to start, get a list of all of the ctes in the parent stack to check whether they resolve
                 # to wildcards
-                all_cte_queries = self._find_all_ctes(parent_query, {})
-                crawler = SelectCrawler(
+                
+                # all_cte_queries = self._find_all_ctes(context, {})
+                all_cte_queries = self._find_all_ctes(context, {})
+                select_crawler = SelectCrawler(
                     selectable.selectable, context.dialect
                 ).query_tree
 
                 select_list = self.__resolve_wildcard(
-                    context, crawler, parent_crawler.query_tree, [], all_cte_queries
+                    context, select_crawler, parent_crawler.query_tree, [], all_cte_queries
                 )
+
                 # get the number of resolved targets plus the total number of targets minus the number of wildcards
                 # if all wildcards have been resolved this adds up to the total number of select targets in the query
                 select_target_counts.add(
@@ -176,15 +211,16 @@ class Rule_L070(BaseRule):
                         - len(selectable.get_wildcard_info())
                     )
                 )
+                for select in select_list:
+                    if isinstance(select, WildcardInfo):
+                        resolved_wildcard = False
             else:
                 # if there is no wildcard in the query use the count of select targets
                 select_list = selectable.select_info.select_targets
                 select_target_counts.add(len(select_list))
 
         # check to see if
-        for select in select_list:
-            if isinstance(select, WildcardInfo):
-                resolved_wildcard = False
+        
         return (select_target_counts, resolved_wildcard)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
