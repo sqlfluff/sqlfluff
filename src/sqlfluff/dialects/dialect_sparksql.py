@@ -619,6 +619,16 @@ sparksql_dialect.add(
     ),
     # Delta Live Tables CREATE TABLE and VIEW statements
     OrRefreshGrammar=Sequence("OR", "REFRESH"),
+    # Databricks widget
+    WidgetNameIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        type="widget_name_identifier",
+    ),
+    WidgetDefaultGrammar=Sequence(
+        "DEFAULT",
+        Ref("QuotedLiteralSegment"),
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -1144,6 +1154,46 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
+class CreateWidgetStatementSegment(BaseSegment):
+    """A `CREATE WIDGET` STATEMENT.
+
+    https://docs.databricks.com/notebooks/widgets.html#databricks-widget-api
+    """
+
+    type = "create_widget_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "WIDGET",
+        OneOf(
+            Sequence(
+                "DROPDOWN",
+                Ref("WidgetNameIdentifierSegment"),
+                Ref("WidgetDefaultGrammar"),
+                Sequence("CHOICES", Ref("SelectStatementSegment")),
+            ),
+            Sequence(
+                "TEXT", Ref("WidgetNameIdentifierSegment"), Ref("WidgetDefaultGrammar")
+            ),
+        ),
+    )
+
+
+class RemoveWidgetStatementSegment(BaseSegment):
+    """A `REMOVE WIDGET` STATEMENT.
+
+    https://docs.databricks.com/notebooks/widgets.html#databricks-widget-api
+    """
+
+    type = "remove_widget_statement"
+
+    match_grammar = Sequence(
+        "REMOVE",
+        "WIDGET",
+        Ref("WidgetNameIdentifierSegment"),
     )
 
 
@@ -2405,6 +2455,9 @@ class StatementSegment(ansi.StatementSegment):
             # Databricks - Delta Live Tables
             Ref("ConstraintStatementSegment"),
             Ref("ApplyChangesIntoStatementSegment"),
+            # Databricks - widgets
+            Ref("CreateWidgetStatementSegment"),
+            Ref("RemoveWidgetStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
