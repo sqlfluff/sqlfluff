@@ -1173,17 +1173,12 @@ class CreateWidgetStatementSegment(BaseSegment):
                 "DROPDOWN",
                 Ref("WidgetNameIdentifierSegment"),
                 Ref("WidgetDefaultGrammar"),
-                Sequence(
-                    "CHOICES",
-                    Ref("SelectStatementSegment")
-                )
+                Sequence("CHOICES", Ref("SelectStatementSegment")),
             ),
             Sequence(
-                "TEXT",
-                Ref("WidgetNameIdentifierSegment"),
-                Ref("WidgetDefaultGrammar")
-            )
-        )
+                "TEXT", Ref("WidgetNameIdentifierSegment"), Ref("WidgetDefaultGrammar")
+            ),
+        ),
     )
 
 
@@ -2462,7 +2457,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ApplyChangesIntoStatementSegment"),
             # Databricks - widgets
             Ref("CreateWidgetStatementSegment"),
-            Ref("RemoveWidgetStatementSegment")
+            Ref("RemoveWidgetStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
