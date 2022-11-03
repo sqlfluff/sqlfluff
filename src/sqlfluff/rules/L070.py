@@ -19,10 +19,10 @@ class Rule_L070(BaseRule):
     """Queries within set query (UNION, INTERSECT, EXCEPT) produce different numbers of columns.
 
     **Anti-pattern**
-    
+
     .. code-block:: sql
         WITH cte AS (
-            SELECT 
+            SELECT
             a
             , b
             FROM foo
@@ -45,7 +45,6 @@ class Rule_L070(BaseRule):
         FROM t
     """
 
-
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
@@ -59,16 +58,15 @@ class Rule_L070(BaseRule):
     def _find_all_ctes(self, context: RuleContext, cte_dict):
         # cte_dict = {}
         for i in range(len(context.parent_stack)):
-            if context.parent_stack[i].type != 'common_table_expression':
+            if context.parent_stack[i].type != "common_table_expression":
                 parent_query = SelectCrawler(
-                        context.parent_stack[i], context.dialect
-                    ).query_tree
+                    context.parent_stack[i], context.dialect
+                ).query_tree
                 cte_dict = cte_dict | self._find_all_ctes_utils(parent_query, cte_dict)
 
                 crawler = SelectCrawler(context.segment, context.dialect)
 
         return cte_dict
-
 
     def __resolve_wildcard(
         self,
@@ -174,7 +172,7 @@ class Rule_L070(BaseRule):
         return resolve_targets
 
     def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
-        """ Given a set expression, get the number of select targets in each query """
+        """Given a set expression, get the number of select targets in each query"""
         select_list = None
         select_target_counts = set()
         set_selectables = crawler.query_tree.selectables
@@ -191,7 +189,7 @@ class Rule_L070(BaseRule):
                 ).query_tree
                 # to start, get a list of all of the ctes in the parent stack to check whether they resolve
                 # to wildcards
-                
+
                 # all_cte_queries = self._find_all_ctes(context, {})
                 all_cte_queries = self._find_all_ctes(context, {})
                 select_crawler = SelectCrawler(
@@ -199,7 +197,11 @@ class Rule_L070(BaseRule):
                 ).query_tree
 
                 select_list = self.__resolve_wildcard(
-                    context, select_crawler, parent_crawler.query_tree, [], all_cte_queries
+                    context,
+                    select_crawler,
+                    parent_crawler.query_tree,
+                    [],
+                    all_cte_queries,
                 )
 
                 # get the number of resolved targets plus the total number of targets minus the number of wildcards
@@ -219,7 +221,6 @@ class Rule_L070(BaseRule):
                 select_list = selectable.select_info.select_targets
                 select_target_counts.add(len(select_list))
 
-        
         return (select_target_counts, resolved_wildcard)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
