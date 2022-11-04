@@ -1,6 +1,6 @@
 {% snapshot dim_aggregated_brand_hierarchy_snapshot %}
 
-{{
+    {{
     config(
       strategy='check',
       unique_key='c1',
