@@ -639,7 +639,11 @@ def _evaluate_indent_point_buffer(
         fixes += new_fixes
 
     closing_balance = indent_points[-1].closing_indent_balance
-    starting_balance = indent_points[0].closing_indent_balance
+    # Edge case for first line of a file (where starting indent must be zero).
+    if indent_points[-1].last_line_break_idx is None:
+        starting_balance = 0
+    else:
+        starting_balance = indent_points[0].closing_indent_balance
 
     # Then check for new lines. Either on the way up...
     if closing_balance > starting_balance:
