@@ -289,6 +289,14 @@ def test__templater_raw():
                 start_date="'2021-10-01'",
             ),
         ),
+        (
+            "USE ${flyway:database}.test_schema;",
+            "flyway_var",
+            "USE test_db.test_schema;",
+            {
+                "flyway:database": "test_db",
+            },
+        ),
     ],
     ids=[
         "no_changes",
@@ -306,6 +314,7 @@ def test__templater_raw():
         "numeric_dollar_with_braces_and_string",
         "percent",
         "ampersand",
+        "flyway_var",
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
