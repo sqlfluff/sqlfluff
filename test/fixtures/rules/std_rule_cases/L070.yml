@@ -276,6 +276,14 @@ test_pass_known_number_of_result_columns_16:
     SELECT e, f
     FROM table3
 
+test_pass_known_number_of_result_columns_17:
+  pass_str: |
+    SELECT *
+    FROM table1 as table2
+    UNION
+    SELECT e, f
+    FROM table3
+
 test_fail_unknown_number_of_result_columns_7:
   fail_str: |
     SELECT *
