@@ -203,6 +203,44 @@ test_pass_known_number_of_result_columns_13:
   # Issue 915: Crash on statements that don't have a SELECT
   pass_str: CREATE TABLE my_table (id INTEGER)
 
+test_pass_known_number_of_result_columns_14:
+  pass_str: |
+    SELECT *
+    FROM 
+    (
+      WITH cte2 AS (
+        SELECT a, b
+        FROM table2
+      )
+      SELECT *
+      from cte2 as cte_al
+      UNION
+      SELECT e, f
+      FROM table3
+    )
+    UNION
+    SELECT k, l
+    FROM table4
+
+test_fail_unknown_number_of_result_columns_6:
+  fail_str: |
+    SELECT *
+    FROM 
+    (
+      WITH cte2 AS (
+        SELECT a
+        FROM table2
+      )
+      SELECT *
+      from cte2 as cte_al
+      UNION
+
+      SELECT e, f
+      FROM table3
+    )
+    UNION
+    SELECT k, l
+    FROM table4
 
 test_pass_nested_ctes_1:
   # Test for issue 1984
