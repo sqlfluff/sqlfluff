@@ -222,6 +222,25 @@ test_pass_known_number_of_result_columns_14:
     SELECT k, l
     FROM table4
 
+test_pass_known_number_of_result_columns_15:
+  pass_str: |
+    SELECT *
+    FROM
+    (
+      WITH cte2 AS (
+        SELECT *
+        FROM table2
+      )
+      SELECT *
+      from cte2 as cte_al
+      UNION
+      SELECT e, f
+      FROM table3
+    )
+    UNION
+    SELECT k, l
+    FROM table4
+
 test_fail_unknown_number_of_result_columns_6:
   fail_str: |
     SELECT *
