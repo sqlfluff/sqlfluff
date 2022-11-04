@@ -536,7 +536,6 @@ def _evaluate_indent_point_buffer(
     # the line starting balance because we're using this to detect missing
     # lines and if the line has been corrected then we don't want to do
     # that.
-    starting_balance = indent_line.indent_points[0].initial_indent_balance
     indent_points = indent_line.indent_points
     # Set up the default anchor
     anchor = {"before": elements[indent_points[0].idx + 1].segments[0]}
@@ -618,7 +617,6 @@ def _evaluate_indent_point_buffer(
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
     desired_starting_indent = desired_indent_units * single_indent
     initial_point = cast(ReflowPoint, elements[indent_points[0].idx])
-    closing_balance = indent_points[-1].closing_indent_balance
 
     if current_indent != desired_starting_indent:
         reflow_logger.debug(
@@ -639,6 +637,9 @@ def _evaluate_indent_point_buffer(
             )
         elements[indent_points[0].idx] = new_point
         fixes += new_fixes
+
+    closing_balance = indent_points[-1].closing_indent_balance
+    starting_balance = indent_points[0].closing_indent_balance
 
     # Then check for new lines. Either on the way up...
     if closing_balance > starting_balance:
