@@ -7,7 +7,7 @@ from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments import TemplateSegment
-from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 
@@ -78,6 +78,55 @@ class ReflowSequence:
     def get_fixes(self) -> List[LintFix]:
         """Get the current fix buffer."""
         return self.embodied_fixes
+
+    def get_results(self) -> List[LintResult]:
+        """Generate a list of LintResult from the current fix buffer.
+
+        For some fixes, we do a bit of a shuffle with the anchor so
+        that we reference the most sensible position in the source file
+        to make sense to the user. For example if we've due to create
+        something _after_ a segment, then we'll hunt forward to the
+        segment _after that_, so that the position that appears in the
+        CLI is the position between them.
+
+        NOTE: This generates one result per fix. Depending on your use
+        case, this may not always be appropriate. In those cases, call
+        `ReflowSequence.get_fixes()` and construct :obj:`LintResult`
+        objects directly.
+        """
+        results = []
+        segments = None
+        for fix in self.get_fixes():
+            # Anchoring on the segment AFTER makes is a lot more
+            # understandable to the user, that's why we do a little
+            # shuffle here.
+            if fix.edit_type == "create_after" or (
+                fix.edit_type == "replace"
+                and "".join(seg.raw for seg in fix.edit).startswith(fix.anchor.raw)
+            ):
+                if not segments:
+                    segments = list(
+                        chain.from_iterable(elem.segments for elem in self.elements)
+                    )
+
+                try:
+                    idx = segments.index(fix.anchor)
+                except ValueError:
+                    # the anchor isn't there any more, it's a good anchor.
+                    idx = None
+
+                if idx is None:
+                    anchor = fix.anchor
+                else:
+                    # Hunt forward to find a good target. We'll know it's
+                    # in the original file if it has a position marker.
+                    for anchor in segments[idx + 1 :]:
+                        if anchor.pos_marker:
+                            break
+            else:
+                anchor = fix.anchor
+            results.append(LintResult(anchor, [fix], description=fix.description))
+        return results
 
     def get_partitioned_fixes(
         self, target: BaseSegment

@@ -73,15 +73,8 @@ class Rule_L003(BaseRule):
           indent meta segment in the previous line.
 
         """
-        results = []
-
-        fixes = (
+        return (
             ReflowSequence.from_root(context.segment, context.config)
             .reindent()
-            .get_fixes()
+            .get_results()
         )
-
-        for fix in fixes:
-            results.append(LintResult(fix.anchor, [fix]))
-
-        return results

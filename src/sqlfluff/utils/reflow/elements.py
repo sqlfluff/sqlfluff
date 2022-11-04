@@ -145,6 +145,20 @@ class ReflowBlock(ReflowElement):
         )
 
 
+def _indent_description(indent: str):
+    """Construct a human readable description of the indent."""
+    if indent == "":
+        return "no indent"
+    elif indent[0] == " ":
+        assert all(c == " " for c in indent)
+        return f"indent of {len(indent)} spaces"
+    elif indent[0] == "\t":
+        assert all(c == "\t" for c in indent)
+        return f"indent of {len(indent)} tabs"
+    else:  # pragma: no cover
+        raise NotImplementedError(f"Invalid indent construction: {indent!r}")
+
+
 @dataclass(frozen=True)
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
@@ -217,6 +231,7 @@ class ReflowPoint(ReflowElement):
         desired_indent: str,
         after: Optional[BaseSegment] = None,
         before: Optional[BaseSegment] = None,
+        description: Optional[str] = None,
     ) -> Tuple[List[LintFix], "ReflowPoint"]:
         """Coerce a point to have a particular indent.
 
@@ -271,6 +286,8 @@ class ReflowPoint(ReflowElement):
                 LintFix.replace(
                     indent_seg,
                     [new_placeholder],
+                    description=description
+                    or f"Expected {_indent_description(desired_indent)}.",
                 )
             ]
             new_segments = [
@@ -289,14 +306,24 @@ class ReflowPoint(ReflowElement):
                     # Coerce to no indent. We don't want the indent. Delete it.
                     new_indent = indent_seg.edit(desired_indent)
                     idx = self.segments.index(indent_seg)
-                    return [LintFix.delete(indent_seg)], ReflowPoint(
-                        self.segments[:idx] + self.segments[idx + 1 :]
-                    )
+                    return [
+                        LintFix.delete(
+                            indent_seg,
+                            description=description or "Line should not be indented.",
+                        )
+                    ], ReflowPoint(self.segments[:idx] + self.segments[idx + 1 :])
 
                 # Standard case of an indent change.
                 new_indent = indent_seg.edit(desired_indent)
                 idx = self.segments.index(indent_seg)
-                return [LintFix.replace(indent_seg, [new_indent])], ReflowPoint(
+                return [
+                    LintFix.replace(
+                        indent_seg,
+                        [new_indent],
+                        description=description
+                        or f"Expected {_indent_description(desired_indent)}.",
+                    )
+                ], ReflowPoint(
                     self.segments[:idx] + (new_indent,) + self.segments[idx + 1 :]
                 )
             else:
@@ -314,7 +341,10 @@ class ReflowPoint(ReflowElement):
                 # it feels a bit like a workaround.
                 return [
                     LintFix.replace(
-                        self.segments[idx], [self.segments[idx], new_indent]
+                        self.segments[idx],
+                        [self.segments[idx], new_indent],
+                        description=description
+                        or f"Expected {_indent_description(desired_indent)}.",
                     )
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
@@ -339,11 +369,30 @@ class ReflowPoint(ReflowElement):
                         f"anchor: {self.segments}"
                     )
                 # Otherwise make a new indent, attached to the relevant anchor.
+                # Prefer anchoring before because it makes the labelling better.
                 elif before:
-                    fix = LintFix.create_before(before, [new_newline, new_indent])
+                    fix = LintFix.create_before(
+                        before,
+                        [new_newline, new_indent],
+                        description=description
+                        or (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"before {before.raw!r}."
+                        ),
+                    )
                 else:
                     assert after  # mypy hint
-                    fix = LintFix.create_after(after, [new_newline, new_indent])
+                    fix = LintFix.create_after(
+                        after,
+                        [new_newline, new_indent],
+                        description=description
+                        or (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"after {after.raw!r}."
+                        ),
+                    )
                 new_point = ReflowPoint((new_newline, new_indent))
             else:
                 # There is whitespace. Coerce it to the right indent and add
@@ -356,7 +405,26 @@ class ReflowPoint(ReflowElement):
                 else:
                     new_segs = [new_newline, ws_seg.edit(desired_indent)]
                 idx = self.segments.index(ws_seg)
-                fix = LintFix.replace(ws_seg, new_segs)
+                if not description:
+                    # Prefer before, because it makes the anchoring better.
+                    if before:
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"before {before.raw!r}."
+                        )
+                    elif after:
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"after {after.raw!r}."
+                        )
+                    else:
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)}."
+                        )
+                fix = LintFix.replace(ws_seg, new_segs, description=description)
                 new_point = ReflowPoint(
                     self.segments[:idx] + tuple(new_segs) + self.segments[idx + 1 :]
                 )

@@ -72,8 +72,7 @@ def contains_ansi_escape(s: str) -> bool:
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   4 | L003 | Expected 1 indentation, found less than 1 [compared to
-                       | line 01]
+L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
@@ -1252,8 +1251,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
+    print("=== BEGIN RESULT OUTPUT")
+    print(result_payload)
+    print("=== END RESULT OUTPUT")
+    print("Result length:", len(result_payload.split("\n")))
+
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 33 if write_file else 32
+        assert len(result_payload.split("\n")) == (31 if write_file else 32)
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1269,7 +1273,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 24
+        assert len(result) == 26
     else:
         raise Exception
 
@@ -1691,7 +1695,7 @@ class TestProgressBars:
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]
+L:  12 | P:   1 | L003 | Expected indent of 4 spaces.
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
@@ -1739,10 +1743,7 @@ def test__cli__fix_multiple_errors_show_errors():
     assert check_a in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.
-    assert (
-        "L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]"
-        in result.output
-    )
+    assert "L:  12 | P:   1 | L003 | Expected indent of 4 spaces." in result.output
     assert (
         "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in "
         "select with more than" in result.output

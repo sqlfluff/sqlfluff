@@ -627,7 +627,10 @@ def _evaluate_indent_point_buffer(
         )
         # Initial point gets special handling it it has no newlines.
         if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
-            new_fixes = [LintFix.delete(seg) for seg in initial_point.segments]
+            new_fixes = [
+                LintFix.delete(seg, description="First line should not be indented.")
+                for seg in initial_point.segments
+            ]
             new_point = ReflowPoint(())
         # Placeholder indents also get special treatment
         else:
