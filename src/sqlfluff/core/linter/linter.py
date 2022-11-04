@@ -597,8 +597,13 @@ class Linter:
                                 f"Rule {crawler.code} returned conflicting "
                                 "fixes with the same anchor. This is only "
                                 "supported for create_before+create_after, so "
-                                f"the fixes will not be applied. {fixes!r}"
+                                "the fixes will not be applied. "
                             )
+                            for uuid, info in anchor_info.items():
+                                if not info.is_valid:
+                                    message += f"\n{uuid}:"
+                                    for fix in info.fixes:
+                                        message += f"\n    {fix}"
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []

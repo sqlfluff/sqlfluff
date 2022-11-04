@@ -160,6 +160,10 @@ class AnchorEditInfo:
         We also allow potentially multiple source fixes on the same
         anchor by condensing them together here.
         """
+        if fix in self.fixes:
+            # Deduplicate fixes in case it's already in there.
+            return
+
         if fix.is_just_source_edit():
             assert fix.edit
             # is_just_source_edit confirms there will be a list

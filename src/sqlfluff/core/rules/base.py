@@ -251,11 +251,28 @@ class LintFix:
         """
         if not self.edit_type == other.edit_type:
             return False
-        if not self.anchor == other.anchor:
+        # For checking anchor equality, first check types.
+        if not self.anchor.class_types == other.anchor.class_types:
             return False
-        if not self.edit == other.edit:
+        # If types match, check uuids to see if they're the same original segment.
+        if self.anchor.uuid != other.anchor.uuid:
             return False
-        return True  # pragma: no cover TODO?
+        # Then compare edits, here we only need to check the raws and source
+        # fixes (positions are meaningless).
+        # Only do this if we have edits.
+        if self.edit:
+            # 1. Check lengths
+            if len(self.edit) != len(other.edit):
+                return False
+            # 2. Zip and compare
+            for a, b in zip(self.edit, other.edit):
+                # Check raws
+                if a.raw != b.raw:
+                    return False
+                # Check source fixes
+                if a.source_fixes != b.source_fixes:
+                    return False
+        return True
 
     @classmethod
     def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
