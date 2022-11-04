@@ -307,7 +307,6 @@ test_pass_nested_ctes_1:
         with b as (
             select 1 from c
         )
-
         select * from b
     )
 
