@@ -74,6 +74,8 @@ def test__dialect__base_broad_fix(
     parsed: Optional[BaseSegment] = lex_and_parse(config_overrides, raw)
     if not parsed:
         return
+    else:
+        print(parsed.stringify())
 
     config = FluffConfig(overrides=config_overrides)
     # Due to "raise_critical_errors_after_fix" fixure "fix",

@@ -532,7 +532,11 @@ def _evaluate_indent_point_buffer(
 
     # Catch edge case for first line where we'll start with a block if
     # no initial indent.
-    starting_balance = indent_line.initial_indent_balance
+    # NOTE: We use the first point for the starting balance rather than
+    # the line starting balance because we're using this to detect missing
+    # lines and if the line has been corrected then we don't want to do
+    # that.
+    starting_balance = indent_line.indent_points[0].initial_indent_balance
     indent_points = indent_line.indent_points
     # Set up the default anchor
     anchor = {"before": elements[indent_points[0].idx + 1].segments[0]}
