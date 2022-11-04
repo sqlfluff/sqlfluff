@@ -18,7 +18,7 @@ class Rule_L070(BaseRule):
     same number of columns
 
     .. code-block:: sql
-    
+
         WITH cte AS (
             SELECT
                 a,
@@ -39,6 +39,7 @@ class Rule_L070(BaseRule):
     and ensure that they all seleect same number of columns
 
     .. code-block:: sql
+    
         WITH cte AS (
             SELECT a, b FROM foo
         )
