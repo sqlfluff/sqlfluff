@@ -110,6 +110,7 @@ class Rule_L070(BaseRule):
                                     cte_child = query.lookup_cte(select_info_target)
                                     if select_info_target.upper() in all_ctes:
                                         cte = all_ctes[select_info_target.upper()]
+                                    # check parent cte
                                     if cte:
                                         self.__resolve_wildcard(
                                             context,
