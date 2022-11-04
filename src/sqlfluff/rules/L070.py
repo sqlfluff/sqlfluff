@@ -13,21 +13,24 @@ class Rule_L070(BaseRule):
 
     **Anti-pattern**
 
-    When writing set expressions, all queries must return the
+    When writing set expressions
+    , all queries must return the
     same number of columns
 
     .. code-block:: sql
+    
         WITH cte AS (
             SELECT
-            a
-            , b
+                a,
+                b
             FROM foo
         )
         SELECT * FROM cte
         UNION
-        SELECT c
-        , d
-        , e
+        SELECT 
+            c,
+            d,
+            e
          FROM t
 
     **Best practice**
@@ -39,17 +42,21 @@ class Rule_L070(BaseRule):
         WITH cte AS (
             SELECT a, b FROM foo
         )
-        SELECT a, b FROM cte
+        SELECT 
+            a, 
+            b 
+        FROM cte
         UNION
-        SELECT c
-        , d
+        SELECT 
+            c,
+            d
         FROM t
     """
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
-    def _find_all_ctes_utils(self, query: Query, cte_dict):
+    def _find_all_ctes_utils(self, query, cte_dict):
         """Generate a list of all ctes in a query."""
         cte_dict = cte_dict | query.ctes
         for cte_name, cte in query.ctes.items():
