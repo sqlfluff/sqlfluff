@@ -107,7 +107,7 @@ class Rule_L070(BaseRule):
                                 if isinstance(select_info_target, str):
                                     cte = None
                                     # handles case where cte is in subquery
-                                    cte_child = query.lookup_cte(wildcard_table)
+                                    cte_child = query.lookup_cte(select_info_target)
                                     if select_info_target.upper() in all_ctes:
                                         cte = all_ctes[select_info_target.upper()]
                                     if cte:
