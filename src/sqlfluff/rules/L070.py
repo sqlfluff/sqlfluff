@@ -79,8 +79,8 @@ class Rule_L070(BaseRule):
     def __resolve_wildcard(
         self,
         context: RuleContext,
-        query: Query,
-        parent_query: Query,
+        query,
+        parent_query,
         resolve_targets,
         all_ctes,
     ):
@@ -181,7 +181,7 @@ class Rule_L070(BaseRule):
 
         return resolve_targets
 
-    def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
+    def _get_select_target_counts(self, context: RuleContext, crawler):
         """Given a set expression, get the number of select targets in each query."""
         select_list = None
         select_target_counts = set()
