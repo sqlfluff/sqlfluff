@@ -27,7 +27,7 @@ class Rule_L070(BaseRule):
         )
         SELECT * FROM cte
         UNION
-        SELECT 
+        SELECT
             c,
             d,
             e
@@ -39,16 +39,16 @@ class Rule_L070(BaseRule):
     and ensure that they all seleect same number of columns
 
     .. code-block:: sql
-    
+
         WITH cte AS (
             SELECT a, b FROM foo
         )
-        SELECT 
-            a, 
-            b 
+        SELECT
+            a,
+            b
         FROM cte
         UNION
-        SELECT 
+        SELECT
             c,
             d
         FROM t
@@ -59,7 +59,8 @@ class Rule_L070(BaseRule):
 
     def _find_all_ctes_utils(self, query, cte_dict):
         """Generate a list of all ctes in a query."""
-        cte_dict = cte_dict | query.ctes
+        # cte_dict = cte_dict | query.ctes
+        cte_dict.update(query.ctes)
         for cte_name, cte in query.ctes.items():
             cte_dict = self._find_all_ctes_utils(cte, cte_dict)
         return cte_dict
@@ -70,7 +71,8 @@ class Rule_L070(BaseRule):
                 parent_query = SelectCrawler(
                     context.parent_stack[i], context.dialect
                 ).query_tree
-                cte_dict = cte_dict | self._find_all_ctes_utils(parent_query, cte_dict)
+                # cte_dict = cte_dict | self._find_all_ctes_utils(parent_query, cte_dict)
+                cte_dict.update(self._find_all_ctes_utils(parent_query, cte_dict))
 
         return cte_dict
 
@@ -199,6 +201,8 @@ class Rule_L070(BaseRule):
 
                 # all_cte_queries = self._find_all_ctes(context, {})
                 all_cte_queries = self._find_all_ctes(context, {})
+                print("ALL THE CTES")
+                print(all_cte_queries)
                 select_crawler = SelectCrawler(
                     selectable.selectable, context.dialect
                 ).query_tree
