@@ -652,9 +652,17 @@ def _evaluate_indent_point_buffer(
                 indent_points[-1].initial_indent_balance
                 + indent_points[-1].indent_impulse
             )
+
         # On the way up we're looking for whether the ending balance
         # was an untaken indent on the way up.
-        if closing_trough in indent_points[-1].untaken_indents:
+        if (
+            # Edge case: if closing_balance > starting balance
+            # but closing_trough isn't, then we shouldn't insert
+            # a new line. That means we just dropped back down to
+            # close the untaken newline.
+            closing_trough > starting_balance
+            and closing_trough in indent_points[-1].untaken_indents
+        ):
             # It was! Force a new indent there.
             for ip in indent_points:
                 if ip.closing_indent_balance == closing_trough:
@@ -664,7 +672,7 @@ def _evaluate_indent_point_buffer(
                     )
                     break
             else:
-                NotImplementedError("We should always find the relevant point.")
+                raise NotImplementedError("We should always find the relevant point.")
             reflow_logger.debug(
                 "    Detected missing +ve line break @ line %s. Indenting to %r",
                 elements[target_point_idx + 1].segments[0].pos_marker.working_line_no,
