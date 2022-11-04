@@ -636,7 +636,7 @@ def _evaluate_indent_point_buffer(
         else:
             new_fixes, new_point = initial_point.indent_to(
                 desired_starting_indent,
-                **anchor,
+                **anchor,  # type: ignore
             )
         elements[indent_points[0].idx] = new_point
         fixes += new_fixes

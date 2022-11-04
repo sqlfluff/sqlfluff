@@ -102,15 +102,18 @@ class ReflowSequence:
             # shuffle here.
             if fix.edit_type == "create_after" or (
                 fix.edit_type == "replace"
-                and "".join(seg.raw for seg in fix.edit).startswith(fix.anchor.raw)
+                and "".join(
+                    seg.raw for seg in cast(List[BaseSegment], fix.edit)
+                ).startswith(fix.anchor.raw)
             ):
                 if not segments:
                     segments = list(
                         chain.from_iterable(elem.segments for elem in self.elements)
                     )
 
+                target = fix.anchor.segments[-1] if fix.anchor.segments else fix.anchor
                 try:
-                    idx = segments.index(fix.anchor)
+                    idx = segments.index(target)
                 except ValueError:
                     # the anchor isn't there any more, it's a good anchor.
                     idx = None
