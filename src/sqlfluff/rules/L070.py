@@ -71,7 +71,6 @@ class Rule_L070(BaseRule):
                 parent_query = SelectCrawler(
                     context.parent_stack[i], context.dialect
                 ).query_tree
-                # cte_dict = cte_dict | self._find_all_ctes_utils(parent_query, cte_dict)
                 cte_dict.update(self._find_all_ctes_utils(parent_query, cte_dict))
 
         return cte_dict
@@ -199,10 +198,7 @@ class Rule_L070(BaseRule):
                 # to start, get a list of all of the ctes in the parent
                 # stack to check whether they resolve to wildcards
 
-                # all_cte_queries = self._find_all_ctes(context, {})
                 all_cte_queries = self._find_all_ctes(context, {})
-                print("ALL THE CTES")
-                print(all_cte_queries)
                 select_crawler = SelectCrawler(
                     selectable.selectable, context.dialect
                 ).query_tree
