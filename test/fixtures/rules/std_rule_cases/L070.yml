@@ -78,7 +78,7 @@ test_pass_known_number_of_result_columns_4:
     join cte2
     using (a)
 
-    union  
+    union
     select e, f, g, h
     from cte3
 
@@ -102,7 +102,7 @@ test_fail_unknown_number_of_result_columns_3:
     from cte1
     join cte2
     using (a)
-    union  
+    union
     select e, f
     from cte3
 
@@ -122,7 +122,7 @@ test_pass_known_number_of_result_columns_5:
 test_pass_known_number_of_result_columns_6:
   pass_str: |
     with cte2 as (
-      select b  
+      select b
       from t1
     )
     select
@@ -232,11 +232,9 @@ test_fail_nested_ctes_1:
     )
 
     select * from a
-    union  
-    select a, b  
+    union
+    select a, b
     from t2
-
-
 
 test_cte_reference_outer_2:
   pass_str:
