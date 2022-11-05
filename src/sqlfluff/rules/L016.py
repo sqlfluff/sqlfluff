@@ -46,12 +46,14 @@ class Rule_L016(BaseRule):
         NOTE: This was migrated from L003 and should probably
         be removed when L016 is refactored.
         """
-        if indent_unit == "tab":
+        # NOTE: L016 in it's current form is going to be removed soon
+        # so it's ok that test coverage is currently a little sparse.
+        if indent_unit == "tab":  # pragma: no cover
             return "\t" * num
         if indent_unit == "space":
             return " " * tab_space_size * num
 
-        raise ValueError(
+        raise ValueError(  # pragma: no cover
             f"Parameter indent_unit has unexpected value: `{indent_unit}`. Expected"
             " `tab` or `space`."
         )

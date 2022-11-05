@@ -200,22 +200,3 @@ def templated_slices(
         if (stop > slice_.templated_slice.start and start < slice_.templated_slice.stop)
     ]
     return TemplatedFileSlices(*templated_slices, templated_file=templated_file)
-
-
-def raw_slice(segment: BaseSegment, raw_slice_: RawFileSlice) -> str:
-    """Return the portion of a segment's source provided by raw_slice."""
-    result = ""
-    if not segment.pos_marker:
-        raise ValueError(
-            'raw_slice: "segment" parameter must have pos_marker set.'
-        )  # pragma: no cover
-    seg_start = segment.pos_marker.source_slice.start
-    seg_stop = segment.pos_marker.source_slice.stop
-    if seg_start != seg_stop:
-        start = max(seg_start, raw_slice_.source_idx)
-        stop = min(
-            seg_stop,
-            raw_slice_.source_idx + len(raw_slice_.raw),
-        )
-        result = segment.pos_marker.templated_file.source_str[slice(start, stop)]
-    return result

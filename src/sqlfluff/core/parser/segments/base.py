@@ -111,35 +111,6 @@ class FixPatch:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
-    @classmethod
-    def infer_from_template(
-        cls,
-        templated_slice: slice,
-        fixed_raw: str,
-        patch_category: str,
-        templated_file: TemplatedFile,
-    ):
-        """Infer source position from just templated position.
-
-        In cases where we expect it to be uncontroversial it
-        is sometimes more straightforward to just leverage
-        the existing mapping functions to auto-generate the
-        source position rather than calculating it explicitly.
-        """
-        # NOTE: There used to be error handling here to catch ValueErrors.
-        # Removed in July 2022 because untestable.
-        source_slice = templated_file.templated_slice_to_source_slice(
-            templated_slice,
-        )
-        return cls(
-            source_slice=source_slice,
-            templated_slice=templated_slice,
-            patch_category=patch_category,
-            fixed_raw=fixed_raw,
-            templated_str=templated_file.templated_str[templated_slice],
-            source_str=templated_file.source_str[source_slice],
-        )
-
 
 @dataclass
 class AnchorEditInfo:

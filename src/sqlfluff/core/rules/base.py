@@ -267,7 +267,7 @@ class LintFix:
         if self.edit:
             # 1. Check lengths
             if len(self.edit) != len(other.edit):
-                return False
+                return False  # pragma: no cover
             # 2. Zip and compare
             for a, b in zip(self.edit, other.edit):
                 # Check raws
