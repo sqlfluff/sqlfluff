@@ -6,6 +6,8 @@ This class is a construct to keep track of positions within a file.
 from dataclasses import dataclass
 from typing import Tuple, TYPE_CHECKING
 
+from sqlfluff.core.slice_helpers import zero_slice
+
 if TYPE_CHECKING:
     from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
 
@@ -83,8 +85,8 @@ class PositionMarker:
     ):
         """Convenience method for creating point markers."""
         return cls(
-            slice(source_point, source_point),
-            slice(templated_point, templated_point),
+            zero_slice(source_point),
+            zero_slice(templated_point),
             templated_file,
             **kwargs,
         )

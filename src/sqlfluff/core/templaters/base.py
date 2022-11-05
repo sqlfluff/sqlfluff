@@ -4,8 +4,8 @@ import logging
 from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 from sqlfluff.core.config import FluffConfig
-
 from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.slice_helpers import zero_slice
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -332,7 +332,7 @@ class TemplatedFile:
         if template_slice.start == template_slice.stop:
             # Is it on a join?
             if insertion_point >= 0:
-                return slice(insertion_point, insertion_point)
+                return zero_slice(insertion_point)
             # It's within a segment.
             else:
                 if (
@@ -340,8 +340,7 @@ class TemplatedFile:
                     and ts_start_subsliced_file[0][0] == "literal"
                 ):
                     offset = template_slice.start - ts_start_subsliced_file[0][2].start
-                    return slice(
-                        ts_start_subsliced_file[0][1].start + offset,
+                    return zero_slice(
                         ts_start_subsliced_file[0][1].start + offset,
                     )
                 else:

@@ -20,7 +20,7 @@ from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.templaters.base import TemplatedFileSlice
-from sqlfluff.core.slice_helpers import slice_length, is_zero_slice
+from sqlfluff.core.slice_helpers import slice_length, is_zero_slice, offset_slice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -552,9 +552,9 @@ def _iter_segments(
                                 templated_file,
                             ),
                             # Subdivide the existing segment.
-                            subslice=slice(
+                            subslice=offset_slice(
                                 consumed_element_length,
-                                consumed_element_length + incremental_length,
+                                incremental_length,
                             ),
                         )
                         consumed_element_length += incremental_length
@@ -827,7 +827,7 @@ class Lexer:
         idx = 0
         templated_buff: List[TemplateElement] = []
         for element in elements:
-            template_slice = slice(idx, idx + len(element.raw))
+            template_slice = offset_slice(idx, len(element.raw))
             idx += len(element.raw)
             templated_buff.append(TemplateElement.from_element(element, template_slice))
             if (

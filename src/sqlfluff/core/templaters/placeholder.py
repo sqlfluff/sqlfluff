@@ -6,6 +6,7 @@ from typing import Dict, Optional, Tuple
 
 
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.slice_helpers import offset_slice
 
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -163,10 +164,9 @@ class PlaceholderTemplater(RawTemplater):
                 TemplatedFileSlice(
                     slice_type="literal",
                     source_slice=slice(last_pos_raw, span[0], None),
-                    templated_slice=slice(
+                    templated_slice=offset_slice(
                         last_pos_templated,
-                        last_pos_templated + last_literal_length,
-                        None,
+                        last_literal_length,
                     ),
                 )
             )
@@ -183,10 +183,8 @@ class PlaceholderTemplater(RawTemplater):
             template_slices.append(
                 TemplatedFileSlice(
                     slice_type="templated",
-                    source_slice=slice(span[0], span[1], None),
-                    templated_slice=slice(
-                        start_template_pos, start_template_pos + len(replacement), None
-                    ),
+                    source_slice=slice(span[0], span[1]),
+                    templated_slice=offset_slice(start_template_pos, len(replacement)),
                 )
             )
             raw_slices.append(
@@ -205,11 +203,10 @@ class PlaceholderTemplater(RawTemplater):
             template_slices.append(
                 TemplatedFileSlice(
                     slice_type="literal",
-                    source_slice=slice(last_pos_raw, len(in_str), None),
-                    templated_slice=slice(
+                    source_slice=slice(last_pos_raw, len(in_str)),
+                    templated_slice=offset_slice(
                         last_pos_templated,
-                        last_pos_templated + (len(in_str) - last_pos_raw),
-                        None,
+                        (len(in_str) - last_pos_raw),
                     ),
                 )
             )

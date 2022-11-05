@@ -6,6 +6,7 @@ from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
 
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.string_helpers import findall
+from sqlfluff.core.slice_helpers import offset_slice, zero_slice
 
 from sqlfluff.core.templaters.base import (
     RawTemplater,
@@ -54,9 +55,9 @@ class IntermediateFileSlice(NamedTuple):
                 # Assume it's a literal, check the literal actually matches.
                 templated_len = len(focus.raw)
                 if target_end == "head":
-                    check_slice = slice(
+                    check_slice = offset_slice(
                         main_templated_slice.start,
-                        main_templated_slice.start + templated_len,
+                        templated_len,
                     )
                 else:
                     check_slice = slice(
@@ -367,7 +368,7 @@ class PythonTemplater(RawTemplater):
             slices.append(
                 TemplatedFileSlice(
                     "templated",
-                    slice(last_slice.source_slice.stop, last_slice.source_slice.stop),
+                    zero_slice(last_slice.source_slice.stop),
                     slice(last_slice.templated_slice.stop, len(templated_str)),
                 )
             )
@@ -505,14 +506,13 @@ class PythonTemplater(RawTemplater):
                 idx = None
                 yield IntermediateFileSlice(
                     "invariant",
-                    slice(
+                    offset_slice(
                         raw_file_slice.source_idx,
-                        raw_file_slice.source_idx + len(raw_file_slice.raw),
+                        len(raw_file_slice.raw),
                     ),
-                    slice(
+                    offset_slice(
                         templated_occurrences[raw_file_slice.raw][0],
-                        templated_occurrences[raw_file_slice.raw][0]
-                        + len(raw_file_slice.raw),
+                        len(raw_file_slice.raw),
                     ),
                     [
                         RawFileSlice(
@@ -1013,8 +1013,8 @@ class PythonTemplater(RawTemplater):
                 # Yield the literal
                 owu_literal_slice = TemplatedFileSlice(
                     "literal",
-                    slice(raw_idx, raw_idx + raw_len),
-                    slice(template_idx, template_idx + raw_len),
+                    offset_slice(raw_idx, raw_len),
+                    offset_slice(template_idx, raw_len),
                 )
                 templater_logger.debug(
                     "    Yielding Unique: %r, %s",

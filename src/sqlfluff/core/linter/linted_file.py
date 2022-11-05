@@ -28,6 +28,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
 )
 from sqlfluff.core.string_helpers import findall
+from sqlfluff.core.slice_helpers import offset_slice
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
@@ -386,9 +387,9 @@ class LintedFile(NamedTuple):
 
                 # We have a single occurrence of the thing we want to patch. This
                 # means we can use its position to place our patch.
-                new_source_slice = slice(
+                new_source_slice = offset_slice(
                     patch.source_slice.start + positions[0],
-                    patch.source_slice.start + positions[0] + len(patch.templated_str),
+                    len(patch.templated_str),
                 )
                 linter_logger.debug(
                     "      * Keeping Tricky Case. Positions: %s, New Slice: %s, "

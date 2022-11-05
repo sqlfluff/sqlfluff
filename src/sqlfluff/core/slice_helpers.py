@@ -14,3 +14,8 @@ def is_zero_slice(s: slice) -> bool:
 def zero_slice(i: int) -> slice:
     """Construct a zero slice from a single integer."""
     return slice(i, i)
+
+
+def offset_slice(start: int, offset: int) -> slice:
+    """Construct a slice from a start and offset."""
+    return slice(start, start + offset)
