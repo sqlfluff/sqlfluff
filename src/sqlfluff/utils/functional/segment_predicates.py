@@ -14,7 +14,6 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 from sqlfluff.utils.functional.templated_file_slices import TemplatedFileSlices
 from sqlfluff.core.templaters.base import (
-    RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
 )
@@ -189,7 +188,7 @@ def templated_slices(
         )  # pragma: no cover
     # :TRICKY: We don't use _find_slice_indices_of_templated_pos() here because
     # it treats TemplatedFileSlice.templated_slice.stop as inclusive, not
-    # exclusive. Other parts of SQLFluff rely on this behavior, but we don't
+    # exclusive. Other parts of SQLFluff rely on this behaviour, but we don't
     # want it. It's easy enough to do this ourselves.
     start = segment.pos_marker.templated_slice.start
     stop = segment.pos_marker.templated_slice.stop
