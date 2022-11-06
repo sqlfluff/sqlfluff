@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
 )
 
+from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.core.rules import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.utils.functional import sp, Segments
@@ -436,11 +437,9 @@ class Rule_L016(BaseRule):
 
         # Compute the length of this segments in SOURCE space (before template
         # expansion).
-        slice_length = (
-            segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
-        )
-        if slice_length:
-            return slice_length
+        slice_len = slice_length(segment.pos_marker.source_slice)
+        if slice_len:
+            return slice_len
         else:
             # If a segment did not originate from the original source, its slice
             # length slice length will be zero. This occurs, for example, when
