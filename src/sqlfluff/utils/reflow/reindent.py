@@ -56,8 +56,9 @@ def has_untemplated_newline(point: ReflowPoint) -> bool:
             return True
         if seg.is_type("placeholder"):
             seg = cast(TemplateSegment, seg)
-            if seg.block_type != "literal":
-                continue
+            assert (
+                seg.block_type == "literal"
+            ), "Expected only literal placeholders in ReflowPoint."
             if "\n" in seg.source_str:
                 return True
     return False

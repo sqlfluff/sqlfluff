@@ -512,56 +512,19 @@ def _iter_segments(
 
                     # What we do here depends on whether we're allowed to split
                     # lexed elements. This is basically only true if it's whitespace.
-                    # NOTE: We should probably make this configurable on the
-                    # matcher object, but for now we're going to look for the
-                    # name of the lexer.
-                    if element.matcher.name == "whitespace":
-                        # We *can* split it!
-                        # Consume what we can from this slice and move on.
+                    # However, whitespace should always already be split based on
+                    # the templating and lexing rules.
+
+                    # We can't split it. We're going to end up yielding a segment
+                    # which spans multiple slices. Stash the type, and if we haven't
+                    # set the start yet, stash it too.
+                    lexer_logger.debug("     Spilling over literal slice.")
+                    if stashed_source_idx is None:
+                        stashed_source_idx = element.template_slice.start + tfs_offset
                         lexer_logger.debug(
-                            "     Consuming split whitespace from literal. "
-                            "Existing Consumed: %s",
-                            consumed_element_length,
+                            "     Stashing a source start. %s", stashed_source_idx
                         )
-                        if stashed_source_idx is not None:
-                            raise NotImplementedError(  # pragma: no cover
-                                "Found literal whitespace with stashed idx!"
-                            )
-                        incremental_length = (
-                            tfs.templated_slice.stop - element.template_slice.start
-                        )
-                        yield element.to_segment(
-                            pos_marker=PositionMarker(
-                                slice(
-                                    element.template_slice.start
-                                    + consumed_element_length
-                                    + tfs_offset,
-                                    tfs.templated_slice.stop + tfs_offset,
-                                ),
-                                element.template_slice,
-                                templated_file,
-                            ),
-                            # Subdivide the existing segment.
-                            subslice=offset_slice(
-                                consumed_element_length,
-                                incremental_length,
-                            ),
-                        )
-                        consumed_element_length += incremental_length
-                        continue
-                    else:
-                        # We can't split it. We're going to end up yielding a segment
-                        # which spans multiple slices. Stash the type, and if we haven't
-                        # set the start yet, stash it too.
-                        lexer_logger.debug("     Spilling over literal slice.")
-                        if stashed_source_idx is None:
-                            stashed_source_idx = (
-                                element.template_slice.start + tfs_offset
-                            )
-                            lexer_logger.debug(
-                                "     Stashing a source start. %s", stashed_source_idx
-                            )
-                        continue
+                    continue
 
             elif tfs.slice_type == "templated":
                 # Found a templated slice. Does it have length in the templated file?

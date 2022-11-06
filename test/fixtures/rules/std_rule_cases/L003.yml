@@ -1256,3 +1256,15 @@ test_pass_consuming_whitespace_stable:
         FROM some_table
         {{ 'UNION ALL\n' if not loop.last }}
     {%- endfor %}
+
+test_fail_trailing_comments:
+  # Additional test to make sure that crazy things don't happen
+  # with the first newline.
+  fail_str: |
+    SELECT 1
+        -- foo
+            -- bar
+  fix_str: |
+    SELECT 1
+    -- foo
+    -- bar

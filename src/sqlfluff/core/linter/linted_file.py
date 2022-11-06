@@ -438,7 +438,10 @@ class LintedFile(NamedTuple):
                 slice_buff.append(slice(source_idx, patch.source_slice.start))
 
             # Is this patch covering an area we've already covered?
-            if patch.source_slice.start < source_idx:
+            if patch.source_slice.start < source_idx:  # pragma: no cover
+                # NOTE: This shouldn't happen. With more detailed templating
+                # this shouldn't happen - but in the off-chance that this does
+                # happen - then this code path remains.
                 linter_logger.info(
                     "Skipping overlapping patch at Index %s, Patch: %s",
                     source_idx,
