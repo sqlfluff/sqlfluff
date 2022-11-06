@@ -144,6 +144,50 @@ class RawTemplatedTestCase(NamedTuple):
             ],
         ),
         RawTemplatedTestCase(
+            name="strip_both_block_hard",
+            instr="SELECT {%- set x = 42 %} 1 {%- if true -%} , 2{% endif -%}\n",
+            templated_str="SELECT 1, 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                # NB: Even though the jinja tag consumes whitespace, we still
+                # get it here as a placeholder.
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                # This whitespace is a seperate from the 1 because it's consumed.
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Consumed whitespace placeholder
+                "",  # Jinja block placeholder
+                " 1",
+                "",  # Consumed whitespace
+                "",  # Jinja block placeholder
+                "",  # More consumed whitespace
+                ", 2",
+                "",  # Jinja block
+                "",  # Consumed final newline.
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
+            ],
+        ),
+        RawTemplatedTestCase(
             name="basic_data",
             instr="""select
     c1,

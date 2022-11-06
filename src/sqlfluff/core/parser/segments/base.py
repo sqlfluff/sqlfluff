@@ -13,7 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy, copy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from itertools import takewhile, chain
+from itertools import chain
 from typing import (
     Any,
     Callable,
@@ -1384,46 +1384,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 seg_buffer.append(s)
                 seg_buffer.extend(after)
 
-            before = []
-            after = []
-            # If there's a parse grammar and this segment is not allowed to
-            # start or end with non-code, check for (and fix) misplaced
-            # segments. The reason for the parse grammar check is autofix if and
-            # only if parse() would've complained, and it has the same parse
-            # grammar check prior to checking can_start_end_non_code.
-            if r.parse_grammar and not r.can_start_end_non_code:
-                idx_non_code = self._find_start_or_end_non_code(seg_buffer)
-                # Are there misplaced segments from a fix?
-                if idx_non_code is not None:
-                    # Yes. Fix the misplaced segments: Do not include them
-                    # in the new segment's children. Instead, return them to the
-                    # caller, which will place them *adjacent to* the new
-                    # segment, in effect, bubbling them up to the tree to a
-                    # valid location.
-                    save_seg_buffer = list(seg_buffer)
-                    before.extend(
-                        takewhile(
-                            lambda seg: not self._is_code_or_meta(seg), seg_buffer
-                        )
-                    )
-                    seg_buffer = seg_buffer[len(before) :]
-                    after.extend(
-                        takewhile(
-                            lambda seg: not self._is_code_or_meta(seg),
-                            reversed(seg_buffer),
-                        )
-                    )
-                    after.reverse()
-                    seg_buffer = seg_buffer[: len(seg_buffer) - len(after)]
-                    assert before + seg_buffer + after == save_seg_buffer
-                    linter_logger.debug(
-                        "After applying fixes, segment %s violated "
-                        "'can_start_end_non_code=False' constraint. Autofixing, "
-                        "before=%s, after=%s",
-                        self,
-                        before,
-                        after,
-                    )
+            # After fixing we should be able to rely on whitespace being
+            # inserted in appropriate places. That logic now lives in
+            # `BaseRule._choose_anchor_segment()`, rather than here.
+
+            # Rather than fix that here, we simply assert that it has been
+            # done. This will raise issues in testing, but shouldn't in use.
+            if not r.can_start_end_non_code and seg_buffer:
+                assert not self._find_start_or_end_non_code(seg_buffer), (
+                    "Found inappropriate fix application: inappropriate "
+                    "whitespace positioning. Post `_choose_anchor_segment`. "
+                    "Please report this issue on GitHub with your SQL query. "
+                )
+
             # Reform into a new segment
             r = r.__class__(
                 # Realign the segments within
