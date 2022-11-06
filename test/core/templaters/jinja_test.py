@@ -144,6 +144,38 @@ class RawTemplatedTestCase(NamedTuple):
             ],
         ),
         RawTemplatedTestCase(
+            name="strip_and_templated_whitespace",
+            instr="SELECT {{- '  ' -}} 1{{ ' , 2' -}}\n",
+            templated_str="SELECT  1 , 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Placeholder for consumed whitespace
+                "  ",  # Placeholder for templated whitespace
+                "",  # Placeholder for consumed whitespace
+                "1",
+                " , 2",
+                "",  # Placeholder for consumed newline
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+        ),
+        RawTemplatedTestCase(
             name="strip_both_block_hard",
             instr="SELECT {%- set x = 42 %} 1 {%- if true -%} , 2{% endif -%}\n",
             templated_str="SELECT 1, 2",

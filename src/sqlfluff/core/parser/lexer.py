@@ -500,18 +500,8 @@ def _iter_segments(
                     # Did we forget to move on from the last tfs and there's
                     # overlap?
                     # NOTE: If the rest of the logic works, this should never
-                    # happen. Unless it's got a zero length in the rendered file
-                    # i.e. it's a consumed bit of whitespace or similar.
-                    if is_zero_slice(tfs.templated_slice):
-                        lexer_logger.debug("     Found consumed literal.")
-                        yield TemplateSegment.from_slice(
-                            tfs.source_slice,
-                            tfs.templated_slice,
-                            tfs.slice_type,
-                            templated_file,
-                        )
-                    else:
-                        lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                    # happen.
+                    lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
                     continue  # pragma: no cover
                 else:
                     # This means that the current lexed element spans across
@@ -534,7 +524,7 @@ def _iter_segments(
                             consumed_element_length,
                         )
                         if stashed_source_idx is not None:
-                            raise NotImplementedError(
+                            raise NotImplementedError(  # pragma: no cover
                                 "Found literal whitespace with stashed idx!"
                             )
                         incremental_length = (
