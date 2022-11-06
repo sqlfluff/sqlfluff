@@ -204,8 +204,10 @@ class ReflowPoint(ReflowElement):
             return None
         # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
-        if seg and seg.is_type("placeholder"):
+        if seg and seg.is_type("placeholder"):  # pragma: no cover
             # Return last bit after newline.
+            # NOTE: Not tested, because usually this would happen
+            # directly via _get_indent_segment.
             return cast(TemplateSegment, seg).source_str.split("\n")[-1]
         return seg.raw if seg else ""
 
@@ -419,7 +421,10 @@ class ReflowPoint(ReflowElement):
                             f"{_indent_description(desired_indent)} "
                             f"after {after.raw!r}."
                         )
-                    else:
+                    else:  # pragma: no cover
+                        # NOTE: Doesn't have test coverage because there's
+                        # normally an `after` or `before` value, so this
+                        # clause is unused.
                         description = (
                             "Expected line break and "
                             f"{_indent_description(desired_indent)}."

@@ -381,7 +381,7 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
         return "\t"
     elif indent_unit == "space":
         return " " * tab_space_size
-    else:
+    else:  # pragma: no cover
         raise SQLFluffUserError(
             f"Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"
         )
@@ -679,7 +679,7 @@ def _evaluate_indent_point_buffer(
                         ip.closing_indent_balance - len(ip.untaken_indents)
                     )
                     break
-            else:
+            else:  # pragma: no cover
                 raise NotImplementedError("We should always find the relevant point.")
             reflow_logger.debug(
                 "    Detected missing +ve line break @ line %s. Indenting to %r",
