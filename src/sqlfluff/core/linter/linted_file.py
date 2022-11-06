@@ -365,42 +365,17 @@ class LintedFile(NamedTuple):
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
-            else:
+            else:  # pragma: no cover
                 # We've got a situation where the ends of our patch need to be
-                # more carefully mapped. Likely because we're greedily including
-                # a section of source templating with our fix and we need to work
-                # around it gracefully.
-
-                # Identify all the places the string appears in the source content.
-                positions = list(findall(patch.templated_str, patch.source_str))
-                if len(positions) != 1:
-                    # NOTE: This section is not covered in tests. While we
-                    # don't have an example of it's use (we should), the
-                    # code after this relies on there being only one
-                    # instance found - so the safety check remains.
-                    linter_logger.debug(  # pragma: no cover
-                        "        - Skipping edit patch on non-unique templated "
-                        "content: %s",
-                        patch,
-                    )
-                    continue  # pragma: no cover
-
-                # We have a single occurrence of the thing we want to patch. This
-                # means we can use its position to place our patch.
-                new_source_slice = offset_slice(
-                    patch.source_slice.start + positions[0],
-                    len(patch.templated_str),
+                # more carefully mapped. This used to happen with greedy template
+                # element matching, but should now never happen. In the event that
+                # it does, we'll warn but carry on.
+                linter_logger.warning(
+                    "Skipping edit patch on uncertain templated section [%s], "
+                    "Please report this warning on GitHub along with the query "
+                    "that produced it.",
+                    (patch.patch_category, patch.source_slice),
                 )
-                linter_logger.debug(
-                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, "
-                    "Patch: %s",
-                    positions,
-                    new_source_slice,
-                    patch,
-                )
-                patch.source_slice = new_source_slice
-                filtered_source_patches.append(patch)
-                dedupe_buffer.append(patch.dedupe_tuple())
                 continue
 
         # Sort the patches before building up the file.
