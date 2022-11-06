@@ -27,8 +27,6 @@ from sqlfluff.core.errors import (
     SQLLintError,
     CheckTuple,
 )
-from sqlfluff.core.string_helpers import findall
-from sqlfluff.core.slice_helpers import offset_slice
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
