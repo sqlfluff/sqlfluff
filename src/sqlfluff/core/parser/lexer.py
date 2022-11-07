@@ -605,40 +605,10 @@ def _iter_segments(
                     # include all kinds of things (and from here we don't know what
                     # else is yet to come, comments, blocks, literals etc...).
 
-                    # What we do here depends on whether the current lexed element is
-                    # separable or not. If it is (i.e. it's whitespace), then we split
-                    # and claim what we can. If it's not then we don't yield the lexed
-                    # element yet, but stash a start position in the source and move
-                    # on to the next file slice before returning.
-                    elif element.matcher.name == "whitespace":
-                        # Consume what we can from this slice and move on.
-                        # Because we're currently in a templated element, the start
-                        # position in the source is always the start in the template.
-                        # i.e. we don't consume _partial_ elements of a templated tag
-                        # in the source.
-                        if stashed_source_idx is not None:
-                            raise NotImplementedError(
-                                "Found templated whitespace with stashed idx!"
-                            )
-                        lexer_logger.debug(
-                            "     Consuming split whitespace from templated. "
-                            "Offset: %s",
-                            consumed_element_length,
-                        )
-                        yield element.to_segment(
-                            pos_marker=PositionMarker(
-                                tfs.source_slice,
-                                tfs.templated_slice,
-                                templated_file,
-                            ),
-                            # Subdivide the existing segment.
-                            subslice=slice(0, slice_length(tfs.templated_slice)),
-                        )
-
-                        consumed_element_length = slice_length(tfs.templated_slice)
-                        # Move on to the next templated slice because we just consumed
-                        # the whole thing.
-                        continue
+                    # In the `literal` version of this code we would consider
+                    # splitting the literal element here, but in the templated
+                    # side we don't. That's because the way that templated tokens
+                    # are lexed, means that they should arrive "pre-split".
                     else:
                         # Stash the source idx for later when we do make a segment.
                         lexer_logger.debug("     Spilling over templated slice.")
