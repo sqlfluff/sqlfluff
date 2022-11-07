@@ -576,40 +576,13 @@ def _evaluate_indent_point_buffer(
             )
         elif not indent_seg.pos_marker or not indent_seg.is_templated:
             current_indent = indent_seg.raw
-        else:
-            # It's templated. Handle this.
-            # If it *starts* with a literal slice, then we use that as the indent.
-            # Otherwise just bail out - it's a totally templated indent.
-            source_slice = indent_seg.pos_marker.source_slice
-            raw_slices = (
-                indent_seg.pos_marker.templated_file.raw_slices_spanning_source_slice(
-                    source_slice
-                )
+        else:  # pragma: no cover
+            # It's templated. This shouldn't happen. Segments returned by
+            # _get_indent_segment, should be valid indents (i.e. whitespace
+            # or placeholders for consumed whitespace). This is a bug.
+            raise NotImplementedError(
+                "Unexpected templated indent. Report this as a bug on GitHub."
             )
-            # We care most about the first one.
-            # Is it literal?
-            if raw_slices[0].slice_type == "literal":
-                # Excellent. Take as much as we can.
-                current_indent = raw_slices[0].raw[
-                    source_slice.start - raw_slices[0].source_idx :
-                ]
-                # NOTE: There's a risk here that we take too much, but I think
-                # given the first slice is literal, but we know the whole segment
-                # is templated - the next MUST be something exotic.
-            else:
-                # It's not literal. That means it's a tag or something.
-                # We know the newline wasn't templated (otherwise we wouldn't)
-                # be here, so that means it's an unindented tag.
-                # If we edit this indent, we should create _after_ the newline.
-                for last_newline in elements[0].segments[::-1]:
-                    if last_newline.is_type("newline"):
-                        break
-                else:
-                    raise NotImplementedError(
-                        "Could not find newline. Report this as a bug."
-                    )
-                anchor = {"after": last_newline}
-                current_indent = ""
     else:
         current_indent = ""
 
