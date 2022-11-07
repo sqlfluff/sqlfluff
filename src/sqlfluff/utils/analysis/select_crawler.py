@@ -145,13 +145,9 @@ class Query:
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:
-            result["selectables"] = [
-                s.as_str() for s in self.selectables
-            ]  # type: ignore
+            result["selectables"] = [s.as_str() for s in self.selectables]
         if self.ctes:
-            result["ctes"] = {
-                k: v.as_json() for k, v in self.ctes.items()
-            }  # type: ignore
+            result["ctes"] = {k: v.as_json() for k, v in self.ctes.items()}
         return result
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
