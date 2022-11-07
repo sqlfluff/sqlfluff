@@ -23,7 +23,7 @@ class Parser:
         self,
         segments: Sequence["BaseSegment"],
         recurse=True,
-        fname: str = None,
+        fname: Optional[str] = None,
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:  # pragma: no cover
