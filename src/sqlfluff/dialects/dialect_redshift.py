@@ -3,8 +3,6 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
-from typing import Optional
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -23,7 +21,6 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -2500,12 +2497,7 @@ class FunctionSegment(ansi.FunctionSegment):
 class FromClauseSegment(ansi.FromClauseSegment):
     """Slightly modified version which allows for using brackets for content of FROM."""
 
-    match_grammar: Matchable = StartsWith(
-        "FROM",
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    parse_grammar = Sequence(
         "FROM",
         Delimited(
             OptionallyBracketed(Ref("FromExpressionSegment")),
