@@ -597,7 +597,9 @@ class BaseRule:
             # and fixes) against the filter in the crawler.
             anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
             for anchor in anchors:
-                if not self.crawl_behaviour.passes_filter(anchor):
+                if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
+                    # NOTE: This clause is untested, because it's a hard to produce
+                    # edge case. The latter clause is much more likely.
                     linter_logger.info("Fix skipped due to anchor not passing filter.")
                     lerr = None
                     ignored = True
