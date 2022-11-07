@@ -130,28 +130,41 @@ class _IndentLine:
             yield from block.segments
 
     def is_all_comments(self, elements: ReflowSequenceType) -> bool:
-        # check there *are* segments - TODO DOCSRTINGS BETTER
+        """Is this line made up of just comments?"""
         block_segments = list(self._iter_block_segments(elements))
         return bool(block_segments) and all(
             seg.is_type("comment") for seg in block_segments
         )
 
     def is_all_templates(self, elements: ReflowSequenceType) -> bool:
-        # check there *are* segments - TODO DOCSRTINGS BETTER
+        """Is this line made up of just template elements?"""
         block_segments = list(self._iter_block_segments(elements))
-        # reflow_logger.warning("BLOCK SEGS: %s", block_segments)
         return bool(block_segments) and all(
             seg.is_type("placeholder", "template_loop") for seg in block_segments
         )
 
     def desired_indent_units(self, forced_indents: List[int]):
-        # TODO: I don't quite understand this logic. It works tho.
-        # DOCUMENT THIS!!!!!
+        """Calculate the desired indent units.
+
+        This is the heart of the indentation calculations.
+
+        First we work out how many previous indents are untaken.
+        In the easy case, we just use the number of untaken
+        indents from previous points. The more complicated example
+        is where *this point* has both dedents *and* indents. In
+        this case we use the `indent_trough` to prune any
+        previous untaken indents which were above the trough at
+        this point.
+
+        After that we calculate the indent from the incoming
+        balance, minus any relevant untaken events *plus* any
+        previously untaken indents which have been forced (i.e.
+        inserted by the same operation).
+        """
         if self.indent_points[0].indent_trough:
-            # This says (I think) - purge any untaken indents which happened
-            # before the trough (or at least only _keep_ any which would have remained.)
-            # NEEEDS MORE TESTS.
-            # Minus signs are really hard to get wrong here.
+            # This says - purge any untaken indents which happened before
+            # the trough (or at least only _keep_ any which would have remained).
+            # NOTE: Minus signs are really hard to get wrong here.
             relevant_untaken_indents = [
                 i
                 for i in self.indent_points[0].untaken_indents
@@ -497,18 +510,18 @@ def _evaluate_indent_point_buffer(
 
     NOTE: This mutates the given `elements` and `forced_indents` input to avoid
     lots of copying.
+
+    Order of operations:
+    1. Evaluate the starting indent for this line.
+    2. For point which aren't line breaks in the line, we evaluate them
+       to see whether they *should* be. We seperately to missing indents
+       on the way *up* (i.e. where there's more indents than dedents)
+       and then on the way *down* (i.e. where there's more dedents than
+       indents).
+
+    This method returns fixes, including appropriate descriptions, to
+    allow generation of LintResult objects directly from them.
     """
-    # TODO: Rethink these comments.
-    # 1. Evaluate starting indent
-    # 2. Evaluate any points which aren't line breaks - should they be?
-    # After all evaluations, generate fixes and return - with metadata
-    # to allow later functions to correct.
-
-    # New indents on the way up?
-    # The closing indent is an untaken indent in the same line.
-
-    # New indents on the way down
-    # There's a jump on the way down which *wasn't* an untaken one.
     reflow_logger.debug(
         "  Evaluate Line #%s [source line #%s]. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
@@ -690,8 +703,8 @@ def _evaluate_indent_point_buffer(
             # default) introduce missing -ve indents before semicolons.
             # TODO: Review whether this is a good idea, or whether this should be
             # more configurable.
-            # NOTE: This could potentially lead to a weird situation if two statments
-            # are already on the same line. That's a bug to solve later.
+            # NOTE: This could potentially lead to a weird situation if two
+            # statements are already on the same line. That's a bug to solve later.
             if (
                 elements[ip.idx + 1 :]
                 and "statement_terminator" in elements[ip.idx + 1].class_types

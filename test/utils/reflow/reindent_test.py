@@ -18,6 +18,7 @@ from sqlfluff.utils.reflow.reindent import (
     lint_indent_points,
     _crawl_indent_points,
     _IndentPoint,
+    _IndentLine,
 )
 
 
@@ -620,3 +621,72 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
         default_config.get("dialect_obj"), "TEST", anchor_info
     )
     assert fixed_tree.raw == raw_sql_out, "Element check passed - but fix check failed!"
+
+
+@pytest.mark.parametrize(
+    "indent_line, forced_indents, expected_units",
+    [
+        # Trivial case of a first line.
+        (
+            _IndentLine(0, [_IndentPoint(0, 0, 0, 0, None, False, ())]),
+            [],
+            0,
+        ),
+        # Simple cases of a normal lines.
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, 0, 3, 1, True, ())]),
+            [],
+            3,
+        ),
+        (
+            # NOTE: Initial indent for *line* is different to *point*.
+            # The *line* takes precedence.
+            _IndentLine(1, [_IndentPoint(6, 0, 0, 3, 1, True, ())]),
+            [],
+            1,
+        ),
+        # Indents and dedents on the line break.
+        # NOTE: The line indent still takes precedence here.
+        (
+            _IndentLine(3, [_IndentPoint(6, 1, 0, 3, 1, True, ())]),
+            [],
+            3,
+        ),
+        (
+            _IndentLine(3, [_IndentPoint(6, -1, -1, 3, 1, True, ())]),
+            [],
+            3,
+        ),
+        # Handle untaken indents.
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, 0, 3, 1, True, (1,))]),
+            [],
+            2,
+        ),
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, 0, 3, 1, True, (1, 2))]),
+            [],
+            1,
+        ),
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, 0, 3, 1, True, (2,))]),
+            # Forced indent takes us back up.
+            [2],
+            3,
+        ),
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, 0, 3, 1, True, (3,))]),
+            [],
+            2,
+        ),
+        (
+            _IndentLine(3, [_IndentPoint(6, 0, -1, 3, 1, True, (3,))]),
+            # Untaken indent is pruned by trough.
+            [],
+            3,
+        ),
+    ],
+)
+def test_reflow__desired_indent_units(indent_line, forced_indents, expected_units):
+    """Test _IndentLine.desired_indent_units() directly."""
+    assert indent_line.desired_indent_units(forced_indents) == expected_units
