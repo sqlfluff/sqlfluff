@@ -25,12 +25,37 @@ test_pass_3_argument_convert:
     select convert(varchar, 1, 126) as bar
     from foo;
 
+# maybe someday we can have fixes for cast and convert with comments
+test_pass_convert_with_comment:
+  pass_str: |
+    select convert( -- convert the value
+        int, /*
+              to an integer
+            */ 1) as bar;
+
+test_pass_cast_with_comment:
+  pass_str: |
+    select cast( -- cast the value
+        1 /*
+            to an integer
+          */ as int) as bar;
+
+test_pass_3_argument_convert_when_config_is_set_to_cast:
+  fail_str: |
+    select convert(varchar, 1, 126) as bar
+    from foo;
+  configs:
+    rules:
+      L069:
+        preferred_type_casting_style: cast
+
 test_fail_inconsistent_type_casting_prior_convert:
   fail_str: |
     select
         convert(int, 1) as bar,
         100::int::text,
-        cast(10 as text) as coo
+        cast(10
+        as text) as coo
     from foo;
   fix_str: |
     select
@@ -39,20 +64,25 @@ test_fail_inconsistent_type_casting_prior_convert:
         convert(text, 10) as coo
     from foo;
 
-# test_fail_inconsistent_type_casting_prior_3_argument_convert:
-# # we skip more than 2 argument convert so we fall to the next segment casting style
-#   fail_str: |
-#     select
-#         convert(int, 1, 126) as bar,
-#         100::int::text,
-#         cast(10 as text) as coo
-#     from foo;
-#   fix_str: |
-#     select
-#         convert(int, 1, 126) as bar,
-#         convert(text, convert(int, 100)),
-#         convert(text, 10) as coo
-#     from foo;
+test_fail_inconsistent_type_casting_with_comment:
+  fail_str: |
+    select
+        cast(10 as text) as coo,
+        convert( -- Convert the value
+            int, /*
+                  to an integer
+                */ 1) as bar,
+        100::int::text
+    from foo;
+  fix_str: |
+    select
+        cast(10 as text) as coo,
+        convert( -- Convert the value
+            int, /*
+                  to an integer
+                */ 1) as bar,
+        cast(cast(100 as int) as text)
+    from foo;
 
 test_fail_inconsistent_type_casting_prior_cast:
   fail_str: |
@@ -141,6 +171,12 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
         cast(cast(100 as int) as text),
         cast(10 as text) as coo
     from foo;
+  violations_after_fix:
+  - code: L069
+    description: Used type casting style is different from the preferred type
+                 casting style.
+    line_no: 2
+    line_pos: 5
   configs:
     rules:
       L069:
@@ -195,6 +231,12 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
         100::int::text,
         10::text as coo
     from foo;
+  violations_after_fix:
+  - code: L069
+    description: Used type casting style is different from the preferred type
+                 casting style.
+    line_no: 2
+    line_pos: 5
   configs:
     rules:
       L069:

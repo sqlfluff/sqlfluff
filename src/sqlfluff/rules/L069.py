@@ -88,9 +88,9 @@ class Rule_L069(BaseRule):
         context: RuleContext,
         cast_arg_1: BaseSegment,
         cast_arg_2: BaseSegment,
-        later_types=None,
+        later_types: List[BaseSegment] = None,
     ) -> List[LintFix]:
-        """Generate list of fixes to convert CONVERT and ShortHandCast to CAST."""
+        """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
         # Add cast and opening parenthesis.
         edits = [
             KeywordSegment("cast"),
@@ -134,7 +134,7 @@ class Rule_L069(BaseRule):
         convert_arg_2: BaseSegment,
         later_types=None,
     ) -> List[LintFix]:
-        """Generate list of fixes to convert CAST and ShortHandCast to CONVERT."""
+        """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
         # Add convert and opening parenthesis.
         edits = [
             KeywordSegment("convert"),
@@ -197,38 +197,49 @@ class Rule_L069(BaseRule):
         if context.dialect.name == "teradata":
             return None
 
+        # functional_context = FunctionalContext(context)
+        functional_context = FunctionalContext(context)
         # Construct segment type casting
-        current_type_casting_style = (
-            "cast"
-            if context.segment.is_type("function")
+        if (
+            context.segment.is_type("function")
             and context.segment.get_child("function_name").raw_upper == "CAST"
-            else "convert"
-            if context.segment.is_type("function")
+        ):
+            current_type_casting_style = "cast"
+        elif (
+            context.segment.is_type("function")
             and context.segment.get_child("function_name").raw_upper == "CONVERT"
-            else "shorthand"
-            if context.segment.is_type("cast_expression")
-            else None
-        )
+        ):
+            current_type_casting_style = "convert"
+        elif context.segment.is_type("cast_expression"):
+            current_type_casting_style = "shorthand"
+        else:
+            current_type_casting_style = None
 
         # If casting style is set to consistent,
         # we use the casting style of the first segment we encounter.
+        # convert_content = None
         if self.preferred_type_casting_style == "consistent":
             memory = context.memory
             prior_type_casting_style = context.memory.get("prior_type_casting_style")
+            previous_skipped = context.memory.get("previous_skipped")
 
+            # if previous_skipped then we can skip the whole fix
             # Construct fixes
             if prior_type_casting_style == "cast":
                 if current_type_casting_style == "convert":
                     # Get the content of CONVERT
                     convert_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
                     # We only care about 2-arguments convert
                     # some dialects allow an optional 3rd argument e.g TSQL
                     # which cannot be rewritten into CAST
                     if len(convert_content) > 2:
+                        # set previous_skipped
+                        if previous_skipped is None:
+                            # Only update prior_type_casting_style if it is none, this ultimately
+                            # makes sure we maintain the first casting style we encounter
+                            memory["previous_skipped"] = True
                         return None
 
                     fixes = self._cast_fix_list(
@@ -239,9 +250,10 @@ class Rule_L069(BaseRule):
                 elif current_type_casting_style == "shorthand":
                     # Get the expression and the datatype segment
                     expression_datatype_segment = self._get_children(
-                        FunctionalContext(context).segment
+                        functional_context.segment
                     )
 
+                    print(previous_skipped)
                     fixes = self._cast_fix_list(
                         context,
                         expression_datatype_segment[0],
@@ -254,10 +266,11 @@ class Rule_L069(BaseRule):
             elif prior_type_casting_style == "convert":
                 if current_type_casting_style == "cast":
                     cast_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
+                    if len(cast_content) > 2:
+                        return None
+
                     fixes = self._convert_fix_list(
                         context,
                         cast_content[1],
@@ -265,7 +278,7 @@ class Rule_L069(BaseRule):
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
-                        FunctionalContext(context).segment
+                        functional_context.segment
                     )
                     fixes = self._convert_fix_list(
                         context,
@@ -277,10 +290,11 @@ class Rule_L069(BaseRule):
                 if current_type_casting_style == "cast":
                     # Get the content of CAST
                     cast_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
+                    if len(cast_content) > 2:
+                        return None
+
                     fixes = self._shorthand_fix_list(
                         context,
                         cast_content[0],
@@ -288,9 +302,7 @@ class Rule_L069(BaseRule):
                     )
                 elif current_type_casting_style == "convert":
                     convert_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
                     if len(convert_content) > 2:
                         return None
@@ -317,16 +329,17 @@ class Rule_L069(BaseRule):
                 # Only update prior_type_casting_style if it is none, this ultimately
                 # makes sure we maintain the first casting style we encounter
                 memory["prior_type_casting_style"] = current_type_casting_style
-        elif current_type_casting_style != self.preferred_type_casting_style:
+        elif (
+            current_type_casting_style
+            and current_type_casting_style != self.preferred_type_casting_style
+        ):
+            convert_content = None
+            cast_content = None
             if self.preferred_type_casting_style == "cast":
                 if current_type_casting_style == "convert":
                     convert_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
-                    if len(convert_content) > 2:
-                        return None
 
                     fixes = self._cast_fix_list(
                         context,
@@ -335,7 +348,7 @@ class Rule_L069(BaseRule):
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
-                        FunctionalContext(context).segment
+                        functional_context.segment
                     )
                     fixes = self._cast_fix_list(
                         context,
@@ -346,9 +359,7 @@ class Rule_L069(BaseRule):
             elif self.preferred_type_casting_style == "convert":
                 if current_type_casting_style == "cast":
                     cast_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
                     fixes = self._convert_fix_list(
                         context,
@@ -357,7 +368,7 @@ class Rule_L069(BaseRule):
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
-                        FunctionalContext(context).segment
+                        functional_context.segment
                     )
                     fixes = self._convert_fix_list(
                         context,
@@ -368,9 +379,7 @@ class Rule_L069(BaseRule):
             elif self.preferred_type_casting_style == "shorthand":
                 if current_type_casting_style == "cast":
                     cast_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
                     fixes = self._shorthand_fix_list(
                         context,
@@ -379,25 +388,37 @@ class Rule_L069(BaseRule):
                     )
                 elif current_type_casting_style == "convert":
                     convert_content = self._get_children(
-                        FunctionalContext(context).segment.children(
-                            sp.is_type("bracketed")
-                        )
+                        functional_context.segment.children(sp.is_type("bracketed"))
                     )
-                    if len(convert_content) > 2:
-                        return None
+
                     fixes = self._shorthand_fix_list(
                         context,
                         convert_content[1],
                         convert_content[0],
                     )
+            if convert_content and len(convert_content) > 2:
+                return LintResult(
+                    anchor=context.segment,
+                    memory=context.memory,
+                    description=(
+                        "Used type casting style is different from the preferred type casting style."
+                    ),
+                )
+            elif cast_content and len(cast_content) > 2:
+                return LintResult(
+                    anchor=context.segment,
+                    memory=context.memory,
+                    description=(
+                        "Used type casting style is different from the preferred type casting style."
+                    ),
+                )
 
             return LintResult(
                 anchor=context.segment,
                 memory=context.memory,
                 fixes=fixes,
                 description=(
-                    "Used type casting style is different from the \
-                    preferred type casting style."
+                    "Used type casting style is different from the preferred type casting style."
                 ),
             )
         return None
