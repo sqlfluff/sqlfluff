@@ -207,7 +207,7 @@ class ConfigLoader:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: check that this cache implementation is actually useful
         self._config_cache: dict = {}
 
