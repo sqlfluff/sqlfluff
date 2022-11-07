@@ -1,5 +1,6 @@
 """Implementation of Rule L027."""
 import regex
+from typing import List, Optional
 
 from sqlfluff.core.rules import LintResult
 from sqlfluff.rules.L020 import Rule_L020
@@ -47,7 +48,7 @@ class Rule_L027(Rule_L020):
         col_aliases,
         using_cols,
         parent_select,
-    ):
+    ) -> Optional[List[LintResult]]:
         # Config type hints
         self.ignore_words_regex: str
 
@@ -105,7 +106,7 @@ class Rule_L027(Rule_L020):
 
         return violation_buff or None
 
-    def _init_ignore_words_list(self):
+    def _init_ignore_words_list(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
