@@ -20,7 +20,7 @@ from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.templaters.base import TemplatedFileSlice
-from sqlfluff.core.slice_helpers import slice_length, is_zero_slice, offset_slice
+from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
