@@ -549,7 +549,7 @@ class BaseRule:
                 memory = res.memory
                 self._adjust_anchors_for_fixes(context, res)
                 self._process_lint_result(
-                    res, templated_file, ignore_mask, new_lerrs, new_fixes
+                    res, templated_file, ignore_mask, new_lerrs, new_fixes, tree
                 )
             elif isinstance(res, list) and all(
                 isinstance(elem, LintResult) for elem in res
@@ -560,7 +560,7 @@ class BaseRule:
                 for elem in res:
                     self._adjust_anchors_for_fixes(context, elem)
                     self._process_lint_result(
-                        elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                        elem, templated_file, ignore_mask, new_lerrs, new_fixes, tree
                     )
             else:  # pragma: no cover
                 raise TypeError(
@@ -586,13 +586,35 @@ class BaseRule:
         pass
 
     def _process_lint_result(
-        self, res, templated_file, ignore_mask, new_lerrs, new_fixes
+        self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
     ):
         self.discard_unsafe_fixes(res, templated_file)
         lerr = res.to_linting_error(rule=self)
         ignored = False
         if lerr:
-            if ignore_mask:
+            # Check whether this should be filtered out for being unparsable.
+            # To do that we check the parents of the anchors (of the violation
+            # and fixes) against the filter in the crawler.
+            anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
+            for anchor in anchors:
+                if not self.crawl_behaviour.passes_filter(anchor):
+                    linter_logger.info("Fix skipped due to anchor not passing filter.")
+                    lerr = None
+                    ignored = True
+                    break
+                parent_stack = root.path_to(anchor)
+                if not all(
+                    self.crawl_behaviour.passes_filter(ps.segment)
+                    for ps in parent_stack
+                ):
+                    linter_logger.info(
+                        "Fix skipped due to parent of anchor not passing filter."
+                    )
+                    lerr = None
+                    ignored = True
+                    break
+
+            if lerr and ignore_mask:
                 filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
                 if not filtered:
                     lerr = None
