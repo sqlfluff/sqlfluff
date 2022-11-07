@@ -86,7 +86,7 @@ class Rule_L013(BaseRule):
         ):
             return None
 
-        select_clause_children = children.select(sp.not_(sp.is_name("star")))
+        select_clause_children = children.select(sp.not_(sp.is_type("star")))
         is_complex_clause = _recursively_check_is_complex(select_clause_children)
         if not is_complex_clause:
             return None
@@ -125,7 +125,7 @@ def _recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bo
         return False
 
     first_el = filtered.first()
-    # Anything except a single expresion seg remains
+    # Anything except a single expression seg remains
     # Then it was complex
     if remaining_count > 1 or not first_el.all(sp.is_type("expression")):
         return True

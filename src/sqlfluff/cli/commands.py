@@ -23,6 +23,10 @@ from tqdm import tqdm
 from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
 from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
+from sqlfluff.cli.click_deprecated_option import (
+    DeprecatedOption,
+    DeprecatedOptionsCommand,
+)
 from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
@@ -44,20 +48,6 @@ from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.plugin.host import get_plugin_manager
-
-
-class RedWarningsFilter(logging.Filter):
-    """This filter makes all warnings or above red."""
-
-    def __init__(self, formatter: OutputStreamFormatter):
-        super().__init__()
-        self.formatter = formatter
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        """Filter any warnings (or above) to turn them red."""
-        if record.levelno >= logging.WARNING:
-            record.msg = f"{self.formatter.colorize(record.msg, Color.red)} "
-        return True
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -109,8 +99,16 @@ def set_logging_level(
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
+
     # Set up a handler to colour warnings red.
-    handler.addFilter(RedWarningsFilter(formatter))
+    # See: https://docs.python.org/3/library/logging.html#filter-objects
+    def red_log_filter(record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            record.msg = f"{formatter.colorize(record.msg, Color.red)} "
+        return True
+
+    handler.addFilter(red_log_filter)
+
     if logger:
         focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
@@ -309,7 +307,8 @@ def core_options(f: Callable) -> Callable:
     f = click.option(
         "--logger",
         type=click.Choice(
-            ["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False
+            ["templater", "lexer", "parser", "linter", "rules", "config"],
+            case_sensitive=False,
         ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
@@ -397,7 +396,15 @@ def get_linter_and_formatter(
     return Linter(config=cfg, formatter=formatter), formatter
 
 
-@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.group(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    epilog="""\b\bExamples:\n
+  sqlfluff lint --dialect postgres .\n
+  sqlfluff lint --dialect postgres --rules L042 .\n
+  sqlfluff fix --dialect sqlite --rules L041,L042 src/queries\n
+  sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
+""",
+)
 @click.version_option()
 def cli():
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
@@ -447,7 +454,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
         click.echo(payload)
 
 
-@cli.command()
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @click.option(
@@ -501,8 +508,21 @@ def dump_file_payload(filename: Optional[str], payload: str):
 )
 @click.option(
     "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
+    cls=DeprecatedOption,
+    deprecated=["--disable_progress_bar"],
+)
+@click.option(
+    "--persist-timing",
+    default=None,
+    help=(
+        "A filename to persist the timing information for a linting run to "
+        "in csv format for external analysis. NOTE: This feature should be "
+        "treated as beta, and the format of the csv file may change in "
+        "future releases without warning."
+    ),
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
@@ -518,6 +538,7 @@ def lint(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    persist_timing: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Lint SQL files via passing a list of files or using stdin.
@@ -632,6 +653,9 @@ def lint(
     if file_output:
         dump_file_payload(write_output, cast(str, file_output))
 
+    if persist_timing:
+        result.persist_timing_records(persist_timing)
+
     output_stream.close()
     if bench:
         click.echo("==== overall timings ====")
@@ -696,7 +720,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
 )
@@ -784,7 +808,7 @@ def fix(
         if templater_error:
             click.echo(
                 formatter.colorize(
-                    "Fix aborted due to unparseable template variables.",
+                    "Fix aborted due to unparsable template variables.",
                     Color.red,
                 ),
                 err=True,
@@ -894,8 +918,13 @@ def fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        for violation in result.get_violations(**num_violations_kwargs):
-            click.echo(formatter.format_violation(violation))
+        all_results = result.violation_dict(**num_violations_kwargs)
+        sorted_files = sorted(all_results.keys())
+        for file in sorted_files:
+            violations = all_results.get(file, [])
+            click.echo(formatter.format_filename(file, success=(not violations)))
+            for violation in violations:
+                click.echo(formatter.format_violation(violation))
 
     sys.exit(exit_code)
 

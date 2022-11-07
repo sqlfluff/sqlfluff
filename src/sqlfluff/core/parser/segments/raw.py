@@ -27,7 +27,6 @@ class RawSegment(BaseSegment):
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
-        name: Optional[str] = None,
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
@@ -50,7 +49,6 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # if a surrogate type is provided, store it for later.
         self._surrogate_type = type
-        self._surrogate_name = name
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
@@ -208,7 +206,6 @@ class RawSegment(BaseSegment):
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
             type=self._surrogate_type,
-            name=self._surrogate_name,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
             source_fixes=source_fixes or self.source_fixes,
@@ -227,7 +224,7 @@ class CodeSegment(RawSegment):
 class UnlexableSegment(CodeSegment):
     """A placeholder to unlexable sections.
 
-    This otherwise behaves exaclty like a code section.
+    This otherwise behaves exactly like a code section.
     """
 
     type = "unlexable"
@@ -237,7 +234,6 @@ class CommentSegment(RawSegment):
     """Segment containing a comment."""
 
     type = "comment"
-    _name = "comment"
     _is_code = False
     _is_comment = True
 
@@ -246,7 +242,6 @@ class WhitespaceSegment(RawSegment):
     """Segment containing whitespace."""
 
     type = "whitespace"
-    _name = "whitespace"
     _is_whitespace = True
     _is_code = False
     _is_comment = False
@@ -264,7 +259,6 @@ class NewlineSegment(RawSegment):
     """
 
     type = "newline"
-    _name = "newline"
     _is_whitespace = True
     _is_code = False
     _is_comment = False
@@ -286,18 +280,13 @@ class KeywordSegment(CodeSegment):
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
-        name: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
     ):
         """If no other name is provided we extrapolate it from the raw."""
-        if raw and not name:
-            # names are all lowercase by convention.
-            name = raw.lower()
         super().__init__(
             raw=raw,
             pos_marker=pos_marker,
             type=type,
-            name=name,
             source_fixes=source_fixes,
         )
 
@@ -316,7 +305,6 @@ class KeywordSegment(CodeSegment):
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
             type=self._surrogate_type,
-            name=self._surrogate_name,
             source_fixes=source_fixes or self.source_fixes,
         )
 

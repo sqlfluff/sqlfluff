@@ -98,7 +98,7 @@ class SQLTemplaterError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
@@ -106,7 +106,7 @@ class SQLTemplaterError(SQLBaseError):
     _identifier = "templating"
 
 
-class SQLTemplaterSkipFile(RuntimeError):
+class SQLFluffSkipFile(RuntimeError):
     """An error returned from a templater to skip a file."""
 
     pass
@@ -117,7 +117,7 @@ class SQLLexError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 

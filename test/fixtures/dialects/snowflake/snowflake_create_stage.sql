@@ -12,6 +12,15 @@ CREATE STAGE mystage
 CREATE STAGE my_ext_stage
   URL='s3://load/files/'
   STORAGE_INTEGRATION = myint;
+CREATE STAGE my_ext_stage
+  URL='s3://load'
+  STORAGE_INTEGRATION = myint;
+CREATE STAGE my_ext_stage
+  URL='s3://load/'
+  STORAGE_INTEGRATION = myint;
+CREATE STAGE my_ext_stage
+  URL='s3://load/files'
+  STORAGE_INTEGRATION = myint;
 CREATE STAGE my_ext_stage1
   URL='s3://load/files/'
   CREDENTIALS=(AWS_KEY_ID='1a2b3c' AWS_SECRET_KEY='4x5y6z');

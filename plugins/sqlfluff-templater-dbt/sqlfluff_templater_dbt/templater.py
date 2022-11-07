@@ -23,7 +23,7 @@ from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
@@ -133,10 +133,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        # Identity function used for macro hooks
-        def identity(x):
-            return x
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -147,10 +143,15 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        projects = self.dbt_config.load_dependencies()
-        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-        self.dbt_manifest = loader.load()
-
+        old_cwd = os.getcwd()
+        try:
+            # Changing cwd temporarily as dbt is not using project_dir to
+            # read/write `target/partial_parse.msgpack`. This can be undone when
+            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
+            os.chdir(self.project_dir)
+            self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        finally:
+            os.chdir(old_cwd)
         return self.dbt_manifest
 
     @cached_property
@@ -399,10 +400,10 @@ class DbtTemplater(JinjaTemplater):
         if not results:
             skip_reason = self._find_skip_reason(fname)
             if skip_reason:
-                raise SQLTemplaterSkipFile(
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because it is {skip_reason}"
                 )
-            raise SQLTemplaterSkipFile(
+            raise SQLFluffSkipFile(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
@@ -491,7 +492,7 @@ class DbtTemplater(JinjaTemplater):
                     fname,
                 )
                 # Additional error logging in case we get a fatal dbt error.
-                raise SQLTemplaterSkipFile(  # pragma: no cover
+                raise SQLFluffSkipFile(  # pragma: no cover
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 ) from err

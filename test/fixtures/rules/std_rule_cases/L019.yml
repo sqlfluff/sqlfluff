@@ -38,9 +38,10 @@ leading_commas_allowed:
     FROM c
 
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 leading_commas_allowed_with_header:
   pass_str: |
@@ -51,9 +52,10 @@ leading_commas_allowed_with_header:
     FROM c
 
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 leading_comma_violations_in_with_statement:
   fail_str: |
@@ -98,9 +100,10 @@ leading_commas_allowed_in_with_statement:
     SELECT * FROM table_3
 
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 trailing_comma_violations:
   fail_str: |
@@ -115,9 +118,10 @@ trailing_comma_violations:
         FROM c
 
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 trailing_commas_allowed:
   pass_str: |
@@ -195,9 +199,10 @@ leading_comma_fixing_flows_around_comments:
         )
 
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 trailing_comma_move_past_several_comment_lines:
   fail_str: |
@@ -270,9 +275,10 @@ leading_comma_move_past_several_comment_lines:
       # earlier version for the trailing comma case, commas were being moved
       # "through" comment blocks one line per pass. Too lazy!
       runaway_limit: 2
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 leading_comma_with_templated_column_1:
   fail_str: |
@@ -286,9 +292,10 @@ leading_comma_with_templated_column_1:
         , {{ "c2" }} AS days_since
     FROM logs
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 leading_comma_with_templated_column_2:
   pass_str: |
@@ -298,9 +305,10 @@ leading_comma_with_templated_column_2:
     c2" }} AS days_since
     FROM logs
   configs:
-    rules:
-      L019:
-        comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 trailing_comma_with_templated_column_1:
   fail_str: |

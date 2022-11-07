@@ -1,4 +1,4 @@
-"""Tests specific to the postgres dialect."""
+"""Tests specific to the soql dialect."""
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
@@ -8,18 +8,12 @@ from sqlfluff.core.errors import SQLParseError
 @pytest.mark.parametrize(
     "raw",
     [
-        """ALTER TABLE foo DROP COLUMN bar
-        """,
-        """CREATE USER my_user
-        """,
-        """TRUNCATE TABLE foo
-        """,
-        """EXPLAIN SELECT Id FROM Contact
-        """,
-        """DROP TABLE foo
-        """,
-        """DROP USER my_user
-        """,
+        "ALTER TABLE foo DROP COLUMN bar\n",
+        "CREATE USER my_user\n",
+        "TRUNCATE TABLE foo\n",
+        "EXPLAIN SELECT Id FROM Contact\n",
+        "DROP TABLE foo\n",
+        "DROP USER my_user\n",
     ],
 )
 def test_non_selects_unparseable(raw: str) -> None:

@@ -46,7 +46,17 @@ redshift_dialect.sets("reserved_keywords").update(
 
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(
-    ["current_date", "sysdate", "current_timestamp"]
+    [
+        "current_date",
+        "sysdate",
+        "current_time",
+        "current_timestamp",
+        "user",
+        "current_user",
+        "current_aws_account",
+        "current_namespace",
+        "current_user_id",
+    ]
 )
 
 redshift_dialect.sets("date_part_function_name").update(
@@ -57,7 +67,7 @@ redshift_dialect.sets("date_part_function_name").update(
 # https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 redshift_dialect.sets("datetime_units").update(
     [
-        # millenium
+        # millennium
         "MILLENNIUM",
         "MILLENNIA",
         "MIL",
@@ -176,27 +186,6 @@ redshift_dialect.replace(
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
-    ),
-    ColumnReferenceSegment=Delimited(
-        Sequence(
-            ansi.ColumnReferenceSegment,
-            AnyNumberOf(Ref("ArrayAccessorSegment")),
-        ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-        ),
-        allow_gaps=False,
     ),
 )
 
@@ -778,9 +767,9 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            OneOf(
+            Delimited(
                 # Columns and comment syntax:
-                Delimited(
+                AnyNumberOf(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
@@ -790,12 +779,12 @@ class CreateTableStatementSegment(BaseSegment):
                             optional=True,
                         ),
                     ),
-                    Ref("TableConstraintSegment", optional=True),
-                ),
-                Sequence(
-                    "LIKE",
-                    Ref("TableReferenceSegment"),
-                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    Ref("TableConstraintSegment"),
+                    Sequence(
+                        "LIKE",
+                        Ref("TableReferenceSegment"),
+                        AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                    ),
                 ),
             )
         ),
@@ -1181,11 +1170,7 @@ class CreateLibraryStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            "OR",
-            "REPLACE",
-            optional=True,
-        ),
+        Ref("OrReplaceGrammar", optional=True),
         "LIBRARY",
         Ref("ObjectReferenceSegment"),
         "LANGUAGE",
@@ -1564,7 +1549,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListSegment"),
@@ -1837,6 +1822,95 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class CreateRlsPolicyStatementSegment(BaseSegment):
+    """A `CREATE RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_RLS_POLICY.html
+    """
+
+    type = "create_rls_policy_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "RLS",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Ref("AliasExpressionSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+    )
+
+
+class ManageRlsPolicyStatementSegment(BaseSegment):
+    """An `ATTACH/DETACH RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ATTACH_RLS_POLICY.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DETACH_RLS_POLICY.html
+    """
+
+    # 1 statement for both ATTACH and DETACH since same syntax
+    type = "manage_rls_policy_statement"
+    match_grammar = Sequence(
+        OneOf("ATTACH", "DETACH"),
+        "RLS",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf("TO", "FROM"),
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref.keyword("ROLE", optional=True),
+                    Ref("RoleReferenceSegment"),
+                ),
+                "PUBLIC",
+            ),
+        ),
+    )
+
+
+class DropRlsPolicyStatementSegment(BaseSegment):
+    """A `DROP RLS POLICY` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_RLS_POLICY.html
+    """
+
+    type = "drop_rls_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "RLS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -1930,6 +2004,10 @@ class StatementSegment(postgres.StatementSegment):
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
+            Ref("CreateRlsPolicyStatementSegment"),
+            Ref("ManageRlsPolicyStatementSegment"),
+            Ref("DropRlsPolicyStatementSegment"),
+            Ref("CreateExternalFunctionStatementSegment"),
         ],
     )
 
@@ -1964,7 +2042,7 @@ class RowFormatDelimitedSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
-    type = "row_format_deimited_segment"
+    type = "row_format_delimited_segment"
 
     match_grammar = AnySetOf(
         Sequence(
@@ -2373,12 +2451,25 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Sequence(
-                Ref(
-                    "FunctionNameSegment",
-                    exclude=OneOf(
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("ValuesClauseSegment"),
-                        Ref("ConvertFunctionNameSegment"),
+                OneOf(
+                    Ref(
+                        "FunctionNameSegment",
+                        exclude=OneOf(
+                            Ref("DatePartFunctionNameSegment"),
+                            Ref("ValuesClauseSegment"),
+                            Ref("ConvertFunctionNameSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        Ref.keyword("APPROXIMATE"),
+                        Ref(
+                            "FunctionNameSegment",
+                            exclude=OneOf(
+                                Ref("DatePartFunctionNameSegment"),
+                                Ref("ValuesClauseSegment"),
+                                Ref("ConvertFunctionNameSegment"),
+                            ),
+                        ),
                     ),
                 ),
                 Bracketed(
@@ -2399,5 +2490,39 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("CommaSegment"),
                 Ref("ExpressionSegment"),
             ),
+        ),
+    )
+
+
+class CreateExternalFunctionStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL FUNCTION` segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_FUNCTION.html
+    """
+
+    type = "create_external_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                Ref("DatatypeSegment"),
+                optional=True,
+            ),
+        ),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        OneOf("VOLATILE", "STABLE", "IMMUTABLE"),
+        OneOf("LAMBDA", "SAGEMAKER"),
+        Ref("QuotedLiteralSegment"),
+        "IAM_ROLE",
+        OneOf("DEFAULT", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "RETRY_TIMEOUT",
+            Ref("NumericLiteralSegment"),
+            optional=True,
         ),
     )

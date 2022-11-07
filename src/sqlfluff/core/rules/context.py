@@ -10,8 +10,7 @@ from typing import (
 )
 
 from dataclasses import dataclass, field
-
-from sqlfluff.core.cached_property import cached_property
+from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
@@ -27,6 +26,7 @@ class RuleContext:
     fix: bool
     templated_file: Optional[TemplatedFile]
     path: Optional[pathlib.Path]
+    config: FluffConfig
 
     # These change within a file.
     # segment: The segment in question
@@ -55,20 +55,3 @@ class RuleContext:
             return self.parent_stack[-1].segments[self.segment_idx + 1 :]
         else:
             return tuple()  # pragma: no cover
-
-    @cached_property
-    def final_segment(self) -> BaseSegment:
-        """Returns rightmost & lowest descendant.
-
-        Similar in spirit to BaseRule.is_final_segment(), but:
-        - Much faster
-        - Does not allow filtering out meta segments
-        """
-        last_segment: BaseSegment = (
-            self.parent_stack[0] if self.parent_stack else self.segment
-        )
-        while True:
-            try:
-                last_segment = last_segment.segments[-1]
-            except IndexError:
-                return last_segment

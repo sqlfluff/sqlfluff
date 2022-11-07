@@ -57,11 +57,11 @@ class Rule_L037(BaseRule):
         for child_segment in segment.segments:
             if child_segment.is_type("column_reference"):
                 found_column_reference = True
-            elif child_segment.is_type("keyword") and child_segment.name in (
-                "asc",
-                "desc",
+            elif child_segment.is_type("keyword") and child_segment.raw_upper in (
+                "ASC",
+                "DESC",
             ):
-                ordering_reference = child_segment.name
+                ordering_reference = child_segment.raw_upper
             elif found_column_reference and child_segment.type not in [
                 "keyword",
                 "whitespace",

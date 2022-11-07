@@ -13,6 +13,13 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 
 
+def is_capitalizable(character: str) -> bool:
+    """Does the character have differing lower and upper-case versions?"""
+    if character.lower() == character.upper():
+        return False
+    return True
+
+
 @document_groups
 @document_fix_compatible
 @document_configuration
@@ -63,7 +70,7 @@ class Rule_L010(BaseRule):
     # Human readable target elem for description
     _description_elem = "Keywords"
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Inconsistent capitalisation of keywords.
 
         We use the `memory` feature here to keep track of cases known to be
@@ -76,6 +83,16 @@ class Rule_L010(BaseRule):
             context.parent_stack[-1] if context.parent_stack else None
         )
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
+            return [LintResult(memory=context.memory)]
+
+        # Used by L030 (that inherits from this rule)
+        # If it's a qualified function_name (i.e with more than one part to
+        # function_name). Then it is likely an existing user defined function (UDF)
+        # which are case sensitive so ignore for this.
+        if (
+            context.parent_stack[-1].get_type() == "function_name"
+            and len(context.parent_stack[-1].segments) != 1
+        ):
             return [LintResult(memory=context.memory)]
 
         return [self._handle_segment(context.segment, context.memory)]
@@ -121,7 +138,15 @@ class Rule_L010(BaseRule):
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
-        if segment.raw[0] != segment.raw[0].upper():
+        for character in segment.raw:
+            if is_capitalizable(character):
+                first_letter_is_lowercase = character != character.upper()
+                break
+            # If none of the characters are letters there will be a parsing
+            # error, so not sure we need this statement
+            first_letter_is_lowercase = False
+
+        if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise", "pascal"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])

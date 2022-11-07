@@ -11,7 +11,7 @@ from unittest import mock
 import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
@@ -81,6 +81,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         # Ends with whitespace stripping, so trailing newline handling should
         # be disabled
         "ends_with_whitespace_stripping.sql",
+        # Access dbt graph nodes
+        "access_graph_nodes.sql",
     ],
 )
 def test__templater_dbt_templating_result(
@@ -268,7 +270,7 @@ def test__templater_dbt_skips_file(
     path, reason, dbt_templater, project_dir  # noqa: F811
 ):
     """A disabled dbt model should be skipped."""
-    with pytest.raises(SQLTemplaterSkipFile, match=reason):
+    with pytest.raises(SQLFluffSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
@@ -373,10 +375,10 @@ def test__templater_dbt_handle_exceptions(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
         )
     finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
-    # NB: Replace slashes to deal with different plaform paths being returned.
+    # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
@@ -415,10 +417,10 @@ def test__templater_dbt_handle_database_connection_failure(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
     finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
-    # NB: Replace slashes to deal with different plaform paths being returned.
+    # NB: Replace slashes to deal with different platform paths being returned.
     assert (
         violations[0]
         .desc()

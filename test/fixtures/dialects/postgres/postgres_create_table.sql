@@ -232,3 +232,10 @@ constraint_collate_constraints text UNIQUE COLLATE numeric NOT NULL PRIMARY KEY,
 constraints_collate text NOT NULL UNIQUE COLLATE numeric,
 collate_constraints text COLLATE numeric NOT NULL UNIQUE
 );
+
+
+-- Use non-reserved `usage` word as a table identifier
+CREATE TABLE IF NOT EXISTS quotas.usage(foo int);
+
+-- Use non-reserved `usage` word as a column identifier
+CREATE TABLE IF NOT EXISTS quotas.my_table(usage int);

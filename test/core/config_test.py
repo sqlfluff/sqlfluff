@@ -4,7 +4,12 @@ import os
 import sys
 
 from sqlfluff.core import config, Linter, FluffConfig
-from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
+from sqlfluff.core.config import (
+    REMOVED_CONFIGS,
+    ConfigLoader,
+    nested_combine,
+    dict_diff,
+)
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
@@ -26,7 +31,9 @@ config_a = {
 
 config_b = {
     "core": {"rules": "L007", "dialect": "ansi"},
-    "rules": {"L007": {"operator_new_lines": "before"}},
+    "layout": {
+        "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
+    },
 }
 
 
@@ -96,10 +103,22 @@ def test__config__load_nested():
     }
 
 
+def test__config__iter_config_elems_from_dict():
+    """Test nested overwrite and order of precedence of config files."""
+    c = ConfigLoader._iter_config_elems_from_dict(
+        {"a": {"b": {"c": 123, "d": 456}, "f": 6}}
+    )
+    assert list(c) == [
+        (("a", "b", "c"), 123),
+        (("a", "b", "d"), 456),
+        (("a", "f"), 6),
+    ]
+
+
 def test__config__load_toml():
     """Test loading config from a pyproject.toml file."""
     c = ConfigLoader()
-    cfg = c.load_default_config_file(
+    cfg = c.load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )
@@ -151,7 +170,7 @@ def test__config__find_sqlfluffignore_in_same_directory():
 
 
 def test__config__nested_config_tests():
-    """Test linting with overriden config in nested paths.
+    """Test linting with overridden config in nested paths.
 
     This looks like a linter test but it's actually a config
     test.
@@ -298,7 +317,10 @@ def test__config__get_section():
     cfg = FluffConfig(config_b)
 
     assert cfg.get_section("core").get("rules", None) == "L007"
-    assert cfg.get_section(["rules", "L007"]) == {"operator_new_lines": "before"}
+    assert cfg.get_section(["layout", "type", "comma"]) == {
+        "line_position": "trailing",
+        "spacing_before": "touch",
+    }
     assert cfg.get_section("non_existent") is None
 
 
@@ -310,11 +332,11 @@ def test__config__get():
     assert cfg.get("rulez") is None
     assert cfg.get("rulez", section="core", default=123) == 123
     assert (
-        cfg.get("operator_new_lines", section=["rules", "L007"], default=None)
-        == "before"
+        cfg.get("line_position", section=["layout", "type", "comma"], default=None)
+        == "trailing"
     )
     assert (
-        cfg.get("operator_new_lines", section=["rules", "ASDFSDG007"], default=None)
+        cfg.get("line_position", section=["layout", "type", "ASDFSDG007"], default=None)
         is None
     )
 
@@ -339,3 +361,59 @@ def test__config_missing_dialect():
     with pytest.raises(SQLFluffUserError) as e:
         FluffConfig.from_kwargs()
     assert "must configure a dialect" in str(e.value)
+
+
+def test__config__validate_configs_direct():
+    """Test _validate_configs method of ConfigLoader directly."""
+    # Make sure there _are_ removed configs.
+    assert REMOVED_CONFIGS
+    # Make sure all raise an error if validated
+    for k in REMOVED_CONFIGS:
+        print(k)
+        if k.translation_func and k.new_path:
+            res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            print(res)
+            # Check that it's reassigned.
+            assert not any(elem[0] == k.old_path for elem in res)
+            assert any(elem[0] == k.new_path for elem in res)
+            # Really we should check that it's output here, but logging config
+            # seems to make that hard.
+        else:
+            with pytest.raises(SQLFluffUserError) as excinfo:
+                ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            assert "set an outdated config" in str(excinfo.value)
+            assert k.warning in str(excinfo.value)
+
+
+def test__config__validate_configs_indirect():
+    """Test _validate_configs method of FluffConfig indirectly."""
+    # Instantiate config object.
+    with pytest.raises(SQLFluffUserError):
+        FluffConfig(
+            configs={
+                "core": {"dialect": "ansi"},
+                # This is a known removed value.
+                "rules": {"L003": {"lint_templated_tokens": True}},
+            }
+        )
+
+
+def test__config__validate_configs_precedence_same_file():
+    """Test _validate_configs method of FluffConfig where there's a conflict."""
+    # Check with a known conflicted value
+    old_key = ("rules", "L007", "operator_new_lines")
+    new_key = ("layout", "type", "binary_operator", "line_position")
+    # Check it's still conflicted.
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    # Test config
+    test_config = [(new_key, "foo"), (old_key, "foo")]
+    assert len(test_config) == 2
+    res = ConfigLoader._validate_configs(test_config, "<test>")
+    assert len(res) == 1
+    # Check that the old key isn't there.
+    assert not any(k == old_key for k, _ in res)

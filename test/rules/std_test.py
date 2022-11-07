@@ -25,7 +25,6 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         # NB The newline before the comma, should report on the comma, not the newline
         # for clarity.
         ("L005", "whitespace_errors.sql", [(2, 9)]),
-        ("L019", "whitespace_errors.sql", [(4, 1)]),
         # Check we get comma (with incorrect trailing space) whitespace errors,
         # but also no false positives on line 4 or 5.
         ("L008", "whitespace_errors.sql", [(3, 12)]),
@@ -104,7 +103,6 @@ def test__rules__std_file(rule, path, violations):
         {"tab_space_size": "blah"},
         {"max_line_length": "blah"},
         {"indent_unit": "blah"},
-        {"comma_style": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},

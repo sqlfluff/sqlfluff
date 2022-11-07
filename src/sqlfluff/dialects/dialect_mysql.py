@@ -16,7 +16,7 @@ from sqlfluff.core.parser import (
     Delimited,
     KeywordSegment,
     Matchable,
-    NamedParser,
+    TypedParser,
     OneOf,
     Ref,
     RegexLexer,
@@ -42,23 +42,52 @@ mysql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(-- |#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("-- ", "#")},
+            segment_kwargs={"trim_start": ("-- ", "#"), "type": "inline_comment"},
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
-        #     ('')+?               group1 match consecutive single quotes
-        #     (?!')                negative lookahead single quote
-        #     |(                   group2 start
-        #         '.*?             single quote wildcard zero or more, lazy
-        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
-        #         (?:'')*          non-capturing group: consecutive single quotes
-        #         '                single quote
+        #     (                    group1 start
+        #         '                single quote (start)
+        #         (?:              non-capturing group: begin
+        #             \\'          MySQL escaped single-quote
+        #             |''          or ANSI escaped single-quotes
+        #             |\\\\        or consecutive [escaped] backslashes
+        #             |[^']        or anything besides a single-quote
+        #         )*               non-capturing group: end (zero or more times)
+        #         '                single quote (end of the single-quoted string)
         #         (?!')            negative lookahead: not single quote
-        #     )                    group2 end
+        #     )                    group1 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
+            "single_quote",
+            r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
+        RegexLexer(
+            "double_quote",
+            r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
         ),
     ]
+)
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "hexadecimal_literal",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        RegexLexer(
+            "bit_value_literal",
+            r"([bB]'[01]+'|0b[01]+)",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+    ],
+    before="numeric_literal",
 )
 
 # Set Keywords
@@ -85,7 +114,7 @@ mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
 mysql_dialect.replace(
-    QuotedIdentifierSegment=NamedParser(
+    QuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
         type="quoted_identifier",
@@ -122,6 +151,7 @@ mysql_dialect.replace(
         insert=[
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
+            Ref("VariableAssignmentSegment"),
         ]
     ),
     DateTimeLiteralGrammar=Sequence(
@@ -136,7 +166,7 @@ mysql_dialect.replace(
             optional=True,
         ),
         OneOf(
-            NamedParser(
+            TypedParser(
                 "single_quote",
                 ansi.LiteralSegment,
                 type="date_constructor_literal",
@@ -144,19 +174,17 @@ mysql_dialect.replace(
             Ref("NumericLiteralSegment"),
         ),
     ),
-    QuotedLiteralSegment=OneOf(
-        AnyNumberOf(
-            # MySQL allows whitespace-concatenated string literals (#1488).
-            # Since these string literals can have comments between them,
-            # we use grammar to handle this.
-            NamedParser(
-                "single_quote",
-                ansi.LiteralSegment,
-                type="quoted_literal",
-            ),
-            min_times=1,
+    QuotedLiteralSegment=AnyNumberOf(
+        # MySQL allows whitespace-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        TypedParser(
+            "single_quote",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
         Ref("DoubleQuotedLiteralSegment"),
+        min_times=1,
     ),
     UniqueKeyGrammar=Sequence(
         "UNIQUE",
@@ -173,37 +201,55 @@ mysql_dialect.replace(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
-        StringParser("AND", KeywordSegment, type="binary_operator"),
-        StringParser("&&", CodeSegment, type="binary_operator"),
+        StringParser("AND", ansi.BinaryOperatorSegment),
+        StringParser("&&", ansi.BinaryOperatorSegment),
     ),
     OrOperatorGrammar=OneOf(
-        StringParser("OR", KeywordSegment, type="binary_operator"),
-        StringParser("||", CodeSegment, type="binary_operator"),
-        StringParser("XOR", KeywordSegment, type="binary_operator"),
+        StringParser("OR", ansi.BinaryOperatorSegment),
+        StringParser("||", ansi.BinaryOperatorSegment),
+        StringParser("XOR", ansi.BinaryOperatorSegment),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
         StringParser("!", CodeSegment, type="not_operator"),
     ),
+    Expression_C_Grammar=Sequence(
+        Sequence(
+            Ref("SessionVariableNameSegment"),
+            Ref("WalrusOperatorSegment"),
+            optional=True,
+        ),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
+    ),
 )
 
 mysql_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
+    DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
         ansi.LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
-    AtSignLiteralSegment=NamedParser(
-        "at_sign",
+    AtSignLiteralSegment=TypedParser(
+        "at_sign_literal",
         ansi.LiteralSegment,
-        type="at_sign_literal",
-        trim_chars=("@",),
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",
         CodeSegment,
         type="system_variable",
+    ),
+    DoubleQuotedJSONPath=TypedParser(
+        "double_quote",
+        CodeSegment,
+        type="json_path",
+        trim_chars=('"',),
+    ),
+    SingleQuotedJSONPath=TypedParser(
+        "single_quote",
+        CodeSegment,
+        type="json_path",
+        trim_chars=("'",),
     ),
 )
 
@@ -582,56 +628,137 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
+class IndexTypeGrammar(BaseSegment):
+    """index_type in table_constraint."""
+
+    type = "index_type"
+    match_grammar = Sequence(
+        "USING",
+        OneOf("BTREE", "HASH"),
+    )
+
+
+class IndexOptionsSegment(BaseSegment):
+    """index_option in `CREATE TABLE` and `ALTER TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    """
+
+    type = "index_option"
+    match_grammar = AnySetOf(
+        Sequence(
+            "KEY_BLOCK_SIZE",
+            Ref("EqualsSegment", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        Ref("IndexTypeGrammar"),
+        Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
+        Ref("CommentClauseSegment"),
+        OneOf("VISIBLE", "INVISIBLE"),
+        # (SECONDARY_)ENGINE_ATTRIBUTE supported in `CREATE TABLE`
+        Sequence(
+            "ENGINE_ATTRIBUTE",
+            Ref("EqualsSegment", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "SECONDARY_ENGINE_ATTRIBUTE",
+            Ref("EqualsSegment", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
 class TableConstraintSegment(BaseSegment):
-    """A table constraint, e.g. for CREATE TABLE."""
+    """A table constraint, e.g. for CREATE TABLE, ALTER TABLE.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    """
 
     type = "table_constraint"
-    # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
-    match_grammar = Sequence(
-        Sequence(  # [ CONSTRAINT <Constraint name> ]
-            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
-        ),
-        OneOf(
-            Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
-                "UNIQUE",
-                OneOf("INDEX", "KEY", optional=True),
-                Ref("ObjectReferenceSegment", optional=True),
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(  # [ CONSTRAINT <Constraint name> ]
+                "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
             ),
-            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-                Ref("PrimaryKeyGrammar"),
-                # Columns making up PRIMARY KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for index_parameters?
-            ),
-            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
-                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                Ref("ForeignKeyGrammar"),
-                # Local columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                # Later add support for [ ON DELETE/UPDATE action ] ?
-                AnyNumberOf(
-                    Sequence(
-                        "ON",
-                        OneOf("DELETE", "UPDATE"),
-                        OneOf(
-                            "RESTRICT",
-                            "CASCADE",
-                            Sequence("SET", "NULL"),
-                            Sequence("NO", "ACTION"),
-                            Sequence("SET", "DEFAULT"),
+            OneOf(
+                # UNIQUE [INDEX | KEY] [index_name] [index_type] (key_part,...)
+                # [index_option] ...
+                Sequence(
+                    "UNIQUE",
+                    OneOf("INDEX", "KEY", optional=True),
+                    Ref("IndexReferenceSegment", optional=True),
+                    Ref("IndexTypeGrammar", optional=True),
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # PRIMARY KEY [index_type] (key_part,...) [index_option] ...
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("IndexTypeGrammar", optional=True),
+                    # Columns making up PRIMARY KEY constraint
+                    Ref("BracketedKeyPartListGrammar"),
+                    Ref("IndexOptionsSegment", optional=True),
+                ),
+                # FOREIGN KEY [index_name] (col_name,...) reference_definition
+                Sequence(
+                    # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                    Ref("ForeignKeyGrammar"),
+                    Ref("IndexReferenceSegment", optional=True),
+                    # Local columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    "REFERENCES",
+                    Ref("ColumnReferenceSegment"),
+                    # Foreign columns making up FOREIGN KEY constraint
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
+                    # Later add support for [ ON DELETE/UPDATE action ] ?
+                    AnyNumberOf(
+                        Sequence(
+                            "ON",
+                            OneOf("DELETE", "UPDATE"),
+                            OneOf(
+                                "RESTRICT",
+                                "CASCADE",
+                                Sequence("SET", "NULL"),
+                                Sequence("NO", "ACTION"),
+                                Sequence("SET", "DEFAULT"),
+                            ),
+                            optional=True,
                         ),
+                    ),
+                ),
+                # CHECK (expr) [[NOT] ENFORCED]
+                Sequence(
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
                         optional=True,
                     ),
                 ),
             ),
+        ),
+        # {INDEX | KEY} [index_name] [index_type] (key_part,...) [index_option] ...
+        Sequence(
+            OneOf("INDEX", "KEY"),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("IndexTypeGrammar", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
+        ),
+        # {FULLTEXT | SPATIAL} [INDEX | KEY] [index_name] (key_part,...)
+        # [index_option] ...
+        Sequence(
+            OneOf("FULLTEXT", "SPATIAL"),
+            OneOf("INDEX", "KEY", optional=True),
+            Ref("IndexReferenceSegment", optional=True),
+            Ref("BracketedKeyPartListGrammar"),
+            Ref("IndexOptionsSegment", optional=True),
         ),
     )
 
@@ -688,13 +815,43 @@ mysql_dialect.add(
         CodeSegment,
         type="variable",
     ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
+    VariableAssignmentSegment=Sequence(
+        Ref("SessionVariableNameSegment"),
+        Ref("WalrusOperatorSegment"),
+        Ref("BaseExpressionElementGrammar"),
+    ),
+    ColumnPathOperatorSegment=StringParser(
+        "->", SymbolSegment, type="column_path_operator"
+    ),
+    InlinePathOperatorSegment=StringParser(
+        "->>", SymbolSegment, type="column_path_operator"
+    ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
-        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # Boolean dynamic system variables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
         # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
         # the correct capitalisation policy.
         OneOf("ON", "OFF"),
         OneOf("TRUE", "FALSE"),
+    ),
+    # (key_part, ...)
+    # key_part: {col_name [(length)] | (expr)} [ASC | DESC]
+    # https://dev.mysql.com/doc/refman/8.0/en/create-table.html
+    # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    BracketedKeyPartListGrammar=Bracketed(
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Bracketed(Ref("NumericLiteralSegment")),
+                    ),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+            ),
+        ),
     ),
 )
 
@@ -705,6 +862,7 @@ mysql_dialect.insert_lexer_matchers(
             "at_sign",
             r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
+            segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
         ),
     ],
     before="code",
@@ -727,6 +885,23 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("inline_path_operator", "->>", CodeSegment),
+        StringLexer("column_path_operator", "->", CodeSegment),
+    ],
+    before="greater_than",
+)
+
+
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
     """A reference to an account, role, or user.
 
@@ -734,25 +909,28 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ),
+    match_grammar: Matchable = OneOf(
         Sequence(
-            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            optional=True,
-            allow_gaps=False,
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+                allow_gaps=False,
+            ),
+            allow_gaps=True,
         ),
-        allow_gaps=True,
+        "CURRENT_USER",
     )
 
 
@@ -846,6 +1024,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CursorFetchSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("AlterViewStatementSegment"),
+            Ref("CreateViewStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
@@ -859,6 +1039,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
             Ref("LoadDataSegment"),
+            Ref("ReplaceSegment"),
         ],
     )
 
@@ -977,25 +1158,10 @@ class AlterTableStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
-                # Add index
+                # Add constraint
                 Sequence(
                     "ADD",
-                    Ref.keyword("UNIQUE", optional=True),
-                    OneOf("INDEX", "KEY", optional=True),
-                    Ref("IndexReferenceSegment"),
-                    Sequence("USING", OneOf("BTREE", "HASH"), optional=True),
-                    Ref("BracketedColumnReferenceListGrammar"),
-                    AnySetOf(
-                        Sequence(
-                            "KEY_BLOCK_SIZE",
-                            Ref("EqualsSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence("USING", OneOf("BTREE", "HASH")),
-                        Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
-                        Ref("CommentClauseSegment"),
-                        OneOf("VISIBLE", "INVISIBLE"),
-                    ),
+                    Ref("TableConstraintSegment"),
                 ),
                 # Change column
                 Sequence(
@@ -1025,7 +1191,33 @@ class AlterTableStatementSegment(BaseSegment):
                             OneOf("INDEX", "KEY", optional=True),
                             Ref("IndexReferenceSegment"),
                         ),
+                        Ref("PrimaryKeyGrammar"),
+                        Sequence(
+                            Ref("ForeignKeyGrammar"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("CHECK", "CONSTRAINT"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
                     ),
+                ),
+                # Alter constraint
+                Sequence(
+                    "ALTER",
+                    OneOf("CHECK", "CONSTRAINT"),
+                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        "ENFORCED",
+                        Sequence("NOT", "ENFORCED"),
+                    ),
+                ),
+                # Alter index
+                Sequence(
+                    "ALTER",
+                    "INDEX",
+                    Ref("IndexReferenceSegment"),
+                    OneOf("VISIBLE", "INVISIBLE"),
                 ),
                 # Rename
                 Sequence(
@@ -1046,8 +1238,84 @@ class AlterTableStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
+                # Enable/Disable updating nonunique indexes
+                Sequence(
+                    OneOf("DISABLE", "ENABLE"),
+                    "KEYS",
+                ),
             ),
         ),
+    )
+
+
+class WithCheckOptionSegment(BaseSegment):
+    """WITH [CASCADED | LOCAL] CHECK OPTION for CREATE/ALTER View Syntax.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+    """
+
+    type = "with_check_options"
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        OneOf("CASCADED", "LOCAL", optional=True),
+        "CHECK",
+        "OPTION",
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """An `ALTER VIEW .. AS ..` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-view.html
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment"),
+            OneOf("UNDEFINED", "MERGE", "TEMPTABLE"),
+            optional=True,
+        ),
+        Ref("DefinerSegment", optional=True),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        Ref("SelectStatementSegment"),
+        Ref("WithCheckOptionSegment", optional=True),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """An `CREATE VIEW .. AS ..` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-view.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence(
+            "ALGORITHM",
+            Ref("EqualsSegment"),
+            OneOf("UNDEFINED", "MERGE", "TEMPTABLE"),
+            optional=True,
+        ),
+        Ref("DefinerSegment", optional=True),
+        Sequence("SQL", "SECURITY", OneOf("DEFINER", "INVOKER"), optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        Ref("SelectStatementSegment"),
+        Ref("WithCheckOptionSegment", optional=True),
     )
 
 
@@ -1078,7 +1346,10 @@ class SetAssignmentStatementSegment(BaseSegment):
                 OneOf(
                     Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
                 ),
-                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("EqualsSegment"),
+                    Ref("WalrusOperatorSegment"),
+                ),
                 AnyNumberOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("DoubleQuotedLiteralSegment"),
@@ -1163,7 +1434,7 @@ class IfExpressionStatement(BaseSegment):
 
 
 class DefinerSegment(BaseSegment):
-    """This is the body of a `CREATE FUNCTION` statement."""
+    """This is the body of a `CREATE FUNCTION` and `CREATE TRIGGER` statements."""
 
     type = "definer_segment"
 
@@ -1321,7 +1592,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref("UpsertClauseListSegment")]
+        insert=[OneOf(Ref("UpsertClauseListSegment"), Ref("WithCheckOptionSegment"))]
     )
 
     # Inherit most of the parse grammar from the original.
@@ -2082,7 +2353,7 @@ class LoadDataSegment(BaseSegment):
         "INTO",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Ref("SelectPartitionClauseSegment", optional=True),
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
         Sequence(
             OneOf("FIELDS", "COLUMNS"),
@@ -2118,4 +2389,104 @@ class LoadDataSegment(BaseSegment):
             Ref("Expression_B_Grammar"),
             optional=True,
         ),
+    )
+
+
+class ReplaceSegment(BaseSegment):
+    """A `REPLACE` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/replace.html
+    """
+
+    type = "replace_statement"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf("LOW_PRIORITY", "DELAYED", optional=True),
+        Sequence("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("SelectPartitionClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("ValuesClauseSegment"),
+            ),
+            Ref("SetClauseListSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    As Specified in https://dev.mysql.com/doc/refman/8.0/en/create-trigger.html
+    """
+
+    # "DEFINED = user", optional
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("DefinerSegment", optional=True),
+        "TRIGGER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER"),
+        OneOf("INSERT", "UPDATE", "DELETE"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW"),
+        Sequence(
+            OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
+        ),
+        OneOf(
+            Ref("StatementSegment"),
+            Sequence("BEGIN", Ref("StatementSegment"), "END"),
+        ),
+    )
+
+
+class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
+    """A `DROP TRIGGER` Statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/drop-trigger.html
+    """
+
+    match_grammar = Sequence(
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to column, field or alias.
+
+    Also allows `column->path` and `column->>path` for JSON values.
+    https://dev.mysql.com/doc/refman/8.0/en/json-search-functions.html#operator_json-column-path
+    """
+
+    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                ansi.ColumnReferenceSegment.match_grammar.copy(),
+                OneOf(
+                    Ref("ColumnPathOperatorSegment"),
+                    Ref("InlinePathOperatorSegment"),
+                ),
+                OneOf(
+                    Ref("DoubleQuotedJSONPath"),
+                    Ref("SingleQuotedJSONPath"),
+                ),
+            ),
+        ]
     )

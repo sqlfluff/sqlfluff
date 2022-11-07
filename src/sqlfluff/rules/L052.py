@@ -80,7 +80,7 @@ class Rule_L052(BaseRule):
                 s
                 for s in before_segment
                 if s.is_comment
-                and s.name != "block_comment"
+                and not s.is_type("block_comment")
                 and s.pos_marker.working_line_no
                 # We don't need to handle the case where raw_segments is empty
                 # because it never is. It's either a segment with raw children
@@ -121,9 +121,9 @@ class Rule_L052(BaseRule):
         # Find statement segment containing the current segment.
         statement_segment = next(
             (
-                s
-                for s in (parent_segment.path_to(segment) or [])
-                if s.is_type("statement")
+                ps.segment
+                for ps in (parent_segment.path_to(segment) or [])
+                if ps.segment.is_type("statement")
             ),
             None,
         )
@@ -395,7 +395,7 @@ class Rule_L052(BaseRule):
                 seg = cast(RawSegment, seg)
                 self.logger.debug("Handling semi-colon: %s", seg)
                 res = self._handle_semicolon(seg, context.segment)
-            # Otherwise handle the end of the file seperately.
+            # Otherwise handle the end of the file separately.
             elif (
                 self.require_final_semicolon
                 and idx == len(context.segment.segments) - 1

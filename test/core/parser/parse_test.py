@@ -75,3 +75,6 @@ def test__parser__parse_error():
     violation = parsed.violations[0]
     assert isinstance(violation, SQLParseError)
     assert violation.desc() == "Line 1, Position 1: Found unparsable section: 'SELECT'"
+
+    # Check that the expected labels work for logging.
+    assert "Expected: 'select_clause'" in parsed.tree.stringify()

@@ -172,7 +172,7 @@ class Rule_L026(BaseRule):
         #   statement, thus not expected to match a table in the FROM
         #   clause.
         if ref_path:
-            return any(seg.is_type("into_table_clause") for seg in ref_path)
+            return any(ps.segment.is_type("into_table_clause") for ps in ref_path)
         else:
             return False  # pragma: no cover
 

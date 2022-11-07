@@ -23,7 +23,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     CodeSegment,
     CommentSegment,
-    NamedParser,
+    TypedParser,
     SymbolSegment,
     StringParser,
     RegexParser,
@@ -75,20 +75,30 @@ exasol_dialect.insert_lexer_matchers(
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
         # This matches escaped identifier e.g. [day]. There can be reserved keywords
         # within the square brackets.
-        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment),
-        RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment),
-        RegexLexer("range_operator", r"\.{2}", CodeSegment),
-        StringLexer("hash", "#", CodeSegment),
-        StringLexer(
-            "walrus_operator",
-            ":=",
+        RegexLexer(
+            "escaped_identifier",
+            r"\[\w+\]",
             CodeSegment,
-            segment_kwargs={"type": "walrus_operator"},
+            segment_kwargs={"type": "escaped_identifier"},
         ),
+        RegexLexer(
+            "udf_param_dot_syntax",
+            r"\.{3}",
+            CodeSegment,
+            segment_kwargs={"type": "udf_param_dot_syntax"},
+        ),
+        RegexLexer(
+            "range_operator",
+            r"\.{2}",
+            SymbolSegment,
+            segment_kwargs={"type": "range_operator"},
+        ),
+        StringLexer("hash", "#", CodeSegment),
+        StringLexer("walrus_operator", ":=", CodeSegment),
         RegexLexer(
             "function_script_terminator",
             r"\n/\n|\n/$",
-            CodeSegment,
+            SymbolSegment,
             segment_kwargs={"type": "function_script_terminator"},
             subdivider=RegexLexer(
                 "newline",
@@ -109,22 +119,32 @@ exasol_dialect.patch_lexer_matchers(
         # strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
         RegexLexer(
             "inline_comment",
             r"--[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
         ),
     ]
 )
 
 exasol_dialect.add(
-    UDFParameterDotSyntaxSegment=NamedParser(
+    UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
-    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
+    RangeOperator=TypedParser("range_operator", SymbolSegment),
     UnknownSegment=StringParser(
         "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
     ),
@@ -166,7 +186,7 @@ exasol_dialect.add(
         enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=NamedParser(
+    EscapedIdentifierSegment=TypedParser(
         "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
@@ -188,15 +208,11 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    FunctionScriptTerminatorSegment=NamedParser(
+    FunctionScriptTerminatorSegment=TypedParser(
         "function_script_terminator",
         SymbolSegment,
-        name="function_script_terminator",
-        type="function_script_terminator",
     ),
-    WalrusOperatorSegment=NamedParser(
-        "walrus_operator", SymbolSegment, type="assignment_operator"
-    ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
@@ -279,7 +295,7 @@ exasol_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
-        NamedParser(
+        TypedParser(
             "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
@@ -320,7 +336,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
         ),
@@ -370,7 +386,7 @@ class SelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -727,7 +743,7 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 class CreateVirtualSchemaStatementSegment(BaseSegment):
-    """A `CREATE VIRUTAL SCHEMA` statement.
+    """A `CREATE VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/create_schema.htm
     """
@@ -757,7 +773,7 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
 
 
 class AlterSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -785,7 +801,7 @@ class AlterSchemaStatementSegment(BaseSegment):
 
 
 class AlterVirtualSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -943,7 +959,7 @@ class CreateTableStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         Ref("CommaSegment"),
-                        Ref("TableDistributionPartitonClause"),
+                        Ref("TableDistributionPartitionClause"),
                         optional=True,
                     ),
                 ),
@@ -1263,7 +1279,7 @@ class CreateTableLikeClauseSegment(BaseSegment):
     )
 
 
-class TableDistributionPartitonClause(BaseSegment):
+class TableDistributionPartitionClause(BaseSegment):
     """`CREATE / ALTER TABLE` distribution / partition clause.
 
     DISTRIBUTE/PARTITION clause doesn't except the identifiers in brackets
@@ -1475,7 +1491,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
-            Ref("TableDistributionPartitonClause"),
+            Ref("TableDistributionPartitionClause"),
             Sequence(
                 "DROP",
                 OneOf(
@@ -2229,8 +2245,8 @@ class FBVColumnDefinitionSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             AnyNumberOf(
-                # IMPORT vaild: SIZE ,START, FORMAT, PADDING, ALIGN
-                # EXPORT vaild: SIZE, FORMAT, ALIGN, PADDING
+                # IMPORT valid: SIZE ,START, FORMAT, PADDING, ALIGN
+                # EXPORT valid: SIZE, FORMAT, ALIGN, PADDING
                 Sequence(
                     OneOf("SIZE", "START"),
                     Ref("EqualsSegment"),
@@ -2377,7 +2393,7 @@ class AlterUserStatementSegment(BaseSegment):
 
 
 class UserPasswordAuthSegment(BaseSegment):
-    """user password authentification."""
+    """user password authentication."""
 
     type = "password_auth"
     match_grammar = Sequence(
@@ -2388,7 +2404,7 @@ class UserPasswordAuthSegment(BaseSegment):
 
 
 class UserKerberosAuthSegment(BaseSegment):
-    """user kerberos authentification."""
+    """user kerberos authentication."""
 
     type = "kerberos_auth"
     match_grammar = Sequence(
@@ -2400,7 +2416,7 @@ class UserKerberosAuthSegment(BaseSegment):
 
 
 class UserLDAPAuthSegment(BaseSegment):
-    """user ldap authentification."""
+    """user ldap authentication."""
 
     type = "ldap_auth"
     match_grammar = Sequence(
@@ -2413,7 +2429,7 @@ class UserLDAPAuthSegment(BaseSegment):
 
 
 class UserOpenIDAuthSegment(BaseSegment):
-    """User OpenID authentification."""
+    """User OpenID authentication."""
 
     type = "openid_auth"
     match_grammar = Sequence(

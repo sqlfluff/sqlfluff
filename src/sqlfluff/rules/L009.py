@@ -14,7 +14,7 @@ def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
     for seg in segment.recursive_crawl_all(reverse=True):
         if seg.is_type("newline"):
             result.append(seg)
-        if not seg.is_whitespace and not seg.is_type("dedent"):
+        if not seg.is_whitespace and not seg.is_type("dedent", "end_of_file"):
             break
     return result
 
@@ -26,7 +26,7 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
         children = segment.children()
         if children:
             parent_stack.append(segment[0])
-            segment = children.last()
+            segment = children.last(predicate=sp.not_(sp.is_type("end_of_file")))
         else:
             return parent_stack, segment
 
@@ -121,21 +121,27 @@ class Rule_L009(BaseRule):
         """
         # We only care about the final segment of the parse tree.
         parent_stack, segment = get_last_segment(FunctionalContext(context).segment)
+        self.logger.debug("Found last segment as: %s", segment)
 
         trailing_newlines = Segments(*get_trailing_newlines(context.segment))
         trailing_literal_newlines = trailing_newlines
+        self.logger.debug(
+            "Untemplated trailing newlines: %s", trailing_literal_newlines
+        )
         if context.templated_file:
             trailing_literal_newlines = trailing_newlines.select(
                 loop_while=lambda seg: sp.templated_slices(
                     seg, context.templated_file
                 ).all(tsp.is_slice_type("literal"))
             )
+        self.logger.debug("Templated trailing newlines: %s", trailing_literal_newlines)
         if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
             if len(parent_stack) == 1:
                 fix_anchor_segment = segment[0]
             else:
                 fix_anchor_segment = parent_stack[1]
+            self.logger.debug("Anchor on: %s", fix_anchor_segment)
 
             return LintResult(
                 anchor=segment[0],

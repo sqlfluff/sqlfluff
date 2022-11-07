@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 829cd2e0d6a1ab5aa48115e491b6c911731eda6e48b2560a6bdc721a3d4aaba1
+_hash: 96c77f38cd4ce5188fec6b5388e8ca16e107b239cbe11961100b236111046cdd
 file:
 - statement:
     alter_table_statement:
@@ -82,4 +82,78 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'my table comment'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - naked_identifier: constraint1
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - naked_identifier: constraint1
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+          naked_identifier: table2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col2
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - naked_identifier: constraint1
+      - keyword: UNIQUE
+      - column_reference:
+          naked_identifier: pk_col
+      - comma: ','
+      - column_reference:
+          naked_identifier: pk_col2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: RENAME
+      - keyword: CONSTRAINT
+      - naked_identifier: constraint1
+      - keyword: TO
+      - naked_identifier: constraint2
 - statement_terminator: ;

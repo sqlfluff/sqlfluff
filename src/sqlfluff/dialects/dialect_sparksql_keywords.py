@@ -197,6 +197,7 @@ UNRESERVED_KEYWORDS = [
     "PRINCIPALS",
     "PROPERTIES",
     "PURGE",
+    "QUALIFY",
     "QUERY",
     "RANGE",
     "RECORDREADER",
@@ -288,4 +289,20 @@ UNRESERVED_KEYWORDS = [
     "HISTORY",
     "RETAIN",
     "RUN",
+    # Databricks - Delta Live Tables
+    "CHANGES",
+    "DELETES",
+    "EXPECT",
+    "FAIL",
+    "LIVE",
+    "SCD",
+    "STREAMING",
+    "UPDATES",
+    "VIOLATION",
+    # Databricks widget
+    "WIDGET",
+    "DROPDOWN",
+    "TEXT",
+    "CHOICES",
+    "REMOVE",
 ]

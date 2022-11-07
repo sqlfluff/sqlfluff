@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 656520aa2e7522804e41ecca3c15d63d0b2b577a15e343308a7f904d97128eaf
+_hash: 3c4376ca88135168a4d7c082dc67d118bb7bf79ea8f244951072a2c4c99409e7
 file:
 - batch:
     statement:
@@ -25,7 +25,72 @@ file:
     statement:
       create_view_statement:
       - keyword: CREATE
+      - keyword: VIEW
+      - object_reference:
+        - quoted_identifier: '[DEST]'
+        - dot: .
+        - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_modifier:
+              keyword: TOP
+              expression:
+                numeric_literal: '1'
+            select_clause_element:
+              column_reference:
+                naked_identifier: DATE_OF_REPORT
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: BASE_CTE
+            statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_view_statement:
+      - keyword: CREATE
       - keyword: OR
+      - keyword: ALTER
+      - keyword: VIEW
+      - object_reference:
+        - quoted_identifier: '[DEST]'
+        - dot: .
+        - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+      - keyword: AS
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_modifier:
+              keyword: TOP
+              expression:
+                numeric_literal: '1'
+            select_clause_element:
+              column_reference:
+                naked_identifier: DATE_OF_REPORT
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: BASE_CTE
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: DATE_OF_REPORT
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_view_statement:
       - keyword: ALTER
       - keyword: VIEW
       - object_reference:

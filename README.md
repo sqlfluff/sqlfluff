@@ -9,9 +9,10 @@
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
 [![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
-[![CI Tests](https://github.com/sqlfluff/sqlfluff/workflows/CI%20Tests/badge.svg)](https://github.com/sqlfluff/sqlfluff/actions?query=workflow%3A%22CI+Tests%22)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sqlfluff/sqlfluff/CI%20Tests?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
+[![Docker Pulls](https://img.shields.io/docker/pulls/sqlfluff/sqlfluff?logo=docker&style=flat-square)](https://hub.docker.com/r/sqlfluff/sqlfluff)
 
 **SQLFluff** is a dialect-flexible and configurable SQL linter. Designed with ELT applications in mind, **SQLFluff** also works with Jinja templating and dbt. **SQLFluff** will auto-fix most linting errors, allowing you to focus your time on what matters.
 

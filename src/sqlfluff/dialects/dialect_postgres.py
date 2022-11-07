@@ -11,7 +11,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    NamedParser,
+    TypedParser,
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
@@ -70,6 +70,7 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
             r"[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
+            segment_kwargs={"type": "unicode_single_quote"},
         ),
         # This is similar to the Unicode regex, the key differences being:
         # - E - must start with E
@@ -85,17 +86,20 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
+            segment_kwargs={"type": "escaped_single_quote"},
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
             r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
+            segment_kwargs={"type": "unicode_double_quote"},
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            CodeSegment,
+            SymbolSegment,
+            segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
     ],
@@ -137,14 +141,22 @@ postgres_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--")},
+            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote",
+            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
         # In Postgres, there is no escape character for double quote strings
-        RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+        RegexLexer(
+            "double_quote",
+            r'(?s)".+?"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
         RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
     ]
 )
@@ -196,7 +208,7 @@ postgres_dialect.sets("date_part_function_name").clear()
 postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
-    JsonOperatorSegment=NamedParser(
+    JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
@@ -204,7 +216,7 @@ postgres_dialect.add(
     # to parse multiline-concatenated string literals
     # and shouldn't be used in other contexts.
     # In general let the parser handle newlines and whitespace.
-    MultilineConcatenateNewline=NamedParser(
+    MultilineConcatenateNewline=TypedParser(
         "newline",
         NewlineSegment,
         type="newline",
@@ -270,14 +282,14 @@ postgres_dialect.replace(
         # Note we CANNOT use Delimited as it's greedy and swallows the
         # last Newline - see #2495
         Sequence(
-            NamedParser(
+            TypedParser(
                 "single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -285,14 +297,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "unicode_single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "unicode_single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -300,14 +312,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "escaped_single_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "escaped_single_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -315,14 +327,14 @@ postgres_dialect.replace(
             ),
         ),
         Delimited(
-            NamedParser(
+            TypedParser(
                 "dollar_quote",
                 ansi.LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                NamedParser(
+                TypedParser(
                     "dollar_quote",
                     ansi.LiteralSegment,
                     type="quoted_literal",
@@ -331,8 +343,8 @@ postgres_dialect.replace(
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        NamedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
-        NamedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
+        TypedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
@@ -433,41 +445,33 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     pass
 
 
-class OverlapSegment(BaseSegment):
+class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
     """Overlaps range operator."""
 
-    type = "comparison_operator"
-    name = "overlap"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False
     )
 
 
-class NotExtendRightSegment(BaseSegment):
+class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
     """Not extend right range operator."""
 
-    type = "comparison_operator"
-    name = "not_extend_right"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )
 
 
-class NotExtendLeftSegment(BaseSegment):
+class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
     """Not extend left range operator."""
 
-    type = "comparison_operator"
-    name = "not_extend_left"
     match_grammar = Sequence(
         Ref("AmpersandSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
-class AdjacentSegment(BaseSegment):
+class AdjacentSegment(ansi.CompositeComparisonOperatorSegment):
     """Adjacent range operator."""
 
-    type = "comparison_operator"
-    name = "adjacent"
     match_grammar = Sequence(
         Ref("MinusSegment"), Ref("PipeSegment"), Ref("MinusSegment"), allow_gaps=False
     )
@@ -490,25 +494,46 @@ class PsqlVariableGrammar(BaseSegment):
 
 
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
-    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
+    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets.
+
+    Postgres can also have array access like python [:2] or [2:] so
+    numbers on either side of the slice segment are optional.
+    """
 
     match_grammar = Sequence(
         AnyNumberOf(
             Bracketed(
                 Sequence(
                     OneOf(
-                        Ref("QualifiedNumericLiteralSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        Ref("SliceSegment"),
                         OneOf(
                             Ref("QualifiedNumericLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                         ),
-                        optional=True,
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            Ref("SliceSegment"),
+                            OneOf(
+                                Ref("QualifiedNumericLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
                     ),
-                    optional=True,
                 ),
                 bracket_type="square",
             )
@@ -816,6 +841,100 @@ class AlterFunctionActionSegment(BaseSegment):
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
         ),
         Ref.keyword("RESTRICT", optional=True),
+    )
+
+
+class AlterProcedureActionSegment(BaseSegment):
+    """Alter Procedure Action Segment.
+
+    https://www.postgresql.org/docs/14/sql-alterprocedure.html
+    """
+
+    type = "alter_procedure_action_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("DEFINER", "INVOKER"),
+            ),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            "DEFAULT",
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+        ),
+        Ref.keyword("RESTRICT", optional=True),
+    )
+
+
+class AlterProcedureStatementSegment(BaseSegment):
+    """An `ALTER PROCEDURE` statement.
+
+    https://www.postgresql.org/docs/14/sql-alterprocedure.html
+    """
+
+    type = "alter_procedure_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            )
+        ),
+        OneOf(
+            Ref("AlterProcedureActionSegment", optional=True),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        Delimited(
+                            OneOf(
+                                Ref("ParameterNameSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ExtensionReferenceSegment"),
+            ),
+        ),
     )
 
 
@@ -1286,7 +1405,12 @@ class AlterRoleStatementSegment(BaseSegment):
                         OneOf(
                             Sequence(
                                 OneOf("TO", Ref("EqualsSegment")),
-                                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+                                OneOf(
+                                    Ref("QuotedLiteralSegment"),
+                                    "DEFAULT",
+                                    "ON",
+                                    "OFF",
+                                ),
                             ),
                             Sequence(
                                 "FROM",
@@ -3254,6 +3378,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LoadStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("DiscardStatementSegment"),
+            Ref("AlterProcedureStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
@@ -4202,8 +4327,8 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -4238,7 +4363,7 @@ class CreateTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("ObjectReferenceSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
+        Bracketed(Delimited(Anything(), optional=True), optional=True),
     )
 
 
