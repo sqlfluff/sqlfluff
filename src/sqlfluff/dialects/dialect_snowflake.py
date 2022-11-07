@@ -1837,7 +1837,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 "UNSET",
                 OneOf(
                     Delimited(Ref("NakedIdentifierSegment")),
-                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
             ),
         ),
@@ -1887,9 +1887,9 @@ class AlterShareStatementSegment(BaseSegment):
             Sequence(
                 "UNSET",
                 "TAG",
-                Ref("NakedIdentifierSegment"),
+                Ref("TagReferenceSegment"),
                 AnyNumberOf(
-                    Ref("CommaSegment"), Ref("NakedIdentifierSegment"), optional=True
+                    Ref("CommaSegment"), Ref("TagReferenceSegment"), optional=True
                 ),
             ),
             Sequence("UNSET", "COMMENT"),
@@ -1974,7 +1974,7 @@ class TagBracketedEqualsSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Sequence(
-                    Ref("NakedIdentifierSegment"),
+                    Ref("TagReferenceSegment"),
                     Ref("EqualsSegment"),
                     Ref("QuotedLiteralSegment"),
                 )
@@ -1994,7 +1994,7 @@ class TagEqualsSegment(BaseSegment):
         "TAG",
         Delimited(
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("TagReferenceSegment"),
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
             )
@@ -2827,7 +2827,7 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "DEFAULT_DDL_COLLATION",
                         "COMMENT",
                     ),
-                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                 ),
             ),
             Sequence(OneOf("ENABLE", "DISABLE"), Sequence("MANAGED", "ACCESS")),
@@ -3452,7 +3452,7 @@ class AlterViewStatementSegment(BaseSegment):
                 "SECURE",
             ),
             Sequence("SET", Ref("TagEqualsSegment")),
-            Sequence("UNSET", "TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
             Delimited(
                 Sequence(
                     "ADD",
@@ -3501,7 +3501,7 @@ class AlterViewStatementSegment(BaseSegment):
                             Ref("ColumnReferenceSegment"),
                             "UNSET",
                             "TAG",
-                            Delimited(Ref("NakedIdentifierSegment")),
+                            Delimited(Ref("TagReferenceSegment")),
                         ),
                     ),
                 ),
@@ -3983,7 +3983,7 @@ class AlterPipeSegment(BaseSegment):
             ),
             Sequence(
                 "UNSET",
-                Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
             ),
             Sequence(
                 "REFRESH",
@@ -4888,7 +4888,7 @@ class AlterStreamStatementSegment(BaseSegment):
             Sequence(
                 "UNSET",
                 OneOf(
-                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
                     "COMMENT",
                 ),
             ),
@@ -5853,6 +5853,32 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
             terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
         ),
         Dedent,
+    )
+
+
+class FrameClauseSegment(ansi.FrameClauseSegment):
+    """A frame clause for window functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions-analytic.html#window-frame-syntax-and-usage
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("ReferencedVariableNameSegment"),
+                "UNBOUNDED",
+            ),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
     )
 
 

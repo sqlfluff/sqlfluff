@@ -22,11 +22,31 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 class ReflowSequence:
     """Class for keeping track of elements in a reflow operation.
 
-    It is assumed that there will be alternating blocks and points
-    (even if some points have no segments). This is validated on
-    construction.
+    This acts as the primary route into using the reflow routines.
+    It acts in a way that plays nicely within a rule context in that
+    it accepts segments and configuration, while allowing access to
+    modified segments and a series of :obj:`LintFix` objects, which
+    can be returned by the calling rule.
 
-    We assume points on each end because this is the case with a file.
+    Sequences are made up of alternating :obj:`ReflowBlock` and
+    :obj:`ReflowPoint` objects (even if some points have no segments).
+    This is validated on construction.
+
+    Most operations also return :obj:`ReflowSequence` objects such
+    that operations can be chained, and then the resultant fixes
+    accessed at the last stage, for example:
+
+    .. code-block:: py3
+
+        fixes = (
+            ReflowSequence.from_around_target(
+                context.segment,
+                root_segment=context.parent_stack[0],
+                config=context.config,
+            )
+            .rebreak()
+            .get_fixes()
+        )
     """
 
     def __init__(
@@ -96,7 +116,7 @@ class ReflowSequence:
         ]
         return pre_fixes, mid_fixes, post_fixes
 
-    def get_raw(self):
+    def get_raw(self) -> str:
         """Get the current raw representation."""
         return "".join(elem.raw for elem in self.elements)
 
@@ -170,8 +190,13 @@ class ReflowSequence:
     ) -> "ReflowSequence":
         """Construct a ReflowSequence from a sequence of raw segments.
 
-        Aimed to be the basic constructor, which other more specific
-        ones may fall back to.
+        This is intended as a base constructor, which others can use.
+        In particular, if no `depth_map` argument is provided, this
+        method will generate one in a potentially inefficient way.
+        If the calling method has access to a better way of inferring
+        a depth map (for example because it has access to a common root
+        segment for all the content), it should do that instead and pass
+        it in.
         """
         reflow_config = ReflowConfig.from_fluff_config(config)
         if depth_map is None:
@@ -193,7 +218,14 @@ class ReflowSequence:
     def from_root(
         cls: Type["ReflowSequence"], root_segment: BaseSegment, config: FluffConfig
     ) -> "ReflowSequence":
-        """Generate a sequence from a root segment."""
+        """Generate a sequence from a root segment.
+
+        Args:
+            root_segment (:obj:`BaseSegment`): The relevant root
+                segment (usually the base :obj:`FileSegment`).
+            config (:obj:`FluffConfig`): A config object from which
+                to load the spacing behaviours of different segments.
+        """
         return cls.from_raw_segments(
             root_segment.raw_segments,
             root_segment,
@@ -224,8 +256,8 @@ class ReflowSequence:
                 set to "before" or "after" to limit to either side.
 
 
-        NOTE: We don't just expand to the first block around the
-        target but to the first _code_ element, which means we
+        **NOTE**: We don't just expand to the first block around the
+        target but to the first *code* element, which means we
         may swallow several `comment` blocks in the process.
 
         To evaluate reflow around a specific target, we need
@@ -276,12 +308,10 @@ class ReflowSequence:
         )
 
     def without(self, target: RawSegment) -> "ReflowSequence":
-        """Returns a new reflow sequence without the specified segment.
+        """Returns a new :obj:`ReflowSequence` without the specified segment.
 
-        It's important to note that this doesn't itself remove the target
-        from the file. This just allows us to simulate a sequence without it
-        and work out what additional whitespace changes would be required
-        if we were to remove it.
+        This generates appropriate deletion :obj:`LintFix` objects
+        to direct the linter to remove those elements.
         """
         removal_idx = self._find_element_idx_with(target)
         if removal_idx == 0 or removal_idx == len(self.elements) - 1:
@@ -310,10 +340,11 @@ class ReflowSequence:
     def insert(
         self, insertion: RawSegment, target: RawSegment, pos: str = "before"
     ) -> "ReflowSequence":
-        """Returns a new reflow sequence with the new element inserted.
+        """Returns a new :obj:`ReflowSequence` with the new element inserted.
 
         Insertion is always relative to an existing element. Either before
-        or after it as specified by `pos`.
+        or after it as specified by `pos`. This generates appropriate creation
+        :obj:`LintFix` objects to direct the linter to insert those elements.
         """
         assert pos in ("before", "after")
         target_idx = self._find_element_idx_with(target)
@@ -372,7 +403,11 @@ class ReflowSequence:
     def replace(
         self, target: BaseSegment, edit: Sequence[BaseSegment]
     ) -> "ReflowSequence":
-        """Returns a new reflow sequence with `edit` elements replaced."""
+        """Returns a new :obj:`ReflowSequence` with `edit` elements replaced.
+
+        This generates appropriate replacement :obj:`LintFix` objects to direct
+        the linter to modify those elements.
+        """
         replace_fix = LintFix.replace(target, edit)
 
         target_raws = target.raw_segments
@@ -435,7 +470,7 @@ class ReflowSequence:
     def respace(
         self, strip_newlines: bool = False, filter: str = "all"
     ) -> "ReflowSequence":
-        """Respace a sequence.
+        """Returns a new :obj:`ReflowSequence` with points respaced.
 
         Args:
             strip_newlines (:obj:`bool`): Optionally strip newlines
@@ -452,8 +487,8 @@ class ReflowSequence:
                 most useful for filtering between trailing whitespace
                 and fixes between content on a line.
 
-        This resets spacing in a ReflowSequence. Note, it relies on the
-        embodied fixes being correct so that we can build on them.
+        **NOTE** this method relies on the embodied fixes being correct
+        so that we can build on them.
         """
         assert filter in (
             "all",
@@ -510,16 +545,18 @@ class ReflowSequence:
             embodied_fixes=fixes,
         )
 
-    def rebreak(self):
-        """Reflow line breaks within a sequence.
+    def rebreak(self) -> "ReflowSequence":
+        """Returns a new :obj:`ReflowSequence` corrected line breaks.
 
-        Initially this only _moves_ existing segments
-        around line breaks (e.g. for operators and commas),
-        but eventually this method should also handle line
-        length considerations too.
-
-        This intentionally does *not* handle indentation,
+        This intentionally **does not handle indentation**,
         as the existing indents are assumed to be correct.
+
+        .. note::
+
+            Currently this only *moves* existing segments
+            around line breaks (e.g. for operators and commas),
+            but eventually this method will also handle line
+            length considerations too.
         """
         if self.embodied_fixes:
             raise NotImplementedError(  # pragma: no cover

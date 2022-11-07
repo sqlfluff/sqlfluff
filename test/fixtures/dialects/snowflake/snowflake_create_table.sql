@@ -85,4 +85,12 @@ create table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create or replace table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column INTEGER AUTOINCREMENT);
 
-CREATE TABLE test_table (test_column NUMBER WITH MASKING POLICY my_policy USING(test_column, test_column > 10))
+CREATE TABLE test_table (test_column NUMBER WITH MASKING POLICY my_policy USING(test_column, test_column > 10));
+
+CREATE OR REPLACE TABLE SCHEMA1.TABLE1
+(
+    "COL1" varchar(128) NOT NULL,
+    "COL2" varchar(128) NOT NULL
+) CHANGE_TRACKING = TRUE WITH TAG (
+    account_objects.tags.IRM = '{"IRM":[{"Primary":"ABC123"}]}'
+);

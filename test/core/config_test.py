@@ -396,3 +396,24 @@ def test__config__validate_configs_indirect():
                 "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )
+
+
+def test__config__validate_configs_precedence_same_file():
+    """Test _validate_configs method of FluffConfig where there's a conflict."""
+    # Check with a known conflicted value
+    old_key = ("rules", "L007", "operator_new_lines")
+    new_key = ("layout", "type", "binary_operator", "line_position")
+    # Check it's still conflicted.
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    # Test config
+    test_config = [(new_key, "foo"), (old_key, "foo")]
+    assert len(test_config) == 2
+    res = ConfigLoader._validate_configs(test_config, "<test>")
+    assert len(res) == 1
+    # Check that the old key isn't there.
+    assert not any(k == old_key for k, _ in res)
