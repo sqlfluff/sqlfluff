@@ -9,6 +9,7 @@ from typing import (
     Optional,
     overload,
     Tuple,
+    Union,
 )
 from typing_extensions import Literal
 
@@ -81,7 +82,9 @@ class LintingResult:
         """Default overload method."""
         ...
 
-    def check_tuples(self, by_path=False):
+    def check_tuples(
+        self, by_path=False
+    ) -> Union[List[CheckTuple], Dict[LintedDir, List[CheckTuple]]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Args:
