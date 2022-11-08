@@ -66,6 +66,43 @@ class LintedFile(NamedTuple):
                 raise v
         return vs
 
+    @staticmethod
+    def deduplicate_in_source_space(
+        violations: List[SQLBaseError],
+    ) -> List[SQLBaseError]:
+        """Removes duplicates in the source space.
+
+        This is useful for templated files with loops, where we'll
+        get a violation for each pass around the loop, but the user
+        only cares about it once and we're only going to fix it once.
+
+        By filtering them early we get a more a more helpful CLI
+        output *and* and more efficient fixing routine (by handling
+        fewer fixes).
+        """
+        new_violations = []
+        dedupe_buffer = set()
+        for v in violations:
+            # Check on:
+            # - Source location & code (check tuple)
+            # - description
+            # - fix raws
+            # - any source fixes.
+            fix_raws = tuple(
+                tuple(e.raw for e in f.edit) if f.edit else None for f in v.fixes
+            )
+            source_fixes = tuple(
+                tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
+                for f in v.fixes
+            )
+            signature = (v.check_tuple(), v.description, fix_raws, source_fixes)
+            if signature not in dedupe_buffer:
+                new_violations.append(v)
+                dedupe_buffer.add(signature)
+            else:
+                linter_logger.debug("Removing duplicate source violation: %s", v)
+        return new_violations
+
     def get_violations(
         self,
         rules: Optional[Union[str, Tuple[str, ...]]] = None,
