@@ -196,7 +196,7 @@ class BaseGrammar(Matchable):
         matchers: List[MatchableType],
         parse_context: ParseContext,
         trim_noncode=True,
-        terminators: List[MatchableType] = None,
+        terminators: Optional[List[MatchableType]] = None,
     ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
