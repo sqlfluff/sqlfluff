@@ -1172,7 +1172,7 @@ def render(
     if rendered.templater_violations:
         for v in rendered.templater_violations:
             click.echo(formatter.format_violation(v))
-        sys.exit(EXIT_FAIL)  # pragma: no cover
+        sys.exit(EXIT_FAIL)
     else:
         click.echo(rendered.templated_file.templated_str)
         sys.exit(EXIT_SUCCESS)
