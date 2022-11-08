@@ -406,6 +406,9 @@ def test__linter__empty_file():
         (
             False,
             [
+                # there are still two of each because L006 checks
+                # for both *before* and *after* the operator.
+                # The deduplication filter makes sure there aren't 4.
                 ("L006", 3, 16),
                 ("L006", 3, 16),
                 ("L006", 3, 39),
