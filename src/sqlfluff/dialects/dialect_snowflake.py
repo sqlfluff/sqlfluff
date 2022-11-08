@@ -1527,7 +1527,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            "COLUMN",
+            Ref.keyword("COLUMN", optional=True),
             # Handle Multiple Columns
             Delimited(
                 Sequence(
