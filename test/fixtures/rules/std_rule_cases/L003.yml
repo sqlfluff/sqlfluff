@@ -48,7 +48,7 @@ test_fail_tab_indentation:
     	b
     FROM my_tbl
   configs:
-    rules:
+    indentation:
       indent_unit: tab
 
 test_pass_indented_joins_default:
@@ -1268,3 +1268,26 @@ test_fail_trailing_comments:
     SELECT 1
     -- foo
     -- bar
+
+test_fail_case_statement:
+  # Test for issue with case statement indentation:
+  # https://github.com/sqlfluff/sqlfluff/issues/3836
+  fail_str: |
+    SELECT
+    foo
+    , CASE
+    WHEN 1 = 1
+    THEN 2
+    END AS example
+    FROM tbl
+  fix_str: |
+    SELECT
+      foo
+      , CASE
+        WHEN 1 = 1
+          THEN 2
+      END AS example
+    FROM tbl
+  configs:
+    indentation:
+      tab_space_size: 2
