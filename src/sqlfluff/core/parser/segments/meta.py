@@ -197,7 +197,7 @@ class TemplateSegment(MetaSegment):
         self,
         raw: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
-        source_str: str = None,
+        source_str: Optional[str] = None,
     ):
         """Create a new segment, with exactly the same position but different content.
 
