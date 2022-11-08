@@ -251,6 +251,15 @@ def test__cli__command_lint_stdin(command):
     invoke_assert_code(args=[lint, ("--dialect=ansi",) + command], cli_input=sql)
 
 
+def test__cli__command_render_stdin():
+    """Check render on a simple script using stdin."""
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    result = invoke_assert_code(args=[render, ("--dialect=ansi", "-")], cli_input=sql)
+    # Check we get back out the same file we input.
+    assert result.output.startswith(sql)
+
+
 @pytest.mark.parametrize(
     "command",
     [
