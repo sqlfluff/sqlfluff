@@ -595,6 +595,9 @@ class BaseRule:
             # Check whether this should be filtered out for being unparsable.
             # To do that we check the parents of the anchors (of the violation
             # and fixes) against the filter in the crawler.
+            # NOTE: We use `.passes_filter` here to do the test for unparsable
+            # to avoid duplicating code because that test is already implemented
+            # there.
             anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
             for anchor in anchors:
                 if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
