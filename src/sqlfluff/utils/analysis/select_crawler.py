@@ -141,7 +141,7 @@ class Query:
 
     def as_json(self) -> Dict:
         """JSON representation for logging/testing."""
-        result = {}
+        result: Dict[str, Union[str, List[str], Dict]] = {}
         if self.query_type != QueryType.Simple:
             result["query_type"] = self.query_type.name
         if self.selectables:
