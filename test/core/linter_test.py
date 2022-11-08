@@ -90,7 +90,7 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
     # First check the function directly
     if raises_skip:
         with pytest.raises(SQLFluffSkipFile) as excinfo:
-            Linter._load_raw_file_and_config(
+            Linter.load_raw_file_and_config(
                 "test/fixtures/linter/indentation_errors.sql", config
             )
         assert "Skipping" in str(excinfo.value)
