@@ -54,13 +54,13 @@ class LintedFile(NamedTuple):
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
-        linting violations (and therefore implement `check_tuple()`).
-        If they don't then this function raises that error.
+        linting violations. If they don't then this function
+        raises that error.
         """
         vs: List[CheckTuple] = []
         v: SQLLintError
         for v in self.get_violations():
-            if hasattr(v, "check_tuple"):
+            if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
             elif raise_on_non_linting_violations:
                 raise v

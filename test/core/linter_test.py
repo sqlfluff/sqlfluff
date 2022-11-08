@@ -408,8 +408,6 @@ def test__linter__empty_file():
             [
                 ("L006", 3, 16),
                 ("L006", 3, 16),
-                ("L006", 3, 16),
-                ("L006", 3, 16),
                 ("L006", 3, 39),
                 ("L006", 3, 39),
             ],
@@ -417,7 +415,11 @@ def test__linter__empty_file():
     ],
 )
 def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
-    """Test linter masks files properly around templated content."""
+    """Test linter masks files properly around templated content.
+
+    NOTE: this also tests deduplication of fixes which have the same
+    source position. i.e. `LintedFile.deduplicate_in_source_space()`.
+    """
     lntr = Linter(
         config=FluffConfig(
             overrides={
