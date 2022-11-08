@@ -1148,13 +1148,15 @@ from my_table
             ],
         ),
         (
-            # Test for issue 2835. There's no space between "col" and "="
+            # Test for issue 2835. There's no space between "col" and "=".
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set col= "col1" %}
 SELECT {{ col }}
 """,
             None,
             [
-                ("block_start", slice(0, 21, None), slice(0, 0, None)),
+                ("templated", slice(0, 21, None), slice(0, 0, None)),
                 ("literal", slice(21, 29, None), slice(0, 8, None)),
                 ("templated", slice(29, 38, None), slice(8, 12, None)),
                 ("literal", slice(38, 39, None), slice(12, 13, None)),
@@ -1192,6 +1194,8 @@ FROM SOME_TABLE
         (
             # Third test for issue 2835. This was the original SQL provided in
             # the issue report.
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set whitelisted= [
     {'name': 'COL_1'},
     {'name': 'COL_2'},
@@ -1209,7 +1213,7 @@ FROM SOME_TABLE
 """,
             None,
             [
-                ("block_start", slice(0, 94, None), slice(0, 0, None)),
+                ("templated", slice(0, 94, None), slice(0, 0, None)),
                 ("literal", slice(94, 96, None), slice(0, 2, None)),
                 ("block_start", slice(96, 128, None), slice(2, 2, None)),
                 ("literal", slice(128, 133, None), slice(2, 2, None)),
