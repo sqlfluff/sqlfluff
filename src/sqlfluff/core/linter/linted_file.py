@@ -83,19 +83,7 @@ class LintedFile(NamedTuple):
         new_violations = []
         dedupe_buffer = set()
         for v in violations:
-            # Check on:
-            # - Source location & code (check tuple)
-            # - description
-            # - fix raws
-            # - any source fixes.
-            fix_raws = tuple(
-                tuple(e.raw for e in f.edit) if f.edit else None for f in v.fixes
-            )
-            source_fixes = tuple(
-                tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
-                for f in v.fixes
-            )
-            signature = (v.check_tuple(), v.description, fix_raws, source_fixes)
+            signature = v.source_signature()
             if signature not in dedupe_buffer:
                 new_violations.append(v)
                 dedupe_buffer.add(signature)
