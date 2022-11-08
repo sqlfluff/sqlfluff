@@ -1291,3 +1291,28 @@ test_fail_case_statement:
   configs:
     indentation:
       tab_space_size: 2
+
+test_pass_templated_case_statement:
+  # Test for template block in case statement indentation
+  # https://github.com/sqlfluff/sqlfluff/issues/3988
+  pass_str: |
+    {%- set json_keys = ["a", "b", "c"] -%}
+
+    with
+    dummy as (
+        select
+            {% for json_key in json_keys -%}
+                case
+                    when 1 = 1
+                        {% if json_key in ["b"] %}
+                            then 0
+                        {% else %}
+                            then 1
+                        {% endif %}
+                    else null
+                end as {{ json_key }}_suffix{% if not loop.last %}, {% endif %}
+            {% endfor %}
+    )
+
+    select *
+    from dummy

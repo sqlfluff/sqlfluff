@@ -373,6 +373,11 @@ class ReflowPoint(ReflowElement):
                 # Otherwise make a new indent, attached to the relevant anchor.
                 # Prefer anchoring before because it makes the labelling better.
                 elif before:
+                    before_raw = (
+                        cast(TemplateSegment, before).source_str
+                        if before.is_type("placeholder")
+                        else before.raw
+                    )
                     fix = LintFix.create_before(
                         before,
                         [new_newline, new_indent],
@@ -380,11 +385,16 @@ class ReflowPoint(ReflowElement):
                         or (
                             "Expected line break and "
                             f"{_indent_description(desired_indent)} "
-                            f"before {before.raw!r}."
+                            f"before {before_raw!r}."
                         ),
                     )
                 else:
                     assert after  # mypy hint
+                    after_raw = (
+                        cast(TemplateSegment, after).source_str
+                        if after.is_type("placeholder")
+                        else after.raw
+                    )
                     fix = LintFix.create_after(
                         after,
                         [new_newline, new_indent],
@@ -392,7 +402,7 @@ class ReflowPoint(ReflowElement):
                         or (
                             "Expected line break and "
                             f"{_indent_description(desired_indent)} "
-                            f"after {after.raw!r}."
+                            f"after {after_raw!r}."
                         ),
                     )
                 new_point = ReflowPoint((new_newline, new_indent))

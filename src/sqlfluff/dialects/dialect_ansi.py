@@ -1739,9 +1739,15 @@ class WhenClauseSegment(BaseSegment):
     type = "when_clause"
     match_grammar: Matchable = Sequence(
         "WHEN",
-        Indent,
-        Ref("ExpressionSegment"),
-        Dedent,
+        # NOTE: The nested sequence here is to ensure the correct
+        # placement of the meta segments when templated elements
+        # are present.
+        # https://github.com/sqlfluff/sqlfluff/issues/3988
+        Sequence(
+            Indent,
+            Ref("ExpressionSegment"),
+            Dedent,
+        ),
         Indent,
         "THEN",
         Ref("ExpressionSegment"),

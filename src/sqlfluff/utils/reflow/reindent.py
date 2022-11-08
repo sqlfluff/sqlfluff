@@ -716,6 +716,25 @@ def _evaluate_indent_point_buffer(
                 )
                 continue
 
+            # Edge case: template blocks. These sometimes sit in odd places
+            # in the parse tree so don't force newlines before them
+            if (
+                elements[ip.idx + 1 :]
+                and "placeholder" in elements[ip.idx + 1].class_types
+            ):
+                # are any of those placeholders blocks?
+                if any(
+                    cast(TemplateSegment, seg).block_type.startswith("block")
+                    for seg in elements[ip.idx + 1].segments
+                    if seg.is_type("placeholder")
+                ):
+                    reflow_logger.debug(
+                        "    Detected missing -ve line break @ line %s, before "
+                        "block placeholder. Ignoring...",
+                        elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
+                    )
+                    continue
+
             # It's negative, not a line break and was taken on the way up.
             # This *should* be an indent!
             desired_indent = single_indent * (
