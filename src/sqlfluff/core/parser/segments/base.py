@@ -1059,7 +1059,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         *seg_type: str,
         recurse_into: bool = True,
-        no_recursive_seg_type: str = None,
+        no_recursive_seg_type: Optional[str] = None,
     ):
         """Recursively crawl for segments of a given type.
 
@@ -1647,8 +1647,8 @@ class BracketedSegment(BaseSegment):
         # be tuples of length 1. This is because we'll almost always
         # be doing tuple arithmetic with the results and constructing
         # 1-tuples on the fly is very easy to misread.
-        start_bracket: Tuple[BaseSegment] = None,
-        end_bracket: Tuple[BaseSegment] = None,
+        start_bracket: Optional[Tuple[BaseSegment]] = None,
+        end_bracket: Optional[Tuple[BaseSegment]] = None,
         **kwargs,
     ):
         """Stash the bracket segments for later."""

@@ -70,7 +70,7 @@ class LintedFile(NamedTuple):
         rules: Optional[Union[str, Tuple[str, ...]]] = None,
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
-        fixable: bool = None,
+        fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
 

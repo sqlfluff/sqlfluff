@@ -209,7 +209,7 @@ class Rule_L059(BaseRule):
 
         return None
 
-    def _init_ignore_words_list(self):
+    def _init_ignore_words_list(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":

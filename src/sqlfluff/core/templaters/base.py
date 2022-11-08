@@ -33,7 +33,7 @@ def large_file_check(func):
     """
 
     def _wrapped(
-        self, *, in_str: str, fname: str, config: FluffConfig = None, **kwargs
+        self, *, in_str: str, fname: str, config: Optional[FluffConfig] = None, **kwargs
     ):
         if config:
             limit = config.get("large_file_skip_char_limit")
@@ -475,7 +475,7 @@ class RawTemplater:
         """
 
     def sequence_files(
-        self, fnames: List[str], config: FluffConfig = None, formatter=None
+        self, fnames: List[str], config: Optional[FluffConfig] = None, formatter=None
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
@@ -483,7 +483,12 @@ class RawTemplater:
 
     @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config: FluffConfig = None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter=None,
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 

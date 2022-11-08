@@ -782,7 +782,7 @@ class BaseRule:
             return
 
     @classmethod
-    def _adjust_anchors_for_fixes(cls, context, lint_result):
+    def _adjust_anchors_for_fixes(cls, context, lint_result) -> None:
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
