@@ -110,7 +110,7 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(
+    def load_raw_file_and_config(
         fname: str, root_config: FluffConfig
     ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
@@ -837,7 +837,7 @@ class Linter:
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config, encoding = self._load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self.load_raw_file_and_config(fname, root_config)
         # Render the file
         return self.render_string(raw_file, fname, config, encoding)
 
@@ -1211,7 +1211,7 @@ class Linter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
             try:
-                raw_file, config, encoding = self._load_raw_file_and_config(
+                raw_file, config, encoding = self.load_raw_file_and_config(
                     fname, self.config
                 )
             except SQLFluffSkipFile as s:
