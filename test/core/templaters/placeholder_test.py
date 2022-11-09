@@ -297,6 +297,14 @@ def test__templater_raw():
                 "flyway:database": "test_db",
             },
         ),
+        (
+            "SELECT metadata$filename, $1 FROM @stg_data_export_${env_name};",
+            "flyway_var",
+            "SELECT metadata$filename, $1 FROM @stg_data_export_staging;",
+            {
+                "env_name": "staging",
+            },
+        ),
     ],
     ids=[
         "no_changes",
@@ -314,6 +322,7 @@ def test__templater_raw():
         "numeric_dollar_with_braces_and_string",
         "percent",
         "ampersand",
+        "flyway_var",
         "flyway_var",
     ],
 )
