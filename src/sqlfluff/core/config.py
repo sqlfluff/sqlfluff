@@ -669,26 +669,21 @@ class FluffConfig:
         self._configs["core"]["color"] = (
             False if self._configs["core"].get("nocolor", False) else None
         )
-        # Deal with potential ignore parameters
-        if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = _split_comma_separated_string(
-                self._configs["core"]["ignore"]
-            )
-        else:
-            self._configs["core"]["ignore"] = []
-        # Allowlists and denylists
-        if self._configs["core"].get("rules", None):
-            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
-                self._configs["core"]["rules"]
-            )
-        else:
-            self._configs["core"]["rule_allowlist"] = None
-        if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
-                self._configs["core"]["exclude_rules"]
-            )
-        else:
-            self._configs["core"]["rule_denylist"] = None
+        # Handle inputs which are potentially comma separated strings
+        for in_key, out_key in [
+            # Deal with potential ignore & warning parameters
+            ("ignore", "ignore"),
+            ("warning", "warning"),
+            ("rules", "rule_allowlist"),
+            # Allowlists and denylists
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = _split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True

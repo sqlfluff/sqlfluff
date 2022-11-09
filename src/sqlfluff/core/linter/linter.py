@@ -731,6 +731,7 @@ class Linter:
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
+            violation.warning_if_in(parsed.config.get("warning"))
 
         linted_file = LintedFile(
             parsed.fname,

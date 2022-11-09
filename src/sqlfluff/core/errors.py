@@ -1,5 +1,5 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 CheckTuple = Tuple[str, int, int]
 
@@ -18,10 +18,12 @@ class SQLBaseError(ValueError):
         line_pos=0,
         ignore=False,
         fatal=False,
+        warning=False,
         **kwargs
     ):
         self.fatal = fatal
         self.ignore = ignore
+        self.warning = warning
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
@@ -83,14 +85,19 @@ class SQLBaseError(ValueError):
             "description": self.desc(),
         }
 
-    def ignore_if_in(self, ignore_iterable):
+    def ignore_if_in(self, ignore_iterable: List[str]):
         """Ignore this violation if it matches the iterable."""
-        # Type conversion
-        if isinstance(ignore_iterable, str):  # pragma: no cover TODO?
-            ignore_iterable = []
-        # Ignoring
         if self._identifier in ignore_iterable:
             self.ignore = True
+
+    def warning_if_in(self, warning_iterable: List[str]):
+        """Warning only for this violation if it matches the iterable.
+
+        Designed for rule codes so works with L001, L00X but also TMP or PRS
+        for templating and parsing errors.
+        """
+        if self.rule_code() in warning_iterable:
+            self.warning = True
 
 
 class SQLTemplaterError(SQLBaseError):
