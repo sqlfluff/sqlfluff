@@ -88,7 +88,7 @@ class Rule_L069(BaseRule):
         context: RuleContext,
         cast_arg_1: BaseSegment,
         cast_arg_2: BaseSegment,
-        later_types: Segments = None,
+        later_types: Optional[Segments] = None,
     ) -> List[LintFix]:
         """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
         # Add cast and opening parenthesis.
