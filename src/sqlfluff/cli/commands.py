@@ -1116,6 +1116,68 @@ def parse(
         sys.exit(EXIT_SUCCESS)
 
 
+@cli.command()
+@common_options
+@core_options
+@click.argument("path", nargs=1, type=click.Path(allow_dash=True))
+def render(
+    path: str,
+    bench: bool,
+    logger: Optional[logging.Logger] = None,
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+    **kwargs,
+) -> None:
+    """Render SQL files and just spit out the result.
+
+    PATH is the path to a sql file. This should be either a single file
+    file ('path/to/file.sql') or a single ('-') character to indicate reading
+    from *stdin*.
+    """
+    c = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
+    # We don't want anything else to be logged if we want json or yaml output
+    # unless we're writing to a file.
+    output_stream = make_output_stream(c, None, None)
+    lnt, formatter = get_linter_and_formatter(c, output_stream)
+    verbose = c.get("verbose")
+
+    progress_bar_configuration.disable_progress_bar = True
+
+    formatter.dispatch_config(lnt)
+
+    # Set up logging.
+    set_logging_level(
+        verbosity=verbose,
+        formatter=formatter,
+        logger=logger,
+        stderr_output=False,
+    )
+
+    # handle stdin if specified via lone '-'
+    with PathAndUserErrorHandler(formatter, path):
+        if "-" == path:
+            raw_sql = sys.stdin.read()
+            fname = "stdin"
+            file_config = lnt.config
+        else:
+            raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            fname = path
+
+    # Get file specific config
+    file_config.process_raw_file_for_config(raw_sql)
+    rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
+
+    if rendered.templater_violations:
+        for v in rendered.templater_violations:
+            click.echo(formatter.format_violation(v))
+        sys.exit(EXIT_FAIL)
+    else:
+        click.echo(rendered.templated_file.templated_str)
+        sys.exit(EXIT_SUCCESS)
+
+
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql

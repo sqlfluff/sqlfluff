@@ -30,7 +30,7 @@ contributors, and we have
 to help you through your first contribution. Bear in mind that all the tests
 should pass, and test coverage should not decrease unduly as part of the
 changes which you make. You may find it useful to familiarise yourself with the
-[architectural principles here](https://docs.sqlfluff.com/en/stable/architecture.html)
+[architectural principles here](https://docs.sqlfluff.com/en/stable/internals.html#architecture)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
 ## How The Community Works
@@ -89,7 +89,7 @@ First ensure that you have tox installed:
 ```shell
 python3.8 -m pip install -U tox
 ```
-**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as the `mypy` checks are incompatible with 3.7. Those using newer versions of Python may replace `python3.8` as necessary (the test suite runs primarily under 3.10 for example).
+**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as the `mypy` checks are incompatible with 3.7. Those using newer versions of Python may replace `python3.8` as necessary (the test suite runs primarily under 3.11 for example).
 
 Note: Unfortunately tox does not currently support setting just a minimum Python version (though this may be be coming in tox 4!).
 
