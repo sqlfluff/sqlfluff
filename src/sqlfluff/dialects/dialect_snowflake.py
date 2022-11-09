@@ -1475,7 +1475,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "OPTIMIZATION",
             ),
             Ref("AlterTableClusteringActionSegment"),
-            Ref("AlterTableTableColumnActionSegment"),
             Ref("AlterTableConstraintActionSegment"),
             # @TODO: constraintAction
             # @TODO: extTableColumnAction
@@ -1503,7 +1502,8 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "ADD",
                 Ref("PrimaryKeyGrammar"),
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
-            )
+            ),
+            Ref("AlterTableTableColumnActionSegment"),
             # @TODO: Set/unset TAG
             # @TODO: Unset table options
             # @TODO: Add/drop row access policies

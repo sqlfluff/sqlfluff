@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca8548d7f42a1ff1964b273ff4ae16434c6b5b94eee29bc8779240e1aecfa31f
+_hash: 22878f1f16fcd23b97eeabe2abce943e02764130cdad64ba43b7353535333d37
 file:
 - statement:
     alter_table_statement:
@@ -640,16 +640,13 @@ file:
       - naked_identifier: my_schema
       - dot: .
       - naked_identifier: my_table
-    - alter_table_table_column_action:
-        keyword: add
-        column_reference:
-          naked_identifier: PRIMARY
-        data_type:
-          data_type_identifier: KEY
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                naked_identifier: TABLE_ID
-            end_bracket: )
+    - alter_table_constraint_action:
+      - keyword: add
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: TABLE_ID
+          end_bracket: )
 - statement_terminator: ;
