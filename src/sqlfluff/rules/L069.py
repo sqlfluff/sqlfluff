@@ -88,7 +88,7 @@ class Rule_L069(BaseRule):
         context: RuleContext,
         cast_arg_1: BaseSegment,
         cast_arg_2: BaseSegment,
-        later_types: List[BaseSegment] = None,
+        later_types: Segments = None,
     ) -> List[LintFix]:
         """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
         # Add cast and opening parenthesis.
@@ -237,8 +237,10 @@ class Rule_L069(BaseRule):
                     if len(convert_content) > 2:
                         # set previous_skipped
                         if previous_skipped is None:
-                            # Only update prior_type_casting_style if it is none, this ultimately
-                            # makes sure we maintain the first casting style we encounter
+                            # Only update prior_type_casting_style
+                            # if it is none, this ultimately
+                            # makes sure we maintain the first
+                            # casting style we encounter
                             memory["previous_skipped"] = True
                         return None
 
@@ -401,7 +403,8 @@ class Rule_L069(BaseRule):
                     anchor=context.segment,
                     memory=context.memory,
                     description=(
-                        "Used type casting style is different from the preferred type casting style."
+                        "Used type casting style is different from"
+                        " the preferred type casting style."
                     ),
                 )
             elif cast_content and len(cast_content) > 2:
@@ -409,7 +412,8 @@ class Rule_L069(BaseRule):
                     anchor=context.segment,
                     memory=context.memory,
                     description=(
-                        "Used type casting style is different from the preferred type casting style."
+                        "Used type casting style is different from"
+                        " the preferred type casting style."
                     ),
                 )
 
@@ -418,7 +422,8 @@ class Rule_L069(BaseRule):
                 memory=context.memory,
                 fixes=fixes,
                 description=(
-                    "Used type casting style is different from the preferred type casting style."
+                    "Used type casting style is different from"
+                    " the preferred type casting style."
                 ),
             )
         return None
