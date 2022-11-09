@@ -15,7 +15,16 @@ class BaseCrawler(ABC):
         self.works_on_unparsable = works_on_unparsable
 
     def passes_filter(self, segment: BaseSegment):
-        """Returns true if this segment considered at all."""
+        """Returns true if this segment considered at all.
+
+        This method is called during crawling but also
+        in evaluating the anchors for linting violations
+        and their fixes to make sure we don't get issues
+        with linting sections of queries that we can't
+        parse.
+
+        See `BaseRule._process_lint_result()`.
+        """
         return self.works_on_unparsable or not segment.is_type("unparsable")
 
     @abstractmethod
