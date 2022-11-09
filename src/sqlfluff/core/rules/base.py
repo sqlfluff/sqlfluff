@@ -603,7 +603,10 @@ class BaseRule:
                 if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
                     # NOTE: This clause is untested, because it's a hard to produce
                     # edge case. The latter clause is much more likely.
-                    linter_logger.info("Fix skipped due to anchor not passing filter.")
+                    linter_logger.info( 
+                        "Fix skipped due to anchor not passing filter: %s",
+                        anchor
+                    )
                     lerr = None
                     ignored = True
                     break
@@ -613,7 +616,8 @@ class BaseRule:
                     for ps in parent_stack
                 ):
                     linter_logger.info(
-                        "Fix skipped due to parent of anchor not passing filter."
+                        "Fix skipped due to parent of anchor not passing filter: %s",
+                        [ps.segment for ps in parent_stack]
                     )
                     lerr = None
                     ignored = True
