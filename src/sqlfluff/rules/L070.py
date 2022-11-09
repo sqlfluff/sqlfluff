@@ -90,7 +90,7 @@ class Rule_L070(BaseRule):
         # reflective of the others, that will be caught when that segment
         # is processed
         if query.selectables[0].parent:
-            if query.selectables[0].parent.type == "set_expression":
+            if query.selectables[0].parent.is_type("set_expression"):
                 process_queries = [query.selectables[0]]
 
         for selectable in process_queries:
