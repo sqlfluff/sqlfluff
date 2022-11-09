@@ -66,10 +66,10 @@ class Rule_L070(BaseRule):
         return cte_dict
 
     def _find_all_ctes(self, context: RuleContext, cte_dict):
-        for i in range(len(context.parent_stack)):
-            if context.parent_stack[i].type != "common_table_expression":
-                parent_query = SelectCrawler(
-                    context.parent_stack[i], context.dialect
+        for seg in context.parent_stack:
+                    if  not seg.is_type("common_table_expression"):
+                        parent_query = SelectCrawler(
+                            seg, context.dialect
                 ).query_tree
                 cte_dict.update(self._find_all_ctes_utils(parent_query, cte_dict))
 
