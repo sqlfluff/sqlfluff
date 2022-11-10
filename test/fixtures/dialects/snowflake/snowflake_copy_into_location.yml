@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 942f502ab45245132979c200128169553a5c2fc41948d3016a74280ee5602121
+file:
+  statement:
+    copy_into_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        stage_path: "'@public.cb_data_archive_prod/airflow-pipelines/2022-11-01/model/fct_rolling_active_users_l28/'"
+    - keyword: FROM
+    - storage_location:
+        storage_reference:
+        - quoted_identifier: '"MODEL"'
+        - dot: .
+        - quoted_identifier: '"FCT_ROLLING_ACTIVE_USERS_L28"'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: PARQUET
+          end_bracket: )
+    - copy_options:
+      - keyword: SINGLE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: MAX_FILE_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1000000000'
+      - keyword: INCLUDE_QUERY_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: HEADER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'

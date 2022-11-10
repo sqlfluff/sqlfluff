@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d65d06a06f33c58bc1b7764b29f7a55974634dfd59c84e3544c5a2e81e3f3e3
+_hash: 565a725b62a8bddd333500a8063bdbb42b74b83bdb56ad6d15f0107fb157fe57
 file:
   statement:
     create_statement:
@@ -38,7 +38,8 @@ file:
         - naked_identifier: mytable
       - keyword: from
       - storage_location:
-          stage_path: '@snowpipe_db.public.mystage'
+          storage_reference:
+            stage_path: '@snowpipe_db.public.mystage'
       - keyword: file_format
       - comparison_operator:
           raw_comparison_operator: '='
