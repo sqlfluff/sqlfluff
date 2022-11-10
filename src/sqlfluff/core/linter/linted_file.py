@@ -393,7 +393,7 @@ class LintedFile(NamedTuple):
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
-            else:
+            else:  # pragma: no cover
                 # We've got a situation where the ends of our patch need to be
                 # more carefully mapped. Likely because we're greedily including
                 # a section of source templating with our fix and we need to work
