@@ -4224,7 +4224,7 @@ class StorageLocation(BaseSegment):
     type = "storage_location"
 
     match_grammar = OneOf(
-        Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
+        Ref("StorageReferenceSegment"), Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
     )
 
 

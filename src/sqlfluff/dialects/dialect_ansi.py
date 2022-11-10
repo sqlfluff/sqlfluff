@@ -1006,6 +1006,12 @@ class TagReferenceSegment(ObjectReferenceSegment):
     type = "tag_reference"
 
 
+class StorageReferenceSegment(ObjectReferenceSegment):
+    """A reference to a storage location."""
+
+    type = "storage_reference"
+
+
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
