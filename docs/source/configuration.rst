@@ -229,6 +229,37 @@ The default values can be seen in `Default Configuration`_.
 
 See also: `Ignoring Errors & Files`_.
 
+Downgrading rules to warnings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To keep displaying violations for specific rules, but not have those
+issues lead to a failed run, rules can be downgraded to *warnings*.
+Rules set as *warnings* won't cause a file to fail, but will still
+be shown in the CLI to warn users of their presence.
+
+The configuration of this behaves very like :code:`exclude_rules`
+above:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    warnings = L019, L007
+
+With this configuration, files with no other issues (other than
+those set to warn) will pass. If there are still other issues, then
+the file will still fail, but will show both warnings and failures.
+
+.. code-block::
+
+    == [test.sql] PASS
+    L:   2 | P:   9 | L006 | WARNING: Missing whitespace before +
+    == [test2.sql] FAIL
+    L:   2 | P:   8 | L014 | Unquoted identifiers must be consistently upper case.
+    L:   2 | P:  11 | L006 | WARNING: Missing whitespace before +
+
+This is particularly useful as a transitional tool when considering
+the introduction on new rules on a project where you might want to
+make users aware of issues without blocking their workflow (yet).
 
 Layout & Spacing Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

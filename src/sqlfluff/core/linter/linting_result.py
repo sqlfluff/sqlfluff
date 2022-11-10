@@ -240,7 +240,7 @@ class LintingResult:
     def count_tmp_prs_errors(self) -> Tuple[int, int]:
         """Count templating or parse errors before and after filtering."""
         total_errors = self.num_violations(
-            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False, filter_warning=False
         )
         num_filtered_errors = 0
         for linted_dir in self.paths:
@@ -253,13 +253,15 @@ class LintingResult:
     def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
         """Discard lint fixes for files with templating or parse errors."""
         total_errors = self.num_violations(
-            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False, filter_warning=False
         )
         if total_errors:
             for linted_dir in self.paths:
                 for linted_file in linted_dir.files:
                     num_errors = linted_file.num_violations(
-                        types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+                        types=self.TMP_PRS_ERROR_TYPES,
+                        filter_ignore=False,
+                        filter_warning=False,
                     )
                     if num_errors:
                         # File has errors. Discard all the SQLLintError fixes:
