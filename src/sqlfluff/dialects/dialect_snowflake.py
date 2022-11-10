@@ -2749,26 +2749,39 @@ class CopyOptionsSegment(BaseSegment):
     """A Snowflake CopyOptions statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html
+    https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
     """
 
     type = "copy_options"
-    match_grammar = AnySetOf(
-        Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
-        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "MATCH_BY_COLUMN_NAME",
-            Ref("EqualsSegment"),
-            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-        ),
-        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-    )
 
+    match_grammar = OneOf(
+        AnySetOf(
+            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
+            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "MATCH_BY_COLUMN_NAME",
+                Ref("EqualsSegment"),
+                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            ),
+            Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        ),
+
+        AnySetOf(
+            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+            Sequence("INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("HEADER", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        ),
+    )
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
