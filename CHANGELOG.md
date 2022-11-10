@@ -14,6 +14,19 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release is less about internals and much more about some quality of life
+improvements and dialect changes. The most notable are:
+- The introduction of a `sqlfluff render` command to preview the results of
+  templated sql.
+- Linting errors within templated loops should now only appear once in the
+  linting output.
+- Indentation around jinja `{% set %}` statements should now be more consistent.
+- Linting errors around unparsable code are now more appropriately handled (with
+  more to come soon on that front).
+- Error messages when specified files aren't found are now more specific.
+
+We've also got dialect improvements for Redshift, SOQL & SparkSQL.
+
 ## What’s Changed
 
 * Deduplicate violations in the source space [#4041](https://github.com/sqlfluff/sqlfluff/pull/4041) [@alanmcruickshank](https://github.com/alanmcruickshank)
