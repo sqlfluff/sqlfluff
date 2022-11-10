@@ -1,5 +1,5 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, Any, List
 
 CheckTuple = Tuple[str, int, int]
 
@@ -84,6 +84,18 @@ class SQLBaseError(ValueError):
             "code": self.rule_code(),
             "description": self.desc(),
         }
+
+    def check_tuple(self) -> CheckTuple:
+        """Get a tuple representing this error. Mostly for testing."""
+        return (
+            self.rule_code(),
+            self.line_no,
+            self.line_pos,
+        )
+
+    def source_signature(self) -> Tuple[Any, ...]:
+        """Return hashable source signature for deduplication."""
+        return (self.check_tuple(), self.desc())
 
     def ignore_if_in(self, ignore_iterable: List[str]):
         """Ignore this violation if it matches the iterable."""
@@ -189,13 +201,21 @@ class SQLLintError(SQLBaseError):
             return True
         return False
 
-    def check_tuple(self) -> CheckTuple:
-        """Get a tuple representing this error. Mostly for testing."""
-        return (
-            self.rule.code,
-            self.line_no,
-            self.line_pos,
+    def source_signature(self) -> Tuple[Any, ...]:
+        """Return hashable source signature for deduplication.
+
+        For linting errors we need to dedupe on more than just location and
+        description, we also need to check the edits potentially made, both
+        in the templated file but also in the source.
+        """
+        fix_raws = tuple(
+            tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
+        source_fixes = tuple(
+            tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
+            for f in self.fixes
+        )
+        return (self.check_tuple(), self.description, fix_raws, source_fixes)
 
     def __repr__(self):
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(

@@ -736,7 +736,8 @@ class Linter:
 
         linted_file = LintedFile(
             parsed.fname,
-            violations,
+            # Deduplicate violations
+            LintedFile.deduplicate_in_source_space(violations),
             time_dict,
             tree,
             ignore_mask=ignore_buff,
