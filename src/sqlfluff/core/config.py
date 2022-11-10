@@ -673,7 +673,7 @@ class FluffConfig:
         for in_key, out_key in [
             # Deal with potential ignore & warning parameters
             ("ignore", "ignore"),
-            ("warning", "warning"),
+            ("warnings", "warnings"),
             ("rules", "rule_allowlist"),
             # Allowlists and denylists
             ("exclude_rules", "rule_denylist"),
