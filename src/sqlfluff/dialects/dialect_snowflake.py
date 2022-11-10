@@ -2758,7 +2758,7 @@ class CopyOptionsSegment(BaseSegment):
     match_grammar = OneOf(
         AnySetOf(
             Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
+            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
             Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             Sequence(
                 "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
@@ -2932,13 +2932,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "DATA_RETENTION_TIME_IN_DAYS",
                 Ref("EqualsSegment"),
-                Ref("LiteralNumericSegment"),
+                Ref("NumericLiteralSegment"),
                 optional=True,
             ),
             Sequence(
                 "MAX_DATA_EXTENSION_TIME_IN_DAYS",
                 Ref("EqualsSegment"),
-                Ref("LiteralNumericSegment"),
+                Ref("NumericLiteralSegment"),
                 optional=True,
             ),
             Sequence(
