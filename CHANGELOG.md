@@ -10,6 +10,33 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.2] - 2022-11-10
+
+## Highlights
+
+## What’s Changed
+
+* Deduplicate violations in the source space [#4041](https://github.com/sqlfluff/sqlfluff/pull/4041) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Use "docker compose", not "docker-compose" [#4055](https://github.com/sqlfluff/sqlfluff/pull/4055) [@barrywhart](https://github.com/barrywhart)
+* Allow warnings for specific rules [#4053](https://github.com/sqlfluff/sqlfluff/pull/4053) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Better file not found error #1023 [#4051](https://github.com/sqlfluff/sqlfluff/pull/4051) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Filter out issues in unparsable sections [#4032](https://github.com/sqlfluff/sqlfluff/pull/4032) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: ADD and DROP without COLUMN [#4049](https://github.com/sqlfluff/sqlfluff/pull/4049) [@greg-finley](https://github.com/greg-finley)
+* Make render command [#4043](https://github.com/sqlfluff/sqlfluff/pull/4043) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bump after_n_builds to 10 [#4046](https://github.com/sqlfluff/sqlfluff/pull/4046) [@greg-finley](https://github.com/greg-finley)
+* Redshift: allows for parenthesis around FROM content [#3962](https://github.com/sqlfluff/sqlfluff/pull/3962) [@adam-tokarski](https://github.com/adam-tokarski)
+* Update CI to use Python 3.11 [#4038](https://github.com/sqlfluff/sqlfluff/pull/4038) [@greg-finley](https://github.com/greg-finley)
+* Classify self contained set statements as templated [#4034](https://github.com/sqlfluff/sqlfluff/pull/4034) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Date and Datetime literals in SOQL [#4037](https://github.com/sqlfluff/sqlfluff/pull/4037) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* mypy edits for 0.990 [#4035](https://github.com/sqlfluff/sqlfluff/pull/4035) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* sparksql: support for create/remove widget clause [#4021](https://github.com/sqlfluff/sqlfluff/pull/4021) [@Coola4kov](https://github.com/Coola4kov)
+* Redshift CREATE EXTERNAL FUNCTION statement [#4011](https://github.com/sqlfluff/sqlfluff/pull/4011) [@rpr-ableton](https://github.com/rpr-ableton)
+* Update Redshift bare functions [#4012](https://github.com/sqlfluff/sqlfluff/pull/4012) [@rpr-ableton](https://github.com/rpr-ableton)
+
+## New Contributors
+
+* [@Coola4kov](https://github.com/Coola4kov) made their first contribution in [#4021](https://github.com/sqlfluff/sqlfluff/pull/4021)
+
 ## [1.4.1] - 2022-10-31
 
 ## Highlights
