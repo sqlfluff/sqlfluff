@@ -96,6 +96,7 @@ class LintedFile(NamedTuple):
         rules: Optional[Union[str, Tuple[str, ...]]] = None,
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
+        filter_warning: bool = True,
         fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
@@ -130,6 +131,9 @@ class LintedFile(NamedTuple):
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
                 violations = self.ignore_masked_violations(violations, self.ignore_mask)
+        # Filter warning violations
+        if filter_warning:
+            violations = [v for v in violations if not v.warning]
         return violations
 
     @staticmethod
