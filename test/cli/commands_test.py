@@ -1202,7 +1202,10 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
     result = invoke_assert_code(args=command, ret_code=2)
-    assert "could not be accessed" in result.output
+    assert (
+        "User Error: Specified path does not exist. Check it/they "
+        "exist(s): this_file_does_not_exist.sql"
+    ) in result.output
 
 
 @patch("click.utils.should_strip_ansi")
