@@ -98,6 +98,7 @@ Follow us [on Twitter @SQLFluff](https://twitter.com/SQLFluff) for announcements
 
 We are grateful to all our [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There is a lot to do in this project, and we are just getting started.
 
-If you want to understand more about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
+If you want to understand more about the architecture of **SQLFluff**, you can
+find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
 
 If you would like to contribute, check out the [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see the guide to [contributing](CONTRIBUTING.md).

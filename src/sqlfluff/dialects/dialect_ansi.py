@@ -1673,7 +1673,7 @@ class FromClauseSegment(BaseSegment):
 
     NOTE: this is a delimited set of table expressions, with a variable
     number of optional join clauses with those table expressions. The
-    delmited aspect is the higher of the two such that the following is
+    delimited aspect is the higher of the two such that the following is
     valid (albeit unusual):
 
     ```

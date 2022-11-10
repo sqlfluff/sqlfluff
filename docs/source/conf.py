@@ -105,6 +105,7 @@ redirects = {
     # There's an old link to /indentation in config files.
     # That should point to the layout section now.
     "indentation": "layout.html#configuring-indent-locations",
+    "architecture": "internals.html#architecture",
 }
 
 

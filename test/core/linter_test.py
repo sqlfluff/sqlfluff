@@ -16,6 +16,7 @@ from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
     SQLParseError,
+    SQLFluffUserError,
 )
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
@@ -90,7 +91,7 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
     # First check the function directly
     if raises_skip:
         with pytest.raises(SQLFluffSkipFile) as excinfo:
-            Linter._load_raw_file_and_config(
+            Linter.load_raw_file_and_config(
                 "test/fixtures/linter/indentation_errors.sql", config
             )
         assert "Skipping" in str(excinfo.value)
@@ -120,9 +121,9 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
 
 
 def test__linter__path_from_paths__not_exist():
-    """Test extracting paths from a file path."""
+    """Test that the right errors are raise when a file doesn't exist."""
     lntr = Linter()
-    with pytest.raises(IOError):
+    with pytest.raises(SQLFluffUserError):
         lntr.paths_from_path("asflekjfhsakuefhse")
 
 

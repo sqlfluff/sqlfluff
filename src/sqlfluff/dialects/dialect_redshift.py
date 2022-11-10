@@ -46,7 +46,17 @@ redshift_dialect.sets("reserved_keywords").update(
 
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(
-    ["current_date", "sysdate", "current_timestamp"]
+    [
+        "current_date",
+        "sysdate",
+        "current_time",
+        "current_timestamp",
+        "user",
+        "current_user",
+        "current_aws_account",
+        "current_namespace",
+        "current_user_id",
+    ]
 )
 
 redshift_dialect.sets("date_part_function_name").update(
@@ -1160,11 +1170,7 @@ class CreateLibraryStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            "OR",
-            "REPLACE",
-            optional=True,
-        ),
+        Ref("OrReplaceGrammar", optional=True),
         "LIBRARY",
         Ref("ObjectReferenceSegment"),
         "LANGUAGE",
@@ -1543,7 +1549,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("ProcedureParameterListSegment"),
@@ -2001,6 +2007,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateRlsPolicyStatementSegment"),
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
+            Ref("CreateExternalFunctionStatementSegment"),
         ],
     )
 
@@ -2483,5 +2490,51 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("CommaSegment"),
                 Ref("ExpressionSegment"),
             ),
+        ),
+    )
+
+
+class FromClauseSegment(ansi.FromClauseSegment):
+    """Slightly modified version which allows for using brackets for content of FROM."""
+
+    match_grammar = ansi.FromClauseSegment.match_grammar
+    parse_grammar = Sequence(
+        "FROM",
+        Delimited(
+            OptionallyBracketed(Ref("FromExpressionSegment")),
+        ),
+    )
+
+
+class CreateExternalFunctionStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL FUNCTION` segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_FUNCTION.html
+    """
+
+    type = "create_external_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                Ref("DatatypeSegment"),
+                optional=True,
+            ),
+        ),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        OneOf("VOLATILE", "STABLE", "IMMUTABLE"),
+        OneOf("LAMBDA", "SAGEMAKER"),
+        Ref("QuotedLiteralSegment"),
+        "IAM_ROLE",
+        OneOf("DEFAULT", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "RETRY_TIMEOUT",
+            Ref("NumericLiteralSegment"),
+            optional=True,
         ),
     )

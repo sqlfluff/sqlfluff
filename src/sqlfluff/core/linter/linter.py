@@ -27,6 +27,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
 )
 from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
@@ -110,7 +111,7 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(
+    def load_raw_file_and_config(
         fname: str, root_config: FluffConfig
     ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
@@ -731,6 +732,7 @@ class Linter:
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
+            violation.warning_if_in(parsed.config.get("warnings"))
 
         linted_file = LintedFile(
             parsed.fname,
@@ -837,7 +839,7 @@ class Linter:
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config, encoding = self._load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self.load_raw_file_and_config(fname, root_config)
         # Render the file
         return self.render_string(raw_file, fname, config, encoding)
 
@@ -969,7 +971,9 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise OSError("Specified path does not exist")
+                raise SQLFluffUserError(
+                    f"Specified path does not exist. Check it/they exist(s): {path}."
+                )
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
@@ -1211,7 +1215,7 @@ class Linter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
             try:
-                raw_file, config, encoding = self._load_raw_file_and_config(
+                raw_file, config, encoding = self.load_raw_file_and_config(
                     fname, self.config
                 )
             except SQLFluffSkipFile as s:
