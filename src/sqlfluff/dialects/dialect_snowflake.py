@@ -2768,20 +2768,30 @@ class CopyOptionsSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
             ),
-            Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
             Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         ),
-
         AnySetOf(
             Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
-            Sequence("INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+            ),
+            Sequence(
+                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
             Sequence("HEADER", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         ),
     )
+
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
@@ -4237,7 +4247,11 @@ class StorageLocation(BaseSegment):
     type = "storage_location"
 
     match_grammar = OneOf(
-        Ref("StorageReferenceSegment"), Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
+        Ref("StorageReferenceSegment"),
+        Ref("StagePath"),
+        Ref("S3Path"),
+        Ref("GCSPath"),
+        Ref("AzureBlobStoragePath"),
     )
 
 
