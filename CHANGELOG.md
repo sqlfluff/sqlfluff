@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.2] - 2022-11-10
+## [1.4.2] - 2022-11-11
 
 ## Highlights
 
@@ -29,6 +29,8 @@ We've also got dialect improvements for Redshift, SOQL & SparkSQL.
 
 ## What’s Changed
 
+* L003: Add missing "pragma: no cover" [#4058](https://github.com/sqlfluff/sqlfluff/pull/4058) [@barrywhart](https://github.com/barrywhart)
+* Fix bug in sparksql SELECT statement termination at UNION #4050 [#4052](https://github.com/sqlfluff/sqlfluff/pull/4052) [@anna-azizian](https://github.com/anna-azizian)
 * Deduplicate violations in the source space [#4041](https://github.com/sqlfluff/sqlfluff/pull/4041) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Use "docker compose", not "docker-compose" [#4055](https://github.com/sqlfluff/sqlfluff/pull/4055) [@barrywhart](https://github.com/barrywhart)
 * Allow warnings for specific rules [#4053](https://github.com/sqlfluff/sqlfluff/pull/4053) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -46,9 +48,10 @@ We've also got dialect improvements for Redshift, SOQL & SparkSQL.
 * Redshift CREATE EXTERNAL FUNCTION statement [#4011](https://github.com/sqlfluff/sqlfluff/pull/4011) [@rpr-ableton](https://github.com/rpr-ableton)
 * Update Redshift bare functions [#4012](https://github.com/sqlfluff/sqlfluff/pull/4012) [@rpr-ableton](https://github.com/rpr-ableton)
 
-## New Contributors
 
+## New Contributors
 * [@Coola4kov](https://github.com/Coola4kov) made their first contribution in [#4021](https://github.com/sqlfluff/sqlfluff/pull/4021)
+* [@anna-azizian](https://github.com/anna-azizian) made their first contribution in [#4052](https://github.com/sqlfluff/sqlfluff/pull/4052)
 
 ## [1.4.1] - 2022-10-31
 
