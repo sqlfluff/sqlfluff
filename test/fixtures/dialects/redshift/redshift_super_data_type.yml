@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95fec3a8c9cb2409ac5fb423e32c22fb3a69967e3fc3b7675a043d48458ab61a
+_hash: 31c74742bdbfe78090a70c670b8e3a37fc326fef68bc13b500016ab1315688b2
 file:
 - statement:
     select_statement:
@@ -122,16 +122,16 @@ file:
                 quoted_literal: "'string'"
             - keyword: THEN
             - expression:
-                column_reference:
-                  naked_identifier: c_orders
-                array_accessor:
-                  start_square_bracket: '['
-                  numeric_literal: '0'
-                  end_square_bracket: ']'
-                semi_structured_expression:
-                  dot: .
-                  naked_identifier: o_orderstatus
                 cast_expression:
+                  column_reference:
+                    naked_identifier: c_orders
+                  array_accessor:
+                    start_square_bracket: '['
+                    numeric_literal: '0'
+                    end_square_bracket: ']'
+                  semi_structured_expression:
+                    dot: .
+                    naked_identifier: o_orderstatus
                   casting_operator: '::'
                   data_type:
                     keyword: VARCHAR
