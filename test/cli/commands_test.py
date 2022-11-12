@@ -564,6 +564,32 @@ def test__cli__command_lint_ignore_local_config():
     assert "L012" in result.output.strip()
 
 
+def test__cli__command_lint_warning():
+    """Test that configuring warnings works.
+
+    For this test the warnings are configured using
+    inline config in the file. That's more for simplicity
+    however the code paths should be the same if it's
+    configured in a file.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/warning_a.sql",
+        ],
+    )
+    # Because we're only warning. The command should pass.
+    assert result.exit_code == 0
+    # The output should still say PASS.
+    assert "PASS" in result.output.strip()
+    # But should also contain the warnings.
+    assert (
+        "L:   4 | P:   9 | L006 | WARNING: Missing whitespace before +"
+        in result.output.strip()
+    )
+
+
 def test__cli__command_versioning():
     """Check version command."""
     # Get the package version info
@@ -1203,7 +1229,10 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
     result = invoke_assert_code(args=command, ret_code=2)
-    assert "could not be accessed" in result.output
+    assert (
+        "User Error: Specified path does not exist. Check it/they "
+        "exist(s): this_file_does_not_exist.sql"
+    ) in result.output
 
 
 @patch("click.utils.should_strip_ansi")

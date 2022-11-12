@@ -3104,6 +3104,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
+            "UNION",
             Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",

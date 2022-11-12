@@ -27,6 +27,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
 )
 from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
@@ -731,10 +732,12 @@ class Linter:
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
+            violation.warning_if_in(parsed.config.get("warnings"))
 
         linted_file = LintedFile(
             parsed.fname,
-            violations,
+            # Deduplicate violations
+            LintedFile.deduplicate_in_source_space(violations),
             time_dict,
             tree,
             ignore_mask=ignore_buff,
@@ -969,7 +972,9 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise OSError("Specified path does not exist")
+                raise SQLFluffUserError(
+                    f"Specified path does not exist. Check it/they exist(s): {path}."
+                )
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
