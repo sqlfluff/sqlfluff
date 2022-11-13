@@ -210,7 +210,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     one which should fit mostly with user expectations.
 
     To do this we have three scenarios:
-    1. Template tags area already on the same indent.
+    1. Template tags are already on the same indent.
     2. Template tags aren't, but can be hoisted without
        effectively crossing code to be on the same indent.
        This effectively does the same as "reshuffling"
@@ -380,7 +380,7 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
             # Reset the buffer
             comment_line_buffer = []
 
-    # Any trailing comments should be anchored the baseline.
+    # Any trailing comments should be anchored to the baseline.
     for comment_line_idx in comment_line_buffer:
         # Mutate reference lines to match this one.
         lines[comment_line_idx].initial_indent_balance = 0
@@ -574,7 +574,7 @@ def _evaluate_indent_point_buffer(
         if not indent_seg.is_type("whitespace"):
             indent_seg = None
         else:
-            NotImplementedError(
+            raise NotImplementedError(
                 "Cannot find whitespace in leading point. Report this as a bug."
             )
 
@@ -612,7 +612,7 @@ def _evaluate_indent_point_buffer(
             current_indent,
             desired_starting_indent,
         )
-        # Initial point gets special handling it it has no newlines.
+        # Initial point gets special handling if it has no newlines.
         if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
             new_fixes = [
                 LintFix.delete(seg, description="First line should not be indented.")
@@ -685,7 +685,7 @@ def _evaluate_indent_point_buffer(
     # Or the way down.
     elif closing_balance < starting_balance:
         # On the way down we're looking for indents which *were* taken on
-        # The way up, but currently aren't on the way down. We slice so
+        # the way up, but currently aren't on the way down. We slice so
         # that the _last_ point isn't evaluated, because that's fine.
         for ip in indent_points[:-1]:
             # Is line break, or positive indent?

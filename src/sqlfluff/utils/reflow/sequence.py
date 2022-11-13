@@ -84,7 +84,7 @@ class ReflowSequence:
 
         For some fixes, we do a bit of a shuffle with the anchor so
         that we reference the most sensible position in the source file
-        to make sense to the user. For example if we've due to create
+        to make sense to the user. For example if we're due to create
         something *after* a segment, then we'll hunt forward to the
         segment *after that*, so that the position that appears in the
         CLI is the position between them.

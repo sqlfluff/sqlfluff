@@ -261,7 +261,7 @@ class LintFix:
         # If types match, check uuids to see if they're the same original segment.
         if self.anchor.uuid != other.anchor.uuid:
             return False
-        # Then compare edits, here we only need to check the raws and source
+        # Then compare edits, here we only need to check the raw and source
         # fixes (positions are meaningless).
         # Only do this if we have edits.
         if self.edit:

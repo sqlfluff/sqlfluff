@@ -216,7 +216,7 @@ class ReflowPoint(ReflowElement):
 
         Returns:
             :obj:`tuple` of :obj:`int`: The first value is the raw
-                impulse. The second is the deepest tough in the indent
+                impulse. The second is the deepest trough in the indent
                 through the values to allow wiping of buffers.
         """
         trough = 0
