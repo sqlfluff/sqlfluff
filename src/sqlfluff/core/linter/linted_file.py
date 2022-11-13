@@ -54,24 +54,50 @@ class LintedFile(NamedTuple):
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
-        linting violations (and therefore implement `check_tuple()`).
-        If they don't then this function raises that error.
+        linting violations. If they don't then this function
+        raises that error.
         """
         vs: List[CheckTuple] = []
         v: SQLLintError
         for v in self.get_violations():
-            if hasattr(v, "check_tuple"):
+            if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
             elif raise_on_non_linting_violations:
                 raise v
         return vs
+
+    @staticmethod
+    def deduplicate_in_source_space(
+        violations: List[SQLBaseError],
+    ) -> List[SQLBaseError]:
+        """Removes duplicates in the source space.
+
+        This is useful for templated files with loops, where we'll
+        get a violation for each pass around the loop, but the user
+        only cares about it once and we're only going to fix it once.
+
+        By filtering them early we get a more a more helpful CLI
+        output *and* and more efficient fixing routine (by handling
+        fewer fixes).
+        """
+        new_violations = []
+        dedupe_buffer = set()
+        for v in violations:
+            signature = v.source_signature()
+            if signature not in dedupe_buffer:
+                new_violations.append(v)
+                dedupe_buffer.add(signature)
+            else:
+                linter_logger.debug("Removing duplicate source violation: %s", v)
+        return new_violations
 
     def get_violations(
         self,
         rules: Optional[Union[str, Tuple[str, ...]]] = None,
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
-        fixable: bool = None,
+        filter_warning: bool = True,
+        fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
 
@@ -105,6 +131,9 @@ class LintedFile(NamedTuple):
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
                 violations = self.ignore_masked_violations(violations, self.ignore_mask)
+        # Filter warning violations
+        if filter_warning:
+            violations = [v for v in violations if not v.warning]
         return violations
 
     @staticmethod
