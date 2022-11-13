@@ -10,6 +10,50 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.2] - 2022-11-13
+
+## Highlights
+
+This release is less about internals and much more about some quality of life
+improvements and dialect changes. The most notable are:
+- The introduction of a `sqlfluff render` command to preview the results of
+  templated sql.
+- Linting errors within templated loops should now only appear once in the
+  linting output.
+- Indentation around jinja `{% set %}` statements should now be more consistent.
+- Linting errors around unparsable code are now more appropriately handled (with
+  more to come soon on that front).
+- Error messages when specified files aren't found are now more specific.
+
+We've also got dialect improvements for Redshift, SOQL & SparkSQL.
+
+## What’s Changed
+
+* Fix type error in `get_rules` hook of plugin example [#4060](https://github.com/sqlfluff/sqlfluff/pull/4060) [@Samyak2](https://github.com/Samyak2)
+* L003: Add missing "pragma: no cover" [#4058](https://github.com/sqlfluff/sqlfluff/pull/4058) [@barrywhart](https://github.com/barrywhart)
+* Fix bug in sparksql SELECT statement termination at UNION #4050 [#4052](https://github.com/sqlfluff/sqlfluff/pull/4052) [@anna-azizian](https://github.com/anna-azizian)
+* Deduplicate violations in the source space [#4041](https://github.com/sqlfluff/sqlfluff/pull/4041) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Use "docker compose", not "docker-compose" [#4055](https://github.com/sqlfluff/sqlfluff/pull/4055) [@barrywhart](https://github.com/barrywhart)
+* Allow warnings for specific rules [#4053](https://github.com/sqlfluff/sqlfluff/pull/4053) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Better file not found error #1023 [#4051](https://github.com/sqlfluff/sqlfluff/pull/4051) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Filter out issues in unparsable sections [#4032](https://github.com/sqlfluff/sqlfluff/pull/4032) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: ADD and DROP without COLUMN [#4049](https://github.com/sqlfluff/sqlfluff/pull/4049) [@greg-finley](https://github.com/greg-finley)
+* Make render command [#4043](https://github.com/sqlfluff/sqlfluff/pull/4043) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bump after_n_builds to 10 [#4046](https://github.com/sqlfluff/sqlfluff/pull/4046) [@greg-finley](https://github.com/greg-finley)
+* Redshift: allows for parenthesis around FROM content [#3962](https://github.com/sqlfluff/sqlfluff/pull/3962) [@adam-tokarski](https://github.com/adam-tokarski)
+* Update CI to use Python 3.11 [#4038](https://github.com/sqlfluff/sqlfluff/pull/4038) [@greg-finley](https://github.com/greg-finley)
+* Classify self contained set statements as templated [#4034](https://github.com/sqlfluff/sqlfluff/pull/4034) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Date and Datetime literals in SOQL [#4037](https://github.com/sqlfluff/sqlfluff/pull/4037) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* mypy edits for 0.990 [#4035](https://github.com/sqlfluff/sqlfluff/pull/4035) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* sparksql: support for create/remove widget clause [#4021](https://github.com/sqlfluff/sqlfluff/pull/4021) [@Coola4kov](https://github.com/Coola4kov)
+* Redshift CREATE EXTERNAL FUNCTION statement [#4011](https://github.com/sqlfluff/sqlfluff/pull/4011) [@rpr-ableton](https://github.com/rpr-ableton)
+* Update Redshift bare functions [#4012](https://github.com/sqlfluff/sqlfluff/pull/4012) [@rpr-ableton](https://github.com/rpr-ableton)
+
+
+## New Contributors
+* [@Coola4kov](https://github.com/Coola4kov) made their first contribution in [#4021](https://github.com/sqlfluff/sqlfluff/pull/4021)
+* [@anna-azizian](https://github.com/anna-azizian) made their first contribution in [#4052](https://github.com/sqlfluff/sqlfluff/pull/4052)
+
 ## [1.4.1] - 2022-10-31
 
 ## Highlights
