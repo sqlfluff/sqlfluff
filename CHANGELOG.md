@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.2] - 2022-11-11
+## [1.4.2] - 2022-11-13
 
 ## Highlights
 
@@ -29,6 +29,7 @@ We've also got dialect improvements for Redshift, SOQL & SparkSQL.
 
 ## What’s Changed
 
+* Fix type error in `get_rules` hook of plugin example [#4060](https://github.com/sqlfluff/sqlfluff/pull/4060) [@Samyak2](https://github.com/Samyak2)
 * L003: Add missing "pragma: no cover" [#4058](https://github.com/sqlfluff/sqlfluff/pull/4058) [@barrywhart](https://github.com/barrywhart)
 * Fix bug in sparksql SELECT statement termination at UNION #4050 [#4052](https://github.com/sqlfluff/sqlfluff/pull/4052) [@anna-azizian](https://github.com/anna-azizian)
 * Deduplicate violations in the source space [#4041](https://github.com/sqlfluff/sqlfluff/pull/4041) [@alanmcruickshank](https://github.com/alanmcruickshank)
