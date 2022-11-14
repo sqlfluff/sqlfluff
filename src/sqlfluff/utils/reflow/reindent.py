@@ -202,7 +202,7 @@ class _IndentLine:
 
     def opening_balance(self):
         """The opening indent balance of the line.
-        
+
         NOTE: We use the first point for the starting balance rather than
         the line starting balance because we're using this to detect missing
         lines and if the line has been corrected then we don't want to do
