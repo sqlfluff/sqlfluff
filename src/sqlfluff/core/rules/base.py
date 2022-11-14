@@ -378,8 +378,18 @@ class LintFix:
             and all(edit.is_type("raw") for edit in cast(List[RawSegment], self.edit))
             and all(edit._source_fixes for edit in cast(List[RawSegment], self.edit))
         ):
-            # This is just source fixes. We can go directly to the touched raw
-            # slices and only if they overlap directly.
+            # As an exception to the general rule about "replace" fixes (where
+            # they're only safe if they don't touch a templated section at all),
+            # source-only fixes are different. This clause handles that exception.
+
+            # So long as the fix is *purely* source-only we can assume that the
+            # rule has done the relevant due diligence on what it's editing in
+            # the source and just yield the source slices directly.
+
+            # More complicated fixes that are a blend or source and templated
+            # fixes are currently not supported but this (mostly because they've
+            # not arisen yet!), so further work would be required to support them
+            # elegantly.
             rules_logger.debug("Source only fix.")
             source_edit_slices = [
                 fix.source_slice
