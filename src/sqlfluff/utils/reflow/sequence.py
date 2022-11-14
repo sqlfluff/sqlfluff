@@ -121,7 +121,15 @@ class ReflowSequence:
                 try:
                     idx = segments.index(target)
                 except ValueError:
-                    # the anchor isn't there any more, it's a good anchor.
+                    # If the anchor for the fix wasn't found, then that
+                    # means that it has been replaced or removed itself.
+
+                    # The most likely scenario for this is where the anchor
+                    # for the fix is also part of the problem - therefore
+                    # using it as the position for the linting result is ok.
+                    # We'll set the idx to None to signal this so that in
+                    # the next clause we just set the anchor of the linting
+                    # result to the anchor of the fix.
                     idx = None
 
                 if idx is None:
