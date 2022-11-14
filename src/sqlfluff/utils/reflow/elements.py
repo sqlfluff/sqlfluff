@@ -33,6 +33,27 @@ from sqlfluff.utils.reflow.respace import (
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
+def get_consumed_whitespace(segment: Optional[RawSegment]):
+    """A helper function to extract possible consumed whitespace.
+
+    Args:
+        segment (:obj:`RawSegment`, optional): A segment to test for
+            suitability and extract the source representation of if
+            appropriate. If passed None, then returns None.
+
+    Returns:
+        Returns the :code:`source_str` if the segment is of type
+        :code:`placeholder` and has a :code:`block_type` of
+        :code:`literal`. Otherwise None.
+    """
+    if not segment or not segment.is_type("placeholder"):
+        return None
+    placeholder = cast(TemplateSegment, segment)
+    if placeholder.block_type != "literal":
+        return None
+    return placeholder.source_str
+
+
 @dataclass(frozen=True)
 class ReflowElement:
     """Base reflow element class."""
@@ -57,16 +78,15 @@ class ReflowElement:
         return "".join(seg.raw for seg in self.segments)
 
     def num_newlines(self) -> int:
-        """Return the number of newlines in this element."""
+        """Return the number of newlines in this element.
+
+        These newlines are either newline segments or contained
+        within consumed sections of whitespace. This counts
+        both.
+        """
         return sum(
-            bool(
-                "newline" in seg.class_types
-                or (
-                    "placeholder" in seg.class_types
-                    and cast(TemplateSegment, seg).block_type == "literal"
-                    and "\n" in cast(TemplateSegment, seg).source_str
-                )
-            )
+            bool("newline" in seg.class_types)
+            + (get_consumed_whitespace(seg) or "").count("\n")
             for seg in self.segments
         )
 
@@ -184,10 +204,7 @@ class ReflowPoint(ReflowElement):
                 return indent
             elif seg.is_type("whitespace"):
                 indent = seg
-            elif (
-                seg.is_type("placeholder")
-                and "\n" in cast(TemplateSegment, seg).source_str
-            ):
+            elif "\n" in (get_consumed_whitespace(seg) or ""):
                 # Consumed whitespace case.
                 # NOTE: In this situation, we're not looking for
                 # separate newline and indent segments, we're
@@ -204,11 +221,12 @@ class ReflowPoint(ReflowElement):
             return None
         # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
-        if seg and seg.is_type("placeholder"):  # pragma: no cover
+        consumed_whitespace = get_consumed_whitespace(seg)
+        if consumed_whitespace:  # pragma: no cover
             # Return last bit after newline.
             # NOTE: Not tested, because usually this would happen
             # directly via _get_indent_segment.
-            return cast(TemplateSegment, seg).source_str.split("\n")[-1]
+            return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
     def get_indent_impulse(self) -> Tuple[int, int]:

@@ -11,7 +11,12 @@ from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 
-from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
+from sqlfluff.utils.reflow.elements import (
+    ReflowBlock,
+    ReflowPoint,
+    ReflowSequenceType,
+    get_consumed_whitespace,
+)
 from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
     lint_indent_points,
@@ -228,10 +233,9 @@ class ReflowSequence:
             # This is to facilitate better evaluation of the ends of files.
             # NOTE: This also allows us to include literal placeholders for
             # whitespace only strings.
-            if seg.is_type("whitespace", "newline", "indent") or (
-                seg.is_type("placeholder")
-                and cast(TemplateSegment, seg).block_type == "literal"
-                and cast(TemplateSegment, seg).source_str.isspace()
+            if (
+                seg.is_type("whitespace", "newline", "indent")
+                or (get_consumed_whitespace(seg) or "").isspace()
             ):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)
