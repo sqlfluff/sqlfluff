@@ -137,6 +137,28 @@ def test__config__load_toml():
     }
 
 
+def test__config__load_placeholder_cfg():
+    """Test loading a sqlfluff configuration file for placeholder templater."""
+    c = ConfigLoader()
+    cfg = c.load_config_file(
+        os.path.join("test", "fixtures", "config", "placeholder"),
+        ".sqlfluff-placeholder",
+    )
+    assert cfg == {
+        "core": {
+            "testing_val": "foobar",
+            "testing_int": 4,
+        },
+        "bar": {"foo": "barbar"},
+        "templater": {
+            "placeholder": {
+                "param_style": "flyway_var",
+                "flyway:database": "test_db",
+            }
+        },
+    }
+
+
 def test__config__iter_config_paths_right_order():
     """Test that config paths are fetched ordered by priority."""
     c = ConfigLoader()
