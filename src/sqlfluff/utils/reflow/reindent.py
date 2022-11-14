@@ -783,7 +783,7 @@ def _lint_line_buffer_indents(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
-) -> List[LintFix]:  # Tuple[List[LintFix], List[_IndentLine]]
+) -> List[LintFix]:
     """Evaluate a single set of indent points on one line.
 
     NOTE: This mutates the given `elements` and `forced_indents` input to avoid
