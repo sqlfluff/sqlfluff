@@ -6,7 +6,6 @@ from typing import Iterator, List, Optional, Sequence, Tuple, cast, Type
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
-from sqlfluff.core.parser.segments import TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
