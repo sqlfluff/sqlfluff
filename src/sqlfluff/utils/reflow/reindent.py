@@ -539,11 +539,17 @@ def _evaluate_indent_point_buffer(
 
     Order of operations:
     1. Evaluate the starting indent for this line.
-    2. For point which aren't line breaks in the line, we evaluate them
-       to see whether they *should* be. We seperately to missing indents
-       on the way *up* (i.e. where there's more indents than dedents)
-       and then on the way *down* (i.e. where there's more dedents than
-       indents).
+    2. For points which aren't line breaks in the line, we evaluate them
+       to see whether they *should* be. We separately address missing indents
+       on the way *up* and then on the way *down*.
+       - *Up* in this sense means where the indent balance goes up, but isn't
+         closed again within the same line - e.g. :code:`SELECT a + (2 +` where
+         the indent implied by the bracket isn't closed out before the end of the
+         line.
+       - *Down* in this sense means where we've dropped below the starting
+         indent balance of the line - e.g. :code:`1 + 1) FROM foo` where the
+         line starts within a bracket and then closes that *and* closes an
+         apparent SELECT clause without a newline.
 
     This method returns fixes, including appropriate descriptions, to
     allow generation of LintResult objects directly from them.
@@ -671,7 +677,8 @@ def _evaluate_indent_point_buffer(
             )
 
         # On the way up we're looking for whether the ending balance
-        # was an untaken indent on the way up.
+        # was an untaken indent or not. If it *was* untaken, there's
+        # a good chance that we *should* take it.
         if (
             # Edge case: if closing_balance > starting balance
             # but closing_trough isn't, then we shouldn't insert
@@ -680,7 +687,9 @@ def _evaluate_indent_point_buffer(
             closing_trough > starting_balance
             and closing_trough in indent_points[-1].untaken_indents
         ):
-            # It was! Force a new indent there.
+            # The closing indent balance *does* correspond to an
+            # untaken indent on this line. We *should* force a newline
+            # at that position.
             for ip in indent_points:
                 if ip.closing_indent_balance == closing_trough:
                     target_point_idx = ip.idx
