@@ -97,9 +97,15 @@ class ReflowSequence:
         results = []
         segments = None
         for fix in self.get_fixes():
-            # Anchoring on the segment AFTER makes is a lot more
-            # understandable to the user, that's why we do a little
-            # shuffle here.
+            # In the case of *creations*, even if we are actually
+            # creating *after* something, it makes sense to anchor
+            # on the segment which follows the creation point and not
+            # the segment which precedes it. That's because when
+            # displaying the position of a linting result in the CLI
+            # we display the position of the *start* of the anchor.
+            # By anchoring on the segment *following* the insertion point
+            # we display the position in a way which is much more
+            # interpretable by the user.
             if fix.edit_type == "create_after" or (
                 fix.edit_type == "replace"
                 and "".join(
