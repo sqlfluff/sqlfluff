@@ -225,6 +225,16 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     In doing this we have to attempt to match up template
     tags. This might fail. As we battle-test this feature
     there may be some interesting bugs which come up!
+
+    In addition to properly indenting block tags, we also
+    filter out any jinja tags which contain newlines because
+    if we try and fix them, we'll only fix the *initial*
+    part of it. The rest won't be seen because it's within
+    the tag.
+
+    TODO: This could be an interesting way to extend the
+    indentation algorithm to also cover indentation within
+    jinja tags.
     """
     reflow_logger.debug("# Revise templated lines.")
     # Because we want to modify the original lines, we're going
@@ -348,6 +358,22 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         for idx in group_lines:
             # MUTATION
             lines[idx].initial_indent_balance = best_indent
+
+    # Finally, look for any of the lines which contain newlines
+    # inside the placeholders. We use a slice to make sure
+    # we're iterating through a copy so that we can safely
+    # modify the underlying list.
+    for idx, line in enumerate(lines[:]):
+        # Get the first segment.
+        first_seg = elements[line.indent_points[0].idx + 1].segments[0]
+        src_str = first_seg.pos_marker.source_str()
+        if src_str != first_seg.raw and "\n" in src_str:
+            reflow_logger.debug(
+                "    Removing line %s from linting as placeholder "
+                "contains newlines.",
+                first_seg.pos_marker.working_line_no,
+            )
+            lines.remove(line)
 
 
 def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
@@ -573,10 +599,6 @@ def _evaluate_indent_point_buffer(
         # Handle edge case of no whitespace, but with newline.
         if not indent_seg.is_type("whitespace"):
             indent_seg = None
-        else:
-            raise NotImplementedError(
-                "Cannot find whitespace in leading point. Report this as a bug."
-            )
 
     if indent_seg:
         # We have to check pos marker before checking is templated.

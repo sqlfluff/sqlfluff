@@ -1316,3 +1316,25 @@ test_pass_templated_case_statement:
 
     select *
     from dummy
+
+test_pass_jinja_tag_multiline:
+  # Test that jinja block tags which contain newlines
+  # aren't linted, because we can't reliably fix them.
+  # The default fixing routine would only moving the
+  # start of the tag, which is ok but potentially strange.
+  # TODO: At some point we should find a better solution for
+  # this.
+  pass_str: |
+    SELECT
+        1,
+    {{
+            "my_jinja_tag_with_odd_indents"
+          }},
+        2,
+          {%
+      if True
+    %}
+            3,  -- NOTE: indented because within block
+    {%       endif
+    %}
+        4
