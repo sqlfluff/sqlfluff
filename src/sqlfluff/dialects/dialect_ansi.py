@@ -1086,7 +1086,6 @@ class ShorthandCastSegment(BaseSegment):
                 Ref("TimeZoneGrammar", optional=True),
             ),
         ),
-        allow_gaps=True,
     )
 
 
