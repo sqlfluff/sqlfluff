@@ -33,7 +33,7 @@ from sqlfluff.utils.reflow.respace import (
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def get_consumed_whitespace(segment: Optional[RawSegment]):
+def get_consumed_whitespace(segment: Optional[RawSegment]) -> Optional[str]:
     """A helper function to extract possible consumed whitespace.
 
     Args:
