@@ -12,30 +12,13 @@ from sqlfluff.core.parser import RawSegment, BaseSegment
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
+from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans
 
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
-
-
-def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> str:
-    """Given a raw segment, deduce the indent of it's line."""
-    seg_idx = root_segment.raw_segments.index(raw_segment)
-    indent_seg = None
-    for seg in root_segment.raw_segments[seg_idx::-1]:
-        if seg.is_code:
-            indent_seg = None
-        elif seg.is_type("whitespace"):
-            indent_seg = seg
-        elif seg.is_type("newline"):
-            break
-    reflow_logger.debug("Deduced indent for %s as %s", raw_segment, indent_seg)
-    if indent_seg:
-        return indent_seg.raw
-    else:
-        return ""
 
 
 def has_untemplated_newline(point: ReflowPoint) -> bool:
@@ -544,7 +527,7 @@ def _map_line_buffers(elements: ReflowSequenceType) -> List[_IndentLine]:
 
 
 def _deduce_line_current_indent(
-    elements: ReflowSequenceType, last_indent_point: _IndentPoint
+    elements: ReflowSequenceType, last_line_break_idx: Optional[int] = None
 ) -> str:
     """Deduce the current indent string.
 
@@ -552,9 +535,9 @@ def _deduce_line_current_indent(
     consumed from the source as by potential templating tags.
     """
     indent_seg = None
-    if last_indent_point.last_line_break_idx:
+    if last_line_break_idx is not None:
         indent_seg = cast(
-            ReflowPoint, elements[last_indent_point.last_line_break_idx]
+            ReflowPoint, elements[last_line_break_idx]
         )._get_indent_segment()
     elif isinstance(elements[0], ReflowPoint):
         # No last_line_break_idx, but this is a point. It's the first line.
@@ -604,7 +587,9 @@ def _lint_line_starting_indent(
     # Set up the default anchor
     anchor = {"before": elements[indent_points[0].idx + 1].segments[0]}
     # Find initial indent, and deduce appropriate string indent.
-    current_indent = _deduce_line_current_indent(elements, indent_points[-1])
+    current_indent = _deduce_line_current_indent(
+        elements, indent_points[-1].last_line_break_idx
+    )
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
     desired_starting_indent = desired_indent_units * single_indent
     initial_point = cast(ReflowPoint, elements[indent_points[0].idx])
@@ -919,5 +904,187 @@ def lint_indent_points(
         fixes += _lint_line_buffer_indents(
             elem_buffer, line, single_indent, forced_indents
         )
+
+    return elem_buffer, fixes
+
+
+def lint_line_length(
+    elements: ReflowSequenceType,
+    root_segment: BaseSegment,
+    single_indent: str,
+    line_length_limit: int,
+) -> Tuple[ReflowSequenceType, List[LintFix]]:
+    """Lint the sequence to lines over the configured length.
+
+    NOTE: This assumes that `lint_indent_points` has already
+    been run. The method won't necessarily *fail* but it does
+    assume that the current indent is correct and that indents
+    have already been inserted where they're missing.
+    """
+    # TODO: Outstanding questions:
+    # 1. Template loop segments should probably exclude a line.
+    # 2. Need to handle lengths in the source for template elements.
+    #    [probably lots of testing too]
+
+    reflow_logger.debug("# Evaluate lines for length.")
+    # Make a working copy to mutate.
+    elem_buffer: ReflowSequenceType = elements.copy()
+    line_buffer: ReflowSequenceType = []
+    fixes: List[LintFix] = []
+
+    last_indent_idx = None
+    for i, elem in enumerate(elements):
+        # Are there newlines in the element?
+        # If not, add it to the buffer and wait to evaluate the line.
+        # If yes, it's time to evaluate the line.
+        if not elem.num_newlines():
+            line_buffer.append(elem)
+            continue
+
+        # If we don't have a buffer yet, also carry on. Nothing to lint.
+        if not line_buffer:
+            continue
+
+        # Evaluate a line
+
+        # reflow_logger.warning("LINE:")
+        # for idx, e in enumerate(line_buffer):
+        #     reflow_logger.warning("    #%s: %s", idx, [s.raw for s in e.segments])
+
+        # Get the current indent.
+        current_indent = _deduce_line_current_indent(elements, last_indent_idx)
+        # reflow_logger.warning("INDENT @%s: %r = %s", last_indent_idx, ind, len(ind))
+        # Get the length of all the elements on the line (other than the indent).
+        # TODO: This needs to handle templated elements.
+        char_len = sum(sum(len(seg.raw) for seg in e.segments) for e in line_buffer)
+        # reflow_logger.warning("CHARLEN @%s: %r", last_indent_idx, char_len)
+
+        # Is the line over the limit length?
+        line_len = len(current_indent) + char_len
+        line_no = line_buffer[0].segments[0].pos_marker.working_line_no
+        if line_len <= line_length_limit:
+            reflow_logger.debug(
+                "    Line #%s. Length %s <= %s. OK.",
+                line_no,
+                line_len,
+                line_length_limit,
+            )
+        else:
+            reflow_logger.debug(
+                "    Line #%s. Length %s > %s. PROBLEM.",
+                line_no,
+                line_len,
+                line_length_limit,
+            )
+
+            # Potential places to shorten the line are either indent locations
+            # or segments with a defined line position (like operators).
+
+            # NOTE: We need the closing indent too for the next operations because
+            # it might be an option contain the closing indent for a potential
+            # indent earlier in the line.
+            line_elements = line_buffer + [elem]
+
+            # Identify rebreak spans first so we can work out their indentation
+            # in the next section.
+            spans = identify_rebreak_spans(line_elements, root_segment)
+            # The index to insert a potential indent at depends on the
+            # line_position of the span. Infer that here and store the indices
+            # in the elements.
+            rebreak_indices = []
+            for span in spans:
+                if span.line_position == "leading":
+                    rebreak_indices.append(span.start_idx - 1)
+                elif span.line_position == "trailing":
+                    rebreak_indices.append(span.end_idx + 1)
+                else:
+                    raise NotImplementedError(
+                        "Unexpected line position: %s", span.line_position
+                    )
+            reflow_logger.debug("    rebreak_indices: %s", rebreak_indices)
+
+            # Identify indent points second, taking into account rebreak_indices.
+            balance = 0
+            # Expect fractional keys, because of the half values for
+            # rebreak points.
+            matched_indents: defaultdict[float, List[ReflowPoint]] = defaultdict(list)
+            for idx, e in enumerate(line_elements):
+                # We only care about points, because only they contain indents.
+                if not isinstance(e, ReflowPoint):
+                    continue
+
+                # As usual, indents are referred to by their "uphill" side
+                # so what number we store the point against depends on whether
+                # it's positive or negative.
+                indent_stats = e.get_indent_impulse()
+                if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
+                    matched_indents[balance * 1.0].append(e)
+                    balance += indent_stats[0]
+                elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
+                    balance += indent_stats[0]
+                    matched_indents[balance * 1.0].append(e)
+                elif idx in rebreak_indices:
+                    # For potential rebreak options (i.e. ones without an indent)
+                    # we add 0.5 so that they sit *between* the varying indent
+                    # options. that means we split them before any of their
+                    # content, but don't necessarily split them when their
+                    # container is split.
+                    matched_indents[balance + 0.5].append(e)
+                else:
+                    continue
+
+            # Before working out the lowest option, we purge any which contain
+            # ONLY the final point. That's because adding indents there won't
+            # actually help the line length. There's *already* a newline there.
+            for indent_level in list(matched_indents.keys()):
+                if matched_indents[indent_level] == [elem]:
+                    matched_indents.pop(indent_level)
+                    reflow_logger.debug(
+                        "    purging balance of %s, it references only the "
+                        "final element",
+                        indent_level,
+                    )
+
+            # Matched sets logging
+            # reflow_logger.warning("  matched_indents:")
+            # for balance in matched_indents.keys():
+            #     reflow_logger.warning("    BAL: %s", balance)
+            #     for pt in matched_indents[balance]:
+            #         reflow_logger.warning("      PT: %s", pt)
+
+            # As a blunt solution, force indents at the lowest available option.
+            # TODO: Make this more elegant later, with the option to potentially
+            # add linebreaks at more than one level.
+            target_balance = min(matched_indents.keys())
+            desired_indent = current_indent
+            if target_balance >= 1:
+                desired_indent += single_indent
+            reflow_logger.debug(
+                "    Targetting balance of %s, indent: %r for %s",
+                target_balance,
+                desired_indent,
+                matched_indents[target_balance],
+            )
+            # TODO: This is messy, should just use indices FROM THE START.
+            for e in matched_indents[target_balance]:
+                # If the option is the final element. Don't touch it, because
+                # there's already an indent there.
+                if e is elem:
+                    continue
+                e_idx = elements.index(e)
+                new_fixes, new_point = e.indent_to(
+                    desired_indent,
+                )
+                # NOTE: Mutation of elements.
+                elements[e_idx] = new_point
+                fixes += new_fixes
+
+        # Regardless of whether the line was good or not, clear
+        # the buffers ready for the next line.
+        line_buffer = []
+        last_indent_idx = i
+
+    # TODO: Some of these fixes are going to need to be grouped together
+    # to make any sense to the user.
 
     return elem_buffer, fixes

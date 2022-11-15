@@ -20,6 +20,7 @@ from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
     lint_indent_points,
     construct_single_indent,
+    lint_line_length,
 )
 
 # We're in the utils module, but users will expect reflow
@@ -670,6 +671,14 @@ class ReflowSequence:
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
+        )
+
+        elements, fixes = lint_line_length(
+            elements,
+            self.root_segment,
+            single_indent=single_indent,
+            # TODO: Make this configurable
+            line_length_limit=20,
         )
 
         return ReflowSequence(
