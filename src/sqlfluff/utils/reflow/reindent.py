@@ -668,8 +668,9 @@ def _lint_line_untaken_positive_indents(
     # was an untaken indent or not. If it *was* untaken, there's
     # a good chance that we *should* take it.
     if closing_trough not in indent_points[-1].untaken_indents:
-        # NOTE: I don't think we should ever get here. It's probably
-        # an error if we do.
+        # If the closing point doesn't correspond to an untaken
+        # indent within the line (i.e. it _was_ taken), then
+        # there won't be an appropriate place to force an indent.
         return [], []
 
     # The closing indent balance *does* correspond to an
