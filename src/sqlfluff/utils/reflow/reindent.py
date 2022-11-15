@@ -926,6 +926,11 @@ def lint_line_length(
     # 2. Need to handle lengths in the source for template elements.
     #    [probably lots of testing too]
 
+    # First check whether we should even be running this check.
+    if line_length_limit <= 0:
+        reflow_logger.debug("# Line length check disabled.")
+        return elements, []
+
     reflow_logger.debug("# Evaluate lines for length.")
     # Make a working copy to mutate.
     elem_buffer: ReflowSequenceType = elements.copy()
@@ -1052,32 +1057,43 @@ def lint_line_length(
             #     for pt in matched_indents[balance]:
             #         reflow_logger.warning("      PT: %s", pt)
 
-            # As a blunt solution, force indents at the lowest available option.
-            # TODO: Make this more elegant later, with the option to potentially
-            # add linebreaks at more than one level.
-            target_balance = min(matched_indents.keys())
-            desired_indent = current_indent
-            if target_balance >= 1:
-                desired_indent += single_indent
-            reflow_logger.debug(
-                "    Targetting balance of %s, indent: %r for %s",
-                target_balance,
-                desired_indent,
-                matched_indents[target_balance],
-            )
-            # TODO: This is messy, should just use indices FROM THE START.
-            for e in matched_indents[target_balance]:
-                # If the option is the final element. Don't touch it, because
-                # there's already an indent there.
-                if e is elem:
-                    continue
-                e_idx = elements.index(e)
-                new_fixes, new_point = e.indent_to(
-                    desired_indent,
+            # If we don't have any matched_indents, we don't have any options.
+            # This could be for things like comment lines. We have
+            # TODO: We might still want to flag these as a problem, but we can't
+            # currently fix them - that's an odd scenario.
+            if not matched_indents:
+                reflow_logger.warning(
+                    "    LONG LINE FOUND [#%s] BUT NO FIX POSSIBLE. TODO.",
+                    line_no,
                 )
-                # NOTE: Mutation of elements.
-                elements[e_idx] = new_point
-                fixes += new_fixes
+            else:
+                # As a blunt solution, force indents at the lowest available
+                # option.
+                # TODO: Make this more elegant later, with the option to
+                # potentially add linebreaks at more than one level.
+                target_balance = min(matched_indents.keys())
+                desired_indent = current_indent
+                if target_balance >= 1:
+                    desired_indent += single_indent
+                reflow_logger.debug(
+                    "    Targetting balance of %s, indent: %r for %s",
+                    target_balance,
+                    desired_indent,
+                    matched_indents[target_balance],
+                )
+                # TODO: This is messy, should just use indices FROM THE START.
+                for e in matched_indents[target_balance]:
+                    # If the option is the final element. Don't touch it, because
+                    # there's already an indent there.
+                    if e is elem:
+                        continue
+                    e_idx = elements.index(e)
+                    new_fixes, new_point = e.indent_to(
+                        desired_indent,
+                    )
+                    # NOTE: Mutation of elements.
+                    elements[e_idx] = new_point
+                    fixes += new_fixes
 
         # Regardless of whether the line was good or not, clear
         # the buffers ready for the next line.

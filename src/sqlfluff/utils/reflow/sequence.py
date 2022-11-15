@@ -667,18 +667,17 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        elements, fixes = lint_indent_points(
+        elements, indent_fixes = lint_indent_points(
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
         )
 
-        elements, fixes = lint_line_length(
+        elements, length_fixes = lint_line_length(
             elements,
             self.root_segment,
             single_indent=single_indent,
-            # TODO: Make this configurable
-            line_length_limit=20,
+            line_length_limit=self.reflow_config.max_line_length,
         )
 
         return ReflowSequence(
@@ -686,5 +685,5 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=fixes,
+            embodied_fixes=indent_fixes + length_fixes,
         )

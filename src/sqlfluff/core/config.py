@@ -48,6 +48,15 @@ REMOVED_CONFIGS = [
         ),
     ),
     _RemovedConfig(
+        ("rules", "max_line_length"),
+        (
+            "The max_line_length config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "max_line_length"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
         ("rules", "tab_space_size"),
         (
             "The tab_space_size config has moved "
