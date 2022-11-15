@@ -13,8 +13,8 @@ from sqlfluff.core import Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
+from sqlfluff.utils.reflow.helpers import deduce_line_indent
 from sqlfluff.utils.reflow.reindent import (
-    deduce_line_indent,
     lint_indent_points,
     _crawl_indent_points,
     _IndentPoint,
