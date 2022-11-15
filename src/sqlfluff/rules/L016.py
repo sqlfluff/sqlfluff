@@ -33,7 +33,6 @@ class Rule_L016(BaseRule):
     _check_docstring = False
 
     config_keywords = [
-        "max_line_length",
         "ignore_comment_lines",
         "ignore_comment_clauses",
     ]
@@ -501,12 +500,12 @@ class Rule_L016(BaseRule):
 
         """
         # Config type hints
-        self.max_line_length: int
         self.ignore_comment_lines: bool
         self.ignore_comment_clauses: bool
 
         indent_unit = context.config.get("indent_unit", ["indentation"])
         tab_space_size = context.config.get("tab_space_size", ["indentation"])
+        max_line_length: int = context.config.get("max_line_length", ["indentation"])
 
         assert context.segment.is_type("newline")
 
@@ -552,7 +551,7 @@ class Rule_L016(BaseRule):
 
         # Now we can work out the line length and deal with the content
         line_len = self._compute_source_length(this_line, literals_in_comments)
-        if line_len > self.max_line_length:
+        if line_len > max_line_length:
             # Problem, we'll be reporting a violation. The
             # question is, can we fix it?
 
@@ -615,7 +614,7 @@ class Rule_L016(BaseRule):
                 ]
                 if (
                     self._compute_source_length(create_elements, literals_in_comments)
-                    > self.max_line_length
+                    > max_line_length
                 ):
                     # The inline comment is NOT on a line by itself, but even if
                     # we move it onto a line by itself, it's still too long. In
