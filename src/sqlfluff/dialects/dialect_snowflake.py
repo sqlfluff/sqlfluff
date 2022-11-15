@@ -964,6 +964,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStoredProcedureSegment"),
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
+            Ref("CopyIntoLocationStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("AlterShareStatementSegment"),
             Ref("CreateExternalTableSegment"),
@@ -2788,7 +2789,6 @@ class CopyOptionsSegment(BaseSegment):
             Sequence(
                 "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
-            Sequence("HEADER", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         ),
     )
 
@@ -4185,6 +4185,49 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         ),
     )
 
+class CopyIntoLocationStatementSegment(BaseSegment):
+    """A Snowflake `COPY INTO <location>` statement.
+
+        # https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html
+        """
+
+    type = "copy_into_location_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "INTO",
+        Ref("StorageLocation"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("TableReferenceSegment"),
+                Bracketed(Ref("SelectStatementSegment")),
+            ),
+            optional=True,
+        ),
+        AnySetOf(
+            Ref("PartitionClauseSegment"),
+            Sequence(
+                "FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("FileFormatSegment"),
+            ),
+            Ref("CopyOptionsSegment"),
+        ),
+        Sequence(
+            "VALIDATION_MODE",
+            Ref("EqualsSegment"),
+            Ref("ValidationModeOptionSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "HEADER",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+    )
 
 class CopyIntoTableStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <table>` statement.
@@ -4192,7 +4235,7 @@ class CopyIntoTableStatementSegment(BaseSegment):
     # https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
     """
 
-    type = "copy_into_statement"
+    type = "copy_into_table_statement"
 
     match_grammar = Sequence(
         "COPY",
