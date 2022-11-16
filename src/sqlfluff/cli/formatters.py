@@ -198,16 +198,23 @@ class OutputStreamFormatter:
     ) -> str:
         """Format a set of violations in a `LintingResult`."""
         text_buffer = StringIO()
-        # Success is having no violations (which aren't ignored)
-        success = sum(int(not violation.ignore) for violation in violations) == 0
+        # Success is based on there being no fails, but we still
+        # want to show the results if there are warnings (even
+        # if no fails).
+        fails = sum(
+            int(not violation.ignore and not violation.warning)
+            for violation in violations
+        )
+        warns = sum(int(violation.warning) for violation in violations)
+        show = fails + warns > 0
 
         # Only print the filename if it's either a failure or verbosity > 1
-        if self._verbosity > 0 or not success:
-            text_buffer.write(self.format_filename(fname, success=success))
+        if self._verbosity > 0 or show:
+            text_buffer.write(self.format_filename(fname, success=fails == 0))
             text_buffer.write("\n")
 
         # If we have violations, print them
-        if not success:
+        if show:
             # sort by position in file (using line number and position)
             s = sorted(violations, key=lambda v: (v.line_no, v.line_pos))
             for violation in s:
@@ -228,7 +235,10 @@ class OutputStreamFormatter:
     ) -> None:
         """Dispatch any violations found in a file."""
         s = self._format_file_violations(
-            fname, linted_file.get_violations(fixable=True if only_fixable else None)
+            fname,
+            linted_file.get_violations(
+                fixable=True if only_fixable else None, filter_warning=False
+            ),
         )
         self._dispatch(s)
 
@@ -382,12 +392,21 @@ class OutputStreamFormatter:
 
         if violation.ignore:
             desc = "IGNORE: " + desc  # pragma: no cover
+        elif violation.warning:
+            desc = "WARNING: " + desc  # pragma: no cover
 
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
         out_buff = ""
-        # Grey out the violation if we're ignoring it.
-        section_color: Color = Color.lightgrey if violation.ignore else Color.blue
+        # Grey out the violation if we're ignoring or warning it.
+        section_color: Color
+        if violation.ignore or violation.warning:
+            # For now keep warnings and ignores the same colour. The additional
+            # text in the description allows distinction.
+            section_color = Color.lightgrey
+        else:
+            section_color = Color.blue
+
         for idx, line in enumerate(split_desc):
             if idx == 0:
                 rule_code = violation.rule_code().rjust(4)
@@ -525,7 +544,7 @@ class OutputStreamFormatter:
                 click.echo(
                     message=self.colorize(
                         f"  [{num_filtered_errors} templating/parsing errors "
-                        f'remaining after "ignore"]',
+                        f'remaining after "ignore" & "warning"]',
                         color=color,
                     ),
                     color=not self.plain_output,

@@ -2494,6 +2494,18 @@ class FunctionSegment(ansi.FunctionSegment):
     )
 
 
+class FromClauseSegment(ansi.FromClauseSegment):
+    """Slightly modified version which allows for using brackets for content of FROM."""
+
+    match_grammar = ansi.FromClauseSegment.match_grammar
+    parse_grammar = Sequence(
+        "FROM",
+        Delimited(
+            OptionallyBracketed(Ref("FromExpressionSegment")),
+        ),
+    )
+
+
 class CreateExternalFunctionStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL FUNCTION` segment.
 

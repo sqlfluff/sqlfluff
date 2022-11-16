@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 039c55eb113779324abffb5d04be4857968710630bd0e260478a0ca41c3aaf1d
+_hash: 22878f1f16fcd23b97eeabe2abce943e02764130cdad64ba43b7353535333d37
 file:
 - statement:
     alter_table_statement:
@@ -255,6 +255,22 @@ file:
       - comment_clause:
           keyword: COMMENT
           quoted_literal: "'internal reporting group defined by DE team'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rpt_enc_table
+    - alter_table_table_column_action:
+        keyword: ADD
+        column_reference:
+          naked_identifier: encounter_count
+        data_type:
+          data_type_identifier: INTEGER
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'count of encounters past year'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -583,6 +599,19 @@ file:
     - table_reference:
         naked_identifier: empl_info
     - alter_table_table_column_action:
+        keyword: DROP
+        column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
       - keyword: RENAME
       - keyword: COLUMN
       - column_reference:
@@ -611,16 +640,13 @@ file:
       - naked_identifier: my_schema
       - dot: .
       - naked_identifier: my_table
-    - alter_table_table_column_action:
-        keyword: add
-        column_definition:
-          naked_identifier: PRIMARY
-          data_type:
-            data_type_identifier: KEY
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: TABLE_ID
-              end_bracket: )
+    - alter_table_constraint_action:
+      - keyword: add
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: TABLE_ID
+          end_bracket: )
 - statement_terminator: ;
