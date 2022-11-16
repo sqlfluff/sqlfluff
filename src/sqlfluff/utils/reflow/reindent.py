@@ -1072,6 +1072,7 @@ def lint_line_length(
             else:
                 # As a blunt solution, force indents at the lowest available
                 # option.
+                fix_desc = f"Line is too long ({line_len} > {line_length_limit})"
                 # TODO: Make this more elegant later, with the option to
                 # potentially add linebreaks at more than one level.
                 target_balance = min(matched_indents.keys())
@@ -1092,7 +1093,7 @@ def lint_line_length(
                         continue
                     e_idx = elements.index(e)
                     new_fixes, new_point = e.indent_to(
-                        desired_indent,
+                        desired_indent, description=fix_desc
                     )
                     # NOTE: Mutation of elements.
                     elements[e_idx] = new_point
