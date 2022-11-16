@@ -12,13 +12,13 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from typing import List
+from typing import List, Type
 import os.path
 from sqlfluff.core.config import ConfigLoader
 
 
 @hookimpl
-def get_rules() -> List[BaseRule]:
+def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules."""
     return [Rule_Example_L001]
 

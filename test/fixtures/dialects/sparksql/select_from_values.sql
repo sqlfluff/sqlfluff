@@ -20,3 +20,4 @@ select * from values ( 1 , 2 ) , ( 3 , 4 );
 select * from values 1 , 2 , values 3 , 4;
 select * from values (1) , (2);
 select * from values 1 , 2 , values 3 , 4;
+select 1 + 2 == 3 from values 1;

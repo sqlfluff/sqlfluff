@@ -61,7 +61,7 @@ sparksql_dialect.patch_lexer_matchers(
         # == and <=> are valid equal operations
         # <=> is a non-null equals in Spark SQL
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
-        RegexLexer("equals", r"=|==|<=>", CodeSegment),
+        RegexLexer("equals", r"==|<=>|=", CodeSegment),
         # identifiers are delimited with `
         # within a delimited identifier, ` is used to escape special characters,
         # including `
@@ -3104,6 +3104,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
+            "UNION",
             Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",
