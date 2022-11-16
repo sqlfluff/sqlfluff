@@ -287,7 +287,6 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
-
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -933,7 +932,7 @@ class ObjectReferenceSegment(BaseSegment):
         max_level = max(levels_tmp)
         refs = list(self.iter_raw_references())
         if len(refs) >= max_level:
-            return [tuple(refs[-max_level : 1 - min_level])]
+            return [tuple(refs[-max_level: 1 - min_level])]
         return []
 
     @staticmethod
@@ -1004,12 +1003,6 @@ class TagReferenceSegment(ObjectReferenceSegment):
     """A reference to a tag."""
 
     type = "tag_reference"
-
-
-class StorageReferenceSegment(ObjectReferenceSegment):
-    """A reference to a storage location."""
-
-    type = "storage_reference"
 
 
 class TriggerReferenceSegment(ObjectReferenceSegment):

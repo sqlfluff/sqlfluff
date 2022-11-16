@@ -4327,7 +4327,6 @@ class StorageLocation(BaseSegment):
     type = "storage_location"
 
     match_grammar = OneOf(
-        Ref("StorageReferenceSegment"),
         Ref("StagePath"),
         Ref("S3Path"),
         Ref("GCSPath"),
