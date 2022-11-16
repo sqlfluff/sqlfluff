@@ -535,11 +535,13 @@ def _deduce_line_current_indent(
     consumed from the source as by potential templating tags.
     """
     indent_seg = None
-    if last_line_break_idx is not None:
+    if last_line_break_idx:
         indent_seg = cast(
             ReflowPoint, elements[last_line_break_idx]
         )._get_indent_segment()
-    elif isinstance(elements[0], ReflowPoint):
+    elif isinstance(elements[0], ReflowPoint) and elements[0].segments[
+        0
+    ].pos_marker.working_loc == (1, 1):
         # No last_line_break_idx, but this is a point. It's the first line.
         # Get the last whitespace element.
         # TODO: We don't currently handle the leading swallowed whitespace case.
@@ -569,7 +571,8 @@ def _deduce_line_current_indent(
         # _get_indent_segment, should be valid indents (i.e. whitespace
         # or placeholders for consumed whitespace). This is a bug.
         raise NotImplementedError(
-            "Unexpected templated indent. Report this as a bug on GitHub."
+            "Unexpected templated indent. Report this as a bug on "
+            f"GitHub. Segment: {indent_seg}"
         )
 
 
