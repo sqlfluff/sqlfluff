@@ -2044,6 +2044,11 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Sequence(
+                                Ref("DotSegment"),
+                                Ref("ParameterNameSegment"),
+                                optional=True,
+                            ),
+                            Sequence(
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
                                 optional=True,
