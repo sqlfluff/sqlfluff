@@ -41,7 +41,6 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
-
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
 
@@ -965,6 +964,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CopyIntoLocationStatementSegment"),
+            Ref("FormatTypeOptions"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("AlterShareStatementSegment"),
             Ref("CreateExternalTableSegment"),
@@ -4043,23 +4043,58 @@ class FileFormatSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
         ),
         Bracketed(
-            OneOf(
-                Sequence(
-                    "FORMAT_NAME",
-                    Ref("EqualsSegment"),
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "FORMAT_NAME",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
                     OneOf(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("ObjectReferenceSegment"),
+                        Ref("CsvFileFormatTypeParameters"),
+                        Ref("JsonFileFormatTypeParameters"),
+                        Ref("AvroFileFormatTypeParameters"),
+                        Ref("OrcFileFormatTypeParameters"),
+                        Ref("ParquetFileFormatTypeParameters"),
+                        Ref("XmlFileFormatTypeParameters"),
                     ),
                 ),
-                OneOf(
-                    Ref("CsvFileFormatTypeParameters"),
-                    Ref("JsonFileFormatTypeParameters"),
-                    Ref("AvroFileFormatTypeParameters"),
-                    Ref("OrcFileFormatTypeParameters"),
-                    Ref("ParquetFileFormatTypeParameters"),
-                    Ref("XmlFileFormatTypeParameters"),
-                ),
+                Ref("FormatTypeOptions", optional=True),
+            ),
+        ),
+    )
+
+
+class FormatTypeOptions(BaseSegment):
+    """A Snowflake formatTypeOptions.
+
+        https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options
+        https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options
+    """
+    type = "format_type_options"
+
+    match_grammar = OneOf(
+        AnySetOf(
+            Sequence(
+                "COMPRESSION",
+                Ref("EqualsSegment"),
+                Ref("CompressionType"),
+            ),
+        ),
+        AnySetOf(
+            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+            ),
+            Sequence(
+                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
         ),
     )
@@ -4185,6 +4220,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         ),
     )
 
+
 class CopyIntoLocationStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <location>` statement.
 
@@ -4228,6 +4264,7 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
 
 class CopyIntoTableStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <table>` statement.
