@@ -287,7 +287,6 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
-
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
