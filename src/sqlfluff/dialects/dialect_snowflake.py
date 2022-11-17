@@ -4085,32 +4085,27 @@ class FormatTypeOptions(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("CompressionType"),
             ),
-
             Sequence(
                 "RECORD_DELIMITER",
                 Ref("EqualsSegment"),
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
-
             Sequence(
                 "FIELD_DELIMITER",
                 Ref("EqualsSegment"),
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
-
             Sequence(
                 "ESCAPE",
                 Ref("EqualsSegment"),
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
-
             Sequence(
                 "ESCAPE_UNENCLOSED_FIELD",
                 Ref("EqualsSegment"),
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
         ),
-
         # COPY INTO <table>
         AnySetOf(
             Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
