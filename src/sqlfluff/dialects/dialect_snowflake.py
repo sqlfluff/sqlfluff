@@ -4078,7 +4078,7 @@ class FormatTypeOptions(BaseSegment):
     type = "format_type_options"
 
     match_grammar = OneOf(
-        # COPY INTO <location>
+        # COPY INTO <location>, open for extension
         AnySetOf(
             Sequence(
                 "COMPRESSION",
@@ -4106,19 +4106,9 @@ class FormatTypeOptions(BaseSegment):
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
         ),
-        # COPY INTO <table>
+        # COPY INTO <table>, open for extension
         AnySetOf(
-            Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "MAX_FILE_SIZE", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                "INCLUDE_QUERY_ID", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "DETAILED_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
+
         ),
     )
 
