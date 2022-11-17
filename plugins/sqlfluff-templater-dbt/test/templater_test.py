@@ -291,10 +291,21 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     project_dir, fname  # noqa: F811
 ):
     """Test that templated dbt models do not raise a linting error."""
-    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_path(
+    linter = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    lnt = linter.lint_path(
         path=os.path.join(project_dir, "models/my_new_project/", fname)
     )
+    for linted_file in lnt.files:
+        # Log the rendered file to facilitate better debugging of the files.
+        print(f"## FILE: {linted_file.path}")
+        print("\n\n## RENDERED FILE:\n\n")
+        print(linted_file.templated_file.templated_str)
+        print("\n\n## PARSED TREE:\n\n")
+        print(linted_file.tree.stringify())
+        print("\n\n## VIOLATIONS:")
+        for idx, v in enumerate(linted_file.violations):
+            print(f"   {idx}:{v.get_info_dict()}")
+
     violations = lnt.check_tuples()
     assert len(violations) == 0
 
