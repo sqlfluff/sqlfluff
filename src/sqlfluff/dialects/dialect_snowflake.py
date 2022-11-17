@@ -4071,9 +4071,10 @@ class FileFormatSegment(BaseSegment):
 class FormatTypeOptions(BaseSegment):
     """A Snowflake formatTypeOptions.
 
-        https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options
-        https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options
+    https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options
+    https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options
     """
+
     type = "format_type_options"
 
     match_grammar = OneOf(
@@ -4224,8 +4225,8 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 class CopyIntoLocationStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <location>` statement.
 
-        # https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html
-        """
+    # https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html
+    """
 
     type = "copy_into_location_statement"
 

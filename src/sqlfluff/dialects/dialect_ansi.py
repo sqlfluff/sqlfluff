@@ -932,7 +932,7 @@ class ObjectReferenceSegment(BaseSegment):
         max_level = max(levels_tmp)
         refs = list(self.iter_raw_references())
         if len(refs) >= max_level:
-            return [tuple(refs[-max_level: 1 - min_level])]
+            return [tuple(refs[-max_level : 1 - min_level])]
         return []
 
     @staticmethod

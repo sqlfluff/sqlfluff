@@ -3,29 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0185736ae6727bb740d4fededfd0db54bf9e9a7ac4cada3bbb34c933bf34156
+_hash: 0db76c650de2449edceff9f0debbedd3c0fdda7271f6a29dbf2336f5e5b0c4bd
 file:
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@my_int_stage'
+        stage_path: '@my_int_stage'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -40,15 +38,14 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -62,15 +59,14 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -89,15 +85,14 @@ file:
     - quoted_literal: "'.*/.*/.*[.]csv[.]gz'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -116,58 +111,54 @@ file:
     - quoted_literal: "'.*sales.*[.]csv'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
-    - keyword: copy
-    - keyword: into
-    - table_reference:
-        naked_identifier: mytable
-    - keyword: from
-    - storage_location:
-        storage_reference:
-          stage_path: '@%mytable'
-- statement_terminator: ;
-- statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@~/data_files'
+        stage_path: '@%mytable'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@mydb.myschema.mystage'
+        stage_path: '@~/data_files'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@mydatabase.myschema.%mytable'
+        stage_path: '@mydb.myschema.mystage'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@mydatabase.myschema.%mytable'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -179,7 +170,7 @@ file:
         boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -190,7 +181,7 @@ file:
     - validation_mode_option: "'RETURN_ERRORS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -201,7 +192,7 @@ file:
     - validation_mode_option: "'RETURN_2_ROWS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -212,7 +203,7 @@ file:
     - validation_mode_option: "'RETURN_3_ROWS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: COPY
     - keyword: INTO
     - table_reference:
@@ -236,7 +227,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -263,7 +254,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -299,7 +290,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -325,7 +316,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -337,8 +328,7 @@ file:
         end_bracket: )
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@public.stage/sub-folder/myfile-1.csv'
+        stage_path: '@public.stage/sub-folder/myfile-1.csv'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -353,7 +343,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -365,8 +355,7 @@ file:
         end_bracket: )
     - keyword: from
     - storage_location:
-        storage_reference:
-          stage_path: '@public.stage/subfolder/'
+        stage_path: '@public.stage/subfolder/'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
