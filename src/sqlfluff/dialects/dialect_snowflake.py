@@ -4078,13 +4078,40 @@ class FormatTypeOptions(BaseSegment):
     type = "format_type_options"
 
     match_grammar = OneOf(
+        # COPY INTO <location>
         AnySetOf(
             Sequence(
                 "COMPRESSION",
                 Ref("EqualsSegment"),
                 Ref("CompressionType"),
             ),
+
+            Sequence(
+                "RECORD_DELIMITER",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+
+            Sequence(
+                "FIELD_DELIMITER",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+
+            Sequence(
+                "ESCAPE",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+
+            Sequence(
+                "ESCAPE_UNENCLOSED_FIELD",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
         ),
+
+        # COPY INTO <table>
         AnySetOf(
             Sequence("OVERWRITE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             Sequence("SINGLE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
@@ -4243,6 +4270,8 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("S3ExternalStageParameters", optional=True),
+        Ref("InternalStageParameters", optional=True),
         AnySetOf(
             Ref("PartitionClauseSegment"),
             Sequence(
@@ -4288,6 +4317,8 @@ class CopyIntoTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("S3ExternalStageParameters", optional=True),
+        Ref("InternalStageParameters", optional=True),
         AnySetOf(
             Sequence(
                 "FILES",
