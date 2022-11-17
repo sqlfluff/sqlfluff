@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29d7815aa67937d53ce3bc0bec9bc8e0b0ffb2aa4cd08ea8ba1c807a60c09f0f
+_hash: c32acebaebd1047787a609acea7ae54506c48a8c08a4fdd1b513c6f284b5725b
 file:
 - statement:
     create_table_statement:
@@ -1203,8 +1203,8 @@ file:
       - column_constraint_segment:
           keyword: DEFAULT
           expression:
-            quoted_literal: "'-1'"
             cast_expression:
+              quoted_literal: "'-1'"
               casting_operator: '::'
               data_type:
                 keyword: integer
@@ -1359,8 +1359,8 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                quoted_literal: "'orders_id_seq'"
                 cast_expression:
+                  quoted_literal: "'orders_id_seq'"
                   casting_operator: '::'
                   data_type:
                     data_type_identifier: regclass
