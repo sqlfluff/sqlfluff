@@ -65,3 +65,7 @@ SELECT FROM test1;
 
 -- keywords can be used as column names without quotes if qualified
 select id, start, periods.end from periods;
+
+SELECT concat_lower_or_upper('Hello', 'World', true);
+SELECT concat_lower_or_upper(a => 'Hello', b => 'World');
+SELECT concat_lower_or_upper('Hello', 'World', uppercase => true);
