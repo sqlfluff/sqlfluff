@@ -4107,9 +4107,7 @@ class FormatTypeOptions(BaseSegment):
             ),
         ),
         # COPY INTO <table>, open for extension
-        AnySetOf(
-
-        ),
+        AnySetOf(),
     )
 
 
