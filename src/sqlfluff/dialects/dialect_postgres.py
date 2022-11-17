@@ -2043,7 +2043,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "MATERIALIZED",
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
