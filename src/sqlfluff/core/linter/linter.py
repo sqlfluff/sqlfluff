@@ -1177,6 +1177,7 @@ class Linter:
         expanded_path_to_linted_dir = {}
         for path in paths:
             linted_dir = LintedDir(path)
+            result.add(linted_dir)
             for fname in self.paths_from_path(
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
