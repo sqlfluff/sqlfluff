@@ -10,7 +10,7 @@ from sqlfluff.core.parser.segments import Indent
 
 from sqlfluff.core.parser import RawSegment, BaseSegment
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
-from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 
 
@@ -595,7 +595,7 @@ def _lint_line_starting_indent(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
-) -> List[LintFix]:
+) -> List[LintResult]:
     """Lint the indent at the start of a line.
 
     NOTE: This mutates `elements` to avoid lots of copying.
@@ -621,20 +621,24 @@ def _lint_line_starting_indent(
 
     # Initial point gets special handling if it has no newlines.
     if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
-        new_fixes = [
-            LintFix.delete(seg, description="First line should not be indented.")
-            for seg in initial_point.segments
+        new_results = [
+            LintResult(
+                initial_point.segments[0],
+                [LintFix.delete(seg)
+                for seg in initial_point.segments],
+                description="First line should not be indented."
+            )
         ]
         new_point = ReflowPoint(())
     # Placeholder indents also get special treatment
     else:
-        new_fixes, new_point = initial_point.indent_to(
+        new_results, new_point = initial_point.indent_to(
             desired_starting_indent,
             **anchor,  # type: ignore
         )
 
     elements[indent_points[0].idx] = new_point
-    return new_fixes
+    return new_results
 
 
 def _lint_line_untaken_positive_indents(

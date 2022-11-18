@@ -302,18 +302,17 @@ class ReflowPoint(ReflowElement):
                 source_str=indent_seg.source_str[: -len(current_indent)]
                 + desired_indent,
             )
-            new_fixes = [
-                LintFix.replace(
-                    indent_seg,
-                    [new_placeholder],
-                    description=description
-                    or f"Expected {_indent_description(desired_indent)}.",
-                )
-            ]
             new_segments = [
                 new_placeholder if seg is indent_seg else seg for seg in self.segments
             ]
-            return new_fixes, ReflowPoint(tuple(new_segments))
+            return [
+                LintResult(
+                    indent_seg,
+                    [LintFix.replace(indent_seg, [new_placeholder])],
+                    description=description
+                    or f"Expected {_indent_description(desired_indent)}.",
+                )
+            ], ReflowPoint(tuple(new_segments))
 
         elif self.num_newlines():
             # There is already a newline. Is there an indent?
