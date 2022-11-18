@@ -469,9 +469,10 @@ class ReflowPoint(ReflowElement):
                 prev_block,
                 next_block,
                 segment_buffer,
-                new_results,
+                existing_results + new_results,
                 anchor_on=anchor_on,
             )
+            existing_results = []
             if edited:
                 reflow_logger.debug("    Modified result buffer: %s", new_results)
 
