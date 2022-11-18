@@ -88,47 +88,6 @@ class ReflowSequence:
         """Return the current result buffer."""
         return self.lint_results
 
-    def get_partitioned_fixes(
-        self, target: BaseSegment
-    ) -> Tuple[List[LintFix], List[LintFix], List[LintFix]]:
-        """Get the current fix buffer partitioned around a target."""
-        first_target_raw = target.raw_segments[0]
-        last_target_raw = target.raw_segments[-1]
-        fixes = self.get_fixes()
-
-        assert target.pos_marker
-        pre_fixes = [
-            fix
-            for fix in fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                < first_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_before"
-                    and fix.anchor.pos_marker.working_loc
-                    == first_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        post_fixes = [
-            fix
-            for fix in fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                > last_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_after"
-                    and fix.anchor.pos_marker.working_loc
-                    == last_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        # The rest
-        mid_fixes = [fix for fix in fixes if fix not in pre_fixes + post_fixes]
-        return pre_fixes, mid_fixes, post_fixes
-
     def get_raw(self) -> str:
         """Get the current raw representation."""
         return "".join(elem.raw for elem in self.elements)

@@ -139,7 +139,7 @@ def _indent_description(indent: str):
     elif indent[0] == " ":
         assert all(c == " " for c in indent)
         return f"indent of {len(indent)} spaces"
-    elif indent[0] == "\t":
+    elif indent[0] == "\t":  # pragma: no cover
         assert all(c == "\t" for c in indent)
         return f"indent of {len(indent)} tabs"
     else:  # pragma: no cover
@@ -428,7 +428,7 @@ class ReflowPoint(ReflowElement):
                                 == temp_idx
                             ):
                                 break
-                        else:
+                        else:  # pragma: no cover
                             raise NotImplementedError("Could not find removal result.")
                         existing_results.remove(res)
                         new_results.append(
