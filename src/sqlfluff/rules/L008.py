@@ -1,5 +1,5 @@
 """Implementation of Rule L008."""
-from typing import Optional
+from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -40,7 +40,7 @@ class Rule_L008(BaseRule):
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Commas should not have whitespace directly before them."""
         return (
             ReflowSequence.from_around_target(

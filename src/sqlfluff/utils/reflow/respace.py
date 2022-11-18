@@ -264,15 +264,20 @@ def handle_respace__inline_with_space(
         # In this instance - no whitespace is correct, This
         # means we should delete it.
         segment_buffer.pop(ws_idx)
+        if next_block:
+            description = (
+                "Unexpected whitespace before "
+                f"{pretty_segment_name(next_block.segments[0])}."
+            )
+        else:
+            description = "Unexpected whitespace"
+
         return segment_buffer, [
             LintResult(
                 last_whitespace,
                 [LintFix.delete(last_whitespace)],
                 # Should make description from constraints.
-                description=(
-                    "Unexpected whitespace before "
-                    f"{pretty_segment_name(next_block.segments[0])}."
-                ),
+                description=description,
             ),
         ]
 
@@ -311,11 +316,14 @@ def handle_respace__inline_with_space(
                 f"{last_whitespace.raw!r}."
             )
         else:
-            desc = (
-                "Expected only single space before "
-                f"{pretty_segment_name(next_block.segments[0])}. Found "
-                f"{last_whitespace.raw!r}."
-            )
+            if next_block:
+                desc = (
+                    "Expected only single space before "
+                    f"{pretty_segment_name(next_block.segments[0])}. Found "
+                    f"{last_whitespace.raw!r}."
+                )
+            else:
+                desc = "Expected only single space. Found " f"{last_whitespace.raw!r}."
             desired_space = " "
 
         new_results: List[LintResult] = []
@@ -441,11 +449,15 @@ def handle_respace__inline_without_space(
 
     # Otherwise...
     reflow_logger.debug("    Not Detected existing fix. Creating new")
-    desc = (
-        "Expected single whitespace between "
-        f"{pretty_segment_name(prev_block.segments[-1])} "
-        f"and {pretty_segment_name(next_block.segments[0])}."
-    )
+    if prev_block and next_block:
+        desc = (
+            "Expected single whitespace between "
+            f"{pretty_segment_name(prev_block.segments[-1])} "
+            f"and {pretty_segment_name(next_block.segments[0])}."
+        )
+    else:
+        # Something to fall back on if prev_block and next_block not provided.
+        desc = "Expected single whitespace."
     # Take into account hint on where to anchor if given.
     if prev_block and anchor_on != "after":
         new_result = LintResult(

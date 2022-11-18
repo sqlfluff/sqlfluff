@@ -214,7 +214,7 @@ def identify_rebreak_spans(
 
 def rebreak_sequence(
     elements: ReflowSequenceType, root_segment: BaseSegment
-) -> Tuple[ReflowSequenceType, List[LintFix]]:
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Reflow line breaks within a sequence.
 
     Initially this only _moves_ existing segments
@@ -225,7 +225,7 @@ def rebreak_sequence(
     This intentionally does *not* handle indentation,
     as the existing indents are assumed to be correct.
     """
-    lint_results: List[LintFix] = []
+    lint_results: List[LintResult] = []
     fixes: List[LintFix] = []
     elem_buff: ReflowSequenceType = elements.copy()
 

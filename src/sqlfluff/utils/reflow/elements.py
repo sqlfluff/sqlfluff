@@ -245,7 +245,7 @@ class ReflowPoint(ReflowElement):
                 return [
                     LintResult(
                         self.segments[idx],
-                        LintFix.create_after(self.segments[idx], [new_indent]),
+                        [LintFix.create_after(self.segments[idx], [new_indent])],
                         description=f"Expected {_indent_description(desired_indent)}.",
                     )
                 ], ReflowPoint(
@@ -421,7 +421,12 @@ class ReflowPoint(ReflowElement):
                         # segment in the existing results.
                         temp_idx = last_whitespace.pos_marker.templated_slice.start
                         for res in existing_results:
-                            if res.anchor.pos_marker.templated_slice.stop == temp_idx:
+                            if (
+                                res.anchor
+                                and res.anchor.pos_marker
+                                and res.anchor.pos_marker.templated_slice.stop
+                                == temp_idx
+                            ):
                                 break
                         else:
                             raise NotImplementedError("Could not find removal result.")

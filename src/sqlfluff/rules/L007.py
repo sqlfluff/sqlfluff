@@ -1,4 +1,7 @@
 """Implementation of Rule L007."""
+
+from typing import List
+
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -57,7 +60,7 @@ class Rule_L007(BaseRule):
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -67,9 +70,6 @@ class Rule_L007(BaseRule):
         We only trigger if we have an operator FOLLOWED BY a newline
         before the next meaningful code segment.
         """
-        # TODO: Need to consolidate results more effectively.
-        # TODO: Rename to TODO 2 or TODO 8
-        # TODO: Update descriptions.
         return (
             ReflowSequence.from_around_target(
                 context.segment,

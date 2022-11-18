@@ -1,5 +1,7 @@
 """Implementation of Rule L019."""
 
+from typing import List
+
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
@@ -56,7 +58,7 @@ class Rule_L019(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
     _adjust_anchors = True
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Enforce comma placement.
 
         For leading commas we're looking for trailing commas, so
