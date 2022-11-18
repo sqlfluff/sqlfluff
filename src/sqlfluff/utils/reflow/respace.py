@@ -461,7 +461,11 @@ def handle_respace__inline_without_space(
     # Take into account hint on where to anchor if given.
     if prev_block and anchor_on != "after":
         new_result = LintResult(
-            next_block.segments[0],
+            # We do this shuffle, because for the CLI it's clearer if the
+            # anchor for the error is at the point that the insertion will
+            # happen which is the *start* of the next segment, even if
+            # we're anchoring the fix on the previous.
+            next_block.segments[0] if next_block else prev_block.segments[-1],
             fixes=[
                 LintFix(
                     "create_after",
