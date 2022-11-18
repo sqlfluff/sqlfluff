@@ -451,7 +451,6 @@ def rebreak_sequence(
                     deduce_line_indent(loc.target.raw_segments[-1], root_segment),
                     after=loc.target,
                 )
-                fixes += fixes_from_results(new_results)
                 # Update the point in the buffer
                 elem_buff[loc.next.adj_pt_idx] = next_point
 
@@ -467,7 +466,6 @@ def rebreak_sequence(
                     deduce_line_indent(loc.target.raw_segments[0], root_segment),
                     before=loc.target,
                 )
-                fixes += fixes_from_results(new_results)
                 # Update the point in the buffer
                 elem_buff[loc.prev.adj_pt_idx] = prev_point
 
