@@ -461,9 +461,7 @@ def handle_respace__inline_without_space(
     # Take into account hint on where to anchor if given.
     if prev_block and anchor_on != "after":
         new_result = LintResult(
-            # TODO: Check this anchoring is right. Is this the shuffle
-            # that was happening in the get_results function?
-            prev_block.segments[0],
+            next_block.segments[0],
             fixes=[
                 LintFix(
                     "create_after",
