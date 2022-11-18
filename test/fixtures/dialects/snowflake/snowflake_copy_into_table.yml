@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ea803fdfb6c3731b2883a21773a259f40aa8473025002f7511db225af575fde
+_hash: 0db76c650de2449edceff9f0debbedd3c0fdda7271f6a29dbf2336f5e5b0c4bd
 file:
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -16,7 +16,7 @@ file:
         stage_path: '@my_int_stage'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -38,7 +38,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -59,7 +59,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -85,7 +85,7 @@ file:
     - quoted_literal: "'.*/.*/.*[.]csv[.]gz'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -111,14 +111,14 @@ file:
     - quoted_literal: "'.*sales.*[.]csv'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
         naked_identifier: mytable
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -128,7 +128,7 @@ file:
         stage_path: '@%mytable'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -138,7 +138,7 @@ file:
         stage_path: '@~/data_files'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -148,7 +148,7 @@ file:
         stage_path: '@mydb.myschema.mystage'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -158,7 +158,7 @@ file:
         stage_path: '@mydatabase.myschema.%mytable'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -170,7 +170,7 @@ file:
         boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -181,7 +181,7 @@ file:
     - validation_mode_option: "'RETURN_ERRORS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -192,7 +192,7 @@ file:
     - validation_mode_option: "'RETURN_2_ROWS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -203,7 +203,7 @@ file:
     - validation_mode_option: "'RETURN_3_ROWS'"
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: COPY
     - keyword: INTO
     - table_reference:
@@ -227,7 +227,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -254,7 +254,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -290,7 +290,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -316,7 +316,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
@@ -343,7 +343,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    copy_into_statement:
+    copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:

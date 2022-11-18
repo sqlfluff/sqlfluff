@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d65d06a06f33c58bc1b7764b29f7a55974634dfd59c84e3544c5a2e81e3f3e3
+_hash: 3ad1767ff0d5edc1534ef228aded4ff09917d0b84e146917a194a5e6628523c1
 file:
   statement:
     create_statement:
@@ -27,7 +27,7 @@ file:
         raw_comparison_operator: '='
     - quoted_literal: "'arn:aws:blablabla..0:s3_mybucket'"
     - keyword: as
-    - copy_into_statement:
+    - copy_into_table_statement:
       - keyword: copy
       - keyword: into
       - table_reference:
