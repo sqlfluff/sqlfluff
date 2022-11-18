@@ -112,8 +112,8 @@ def process_spacing(
                     removal_buffer.append(ws)
                     result_buffer.append(
                         LintResult(
-                            seg,
-                            [LintFix.delete(seg)],
+                            ws,
+                            [LintFix.delete(ws)],
                             description="Unnecessary trailing whitespace.",
                         )
                     )
