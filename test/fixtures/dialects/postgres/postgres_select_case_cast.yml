@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 866f666b0bd43fb249fbd1dce0b9039567d94f41d928b7ae0099d1bd00e8723b
+_hash: 62ccc35af08b6bf76cd70ea215f1624b9b96478daeec28618b4dca5510747a59
 file:
 - statement:
     select_statement:
@@ -15,24 +15,24 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            case_expression:
-            - keyword: case
-            - when_clause:
-              - keyword: when
-              - expression:
-                  column_reference:
-                    naked_identifier: col1
-              - keyword: then
-              - expression:
-                  column_reference:
-                    naked_identifier: col2
-            - else_clause:
-                keyword: else
-                expression:
-                  column_reference:
-                    naked_identifier: col3
-            - keyword: end
             cast_expression:
+              case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                - keyword: then
+                - expression:
+                    column_reference:
+                      naked_identifier: col2
+              - else_clause:
+                  keyword: else
+                  expression:
+                    column_reference:
+                      naked_identifier: col3
+              - keyword: end
               casting_operator: '::'
               data_type:
                 keyword: text
@@ -57,30 +57,29 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-          - case_expression:
-            - keyword: case
-            - when_clause:
-              - keyword: when
-              - expression:
-                  column_reference:
-                    naked_identifier: col1
-              - keyword: then
-              - expression:
-                  column_reference:
-                    naked_identifier: col2
-            - else_clause:
-                keyword: else
-                expression:
-                  column_reference:
-                    naked_identifier: col3
-            - keyword: end
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            cast_expression:
+            - case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                - keyword: then
+                - expression:
+                    column_reference:
+                      naked_identifier: col2
+              - else_clause:
+                  keyword: else
+                  expression:
+                    column_reference:
+                      naked_identifier: col3
+              - keyword: end
+            - casting_operator: '::'
+            - data_type:
                 keyword: int
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - casting_operator: '::'
+            - data_type:
                 keyword: float
           alias_expression:
             keyword: as

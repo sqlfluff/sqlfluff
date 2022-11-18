@@ -141,9 +141,15 @@ class Rule_L034(BaseRule):
                                     "column_reference",
                                     "object_reference",
                                     "literal",
+                                    "cast_expression",
                                 )
                                 # len == 2 to ensure the expression is 'simple'
-                                and len(segment.get_child("expression").segments) == 2
+                                and (
+                                    len(segment.get_child("expression").segments) == 2
+                                    # cast_expression is one length
+                                    or len(segment.get_child("expression").segments)
+                                    == 1
+                                )
                             ):
                                 self._validate(i, segment)
                         except AttributeError:
