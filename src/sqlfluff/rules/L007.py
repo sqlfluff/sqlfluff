@@ -12,9 +12,6 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 from sqlfluff.utils.reflow import ReflowSequence
 
-after_description = "Operators near newlines should be after, not before the newline"
-before_description = "Operators near newlines should be before, not after the newline"
-
 
 @document_groups
 @document_fix_compatible
