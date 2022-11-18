@@ -1271,15 +1271,16 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Test the output output formats for multiple files.
+    """Test the output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
-    fpath = "test/fixtures/linter/indentation_errors.sql"
+    fpath1 = "test/fixtures/linter/indentation_errors.sql"
+    fpath2 = "test/fixtures/linter/multiple_sql_errors.sql"
 
     cmd_args = (
-        fpath,
-        fpath,
+        fpath1,
+        fpath2,
         "--format",
         serialize,
         "--disable-progress-bar",
@@ -1306,7 +1307,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         result_payload = result.output
 
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 33 if write_file else 32
+        assert len(result_payload.split("\n")) == 27 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1316,13 +1317,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
-        assert len(filepaths) == 1
+        assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 24
+        assert len(result) == 17
     else:
         raise Exception
 
