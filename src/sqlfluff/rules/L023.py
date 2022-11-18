@@ -61,7 +61,7 @@ class Rule_L023(BaseRule):
 
         # Respace the section immediately after the keyword. If any fixes
         # are returned it implies there was an issue.
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 as_keyword,
                 context.parent_stack[0],
@@ -69,9 +69,5 @@ class Rule_L023(BaseRule):
                 sides="after",
             )
             .respace(strip_newlines=self.strip_newlines)
-            .get_fixes()
+            .get_results()
         )
-        if not fixes:
-            # Spacing is good. Stop here.
-            return None
-        return LintResult(anchor=as_keyword, fixes=fixes)

@@ -67,37 +67,15 @@ class Rule_L007(BaseRule):
         We only trigger if we have an operator FOLLOWED BY a newline
         before the next meaningful code segment.
         """
-        # The way we apply this is to create reflow sequences around each operator.
-        # If there isn't a newline on either side, then ignore it for now.
-        # Going any further than that is probably deeper reflow than we want
-        # for now.
-
-        fixes = (
+        # TODO: Need to consolidate results more effectively.
+        # TODO: Rename to TODO 2 or TODO 8
+        # TODO: Update descriptions.
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 root_segment=context.parent_stack[0],
                 config=context.config,
             )
             .rebreak()
-            .get_fixes()
-        )
-
-        if not fixes:
-            return LintResult()
-
-        seg_type = context.segment.class_types.intersection(
-            {"binary_operator", "comparison_operator"}
-        ).pop()
-        desired_position = context.config.get(
-            "line_position", ("layout", "type", seg_type)
-        )
-
-        return LintResult(
-            context.segment,
-            fixes,
-            description=(
-                after_description
-                if desired_position == "leading"
-                else before_description
-            ),
+            .get_results()
         )

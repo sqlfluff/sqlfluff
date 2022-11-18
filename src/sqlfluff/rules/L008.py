@@ -42,7 +42,7 @@ class Rule_L008(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them."""
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 context.parent_stack[0],
@@ -50,9 +50,5 @@ class Rule_L008(BaseRule):
                 sides="after",
             )
             .respace()
-            .get_fixes()
+            .get_results()
         )
-        if fixes:
-            # There should just be one, so just take the first.
-            return LintResult(anchor=fixes[0].anchor, fixes=fixes[:1])
-        return None

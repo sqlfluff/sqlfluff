@@ -68,29 +68,12 @@ class Rule_L019(BaseRule):
         leading comma to a trailing comma. We add whitespace after the leading
         comma when converting a trailing comma to a leading comma.
         """
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 root_segment=context.parent_stack[0],
                 config=context.config,
             )
             .rebreak()
-            .get_fixes()
-        )
-
-        if not fixes:
-            return LintResult()
-
-        desired_position = context.config.get(
-            "line_position", ("layout", "type", "comma")
-        )
-
-        return LintResult(
-            context.segment,
-            fixes,
-            description=(
-                "Found trailing comma. Expected only leading."
-                if desired_position == "leading"
-                else "Found leading comma. Expected only trailing."
-            ),
+            .get_results()
         )

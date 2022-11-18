@@ -6,7 +6,9 @@ from typing import List, Optional, Tuple, cast, TYPE_CHECKING
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
-from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.rules.base import LintFix, LintResult
+
+from sqlfluff.utils.reflow.helpers import pretty_segment_name
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -74,9 +76,10 @@ def determine_constraints(
 
 def process_spacing(
     segment_buffer: List[RawSegment], strip_newlines: bool = False
-) -> Tuple[List[RawSegment], Optional[RawSegment], List[LintFix]]:
+) -> Tuple[List[RawSegment], Optional[RawSegment], List[LintResult]]:
     """Given the existing spacing, extract information and do basic pruning."""
     removal_buffer: List[RawSegment] = []
+    result_buffer: List[LintResult] = []
     last_whitespace: List[RawSegment] = []
 
     # Loop through the existing segments looking for spacing.
@@ -93,6 +96,11 @@ def process_spacing(
             if strip_newlines and seg.is_type("newline"):
                 reflow_logger.debug("    Stripping newline: %s", seg)
                 removal_buffer.append(seg)
+                result_buffer.append(
+                    LintResult(
+                        seg, [LintFix.delete(seg)], description="Stripping newlines."
+                    )
+                )
                 # Carry on as though it wasn't here.
                 continue
 
@@ -102,6 +110,13 @@ def process_spacing(
                 reflow_logger.debug("    Removing trailing whitespace.")
                 for ws in last_whitespace:
                     removal_buffer.append(ws)
+                    result_buffer.append(
+                        LintResult(
+                            seg,
+                            [LintFix.delete(seg)],
+                            description="Unnecessary trailing whitespace.",
+                        )
+                    )
 
             # Regardless, unset last_whitespace.
             # We either just deleted it, or it's not relevant for any future
@@ -116,6 +131,13 @@ def process_spacing(
         # Remove all the following ones.
         for ws in last_whitespace[1:]:
             removal_buffer.append(ws)
+            result_buffer.append(
+                LintResult(
+                    seg,
+                    [LintFix.delete(seg)],
+                    description="Removing duplicate whitespace.",
+                )
+            )
 
     # Turn the removal buffer updated segment buffer, last whitespace
     # and associated fixes.
@@ -123,7 +145,7 @@ def process_spacing(
         [s for s in segment_buffer if s not in removal_buffer],
         # We should have removed all other whitespace by now.
         last_whitespace[0] if last_whitespace else None,
-        [LintFix.delete(s) for s in removal_buffer],
+        result_buffer,
     )
 
 
@@ -216,7 +238,7 @@ def handle_respace__inline_with_space(
     root_segment: BaseSegment,
     segment_buffer: List[RawSegment],
     last_whitespace: RawSegment,
-) -> Tuple[List[RawSegment], List[LintFix]]:
+) -> Tuple[List[RawSegment], List[LintResult]]:
     """Check inline spacing is the right size.
 
     This forms one of the cases handled by .respace_point().
@@ -228,7 +250,6 @@ def handle_respace__inline_with_space(
     Given this we apply constraints to ensure the whitespace
     is of an appropriate size.
     """
-    new_fixes: List[LintFix] = []
     # Get some indices so that we can reference around them
     ws_idx = segment_buffer.index(last_whitespace)
 
@@ -236,20 +257,24 @@ def handle_respace__inline_with_space(
     if "any" in [pre_constraint, post_constraint]:
         # In this instance - don't change anything.
         # e.g. this could mean there is a comment on one side.
-        return segment_buffer, new_fixes
+        return segment_buffer, []
 
     # Do we have either side set to "touch"?
     if "touch" in [pre_constraint, post_constraint]:
         # In this instance - no whitespace is correct, This
         # means we should delete it.
-        new_fixes.append(
-            LintFix(
-                "delete",
-                anchor=last_whitespace,
-            )
-        )
         segment_buffer.pop(ws_idx)
-        return segment_buffer, new_fixes
+        return segment_buffer, [
+            LintResult(
+                last_whitespace,
+                [LintFix.delete(last_whitespace)],
+                # Should make description from constraints.
+                description=(
+                    "Unexpected whitespace before "
+                    f"{pretty_segment_name(next_block.segments[0])}."
+                ),
+            ),
+        ]
 
     # Handle left alignment & singles
     if (
@@ -278,21 +303,41 @@ def handle_respace__inline_with_space(
                 align_within,
                 align_scope,
             )
+
+            desc = (
+                f"{seg_type!r} elements are expected to be aligned. Found "
+                "incorrect whitespace before "
+                f"{pretty_segment_name(next_block.segments[0])}: "
+                f"{last_whitespace.raw!r}."
+            )
         else:
+            desc = (
+                "Expected only single space before "
+                f"{pretty_segment_name(next_block.segments[0])}. Found "
+                f"{last_whitespace.raw!r}."
+            )
             desired_space = " "
+
+        new_results: List[LintResult] = []
 
         if last_whitespace.raw != desired_space:
             new_seg = last_whitespace.edit(desired_space)
-            new_fixes.append(
-                LintFix(
-                    "replace",
-                    anchor=last_whitespace,
-                    edit=[new_seg],
+            new_results.append(
+                LintResult(
+                    last_whitespace,
+                    [
+                        LintFix(
+                            "replace",
+                            anchor=last_whitespace,
+                            edit=[new_seg],
+                        )
+                    ],
+                    description=desc,
                 )
             )
             segment_buffer[ws_idx] = new_seg
 
-        return segment_buffer, new_fixes
+        return segment_buffer, new_results
 
     raise NotImplementedError(  # pragma: no cover
         f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
@@ -305,9 +350,9 @@ def handle_respace__inline_without_space(
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
     segment_buffer: List[RawSegment],
-    existing_fixes: List[LintFix],
+    existing_results: List[LintResult],
     anchor_on: str = "before",
-) -> Tuple[List[RawSegment], List[LintFix], bool]:
+) -> Tuple[List[RawSegment], List[LintResult], bool]:
     """Ensure spacing is the right size.
 
     This forms one of the cases handled by .respace_point().
@@ -319,95 +364,116 @@ def handle_respace__inline_without_space(
     Given this we apply constraints to either confirm no
     spacing is required or create some of the right size.
     """
-    edited = False
-    new_fixes: List[LintFix] = []
     # Do we have either side set to "touch" or "any"
     if {"touch", "any"}.intersection([pre_constraint, post_constraint]):
         # In this instance - no whitespace is correct.
         # Either because there shouldn't be, or because "any"
         # means we shouldn't check.
-        pass
-    # Handle the default case
-    elif pre_constraint == post_constraint == "single":
-        # Insert a single whitespace.
-        reflow_logger.debug("    Inserting Single Whitespace.")
-        # Add it to the buffer first (the easy bit). The hard bit
-        # is to then determine how to generate the appropriate LintFix
-        # objects.
-        segment_buffer.append(WhitespaceSegment())
-        edited = True
-
-        # So special handling here. If segments either side
-        # already exist then we don't care which we anchor on
-        # but if one is already an insertion (as shown by a lack)
-        # of pos_marker, then we should piggy back on that pre-existing
-        # fix.
-        existing_fix = None
-        insertion = None
-        if prev_block and not prev_block.segments[-1].pos_marker:
-            existing_fix = "after"
-            insertion = prev_block.segments[-1]
-        elif next_block and not next_block.segments[0].pos_marker:
-            existing_fix = "before"
-            insertion = next_block.segments[0]
-
-        if existing_fix:
-            reflow_logger.debug("    Detected existing fix %s", existing_fix)
-            if not existing_fixes:  # pragma: no cover
-                raise ValueError(
-                    "Fixes detected, but none passed to .respace(). "
-                    "This will cause conflicts."
-                )
-            # Find the fix
-            for fix in existing_fixes:
-                # Does it contain the insertion?
-                # TODO: This feels ugly - eq for BaseSegment is different
-                # to uuid matching for RawSegment. Perhaps this should be
-                # more aligned. There might be a better way of doing this.
-                if (
-                    insertion
-                    and fix.edit
-                    and insertion.uuid in [elem.uuid for elem in fix.edit]
-                ):
-                    break
-            else:  # pragma: no cover
-                reflow_logger.warning("Fixes %s", existing_fixes)
-                raise ValueError(f"Couldn't find insertion for {insertion}")
-            # Mutate the existing fix
-            assert fix
-            assert fix.edit  # It's going to be an edit if we've picked it up.
-            if existing_fix == "before":
-                fix.edit = [cast(BaseSegment, WhitespaceSegment())] + fix.edit
-            elif existing_fix == "after":
-                fix.edit = fix.edit + [cast(BaseSegment, WhitespaceSegment())]
-        else:
-            reflow_logger.debug("    Not Detected existing fix. Creating new")
-            # Take into account hint on where to anchor if given.
-            if prev_block and anchor_on != "after":
-                new_fixes.append(
-                    LintFix(
-                        "create_after",
-                        anchor=prev_block.segments[-1],
-                        edit=[WhitespaceSegment()],
-                    )
-                )
-            elif next_block:
-                new_fixes.append(
-                    LintFix(
-                        "create_before",
-                        anchor=next_block.segments[0],
-                        edit=[WhitespaceSegment()],
-                    )
-                )
-            else:  # pragma: no cover
-                NotImplementedError(
-                    "Not set up to handle a missing _after_ and _before_."
-                )
-    else:  # pragma: no cover
+        return segment_buffer, existing_results, False
+    # Is it anything other than the default case?
+    elif not (pre_constraint == post_constraint == "single"):  # pragma: no cover
         # TODO: This will get test coverage when configuration routines
         # are in properly.
         raise NotImplementedError(
             f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
         )
 
-    return segment_buffer, existing_fixes + new_fixes, edited
+    # Handle the default case
+
+    # Insert a single whitespace.
+    reflow_logger.debug("    Inserting Single Whitespace.")
+    # Add it to the buffer first (the easy bit). The hard bit
+    # is to then determine how to generate the appropriate LintFix
+    # objects.
+    segment_buffer.append(WhitespaceSegment())
+
+    # So special handling here. If segments either side
+    # already exist then we don't care which we anchor on
+    # but if one is already an insertion (as shown by a lack)
+    # of pos_marker, then we should piggy back on that pre-existing
+    # fix.
+    existing_fix = None
+    insertion = None
+    if prev_block and not prev_block.segments[-1].pos_marker:
+        existing_fix = "after"
+        insertion = prev_block.segments[-1]
+    elif next_block and not next_block.segments[0].pos_marker:
+        existing_fix = "before"
+        insertion = next_block.segments[0]
+
+    if existing_fix:
+        reflow_logger.debug("    Detected existing fix %s", existing_fix)
+        if not existing_results:  # pragma: no cover
+            raise ValueError(
+                "Fixes detected, but none passed to .respace(). "
+                "This will cause conflicts."
+            )
+        # Find the fix
+        assert insertion
+        for res in existing_results:
+            # Does it contain the insertion?
+            # TODO: This feels ugly - eq for BaseSegment is different
+            # to uuid matching for RawSegment. Perhaps this should be
+            # more aligned. There might be a better way of doing this.
+            for fix in res.fixes or []:
+                if fix.edit and insertion.uuid in [elem.uuid for elem in fix.edit]:
+                    break
+            else:
+                continue
+            break
+        else:  # pragma: no cover
+            reflow_logger.warning("Results %s", existing_results)
+            raise ValueError(f"Couldn't find insertion for {insertion}")
+        # Mutate the existing fix
+        assert res
+        assert fix
+        assert fix in res.fixes
+        assert fix.edit  # It's going to be an edit if we've picked it up.
+        # Mutate the fix, it's still in the same result, and that result
+        # is still in the existing_results.
+        if existing_fix == "before":
+            fix.edit = [cast(BaseSegment, WhitespaceSegment())] + fix.edit
+        elif existing_fix == "after":
+            fix.edit = fix.edit + [cast(BaseSegment, WhitespaceSegment())]
+
+        # No need to add new results, because we mutated the existing.
+        return segment_buffer, existing_results, True
+
+    # Otherwise...
+    reflow_logger.debug("    Not Detected existing fix. Creating new")
+    desc = (
+        "Expected single whitespace between "
+        f"{pretty_segment_name(prev_block.segments[-1])} "
+        f"and {pretty_segment_name(next_block.segments[0])}."
+    )
+    # Take into account hint on where to anchor if given.
+    if prev_block and anchor_on != "after":
+        new_result = LintResult(
+            # TODO: Check this anchoring is right. Is this the shuffle
+            # that was happening in the get_results function?
+            prev_block.segments[0],
+            fixes=[
+                LintFix(
+                    "create_after",
+                    anchor=prev_block.segments[-1],
+                    edit=[WhitespaceSegment()],
+                )
+            ],
+            description=desc,
+        )
+    elif next_block:
+        new_result = LintResult(
+            next_block.segments[0],
+            fixes=[
+                LintFix(
+                    "create_before",
+                    anchor=next_block.segments[0],
+                    edit=[WhitespaceSegment()],
+                )
+            ],
+            description=desc,
+        )
+    else:  # pragma: no cover
+        NotImplementedError("Not set up to handle a missing _after_ and _before_.")
+
+    return segment_buffer, existing_results + [new_result], True
