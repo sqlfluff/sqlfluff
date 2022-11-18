@@ -1,4 +1,7 @@
 """Implementation of Rule L007."""
+
+from typing import List
+
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -8,9 +11,6 @@ from sqlfluff.core.rules.doc_decorators import (
     document_groups,
 )
 from sqlfluff.utils.reflow import ReflowSequence
-
-after_description = "Operators near newlines should be after, not before the newline"
-before_description = "Operators near newlines should be before, not after the newline"
 
 
 @document_groups
@@ -57,7 +57,7 @@ class Rule_L007(BaseRule):
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -67,37 +67,12 @@ class Rule_L007(BaseRule):
         We only trigger if we have an operator FOLLOWED BY a newline
         before the next meaningful code segment.
         """
-        # The way we apply this is to create reflow sequences around each operator.
-        # If there isn't a newline on either side, then ignore it for now.
-        # Going any further than that is probably deeper reflow than we want
-        # for now.
-
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 root_segment=context.parent_stack[0],
                 config=context.config,
             )
             .rebreak()
-            .get_fixes()
-        )
-
-        if not fixes:
-            return LintResult()
-
-        seg_type = context.segment.class_types.intersection(
-            {"binary_operator", "comparison_operator"}
-        ).pop()
-        desired_position = context.config.get(
-            "line_position", ("layout", "type", seg_type)
-        )
-
-        return LintResult(
-            context.segment,
-            fixes,
-            description=(
-                after_description
-                if desired_position == "leading"
-                else before_description
-            ),
+            .get_results()
         )

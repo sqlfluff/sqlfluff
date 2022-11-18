@@ -583,8 +583,9 @@ def test__cli__command_lint_warning():
     # The output should still say PASS.
     assert "PASS" in result.output.strip()
     # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
     assert (
-        "L:   4 | P:   9 | L006 | WARNING: Missing whitespace before +"
+        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
         in result.output.strip()
     )
 
@@ -1304,13 +1305,15 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
+    # Print for debugging.
+    payload_length = len(result_payload.split("\n"))
     print("=== BEGIN RESULT OUTPUT")
     print(result_payload)
     print("=== END RESULT OUTPUT")
-    print("Result length:", len(result_payload.split("\n")))
+    print("Result length:", payload_length)
 
     if serialize == "human":
-        assert len(result_payload.split("\n")) == (31 if write_file else 32)
+        assert payload_length == 31 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2

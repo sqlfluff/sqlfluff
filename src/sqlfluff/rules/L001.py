@@ -46,6 +46,4 @@ class Rule_L001(BaseRule):
         it was preceded by.
         """
         sequence = ReflowSequence.from_root(context.segment, config=context.config)
-        fixes = sequence.respace(filter="newline").get_fixes()
-        results = [LintResult(anchor=fix.anchor, fixes=[fix]) for fix in fixes]
-        return results
+        return sequence.respace(filter="newline").get_results()
