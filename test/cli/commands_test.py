@@ -1314,7 +1314,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("## End Payload")
 
     if serialize == "human":
-        assert payload_length == 27 if write_file else 32
+        assert payload_length == 26 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1726,8 +1726,7 @@ class TestProgressBars:
         if sys.platform == "win32":
             sep *= 2
         assert (
-            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep)
-            in raw_output
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep) in raw_output
         )
         assert (
             r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
