@@ -8,7 +8,7 @@ import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.utils.reflow.elements import ReflowPoint
-
+from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
@@ -90,14 +90,16 @@ def test_reflow__point_respace_point(
     assert isinstance(pnt, ReflowPoint)
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
-        fixes, new_pnt = pnt.respace_point(
+        results, new_pnt = pnt.respace_point(
             prev_block=seq.elements[point_idx - 1],
             next_block=seq.elements[point_idx + 1],
             root_segment=root,
-            fixes=[],
+            lint_results=[],
             **kwargs
         )
 
     assert new_pnt.raw == raw_point_sql_out
     # NOTE: We use set comparison, because ordering isn't important for fixes.
-    assert {(fix.edit_type, fix.anchor.raw) for fix in fixes} == fixes_out
+    assert {
+        (fix.edit_type, fix.anchor.raw) for fix in fixes_from_results(results)
+    } == fixes_out

@@ -1,6 +1,6 @@
 """Implementation of Rule L023."""
 
-from typing import Optional
+from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -46,7 +46,7 @@ class Rule_L023(BaseRule):
     target_keyword = "AS"
     strip_newlines = True
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Single whitespace expected in mother middle segment."""
         functional = FunctionalContext(context)
 
@@ -57,11 +57,11 @@ class Rule_L023(BaseRule):
         )
         if not as_keyword:
             # No target keyword. Abort.
-            return None
+            return []
 
         # Respace the section immediately after the keyword. If any fixes
         # are returned it implies there was an issue.
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 as_keyword,
                 context.parent_stack[0],
@@ -69,9 +69,5 @@ class Rule_L023(BaseRule):
                 sides="after",
             )
             .respace(strip_newlines=self.strip_newlines)
-            .get_fixes()
+            .get_results()
         )
-        if not fixes:
-            # Spacing is good. Stop here.
-            return None
-        return LintResult(anchor=as_keyword, fixes=fixes)

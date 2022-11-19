@@ -1,5 +1,7 @@
 """Implementation of Rule L019."""
 
+from typing import List
+
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
@@ -56,7 +58,7 @@ class Rule_L019(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
     _adjust_anchors = True
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Enforce comma placement.
 
         For leading commas we're looking for trailing commas, so
@@ -68,29 +70,12 @@ class Rule_L019(BaseRule):
         leading comma to a trailing comma. We add whitespace after the leading
         comma when converting a trailing comma to a leading comma.
         """
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 root_segment=context.parent_stack[0],
                 config=context.config,
             )
             .rebreak()
-            .get_fixes()
-        )
-
-        if not fixes:
-            return LintResult()
-
-        desired_position = context.config.get(
-            "line_position", ("layout", "type", "comma")
-        )
-
-        return LintResult(
-            context.segment,
-            fixes,
-            description=(
-                "Found trailing comma. Expected only leading."
-                if desired_position == "leading"
-                else "Found leading comma. Expected only trailing."
-            ),
+            .get_results()
         )

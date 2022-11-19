@@ -4,7 +4,12 @@ import sqlfluff
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core import Linter
 
-from sqlfluff.rules.L007 import after_description, before_description
+EXPECTED_LEADING_MESSAGE = (
+    "Found trailing binary operator. Expected only leading near line breaks."
+)
+EXPECTED_TRAILING_MESSAGE = (
+    "Found leading binary operator. Expected only trailing near line breaks."
+)
 
 
 def test__rules__std_L007_default():
@@ -20,7 +25,7 @@ def test__rules__std_L007_default():
     """
     result = sqlfluff.lint(sql)
     assert "L007" in [r["code"] for r in result]
-    assert after_description in [r["description"] for r in result]
+    assert EXPECTED_LEADING_MESSAGE in [r["description"] for r in result]
 
 
 def test__rules__std_L007_leading():
@@ -43,7 +48,7 @@ def test__rules__std_L007_leading():
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
     assert "L007" in [r["code"] for r in result]
-    assert after_description in [r["description"] for r in result]
+    assert EXPECTED_LEADING_MESSAGE in [r["description"] for r in result]
 
 
 def test__rules__std_L007_trailing():
@@ -68,4 +73,4 @@ def test__rules__std_L007_trailing():
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
     assert "L007" in [r["code"] for r in result]
-    assert before_description in [r["description"] for r in result]
+    assert EXPECTED_TRAILING_MESSAGE in [r["description"] for r in result]
