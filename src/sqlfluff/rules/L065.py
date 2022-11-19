@@ -43,38 +43,12 @@ class Rule_L065(BaseRule):
 
         In particular, as part of this rule we allow multiple NewLineSegments.
         """
-        pre_fixes, _, post_fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment,
                 root_segment=context.parent_stack[0],
                 config=context.config,
             )
             .rebreak()
-            .get_partitioned_fixes(context.segment)
+            .get_results()
         )
-
-        results = []
-        if pre_fixes:
-            results.append(
-                LintResult(
-                    anchor=context.segment,
-                    description=(
-                        "Set operators should be surrounded by newlines. "
-                        f"Missing newline before set operator {context.segment.raw}."
-                    ),
-                    fixes=pre_fixes,
-                )
-            )
-        if post_fixes:
-            results.append(
-                LintResult(
-                    anchor=context.segment,
-                    description=(
-                        "Set operators should be surrounded by newlines. "
-                        f"Missing newline after set operator {context.segment.raw}."
-                    ),
-                    fixes=post_fixes,
-                )
-            )
-
-        return results

@@ -1111,17 +1111,39 @@ class Linter:
         processes: Optional[int] = None,
     ) -> LintedDir:
         """Lint a path."""
-        linted_path = LintedDir(path)
-        if self.formatter:
-            self.formatter.dispatch_path(path)
-        fnames = list(
-            self.paths_from_path(
+        return self.lint_paths(
+            (path,), fix, ignore_non_existent_files, ignore_files, processes
+        ).paths[0]
+
+    def lint_paths(
+        self,
+        paths: Tuple[str, ...],
+        fix: bool = False,
+        ignore_non_existent_files: bool = False,
+        ignore_files: bool = True,
+        processes: Optional[int] = None,
+    ) -> LintingResult:
+        """Lint an iterable of paths."""
+        # If no paths specified - assume local
+        if not paths:  # pragma: no cover
+            paths = (os.getcwd(),)
+        # Set up the result to hold what we get back
+        result = LintingResult()
+
+        expanded_paths: List[str] = []
+        expanded_path_to_linted_dir = {}
+        for path in paths:
+            linted_dir = LintedDir(path)
+            result.add(linted_dir)
+            for fname in self.paths_from_path(
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
-            )
-        )
+            ):
+                expanded_paths.append(fname)
+                expanded_path_to_linted_dir[fname] = linted_dir
 
+        files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
 
@@ -1139,72 +1161,29 @@ class Linter:
             self.formatter.dispatch_processing_header(effective_processes)
 
         # Show files progress bar only when there is more than one.
-        files_count = len(fnames)
+        first_path = expanded_paths[0] if expanded_paths else ""
         progress_bar_files = tqdm(
             total=files_count,
-            desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
+            desc=f"file {first_path}",
             leave=False,
             disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
-        for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
-            linted_path.add(linted_file)
+        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
+            linted_dir = expanded_path_to_linted_dir[linted_file.path]
+            linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
             # Progress bar for files is rendered only when there is more than one file.
-            # Additionally as it's updated after each loop, we need to get file name
+            # Additionally, as it's updated after each loop, we need to get file name
             # from the next loop. This is why `enumerate` starts with `1` and there
             # is `i < len` to not exceed files list length.
             progress_bar_files.update(n=1)
-            if i < len(fnames):
-                progress_bar_files.set_description(
-                    f"file {os.path.basename(fnames[i])}"
-                )
-
-        return linted_path
-
-    def lint_paths(
-        self,
-        paths: Tuple[str, ...],
-        fix: bool = False,
-        ignore_non_existent_files: bool = False,
-        ignore_files: bool = True,
-        processes: Optional[int] = None,
-    ) -> LintingResult:
-        """Lint an iterable of paths."""
-        paths_count = len(paths)
-
-        # If no paths specified - assume local
-        if not paths_count:  # pragma: no cover
-            paths = (os.getcwd(),)
-        # Set up the result to hold what we get back
-        result = LintingResult()
-
-        progress_bar_paths = tqdm(
-            total=paths_count,
-            desc="path",
-            leave=False,
-            disable=paths_count <= 1 or progress_bar_configuration.disable_progress_bar,
-        )
-        for path in paths:
-            progress_bar_paths.set_description(f"path {path}")
-
-            # Iterate through files recursively in the specified directory (if it's a
-            # directory) or read the file directly if it's not
-            result.add(
-                self.lint_path(
-                    path,
-                    fix=fix,
-                    ignore_non_existent_files=ignore_non_existent_files,
-                    ignore_files=ignore_files,
-                    processes=processes,
-                )
-            )
-
-            progress_bar_paths.update(1)
+            if i < len(expanded_paths):
+                progress_bar_files.set_description(f"file {expanded_paths[i]}")
 
         result.stop_timer()
         return result

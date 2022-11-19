@@ -22,6 +22,7 @@ from sqlfluff.utils.reflow.reindent import (
     construct_single_indent,
     lint_line_length,
 )
+from sqlfluff.utils.reflow.helpers import fixes_from_results
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -65,7 +66,7 @@ class ReflowSequence:
         root_segment: BaseSegment,
         reflow_config: ReflowConfig,
         depth_map: DepthMap,
-        embodied_fixes: Optional[List[LintFix]] = None,
+        lint_results: Optional[List[LintResult]] = None,
     ):
         # First validate integrity
         self._validate_reflow_sequence(elements)
@@ -78,119 +79,24 @@ class ReflowSequence:
         # Alternatively pictured: This is the list of fixes required
         # to generate this sequence. We can build on this as we edit
         # the sequence.
-        self.embodied_fixes: List[LintFix] = embodied_fixes or []
+        # Rather than saving *fixes* directly, we package them into
+        # LintResult objects to make it a little easier to expose them
+        # in the CLI.
+        self.lint_results: List[LintResult] = lint_results or []
 
     def get_fixes(self) -> List[LintFix]:
-        """Get the current fix buffer."""
-        return self.embodied_fixes
+        """Get the current fix buffer.
+
+        We're hydrating them here directly from the LintResult
+        objects, so for more accurate results, consider using
+        .get_results(). This method is particularly useful
+        when consolidating multiple results into one.
+        """
+        return fixes_from_results(self.lint_results)
 
     def get_results(self) -> List[LintResult]:
-        """Generate a list of LintResult from the current fix buffer.
-
-        For some fixes, we do a bit of a shuffle with the anchor so
-        that we reference the most sensible position in the source file
-        to make sense to the user. For example if we're due to create
-        something *after* a segment, then we'll hunt forward to the
-        segment *after that*, so that the position that appears in the
-        CLI is the position between them.
-
-        NOTE: This generates one result per fix. Depending on your use
-        case, this may not always be appropriate. In those cases, call
-        `ReflowSequence.get_fixes()` and construct :obj:`LintResult`
-        objects directly.
-        """
-        results = []
-        segments = None
-        for fix in self.get_fixes():
-            # In the case of *creations*, even if we are actually
-            # creating *after* something, it makes sense to anchor
-            # on the segment which follows the creation point and not
-            # the segment which precedes it. That's because when
-            # displaying the position of a linting result in the CLI
-            # we display the position of the *start* of the anchor.
-            # By anchoring on the segment *following* the insertion point
-            # we display the position in a way which is much more
-            # interpretable by the user.
-            if fix.edit_type == "create_after" or (
-                fix.edit_type == "replace"
-                and "".join(
-                    seg.raw for seg in cast(List[BaseSegment], fix.edit)
-                ).startswith(fix.anchor.raw)
-            ):
-                if not segments:
-                    segments = list(
-                        chain.from_iterable(elem.segments for elem in self.elements)
-                    )
-
-                target = fix.anchor.segments[-1] if fix.anchor.segments else fix.anchor
-                try:
-                    idx = segments.index(target)
-                except ValueError:
-                    # If the anchor for the fix wasn't found, then that
-                    # means that it has been replaced or removed itself.
-
-                    # The most likely scenario for this is where the anchor
-                    # for the fix is also part of the problem - therefore
-                    # using it as the position for the linting result is ok.
-                    # We'll set the idx to None to signal this so that in
-                    # the next clause we just set the anchor of the linting
-                    # result to the anchor of the fix.
-                    idx = None
-
-                if idx is None:
-                    anchor = fix.anchor
-                else:
-                    # Hunt forward to find a good target. We'll know it's
-                    # in the original file if it has a position marker.
-                    for anchor in segments[idx + 1 :]:
-                        if anchor.pos_marker:
-                            break
-            else:
-                anchor = fix.anchor
-            results.append(LintResult(anchor, [fix], description=fix.description))
-        return results
-
-    def get_partitioned_fixes(
-        self, target: BaseSegment
-    ) -> Tuple[List[LintFix], List[LintFix], List[LintFix]]:
-        """Get the current fix buffer partitioned around a target."""
-        first_target_raw = target.raw_segments[0]
-        last_target_raw = target.raw_segments[-1]
-
-        assert target.pos_marker
-        pre_fixes = [
-            fix
-            for fix in self.embodied_fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                < first_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_before"
-                    and fix.anchor.pos_marker.working_loc
-                    == first_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        post_fixes = [
-            fix
-            for fix in self.embodied_fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                > last_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_after"
-                    and fix.anchor.pos_marker.working_loc
-                    == last_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        # The rest
-        mid_fixes = [
-            fix for fix in self.embodied_fixes if fix not in pre_fixes + post_fixes
-        ]
-        return pre_fixes, mid_fixes, post_fixes
+        """Return the current result buffer."""
+        return self.lint_results
 
     def get_raw(self) -> str:
         """Get the current raw representation."""
@@ -415,7 +321,7 @@ class ReflowSequence:
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
             # Generate the fix to do the removal.
-            embodied_fixes=[LintFix.delete(target)],
+            lint_results=[LintResult(target, [LintFix.delete(target)])],
         )
 
     def insert(
@@ -461,7 +367,9 @@ class ReflowSequence:
                 reflow_config=self.reflow_config,
                 depth_map=self.depth_map,
                 # Generate the fix to do the removal.
-                embodied_fixes=[LintFix.create_before(target, [insertion])],
+                lint_results=[
+                    LintResult(target, [LintFix.create_before(target, [insertion])])
+                ],
             )
         elif pos == "after":  # pragma: no cover
             # TODO: This doesn't get coverage - should it even exist?
@@ -475,7 +383,9 @@ class ReflowSequence:
                 reflow_config=self.reflow_config,
                 depth_map=self.depth_map,
                 # Generate the fix to do the removal.
-                embodied_fixes=[LintFix.create_after(target, [insertion])],
+                lint_results=[
+                    LintResult(target, [LintFix.create_after(target, [insertion])])
+                ],
             )
         raise ValueError(
             f"Unexpected value for ReflowSequence.insert(pos): {pos}"
@@ -489,8 +399,6 @@ class ReflowSequence:
         This generates appropriate replacement :obj:`LintFix` objects to direct
         the linter to modify those elements.
         """
-        replace_fix = LintFix.replace(target, edit)
-
         target_raws = target.raw_segments
         assert target_raws
 
@@ -531,7 +439,7 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=[replace_fix],
+            lint_results=[LintResult(target, [LintFix.replace(target, edit)])],
         )
 
     def _iter_points_with_constraints(
@@ -568,7 +476,7 @@ class ReflowSequence:
                 most useful for filtering between trailing whitespace
                 and fixes between content on a line.
 
-        **NOTE** this method relies on the embodied fixes being correct
+        **NOTE** this method relies on the embodied results being correct
         so that we can build on them.
         """
         assert filter in (
@@ -577,16 +485,16 @@ class ReflowSequence:
             "inline",
         ), f"Unexpected value for filter: {filter}"
         # Use the embodied fixes as a starting point.
-        fixes = self.embodied_fixes or []
+        lint_results = self.get_results()
         new_elements: ReflowSequenceType = []
         for point, pre, post in self._iter_points_with_constraints():
             # We filter on the elements POST RESPACE. This is to allow
             # strict respacing to reclaim newlines.
-            new_fixes, new_point = point.respace_point(
+            new_lint_results, new_point = point.respace_point(
                 prev_block=pre,
                 next_block=post,
                 root_segment=self.root_segment,
-                fixes=fixes,
+                lint_results=lint_results,
                 strip_newlines=strip_newlines,
             )
             # If filter has been set, optionally unset the returned values.
@@ -608,9 +516,9 @@ class ReflowSequence:
             # Otherwise apply the new fixes
             else:
                 reflow_logger.debug(
-                    "    Filter %r allows fixes for point: %s", filter, new_fixes
+                    "    Filter %r allows fixes for point: %s", filter, new_lint_results
                 )
-                fixes = new_fixes
+                lint_results = new_lint_results
 
             if pre and (not new_elements or new_elements[-1] != pre):
                 new_elements.append(pre)
@@ -622,8 +530,7 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            # Generate the fix to do the removal.
-            embodied_fixes=fixes,
+            lint_results=lint_results,
         )
 
     def rebreak(self) -> "ReflowSequence":
@@ -639,25 +546,25 @@ class ReflowSequence:
             but eventually this method will also handle line
             length considerations too.
         """
-        if self.embodied_fixes:
+        if self.lint_results:
             raise NotImplementedError(  # pragma: no cover
                 "rebreak cannot currently handle pre-existing embodied fixes."
             )
 
         # Delegate to the rebreak algorithm
-        elem_buff, fixes = rebreak_sequence(self.elements, self.root_segment)
+        elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
 
         return ReflowSequence(
             elements=elem_buff,
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=fixes,
+            lint_results=lint_results,
         )
 
     def reindent(self):
         """Reindent lines within a sequence."""
-        if self.embodied_fixes:
+        if self.lint_results:
             raise NotImplementedError(  # pragma: no cover
                 "rebreak cannot currently handle pre-existing embodied fixes."
             )
@@ -667,13 +574,13 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        elements, indent_fixes = lint_indent_points(
+        elements, indent_results = lint_indent_points(
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
         )
 
-        elements, length_fixes = lint_line_length(
+        elements, length_results = lint_line_length(
             elements,
             self.root_segment,
             single_indent=single_indent,
@@ -685,5 +592,5 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=indent_fixes + length_fixes,
+            lint_results=indent_results + length_results,
         )

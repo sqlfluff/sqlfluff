@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da851b0b764dd7ecae8f7e79097a5f4e0b3e7f8cefdddb880fe7f6a9fec771de
+_hash: a5247086475ea136cf5c23fd44af0812085724d0d316825e5c96452695432526
 file:
 - statement:
     create_statement:
@@ -446,21 +446,21 @@ file:
         - else_clause:
             keyword: else
             expression:
-              function:
-                function_name:
-                  function_name_identifier: date_from_parts
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    numeric_literal: '0001'
-                - comma: ','
-                - expression:
-                    numeric_literal: '01'
-                - comma: ','
-                - expression:
-                    numeric_literal: '01'
-                - end_bracket: )
               cast_expression:
+                function:
+                  function_name:
+                    function_name_identifier: date_from_parts
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '0001'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '01'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '01'
+                  - end_bracket: )
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: timestamp_ntz

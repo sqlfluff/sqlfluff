@@ -143,9 +143,6 @@ class LintFix:
             `create` fixes, this holds iterable of segments that provided
             code. IMPORTANT: The linter uses this to prevent copying material
             from templated areas.
-        description (:obj:`str`, optional): Text to describe what this fix
-            does. In some cases this is used to populate descriptions for
-            :obj:`LintResult` objects.
     """
 
     def __init__(
@@ -154,7 +151,6 @@ class LintFix:
         anchor: BaseSegment,
         edit: Optional[Iterable[BaseSegment]] = None,
         source: Optional[Iterable[BaseSegment]] = None,
-        description: Optional[str] = None,
     ) -> None:
         if edit_type not in (
             "create_before",
@@ -193,7 +189,6 @@ class LintFix:
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
-        self.description = description
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -279,11 +274,9 @@ class LintFix:
         return True
 
     @classmethod
-    def delete(
-        cls, anchor_segment: BaseSegment, description: Optional[str] = None
-    ) -> "LintFix":
+    def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
         """Delete supplied anchor segment."""
-        return cls("delete", anchor_segment, description=description)
+        return cls("delete", anchor_segment)
 
     @classmethod
     def replace(
@@ -291,12 +284,9 @@ class LintFix:
         anchor_segment: BaseSegment,
         edit_segments: Iterable[BaseSegment],
         source: Optional[Iterable[BaseSegment]] = None,
-        description: Optional[str] = None,
     ) -> "LintFix":
         """Replace supplied anchor segment with the edit segments."""
-        return cls(
-            "replace", anchor_segment, edit_segments, source, description=description
-        )
+        return cls("replace", anchor_segment, edit_segments, source)
 
     @classmethod
     def create_before(
@@ -304,7 +294,6 @@ class LintFix:
         anchor_segment: BaseSegment,
         edit_segments: Iterable[BaseSegment],
         source: Optional[Iterable[BaseSegment]] = None,
-        description: Optional[str] = None,
     ) -> "LintFix":
         """Create edit segments before the supplied anchor segment."""
         return cls(
@@ -312,7 +301,6 @@ class LintFix:
             anchor_segment,
             edit_segments,
             source,
-            description=description,
         )
 
     @classmethod
@@ -321,7 +309,6 @@ class LintFix:
         anchor_segment: BaseSegment,
         edit_segments: Iterable[BaseSegment],
         source: Optional[Iterable[BaseSegment]] = None,
-        description: Optional[str] = None,
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
         return cls(
@@ -329,7 +316,6 @@ class LintFix:
             anchor_segment,
             edit_segments,
             source,
-            description=description,
         )
 
     def get_fix_slices(

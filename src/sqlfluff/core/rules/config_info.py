@@ -202,6 +202,10 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["single", "multiple"],
         "definition": "Treatment of wildcards. Defaults to ``single``.",
     },
+    "preferred_type_casting_style": {
+        "validation": ["consistent", "shorthand", "convert", "cast"],
+        "definition": ("The expectation for using sql type casting"),
+    },
 }
 
 

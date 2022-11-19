@@ -32,7 +32,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L006",
             "operator_errors.sql",
-            [(7, 6), (7, 9), (7, 12)],
+            [(7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
         (
             "L039",
@@ -44,7 +44,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L006",
             "operator_errors_negative.sql",
-            [(5, 6)],
+            [(5, 6), (5, 7)],
         ),
         (
             "L039",
@@ -87,7 +87,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         # Distinct and Group by
         ("L021", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "operator_errors_ignore.sql", [(10, 8)]),
+        ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (
             "L031",
             "aliases_in_join_error.sql",

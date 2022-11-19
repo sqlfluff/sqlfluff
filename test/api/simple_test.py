@@ -31,7 +31,7 @@ lint_result = [
     },
     {
         "code": "L039",
-        "description": "Unnecessary whitespace found.",
+        "description": "Expected only single space before star '*'. Found '  '.",
         "line_no": 1,
         "line_pos": 7,
     },
@@ -49,7 +49,9 @@ lint_result = [
     },
     {
         "code": "L039",
-        "description": "Unnecessary whitespace found.",
+        "description": (
+            "Expected only single space before naked identifier. Found '  '."
+        ),
         "line_no": 1,
         "line_pos": 22,
     },
@@ -61,7 +63,7 @@ lint_result = [
     },
     {
         "code": "L039",
-        "description": "Unnecessary whitespace found.",
+        "description": "Expected only single space before 'from' keyword. Found '  '.",
         "line_no": 1,
         "line_pos": 27,
     },
