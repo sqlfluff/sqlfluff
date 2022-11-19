@@ -1715,8 +1715,14 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rfile test/fixtures/linter/passing.sql:" in raw_output
-        assert r"\rfile test/fixtures/linter/indentation_errors.sql:" in raw_output
+        assert (
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", os.sep)
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", os.sep)
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
@@ -1736,13 +1742,22 @@ class TestProgressBars:
         raw_output = repr(result.output)
 
         assert (
-            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:" in raw_output
+            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:".replace(
+                "/", os.sep
+            )
+            in raw_output
         )
         assert (
-            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:" in raw_output
+            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:".replace(
+                "/", os.sep
+            )
+            in raw_output
         )
         assert (
-            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:" in raw_output
+            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:".replace(
+                "/", os.sep
+            )
+            in raw_output
         )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
