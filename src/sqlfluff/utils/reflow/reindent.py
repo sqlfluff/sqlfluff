@@ -1069,15 +1069,20 @@ def lint_line_length(
             # This could be for things like comment lines. We have
             # TODO: We might still want to flag these as a problem, but we can't
             # currently fix them - that's an odd scenario.
+            desc = f"Line is too long ({line_len} > {line_length_limit})."
             if not matched_indents:
-                reflow_logger.warning(
-                    "    LONG LINE FOUND [#%s] BUT NO FIX POSSIBLE. TODO.",
-                    line_no,
+                # NOTE: In this case we have no options for shortening the line.
+                # We'll still report a linting issue - but not fixes are provided.
+                results.append(
+                    LintResult(
+                        # First segment on the line is the result anchor.
+                        line_elements[0].segments[0],
+                        description=desc,
+                    )
                 )
             else:
                 # As a blunt solution, force indents at the lowest available
                 # option.
-                desc = f"Line is too long ({line_len} > {line_length_limit})"
                 # TODO: Make this more elegant later, with the option to
                 # potentially add linebreaks at more than one level.
                 target_balance = min(matched_indents.keys())

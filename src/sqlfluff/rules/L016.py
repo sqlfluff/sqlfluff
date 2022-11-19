@@ -1,6 +1,5 @@
 """Implementation of Rule L016."""
 
-from collections import defaultdict
 from typing import List
 
 from sqlfluff.core.rules import LintResult, RuleContext
@@ -33,42 +32,18 @@ class Rule_L016(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Line is too long."""
+        self.ignore_comment_lines: bool
         # Reflow and generate fixes.
-        fixes = (
+        results = (
             ReflowSequence.from_root(context.segment, context.config)
             .reindent()
-            .get_fixes()
+            .get_results()
         )
-
-        # Group together for each line
-        lines = defaultdict(list)
-        for fix in fixes:
-            lines[fix.anchor.pos_marker.working_line_no].append(fix)
-
-        # Construct results.
-        results = []
-        for line_no in lines.keys():
-            line_fixes = lines[line_no]
-            # Filter out the long line fixes.
-            long_line_fixes = [
-                fix
-                for fix in line_fixes
-                if fix.description.startswith("Line is too long")
-            ]
-            # If we don't get any long line fixes. Ignore the all of them.
-            if not long_line_fixes:
-                continue
-            # If we do, return all of them, because they should *all* shorten
-            # the line.
-            # TODO: We should probably anchor the fix on the start of the line
-            # and not on the anchor of the first fix.
-            result_anchor = long_line_fixes[0].anchor
-            results.append(
-                LintResult(
-                    anchor=result_anchor,
-                    fixes=line_fixes,
-                    description=long_line_fixes[0].description,
-                )
-            )
-
+        # Filter only to results which start with "Line is too long".
+        results = [
+            res for res in results if res.description.startswith("Line is too long")
+        ]
+        # Apply ignore comment lines.
+        if self.ignore_comment_lines:
+            results = [res for res in results if not res.anchor.is_type("comment")]
         return results
