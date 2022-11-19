@@ -1204,7 +1204,7 @@ class Linter:
             self.formatter.dispatch_processing_header(effective_processes)
 
         # Show files progress bar only when there is more than one.
-        first_path = os.path.basename(expanded_paths[0] if expanded_paths else "")
+        first_path = expanded_paths[0] if expanded_paths else ""
         progress_bar_files = tqdm(
             total=files_count,
             desc=f"file {first_path}",
@@ -1226,9 +1226,7 @@ class Linter:
             # is `i < len` to not exceed files list length.
             progress_bar_files.update(n=1)
             if i < len(expanded_paths):
-                progress_bar_files.set_description(
-                    f"file {os.path.basename(expanded_paths[i])}"
-                )
+                progress_bar_files.set_description(f"file {expanded_paths[i]}")
 
         result.stop_timer()
         return result

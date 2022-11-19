@@ -1715,8 +1715,8 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
-        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        assert r"\rfile test/fixtures/linter/passing.sql:" in raw_output
+        assert r"\rfile test/fixtures/linter/indentation_errors.sql:" in raw_output
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
