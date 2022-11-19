@@ -11,6 +11,15 @@ def test__rules__std_L048_raised() -> None:
 
     results_l048 = [r for r in result if r["code"] == "L048"]
     assert len(results_l048) == 3
-    assert results_l048[0]["description"] == "Missing whitespace before 'b'"
-    assert results_l048[1]["description"] == "Missing whitespace after 'b'"
-    assert results_l048[2]["description"] == "Missing whitespace before 'c'"
+    assert (
+        results_l048[0]["description"]
+        == "Expected single whitespace between binary operator '+' and quoted literal."
+    )
+    assert (
+        results_l048[1]["description"]
+        == "Expected single whitespace between quoted literal and binary operator '+'."
+    )
+    assert (
+        results_l048[2]["description"]
+        == "Expected single whitespace between binary operator '+' and quoted literal."
+    )

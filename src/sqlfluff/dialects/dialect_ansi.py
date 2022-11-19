@@ -287,7 +287,6 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
-
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -1075,7 +1074,18 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar: Matchable = Sequence(
-        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("CastOperatorSegment"),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+            ),
+            min_times=1,
+        ),
     )
 
 
@@ -1885,8 +1895,9 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
+        Ref("ShorthandCastSegment"),
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -3298,7 +3309,6 @@ class SetClauseSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             "DEFAULT",
         ),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
     )
 
 

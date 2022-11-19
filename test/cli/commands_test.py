@@ -584,8 +584,9 @@ def test__cli__command_lint_warning():
     # The output should still say PASS.
     assert "PASS" in result.output.strip()
     # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
     assert (
-        "L:   4 | P:   9 | L006 | WARNING: Missing whitespace before +"
+        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
         in result.output.strip()
     )
 
@@ -1271,15 +1272,16 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Test the output output formats for multiple files.
+    """Test the output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
-    fpath = "test/fixtures/linter/indentation_errors.sql"
+    fpath1 = "test/fixtures/linter/indentation_errors.sql"
+    fpath2 = "test/fixtures/linter/multiple_sql_errors.sql"
 
     cmd_args = (
-        fpath,
-        fpath,
+        fpath1,
+        fpath2,
         "--format",
         serialize,
         "--disable-progress-bar",
@@ -1305,8 +1307,14 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
+    # Print for debugging.
+    payload_length = len(result_payload.split("\n"))
+    print(f"## Payload (length {payload_length}):")
+    print(result_payload)
+    print("## End Payload")
+
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 33 if write_file else 32
+        assert payload_length == 26 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1316,13 +1324,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
-        assert len(filepaths) == 1
+        assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 24
+        assert len(result) == 17
     else:
         raise Exception
 
@@ -1714,8 +1722,16 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
-        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep) in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
@@ -1734,9 +1750,27 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rfile passing.1.sql:" in raw_output
-        assert r"\rfile passing.2.sql:" in raw_output
-        assert r"\rfile passing.3.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output

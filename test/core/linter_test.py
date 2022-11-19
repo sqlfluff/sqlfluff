@@ -403,7 +403,7 @@ def test__linter__empty_file():
 @pytest.mark.parametrize(
     "ignore_templated_areas,check_tuples",
     [
-        (True, [("L006", 3, 39), ("L006", 3, 39)]),
+        (True, [("L006", 3, 39), ("L006", 3, 40)]),
         (
             False,
             [
@@ -413,7 +413,7 @@ def test__linter__empty_file():
                 ("L006", 3, 16),
                 ("L006", 3, 16),
                 ("L006", 3, 39),
-                ("L006", 3, 39),
+                ("L006", 3, 40),
             ],
         ),
     ],
