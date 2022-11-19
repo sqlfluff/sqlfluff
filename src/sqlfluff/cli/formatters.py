@@ -22,10 +22,25 @@ from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
 
 
 def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
-    """Split a string into lines based on whitespace."""
+    """Split a string into lines based on whitespace.
+
+    For short strings the functionality is trivial.
+    >>> split_string_on_spaces("abc")
+    ['abc']
+
+    For longer sections it will split at an appropriate point.
+    >>> split_string_on_spaces("abc def ghi", line_length=7)
+    ['abc def', 'ghi']
+
+    After splitting, multi-space sections should be intact.
+    >>> split_string_on_spaces("a '   ' b c d e f", line_length=11)
+    ["a '   ' b c", 'd e f']
+    """
     line_buff = []
     str_buff = ""
-    for token in s.split():
+    # NOTE: We *specify* the single space split, so that on reconstruction
+    # we can accurately represent multi space strings.
+    for token in s.split(" "):
         # Can we put this token on this line without going over?
         if str_buff:
             if len(str_buff) + len(token) > line_length:

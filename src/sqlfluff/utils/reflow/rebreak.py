@@ -6,10 +6,11 @@ from dataclasses import dataclass
 from typing import List, Type, Tuple, cast
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import LintFix
+from sqlfluff.core.rules import LintFix, LintResult
 
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.reindent import deduce_line_indent
+from sqlfluff.utils.reflow.helpers import fixes_from_results, pretty_segment_name
 
 
 # We're in the utils module, but users will expect reflow
@@ -87,6 +88,10 @@ class _RebreakLocation:
             span.line_position,
             span.strict,
         )
+
+    def pretty_target_name(self) -> str:
+        """Get a nicely formatted name of the target."""
+        return pretty_segment_name(self.target)
 
     def has_templated_newline(self, elements: ReflowSequenceType) -> bool:
         """Is either side a templated newline?
@@ -209,7 +214,7 @@ def identify_rebreak_spans(
 
 def rebreak_sequence(
     elements: ReflowSequenceType, root_segment: BaseSegment
-) -> Tuple[ReflowSequenceType, List[LintFix]]:
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Reflow line breaks within a sequence.
 
     Initially this only _moves_ existing segments
@@ -220,6 +225,7 @@ def rebreak_sequence(
     This intentionally does *not* handle indentation,
     as the existing indents are assumed to be correct.
     """
+    lint_results: List[LintResult] = []
     fixes: List[LintFix] = []
     elem_buff: ReflowSequenceType = elements.copy()
 
@@ -266,13 +272,26 @@ def rebreak_sequence(
 
         # So we know we have a preference, is it ok?
         if loc.line_position == "leading":
+
             if elem_buff[loc.prev.newline_pt_idx].num_newlines():
                 # We're good. It's already leading.
                 continue
+
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
+                desc = f"{pretty_name.capitalize()} should always start a new line."
+            else:
+                desc = (
+                    f"Found trailing {pretty_name}. Expected only leading "
+                    "near line breaks."
+                )
+
             # Is it the simple case with no comments between the
             # old and new desired locations and only a single following
             # whitespace?
-            elif (
+            if (
                 loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
                 and elem_buff[loc.next.newline_pt_idx].num_newlines() == 1
             ):
@@ -280,16 +299,17 @@ def rebreak_sequence(
                 # Simple case. No comments.
                 # Strip newlines from the next point. Apply the indent to
                 # the previous point.
-                fixes, prev_point = prev_point.indent_to(
+                new_results, prev_point = prev_point.indent_to(
                     next_point.get_indent() or "", before=loc.target
                 )
-                fixes, next_point = next_point.respace_point(
+                new_results, next_point = next_point.respace_point(
                     cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
                     cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx + 1]),
                     root_segment=root_segment,
-                    fixes=fixes,
+                    lint_results=new_results,
                     strip_newlines=True,
                 )
+
                 # Update the points in the buffer
                 elem_buff[loc.prev.adj_pt_idx] = prev_point
                 elem_buff[loc.next.adj_pt_idx] = next_point
@@ -308,11 +328,11 @@ def rebreak_sequence(
                 # We always reinsert after the first point, but respace
                 # the inserted point to ensure it's the right size given
                 # configs.
-                fixes, new_point = ReflowPoint(()).respace_point(
+                new_results, new_point = ReflowPoint(()).respace_point(
                     cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
                     cast(ReflowBlock, elem_buff[loc.next.pre_code_pt_idx + 1]),
                     root_segment=root_segment,
-                    fixes=fixes,
+                    lint_results=[],
                     anchor_on="after",
                 )
                 fixes.append(
@@ -333,12 +353,27 @@ def rebreak_sequence(
                 )
 
         elif loc.line_position == "trailing":
+
             if elem_buff[loc.next.newline_pt_idx].num_newlines():
                 # We're good, it's already trailing.
                 continue
+
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
+                desc = (
+                    f"{pretty_name.capitalize()} should always be at the end of a line."
+                )
+            else:
+                desc = (
+                    f"Found leading {pretty_name}. Expected only trailing "
+                    "near line breaks."
+                )
+
             # Is it the simple case with no comments between the
             # old and new desired locations and only one previous newline?
-            elif (
+            if (
                 loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
                 and elem_buff[loc.prev.newline_pt_idx].num_newlines() == 1
             ):
@@ -346,16 +381,17 @@ def rebreak_sequence(
                 # Simple case. No comments.
                 # Strip newlines from the previous point. Apply the indent
                 # to the next point.
-                fixes, next_point = next_point.indent_to(
+                new_results, next_point = next_point.indent_to(
                     prev_point.get_indent() or "", after=loc.target
                 )
-                fixes, prev_point = prev_point.respace_point(
+                new_results, prev_point = prev_point.respace_point(
                     cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx - 1]),
                     cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
                     root_segment=root_segment,
-                    fixes=fixes,
+                    lint_results=new_results,
                     strip_newlines=True,
                 )
+
                 # Update the points in the buffer
                 elem_buff[loc.prev.adj_pt_idx] = prev_point
                 elem_buff[loc.next.adj_pt_idx] = next_point
@@ -374,11 +410,11 @@ def rebreak_sequence(
                 # We always reinsert before the first point, but respace
                 # the inserted point to ensure it's the right size given
                 # configs.
-                fixes, new_point = ReflowPoint(()).respace_point(
+                new_results, new_point = ReflowPoint(()).respace_point(
                     cast(ReflowBlock, elem_buff[loc.prev.pre_code_pt_idx - 1]),
                     cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
                     root_segment=root_segment,
-                    fixes=fixes,
+                    lint_results=[],
                     anchor_on="before",
                 )
                 fixes.append(
@@ -403,14 +439,20 @@ def rebreak_sequence(
             # either leading or trailing and needs to be moved onto its
             # own line.
 
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            desc = (
+                f"{pretty_name.capitalize()}s should always have a line break "
+                "both before and after."
+            )
+
             # First handle the following newlines first (easy).
             if not elem_buff[loc.next.newline_pt_idx].num_newlines():
                 reflow_logger.debug("  Found missing newline after in alone case")
-                pre_fixes, next_point = next_point.indent_to(
+                new_results, next_point = next_point.indent_to(
                     deduce_line_indent(loc.target.raw_segments[-1], root_segment),
                     after=loc.target,
                 )
-                fixes += pre_fixes
                 # Update the point in the buffer
                 elem_buff[loc.next.adj_pt_idx] = next_point
 
@@ -422,11 +464,10 @@ def rebreak_sequence(
                 # but there isn't an unambiguous way to do this, because we
                 # can't be sure what the comments are referring to.
                 # Given that, we take the simple option.
-                post_fixes, prev_point = prev_point.indent_to(
+                new_results, prev_point = prev_point.indent_to(
                     deduce_line_indent(loc.target.raw_segments[0], root_segment),
                     before=loc.target,
                 )
-                fixes += post_fixes
                 # Update the point in the buffer
                 elem_buff[loc.prev.adj_pt_idx] = prev_point
 
@@ -435,4 +476,14 @@ def rebreak_sequence(
                 f"Unexpected line_position config: {loc.line_position}"
             )
 
-    return elem_buff, fixes
+        # Consolidate results and consume fix buffer
+        lint_results.append(
+            LintResult(
+                loc.target,
+                fixes=fixes_from_results(new_results) + fixes,
+                description=desc,
+            )
+        )
+        fixes = []
+
+    return elem_buff, lint_results
