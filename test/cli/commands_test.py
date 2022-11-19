@@ -1715,12 +1715,15 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
         assert (
-            r"\rfile test/fixtures/linter/passing.sql:".replace("/", os.sep)
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep)
             in raw_output
         )
         assert (
-            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", os.sep)
+            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
             in raw_output
         )
         assert r"\rlint by rules:" in raw_output
@@ -1741,21 +1744,24 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
         assert (
             r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:".replace(
-                "/", os.sep
+                "/", sep
             )
             in raw_output
         )
         assert (
             r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:".replace(
-                "/", os.sep
+                "/", sep
             )
             in raw_output
         )
         assert (
             r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:".replace(
-                "/", os.sep
+                "/", sep
             )
             in raw_output
         )
