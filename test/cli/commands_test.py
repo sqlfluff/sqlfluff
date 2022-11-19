@@ -1735,9 +1735,15 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rfile passing.1.sql:" in raw_output
-        assert r"\rfile passing.2.sql:" in raw_output
-        assert r"\rfile passing.3.sql:" in raw_output
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:" in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:" in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:" in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
