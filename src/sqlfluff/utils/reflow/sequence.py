@@ -69,7 +69,7 @@ class ReflowSequence:
         # Alternatively pictured: This is the list of fixes required
         # to generate this sequence. We can build on this as we edit
         # the sequence.
-        # Rather than saving *fixes* directly, we packages them into
+        # Rather than saving *fixes* directly, we package them into
         # LintResult objects to make it a little easier to expose them
         # in the CLI.
         self.lint_results: List[LintResult] = lint_results or []

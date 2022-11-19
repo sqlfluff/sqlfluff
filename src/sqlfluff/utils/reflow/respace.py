@@ -270,7 +270,7 @@ def handle_respace__inline_with_space(
                 f"{pretty_segment_name(next_block.segments[0])}."
             )
         else:  # pragma: no cover
-            # This clause isn't has no test coverage because next_block is
+            # This clause has no test coverage because next_block is
             # normally provided.
             description = "Unexpected whitespace"
 
