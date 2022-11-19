@@ -8,7 +8,12 @@ from sqlfluff.core.errors import SQLFluffUserError
 
 from sqlfluff.core.parser.segments import Indent
 
-from sqlfluff.core.parser import RawSegment, BaseSegment
+from sqlfluff.core.parser import (
+    RawSegment,
+    BaseSegment,
+    NewlineSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
@@ -965,7 +970,10 @@ def lint_line_length(
         #     reflow_logger.warning("    #%s: %s", idx, [s.raw for s in e.segments])
 
         # Get the current indent.
-        current_indent = _deduce_line_current_indent(elements, last_indent_idx)
+        if last_indent_idx is not None:
+            current_indent = _deduce_line_current_indent(elements, last_indent_idx)
+        else:
+            current_indent = ""
         # reflow_logger.warning("INDENT @%s: %r = %s", last_indent_idx, ind, len(ind))
         # Get the length of all the elements on the line (other than the indent).
         # TODO: This needs to handle templated elements.
@@ -974,7 +982,11 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
-        line_no = line_buffer[0].segments[0].pos_marker.working_line_no
+        if line_buffer[0].segments:
+            first_seg = line_buffer[0].segments[0]
+        else:
+            first_seg = line_buffer[1].segments[0]
+        line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
             reflow_logger.debug(
                 "    Line #%s. Length %s <= %s. OK.",
@@ -1070,16 +1082,83 @@ def lint_line_length(
             # TODO: We might still want to flag these as a problem, but we can't
             # currently fix them - that's an odd scenario.
             desc = f"Line is too long ({line_len} > {line_length_limit})."
-            if not matched_indents:
-                # NOTE: In this case we have no options for shortening the line.
-                # We'll still report a linting issue - but not fixes are provided.
-                results.append(
-                    LintResult(
-                        # First segment on the line is the result anchor.
-                        line_elements[0].segments[0],
-                        description=desc,
+            # Easiest option are lines ending with comments, but that aren't *all*
+            # comments. Deal with them first.
+            if len(line_buffer) > 1 and line_buffer[-1].segments[-1].is_type("comment"):
+                comment_seg = line_buffer[-1].segments[-1]
+                # Is it an inline comment?
+                if not comment_seg.is_type("inline_comment"):
+                    raise NotImplementedError("UNABLE TO HANDLE NON INLINE COMMENTS...")
+                # It is! Move the comment to the line before.
+                fixes = [
+                    # Remove the comment from it's current position, and any whitespace
+                    # in the previous point.
+                    LintFix.delete(comment_seg),
+                    *[
+                        LintFix.delete(ws)
+                        for ws in line_buffer[-2].segments
+                        if ws.is_type("whitespace")
+                    ],
+                ]
+                # Reinsert it at the start of the current line, with a newline after it.
+                if last_indent_idx:
+                    fixes.append(
+                        LintFix.create_after(
+                            elements[last_indent_idx].segments[-1],
+                            [
+                                comment_seg,
+                                NewlineSegment(),
+                                WhitespaceSegment(current_indent),
+                            ],
+                        )
                     )
-                )
+                # Edge case handling for start of file:
+                else:
+                    fixes.append(
+                        LintFix.create_before(
+                            first_seg,
+                            [
+                                comment_seg,
+                                NewlineSegment(),
+                            ],
+                        )
+                    )
+                # Update the elements too (which is also a little complicated).
+                #   everything up to this line
+                # + the comment
+                # + a new indent point
+                # + the rest of the line (without the last point and comment)
+                # + anything else after the line
+                if last_indent_idx is not None:
+                    elements = (
+                        elements[: last_indent_idx + 1]
+                        + [
+                            line_buffer[-1],
+                            ReflowPoint(
+                                (NewlineSegment(), WhitespaceSegment(current_indent))
+                            ),
+                        ]
+                        + line_buffer[:-2]
+                        + elements[i:]
+                    )
+                # Edge case for start of file:
+                else:
+                    elements = (
+                        [
+                            line_buffer[-1],
+                            ReflowPoint((NewlineSegment(),)),
+                        ]
+                        + line_buffer[:-2]
+                        + elements[i:]
+                    )
+
+            # Then check for cases where we have no other options.
+            elif not matched_indents:
+                # NOTE: In this case we have no options for shortening the line.
+                # We'll still report a linting issue - but no fixes are provided.
+                fixes = []
+
+            # Lastly deal with the "normal" case.
             else:
                 # As a blunt solution, force indents at the lowest available
                 # option.
@@ -1103,20 +1182,26 @@ def lint_line_length(
                     if e is elem:
                         continue
                     e_idx = elements.index(e)
-                    new_results, new_point = e.indent_to(desired_indent)
+                    new_results, new_point = e.indent_to(
+                        desired_indent,
+                        after=elements[e_idx - 1].segments[-1],
+                        before=elements[e_idx + 1].segments[0],
+                    )
                     # NOTE: Mutation of elements.
                     elements[e_idx] = new_point
                     line_results += new_results
-                # Consolidate the results.
-                results.append(
-                    LintResult(
-                        # First segment on the line is the result anchor.
-                        line_elements[0].segments[0],
-                        # Consolidate all the results for the line into one.
-                        fixes=fixes_from_results(line_results),
-                        description=desc,
-                    )
+
+                # Consolidate all the results for the line into one.
+                fixes = fixes_from_results(line_results)
+
+            results.append(
+                LintResult(
+                    # First segment on the line is the result anchor.
+                    first_seg,
+                    fixes=fixes,
+                    description=desc,
                 )
+            )
 
         # Regardless of whether the line was good or not, clear
         # the buffers ready for the next line.

@@ -4,7 +4,7 @@ test_pass_line_too_long_config_override:
   # Long lines (with config override)
   pass_str: "SELECT COUNT(*) FROM tbl\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 30
 
 test_fail_line_too_long_with_comments_1:
@@ -13,7 +13,7 @@ test_fail_line_too_long_with_comments_1:
 
   fix_str: "-- Some Comment\nSELECT 1\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 18
 
 test_fail_line_too_long_with_comments_2:
@@ -21,7 +21,7 @@ test_fail_line_too_long_with_comments_2:
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
   fix_str: "    SELECT\n        COUNT(*)\n    FROM tbl\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 20
 
 test_fail_line_too_long_with_comments_3:
@@ -29,7 +29,7 @@ test_fail_line_too_long_with_comments_3:
   fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
   fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 18
 
 test_fail_line_too_long_with_comments_4:
@@ -43,7 +43,7 @@ test_fail_line_too_long_with_comments_4:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    rules:
+    indentation:
       max_line_length: 80
 
 test_pass_line_too_long_with_comments_ignore_comment_lines:
@@ -54,8 +54,9 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    rules:
+    indentation:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -63,7 +64,7 @@ test_fail_line_too_long_only_comments:
   # Check long lines that are only comments are linted correctly
   fail_str: "-- Some really long comments on their own line\n\nSELECT 1"
   configs:
-    rules:
+    indentation:
       max_line_length: 18
 
 test_fail_line_too_long_handling_indents:
@@ -71,15 +72,16 @@ test_fail_line_too_long_handling_indents:
   fail_str: "SELECT 12345\n"
   fix_str: "SELECT\n    12345\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 10
 
 test_pass_line_too_long_ignore_comments_true:
   # Check we can ignore comments if we want
   pass_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 10
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -87,8 +89,9 @@ test_pass_line_too_long_ignore_comments_false:
   # Check we still pick up long comments if we don't want to ignore
   fail_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    rules:
+    indentation:
       max_line_length: 10
+    rules:
       L016:
         ignore_comment_lines: false
 
@@ -133,8 +136,9 @@ test_long_jina_comment:
     {# ........................................................................... #}
     FROM table
   configs:
-    rules:
+    indentation:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: false
 
@@ -147,8 +151,9 @@ test_long_jina_comment_ignore:
     {# ........................................................................... #}
     FROM table
   configs:
-    rules:
+    indentation:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -223,7 +228,7 @@ test_set_statement:
     {% set statement = "SELECT 1 from table1;" %}
     {{ statement }}{{ statement }}
   configs:
-    rules:
+    indentation:
       max_line_length: 80
 
 
