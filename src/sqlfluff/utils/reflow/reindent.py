@@ -624,9 +624,8 @@ def _lint_line_starting_indent(
         new_results = [
             LintResult(
                 initial_point.segments[0],
-                [LintFix.delete(seg)
-                for seg in initial_point.segments],
-                description="First line should not be indented."
+                [LintFix.delete(seg) for seg in initial_point.segments],
+                description="First line should not be indented.",
             )
         ]
         new_point = ReflowPoint(())
@@ -643,7 +642,7 @@ def _lint_line_starting_indent(
 
 def _lint_line_untaken_positive_indents(
     elements: ReflowSequenceType, indent_line: _IndentLine, single_indent: str
-) -> Tuple[List[LintFix], List[int]]:
+) -> Tuple[List[LintResult], List[int]]:
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
@@ -695,12 +694,12 @@ def _lint_line_untaken_positive_indents(
         desired_indent,
     )
     target_point = cast(ReflowPoint, elements[target_point_idx])
-    new_fixes, new_point = target_point.indent_to(
+    results, new_point = target_point.indent_to(
         desired_indent, before=elements[target_point_idx + 1].segments[0]
     )
     elements[target_point_idx] = new_point
     # Keep track of the indent we forced, by returning it.
-    return new_fixes, [closing_trough]
+    return results, [closing_trough]
 
 
 def _lint_line_untaken_negative_indents(
@@ -708,13 +707,13 @@ def _lint_line_untaken_negative_indents(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
-) -> List[LintFix]:
+) -> List[LintResult]:
     """Check for negative indents which should have been taken."""
     # If we don't close lower than we start, there won't be any.
     if indent_line.closing_balance() >= indent_line.opening_balance():
         return []
 
-    fixes: List[LintFix] = []
+    results: List[LintResult] = []
     # On the way down we're looking for indents which *were* taken on
     # the way up, but currently aren't on the way down. We slice so
     # that the _last_ point isn't evaluated, because that's fine.
@@ -774,13 +773,13 @@ def _lint_line_untaken_negative_indents(
             desired_indent,
         )
         target_point = cast(ReflowPoint, elements[ip.idx])
-        new_fixes, new_point = target_point.indent_to(
+        new_results, new_point = target_point.indent_to(
             desired_indent, before=elements[ip.idx + 1].segments[0]
         )
         elements[ip.idx] = new_point
-        fixes += new_fixes
+        results += new_results
 
-    return fixes
+    return results
 
 
 def _lint_line_buffer_indents(
@@ -788,7 +787,7 @@ def _lint_line_buffer_indents(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
-) -> List[LintFix]:
+) -> List[LintResult]:
     """Evaluate a single set of indent points on one line.
 
     NOTE: This mutates the given `elements` and `forced_indents` input to avoid
@@ -831,27 +830,27 @@ def _lint_line_buffer_indents(
         ],
     )
     reflow_logger.info("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
-    fixes = []
+    results = []
 
     # First, handle starting indent.
-    fixes += _lint_line_starting_indent(
+    results += _lint_line_starting_indent(
         elements, indent_line, single_indent, forced_indents
     )
 
     # Second, handle potential missing positive indents.
-    new_fixes, new_indents = _lint_line_untaken_positive_indents(
+    new_results, new_indents = _lint_line_untaken_positive_indents(
         elements, indent_line, single_indent
     )
     # If we have any, bank them and return. We don't need to check for
     # negatives because we know we're on the way up.
-    if new_fixes:
-        fixes += new_fixes
+    if new_results:
+        results += new_results
         # Keep track of any indents we forced
         forced_indents.extend(new_indents)
-        return fixes
+        return results
 
     # Third, handle potential missing negative indents.
-    fixes += _lint_line_untaken_negative_indents(
+    results += _lint_line_untaken_negative_indents(
         elements, indent_line, single_indent, forced_indents
     )
 
@@ -862,14 +861,14 @@ def _lint_line_buffer_indents(
         if i > indent_line.closing_balance():
             forced_indents.remove(i)
 
-    return fixes
+    return results
 
 
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
     skip_indentation_in: Set[str] = set(),
-) -> Tuple[ReflowSequenceType, List[LintFix]]:
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
     For linting indentation - we *first* need to make sure there are
@@ -915,14 +914,14 @@ def lint_indent_points(
 
     reflow_logger.debug("# Evaluate lines for indentation.")
     # Last: handle each of the lines.
-    fixes: List[LintFix] = []
+    results: List[LintResult] = []
     # NOTE: forced_indents is mutated by _lint_line_buffer_indents
     # It's used to pass from one call to the next.
     forced_indents: List[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
-        fixes += _lint_line_buffer_indents(
+        results += _lint_line_buffer_indents(
             elem_buffer, line, single_indent, forced_indents
         )
 
-    return elem_buffer, fixes
+    return elem_buffer, results

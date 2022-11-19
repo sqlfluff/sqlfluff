@@ -563,7 +563,7 @@ class ReflowSequence:
 
     def reindent(self):
         """Reindent lines within a sequence."""
-        if self.embodied_fixes:
+        if self.lint_results:
             raise NotImplementedError(  # pragma: no cover
                 "rebreak cannot currently handle pre-existing embodied fixes."
             )
@@ -573,7 +573,7 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        elements, fixes = lint_indent_points(
+        elements, lint_results = lint_indent_points(
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
@@ -584,5 +584,5 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            embodied_fixes=fixes,
+            lint_results=lint_results,
         )
