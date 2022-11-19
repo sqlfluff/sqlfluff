@@ -49,7 +49,9 @@ lint_result = [
     },
     {
         "code": "L039",
-        "description": "Expected only single space before naked identifier. Found '  '.",
+        "description": (
+            "Expected only single space before naked identifier. Found '  '."
+        ),
         "line_no": 1,
         "line_pos": 22,
     },

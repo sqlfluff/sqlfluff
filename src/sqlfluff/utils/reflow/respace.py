@@ -269,7 +269,9 @@ def handle_respace__inline_with_space(
                 "Unexpected whitespace before "
                 f"{pretty_segment_name(next_block.segments[0])}."
             )
-        else:
+        else:  # pragma: no cover
+            # This clause has no test coverage because next_block is
+            # normally provided.
             description = "Unexpected whitespace"
 
         return segment_buffer, [
@@ -322,7 +324,9 @@ def handle_respace__inline_with_space(
                     f"{pretty_segment_name(next_block.segments[0])}. Found "
                     f"{last_whitespace.raw!r}."
                 )
-            else:
+            else:  # pragma: no cover
+                # This clause isn't has no test coverage because next_block is
+                # normally provided.
                 desc = "Expected only single space. Found " f"{last_whitespace.raw!r}."
             desired_space = " "
 
@@ -426,7 +430,7 @@ def handle_respace__inline_without_space(
             for fix in res.fixes or []:
                 if fix.edit and insertion.uuid in [elem.uuid for elem in fix.edit]:
                     break
-            else:
+            else:  # pragma: no cover
                 continue
             break
         else:  # pragma: no cover
@@ -455,7 +459,7 @@ def handle_respace__inline_without_space(
             f"{pretty_segment_name(prev_block.segments[-1])} "
             f"and {pretty_segment_name(next_block.segments[0])}."
         )
-    else:
+    else:  # pragma: no cover
         # Something to fall back on if prev_block and next_block not provided.
         desc = "Expected single whitespace."
     # Take into account hint on where to anchor if given.

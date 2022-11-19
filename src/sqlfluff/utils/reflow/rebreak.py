@@ -279,7 +279,8 @@ def rebreak_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
                 desc = f"{pretty_name.capitalize()} should always start a new line."
             else:
                 desc = (
@@ -359,7 +360,8 @@ def rebreak_sequence(
 
             # Generate the text for any issues.
             pretty_name = loc.pretty_target_name()
-            if loc.strict:
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
                 desc = (
                     f"{pretty_name.capitalize()} should always be at the end of a line."
                 )

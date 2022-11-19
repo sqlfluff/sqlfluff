@@ -78,7 +78,7 @@ class ReflowSequence:
         # Alternatively pictured: This is the list of fixes required
         # to generate this sequence. We can build on this as we edit
         # the sequence.
-        # Rather than saving *fixes* directly, we packages them into
+        # Rather than saving *fixes* directly, we package them into
         # LintResult objects to make it a little easier to expose them
         # in the CLI.
         self.lint_results: List[LintResult] = lint_results or []
@@ -96,47 +96,6 @@ class ReflowSequence:
     def get_results(self) -> List[LintResult]:
         """Return the current result buffer."""
         return self.lint_results
-
-    def get_partitioned_fixes(
-        self, target: BaseSegment
-    ) -> Tuple[List[LintFix], List[LintFix], List[LintFix]]:
-        """Get the current fix buffer partitioned around a target."""
-        first_target_raw = target.raw_segments[0]
-        last_target_raw = target.raw_segments[-1]
-        fixes = self.get_fixes()
-
-        assert target.pos_marker
-        pre_fixes = [
-            fix
-            for fix in fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                < first_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_before"
-                    and fix.anchor.pos_marker.working_loc
-                    == first_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        post_fixes = [
-            fix
-            for fix in fixes
-            if fix.anchor.pos_marker
-            and (
-                fix.anchor.pos_marker.working_loc
-                > last_target_raw.pos_marker.working_loc
-                or (
-                    fix.edit_type == "create_after"
-                    and fix.anchor.pos_marker.working_loc
-                    == last_target_raw.pos_marker.working_loc
-                )
-            )
-        ]
-        # The rest
-        mid_fixes = [fix for fix in fixes if fix not in pre_fixes + post_fixes]
-        return pre_fixes, mid_fixes, post_fixes
 
     def get_raw(self) -> str:
         """Get the current raw representation."""
