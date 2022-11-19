@@ -1314,7 +1314,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 26 if write_file else 32
+        assert payload_length == 25 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1330,7 +1330,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 26
+        assert len(result) == 18
     else:
         raise Exception
 
