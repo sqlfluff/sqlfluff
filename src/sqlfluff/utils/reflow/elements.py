@@ -363,7 +363,11 @@ class ReflowPoint(ReflowElement):
                 return [
                     LintResult(
                         self.segments[idx],
-                        [LintFix.create_after(self.segments[idx], [new_indent])],
+                        [
+                            LintFix.replace(
+                                self.segments[idx], [self.segments[idx], new_indent]
+                            )
+                        ],
                         description=description
                         or f"Expected {_indent_description(desired_indent)}.",
                     )
