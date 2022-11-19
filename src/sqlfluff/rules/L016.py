@@ -33,6 +33,7 @@ class Rule_L016(BaseRule):
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Line is too long."""
         self.ignore_comment_lines: bool
+        self.ignore_comment_clauses: bool
         # Reflow and generate fixes.
         results = (
             ReflowSequence.from_root(context.segment, context.config)
@@ -43,7 +44,31 @@ class Rule_L016(BaseRule):
         results = [
             res for res in results if res.description.startswith("Line is too long")
         ]
-        # Apply ignore comment lines.
+
+        # Ignore any comment line if appropriate.
         if self.ignore_comment_lines:
             results = [res for res in results if not res.anchor.is_type("comment")]
+
+        # Ignore any comment clauses if present.
+        if self.ignore_comment_clauses:
+            raw_segments = context.segment.raw_segments
+            for res in results[:]:
+                # The anchor should be the first raw on the line. Work forward
+                # until we're not on the line. Check if any have a parent which
+                # is a comment_clause.
+                raw_idx = raw_segments.index(res.anchor)
+                for idx, seg in enumerate(raw_segments, raw_idx):
+                    path = context.segment.path_to(seg)
+                    if (
+                        seg.pos_marker.working_line_no
+                        != res.anchor.pos_marker.working_line_no
+                    ):
+                        # We've gone past the end of the line. Stop looking.
+                        break
+                    # Is it in a comment clause?
+                    elif any(ps.segment.is_type("comment_clause") for ps in path):
+                        # It IS! Ok, purge this result from results.
+                        results.remove(res)
+                        break
+
         return results
