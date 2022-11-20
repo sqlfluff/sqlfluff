@@ -195,3 +195,37 @@ join (
         "ctes": {"D": {"selectables": ["select x, z from b"]}},
         "query_type": "WithCompound",
     }
+
+
+def test_parent_select_crawler():
+    """Test to verify parent stack crawling functionality."""
+    sql = """
+        with b as (select 1 from c)
+        select * from (
+            with a as (select * from b)
+            select * from a
+            union
+            select 2 from d
+        )
+    """
+    linter = Linter(dialect="ansi")
+    parsed = linter.parse_string(sql)
+    segments = list(
+        parsed.tree.recursive_crawl(
+            "with_compound_statement",
+            "set_expression",
+            "select_statement",
+        )
+    )
+    crawler = select_crawler.SelectCrawler(
+        segments[-1],
+        linter.dialect,
+        parent_stack=segments[: len(segments) - 1],
+    )
+    # be able to recurse up parent stack so that functions can access
+    # ctes from any part of the stack
+    assert crawler.query_tree.parent.parent.parent.parent.as_json() == {
+        "query_type": "WithCompound",
+        "selectables": ["select * from a", "select 2 from d"],
+        "ctes": {"A": {"selectables": ["select * from b"]}},
+    }

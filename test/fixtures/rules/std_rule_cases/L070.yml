@@ -8,7 +8,7 @@ test_pass_known_number_of_result_columns_1:
     select c, d
     from k
 
-test_fail_unknown_number_of_result_columns_1:
+test_fail_known_number_of_result_columns_1:
   fail_str: |
     select a
     from t
@@ -30,7 +30,7 @@ test_pass_known_number_of_result_columns_2:
     select c, d
     from t2
 
-test_fail_unknown_number_of_result_columns_2:
+test_fail_known_number_of_result_columns_2:
   fail_str: |
     with cte as (
         select
@@ -44,8 +44,6 @@ test_fail_unknown_number_of_result_columns_2:
     select d, e
     from t
 
-# pass3;
-# fail3;
 test_pass_known_number_of_result_columns_3:
   pass_str: |
     with cte as (
@@ -82,7 +80,7 @@ test_pass_known_number_of_result_columns_4:
     select e, f, g, h
     from cte3
 
-test_fail_unknown_number_of_result_columns_3:
+test_fail_known_number_of_result_columns_3:
   fail_str: |
     with cte1 as (
         select
@@ -127,7 +125,7 @@ test_pass_known_number_of_result_columns_6:
     )
     select
         t_alias.*
-    from cte1
+    from t2
     join (select a from t) as t_alias
     using (a)
     union
@@ -284,7 +282,7 @@ test_pass_known_number_of_result_columns_17:
     SELECT e, f
     FROM table3
 
-test_fail_unknown_number_of_result_columns_7:
+test_fail_known_number_of_result_columns_7:
   fail_str: |
     SELECT *
     FROM
@@ -473,6 +471,23 @@ test_pass_cte_no_select_final_statement:
         sometable.baz = mycte.bar
     FROM
         mycte;
+
+test_fail_cte_no_select_final_statement:
+  fail_str:
+    UPDATE sometable
+    SET
+        sometable.baz = mycte.bar
+    FROM
+        (SELECT
+          foo,
+          bar
+      FROM mytable1
+
+      UNION ALL
+
+      SELECT
+        bar 
+    FROM mytable2) as k
 
 test_tsql_select_system_as_identifier:
   pass_str: |
