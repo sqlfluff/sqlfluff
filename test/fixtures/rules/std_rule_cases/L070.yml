@@ -486,7 +486,7 @@ test_fail_cte_no_select_final_statement:
       UNION ALL
 
       SELECT
-        bar 
+        bar
     FROM mytable2) as k
 
 test_tsql_select_system_as_identifier:
