@@ -189,7 +189,13 @@ def identify_rebreak_spans(
                 end_elem = element_buffer[end_idx]
                 if not isinstance(end_elem, ReflowBlock):
                     continue
-                if end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
+                elif key not in end_elem.depth_info.stack_positions:
+                    # TODO: I think being here means we can't find the
+                    # end, so we should stop. There might be more tests
+                    # which indicate that "continue" might be more
+                    # appropriate here.
+                    break
+                elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
                     # Found the end. Add it to the stack.
                     # We reference the appropriate element from the parent stack.
                     target_depth = elem.depth_info.stack_hashes.index(key)
