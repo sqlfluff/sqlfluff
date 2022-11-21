@@ -433,9 +433,7 @@ def test_reflow__deduce_line_indent(
         ),
         # Templated case (with templated newline and indent)
         (
-            "SELECT\n"
-            "  {{'1 \n, 2'}}\n"
-            "FROM foo",
+            "SELECT\n  {{'1 \n, 2'}}\nFROM foo",
             [
                 # After SELECT
                 _IndentPoint(1, 1, 0, 0, None, True, ()),

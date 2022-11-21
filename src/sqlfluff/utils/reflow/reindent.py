@@ -962,7 +962,9 @@ def lint_line_length(
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
-        if (not elem.num_newlines()) or (not has_untemplated_newline(elem)):
+        if not isinstance(elem, ReflowPoint) or not has_untemplated_newline(
+            cast(ReflowPoint, elem)
+        ):
             line_buffer.append(elem)
             continue
 
@@ -972,16 +974,12 @@ def lint_line_length(
 
         # Evaluate a line
 
-        #reflow_logger.warning("LINE:")
-        #for idx, e in enumerate(line_buffer):
-        #    reflow_logger.warning("    #%s: %s", idx, [s.raw for s in e.segments])
-
         # Get the current indent.
         if last_indent_idx is not None:
             current_indent = _deduce_line_current_indent(elements, last_indent_idx)
         else:
             current_indent = ""
-        # reflow_logger.warning("INDENT @%s: %r = %s", last_indent_idx, ind, len(ind))
+
         # Get the length of all the elements on the line (other than the indent).
         # TODO: This needs to handle templated elements.
         char_len = sum(sum(len(seg.raw) for seg in e.segments) for e in line_buffer)
@@ -1077,17 +1075,8 @@ def lint_line_length(
                         indent_level,
                     )
 
-            # Matched sets logging
-            # reflow_logger.warning("  matched_indents:")
-            # for balance in matched_indents.keys():
-            #     reflow_logger.warning("    BAL: %s", balance)
-            #     for pt in matched_indents[balance]:
-            #         reflow_logger.warning("      PT: %s", pt)
-
             # If we don't have any matched_indents, we don't have any options.
             # This could be for things like comment lines. We have
-            # TODO: We might still want to flag these as a problem, but we can't
-            # currently fix them - that's an odd scenario.
             desc = f"Line is too long ({line_len} > {line_length_limit})."
             # Easiest option are lines ending with comments, but that aren't *all*
             # comments. Deal with them first.
