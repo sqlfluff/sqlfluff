@@ -97,6 +97,28 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_project_dir
 
+    # TODO: Remove this?
+    def _get_profile(self):
+        """Get a dbt profile name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "profile")
+        )
+
+    # TODO: Remove this?
+    def _get_target(self):
+        """Get a dbt target name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "target")
+        )
+
+    # TODO: Remove this?
+    def _get_cli_vars(self) -> str:
+        cli_vars = self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "context")
+        )
+
+        return str(cli_vars) if cli_vars else "{}"
+
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -142,9 +164,15 @@ class DbtTemplater(JinjaTemplater):
         in_str: str,
         fname: Optional[str] = None,
         config: Optional[FluffConfig] = None,
+        formatter=None,
         **kwargs,
     ):
         """Compile a dbt model and return the compiled SQL."""
+        # Stash the formatter if provided to use in cached methods.
+        self.formatter = formatter
+        self.sqlfluff_config = config
+        self.project_dir = self._get_project_dir()
+        self.profiles_dir = self._get_profiles_dir()
         try:
             return self._unsafe_process(
                 os.path.abspath(fname) if fname else None, in_str, config
@@ -181,8 +209,12 @@ class DbtTemplater(JinjaTemplater):
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
     ):
         # Get project
+        # osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
+        #     self.project_dir
+        # )
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
-            self.project_dir
+            # from .sqlfluff templater project_dir
+            config.get_section((self.templater_selector, self.name, "project_dir"))
         )
         if not osmosis_dbt_project:
             osmosis_dbt_project = self.dbt_project_container.add_project(
