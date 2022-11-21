@@ -221,6 +221,7 @@ class DbtTemplater(JinjaTemplater):
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 # target=target,
+                vars=self._get_cli_vars(),
             )
 
         # Use path if valid, prioritize it as the in_str
