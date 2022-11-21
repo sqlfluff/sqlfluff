@@ -10,7 +10,6 @@ from dbt.exceptions import CompilationException as DbtCompilationException
 from dbt.version import get_installed_version
 from dbt.exceptions import (
     CompilationException as DbtCompilationException,
-    FailedToConnectException as DbtFailedToConnectException,
 )
 from jinja2_simple_tags import StandaloneTag
 

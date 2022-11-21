@@ -6,7 +6,6 @@ import os
 import logging
 import shutil
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
@@ -18,7 +17,6 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -136,56 +134,6 @@ def _get_fixture_path(template_output_folder_path, fname):
             # Ok, it exists. Use this path instead.
             fixture_path = version_specific_path
     return fixture_path
-
-
-@pytest.mark.parametrize(
-    "fnames_input, fnames_expected_sequence",
-    [
-        [
-            (
-                Path("models") / "depends_on_ephemeral" / "a.sql",
-                Path("models") / "depends_on_ephemeral" / "b.sql",
-                Path("models") / "depends_on_ephemeral" / "d.sql",
-            ),
-            # c.sql is not present in the original list and should not appear here,
-            # even though b.sql depends on it. This test ensures that "out of scope"
-            # files, e.g. those ignored using ".sqlfluffignore" or in directories
-            # outside what was specified, are not inadvertently processed.
-            (
-                Path("models") / "depends_on_ephemeral" / "a.sql",
-                Path("models") / "depends_on_ephemeral" / "b.sql",
-                Path("models") / "depends_on_ephemeral" / "d.sql",
-            ),
-        ],
-        [
-            (
-                Path("models") / "depends_on_ephemeral" / "a.sql",
-                Path("models") / "depends_on_ephemeral" / "b.sql",
-                Path("models") / "depends_on_ephemeral" / "c.sql",
-                Path("models") / "depends_on_ephemeral" / "d.sql",
-            ),
-            # c.sql should come before b.sql because b.sql depends on c.sql.
-            # It also comes first overall because ephemeral models come first.
-            (
-                Path("models") / "depends_on_ephemeral" / "c.sql",
-                Path("models") / "depends_on_ephemeral" / "a.sql",
-                Path("models") / "depends_on_ephemeral" / "b.sql",
-                Path("models") / "depends_on_ephemeral" / "d.sql",
-            ),
-        ],
-    ],
-)
-def test__templater_dbt_sequence_files_ephemeral_dependency(
-    project_dir, dbt_templater, fnames_input, fnames_expected_sequence  # noqa: F811
-):
-    """Test that dbt templater sequences files based on dependencies."""
-    result = dbt_templater.sequence_files(
-        [str(Path(project_dir) / fn) for fn in fnames_input],
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-    )
-    pd = Path(project_dir)
-    expected = [str(pd / fn) for fn in fnames_expected_sequence]
-    assert list(result) == expected
 
 
 @pytest.mark.parametrize(
@@ -375,58 +323,10 @@ def test__templater_dbt_handle_exceptions(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
         )
     finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
-
-
-@pytest.mark.skipif(
-    DBT_VERSION_TUPLE < (1, 0), reason="mocks a function that's only used in dbt >= 1.0"
-)
-@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
-def test__templater_dbt_handle_database_connection_failure(
-    set_relations_cache, project_dir, dbt_templater  # noqa: F811
-):
-    """Test the result of a failed database connection."""
-    from dbt.adapters.factory import get_adapter
-
-    set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
-
-    src_fpath = (
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
-        "/exception_connect_database.sql"
-    )
-    target_fpath = os.path.abspath(
-        os.path.join(
-            project_dir, "models/my_new_project/exception_connect_database.sql"
-        )
-    )
-    dbt_fluff_config_fail = DBT_FLUFF_CONFIG.copy()
-    dbt_fluff_config_fail["templater"]["dbt"][
-        "profiles_dir"
-    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
-    # We move the file that throws an error in and out of the project directory
-    # as dbt throws an error if a node fails to parse while computing the DAG
-    os.rename(src_fpath, target_fpath)
-    try:
-        _, violations = dbt_templater.process(
-            in_str="",
-            fname=target_fpath,
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        )
-    finally:
-        get_adapter(dbt_templater.dbt_config).connections.release()
-        os.rename(target_fpath, src_fpath)
-    assert violations
-    # NB: Replace slashes to deal with different platform paths being returned.
-    assert (
-        violations[0]
-        .desc()
-        .replace("\\", "/")
-        .startswith("dbt tried to connect to the database")
-    )
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
