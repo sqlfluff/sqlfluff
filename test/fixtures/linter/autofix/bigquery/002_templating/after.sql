@@ -5,8 +5,8 @@ SELECT
     {% for action in considered_actions %}
         , aaa(
             bbb(
-                ccc({{metric}}_r,
-                {{action}}), ddd({{metric}}_r)
+                ccc({{metric}}_r, {{action}}),
+                ddd({{metric}}_r)
             ),
             eee({{action}})
         ) AS {{metric}}_{{action}}

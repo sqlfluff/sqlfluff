@@ -1,6 +1,7 @@
 """Methods for deducing and understanding indents."""
 
 from collections import defaultdict
+from itertools import chain
 import logging
 from typing import Iterator, List, Optional, Set, Tuple, cast
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans
@@ -928,6 +930,30 @@ def lint_indent_points(
     return elem_buffer, results
 
 
+def _source_char_len(elements: ReflowSequenceType):
+    """Calculate length in the source file.
+
+    NOTE: This relies heavily on the sequence already being
+    split appropriately. It will raise errors if not.
+
+    TODO: There's a good chance that this might not play well
+    with other fixes. If we find segments without positions
+    then it will probably error. Those will need ironing
+    out.
+    """
+    char_len = 0
+    last_source_slice: Optional[slice] = None
+    for seg in chain.from_iterable(elem.segments for elem in elements):
+        # Get the source position.
+        source_slice = seg.pos_marker.source_slice
+        # Only update the length if it's a new slice.
+        if source_slice != last_source_slice:
+            char_len += slice_length(source_slice)
+            last_source_slice = source_slice
+
+    return char_len
+
+
 def lint_line_length(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
@@ -981,9 +1007,9 @@ def lint_line_length(
             current_indent = ""
 
         # Get the length of all the elements on the line (other than the indent).
-        # TODO: This needs to handle templated elements.
-        char_len = sum(sum(len(seg.raw) for seg in e.segments) for e in line_buffer)
-        # reflow_logger.warning("CHARLEN @%s: %r", last_indent_idx, char_len)
+        # NOTE: This is the length in the _source_, because that's the line
+        # length that the reader is actually looking at.
+        char_len = _source_char_len(line_buffer)
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
