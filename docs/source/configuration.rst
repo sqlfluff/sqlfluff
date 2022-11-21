@@ -160,7 +160,6 @@ For example:
 .. code-block:: cfg
 
    [sqlfluff:rules]
-   max_line_length = 80
    allow_scalar = True
    single_table_references = consistent
    unquoted_identifiers_policy = all

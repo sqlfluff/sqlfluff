@@ -113,7 +113,6 @@ def test__rules__std_file(rule, path, violations):
 @pytest.mark.parametrize(
     "rule_config_dict",
     [
-        {"max_line_length": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},
