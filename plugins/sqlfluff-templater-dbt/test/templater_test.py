@@ -288,13 +288,15 @@ def test__templater_dbt_skips_file(
     ],
 )
 def test__dbt_templated_models_do_not_raise_lint_error(
-    project_dir, fname  # noqa: F811
+    project_dir, fname, caplog  # noqa: F811
 ):
     """Test that templated dbt models do not raise a linting error."""
     linter = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = linter.lint_path(
-        path=os.path.join(project_dir, "models/my_new_project/", fname)
-    )
+    # Log rules output.
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
+        lnt = linter.lint_path(
+            path=os.path.join(project_dir, "models/my_new_project/", fname)
+        )
     for linted_file in lnt.files:
         # Log the rendered file to facilitate better debugging of the files.
         print(f"## FILE: {linted_file.path}")
