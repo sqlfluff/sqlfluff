@@ -576,6 +576,13 @@ def _deduce_line_current_indent(
         # It's templated. This shouldn't happen. Segments returned by
         # _get_indent_segment, should be valid indents (i.e. whitespace
         # or placeholders for consumed whitespace). This is a bug.
+        if indent_seg.pos_marker:
+            reflow_logger.warning(
+                "Segment position marker: %s: [SRC: %s, TMP:%s]",
+                indent_seg.pos_marker,
+                indent_seg.pos_marker.source_slice,
+                indent_seg.pos_marker.templated_slice,
+            )
         raise NotImplementedError(
             "Unexpected templated indent. Report this as a bug on "
             f"GitHub. Segment: {indent_seg}"
@@ -955,7 +962,7 @@ def lint_line_length(
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
-        if not elem.num_newlines():
+        if (not elem.num_newlines()) or (not has_untemplated_newline(elem)):
             line_buffer.append(elem)
             continue
 
@@ -965,9 +972,9 @@ def lint_line_length(
 
         # Evaluate a line
 
-        # reflow_logger.warning("LINE:")
-        # for idx, e in enumerate(line_buffer):
-        #     reflow_logger.warning("    #%s: %s", idx, [s.raw for s in e.segments])
+        #reflow_logger.warning("LINE:")
+        #for idx, e in enumerate(line_buffer):
+        #    reflow_logger.warning("    #%s: %s", idx, [s.raw for s in e.segments])
 
         # Get the current indent.
         if last_indent_idx is not None:

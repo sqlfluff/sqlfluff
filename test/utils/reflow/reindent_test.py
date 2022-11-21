@@ -431,6 +431,23 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(27, 0, 0, 0, 25, False, ()),
             ],
         ),
+        # Templated case (with templated newline and indent)
+        (
+            "SELECT\n"
+            "  {{'1 \n, 2'}}\n"
+            "FROM foo",
+            [
+                # After SELECT
+                _IndentPoint(1, 1, 0, 0, None, True, ()),
+                # NOTE: The newline inside the tag isn't reported.
+                # After the templated section (hence why 7)
+                _IndentPoint(7, -1, -1, 1, 1, True, ()),
+                # After FROM
+                _IndentPoint(9, 1, 0, 0, 7, False, ()),
+                # After foo
+                _IndentPoint(11, -1, -1, 1, 7, False, (1,)),
+            ],
+        ),
     ],
 )
 def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):
