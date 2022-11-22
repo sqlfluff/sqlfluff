@@ -57,7 +57,9 @@ class LintedDir:
         """Default overload method."""
         ...
 
-    def check_tuples(self, by_path=False, raise_on_non_linting_violations=True):
+    def check_tuples(
+        self, by_path=False, raise_on_non_linting_violations=True
+    ) -> Union[List[CheckTuple], Dict[str, List[CheckTuple]]]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which

@@ -64,6 +64,18 @@ class Rule_L013(BaseRule):
         ):
             return None
 
+        # Ignore if it's a cast_expression with non-function enclosed children
+        # For example, we do not want to ignore something like func()::type
+        # but we can ignore something like a::type
+        if children.children().select(
+            sp.is_type("cast_expression")
+        ) and not children.children().select(
+            sp.is_type("cast_expression")
+        ).children().any(
+            sp.is_type("function")
+        ):
+            return None
+
         parent_stack = functional_context.parent_stack
 
         # Ignore if it is part of a CTE with column names
@@ -101,7 +113,6 @@ def _recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bo
         "newline",
         "column_reference",
         "wildcard_expression",
-        "cast_expression",
         "bracketed",
     ]
     selector = sp.not_(sp.is_type(*forgiveable_types))

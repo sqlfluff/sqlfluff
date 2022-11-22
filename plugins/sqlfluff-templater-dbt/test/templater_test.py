@@ -307,8 +307,6 @@ def test__templater_dbt_handle_exceptions(
     project_dir, dbt_templater, fname, exception_msg  # noqa: F811
 ):
     """Test that exceptions during compilation are returned as violation."""
-    from dbt.adapters.factory import get_adapter
-
     src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/" + fname
     target_fpath = os.path.abspath(
         os.path.join(project_dir, "models/my_new_project/", fname)

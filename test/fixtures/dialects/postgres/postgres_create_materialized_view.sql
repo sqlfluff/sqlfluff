@@ -145,3 +145,13 @@ FROM table_2
 
 ORDER BY field_1, field_2
 WITH DATA;
+
+CREATE MATERIALIZED VIEW my_mat_view
+WITH (left.right)
+AS
+SELECT a
+FROM my_table;
+
+CREATE OR REPLACE MATERIALIZED VIEW my_mat_view AS
+SELECT a
+FROM my_table;

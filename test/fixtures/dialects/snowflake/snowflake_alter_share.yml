@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6cb4cd5a2b0952e5df8c90d7238b651d5e742a1cec07f71afcff89f2713583a
+_hash: 599ea38dd18bb92d1a5e4769ba772c97c5928c2251ca5937247bdfb075b8cf1c
 file:
 - statement:
     alter_share_statement:
@@ -76,7 +76,8 @@ file:
     - keyword: SET
     - tag_equals:
         keyword: TAG
-        naked_identifier: tag1
+        tag_reference:
+          naked_identifier: tag1
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'value1'"
@@ -91,12 +92,14 @@ file:
     - keyword: SET
     - tag_equals:
       - keyword: TAG
-      - naked_identifier: tag1
+      - tag_reference:
+          naked_identifier: tag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value1'"
       - comma: ','
-      - naked_identifier: tag2
+      - tag_reference:
+          naked_identifier: tag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value2'"
@@ -108,7 +111,8 @@ file:
     - naked_identifier: MY_SHARE
     - keyword: UNSET
     - keyword: TAG
-    - naked_identifier: tag1
+    - tag_reference:
+        naked_identifier: tag1
 - statement_terminator: ;
 - statement:
     alter_share_statement:
@@ -117,9 +121,11 @@ file:
     - naked_identifier: MY_SHARE
     - keyword: UNSET
     - keyword: TAG
-    - naked_identifier: tag1
+    - tag_reference:
+        naked_identifier: tag1
     - comma: ','
-    - naked_identifier: tag2
+    - tag_reference:
+        naked_identifier: tag2
 - statement_terminator: ;
 - statement:
     alter_share_statement:

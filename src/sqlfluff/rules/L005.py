@@ -1,5 +1,5 @@
 """Implementation of Rule L005."""
-from typing import Optional
+from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -43,9 +43,9 @@ class Rule_L005(BaseRule):
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Commas should not have whitespace directly before them."""
-        fixes = (
+        results = (
             ReflowSequence.from_around_target(
                 context.segment,
                 context.parent_stack[0],
@@ -53,10 +53,12 @@ class Rule_L005(BaseRule):
                 sides="before",
             )
             .respace()
-            .get_fixes()
+            .get_results()
         )
-        deletes = [fix for fix in fixes if fix.edit_type == "delete"]
-        if deletes:
-            # There should just be one, so just take the first.
-            return LintResult(anchor=deletes[0].anchor, fixes=deletes[:1])
-        return None
+        # Because whitespace management is currently spread across a couple
+        # of rules, we filter just to results with deletes in them here.
+        return [
+            result
+            for result in results
+            if all(fix.edit_type == "delete" for fix in result.fixes)
+        ]

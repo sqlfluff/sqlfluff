@@ -96,6 +96,46 @@ test_ignore_value_table_functions_when_counting_unqualified_aliases:
     core:
       dialect: bigquery
 
+test_allow_unqualified_references_in_sparksql_lambdas:
+  pass_str: |
+    SELECT transform(array(1, 2, 3), x -> x + 1);
+  configs:
+    core:
+      dialect: sparksql
+
+test_allow_unqualified_references_in_athena_lambdas:
+  pass_str: |
+    select
+        t1.id,
+        filter(array[t1.col1, t1.col2, t2.col3], x -> x is not null) as flt
+    from t1
+    inner join t2 on t1.id = t2.id
+  configs:
+    core:
+      dialect: athena
+
+test_allow_unqualified_references_in_athena_lambdas_with_several_arguments:
+  pass_str: |
+    select
+        t1.id,
+        filter(array[(t1.col1, t1.col2)], (x, y) -> x + y) as flt
+    from t1
+    inner join t2 on t1.id = t2.id
+  configs:
+    core:
+      dialect: athena
+
+test_disallow_unqualified_references_in_malformed_lambdas:
+  fail_str: |
+    select
+        t1.id,
+        filter(array[(t1.col1, t1.col2)], (x, y), z -> x + y) as flt
+    from t1
+    inner join t2 on t1.id = t2.id
+  configs:
+    core:
+      dialect: athena
+
 test_fail_column_and_alias_same_name:
   # See issue #2169
   fail_str: |

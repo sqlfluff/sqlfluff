@@ -13,7 +13,7 @@ from typing import List, NamedTuple
 import pytest
 from jinja2.exceptions import UndefinedError
 
-from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
@@ -1038,13 +1038,15 @@ from my_table
             ],
         ),
         (
-            # Test for issue 2835. There's no space between "col" and "="
+            # Test for issue 2835. There's no space between "col" and "=".
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set col= "col1" %}
 SELECT {{ col }}
 """,
             None,
             [
-                ("block_start", slice(0, 21, None), slice(0, 0, None)),
+                ("templated", slice(0, 21, None), slice(0, 0, None)),
                 ("literal", slice(21, 29, None), slice(0, 8, None)),
                 ("templated", slice(29, 38, None), slice(8, 12, None)),
                 ("literal", slice(38, 39, None), slice(12, 13, None)),
@@ -1082,6 +1084,8 @@ FROM SOME_TABLE
         (
             # Third test for issue 2835. This was the original SQL provided in
             # the issue report.
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set whitelisted= [
     {'name': 'COL_1'},
     {'name': 'COL_2'},
@@ -1099,7 +1103,7 @@ FROM SOME_TABLE
 """,
             None,
             [
-                ("block_start", slice(0, 94, None), slice(0, 0, None)),
+                ("templated", slice(0, 94, None), slice(0, 0, None)),
                 ("literal", slice(94, 96, None), slice(0, 2, None)),
                 ("block_start", slice(96, 128, None), slice(2, 2, None)),
                 ("literal", slice(128, 133, None), slice(2, 2, None)),
@@ -1285,6 +1289,44 @@ def test__templater_jinja_large_file_check():
         )
 
     assert "Length of file" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "ignore, expected_violation",
+    [
+        (
+            "",
+            SQLTemplaterError(
+                "Undefined jinja template variable: 'test_event_cadence'"
+            ),
+        ),
+        ("templating", None),
+    ],
+)
+def test_jinja_undefined_callable(ignore, expected_violation):
+    """Test undefined callable returns TemplatedFile and sensible error."""
+    templater = JinjaTemplater()
+    templated_file, violations = templater.process(
+        in_str="""WITH streams_cadence_test AS (
+{{  test_event_cadence(
+    model= ref('fct_recording_progression_stream'),
+    grouping_column='archive_id', time_column='timestamp',
+    date_part='minute', threshold=1) }}
+)
+SELECT * FROM final
+""",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi", "ignore": ignore}),
+    )
+    # This was previously failing to process, due to UndefinedRecorder not
+    # supporting __call__(), also Jinja thinking it was not *safe* to call.
+    assert templated_file is not None
+    if expected_violation:
+        assert len(violations) == 1
+        isinstance(violations[0], type(expected_violation))
+        assert str(violations[0]) == str(expected_violation)
+    else:
+        assert len(violations) == 0
 
 
 def test_dummy_undefined_fail_with_undefined_error():

@@ -208,6 +208,20 @@ hive_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    # Full Apache Hive `CREATE ALTER` reference here:
+    # https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-AlterTable
+    AlterTableOptionsGrammar=ansi_dialect.get_grammar("AlterTableOptionsGrammar").copy(
+        insert=[
+            # Exchange
+            Sequence(
+                "EXCHANGE",
+                Ref("PartitionSpecGrammar"),
+                "WITH",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+        ]
+    ),
 )
 
 

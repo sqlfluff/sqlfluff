@@ -154,7 +154,7 @@ test_excess_space_with_align_alias:
         alias_expression:
           spacing_before: align
           align_within: select_clause
-          align_boundary: bracketed
+          align_scope: bracketed
 
 test_missing_keyword_with_align_alias:
   fail_str: |
@@ -208,7 +208,7 @@ test_excess_space_with_align_alias_wider:
         alias_expression:
           spacing_before: align
           align_within: select_statement
-          align_boundary: bracketed
+          align_scope: bracketed
 
 test_align_alias_boundary:
   # The alias inside the expression shouldn't move.

@@ -1,0 +1,3 @@
+REMOVE WIDGET state;
+
+REMOVE WIDGET database;

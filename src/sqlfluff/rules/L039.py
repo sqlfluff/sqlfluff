@@ -38,13 +38,18 @@ class Rule_L039(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         sequence = ReflowSequence.from_root(context.segment, config=context.config)
-        fixes = sequence.respace(filter="inline").get_fixes()
-        results = [
-            LintResult(anchor=fix.anchor, fixes=[fix])
-            for fix in fixes
-            # Only handle replace and delete fixes here. They're the ones
-            # we'll see if there's _too much_ whitespace. Linting issues
-            # for _not enough_ whitespace are picked up elsewhere.
-            if fix.edit_type in ("replace", "delete")
+        results = sequence.respace(filter="inline").get_results()
+
+        # For now, respace rules are separate for creation and reduction.
+        # That shouldn't be true in future.
+
+        # But, until then - "not enough whitespace" is handled in other
+        # rules and this one should just handle "too much" (or "wrong amount").
+
+        # That means we take the returned results, and only keep the ones
+        # that modify or remove whitespace.
+        return [
+            result
+            for result in results
+            if any(fix.edit_type in ("replace", "delete") for fix in result.fixes)
         ]
-        return results

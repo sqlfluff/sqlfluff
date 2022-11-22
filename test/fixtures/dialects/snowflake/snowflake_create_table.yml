@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1c71be10afb88d4c7412bb82152520a33ddb68b1ecfa93cc246aa691da1c93a
+_hash: 2f59c16d10e8bc8f466d59f6dd1c831095a7646afe8f107d0ec0288512283772
 file:
 - statement:
     create_table_statement:
@@ -20,12 +20,12 @@ file:
           keyword: select
           select_clause_element:
             expression:
-              column_reference:
-                naked_identifier: VALUE
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: id
               cast_expression:
+                column_reference:
+                  naked_identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: id
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: TEXT
@@ -487,48 +487,48 @@ file:
         - keyword: select
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_custkey
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_custkey
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: number
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderdate
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_orderdate
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: date
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderstatus
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_orderstatus
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: text
         - comma: ','
         - select_clause_element:
             expression:
-              column_reference:
-                column_index_identifier_segment: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_totalprice
               cast_expression:
+                column_reference:
+                  column_index_identifier_segment: $1
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: o_totalprice
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: text
@@ -840,3 +840,62 @@ file:
                 numeric_literal: '10'
               end_bracket: )
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: TABLE1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '"COL1"'
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '128'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '"COL2"'
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '128'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: CHANGE_TRACKING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+          start_bracket: (
+          tag_reference:
+          - naked_identifier: account_objects
+          - dot: .
+          - naked_identifier: tags
+          - dot: .
+          - naked_identifier: IRM
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'{\"IRM\":[{\"Primary\":\"ABC123\"}]}'"
+          end_bracket: )
+- statement_terminator: ;

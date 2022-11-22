@@ -1,5 +1,8 @@
 # Requirements for building docs
 sphinx>=2.4.1
+# 2.13.0 added the sql+jinja syntax
+pygments>=2.13.0
 sphinx-click
+sphinx-reredirects
 doc8
 tqdm
