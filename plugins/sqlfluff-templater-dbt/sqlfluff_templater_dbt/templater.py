@@ -164,8 +164,6 @@ class DbtTemplater(JinjaTemplater):
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
         self.sqlfluff_config = config
-        self.project_dir = self._get_project_dir()
-        self.profiles_dir = self._get_profiles_dir()
         try:
             return self._unsafe_process(
                 os.path.abspath(fname) if fname else None, in_str, config
@@ -203,15 +201,13 @@ class DbtTemplater(JinjaTemplater):
     ):
         # Get project
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
-            # from .sqlfluff templater project_dir
+            # Get project_dir from '.sqlfluff' config file
             config.get_section((self.templater_selector, self.name, "project_dir"))
         )
         if not osmosis_dbt_project:
             osmosis_dbt_project = self.dbt_project_container.add_project(
-                # name_override=x_dbt_project,
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
-                # target=target,
                 vars=self._get_cli_vars(),
             )
 
