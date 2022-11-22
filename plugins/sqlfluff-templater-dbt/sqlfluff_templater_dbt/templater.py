@@ -1,16 +1,12 @@
 """Defines the dbt_osmosis templater."""
 import logging
 import os.path
-import uuid
 from pathlib import Path
 from typing import Iterator, List, Optional
 
 from dbt.clients import jinja
 from dbt.exceptions import CompilationException as DbtCompilationException
 from dbt.version import get_installed_version
-from dbt.exceptions import (
-    CompilationException as DbtCompilationException,
-)
 from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.config import FluffConfig
@@ -18,7 +14,7 @@ from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
-from dbt_osmosis.core.osmosis import DbtProjectContainer
+from sqlfluff.core.osmosis import DbtProjectContainer
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -53,6 +49,7 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
+
         The default is `~/.dbt` in 0.17 but we use the
         PROFILES_DIR variable from the dbt library to
         support a change of default in the future, as well
@@ -78,6 +75,7 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
+
         Defaults to the working directory.
         """
         dbt_project_dir = os.path.abspath(
@@ -122,6 +120,7 @@ class DbtTemplater(JinjaTemplater):
         self, fnames: List[str], config=None, formatter=None
     ) -> Iterator[str]:
         """Reorder fnames to process dependent files first.
+
         This avoids errors when an ephemeral model is processed before use.
         """
         if formatter:  # pragma: no cover
@@ -208,9 +207,6 @@ class DbtTemplater(JinjaTemplater):
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
     ):
         # Get project
-        # osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
-        #     self.project_dir
-        # )
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
             # from .sqlfluff templater project_dir
             config.get_section((self.templater_selector, self.name, "project_dir"))
@@ -228,12 +224,6 @@ class DbtTemplater(JinjaTemplater):
         fpath = Path(fname)
         if fpath.exists() and not in_str:
             in_str = fpath.read_text()
-
-        # Can we use code like this, which may handle more cases?
-        # temp_node_id = str(uuid.uuid4())
-        # try:
-        #     mock_node = osmosis_dbt_project.get_server_node(in_str, temp_node_id)
-        #     resp = osmosis_dbt_project.compile_node(mock_node)
 
         node = self._find_node(osmosis_dbt_project, fname)
         compiled_node = osmosis_dbt_project.compile_node(node)
