@@ -14,7 +14,7 @@ from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
-from sqlfluff.core.osmosis import DbtProjectContainer
+from sqlfluff_templater_dbt.osmosis import DbtProjectContainer
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

@@ -1,8 +1,9 @@
 """Defines the hook endpoints for the dbt templater plugin."""
 
-from sqlfluff.core.osmosis import DbtProjectContainer
-from sqlfluff_templater_dbt.templater import DbtTemplater
 from sqlfluff.core.plugin import hookimpl
+
+from sqlfluff_templater_dbt.osmosis import DbtProjectContainer
+from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 dbt_project_container = DbtProjectContainer()
