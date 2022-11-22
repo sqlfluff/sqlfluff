@@ -40,9 +40,21 @@ class Rule_L016(BaseRule):
             .reindent()
             .get_results()
         )
-        # Filter only to results which start with "Line is too long".
+        # self.logger.warning("RAW RESULTS: %s", results)
+        # for res in results:
+        #     for f in res.fixes or []:
+        #         self.logger.warning("FX: %s", f)
+        # Filter only to results which with the long line flag,
+        # or to other indent ones on the same line as those.
+        long_lines = set(
+            res.anchor.pos_marker.working_line_no
+            for res in results
+            if res.source == "reflow.long_line"
+        )
         results = [
-            res for res in results if res.description.startswith("Line is too long")
+            res
+            for res in results
+            if res.anchor.pos_marker.working_line_no in long_lines
         ]
 
         # Ignore any comment line if appropriate.

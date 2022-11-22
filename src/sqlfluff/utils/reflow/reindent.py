@@ -43,7 +43,9 @@ def has_untemplated_newline(point: ReflowPoint) -> bool:
         # Make sure it's not templated.
         # NOTE: An insertion won't have a pos_marker. But that
         # also means it's not templated.
-        if seg.is_type("newline") and (not seg.pos_marker or not seg.is_templated):
+        if seg.is_type("newline") and (
+            not seg.pos_marker or seg.pos_marker.is_literal()
+        ):
             return True
         if seg.is_type("placeholder"):
             seg = cast(TemplateSegment, seg)
@@ -629,6 +631,7 @@ def _lint_line_starting_indent(
                 initial_point.segments[0],
                 [LintFix.delete(seg) for seg in initial_point.segments],
                 description="First line should not be indented.",
+                source="reflow.indent.existing",
             )
         ]
         new_point = ReflowPoint(())
@@ -636,6 +639,7 @@ def _lint_line_starting_indent(
     else:
         new_results, new_point = initial_point.indent_to(
             desired_starting_indent,
+            source="reflow.indent.existing",
             **anchor,  # type: ignore
         )
 
@@ -698,7 +702,9 @@ def _lint_line_untaken_positive_indents(
     )
     target_point = cast(ReflowPoint, elements[target_point_idx])
     results, new_point = target_point.indent_to(
-        desired_indent, before=elements[target_point_idx + 1].segments[0]
+        desired_indent,
+        before=elements[target_point_idx + 1].segments[0],
+        source="reflow.indent.positive",
     )
     elements[target_point_idx] = new_point
     # Keep track of the indent we forced, by returning it.
@@ -777,7 +783,9 @@ def _lint_line_untaken_negative_indents(
         )
         target_point = cast(ReflowPoint, elements[ip.idx])
         new_results, new_point = target_point.indent_to(
-            desired_indent, before=elements[ip.idx + 1].segments[0]
+            desired_indent,
+            before=elements[ip.idx + 1].segments[0],
+            source="reflow.indent.negative",
         )
         elements[ip.idx] = new_point
         results += new_results
@@ -946,10 +954,23 @@ def _source_char_len(elements: ReflowSequenceType):
     for seg in chain.from_iterable(elem.segments for elem in elements):
         # Get the source position.
         source_slice = seg.pos_marker.source_slice
+        slice_len = slice_length(source_slice)
         # Only update the length if it's a new slice.
         if source_slice != last_source_slice:
-            char_len += slice_length(source_slice)
-            last_source_slice = source_slice
+            # If it's got size in the template but not in the source, it's
+            # probably an insertion.
+            if seg.raw and not slice_len:
+                char_len += len(seg.raw)
+                # NOTE: Don't update the last_source_slice.
+            # Otherwise if we're literal, use the raw length
+            # because it might be an edit.
+            elif seg.pos_marker.is_literal():
+                char_len += len(seg.raw)
+                last_source_slice = source_slice
+            # Otherwise assume it's templated code.
+            else:
+                char_len += slice_length(source_slice)
+                last_source_slice = source_slice
 
     return char_len
 
@@ -1072,19 +1093,27 @@ def lint_line_length(
                 # As usual, indents are referred to by their "uphill" side
                 # so what number we store the point against depends on whether
                 # it's positive or negative.
+                # reflow_logger.warning("ELEM: %s", e)
                 indent_stats = e.get_indent_impulse()
                 if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
-                    matched_indents[balance * 1.0].append(e)
-                    balance += indent_stats[0]
+                    # in case of more than one indent we loop and apply to all.
+                    for b in range(0, indent_stats[1], -1):
+                        matched_indents[(balance + b) * 1.0].append(e)
+                        # reflow_logger.warning("   BAL A: %s", balance + b)
+                    balance += indent_stats[1]
                 elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
+                    # in case of more than one indent we loop and apply to all.
+                    for b in range(0, indent_stats[0]):
+                        matched_indents[(balance + b + 1) * 1.0].append(e)
+                        # reflow_logger.warning("   BAL B: %s", balance + b)
                     balance += indent_stats[0]
-                    matched_indents[balance * 1.0].append(e)
                 elif idx in rebreak_indices:
                     # For potential rebreak options (i.e. ones without an indent)
                     # we add 0.5 so that they sit *between* the varying indent
                     # options. that means we split them before any of their
                     # content, but don't necessarily split them when their
                     # container is split.
+                    # reflow_logger.warning("   BAL C: %s", balance)
                     matched_indents[balance + 0.5].append(e)
                 else:
                     continue
@@ -1093,6 +1122,11 @@ def lint_line_length(
             # ONLY the final point. That's because adding indents there won't
             # actually help the line length. There's *already* a newline there.
             for indent_level in list(matched_indents.keys()):
+                # reflow_logger.warning(
+                #     "INDENT LEV: %s. PTS: %s",
+                #     indent_level,
+                #     matched_indents[indent_level],
+                # )
                 if matched_indents[indent_level] == [elem]:
                     matched_indents.pop(indent_level)
                     reflow_logger.debug(
@@ -1186,6 +1220,9 @@ def lint_line_length(
                 # option.
                 # TODO: Make this more elegant later, with the option to
                 # potentially add linebreaks at more than one level.
+                # TODO: Double indents (or more likely dedents) will be
+                # potentially in *multiple* sets - don't double count them
+                # if we start doing something more clever.
                 target_balance = min(matched_indents.keys())
                 desired_indent = current_indent
                 if target_balance >= 1:
@@ -1242,6 +1279,7 @@ def lint_line_length(
                     first_seg,
                     fixes=fixes,
                     description=desc,
+                    source="reflow.long_line",
                 )
             )
 
