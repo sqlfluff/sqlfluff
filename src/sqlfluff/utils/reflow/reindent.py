@@ -1203,15 +1203,35 @@ def lint_line_length(
                     # there's already an indent there.
                     if e is elem:
                         continue
+
+                    # We need to check for negative sections so they get the right
+                    # indent (otherwise they'll be over indented).
+                    # The `desired_indent` above is for the "uphill" side.
+                    balance, trough = e.get_indent_impulse()
+                    if trough < 0:
+                        new_indent = current_indent
+                    else:
+                        new_indent = desired_indent
+
                     e_idx = elements.index(e)
                     new_results, new_point = e.indent_to(
-                        desired_indent,
+                        new_indent,
                         after=elements[e_idx - 1].segments[-1],
                         before=elements[e_idx + 1].segments[0],
                     )
                     # NOTE: Mutation of elements.
                     elements[e_idx] = new_point
                     line_results += new_results
+
+                    # If the balance is *also* negative, then we should also
+                    # stop. We've indented a whole section - that's enough for now.
+                    # TODO: The smart thing to do would be to first identify the
+                    # *best* section to indent, rather than the lowest and then the first.
+                    # but that's too smart for now.
+                    # If we're still not short enough, then we'll catch the next part when
+                    # we come back around.
+                    if balance < 0:
+                        break
 
                 # Consolidate all the results for the line into one.
                 fixes = fixes_from_results(line_results)
