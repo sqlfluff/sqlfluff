@@ -1226,10 +1226,10 @@ def lint_line_length(
                     # If the balance is *also* negative, then we should also
                     # stop. We've indented a whole section - that's enough for now.
                     # TODO: The smart thing to do would be to first identify the
-                    # *best* section to indent, rather than the lowest and then the first.
-                    # but that's too smart for now.
-                    # If we're still not short enough, then we'll catch the next part when
-                    # we come back around.
+                    # *best* section to indent, rather than the lowest and then
+                    # the first, but that's too smart for now.
+                    # If we're still not short enough, then we'll catch the next
+                    # part when we come back around.
                     if balance < 0:
                         break
 
