@@ -11,7 +11,6 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -117,22 +116,14 @@ def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa
 
 def _get_fixture_path(template_output_folder_path, fname):
     fixture_path: Path = template_output_folder_path / fname  # Default fixture location
-    # Is there a version-specific version of the fixture file?
-    if DBT_VERSION_TUPLE >= (1, 0):
-        dbt_version_specific_fixture_folder = "dbt_utils_0.8.0"
-    else:
-        dbt_version_specific_fixture_folder = None
-
-    if dbt_version_specific_fixture_folder:
-        # Maybe. Determine where it would exist.
-        version_specific_path = (
-            Path(template_output_folder_path)
-            / dbt_version_specific_fixture_folder
-            / fname
-        )
-        if version_specific_path.is_file():
-            # Ok, it exists. Use this path instead.
-            fixture_path = version_specific_path
+    dbt_version_specific_fixture_folder = "dbt_utils_0.8.0"
+    # Determine where it would exist.
+    version_specific_path = (
+        Path(template_output_folder_path) / dbt_version_specific_fixture_folder / fname
+    )
+    if version_specific_path.is_file():
+        # Ok, it exists. Use this path instead.
+        fixture_path = version_specific_path
     return fixture_path
 
 

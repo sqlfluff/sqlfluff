@@ -6,6 +6,7 @@ from typing import Iterator, List, Optional
 
 from dbt.clients import jinja
 from dbt.exceptions import CompilationException as DbtCompilationException
+from dbt.flags import PROFILES_DIR
 from dbt.version import get_installed_version
 from jinja2_simple_tags import StandaloneTag
 
@@ -21,12 +22,6 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
-DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
-
-if DBT_VERSION_TUPLE >= (1, 0):
-    from dbt.flags import PROFILES_DIR
-else:
-    from dbt.config.profile import PROFILES_DIR
 
 
 class DbtTemplater(JinjaTemplater):
