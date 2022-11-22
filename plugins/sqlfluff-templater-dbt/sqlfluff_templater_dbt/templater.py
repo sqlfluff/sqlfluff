@@ -233,7 +233,9 @@ class DbtTemplater(JinjaTemplater):
         env = jinja.get_environment(compiled_node)
         env.add_extension(SnapshotExtension)
         compiled_sql = compiled_node.compiled_sql
-        make_template = lambda _in_str: env.from_string(_in_str, globals=ctx)
+
+        def make_template(_in_str):
+            return env.from_string(_in_str, globals=ctx)
 
         # Need compiled
         if not compiled_sql:  # pragma: no cover
