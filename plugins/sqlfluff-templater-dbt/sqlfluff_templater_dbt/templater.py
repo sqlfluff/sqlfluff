@@ -97,6 +97,18 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_project_dir
 
+    def _get_profile(self):
+        """Get a dbt profile name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "profile")
+        )
+
+    def _get_target(self):
+        """Get a dbt target name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "target")
+        )
+
     def _get_cli_vars(self) -> str:
         cli_vars = self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "context")
