@@ -213,6 +213,8 @@ class DbtTemplater(JinjaTemplater):
             self.project_dir
         )
         if not osmosis_dbt_project:
+            if not self.profiles_dir:
+                self.profiles_dir = self._get_profiles_dir()
             osmosis_dbt_project = self.dbt_project_container.add_project(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
