@@ -76,7 +76,7 @@ class JinjaTracer:
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
         # Split output by section. Each section has two possible formats.
-        trace_entries = list(regex.finditer(r"\0", trace_template_output))
+        trace_entries = list(regex.finditer(r"\0", trace_template_output))  # type: ignore[call-overload]
         for match_idx, match in enumerate(trace_entries):
             pos1 = match.span()[0]
             try:
