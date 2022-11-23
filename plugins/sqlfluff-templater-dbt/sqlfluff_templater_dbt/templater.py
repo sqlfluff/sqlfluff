@@ -1,4 +1,9 @@
-"""Defines the dbt templater (aka 'sqlfluff-templater-dbt' package)."""
+"""Defines the dbt templater (aka 'sqlfluff-templater-dbt' package).
+
+Parts of this file are based on dbt-osmosis' dbt templater.
+(https://github.com/z3z1ma/dbt-osmosis/blob/main/src/dbt_osmosis/dbt_templater/templater.py)
+That project uses the Apache 2.0 license: https://www.apache.org/licenses/LICENSE-2.0
+"""
 import logging
 import os.path
 from pathlib import Path
