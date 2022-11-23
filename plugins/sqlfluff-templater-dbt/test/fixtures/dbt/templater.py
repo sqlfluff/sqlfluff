@@ -31,4 +31,6 @@ def project_dir():
 @pytest.fixture()
 def dbt_templater():
     """Returns an instance of the DbtTemplater."""
-    return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
+    templater = FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
+    templater.dbt_project_container.drop_all_projects()
+    return templater
