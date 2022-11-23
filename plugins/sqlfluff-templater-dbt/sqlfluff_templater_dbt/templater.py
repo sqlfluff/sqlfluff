@@ -205,9 +205,12 @@ class DbtTemplater(JinjaTemplater):
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
     ):
         # Get project
+        # Get project_dir from '.sqlfluff' config file
+        self.project_dir = config.get_section(
+            (self.templater_selector, self.name, "project_dir")
+        )
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
-            # Get project_dir from '.sqlfluff' config file
-            config.get_section((self.templater_selector, self.name, "project_dir"))
+            self.project_dir
         )
         if not osmosis_dbt_project:
             osmosis_dbt_project = self.dbt_project_container.add_project(
