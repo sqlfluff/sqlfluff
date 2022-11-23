@@ -569,11 +569,14 @@ class DbtProject:
         finally:
             self._clear_node(temp_node_id)
 
-    def compile_node(self, node: ManifestNode) -> DbtAdapterCompilationResult:
-        """Compiles existing node."""
+    def compile(self, node: ManifestNode):
         self.sql_compiler.node = node
         # this is essentially a convenient wrapper to adapter.get_compiler
-        compiled_node = self.sql_compiler.compile(self.dbt)
+        return self.sql_compiler.compile(self.dbt)
+
+    def compile_node(self, node: ManifestNode) -> DbtAdapterCompilationResult:
+        """Compiles existing node."""
+        compiled_node = self.compile(node)
         return DbtAdapterCompilationResult(
             getattr(compiled_node, RAW_CODE),
             getattr(compiled_node, COMPILED_CODE),

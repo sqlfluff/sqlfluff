@@ -22,6 +22,14 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
+DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
+
+if DBT_VERSION_TUPLE >= (1, 3):
+    COMPILED_SQL_ATTRIBUTE = "compiled_code"
+    RAW_SQL_ATTRIBUTE = "raw_code"
+else:
+    COMPILED_SQL_ATTRIBUTE = "compiled_sql"
+    RAW_SQL_ATTRIBUTE = "raw_sql"
 
 
 class DbtTemplater(JinjaTemplater):
@@ -89,21 +97,6 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_project_dir
 
-    # TODO: Remove this?
-    def _get_profile(self):
-        """Get a dbt profile name from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "profile")
-        )
-
-    # TODO: Remove this?
-    def _get_target(self):
-        """Get a dbt target name from the configuration."""
-        return self.sqlfluff_config.get_section(
-            (self.templater_selector, self.name, "target")
-        )
-
-    # TODO: Remove this?
     def _get_cli_vars(self) -> str:
         cli_vars = self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "context")
@@ -216,14 +209,20 @@ class DbtTemplater(JinjaTemplater):
         if fpath.exists() and not in_str:
             in_str = fpath.read_text()
 
+        self.dbt_config = osmosis_dbt_project.config
         node = self._find_node(osmosis_dbt_project, fname)
-        compiled_node = osmosis_dbt_project.compile_node(node)
-
+        node = osmosis_dbt_project.compile(node)
         # Generate context
         ctx = osmosis_dbt_project.generate_runtime_model_context(node)
-        env = jinja.get_environment(compiled_node)
+        env = jinja.get_environment(node)
         env.add_extension(SnapshotExtension)
-        compiled_sql = compiled_node.compiled_sql
+        if hasattr(node, "injected_sql"):
+            # If injected SQL is present, it contains a better picture
+            # of what will actually hit the database (e.g. with tests).
+            # However it's not always present.
+            compiled_sql = node.injected_sql
+        else:
+            compiled_sql = getattr(node, COMPILED_SQL_ATTRIBUTE)
 
         def make_template(_in_str):
             return env.from_string(_in_str, globals=ctx)
