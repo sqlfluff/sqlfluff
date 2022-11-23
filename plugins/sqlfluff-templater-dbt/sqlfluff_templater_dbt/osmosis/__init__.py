@@ -46,6 +46,7 @@ from dbt.clients import jinja  # monkey-patched for perf
 from dbt.config.runtime import RuntimeConfig
 from dbt.context.providers import generate_runtime_model_context
 from dbt.contracts.connection import AdapterResponse
+from dbt.contracts.graph.compiled import CompiledModelNode
 from dbt.contracts.graph.manifest import (
     ManifestNode,
     MaybeNonSource,
@@ -570,9 +571,12 @@ class DbtProject:
             self._clear_node(temp_node_id)
 
     def compile(self, node: ManifestNode):
-        self.sql_compiler.node = node
-        # this is essentially a convenient wrapper to adapter.get_compiler
-        return self.sql_compiler.compile(self.dbt)
+        if not isinstance(node, CompiledModelNode):
+            self.sql_compiler.node = node
+            # this is essentially a convenient wrapper to adapter.get_compiler
+            return self.sql_compiler.compile(self.dbt)
+        else:
+            return node
 
     def compile_node(self, node: ManifestNode) -> DbtAdapterCompilationResult:
         """Compiles existing node."""
