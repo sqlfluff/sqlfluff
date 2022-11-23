@@ -215,6 +215,8 @@ class DbtTemplater(JinjaTemplater):
         if not osmosis_dbt_project:
             if not self.profiles_dir:
                 self.profiles_dir = self._get_profiles_dir()
+            assert self.project_dir
+            assert self.profiles_dir
             osmosis_dbt_project = self.dbt_project_container.add_project(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
@@ -228,7 +230,7 @@ class DbtTemplater(JinjaTemplater):
 
         self.dbt_config = osmosis_dbt_project.config
         node = self._find_node(osmosis_dbt_project, fname)
-        node = osmosis_dbt_project.compile(node)
+        node = osmosis_dbt_project.compile_node(node).node
         # Generate context
         ctx = osmosis_dbt_project.generate_runtime_model_context(node)
         env = jinja.get_environment(node)
