@@ -192,7 +192,7 @@ snowflake_dialect.add(
         type="variable",
     ),
     ReferencedVariableNameSegment=RegexParser(
-        r"\$[A-Z][A-Z0-9_]*",
+        r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
         type="variable",
         trim_chars=("$"),
