@@ -1084,7 +1084,7 @@ def lint_line_length(
             balance = 0
             # Expect fractional keys, because of the half values for
             # rebreak points.
-            matched_indents: defaultdict[float, List[ReflowPoint]] = defaultdict(list)
+            matched_indents: defaultdict[float, List[int]] = defaultdict(list)
             for idx, e in enumerate(line_elements):
                 # We only care about points, because only they contain indents.
                 if not isinstance(e, ReflowPoint):
@@ -1095,16 +1095,21 @@ def lint_line_length(
                 # it's positive or negative.
                 # reflow_logger.warning("ELEM: %s", e)
                 indent_stats = e.get_indent_impulse()
+                # TODO: Better isolation and test coverage of this
+                # indexing maths. Very easy to get wrong. Necessary
+                # so we don't mistake empty elements, but potentially
+                # fragile nonetheless.
+                e_idx = i - len(line_elements) + idx + 1
                 if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
                     # in case of more than one indent we loop and apply to all.
                     for b in range(0, indent_stats[1], -1):
-                        matched_indents[(balance + b) * 1.0].append(e)
+                        matched_indents[(balance + b) * 1.0].append(e_idx)
                         # reflow_logger.warning("   BAL A: %s", balance + b)
                     balance += indent_stats[1]
                 elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
                     # in case of more than one indent we loop and apply to all.
                     for b in range(0, indent_stats[0]):
-                        matched_indents[(balance + b + 1) * 1.0].append(e)
+                        matched_indents[(balance + b + 1) * 1.0].append(e_idx)
                         # reflow_logger.warning("   BAL B: %s", balance + b)
                     balance += indent_stats[0]
                 elif idx in rebreak_indices:
@@ -1114,7 +1119,7 @@ def lint_line_length(
                     # content, but don't necessarily split them when their
                     # container is split.
                     # reflow_logger.warning("   BAL C: %s", balance)
-                    matched_indents[balance + 0.5].append(e)
+                    matched_indents[balance + 0.5].append(e_idx)
                 else:
                     continue
 
@@ -1127,7 +1132,7 @@ def lint_line_length(
                 #     indent_level,
                 #     matched_indents[indent_level],
                 # )
-                if matched_indents[indent_level] == [elem]:
+                if matched_indents[indent_level] == [i]:
                     matched_indents.pop(indent_level)
                     reflow_logger.debug(
                         "    purging balance of %s, it references only the "
@@ -1233,13 +1238,14 @@ def lint_line_length(
                     desired_indent,
                     matched_indents[target_balance],
                 )
-                # TODO: This is messy, should just use indices FROM THE START.
                 line_results: List[LintResult] = []
-                for e in matched_indents[target_balance]:
+                for e_idx in matched_indents[target_balance]:
                     # If the option is the final element. Don't touch it, because
                     # there's already an indent there.
-                    if e is elem:
+                    if e_idx == i:
                         continue
+
+                    e = cast(ReflowPoint, elements[e_idx])
 
                     # We need to check for negative sections so they get the right
                     # indent (otherwise they'll be over indented).
@@ -1250,7 +1256,6 @@ def lint_line_length(
                     else:
                         new_indent = desired_indent
 
-                    e_idx = elements.index(e)
                     new_results, new_point = e.indent_to(
                         new_indent,
                         after=elements[e_idx - 1].segments[-1],

@@ -92,6 +92,28 @@ class PositionMarker:
         )
 
     @classmethod
+    def from_points(
+        cls,
+        start_point_marker: "PositionMarker",
+        end_point_marker: "PositionMarker",
+    ):
+        """Construct a position marker from the section between two points."""
+        assert start_point_marker.templated_file == end_point_marker.templated_file
+        return cls(
+            slice(
+                start_point_marker.source_slice.start,
+                end_point_marker.source_slice.stop,
+            ),
+            slice(
+                start_point_marker.templated_slice.start,
+                end_point_marker.templated_slice.stop,
+            ),
+            start_point_marker.templated_file,
+            start_point_marker.working_line_no,
+            start_point_marker.working_line_pos,
+        )
+
+    @classmethod
     def from_child_markers(cls, *markers):
         """Create a parent marker from it's children."""
         source_slice = slice(

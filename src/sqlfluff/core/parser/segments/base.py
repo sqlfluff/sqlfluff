@@ -620,26 +620,40 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:
                 # Can we get a position from the previous?
+                start_point = None
                 if idx > 0:
                     prev_seg = segment_buffer[idx - 1]
                     # Given we're going back in the buffer we should
                     # have set the position marker for everything already
                     # in there. This is mostly a hint to mypy.
                     assert prev_seg.pos_marker
-                    repositioned_seg.pos_marker = prev_seg.pos_marker.end_point_marker()
+                    start_point = prev_seg.pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
-                    repositioned_seg.pos_marker = parent_pos.start_point_marker()
-                # Search forward for a following one, if we have to?
-                else:
-                    for fwd_seg in segments[idx + 1 :]:
-                        if fwd_seg.pos_marker:
-                            repositioned_seg.pos_marker = (
-                                fwd_seg.pos_marker.start_point_marker()
-                            )
-                            break
-                    else:  # pragma: no cover
-                        raise ValueError("Unable to position new segment")
+                    start_point = parent_pos.start_point_marker()
+
+                # Search forward for the end point
+                end_point = None
+                for fwd_seg in segments[idx + 1 :]:
+                    if fwd_seg.pos_marker:
+                        end_point = fwd_seg.pos_marker.start_point_marker()
+                        break
+
+                if start_point and end_point and start_point != end_point:
+                    # We should construct a wider position marker.
+                    repositioned_seg.pos_marker = PositionMarker.from_points(
+                        start_point,
+                        end_point,
+                    )
+                # If we have start point (or if they were equal above),
+                # just apply start point.
+                elif start_point:
+                    repositioned_seg.pos_marker = start_point
+                # Do we have an end?
+                elif end_point:
+                    repositioned_seg.pos_marker = end_point
+                else:  # pragma: no cover
+                    raise ValueError("Unable to position new segment")
 
             assert repositioned_seg.pos_marker  # hint for mypy
             # Update the working position.
