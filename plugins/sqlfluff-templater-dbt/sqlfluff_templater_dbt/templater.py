@@ -1,4 +1,4 @@
-"""Defines the dbt_osmosis templater."""
+"""Defines the dbt templater (aka 'sqlfluff-templater-dbt' package)."""
 import logging
 import os.path
 from pathlib import Path
@@ -33,11 +33,8 @@ else:
 
 
 class DbtTemplater(JinjaTemplater):
-    """dbt templater for dbt-osmosis, based on sqlfluff-templater-dbt."""
+    """A templater using dbt."""
 
-    # Same templater name as sqlfluff-templater-dbt. It is functionally
-    # equivalent to that templater, but optimized for dbt-osmosis. The two
-    # templaters cannot be installed in the same virtualenv.
     name = "dbt"
 
     def __init__(self, **kwargs):
