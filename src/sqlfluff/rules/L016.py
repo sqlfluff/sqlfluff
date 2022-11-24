@@ -1,6 +1,8 @@
 """Implementation of Rule L016."""
 
-from typing import List
+from typing import List, cast
+
+from sqlfluff.core.parser.segments import TemplateSegment
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.base import BaseRule
@@ -22,6 +24,7 @@ class Rule_L016(BaseRule):
 
     groups = ("all", "core")
     crawl_behaviour = RootOnlyCrawler()
+    targets_templated = True
     _adjust_anchors = True
     _check_docstring = False
 
@@ -94,6 +97,17 @@ class Rule_L016(BaseRule):
                     if seg.is_type("comment"):
                         self.logger.debug(
                             "Purging result on long line containing comment: %s",
+                            res.anchor.pos_marker.working_line_no,
+                        )
+                        results.remove(res)
+                        break
+                    # Is it a template comment?
+                    elif (
+                        seg.is_type("placeholder")
+                        and cast(TemplateSegment, seg).block_type == "comment"
+                    ):
+                        self.logger.debug(
+                            "Purging result with template comment line: %s",
                             res.anchor.pos_marker.working_line_no,
                         )
                         results.remove(res)

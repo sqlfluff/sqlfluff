@@ -1140,6 +1140,8 @@ def lint_line_length(
                         indent_level,
                     )
 
+            reflow_logger.debug("    matched_indents: %s", matched_indents)
+
             # If we don't have any matched_indents, we don't have any options.
             # This could be for things like comment lines. We have
             desc = f"Line is too long ({line_len} > {line_length_limit})."
@@ -1155,6 +1157,7 @@ def lint_line_length(
                 and len(line_buffer[-1].segments[-1].raw) + len(current_indent)
                 <= line_length_limit
             ):
+                reflow_logger.debug("    Handling as comment line.")
                 comment_seg = line_buffer[-1].segments[-1]
                 # Is it an inline comment?
                 if not comment_seg.is_type("inline_comment"):
@@ -1230,12 +1233,14 @@ def lint_line_length(
             elif not matched_indents:
                 # NOTE: In this case we have no options for shortening the line.
                 # We'll still report a linting issue - but no fixes are provided.
+                reflow_logger.debug("    Handling as unfixable line.")
                 fixes = []
 
             # Lastly deal with the "normal" case.
             else:
                 # As a blunt solution, force indents at the lowest available
                 # option.
+                reflow_logger.debug("    Handling as normal line.")
                 # TODO: Make this more elegant later, with the option to
                 # potentially add linebreaks at more than one level.
                 # TODO: Double indents (or more likely dedents) will be

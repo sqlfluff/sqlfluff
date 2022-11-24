@@ -129,7 +129,7 @@ test_compute_line_length_before_template_expansion_2:
           table_alias_table_alias_table_alias_table_alias_table_alias_table_alias: t
 
 
-test_long_jina_comment:
+test_long_jinja_comment:
   fail_str: |
     SELECT *
     {# comment #}
@@ -143,9 +143,9 @@ test_long_jina_comment:
         ignore_comment_lines: false
 
 
-test_long_jina_comment_ignore:
-  # A Jinja comment is not seen as a SQL comment (perhaps it should be?) so should still fail
-  fail_str: |
+test_long_jinja_comment_ignore:
+  # A Jinja comment is a comment.
+  pass_str: |
     SELECT *
     {# comment #}
     {# ........................................................................... #}
