@@ -320,7 +320,7 @@ test_pass_ignore_comment_clauses_postgres:
       L016:
         ignore_comment_clauses: true
 
-test_fail_templated_comment_clause:
+test_fail_templated_comment_line:
   fail_str: |
     SELECT *
         {# ........................................................................... #}
@@ -330,7 +330,10 @@ test_fail_templated_comment_clause:
       jinja:
         context: {}
 
-test_pass_ignore_templated_comment_clause:
+test_pass_ignore_templated_comment_lines:
+  # NOTE: This is potentially a behaviour change in 2.0.0.
+  # This was erroneously using the `ignore_comment_clauses`
+  # config when this query contains no comment clauses.
   pass_str: |
     SELECT *
         {# ........................................................................... #}
@@ -338,7 +341,7 @@ test_pass_ignore_templated_comment_clause:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: true
+        ignore_comment_lines: true
     templater:
       jinja:
         context: {}
