@@ -616,7 +616,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
-            repositioned_seg = copy(segment)
+            repositioned_seg = segment.copy()
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:
                 # Can we get a position from the previous?
@@ -973,6 +973,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def copy(self):
         """Copy the segment recursively, with appropriate copying of references."""
         new_seg = copy(self)
+        # Position markers are immutable, and it's important that we keep
+        # a reference to the same TemplatedFile, so keep the same position
+        # marker.
+        new_seg.pos_marker = self.pos_marker
         if self.segments:
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg

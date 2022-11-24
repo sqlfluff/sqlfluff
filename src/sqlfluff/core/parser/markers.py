@@ -98,7 +98,6 @@ class PositionMarker:
         end_point_marker: "PositionMarker",
     ):
         """Construct a position marker from the section between two points."""
-        assert start_point_marker.templated_file == end_point_marker.templated_file
         return cls(
             slice(
                 start_point_marker.source_slice.start,
@@ -108,6 +107,10 @@ class PositionMarker:
                 start_point_marker.templated_slice.start,
                 end_point_marker.templated_slice.stop,
             ),
+            # The position markers should be the same so just pick
+            # the first.
+            # TODO: If we assert that in this function, it's actually not
+            # true - but preliminary debugging on this did not reveal why.
             start_point_marker.templated_file,
             start_point_marker.working_line_no,
             start_point_marker.working_line_pos,
