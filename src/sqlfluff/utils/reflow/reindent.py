@@ -948,6 +948,9 @@ def _source_char_len(elements: ReflowSequenceType):
     with other fixes. If we find segments without positions
     then it will probably error. Those will need ironing
     out.
+
+    TODO: This probably needs more tests. It's already
+    the source of quite a few fiddly sections.
     """
     char_len = 0
     last_source_slice: Optional[slice] = None
@@ -962,6 +965,10 @@ def _source_char_len(elements: ReflowSequenceType):
             if seg.raw and not slice_len:
                 char_len += len(seg.raw)
                 # NOTE: Don't update the last_source_slice.
+            elif not slice_len:
+                # If it's not got a raw and no length, it's a
+                # distraction. Ignore it. It's probably a meta.
+                continue
             # Otherwise if we're literal, use the raw length
             # because it might be an edit.
             elif seg.pos_marker.is_literal():
