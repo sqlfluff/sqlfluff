@@ -70,7 +70,34 @@ class Rule_L016(BaseRule):
 
         # Ignore any comment line if appropriate.
         if self.ignore_comment_lines:
-            results = [res for res in results if not res.anchor.is_type("comment")]
+            raw_segments = context.segment.raw_segments
+            for res in results[:]:
+                # First handle the easy case that the anchor (i.e. the start
+                # of the line in a comment).
+                if res.anchor.is_type("comment"):
+                    self.logger.debug(
+                        "Purging result on long line starting with comment: %s",
+                        res.anchor.pos_marker.working_line_no,
+                    )
+                    results.remove(res)
+                    continue
+                # Then look for comments on the rest of the line:
+                raw_idx = raw_segments.index(res.anchor)
+                for _, seg in enumerate(raw_segments[raw_idx:], raw_idx):
+                    if (
+                        seg.pos_marker.working_line_no
+                        != res.anchor.pos_marker.working_line_no
+                    ):
+                        # We've gone past the end of the line. Stop looking.
+                        break
+                    # Is it a comment?
+                    if seg.is_type("comment"):
+                        self.logger.debug(
+                            "Purging result on long line containing comment: %s",
+                            res.anchor.pos_marker.working_line_no,
+                        )
+                        results.remove(res)
+                        break
 
         # Ignore any comment clauses if present.
         if self.ignore_comment_clauses:
@@ -80,7 +107,7 @@ class Rule_L016(BaseRule):
                 # until we're not on the line. Check if any have a parent which
                 # is a comment_clause.
                 raw_idx = raw_segments.index(res.anchor)
-                for idx, seg in enumerate(raw_segments[raw_idx:], raw_idx):
+                for _, seg in enumerate(raw_segments[raw_idx:], raw_idx):
                     path = context.segment.path_to(seg)
                     if (
                         seg.pos_marker.working_line_no
