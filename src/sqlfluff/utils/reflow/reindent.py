@@ -1144,8 +1144,17 @@ def lint_line_length(
             # This could be for things like comment lines. We have
             desc = f"Line is too long ({line_len} > {line_length_limit})."
             # Easiest option are lines ending with comments, but that aren't *all*
-            # comments. Deal with them first.
-            if len(line_buffer) > 1 and line_buffer[-1].segments[-1].is_type("comment"):
+            # comments and the comment itself is shorter than the limit.
+            # The reason for that last clause is that if the comment (plus an indent)
+            # is already longer than the limit, then there's no point just putting it
+            # on a new line - it will still fail - so it doesn't actually fix the issue.
+            # Deal with them first.
+            if (
+                len(line_buffer) > 1
+                and line_buffer[-1].segments[-1].is_type("comment")
+                and len(line_buffer[-1].segments[-1].raw) + len(current_indent)
+                <= line_length_limit
+            ):
                 comment_seg = line_buffer[-1].segments[-1]
                 # Is it an inline comment?
                 if not comment_seg.is_type("inline_comment"):
@@ -1164,8 +1173,12 @@ def lint_line_length(
                 # Reinsert it at the start of the current line, with a newline after it.
                 if last_indent_idx:
                     fixes.append(
-                        LintFix.create_after(
-                            elements[last_indent_idx].segments[-1],
+                        # NOTE: This looks a little convoluted, but we create *before*
+                        # a block here rather than *after* a point, because the point
+                        # may have been modified already by reflow code a may not be
+                        # a reliable anchor.
+                        LintFix.create_before(
+                            elements[last_indent_idx + 1].segments[0],
                             [
                                 comment_seg,
                                 NewlineSegment(),

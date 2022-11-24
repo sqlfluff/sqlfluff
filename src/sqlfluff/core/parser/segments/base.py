@@ -1105,7 +1105,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         no_recursive_seg_type=no_recursive_seg_type,
                     )
 
-    def path_to(self, other) -> List[PathStep]:
+    def path_to(self, other: "BaseSegment") -> List[PathStep]:
         """Given a segment which is assumed within self, get the intermediate segments.
 
         Returns:
@@ -1126,7 +1126,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return []  # pragma: no cover
 
         # Are we in the right ballpark?
-        # NB: Comparisons have a higher precedence than `not`.
+        # NOTE: Comparisons have a higher precedence than `not`.
         if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
             return []
 
