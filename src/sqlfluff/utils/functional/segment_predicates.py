@@ -13,10 +13,7 @@ from typing import Callable, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 from sqlfluff.utils.functional.templated_file_slices import TemplatedFileSlices
-from sqlfluff.core.templaters.base import (
-    TemplatedFile,
-    TemplatedFileSlice,
-)
+from sqlfluff.core.templaters.base import TemplatedFile
 
 
 def raw_is(*raws: str) -> Callable[[BaseSegment], bool]:  # pragma: no cover
