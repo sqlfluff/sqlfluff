@@ -16,7 +16,6 @@ from sqlfluff.utils.functional.templated_file_slices import TemplatedFileSlices
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
-    TemplatedFileSlice,
 )
 
 
@@ -193,7 +192,6 @@ def templated_slices(
     # want it. It's easy enough to do this ourselves.
     start = segment.pos_marker.templated_slice.start
     stop = segment.pos_marker.templated_slice.stop
-    slice_: TemplatedFileSlice
     templated_slices = [
         slice_
         for slice_ in templated_file.sliced_file
