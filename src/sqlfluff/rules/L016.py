@@ -80,7 +80,7 @@ class Rule_L016(BaseRule):
                 # until we're not on the line. Check if any have a parent which
                 # is a comment_clause.
                 raw_idx = raw_segments.index(res.anchor)
-                for idx, seg in enumerate(raw_segments, raw_idx):
+                for idx, seg in enumerate(raw_segments[raw_idx:], raw_idx):
                     path = context.segment.path_to(seg)
                     if (
                         seg.pos_marker.working_line_no
@@ -88,10 +88,41 @@ class Rule_L016(BaseRule):
                     ):
                         # We've gone past the end of the line. Stop looking.
                         break
-                    # Is it in a comment clause?
-                    elif any(ps.segment.is_type("comment_clause") for ps in path):
-                        # It IS! Ok, purge this result from results.
-                        results.remove(res)
-                        break
+                    # Look to see if any are in comment clauses
+                    for ps in path:
+                        if ps.segment.is_type(
+                            "comment_clause", "comment_equals_clause"
+                        ):
+                            # It IS! Ok, purge this result from results, unless
+                            # the line is already too long without the comment.
+                            # We'll know that based on the line position of
+                            # the comment.
+                            # We can fairly confidently assert that the segment
+                            # will have a position marker at this stage.
+                            assert ps.segment.pos_marker
+                            line_pos = ps.segment.pos_marker.working_line_pos
+                            if line_pos < context.config.get(
+                                "max_line_length", ["indentation"]
+                            ):
+                                # OK purge it.
+                                self.logger.debug(
+                                    "Purging result on long line with comment "
+                                    "clause: %s",
+                                    res.anchor.pos_marker.working_line_no,
+                                )
+                                results.remove(res)
+                                break
+                            self.logger.debug(
+                                "Keeping result on long line with comment clause. "
+                                "Still too long without comment: %s",
+                                res.anchor.pos_marker.working_line_no,
+                            )
+                    # If we finish the loop without breaking, we didn't find a
+                    # comment. Keep looking.
+                    else:
+                        continue
+                    # If we did finish with a break, we should break the outer
+                    # loop too.
+                    break
 
         return results
