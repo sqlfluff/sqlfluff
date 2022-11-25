@@ -1168,15 +1168,14 @@ def lint_line_length(
             # Deal with them first.
             if (
                 len(line_buffer) > 1
-                and line_buffer[-1].segments[-1].is_type("comment")
+                # We can only fix _inline_ comments in this way. Others should
+                # just be flagged as issues.
+                and line_buffer[-1].segments[-1].is_type("inline_comment")
                 and len(line_buffer[-1].segments[-1].raw) + len(current_indent)
                 <= line_length_limit
             ):
-                reflow_logger.debug("    Handling as comment line.")
+                reflow_logger.debug("    Handling as inline comment line.")
                 comment_seg = line_buffer[-1].segments[-1]
-                # Is it an inline comment?
-                if not comment_seg.is_type("inline_comment"):
-                    raise NotImplementedError("UNABLE TO HANDLE NON INLINE COMMENTS...")
                 # It is! Move the comment to the line before.
                 fixes = [
                     # Remove the comment from it's current position, and any whitespace
