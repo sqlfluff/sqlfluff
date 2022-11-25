@@ -87,7 +87,7 @@ class LintedFile(NamedTuple):
                 new_violations.append(v)
                 dedupe_buffer.add(signature)
             else:
-                linter_logger.debug("Removing duplicate source violation: %s", v)
+                linter_logger.debug("Removing duplicate source violation: %r", v)
         return new_violations
 
     def get_violations(

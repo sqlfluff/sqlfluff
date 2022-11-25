@@ -632,11 +632,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 elif parent_pos:
                     start_point = parent_pos.start_point_marker()
 
-                # Search forward for the end point
+                # Search forward for the end point.
                 end_point = None
                 for fwd_seg in segments[idx + 1 :]:
                     if fwd_seg.pos_marker:
-                        end_point = fwd_seg.pos_marker.start_point_marker()
+                        # NOTE: Use raw segments because it's more reliable.
+                        end_point = fwd_seg.raw_segments[
+                            0
+                        ].pos_marker.start_point_marker()
                         break
 
                 if start_point and end_point and start_point != end_point:
@@ -1356,11 +1359,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
+                                consumed_pos = False
                                 if isinstance(f.edit, BaseSegment):
                                     seg_buffer.append(f.edit)  # pragma: no cover TODO?
                                 else:
                                     for s in f.edit:
                                         seg_buffer.append(s)
+                                        # If one of them has the same raw representation
+                                        # then the first that matches gets to take the
+                                        # original position marker.
+                                        if (
+                                            f.edit_type == "replace"
+                                            and s.raw == seg.raw
+                                            and not consumed_pos
+                                        ):
+                                            seg_buffer[-1].pos_marker = seg.pos_marker
+                                            consumed_pos = True
 
                                 if f.edit_type == "create_before":
                                     # in the case of a creation before, also add this
