@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 39629dee06d496a320e2411dc81f4be7c0f93955ffdf0ba2bfcc84ef46079ee0
+file:
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - raw: SELECT
+    - numeric_literal: '1'
+    - raw: AS
+    - double_quote: '"id"'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              keyword: AS
+              quoted_identifier: '"id"'
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - raw: SELECT
+    - single_quote: "'{\"a\": 1}'"
+    - raw: '::'
+    - raw: json
+    - raw: AS
+    - double_quote: '"id"'
+- statement_terminator: ;
