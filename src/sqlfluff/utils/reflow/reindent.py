@@ -3,7 +3,7 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Set, Tuple, cast, Dict
+from typing import Iterator, List, Optional, Set, Tuple, cast, Dict, DefaultDict
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -1036,7 +1036,7 @@ def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: Dict[int, int],
     newline_idx: int,
-) -> defaultdict[float, List[int]]:
+) -> DefaultDict[float, List[int]]:
     """Identify indent points, taking into account rebreak_priorities.
 
     Expect fractional keys, because of the half values for
@@ -1045,7 +1045,7 @@ def _match_indents(
     balance = 0
     # Expect fractional keys, because of the half values for
     # rebreak points.
-    matched_indents: defaultdict[float, List[int]] = defaultdict(list)
+    matched_indents: DefaultDict[float, List[int]] = defaultdict(list)
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
