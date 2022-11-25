@@ -94,8 +94,22 @@ class Rule_L034(BaseRule):
             "insert_statement", "set_expression"
         ):
             return None
+        if (
+            len(context.parent_stack) >= 3
+            and context.parent_stack[-3].is_type("insert_statement", "set_expression")
+            and context.parent_stack[-2].is_type("with_compound_statement")
+        ):
+            return None
         if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
             "create_table_statement", "merge_statement"
+        ):
+            return None
+        if (
+            len(context.parent_stack) >= 4
+            and context.parent_stack[-4].is_type(
+                "create_table_statement", "merge_statement"
+            )
+            and context.parent_stack[-2].is_type("with_compound_statement")
         ):
             return None
 
