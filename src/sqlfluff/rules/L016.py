@@ -43,10 +43,7 @@ class Rule_L016(BaseRule):
             .reindent()
             .get_results()
         )
-        # self.logger.warning("RAW RESULTS: %s", results)
-        # for res in results:
-        #     for f in res.fixes or []:
-        #         self.logger.warning("FX: %s", f)
+
         # Filter only to results which with the long line flag,
         # or to other indent ones on the same line as those.
         fixable_long_lines = set(

@@ -395,7 +395,6 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
     the following non-comment element.
     """
     reflow_logger.debug("# Revise comment lines.")
-    # new_lines: List[_ReindentLine] = []
     comment_line_buffer: List[int] = []
 
     # Slice to avoid copying
@@ -1003,11 +1002,6 @@ def lint_line_length(
     assume that the current indent is correct and that indents
     have already been inserted where they're missing.
     """
-    # TODO: Outstanding questions:
-    # 1. Template loop segments should probably exclude a line.
-    # 2. Need to handle lengths in the source for template elements.
-    #    [probably lots of testing too]
-
     # First check whether we should even be running this check.
     if line_length_limit <= 0:
         reflow_logger.debug("# Line length check disabled.")
@@ -1095,8 +1089,12 @@ def lint_line_length(
                         "Unexpected line position: %s", span.line_position
                     )
                 rebreak_indices.append(rebreak_idx)
-                # TODO: This should probably be configuration but we'll hard
-                # code it for now to prove the concept.
+                # NOTE: Operator precedence here is hard coded. It could be
+                # moved to configuration in the layout section in the future.
+                # Operator precedence is fairly consistent between dialects
+                # so for now it feels ok that it's coded here - it also wouldn't
+                # be a breaking change at that point so no pressure to release
+                # it early.
                 span_raw = span.target.raw
                 priority = 6  # Default to 6 for now i.e. the same as '+'
                 # Override priority for specific precedence.
@@ -1129,7 +1127,6 @@ def lint_line_length(
                 # As usual, indents are referred to by their "uphill" side
                 # so what number we store the point against depends on whether
                 # it's positive or negative.
-                # reflow_logger.warning("ELEM: %s", e)
                 indent_stats = e.get_indent_impulse()
                 # TODO: Better isolation and test coverage of this
                 # indexing maths. Very easy to get wrong. Necessary
@@ -1140,13 +1137,11 @@ def lint_line_length(
                     # in case of more than one indent we loop and apply to all.
                     for b in range(0, indent_stats[1], -1):
                         matched_indents[(balance + b) * 1.0].append(e_idx)
-                        # reflow_logger.warning("   BAL A: %s", balance + b)
                     balance += indent_stats[1]
                 elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
                     # in case of more than one indent we loop and apply to all.
                     for b in range(0, indent_stats[0]):
                         matched_indents[(balance + b + 1) * 1.0].append(e_idx)
-                        # reflow_logger.warning("   BAL B: %s", balance + b)
                     balance += indent_stats[0]
                 elif idx in rebreak_indices:
                     # For potential rebreak options (i.e. ones without an indent)
@@ -1154,10 +1149,10 @@ def lint_line_length(
                     # options. that means we split them before any of their
                     # content, but don't necessarily split them when their
                     # container is split.
-                    # reflow_logger.warning("   BAL C: %s", balance)
 
                     # Also to spread out the breaks within an indent, we further
-                    # add hints to distinguish between then.
+                    # add hints to distinguish between then. This is where operator
+                    # precedence (as defined above) actually comes into effect.
                     priority = rebreak_priority[idx]
                     # Assume `priority` in range 0 - 50. So / 100 to add to 0.5.
                     matched_indents[balance + 0.5 + (priority / 100)].append(e_idx)
@@ -1168,11 +1163,6 @@ def lint_line_length(
             # ONLY the final point. That's because adding indents there won't
             # actually help the line length. There's *already* a newline there.
             for indent_level in list(matched_indents.keys()):
-                # reflow_logger.warning(
-                #     "INDENT LEV: %s. PTS: %s",
-                #     indent_level,
-                #     matched_indents[indent_level],
-                # )
                 if matched_indents[indent_level] == [i]:
                     matched_indents.pop(indent_level)
                     reflow_logger.debug(
