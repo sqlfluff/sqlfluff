@@ -300,7 +300,7 @@ class ReflowPoint(ReflowElement):
                         indent_seg.pos_marker.templated_slice,
                     )
                 ],
-                source_str=indent_seg.source_str[: -len(current_indent)]
+                source_str=indent_seg.source_str[: -len(current_indent) + 1]
                 + desired_indent,
             )
             new_segments = [
