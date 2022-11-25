@@ -1083,16 +1083,37 @@ def lint_line_length(
             # The index to insert a potential indent at depends on the
             # line_position of the span. Infer that here and store the indices
             # in the elements.
+            rebreak_priority = {}
             rebreak_indices = []
             for span in spans:
                 if span.line_position == "leading":
-                    rebreak_indices.append(span.start_idx - 1)
+                    rebreak_idx = span.start_idx - 1
                 elif span.line_position == "trailing":
-                    rebreak_indices.append(span.end_idx + 1)
+                    rebreak_idx = span.end_idx + 1
                 else:
                     raise NotImplementedError(
                         "Unexpected line position: %s", span.line_position
                     )
+                rebreak_indices.append(rebreak_idx)
+                # TODO: This should probably be configuration but we'll hard
+                # code it for now to prove the concept.
+                span_raw = span.target.raw
+                priority = 6  # Default to 6 for now i.e. the same as '+'
+                # Override priority for specific precedence.
+                if span_raw == ",":
+                    priority = 1
+                elif span.target.is_type("assignment_operator"):
+                    priority = 2
+                elif span_raw == "OR":
+                    priority = 3
+                elif span_raw == "AND":
+                    priority = 4
+                elif span.target.is_type("comparison_operator"):
+                    priority = 5
+                elif span_raw in ("*", "/", "%"):
+                    priority = 7
+                rebreak_priority[rebreak_idx] = priority
+
             reflow_logger.debug("    rebreak_indices: %s", rebreak_indices)
 
             # Identify indent points second, taking into account rebreak_indices.
@@ -1134,7 +1155,12 @@ def lint_line_length(
                     # content, but don't necessarily split them when their
                     # container is split.
                     # reflow_logger.warning("   BAL C: %s", balance)
-                    matched_indents[balance + 0.5].append(e_idx)
+
+                    # Also to spread out the breaks within an indent, we further
+                    # add hints to distinguish between then.
+                    priority = rebreak_priority[idx]
+                    # Assume `priority` in range 0 - 50. So / 100 to add to 0.5.
+                    matched_indents[balance + 0.5 + (priority / 100)].append(e_idx)
                 else:
                     continue
 
