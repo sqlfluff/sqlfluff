@@ -345,3 +345,54 @@ test_pass_ignore_templated_comment_lines:
     templater:
       jinja:
         context: {}
+
+test_fail_operator_precedence_1:
+  # Make sure we split at the + operator.
+  fail_str: |
+    select
+        ISNULL(count, '0') * 10000 + ISNULL(planned, 100)
+    from blah
+  fix_str: |
+    select
+        ISNULL(count, '0') * 10000
+        + ISNULL(planned, 100)
+    from blah
+  configs:
+    indentation:
+      max_line_length: 30
+
+test_fail_operator_precedence_2:
+  # Make sure we split at the AND operator.
+  fail_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line' AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  fix_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line'
+        AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  configs:
+    indentation:
+      max_line_length: 120
+
+test_fail_operator_precedence_3:
+  # Stretching cases for operators and comma 
+  fail_str: |
+    select
+        a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
+    from blah
+  fix_str: |
+    select
+        a,
+        b + c,
+        long_name
+        + long_name * long_name
+        - long_name as foo,
+        long_name AND long_name
+        OR long_name
+        OR long_name as bar
+    from blah
+  configs:
+    indentation:
+      max_line_length: 30
