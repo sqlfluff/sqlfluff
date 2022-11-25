@@ -955,6 +955,14 @@ def _source_char_len(elements: ReflowSequenceType):
     char_len = 0
     last_source_slice: Optional[slice] = None
     for seg in chain.from_iterable(elem.segments for elem in elements):
+        # Indent tokens occasionally have strange position markers.
+        # They also don't have length so skip them.
+        # TODO: This is actually caused by bugs and inconsistencies
+        # in how the source_slice is generated for the position markers
+        # of indent and dedent tokens. That's a job for another day
+        # however.
+        if seg.is_type("indent"):
+            continue
         # Get the source position.
         source_slice = seg.pos_marker.source_slice
         slice_len = slice_length(source_slice)
