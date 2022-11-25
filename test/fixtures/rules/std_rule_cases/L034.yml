@@ -143,6 +143,20 @@ test_merge_statements_ignored:
     WHEN NOT MATCHED THEN
     INSERT (b) VALUES (c)
 
+test_merge_statement_with_cte_ignored:
+  pass_str: |
+    MERGE INTO t
+    USING
+    (
+        WITH my_cte AS (SELECT * FROM t1)
+        SELECT MAX(field1), field2
+        FROM t1
+    ) AS u ON (a = b)
+    WHEN MATCHED THEN
+    UPDATE SET a = b
+    WHEN NOT MATCHED THEN
+    INSERT (b) VALUES (c)
+
 test_create_table_as_select_statements_ignored:
   pass_str: |
     CREATE TABLE new_table AS (
