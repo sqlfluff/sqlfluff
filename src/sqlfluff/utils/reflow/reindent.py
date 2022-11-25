@@ -3,7 +3,7 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Set, Tuple, cast
+from typing import Iterator, List, Optional, Set, Tuple, cast, Dict
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -20,7 +20,7 @@ from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans
+from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans, _RebreakSpan
 
 
 # We're in the utils module, but users will expect reflow
@@ -989,6 +989,117 @@ def _source_char_len(elements: ReflowSequenceType):
     return char_len
 
 
+def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
+    """Process rebreak spans into opportunities to split lines.
+
+    The index to insert a potential indent at depends on the
+    line_position of the span. Infer that here and store the indices
+    in the elements.
+    """
+    rebreak_priority = {}
+    for span in spans:
+        if span.line_position == "leading":
+            rebreak_idx = span.start_idx - 1
+        elif span.line_position == "trailing":
+            rebreak_idx = span.end_idx + 1
+        else:
+            raise NotImplementedError(
+                "Unexpected line position: %s", span.line_position
+            )
+        # NOTE: Operator precedence here is hard coded. It could be
+        # moved to configuration in the layout section in the future.
+        # Operator precedence is fairly consistent between dialects
+        # so for now it feels ok that it's coded here - it also wouldn't
+        # be a breaking change at that point so no pressure to release
+        # it early.
+        span_raw = span.target.raw
+        priority = 6  # Default to 6 for now i.e. the same as '+'
+        # Override priority for specific precedence.
+        if span_raw == ",":
+            priority = 1
+        elif span.target.is_type("assignment_operator"):
+            priority = 2
+        elif span_raw == "OR":
+            priority = 3
+        elif span_raw == "AND":
+            priority = 4
+        elif span.target.is_type("comparison_operator"):
+            priority = 5
+        elif span_raw in ("*", "/", "%"):
+            priority = 7
+        rebreak_priority[rebreak_idx] = priority
+
+    return rebreak_priority
+
+
+def _match_indents(
+    line_elements: ReflowSequenceType,
+    rebreak_priorities: Dict[int, int],
+    newline_idx: int,
+) -> defaultdict[float, List[int]]:
+    """Identify indent points, taking into account rebreak_priorities.
+
+    Expect fractional keys, because of the half values for
+    rebreak points.
+    """
+    balance = 0
+    # Expect fractional keys, because of the half values for
+    # rebreak points.
+    matched_indents: defaultdict[float, List[int]] = defaultdict(list)
+    for idx, e in enumerate(line_elements):
+        # We only care about points, because only they contain indents.
+        if not isinstance(e, ReflowPoint):
+            continue
+
+        # As usual, indents are referred to by their "uphill" side
+        # so what number we store the point against depends on whether
+        # it's positive or negative.
+        indent_stats = e.get_indent_impulse()
+        # TODO: Better isolation and test coverage of this
+        # indexing maths. Very easy to get wrong. Necessary
+        # so we don't mistake empty elements, but potentially
+        # fragile nonetheless.
+        e_idx = newline_idx - len(line_elements) + idx + 1
+        if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
+            # in case of more than one indent we loop and apply to all.
+            for b in range(0, indent_stats[1], -1):
+                matched_indents[(balance + b) * 1.0].append(e_idx)
+            balance += indent_stats[1]
+        elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
+            # in case of more than one indent we loop and apply to all.
+            for b in range(0, indent_stats[0]):
+                matched_indents[(balance + b + 1) * 1.0].append(e_idx)
+            balance += indent_stats[0]
+        elif idx in rebreak_priorities:
+            # For potential rebreak options (i.e. ones without an indent)
+            # we add 0.5 so that they sit *between* the varying indent
+            # options. that means we split them before any of their
+            # content, but don't necessarily split them when their
+            # container is split.
+
+            # Also to spread out the breaks within an indent, we further
+            # add hints to distinguish between then. This is where operator
+            # precedence (as defined above) actually comes into effect.
+            priority = rebreak_priorities[idx]
+            # Assume `priority` in range 0 - 50. So / 100 to add to 0.5.
+            matched_indents[balance + 0.5 + (priority / 100)].append(e_idx)
+        else:
+            continue
+
+    # Before working out the lowest option, we purge any which contain
+    # ONLY the final point. That's because adding indents there won't
+    # actually help the line length. There's *already* a newline there.
+    for indent_level in list(matched_indents.keys()):
+        if matched_indents[indent_level] == [newline_idx]:
+            matched_indents.pop(indent_level)
+            reflow_logger.debug(
+                "    purging balance of %s, it references only the " "final element",
+                indent_level,
+            )
+
+    return matched_indents
+
+
 def lint_line_length(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
@@ -1074,103 +1185,12 @@ def lint_line_length(
             # Identify rebreak spans first so we can work out their indentation
             # in the next section.
             spans = identify_rebreak_spans(line_elements, root_segment)
-            # The index to insert a potential indent at depends on the
-            # line_position of the span. Infer that here and store the indices
-            # in the elements.
-            rebreak_priority = {}
-            rebreak_indices = []
-            for span in spans:
-                if span.line_position == "leading":
-                    rebreak_idx = span.start_idx - 1
-                elif span.line_position == "trailing":
-                    rebreak_idx = span.end_idx + 1
-                else:
-                    raise NotImplementedError(
-                        "Unexpected line position: %s", span.line_position
-                    )
-                rebreak_indices.append(rebreak_idx)
-                # NOTE: Operator precedence here is hard coded. It could be
-                # moved to configuration in the layout section in the future.
-                # Operator precedence is fairly consistent between dialects
-                # so for now it feels ok that it's coded here - it also wouldn't
-                # be a breaking change at that point so no pressure to release
-                # it early.
-                span_raw = span.target.raw
-                priority = 6  # Default to 6 for now i.e. the same as '+'
-                # Override priority for specific precedence.
-                if span_raw == ",":
-                    priority = 1
-                elif span.target.is_type("assignment_operator"):
-                    priority = 2
-                elif span_raw == "OR":
-                    priority = 3
-                elif span_raw == "AND":
-                    priority = 4
-                elif span.target.is_type("comparison_operator"):
-                    priority = 5
-                elif span_raw in ("*", "/", "%"):
-                    priority = 7
-                rebreak_priority[rebreak_idx] = priority
+            rebreak_priorities = _rebreak_priorities(spans)
+            reflow_logger.debug("    rebreak_priorities: %s", rebreak_priorities)
 
-            reflow_logger.debug("    rebreak_indices: %s", rebreak_indices)
-
-            # Identify indent points second, taking into account rebreak_indices.
-            balance = 0
-            # Expect fractional keys, because of the half values for
-            # rebreak points.
-            matched_indents: defaultdict[float, List[int]] = defaultdict(list)
-            for idx, e in enumerate(line_elements):
-                # We only care about points, because only they contain indents.
-                if not isinstance(e, ReflowPoint):
-                    continue
-
-                # As usual, indents are referred to by their "uphill" side
-                # so what number we store the point against depends on whether
-                # it's positive or negative.
-                indent_stats = e.get_indent_impulse()
-                # TODO: Better isolation and test coverage of this
-                # indexing maths. Very easy to get wrong. Necessary
-                # so we don't mistake empty elements, but potentially
-                # fragile nonetheless.
-                e_idx = i - len(line_elements) + idx + 1
-                if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
-                    # in case of more than one indent we loop and apply to all.
-                    for b in range(0, indent_stats[1], -1):
-                        matched_indents[(balance + b) * 1.0].append(e_idx)
-                    balance += indent_stats[1]
-                elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
-                    # in case of more than one indent we loop and apply to all.
-                    for b in range(0, indent_stats[0]):
-                        matched_indents[(balance + b + 1) * 1.0].append(e_idx)
-                    balance += indent_stats[0]
-                elif idx in rebreak_indices:
-                    # For potential rebreak options (i.e. ones without an indent)
-                    # we add 0.5 so that they sit *between* the varying indent
-                    # options. that means we split them before any of their
-                    # content, but don't necessarily split them when their
-                    # container is split.
-
-                    # Also to spread out the breaks within an indent, we further
-                    # add hints to distinguish between then. This is where operator
-                    # precedence (as defined above) actually comes into effect.
-                    priority = rebreak_priority[idx]
-                    # Assume `priority` in range 0 - 50. So / 100 to add to 0.5.
-                    matched_indents[balance + 0.5 + (priority / 100)].append(e_idx)
-                else:
-                    continue
-
-            # Before working out the lowest option, we purge any which contain
-            # ONLY the final point. That's because adding indents there won't
-            # actually help the line length. There's *already* a newline there.
-            for indent_level in list(matched_indents.keys()):
-                if matched_indents[indent_level] == [i]:
-                    matched_indents.pop(indent_level)
-                    reflow_logger.debug(
-                        "    purging balance of %s, it references only the "
-                        "final element",
-                        indent_level,
-                    )
-
+            # Identify indent points second, taking into
+            # account rebreak_priorities.
+            matched_indents = _match_indents(line_elements, rebreak_priorities, i)
             reflow_logger.debug("    matched_indents: %s", matched_indents)
 
             # If we don't have any matched_indents, we don't have any options.
