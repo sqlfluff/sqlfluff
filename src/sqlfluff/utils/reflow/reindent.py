@@ -964,6 +964,17 @@ def _source_char_len(elements: ReflowSequenceType):
             continue
         # Get the source position.
         source_slice = seg.pos_marker.source_slice
+        # Is there a newline in the source string?
+        source_str = seg.pos_marker.source_str()
+        if "\n" in source_str:
+            # There is. Stop here. It's probably a complicated
+            # jinja tag, so it's safer to stop here.
+            # TODO: In future, we should probably be a little
+            # smarter about this, but for now this is ok. Without
+            # an algorithm for layout out code _within_ jinja tags
+            # we won't be able to suggest appropriate fixes.
+            char_len += source_str.index("\n")
+            break
         slice_len = slice_length(source_slice)
         # Only update the length if it's a new slice.
         if source_slice != last_source_slice:

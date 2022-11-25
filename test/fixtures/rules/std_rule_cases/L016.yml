@@ -396,3 +396,18 @@ test_fail_operator_precedence_3:
   configs:
     indentation:
       max_line_length: 30
+
+test_pass_long_multiline_jinja:
+  # None of the lines are longer than 30
+  # but the whole tag is. It shouldn't
+  # cause issues.
+  pass_str: |
+    select
+        {{
+          1 + 2 + 3 + 4 + 5
+          + 6 + 7 + 8 + 9 + 10
+        }}
+    from blah
+  configs:
+    indentation:
+      max_line_length: 30
