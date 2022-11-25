@@ -377,7 +377,7 @@ test_fail_operator_precedence_2:
       max_line_length: 120
 
 test_fail_operator_precedence_3:
-  # Stretching cases for operators and comma 
+  # Stretching cases for operators and comma
   fail_str: |
     select
         a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
