@@ -15,7 +15,8 @@ from dbt.flags import PROFILES_DIR
 from dbt.version import get_installed_version
 from jinja2_simple_tags import StandaloneTag
 
-from sqlfluff.core.config import FluffConfig
+from sqlfluff.cli.formatters import OutputStreamFormatter
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 from sqlfluff.core.templaters.jinja import JinjaTemplater
@@ -161,13 +162,21 @@ class DbtTemplater(JinjaTemplater):
     def process(
         self,
         *,
-        in_str: str,
-        fname: Optional[str] = None,
+        in_str: Optional[str] = None,
+        fname: str,
         config: Optional[FluffConfig] = None,
-        formatter=None,
+        formatter: Optional[OutputStreamFormatter] = None,
         **kwargs,
     ):
-        """Compile a dbt model and return the compiled SQL."""
+        """Compile a dbt model and return the compiled SQL.
+
+        Args:
+            fname: Path to dbt model(s)
+            in_str: fname contents using configured encoding
+            config: A specific config to use for this
+                templating operation. Only necessary for some templaters.
+            formatter: Optional object for output.
+        """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
         self.sqlfluff_config = config
