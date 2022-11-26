@@ -2,6 +2,7 @@
 import pytest
 import os
 
+from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
@@ -29,3 +30,30 @@ def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
         violations=violations,
         fluff_config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule)),
     )
+
+
+def test__rules__fix_utf8(project_dir):  # noqa
+    """Verify that non-ASCII characters are preserved by 'fix'."""
+    rule = "L010"
+    path = "models/my_new_project/utf8/test.sql"
+    lntr = Linter(
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
+    )
+    lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
+    lnt.persist_changes(fixed_file_suffix="FIXED")
+    # TODO: Check contents of file:
+    # ./plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/utf8/testFIXED.sql
+    # Against a git file, similar to the autofix tests
+    fixed_path = os.path.join(project_dir, "models/my_new_project/utf8/testFIXED.sql")
+    cmp_filepath = os.path.join(
+        project_dir, "models/my_new_project/utf8/test.sql.fixed"
+    )
+    with open(fixed_path, "rb") as fixed_file:
+        fixed_buff = fixed_file.read()
+    # Read the comparison file
+    with open(cmp_filepath, "rb") as comp_file:
+        comp_buff = comp_file.read()
+
+    # Assert that we fixed as expected
+    assert fixed_buff == comp_buff
+    os.unlink(fixed_path)
