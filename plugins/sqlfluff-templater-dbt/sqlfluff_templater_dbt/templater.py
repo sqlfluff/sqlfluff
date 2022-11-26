@@ -225,7 +225,7 @@ class DbtTemplater(JinjaTemplater):
                 vars=self._get_cli_vars(),
             )
 
-        # Use path if valid, prioritize it as the in_str
+        # If in_str not provided, use path if file is present.
         fpath = Path(fname)
         if fpath.exists() and not in_str:
             in_str = fpath.read_text()
