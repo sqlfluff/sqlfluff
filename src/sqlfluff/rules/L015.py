@@ -55,7 +55,7 @@ class Rule_L015(BaseRule):
             )
             bracketed = expression.children(sp.is_type("bracketed")).first()
             # is the first element only an expression with only brackets?
-            if bracketed:
+            if modifier and bracketed:
                 # If there's nothing else in the expression, remove the brackets.
                 if len(expression[0].segments) == 1:
                     anchor, seq = self._remove_unneeded_brackets(context, bracketed)
