@@ -1010,9 +1010,11 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
     rebreak_priority = {}
     for span in spans:
         if span.line_position == "leading":
-            rebreak_idx = span.start_idx - 1
+            rebreak_indices = [span.start_idx - 1]
         elif span.line_position == "trailing":
-            rebreak_idx = span.end_idx + 1
+            rebreak_indices = [span.end_idx + 1]
+        elif span.line_position == "alone":
+            rebreak_indices = [span.start_idx - 1, span.end_idx + 1]
         else:
             raise NotImplementedError(
                 "Unexpected line position: %s", span.line_position
@@ -1038,7 +1040,9 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
             priority = 5
         elif span_raw in ("*", "/", "%"):
             priority = 7
-        rebreak_priority[rebreak_idx] = priority
+
+        for rebreak_idx in rebreak_indices:
+            rebreak_priority[rebreak_idx] = priority
 
     return rebreak_priority
 
@@ -1075,13 +1079,16 @@ def _match_indents(
             # in case of more than one indent we loop and apply to all.
             for b in range(0, indent_stats[1], -1):
                 matched_indents[(balance + b) * 1.0].append(e_idx)
-            balance += indent_stats[1]
+            # NOTE: We carry forward the impulse, not the trough.
+            # This is important for dedent+indent pairs.
+            balance += indent_stats[0]
         elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
             # in case of more than one indent we loop and apply to all.
             for b in range(0, indent_stats[0]):
                 matched_indents[(balance + b + 1) * 1.0].append(e_idx)
             balance += indent_stats[0]
-        elif idx in rebreak_priorities:
+        # Something can be both an indent point AND a rebreak point.
+        if idx in rebreak_priorities:
             # For potential rebreak options (i.e. ones without an indent)
             # we add 0.5 so that they sit *between* the varying indent
             # options. that means we split them before any of their
@@ -1196,6 +1203,7 @@ def lint_line_length(
             # Identify rebreak spans first so we can work out their indentation
             # in the next section.
             spans = identify_rebreak_spans(line_elements, root_segment)
+            reflow_logger.debug("    spans: %s", spans)
             rebreak_priorities = _rebreak_priorities(spans)
             reflow_logger.debug("    rebreak_priorities: %s", rebreak_priorities)
 
@@ -1351,7 +1359,11 @@ def lint_line_length(
                     # the first, but that's too smart for now.
                     # If we're still not short enough, then we'll catch the next
                     # part when we come back around.
-                    if balance < 0:
+                    # NOTE: This only makes sense if this is an indent point and
+                    # not a rebreaking operation (i.e. this is an integer balance).
+                    # Otherwise break at all the points.
+                    if balance < 0 and target_balance % 1 == 0:
+                        reflow_logger.debug("    Stopping as we're back down.")
                         break
 
                 # Consolidate all the results for the line into one.

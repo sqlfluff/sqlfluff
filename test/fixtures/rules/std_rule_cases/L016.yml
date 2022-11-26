@@ -411,3 +411,17 @@ test_pass_long_multiline_jinja:
   configs:
     indentation:
       max_line_length: 30
+
+test_fail_long_inline_statement:
+  # Tests that breaks happen between clauses properly
+  fail_str: |
+    select distinct a + b from c join d using (e) where f = g and h = i order by j
+  fix_str: |
+    select distinct a + b
+    from c
+    join d using (e)
+    where f = g and h = i
+    order by j
+  configs:
+    indentation:
+      max_line_length: 50

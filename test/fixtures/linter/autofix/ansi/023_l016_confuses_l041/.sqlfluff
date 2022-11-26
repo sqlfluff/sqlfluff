@@ -1,0 +1,2 @@
+[sqlfluff:indentation]
+max_line_length = 70
