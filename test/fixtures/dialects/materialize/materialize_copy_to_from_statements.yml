@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7af8ec2ff3153b514fe680eeffa2b0e6213df820835ed3997870bc64d61f13ce
+file:
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+      - start_bracket: (
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: t1
+      - raw: WHERE
+      - raw: value
+      - raw: <
+      - numeric_literal: '100'
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+      - start_bracket: (
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: t1
+      - raw: WHERE
+      - raw: value
+      - raw: <
+      - numeric_literal: '100'
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: binary
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: CSV
+      - comma: ','
+      - raw: DELIMITER
+      - single_quote: "'!'"
+      - comma: ','
+      - raw: QUOTE
+      - single_quote: "'!'"
+      - end_bracket: )
+- statement_terminator: ;
