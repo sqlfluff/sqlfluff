@@ -89,7 +89,7 @@ class Rule_L016(BaseRule):
                         != res.anchor.pos_marker.working_line_no
                     ):
                         # We've gone past the end of the line. Stop looking.
-                        break
+                        break  # pragma: no cover
                     # Is it a comment?
                     if seg.is_type("comment"):
                         self.logger.debug(

@@ -1015,7 +1015,7 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
             rebreak_indices = [span.end_idx + 1]
         elif span.line_position == "alone":
             rebreak_indices = [span.start_idx - 1, span.end_idx + 1]
-        else:
+        else:  # pragma: no cover
             raise NotImplementedError(
                 "Unexpected line position: %s", span.line_position
             )
@@ -1031,7 +1031,9 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
         if span_raw == ",":
             priority = 1
         elif span.target.is_type("assignment_operator"):
-            priority = 2
+            # This one is a little rarer so not covered in tests yet.
+            # Logic is the same as others though.
+            priority = 2  # pragma: no cover
         elif span_raw == "OR":
             priority = 3
         elif span_raw == "AND":
