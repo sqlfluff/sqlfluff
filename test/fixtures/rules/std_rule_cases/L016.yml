@@ -442,14 +442,6 @@ test_pass_check_off_2:
     indentation:
       max_line_length: -1
 
-test_pass_check_off_1:
-  # Tests that we can disable the check
-  pass_str: |
-    select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
-  configs:
-    indentation:
-      max_line_length: 0
-
 test_comment_move_mid_query:
   # Tests that we can disable the check
   fail_str: |
