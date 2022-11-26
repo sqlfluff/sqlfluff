@@ -1,6 +1,7 @@
 """Tests for the standard set of rules."""
 import pytest
 import os
+from pathlib import Path
 
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
@@ -44,15 +45,10 @@ def test__rules__fix_utf8(project_dir):  # noqa
     # TODO: Check contents of file:
     # ./plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/utf8/testFIXED.sql
     # Against a git file, similar to the autofix tests
-    fixed_path = os.path.join(project_dir, "models/my_new_project/utf8/testFIXED.sql")
-    cmp_filepath = os.path.join(
-        project_dir, "models/my_new_project/utf8/test.sql.fixed"
-    )
-    with open(fixed_path, "rb") as fixed_file:
-        fixed_buff = fixed_file.read()
-    # Read the comparison file
-    with open(cmp_filepath, "rb") as comp_file:
-        comp_buff = comp_file.read()
+    fixed_path = Path(project_dir) / "models/my_new_project/utf8/testFIXED.sql"
+    cmp_filepath = Path(project_dir) / "models/my_new_project/utf8/test.sql.fixed"
+    fixed_buff = fixed_path.read_text("utf8")
+    comp_buff = cmp_filepath.read_text("utf8")
 
     # Assert that we fixed as expected
     assert fixed_buff == comp_buff
