@@ -41,6 +41,12 @@ test_fail_distinct_with_parenthesis_7:
     core:
       dialect: postgres
 
-test_pss_no_distinct:
+test_pass_no_distinct:
   pass_str: |
     SELECT a, b
+
+test_fail_distinct_inside_count:
+  fail_str: |
+    SELECT COUNT(DISTINCT(unique_key))
+  fix_str: |
+    SELECT COUNT(DISTINCT unique_key)

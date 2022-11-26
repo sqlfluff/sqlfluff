@@ -35,7 +35,7 @@ class Rule_L015(BaseRule):
     """
 
     groups = ("all", "core")
-    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause", "function"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Looking for DISTINCT before a bracket.
@@ -43,38 +43,62 @@ class Rule_L015(BaseRule):
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
         # We trigger on `select_clause` and look for `select_clause_modifier`
-        assert context.segment.is_type("select_clause")
-        children = FunctionalContext(context).segment.children()
-        modifier = children.select(sp.is_type("select_clause_modifier"))
-        first_element = children.select(sp.is_type("select_clause_element")).first()
-        if not modifier or not first_element:
-            return None
-        # is the first element only an expression with only brackets?
-        expression = (
-            first_element.children(sp.is_type("expression")).first() or first_element
-        )
-        bracketed = expression.children(sp.is_type("bracketed")).first()
-        if bracketed:
-            # If there's nothing else in the expression, remove the brackets.
-            if len(expression[0].segments) == 1:
-                # Remove the brackets and strip any meta segments.
-                anchor = bracketed.get()
-                assert anchor
-                seq = ReflowSequence.from_around_target(
-                    anchor,
-                    context.parent_stack[0],
-                    config=context.config,
-                    sides="before",
-                ).replace(anchor, self.filter_meta(anchor.segments)[1:-1])
-            # Otherwise, still make sure there's a space after the DISTINCT.
-            else:
-                anchor = modifier[0]
-                seq = ReflowSequence.from_around_target(
-                    modifier[0],
-                    context.parent_stack[0],
-                    config=context.config,
-                    sides="after",
-                )
+        if context.segment.is_type("select_clause"):
+            children = FunctionalContext(context).segment.children()
+            modifier = children.select(sp.is_type("select_clause_modifier"))
+            first_element = children.select(sp.is_type("select_clause_element")).first()
+            if not modifier or not first_element:
+                return None
+            # is the first element only an expression with only brackets?
+            expression = (
+                first_element.children(sp.is_type("expression")).first()
+                or first_element
+            )
+            bracketed = expression.children(sp.is_type("bracketed")).first()
+            if bracketed:
+                # If there's nothing else in the expression, remove the brackets.
+                if len(expression[0].segments) == 1:
+                    # Remove the brackets and strip any meta segments.
+                    anchor = bracketed.get()
+                    assert anchor
+                    seq = ReflowSequence.from_around_target(
+                        anchor,
+                        context.parent_stack[0],
+                        config=context.config,
+                        sides="before",
+                    ).replace(anchor, self.filter_meta(anchor.segments)[1:-1])
+                # Otherwise, still make sure there's a space after the DISTINCT.
+                else:
+                    anchor = modifier[0]
+                    seq = ReflowSequence.from_around_target(
+                        modifier[0],
+                        context.parent_stack[0],
+                        config=context.config,
+                        sides="after",
+                    )
+                # Get modifications.
+                fixes = seq.respace().get_fixes()
+                if fixes:
+                    return LintResult(
+                        anchor=anchor,
+                        fixes=fixes,
+                    )
+        elif context.segment.is_type("function"):
+            children = FunctionalContext(context).segment.children()
+            function_name = children.select(sp.is_type("function_name")).first()
+            if not function_name or function_name[0].raw_upper != "DISTINCT":
+                return None
+            bracketed = children.first(sp.is_type("bracketed"))
+            if not bracketed:
+                return None
+            anchor = bracketed.get()
+            assert anchor
+            seq = ReflowSequence.from_around_target(
+                anchor,
+                context.parent_stack[0],
+                config=context.config,
+                sides="before",
+            ).replace(anchor, self.filter_meta(anchor.segments)[1:-1])
             # Get modifications.
             fixes = seq.respace().get_fixes()
             if fixes:
