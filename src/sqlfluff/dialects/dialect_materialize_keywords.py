@@ -3,7 +3,7 @@
 https://materialize.com/docs/sql/identifiers
 """
 
-materialize_reserved_keywords="""ALL
+materialize_reserved_keywords = """ALL
 ALTER
 AND
 ANY

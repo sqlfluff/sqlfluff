@@ -6,19 +6,16 @@ We should monitor in future and see if it should be rebased off of ANSI
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     Anything,
-    Anything,
     BaseSegment,
     Bracketed,
     Delimited,
     OneOf,
     Ref,
     Sequence,
-    MultiStringParser
+    MultiStringParser,
 )
-
 from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_materialize_keywords import (
     materialize_reserved_keywords,
     materialize_unreserved_keywords,
@@ -35,6 +32,7 @@ materialize_dialect.sets("reserved_keywords").clear()
 materialize_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in materialize_reserved_keywords.split("\n")]
 )
+
 
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -77,6 +75,7 @@ class StatementSegment(ansi.StatementSegment):
         ],
     )
 
+
 materialize_dialect.sets("materialize_sizes").clear()
 materialize_dialect.sets("materialize_sizes").update(
     [
@@ -94,6 +93,7 @@ materialize_dialect.sets("materialize_sizes").update(
         "6xlarge",
     ],
 )
+
 
 materialize_dialect.add(
     InstanceSizes=OneOf(
@@ -118,9 +118,10 @@ materialize_dialect.add(
     ),
 )
 
+
 class AlterConnectionRotateKeys(BaseSegment):
-    """`ALTER CONNECTION` statement.
-    """
+    """`ALTER CONNECTION` statement."""
+
     type = "alter_connection_rotate_keys"
 
     match_grammar = Sequence(
@@ -129,12 +130,12 @@ class AlterConnectionRotateKeys(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "ROTATE",
-        "KEYS"
+        "KEYS",
     )
 
+
 class AlterRenameStatementSegment(BaseSegment):
-    """A `ALTER RENAME` statement.
-    """
+    """A `ALTER RENAME` statement."""
 
     type = "alter_rename_statement"
 
@@ -148,28 +149,30 @@ class AlterRenameStatementSegment(BaseSegment):
             "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
             "TABLE",
-            "SECRET"
+            "SECRET",
         ),
         Ref("ObjectReferenceSegment"),
         Sequence("RENAME", "TO"),
-        Ref("ObjectReferenceSegment")
+        Ref("ObjectReferenceSegment"),
     )
 
+
 class AlterIndexStatementSegment(BaseSegment):
-    """A `ALTER INDEX` statement.
-    """
+    """A `ALTER INDEX` statement."""
+
     type = "alter_index_statement"
 
     match_grammar = Sequence(
         "ALTER",
         "INDEX",
         Ref("ObjectReferenceSegment"),
-        Sequence("SET", "ENABLED")
+        Sequence("SET", "ENABLED"),
     )
 
+
 class AlterSecretStatementSegment(BaseSegment):
-    """A `ALTER SECRET` statement.
-    """
+    """A `ALTER SECRET` statement."""
+
     type = "alter_secret_statement"
 
     match_grammar = Sequence(
@@ -178,12 +181,13 @@ class AlterSecretStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "AS",
-        Anything()
+        Anything(),
     )
 
+
 class AlterSourceSinkSizeStatementSegment(BaseSegment):
-    """A `ALTER SOURCE/SINK SET SIZE` statement.
-    """
+    """A `ALTER SOURCE/SINK SET SIZE` statement."""
+
     type = "alter_source_sink_size_statement"
 
     match_grammar = Sequence(
@@ -195,12 +199,12 @@ class AlterSourceSinkSizeStatementSegment(BaseSegment):
         Bracketed(
             "SIZE",
             Ref("InstanceSizes"),
-        )
+        ),
     )
 
+
 class CloseStatementSegment(BaseSegment):
-    """A `CLOSE` statement.
-    """
+    """A `CLOSE` statement."""
 
     type = "close_statement"
     match_grammar = Sequence(
@@ -208,9 +212,9 @@ class CloseStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
     )
 
+
 class CopyToStatementSegment(BaseSegment):
-    """A `COPY TO` statement.
-    """
+    """A `COPY TO` statement."""
 
     type = "copy_to_statement"
     match_grammar = Sequence(
@@ -236,15 +240,15 @@ class CopyToStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Bracketed(
-                Anything()
+                Anything(),
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CopyFromStatementSegment(BaseSegment):
-    """A `COPY FROM` statement.
-    """
+    """A `COPY FROM` statement."""
 
     type = "copy_from_statement"
     match_grammar = Sequence(
@@ -252,25 +256,25 @@ class CopyFromStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Bracketed(
             Anything(),
-            optional=True
+            optional=True,
         ),
         "FROM",
         "STDIN",
         Sequence(
             Sequence(
                 "WITH",
-                optional=True
+                optional=True,
             ),
             Bracketed(
-                Anything()
+                Anything(),
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateClusterStatementSegment(BaseSegment):
-    """A `CREATE CLUSTER` statement.
-    """
+    """A `CREATE CLUSTER` statement."""
 
     type = "create_cluster_statement"
     match_grammar = Sequence(
@@ -281,16 +285,16 @@ class CreateClusterStatementSegment(BaseSegment):
             "REPLICAS",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateClusterReplicaStatementSegment(BaseSegment):
-    """A `CREATE CLUSTER REPLICA` statement.
-    """
+    """A `CREATE CLUSTER REPLICA` statement."""
 
     type = "create_cluster_replica_statement"
     match_grammar = Sequence(
@@ -300,13 +304,13 @@ class CreateClusterReplicaStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence(
             Anything(),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateConnectionStatementSegment(BaseSegment):
-    """A `CREATE CONNECTION` statement.
-    """
+    """A `CREATE CONNECTION` statement."""
 
     type = "create_connection_statement"
     match_grammar = Sequence(
@@ -318,30 +322,30 @@ class CreateConnectionStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "AWS",
-                "PRIVATELINK"
+                "PRIVATELINK",
             ),
             Sequence(
                 "CONFLUENT",
                 "SCHEMA",
-                "REGISTRY"
+                "REGISTRY",
             ),
             "KAFKA",
             "POSTGRES",
             Sequence(
                 "SSH",
-                "TUNNEL"
-            )
+                "TUNNEL",
+            ),
         ),
         Bracketed(
             Delimited(
-                Anything()
+                Anything(),
             )
-        )
+        ),
     )
 
+
 class CreateIndexStatementSegment(BaseSegment):
-    """A `CREATE INDEX` statement.
-    """
+    """A `CREATE INDEX` statement."""
 
     type = "create_index_statement"
     match_grammar = Sequence(
@@ -356,13 +360,13 @@ class CreateIndexStatementSegment(BaseSegment):
                 Sequence(
                     "USING",
                     Anything(),
-                    optional=True
+                    optional=True,
                 ),
                 Bracketed(
                     Delimited(
-                        Anything()
+                        Anything(),
                     )
-                )
+                ),
             ),
             Sequence(
                 "DEFAULT",
@@ -373,15 +377,15 @@ class CreateIndexStatementSegment(BaseSegment):
                 Sequence(
                     "USING",
                     Anything(),
-                    optional=True
-                )
-            )
-        )
+                    optional=True,
+                ),
+            ),
+        ),
     )
 
+
 class CreateMaterializedViewStatementSegment(BaseSegment):
-    """A `CREATE MATERIALIZED VIEW` statement.
-    """
+    """A `CREATE MATERIALIZED VIEW` statement."""
 
     type = "create_materialized_view_statement"
     match_grammar = Sequence(
@@ -394,13 +398,13 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment")
+                        Ref("ColumnReferenceSegment"),
                     ),
-                    optional=True
+                    optional=True,
                 ),
                 Ref("InCluster", optional=True),
                 "AS",
-                Anything()
+                Anything(),
             ),
             Sequence(
                 Ref("OrReplaceGrammar"),
@@ -409,20 +413,20 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment")
+                        Ref("ColumnReferenceSegment"),
                     ),
-                    optional=True
+                    optional=True,
                 ),
                 Ref("InCluster", optional=True),
                 "AS",
-                Anything()
-            )
-        )
+                Anything(),
+            ),
+        ),
     )
 
+
 class CreateSecretStatementSegment(BaseSegment):
-    """A `CREATE SECRET` statement.
-    """
+    """A `CREATE SECRET` statement."""
 
     type = "create_secret_statement"
     match_grammar = Sequence(
@@ -431,12 +435,12 @@ class CreateSecretStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "AS",
-        Anything()
+        Anything(),
     )
 
+
 class CreateSinkKafkaStatementSegment(BaseSegment):
-    """A `CREATE SINK KAFKA` statement.
-    """
+    """A `CREATE SINK KAFKA` statement."""
 
     type = "create_sink_kafka_statement"
     match_grammar = Sequence(
@@ -452,38 +456,38 @@ class CreateSinkKafkaStatementSegment(BaseSegment):
             "KEY",
             Bracketed(
                 Delimited(
-                    Ref("ColumnReferenceSegment")
+                    Ref("ColumnReferenceSegment"),
                 )
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "FORMAT",
             Anything(),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "ENVELOPE",
             OneOf(
                 "DEBEZIUM",
-                "UPSERT"
+                "UPSERT",
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateSourceKafkaStatementSegment(BaseSegment):
-    """A `CREATE SOURCE KAFKA` statement.
-    """
+    """A `CREATE SOURCE KAFKA` statement."""
 
     type = "create_source_kafka_statement"
     match_grammar = Sequence(
@@ -493,9 +497,9 @@ class CreateSourceKafkaStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Bracketed(
             Delimited(
-                Ref("ColumnReferenceSegment")
+                Ref("ColumnReferenceSegment"),
             ),
-            optional=True
+            optional=True,
         ),
         "FROM",
         "KAFKA",
@@ -503,7 +507,7 @@ class CreateSourceKafkaStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Bracketed(
             Delimited(
-                Anything()
+                Anything(),
             )
         ),
         Sequence(
@@ -513,43 +517,43 @@ class CreateSourceKafkaStatementSegment(BaseSegment):
             "VALUE",
             "FORMAT",
             Anything(),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "FORMAT",
             Anything(),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "INCLUDE",
             Delimited(
-                Anything()
+                Anything(),
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "ENVELOPE",
             OneOf(
                 "NONE",
                 "DEBEZIUM",
-                "UPSERT"
+                "UPSERT",
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateSourceLoadGeneratorStatementSegment(BaseSegment):
-    """A `CREATE SOURCE LOAD GENERATOR` statement.
-    """
+    """A `CREATE SOURCE LOAD GENERATOR` statement."""
 
     type = "create_source_load_generator_statement"
     match_grammar = Sequence(
@@ -565,45 +569,45 @@ class CreateSourceLoadGeneratorStatementSegment(BaseSegment):
         OneOf(
             "AUCTION",
             "COUNTER",
-            "TPCH"
+            "TPCH",
         ),
         Bracketed(
             Delimited(
-                Anything()
+                Anything(),
             ),
-            optional=True
+            optional=True,
         ),
         OneOf(
             Sequence(
                 "FOR",
                 "ALL",
-                "TABLES"
+                "TABLES",
             ),
             Sequence(
                 "FOR",
                 "TABLES",
                 Bracketed(
                     Delimited(
-                        Anything()
+                        Anything(),
                     )
-                )
+                ),
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateSourcePostgresStatementSegment(BaseSegment):
-    """A `CREATE SOURCE POSTGRES` statement.
-    """
+    """A `CREATE SOURCE POSTGRES` statement."""
 
     type = "create_source_postgres_statement"
     match_grammar = Sequence(
@@ -618,42 +622,42 @@ class CreateSourcePostgresStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
+            optional=True,
         ),
         OneOf(
             Sequence(
                 "FOR",
                 "ALL",
-                "TABLES"
+                "TABLES",
             ),
             Sequence(
                 "FOR",
                 "TABLES",
                 Bracketed(
                     Delimited(
-                        Anything()
+                        Anything(),
                     )
-                )
+                ),
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class CreateTypeStatementSegment(BaseSegment):
-    """A `CREATE TYPE` statement.
-    """
+    """A `CREATE TYPE` statement."""
 
     type = "create_type_statement"
     match_grammar = Sequence(
@@ -667,33 +671,33 @@ class CreateTypeStatementSegment(BaseSegment):
                     Delimited(
                         Sequence(
                             Ref("ObjectReferenceSegment"),
-                            Ref("DatatypeSegment")
-                        )
-                    )
-                )
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                ),
             ),
             Sequence(
                 "AS",
                 OneOf(
                     "LIST",
-                    "MAP"
+                    "MAP",
                 ),
                 Bracketed(
                     Delimited(
                         Sequence(
                             Ref("ObjectReferenceSegment"),
                             Ref("EqualsSegment"),
-                            Anything()
+                            Anything(),
                         )
                     )
-                )
-            )
-        )
+                ),
+            ),
+        ),
     )
 
+
 class CreateViewStatementSegment(BaseSegment):
-    """A `CREATE VIEW` statement.
-    """
+    """A `CREATE VIEW` statement."""
 
     type = "create_view_statement"
     match_grammar = Sequence(
@@ -701,24 +705,24 @@ class CreateViewStatementSegment(BaseSegment):
         OneOf(
             "TEMP",
             "TEMPORARY",
-            optional=True
+            optional=True,
         ),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Bracketed(
             Delimited(
-                Ref("ColumnReferenceSegment")
+                Ref("ColumnReferenceSegment"),
             ),
-            optional=True
+            optional=True,
         ),
         "AS",
-        Ref("SelectableGrammar")
+        Ref("SelectableGrammar"),
     )
 
+
 class DropStatementSegment(BaseSegment):
-    """A `DROP` statement.
-    """
+    """A `DROP` statement."""
 
     type = "drop_statement"
     match_grammar = Sequence(
@@ -728,13 +732,13 @@ class DropStatementSegment(BaseSegment):
             "CLUSTER",
             Sequence(
                 "CLUSTER",
-                "REPLICA"
+                "REPLICA",
             ),
             "DATABASE",
             "INDEX",
             Sequence(
                 "MATERIALIZED",
-                "VIEW"
+                "VIEW",
             ),
             "ROLE",
             "SECRET",
@@ -744,24 +748,24 @@ class DropStatementSegment(BaseSegment):
             "TABLE",
             "TYPE",
             "VIEW",
-            "USER"
+            "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
-                "CASCADE"
+                "CASCADE",
             ),
             Sequence(
-                "RESTRICT"
+                "RESTRICT",
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class ShowStatementSegment(BaseSegment):
-    """A Materialize `SHOW` statement.
-    """
+    """A Materialize `SHOW` statement."""
 
     type = "show_statement"
 
@@ -789,7 +793,7 @@ class ShowStatementSegment(BaseSegment):
         Sequence(
             "FROM",
             Ref("ObjectReferenceSegment"),
-            optional=True
+            optional=True,
         ),
         #  Like or where is optional for some object types
         OneOf(
@@ -801,13 +805,13 @@ class ShowStatementSegment(BaseSegment):
                 "WHERE",
                 Ref("ExpressionSegment"),
             ),
-            optional=True
+            optional=True,
         ),
     )
 
+
 class ShowCreateStatementSegment(BaseSegment):
-    """A Materialize `SHOW CREATE` statement.
-    """
+    """A Materialize `SHOW CREATE` statement."""
 
     type = "show_create_statement"
 
@@ -823,12 +827,12 @@ class ShowCreateStatementSegment(BaseSegment):
             Sequence("TABLE", optional=True),
             Sequence("VIEW", optional=True),
         ),
-        Ref("ObjectReferenceSegment")
+        Ref("ObjectReferenceSegment"),
     )
 
+
 class ShowIndexesStatementSegment(BaseSegment):
-    """A Materialize `SHOW INDEXES` statement.
-    """
+    """A Materialize `SHOW INDEXES` statement."""
 
     type = "show_indexes_statement"
 
@@ -838,12 +842,12 @@ class ShowIndexesStatementSegment(BaseSegment):
         Sequence(
             "ON",
             Ref("ObjectReferenceSegment"),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "FROM",
             Ref("ObjectReferenceSegment"),
-            optional=True
+            optional=True,
         ),
         Ref("InCluster", optional=True),
         OneOf(
@@ -855,13 +859,13 @@ class ShowIndexesStatementSegment(BaseSegment):
                 "WHERE",
                 Ref("ExpressionSegment"),
             ),
-            optional=True
+            optional=True,
         ),
     )
 
+
 class ShowMaterializedViewsStatementSegment(BaseSegment):
-    """A Materialize `SHOW MATERIALIZED VIEWS` statement.
-    """
+    """A Materialize `SHOW MATERIALIZED VIEWS` statement."""
 
     type = "show_materialized_views_statement"
 
@@ -872,14 +876,14 @@ class ShowMaterializedViewsStatementSegment(BaseSegment):
         Sequence(
             "FROM",
             Ref("ObjectReferenceSegment"),
-            optional=True
+            optional=True,
         ),
         Ref("InCluster", optional=True),
     )
 
+
 class MaterializeExplainStatementSegment(BaseSegment):
-    """A `EXPLAIN` statement.
-    """
+    """A `EXPLAIN` statement."""
 
     type = "explain_statement"
     match_grammar = Sequence(
@@ -891,21 +895,21 @@ class MaterializeExplainStatementSegment(BaseSegment):
                     "DECORRELATED",
                     "OPTIMIZED",
                     "PHYSICAL",
-                    optional=True
+                    optional=True,
                 ),
                 "PLAN",
-                optional=True
+                optional=True,
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "AS",
@@ -913,64 +917,64 @@ class MaterializeExplainStatementSegment(BaseSegment):
                 "TEXT",
                 "JSON",
             ),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "FOR",
-            optional=True
+            optional=True,
         ),
         OneOf(
             Ref("SelectableGrammar"),
             Sequence(
                 "VIEW",
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 "MATERIALIZED",
                 "VIEW",
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
-                Anything()
-            )
-        )
+                Anything(),
+            ),
+        ),
     )
 
+
 class FetchStatementSegment(BaseSegment):
-    """A `FETCH` statement.
-    """
+    """A `FETCH` statement."""
 
     type = "fetch_statement"
     match_grammar = Sequence(
         "FETCH",
         Sequence(
             "FORWARD",
-            optional=True
+            optional=True,
         ),
         OneOf(
             "ALL",
             Ref("NumericLiteralSegment"),
-            optional=True
+            optional=True,
         ),
         Sequence(
             "FROM",
-            optional=True
+            optional=True,
         ),
         Ref("ObjectReferenceSegment"),
         Sequence(
             "WITH",
             Bracketed(
                 Delimited(
-                    Anything()
+                    Anything(),
                 )
             ),
-            optional=True
-        )
+            optional=True,
+        ),
     )
 
+
 class DeclareStatementSegment(BaseSegment):
-    """A `DECLARE` statement.
-    """
+    """A `DECLARE` statement."""
 
     type = "declare_statement"
     match_grammar = Sequence(
@@ -980,22 +984,22 @@ class DeclareStatementSegment(BaseSegment):
         Sequence(
             "WITHOUT",
             "HOLD",
-            optional=True
+            optional=True,
         ),
         "FOR",
         OneOf(
             Ref("SelectableGrammar"),
             Sequence(
                 "VIEW",
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 "MATERIALIZED",
                 "VIEW",
-                Ref("ObjectReferenceSegment")
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
-                Anything()
-            )
-        )
+                Anything(),
+            ),
+        ),
     )
