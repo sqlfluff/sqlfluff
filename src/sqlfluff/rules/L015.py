@@ -1,7 +1,8 @@
 """Implementation of Rule L015."""
 from typing import Optional
 
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
@@ -69,7 +70,13 @@ class Rule_L015(BaseRule):
                         sides="after",
                     )
         elif context.segment.is_type("function"):
-            # Look for a function call DISTINCT()
+            # Look for a function call DISTINCT() whose parent is an expression
+            # with a single child.
+            if (
+                not context.parent_stack[-1].is_type("expression")
+                or len(context.parent_stack[-1].segments) != 1
+            ):
+                return None
             function_name = children.select(sp.is_type("function_name")).first()
             bracketed = children.first(sp.is_type("bracketed"))
             if (
@@ -78,7 +85,31 @@ class Rule_L015(BaseRule):
                 or not bracketed
             ):
                 return None
-            anchor, seq = self._remove_unneeded_brackets(context, bracketed)
+            anchor = context.parent_stack[-1]
+            # Using ReflowSequence here creates an unneeded space between CONCAT
+            # and "(" in the test case test_fail_distinct_concat_inside_count:
+            #    SELECT COUNT(DISTINCT(CONCAT(col1, '-', col2, '-', col3)))
+            #
+            # seq = ReflowSequence.from_around_target(
+            #     anchor,
+            #     context.parent_stack[0],
+            #     config=context.config,
+            # ).replace(
+            #     anchor,
+            #     (KeywordSegment("DISTINCT"), WhitespaceSegment())
+            #     + self.filter_meta(bracketed[0].segments)[1:-1],
+            # )
+            # Do this until we have a fix for the above.
+            return LintResult(
+                anchor=anchor,
+                fixes=[
+                    LintFix.replace(
+                        anchor,
+                        (KeywordSegment("DISTINCT"), WhitespaceSegment())
+                        + self.filter_meta(bracketed[0].segments)[1:-1],
+                    )
+                ],
+            )
         if seq and anchor:
             # Get modifications.
             fixes = seq.respace().get_fixes()
