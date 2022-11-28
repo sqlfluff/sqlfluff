@@ -128,7 +128,7 @@ The dialect for `Hive`_.
 .. _materialize_dialect_ref:
 
 Materialize
-----------
+-----------
 
 The dialect for `Materialize`_.
 

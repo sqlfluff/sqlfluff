@@ -96,7 +96,7 @@ materialize_dialect.sets("materialize_sizes").update(
 )
 
 materialize_dialect.add(
-        InstanceSizes=OneOf(
+    InstanceSizes=OneOf(
         MultiStringParser(
             materialize_dialect.sets("materialize_sizes"),
             KeywordSegment,
@@ -110,6 +110,11 @@ materialize_dialect.add(
             KeywordSegment,
             type="compression_type",
         ),
+    ),
+    InCluster=Sequence(
+        "IN",
+        "CLUSTER",
+        Ref("ObjectReferenceSegment"),
     ),
 )
 
@@ -130,22 +135,21 @@ class AlterConnectionRotateKeys(BaseSegment):
 class AlterRenameStatementSegment(BaseSegment):
     """A `ALTER RENAME` statement.
     """
-    _object_types = OneOf(
-        "CONNECTION",
-        "INDEX",
-        "SOURCE",
-        "SINK",
-        "VIEW",
-        Sequence("MATERIALIZED", "VIEW"),
-        "TABLE",
-        "SECRET"
-    )
 
     type = "alter_rename_statement"
 
     match_grammar = Sequence(
         "ALTER",
-        _object_types,
+        OneOf(
+            "CONNECTION",
+            "INDEX",
+            "SOURCE",
+            "SINK",
+            "VIEW",
+            Sequence("MATERIALIZED", "VIEW"),
+            "TABLE",
+            "SECRET"
+        ),
         Ref("ObjectReferenceSegment"),
         Sequence("RENAME", "TO"),
         Ref("ObjectReferenceSegment")
@@ -212,11 +216,23 @@ class CopyToStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "COPY",
         Bracketed(
-            Anything()
+            # SELECT statement or SUBSCRIBE statement
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Sequence(
+                    "SUBSCRIBE",
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "VALUES",
+                    Delimited(
+                        Anything(),
+                    ),
+                ),
+            ),
         ),
         "TO",
         "STDOUT",
-        #  optional with clause
         Sequence(
             "WITH",
             Bracketed(
@@ -240,9 +256,11 @@ class CopyFromStatementSegment(BaseSegment):
         ),
         "FROM",
         "STDIN",
-        #  optional with clause
         Sequence(
-            "WITH",
+            Sequence(
+                "WITH",
+                optional=True
+            ),
             Bracketed(
                 Anything()
             ),
@@ -332,12 +350,7 @@ class CreateIndexStatementSegment(BaseSegment):
             Sequence(
                 "INDEX",
                 Ref("ObjectReferenceSegment"),
-                Sequence(
-                    "IN",
-                    "CLUSTER",
-                    Ref("ObjectReferenceSegment"),
-                    optional=True
-                ),
+                Ref("InCluster", optional=True),
                 "ON",
                 Ref("ObjectReferenceSegment"),
                 Sequence(
@@ -354,12 +367,7 @@ class CreateIndexStatementSegment(BaseSegment):
             Sequence(
                 "DEFAULT",
                 "INDEX",
-                Sequence(
-                    "IN",
-                    "CLUSTER",
-                    Ref("ObjectReferenceSegment"),
-                    optional=True
-                ),
+                Ref("InCluster", optional=True),
                 "ON",
                 Ref("ObjectReferenceSegment"),
                 Sequence(
@@ -390,18 +398,12 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                     ),
                     optional=True
                 ),
-                Sequence(
-                    "IN",
-                    "CLUSTER",
-                    Ref("ObjectReferenceSegment"),
-                    optional=True
-                ),
+                Ref("InCluster", optional=True),
                 "AS",
                 Anything()
             ),
             Sequence(
-                "OR",
-                "REPLACE",
+                Ref("OrReplaceGrammar"),
                 "MATERIALIZED",
                 "VIEW",
                 Ref("ObjectReferenceSegment"),
@@ -411,12 +413,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                     ),
                     optional=True
                 ),
-                Sequence(
-                    "IN",
-                    "CLUSTER",
-                    Ref("ObjectReferenceSegment"),
-                    optional=True
-                ),
+                Ref("InCluster", optional=True),
                 "AS",
                 Anything()
             )
@@ -765,29 +762,28 @@ class DropStatementSegment(BaseSegment):
 class ShowStatementSegment(BaseSegment):
     """A Materialize `SHOW` statement.
     """
-    _object_types = OneOf(
-        "COLUMNS",
-        "CONNECTIONS",
-        "CLUSTERS",
-        Sequence("CLUSTER", "REPLICAS"),
-        "DATABASES",
-        "INDEXES",
-        Sequence("MATERIALIZED", "VIEWS"),
-        "SECRETS",
-        "SCHEMAS",
-        "SINKS",
-        "SOURCES",
-        "TABLES",
-        "TYPES",
-        "VIEWS",
-        "OBJECTS",
-    )
 
     type = "show_statement"
 
     match_grammar = Sequence(
         "SHOW",
-        _object_types,
+        OneOf(
+            "COLUMNS",
+            "CONNECTIONS",
+            "CLUSTERS",
+            Sequence("CLUSTER", "REPLICAS"),
+            "DATABASES",
+            "INDEXES",
+            Sequence("MATERIALIZED", "VIEWS"),
+            "SECRETS",
+            "SCHEMAS",
+            "SINKS",
+            "SOURCES",
+            "TABLES",
+            "TYPES",
+            "VIEWS",
+            "OBJECTS",
+        ),
         Ref("ObjectReferenceSegment", optional=True),
         # FROM is optional for some object types
         Sequence(
@@ -812,22 +808,21 @@ class ShowStatementSegment(BaseSegment):
 class ShowCreateStatementSegment(BaseSegment):
     """A Materialize `SHOW CREATE` statement.
     """
-    _object_types = OneOf(
-        Sequence("CONNECTION", optional=True),
-        Sequence("INDEX", optional=True),
-        Sequence("MATERIALIZED", "VIEW", optional=True),
-        Sequence("SINK", optional=True),
-        Sequence("SOURCE", optional=True),
-        Sequence("TABLE", optional=True),
-        Sequence("VIEW", optional=True),
-    )
 
     type = "show_create_statement"
 
     match_grammar = Sequence(
         "SHOW",
         "CREATE",
-        _object_types,
+        OneOf(
+            Sequence("CONNECTION", optional=True),
+            Sequence("INDEX", optional=True),
+            Sequence("MATERIALIZED", "VIEW", optional=True),
+            Sequence("SINK", optional=True),
+            Sequence("SOURCE", optional=True),
+            Sequence("TABLE", optional=True),
+            Sequence("VIEW", optional=True),
+        ),
         Ref("ObjectReferenceSegment")
     )
 
@@ -850,12 +845,7 @@ class ShowIndexesStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             optional=True
         ),
-        Sequence(
-            "IN",
-            "CLUSTER",
-            Ref("ObjectReferenceSegment"),
-            optional=True
-        ),
+        Ref("InCluster", optional=True),
         OneOf(
             Sequence(
                 "LIKE",
@@ -884,12 +874,7 @@ class ShowMaterializedViewsStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             optional=True
         ),
-        Sequence(
-            "IN",
-            "CLUSTER",
-            Ref("ObjectReferenceSegment"),
-            optional=True
-        ),
+        Ref("InCluster", optional=True),
     )
 
 class MaterializeExplainStatementSegment(BaseSegment):
