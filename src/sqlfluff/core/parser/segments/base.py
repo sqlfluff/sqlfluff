@@ -881,7 +881,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def get_start_point_marker(self):
+    def get_start_point_marker(self):  # pragma: no cover
         """Get a point marker at the start of this segment."""
         return self.pos_marker.start_point_marker()
 
