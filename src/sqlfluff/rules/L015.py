@@ -72,10 +72,8 @@ class Rule_L015(BaseRule):
         elif context.segment.is_type("function"):
             # Look for a function call DISTINCT() whose parent is an expression
             # with a single child.
-            if (
-                not context.parent_stack[-1].is_type("expression")
-                or len(context.parent_stack[-1].segments) != 1
-            ):
+            anchor = context.parent_stack[-1]
+            if not anchor.is_type("expression") or len(anchor.segments) != 1:
                 return None
             function_name = children.select(sp.is_type("function_name")).first()
             bracketed = children.first(sp.is_type("bracketed"))
@@ -85,7 +83,6 @@ class Rule_L015(BaseRule):
                 or not bracketed
             ):
                 return None
-            anchor = context.parent_stack[-1]
             # Using ReflowSequence here creates an unneeded space between CONCAT
             # and "(" in the test case test_fail_distinct_concat_inside_count:
             #    SELECT COUNT(DISTINCT(CONCAT(col1, '-', col2, '-', col3)))
