@@ -27,6 +27,7 @@ _dialect_lookup = {
     "db2": ("dialect_db2", "db2_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
+    "materialize": ("dialect_materialize", "materialize_dialect"),
     "mysql": ("dialect_mysql", "mysql_dialect"),
     "oracle": ("dialect_oracle", "oracle_dialect"),
     "postgres": ("dialect_postgres", "postgres_dialect"),
