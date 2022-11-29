@@ -125,6 +125,15 @@ The dialect for `Hive`_.
 
 .. _`Hive`: https://hive.apache.org/
 
+.. _materialize_dialect_ref:
+
+Materialize
+-----------
+
+The dialect for `Materialize`_.
+
+.. _`Materialize`: https://materialize.com/
+
 .. _mysql_dialect_ref:
 
 MySQL
