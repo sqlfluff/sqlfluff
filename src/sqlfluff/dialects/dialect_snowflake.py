@@ -4125,9 +4125,7 @@ class FormatTypeOptions(BaseSegment):
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
             ),
             Sequence(
-                "BINARY_FORMAT",
-                Ref("EqualsSegment"),
-                OneOf("HEX", "BASE64", "UTF8")
+                "BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")
             ),
             Sequence(
                 "FIELD_OPTIONALITY_ENCLOSED_BY",
@@ -4275,8 +4273,10 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         ),
     )
 
+
 class PartitionBySegment(BaseSegment):
     """A `PARTITION BY` for `copy_into_location` functions."""
+
     type = "partition_by_clause"
 
     match_grammar: Matchable = Sequence(
@@ -4287,6 +4287,7 @@ class PartitionBySegment(BaseSegment):
         OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
         Dedent,
     )
+
 
 class CopyIntoLocationStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <location>` statement.
