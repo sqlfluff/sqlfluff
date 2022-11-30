@@ -1,0 +1,1 @@
+CREATE TABLE tab1 SELECT * FROM tab2;
