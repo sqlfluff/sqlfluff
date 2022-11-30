@@ -4137,14 +4137,7 @@ class FormatTypeOptions(BaseSegment):
             Sequence(
                 "NULL_IF",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    Sequence(
-                        Ref("QuotedLiteralSegment"),
-                        AnyNumberOf(
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                    ),
-                ),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
             ),
             Sequence(
                 "EMPTY_FIELD_AS_NULL",
