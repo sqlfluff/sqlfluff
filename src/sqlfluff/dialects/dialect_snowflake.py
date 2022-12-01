@@ -4279,7 +4279,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 class PartitionBySegment(BaseSegment):
     """A `PARTITION BY` for `copy_into_location` functions."""
 
-    type = "partition_by_clause"
+    type = "partition_by_segment"
 
     match_grammar: Matchable = Sequence(
         "PARTITION",
