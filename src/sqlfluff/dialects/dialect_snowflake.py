@@ -4074,8 +4074,10 @@ class FormatTypeOptions(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options
     https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options
 
-    This part specifically works for the format: `FILE_FORMAT = (FORMAT_NAME = myformatname)`
-    Another case: `FILE_FORMAT = (TYPE = mytype)` their fileFormatOptions are implemented in
+    This part specifically works for the format:
+        `FILE_FORMAT = (FORMAT_NAME = myformatname)`
+    Another case:
+        `FILE_FORMAT = (TYPE = mytype)` their fileFormatOptions are implemented in
     their specific `FormatTypeParameters`
     """
 
