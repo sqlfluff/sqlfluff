@@ -1162,7 +1162,7 @@ class Linter:
         )
 
         for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
-            linter_logger.info(
+            linter_logger.warning(
                 f"Got lint result for: {linted_file.path}, "
                 f"num_violations: {linted_file.num_violations()}"
             )
