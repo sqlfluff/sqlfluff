@@ -1162,6 +1162,10 @@ class Linter:
         )
 
         for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
+            linter_logger.info(
+                f"Got lint result for: {linted_file.path}, "
+                f"num_violations: {linted_file.num_violations()}"
+            )
             linted_dir = expanded_path_to_linted_dir[linted_file.path]
             linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.

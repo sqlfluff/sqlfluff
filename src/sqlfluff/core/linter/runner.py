@@ -103,6 +103,7 @@ class SequentialRunner(BaseRunner):
 
     def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
+        linter_logger.info(f"Linting {len(fnames)} files sequentially.")
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
                 yield partial()
@@ -133,6 +134,7 @@ class ParallelRunner(BaseRunner):
         the main thread can do the IO work while passing the parsing
         and linting work out to the threads.
         """
+        linter_logger.info(f"Linting {len(fnames)} files in parallel.")
         with self._create_pool(
             self.processes,
             self._init_global,
