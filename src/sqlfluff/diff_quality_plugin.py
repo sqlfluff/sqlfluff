@@ -25,6 +25,31 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         """
         linter = Linter(config=FluffConfig.from_root())
         linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
+        result = SQLFluffViolationReporter._get_violations(linted_path)
+        return result
+
+    @staticmethod
+    def violations_batch(src_paths):
+        """Return list of violations.
+
+        Given a list of paths to .sql files, analyze them and return a list of
+        violations (i.e. formatting or style issues).
+        """
+        linter = Linter(config=FluffConfig.from_root())
+        lint_result = linter.lint_paths(src_paths, ignore_non_existent_files=True)
+        result = {}
+        for linted_dir in lint_result:
+            for linted_file in linted_dir:
+                result[linted_dir.path] = SQLFluffViolationReporter._get_violations(
+                    linted_file
+                )
+        return result
+
+    def measured_lines(self, src_path: str) -> None:  # pragma: no cover
+        """Return list of the lines in src_path that were measured."""
+
+    @staticmethod
+    def _get_violations(linted_path):
         result = []
         for violation in linted_path.get_violations():
             try:
@@ -35,9 +60,6 @@ class SQLFluffViolationReporter(BaseViolationReporter):
                 message = str(violation)
             result.append(Violation(violation.line_no, message))
         return result
-
-    def measured_lines(self, src_path: str) -> None:  # pragma: no cover
-        """Return list of the lines in src_path that were measured."""
 
 
 @diff_cover_hookimpl
