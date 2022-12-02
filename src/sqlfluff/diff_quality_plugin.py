@@ -38,8 +38,9 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         linter = Linter(config=FluffConfig.from_root())
         lint_result = linter.lint_paths(src_paths, ignore_non_existent_files=True)
         result = {}
-        for linted_dir in lint_result:
-            for linted_file in linted_dir:
+        for linted_dir in lint_result.paths:
+            assert len(linted_dir.files) == 1
+            for linted_file in linted_dir.files:
                 result[linted_dir.path] = SQLFluffViolationReporter._get_violations(
                     linted_file
                 )
