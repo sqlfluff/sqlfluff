@@ -2,10 +2,10 @@
 {% set products =  ['table1'] %}
 
 {% for product in products %}
-SELECT
-    brand,
-    country_code
-FROM
-    {{ product }}
-{% if not loop.last -%} UNION ALL {%- endif %}
+    SELECT
+        brand,
+        country_code
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
 {% endfor %}

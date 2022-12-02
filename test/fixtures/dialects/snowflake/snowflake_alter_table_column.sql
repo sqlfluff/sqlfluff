@@ -23,6 +23,9 @@ ALTER TABLE my_table ADD COLUMN my_column INTEGER WITH MASKING POLICY my_policy 
 ALTER TABLE reporting_tbl ADD COLUMN reporting_group VARCHAR
   COMMENT 'internal reporting group defined by DE team';
 
+-- without the word COLUMN
+ALTER TABLE rpt_enc_table ADD encounter_count INTEGER COMMENT 'count of encounters past year' ;
+
 -- Rename column
 ALTER TABLE empl_info RENAME COLUMN old_col_name TO new_col_name;
 
@@ -69,6 +72,7 @@ ALTER TABLE my_table DROP COLUMN column_1, column_2, column_3;
 -- IF EXISTS
 ALTER TABLE IF EXISTS my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE IF EXISTS empl_info DROP COLUMN my_column;
+ALTER TABLE IF EXISTS empl_info DROP my_column;
 ALTER TABLE IF EXISTS empl_info RENAME COLUMN old_col_name TO new_col_name;
 
 -- DROP PRIMARY KEY

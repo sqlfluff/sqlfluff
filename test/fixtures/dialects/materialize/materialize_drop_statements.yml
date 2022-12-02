@@ -1,0 +1,265 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 60d61fd583710b501d72748aa44e061fe48d833ac28dc786840388d1e463b0e4
+file:
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CLUSTER
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SECRET
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SINK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SOURCE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - keyword: IF
+    - keyword: EXISTS
+    - data_type:
+        data_type_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SECRET
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SINK
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        naked_identifier: name
+- statement_terminator: ;

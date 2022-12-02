@@ -31,6 +31,7 @@ from sqlfluff.cli.commands import (
     parse,
     dialects,
     get_config,
+    render,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
@@ -250,6 +251,15 @@ def test__cli__command_lint_stdin(command):
     invoke_assert_code(args=[lint, ("--dialect=ansi",) + command], cli_input=sql)
 
 
+def test__cli__command_render_stdin():
+    """Check render on a simple script using stdin."""
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    result = invoke_assert_code(args=[render, ("--dialect=ansi", "-")], cli_input=sql)
+    # Check we get back out the same file we input.
+    assert result.output.startswith(sql)
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -261,6 +271,13 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/passing_b.sql",
                 "--exclude-rules",
                 "L051",
+            ],
+        ),
+        # Basic render
+        (
+            render,
+            [
+                "test/fixtures/cli/passing_b.sql",
             ],
         ),
         # Original tests from test__cli__command_lint
@@ -474,8 +491,15 @@ def test__cli__command_lint_parse(command):
         (
             (
                 lint,
-                ["test/fixtures/cli/unknown_jinja_tag/test.sql", "-vvvvvvv"],
-                "y",
+                ["test/fixtures/cli/unknown_jinja_tag/test.sql"],
+            ),
+            1,
+        ),
+        # Test render fail
+        (
+            (
+                render,
+                ["test/fixtures/cli/fail_many.sql"],
             ),
             1,
         ),
@@ -538,6 +562,33 @@ def test__cli__command_lint_ignore_local_config():
     )
     assert result.exit_code == 1
     assert "L012" in result.output.strip()
+
+
+def test__cli__command_lint_warning():
+    """Test that configuring warnings works.
+
+    For this test the warnings are configured using
+    inline config in the file. That's more for simplicity
+    however the code paths should be the same if it's
+    configured in a file.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/warning_a.sql",
+        ],
+    )
+    # Because we're only warning. The command should pass.
+    assert result.exit_code == 0
+    # The output should still say PASS.
+    assert "PASS" in result.output.strip()
+    # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
+    assert (
+        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
+        in result.output.strip()
+    )
 
 
 def test__cli__command_versioning():
@@ -1179,7 +1230,10 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
     result = invoke_assert_code(args=command, ret_code=2)
-    assert "could not be accessed" in result.output
+    assert (
+        "User Error: Specified path does not exist. Check it/they "
+        "exist(s): this_file_does_not_exist.sql"
+    ) in result.output
 
 
 @patch("click.utils.should_strip_ansi")
@@ -1218,15 +1272,16 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Test the output output formats for multiple files.
+    """Test the output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
-    fpath = "test/fixtures/linter/indentation_errors.sql"
+    fpath1 = "test/fixtures/linter/indentation_errors.sql"
+    fpath2 = "test/fixtures/linter/multiple_sql_errors.sql"
 
     cmd_args = (
-        fpath,
-        fpath,
+        fpath1,
+        fpath2,
         "--format",
         serialize,
         "--disable-progress-bar",
@@ -1252,8 +1307,14 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
+    # Print for debugging.
+    payload_length = len(result_payload.split("\n"))
+    print(f"## Payload (length {payload_length}):")
+    print(result_payload)
+    print("## End Payload")
+
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 33 if write_file else 32
+        assert payload_length == 26 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1263,13 +1324,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
-        assert len(filepaths) == 1
+        assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 24
+        assert len(result) == 17
     else:
         raise Exception
 
@@ -1661,8 +1722,16 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
-        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep) in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
@@ -1681,9 +1750,27 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rfile passing.1.sql:" in raw_output
-        assert r"\rfile passing.2.sql:" in raw_output
-        assert r"\rfile passing.3.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
@@ -1790,3 +1877,41 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
 
     # Assert that they are sorted in alphabetical order
     assert unfix_err_log.index(indent_pass_msg) < unfix_err_log.index(multi_fail_msg)
+
+
+def test__cli__render_fail():
+    """Basic how render fails."""
+    expected_render_output = (
+        "L:   3 | P:   8 |  TMP | Undefined jinja template " "variable: 'something'"
+    )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            render,
+            [
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    # Check whole output. The replace command just accounts for
+    # cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_render_output)
+
+
+def test__cli__render_pass():
+    """Basic how render works."""
+    expected_render_output = "SELECT 56 FROM sch1.tbl2"
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            render,
+            [
+                "test/fixtures/templater/jinja_a/jinja.sql",
+            ],
+        ],
+    )
+    # Check whole output. The replace command just accounts for
+    # cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_render_output)

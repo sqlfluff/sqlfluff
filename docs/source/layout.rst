@@ -445,7 +445,7 @@ section and outside (in the example below the :code:`SELECT` and
       -- entirely.
       complex_case AS example
    FROM table_option_one
-   {% else %
+   {% else %}
       complex_case_two AS example
    FROM table_option_two
    {% endif %}

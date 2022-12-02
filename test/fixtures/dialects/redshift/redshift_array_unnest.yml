@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01075778ce77abf9d5bcb2d8dfca902ba23f560da637a86fea2019c8ffd89089
+_hash: a6fb7fabf3e33524cd99938920ae8641cac9c8140dec8551a6e5496327f9db51
 file:
 - statement:
     with_compound_statement:
@@ -178,24 +178,24 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: value_a
             cast_expression:
+              column_reference:
+                naked_identifier: value_a
               casting_operator: '::'
               data_type:
                 keyword: BIGINT
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: array_b
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                column_reference:
-                  naked_identifier: idx
-              end_square_bracket: ']'
             cast_expression:
+              column_reference:
+                naked_identifier: array_b
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  column_reference:
+                    naked_identifier: idx
+                end_square_bracket: ']'
               casting_operator: '::'
               data_type:
                 keyword: VARCHAR
@@ -205,27 +205,27 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: array_c
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: MOD
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: idx
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
-                  - end_bracket: )
-                binary_operator: +
-                numeric_literal: '1'
-              end_square_bracket: ']'
             cast_expression:
+              column_reference:
+                naked_identifier: array_c
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: MOD
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: idx
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '3'
+                    - end_bracket: )
+                  binary_operator: +
+                  numeric_literal: '1'
+                end_square_bracket: ']'
               casting_operator: '::'
               data_type:
                 keyword: FLOAT8

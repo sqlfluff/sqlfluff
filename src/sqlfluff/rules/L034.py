@@ -94,8 +94,22 @@ class Rule_L034(BaseRule):
             "insert_statement", "set_expression"
         ):
             return None
+        if (
+            len(context.parent_stack) >= 3
+            and context.parent_stack[-3].is_type("insert_statement", "set_expression")
+            and context.parent_stack[-2].is_type("with_compound_statement")
+        ):
+            return None
         if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
             "create_table_statement", "merge_statement"
+        ):
+            return None
+        if (
+            len(context.parent_stack) >= 4
+            and context.parent_stack[-4].is_type(
+                "create_table_statement", "merge_statement"
+            )
+            and context.parent_stack[-2].is_type("with_compound_statement")
         ):
             return None
 
@@ -141,9 +155,15 @@ class Rule_L034(BaseRule):
                                     "column_reference",
                                     "object_reference",
                                     "literal",
+                                    "cast_expression",
                                 )
                                 # len == 2 to ensure the expression is 'simple'
-                                and len(segment.get_child("expression").segments) == 2
+                                and (
+                                    len(segment.get_child("expression").segments) == 2
+                                    # cast_expression is one length
+                                    or len(segment.get_child("expression").segments)
+                                    == 1
+                                )
                             ):
                                 self._validate(i, segment)
                         except AttributeError:

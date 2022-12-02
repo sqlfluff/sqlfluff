@@ -28,6 +28,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
+- [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
@@ -98,6 +99,7 @@ Follow us [on Twitter @SQLFluff](https://twitter.com/SQLFluff) for announcements
 
 We are grateful to all our [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There is a lot to do in this project, and we are just getting started.
 
-If you want to understand more about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
+If you want to understand more about the architecture of **SQLFluff**, you can
+find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
 
 If you would like to contribute, check out the [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see the guide to [contributing](CONTRIBUTING.md).

@@ -299,4 +299,10 @@ UNRESERVED_KEYWORDS = [
     "STREAMING",
     "UPDATES",
     "VIOLATION",
+    # Databricks widget
+    "WIDGET",
+    "DROPDOWN",
+    "TEXT",
+    "CHOICES",
+    "REMOVE",
 ]

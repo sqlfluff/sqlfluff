@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Sequence,
     SymbolSegment,
     StartsWith,
+    StringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 
@@ -39,6 +40,14 @@ from sqlfluff.dialects import dialect_ansi as ansi
 ansi_dialect = load_raw_dialect("ansi")
 
 postgres_dialect = ansi_dialect.copy_as("postgres")
+
+postgres_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
 
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
@@ -236,6 +245,7 @@ postgres_dialect.add(
         Ref("NakedIdentifierFullSegment"),
     ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
 )
 
 postgres_dialect.replace(
@@ -274,6 +284,10 @@ postgres_dialect.replace(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
         type="function_name_identifier",
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
     QuotedLiteralSegment=OneOf(
         # Postgres allows newline-concatenated string literals (#1488).
@@ -2029,6 +2043,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "MATERIALIZED",
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
@@ -2043,6 +2058,11 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                     Delimited(
                         Sequence(
                             Ref("ParameterNameSegment"),
+                            Sequence(
+                                Ref("DotSegment"),
+                                Ref("ParameterNameSegment"),
+                                optional=True,
+                            ),
                             Sequence(
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
@@ -4370,7 +4390,7 @@ class CreateTypeStatementSegment(BaseSegment):
 class AlterTypeStatementSegment(BaseSegment):
     """An `ALTER TYPE` statement.
 
-    https://www.postgresql.org/docs/current/sql-createtype.html
+    https://www.postgresql.org/docs/current/sql-altertype.html
     """
 
     type = "alter_type_statement"
@@ -4388,6 +4408,13 @@ class AlterTypeStatementSegment(BaseSegment):
                     "CURRENT_ROLE",
                     Ref("ObjectReferenceSegment"),
                 ),
+            ),
+            Sequence(
+                "RENAME",
+                "VALUE",
+                Ref("QuotedLiteralSegment"),
+                "TO",
+                Ref("QuotedLiteralSegment"),
             ),
             Sequence(
                 "RENAME",
@@ -4609,4 +4636,18 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
             optional=True,
         ),
         allow_gaps=False,
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://www.postgresql.org/docs/current/sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
     )

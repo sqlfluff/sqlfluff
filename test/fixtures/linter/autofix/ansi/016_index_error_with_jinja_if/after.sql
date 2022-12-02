@@ -4,13 +4,13 @@
   'table2'] %}
 
 {% for product in products %}
-SELECT
-    brand,
-    country_code,
-    category,
-    name,
-    id
-FROM
-    {{ product }}
-{% if not loop.last -%} UNION ALL {%- endif %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
 {% endfor %}

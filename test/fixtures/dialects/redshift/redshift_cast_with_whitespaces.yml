@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 856f04711c8a1d3c191870b0e6d23724901ddcaf3f7dfa43c0d33b473e98798e
+_hash: 45f6ce610eb11288932f751215ccd224f40f71b9709a919f29620b0453a0cdaf
 file:
 - statement:
     select_statement:
@@ -11,9 +11,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: FLOAT
@@ -31,9 +31,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: FLOAT
@@ -51,9 +51,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: FLOAT
@@ -71,9 +71,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: FLOAT
@@ -91,9 +91,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -112,9 +112,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: text
@@ -132,9 +132,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 keyword: VARCHAR
@@ -156,9 +156,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -177,9 +177,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            column_reference:
-              naked_identifier: amount_of_honey
             cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
               casting_operator: '::'
               data_type:
                 datetime_type_identifier:
@@ -225,11 +225,11 @@ file:
           - join_on_condition:
               keyword: 'ON'
               expression:
-              - column_reference:
-                - naked_identifier: fc
-                - dot: .
-                - naked_identifier: bear_id
               - cast_expression:
+                  column_reference:
+                  - naked_identifier: fc
+                  - dot: .
+                  - naked_identifier: bear_id
                   casting_operator: '::'
                   data_type:
                     keyword: VARCHAR
@@ -239,11 +239,11 @@ file:
                       end_bracket: )
               - comparison_operator:
                   raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: bi
-                - dot: .
-                - naked_identifier: bear_id
               - cast_expression:
+                  column_reference:
+                  - naked_identifier: bi
+                  - dot: .
+                  - naked_identifier: bear_id
                   casting_operator: '::'
                   data_type:
                     keyword: VARCHAR

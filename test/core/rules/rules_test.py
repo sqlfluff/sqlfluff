@@ -56,6 +56,25 @@ class Rule_T001(BaseRule):
             )
 
 
+class Rule_T002(BaseRule):
+    """A rule which says all raw code segments are bad.
+
+    This is used for testing unparsable code.
+    """
+
+    groups = ("all",)
+    # Root only crawler so that the in-rule filters don't kick in.
+    crawl_behaviour = RootOnlyCrawler()
+
+    def _eval(self, context):
+        """Stars make newlines."""
+        violations = []
+        for seg in context.segment.raw_segments:
+            if seg.is_code:
+                violations.append(LintResult(anchor=seg, description="TESTING"))
+        return violations
+
+
 def test__rules__user_rules():
     """Test that can safely add user rules."""
     # Set up a linter with the user rule
@@ -66,6 +85,20 @@ def test__rules__user_rules():
     # This tests that copying and isolation works.
     linter = Linter(dialect="ansi")
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
+
+
+def test__rules__filter_uparsable():
+    """Test that rules that handle their own crawling respect unparsable."""
+    # Set up a linter with the user rule
+    linter = Linter(user_rules=[Rule_T002], dialect="ansi", rules=["T002"])
+    # Lint a simple parsable file and check we do get issues
+    # It's parsable, so we should get issues.
+    res = linter.lint_string("SELECT 1")
+    assert any(v.rule_code() == "T002" for v in res.violations)
+    # Lint an unparsable file. Check we don't get any violations.
+    # It's not parsable so we shouldn't get issues.
+    res = linter.lint_string("asd asdf sdfg")
+    assert not any(v.rule_code() == "T002" for v in res.violations)
 
 
 def test__rules__runaway_fail_catch():

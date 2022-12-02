@@ -287,7 +287,6 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
-
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -674,6 +673,32 @@ ansi_dialect.add(
         Ref("JoinLikeClauseGrammar"),
         BracketedSegment,
     ),
+    AlterTableOptionsGrammar=OneOf(
+        # Table options
+        Sequence(
+            Ref("ParameterNameSegment"),
+            Ref("EqualsSegment", optional=True),
+            OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+        ),
+        # Add things
+        Sequence(
+            OneOf("ADD", "MODIFY"),
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnDefinitionSegment"),
+            OneOf(
+                Sequence(OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")),
+                # Bracketed Version of the same
+                Ref("BracketedColumnReferenceListGrammar"),
+                optional=True,
+            ),
+        ),
+        # Rename
+        Sequence(
+            "RENAME",
+            OneOf("AS", "TO", optional=True),
+            Ref("TableReferenceSegment"),
+        ),
+    ),
 )
 
 
@@ -1049,7 +1074,18 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar: Matchable = Sequence(
-        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("CastOperatorSegment"),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+            ),
+            min_times=1,
+        ),
     )
 
 
@@ -1154,7 +1190,9 @@ class WindowSpecificationSegment(BaseSegment):
 
     type = "window_specification"
     match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar", optional=True),  # "Base" window name
+        Ref(
+            "SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")
+        ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
@@ -1639,7 +1677,7 @@ class FromClauseSegment(BaseSegment):
 
     NOTE: this is a delimited set of table expressions, with a variable
     number of optional join clauses with those table expressions. The
-    delmited aspect is the higher of the two such that the following is
+    delimited aspect is the higher of the two such that the following is
     valid (albeit unusual):
 
     ```
@@ -1857,8 +1895,9 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
+        Ref("ShorthandCastSegment"),
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -2868,34 +2907,7 @@ class AlterTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Delimited(
-            OneOf(
-                # Table options
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                ),
-                # Add things
-                Sequence(
-                    OneOf("ADD", "MODIFY"),
-                    Ref.keyword("COLUMN", optional=True),
-                    Ref("ColumnDefinitionSegment"),
-                    OneOf(
-                        Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                        ),
-                        # Bracketed Version of the same
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        optional=True,
-                    ),
-                ),
-                # Rename
-                Sequence(
-                    "RENAME",
-                    OneOf("AS", "TO", optional=True),
-                    Ref("TableReferenceSegment"),
-                ),
-            ),
+            Ref("AlterTableOptionsGrammar"),
         ),
     )
 
@@ -3297,7 +3309,6 @@ class SetClauseSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             "DEFAULT",
         ),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
     )
 
 
@@ -3534,6 +3545,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
+        Bracketed(Ref("StatementSegment")),
     )
 
     def get_table_references(self):
