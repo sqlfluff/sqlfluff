@@ -37,5 +37,8 @@ def initialize_worker_logging(verbosity):
     # https://docs.python.org/3/howto/logging-cookbook.html#logging-cookbook
     logger = logging.getLogger()
     fh = logging.FileHandler(f"{os.getpid()}.log")
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s] %(message)s")
+    fh.setFormatter(formatter)
     logger.addHandler(fh)
     set_logging_verbosity(verbosity)
