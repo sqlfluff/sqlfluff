@@ -449,7 +449,7 @@ class BaseRule:
                         ).format(keyword, code)
                     )
         except AttributeError:
-            self.logger.info(f"No config_keywords defined for {code}")
+            self.logger.debug(f"No config_keywords defined for {code}")
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Evaluate this rule against the current context.

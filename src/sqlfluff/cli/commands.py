@@ -47,6 +47,7 @@ from sqlfluff.core import (
 from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
+from sqlfluff.core.logging import set_logging_verbosity
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 
@@ -115,23 +116,7 @@ def set_logging_level(
     else:
         fluff_logger.addHandler(handler)
 
-    # NB: We treat the parser logger slightly differently because it's noisier.
-    # It's important that we set levels for all each time so
-    # that we don't break tests by changing the granularity
-    # between tests.
-    parser_logger = logging.getLogger("sqlfluff.parser")
-    if verbosity < 3:
-        fluff_logger.setLevel(logging.WARNING)
-        parser_logger.setLevel(logging.NOTSET)
-    elif verbosity == 3:
-        fluff_logger.setLevel(logging.INFO)
-        parser_logger.setLevel(logging.WARNING)
-    elif verbosity == 4:
-        fluff_logger.setLevel(logging.DEBUG)
-        parser_logger.setLevel(logging.INFO)
-    elif verbosity > 4:
-        fluff_logger.setLevel(logging.DEBUG)
-        parser_logger.setLevel(logging.DEBUG)
+    set_logging_verbosity(verbosity)
 
 
 class PathAndUserErrorHandler:

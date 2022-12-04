@@ -14,12 +14,14 @@ import multiprocessing
 import multiprocessing.dummy
 import signal
 import sys
+import time
 import traceback
 from typing import Callable, List, Tuple, Iterator
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile
+from sqlfluff.core.logging import initialize_worker_logging
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -97,6 +99,13 @@ To hide this warning, add the failing file to .sqlfluffignore
 {traceback.format_exc()}""",
         )
 
+    @staticmethod
+    def _lint_and_log_elapsed_time(fname, partial):
+        start = time.time()
+        result = partial()
+        linter_logger.info(f"Linted file '{fname}' in {time.time() - start:.2f}s")
+        return result
+
 
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
@@ -106,7 +115,7 @@ class SequentialRunner(BaseRunner):
         linter_logger.warning(f"Linting {len(fnames)} files sequentially.")
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
-                yield partial()
+                yield self._lint_and_log_elapsed_time(fname, partial)
             except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
                 raise
             except Exception as e:
@@ -165,13 +174,13 @@ class ParallelRunner(BaseRunner):
                 print("Received keyboard interrupt. Cleaning up and shutting down...")
                 pool.terminate()
 
-    @staticmethod
-    def _apply(partial_tuple):
+    @classmethod
+    def _apply(cls, partial_tuple):
         """Shim function used in parallel mode."""
         # Unpack the tuple and ditch the filename in this case.
         fname, partial = partial_tuple
         try:
-            return partial()
+            return cls._lint_and_log_elapsed_time(fname, partial)
         # Capture any exceptions and return as delayed exception to handle
         # in the main thread.
         except Exception as e:
@@ -203,6 +212,11 @@ class MultiProcessRunner(ParallelRunner):
         # cleanly. Adapted from this post:
         # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
         signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+        verbosity = config.get("verbose")
+        if verbosity > 0:
+            # Set up logging to a file (separate file per worker process).
+            initialize_worker_logging(verbosity)
 
 
 class MultiThreadRunner(ParallelRunner):

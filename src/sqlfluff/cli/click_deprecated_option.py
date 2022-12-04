@@ -62,7 +62,7 @@ class DeprecatedOptionsCommand(click.Command):
             if not isinstance(option.obj, DeprecatedOption):
                 continue
 
-            option.process = self._make_process(option)  # type: ignore
+            option.process = self._make_process(option)
 
         return parser
 
