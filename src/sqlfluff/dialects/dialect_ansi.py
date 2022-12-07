@@ -2378,7 +2378,7 @@ class CTEDefinitionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
         Ref("CTEColumnList", optional=True),
-        "AS",
+        Sequence("AS", optional=True),
         Bracketed(
             # Ephemeral here to subdivide the query.
             Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")

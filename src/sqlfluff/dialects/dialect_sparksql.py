@@ -3113,20 +3113,3 @@ class SelectClauseSegment(BaseSegment):
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
-
-
-class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
-    """A CTE Definition from a WITH statement.
-
-    `tab (col1,col2) AS (SELECT a,b FROM x)`
-    """
-
-    match_grammar: Matchable = Sequence(
-        Ref("SingleIdentifierGrammar"),
-        Ref("CTEColumnList", optional=True),
-        Sequence("AS", optional=True),
-        Bracketed(
-            # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
-        ),
-    )
