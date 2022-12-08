@@ -11,7 +11,7 @@ jobs:
         python-version: '3.11'
     - name: Install dependencies
       run: |
-        pip install requirements.txt requirements_dev.txt
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
     - name: Generate the YAML files
       run: |
