@@ -41,6 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # We don't enforce coverage on older Python versions.
         python-version: [ '3.7', '3.8', '3.9', '3.10' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
@@ -59,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # We enforce coverage on this, the latest Python version.
         python-version: [ '3.11' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
@@ -138,6 +140,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
+        # We don't enforce coverage on older dbt versions.
         dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
@@ -173,6 +176,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
+        # We enforce coverage on this, the latest dbt version.
         dbt-version: [ 'dbt130' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
