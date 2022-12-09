@@ -69,6 +69,7 @@ class DbtTemplater(JinjaTemplater):
 
     name = "dbt"
     sequential_fail_limit = 3
+    adapters = {}
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
@@ -77,7 +78,6 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self._sequential_fails = 0
-        self.connection_acquired = False
         super().__init__(**kwargs)
 
     def config_pairs(self):  # pragma: no cover TODO?
@@ -609,11 +609,14 @@ class DbtTemplater(JinjaTemplater):
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
         if DBT_VERSION_TUPLE >= (1, 0):
-            if not self.connection_acquired:
+            adapter_type = self.dbt_config.credentials.type
+            adapter = self.adapters.get(adapter_type)
+            if adapter is None:
                 adapter = get_adapter(self.dbt_config)
+                self.adapters[adapter_type] = adapter
                 adapter.acquire_connection("master")
                 adapter.set_relations_cache(self.dbt_manifest)
-                self.connection_acquired = True
+
             yield
             # :TRICKY: Once connected, we never disconnect. Making multiple
             # connections during linting has proven to cause major performance
