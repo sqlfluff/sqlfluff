@@ -41,7 +41,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+    name: Python ${{ matrix.python-version }} tests
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e py -- -n 2 test
+  python-version-tests-cov:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -120,7 +138,42 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dbt-version: [ 'dbt020', 'dbt021', 'dbt100', 'dbt130' ]
+        dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
+    name: DBT Plugin ${{ matrix.dbt-version }} tests
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
+  dbt-tests-cov:
+    runs-on: ubuntu-latest
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    strategy:
+      matrix:
+        dbt-version: [ 'dbt130' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -202,10 +255,6 @@ jobs:
       # None of these test need temp dir set
       run: |
         python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
