@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class SQLFluffDriver(QualityDriver):
+    """SQLFluff driver for use by SQLFluffViolationReporter."""
+
     def __init__(self):
         super().__init__(
             "sqlfluff",
@@ -30,13 +32,11 @@ class SQLFluffDriver(QualityDriver):
         )
 
     def parse_reports(self, reports):
+        """Parse report output. Not used by SQLFluff."""
         pass
 
     def installed(self):
-        """
-        Method checks if the provided tool is installed.
-        Returns: boolean True if installed
-        """
+        """Check if SQLFluff is installed."""
         return run_command_for_code("sqlfluff") == 0
 
 
@@ -50,9 +50,7 @@ class SQLFluffViolationReporter(QualityReporter):
         super().__init__(SQLFluffDriver())
 
     def violations_batch(self, src_paths):
-        """
-        Return a dictionary of Violations recorded in `src_paths`.
-        """
+        """Return a dictionary of Violations recorded in `src_paths`."""
         # Check if SQLFluff is installed.
         if self.driver_tool_installed is None:
             self.driver_tool_installed = self.driver.installed()
