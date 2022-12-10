@@ -3,17 +3,15 @@
 https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
 """
 
-from sqlfluff.core.parser import (
-    SegmentGenerator,
-    RegexParser,
-    CodeSegment,
-    RegexLexer,
-    CommentSegment,
-)
-
-from sqlfluff.dialects import dialect_ansi as ansi
-
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser import (
+    CodeSegment,
+    CommentSegment,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+)
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -45,10 +43,18 @@ db2_dialect.patch_lexer_matchers(
         ),
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote",
+            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            CodeSegment,
+            segment_kwargs={"type": "single_quote"},
         ),
         # In Db2, there is no escape character for double quote strings
-        RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+        RegexLexer(
+            "double_quote",
+            r'(?s)".+?"',
+            CodeSegment,
+            segment_kwargs={"type": "double_quote"},
+        ),
         # In Db2, a field could have a # pound/hash sign
         RegexLexer("code", r"[0-9a-zA-Z_#]+", CodeSegment),
     ]
