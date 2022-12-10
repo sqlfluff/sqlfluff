@@ -87,11 +87,7 @@ class SQLFluffViolationReporter(QualityReporter):
         )
         logger.warning(f"{printable_command}")
         output = execute(command, self.driver.exit_codes)
-        if self.driver.output_stderr:
-            output = [output[1]]
-        else:
-            output = [output[0]]
-        return output
+        return [output[1]] if self.driver.output_stderr else [output[0]]
 
     def measured_lines(self, src_path: str) -> None:  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
