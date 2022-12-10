@@ -57,6 +57,18 @@ class SQLFluffViolationReporter(QualityReporter):
         if not self.driver_tool_installed:  # pragma: no cover
             raise OSError(f"{self.driver.name} is not installed")
 
+        output = self.reports if self.reports else self._run_sqlfluff(src_paths)
+        for o in output:
+            # Load and parse SQLFluff JSON output.
+            report = json.loads(o)
+            for file in report:
+                self.violations_dict[file["filepath"]] = [
+                    Violation(v["line_no"], v["description"])
+                    for v in file["violations"]
+                ]
+        return self.violations_dict
+
+    def _run_sqlfluff(self, src_paths):
         # Prepare the SQLFluff command to run.
         command = copy.deepcopy(self.driver.command)
         if self.options:
@@ -76,17 +88,10 @@ class SQLFluffViolationReporter(QualityReporter):
         logger.warning(f"{printable_command}")
         output = execute(command, self.driver.exit_codes)
         if self.driver.output_stderr:
-            output = output[1]
+            output = [output[1]]
         else:
-            output = output[0]
-
-        # Parse the output.
-        report = json.loads(output)
-        for file in report:
-            self.violations_dict[file["filepath"]] = [
-                Violation(v["line_no"], v["description"]) for v in file["violations"]
-            ]
-        return self.violations_dict
+            output = [output[0]]
+        return output
 
     def measured_lines(self, src_path: str) -> None:  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
