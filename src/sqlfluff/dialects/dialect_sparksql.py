@@ -251,8 +251,9 @@ sparksql_dialect.replace(
     ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
+        # ilike: https://github.com/apache/spark/pull/33966/files
         Sequence(
-            "LIKE",
+            OneOf("LIKE", "ILIKE"),
             OneOf(
                 "ALL",
                 "ANY",
