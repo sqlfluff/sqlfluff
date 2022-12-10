@@ -26,7 +26,7 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
     try:
         import dbt  # noqa: F401
 
-        pytest.skip(msg="dbt is installed")
+        pytest.skip(reason="dbt is installed")
     except ModuleNotFoundError:
         pass
 

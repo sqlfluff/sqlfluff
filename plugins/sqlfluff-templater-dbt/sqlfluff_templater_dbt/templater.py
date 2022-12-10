@@ -609,11 +609,10 @@ class DbtTemplater(JinjaTemplater):
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
         if DBT_VERSION_TUPLE >= (1, 0):
-            adapter_type = self.dbt_config.credentials.type
-            adapter = self.adapters.get(adapter_type)
+            adapter = self.adapters.get(self.project_dir)
             if adapter is None:
                 adapter = get_adapter(self.dbt_config)
-                self.adapters[adapter_type] = adapter
+                self.adapters[self.project_dir] = adapter
                 adapter.acquire_connection("master")
                 adapter.set_relations_cache(self.dbt_manifest)
 
