@@ -1106,7 +1106,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Dedent,
         # Create AS syntax:
         Sequence(
-            Ref("AS", optional=True),
+            Ref.keyword("AS", optional=True),
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
         ),
