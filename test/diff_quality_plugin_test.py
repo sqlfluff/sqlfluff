@@ -1,14 +1,10 @@
 """Tests for the SQLFluff integration with the "diff-quality" tool."""
 
-import sys
 from pathlib import Path
 
 import pytest
 
-try:
-    from sqlfluff import diff_quality_plugin
-except ImportError:
-    pass
+from sqlfluff import diff_quality_plugin
 
 
 @pytest.mark.parametrize(
@@ -21,14 +17,12 @@ except ImportError:
         ("linter/diffquality/parse_error.sql", []),
     ],
 )
-@pytest.mark.skipif(
-    sys.version_info[:2] == (3, 4),
-    reason="requires diff_cover package, which does not support python3.4",
-)
 def test_diff_quality_plugin(sql_path, expected_violations_lines, monkeypatch):
     """Test the plugin at least finds errors on the expected lines."""
     monkeypatch.chdir("test/fixtures/")
-    violation_reporter = diff_quality_plugin.diff_cover_report_quality()
+    violation_reporter = diff_quality_plugin.diff_cover_report_quality(
+        options="--processes=1"
+    )
     sql_path = str(Path(sql_path))
 
     violations_dict = violation_reporter.violations_batch([sql_path])

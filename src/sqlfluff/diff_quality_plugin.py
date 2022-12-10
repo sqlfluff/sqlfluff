@@ -31,7 +31,7 @@ class SQLFluffDriver(QualityDriver):
             exit_codes=[0, 1],
         )
 
-    def parse_reports(self, reports):
+    def parse_reports(self, reports):  # pragma: no cover
         """Parse report output. Not used by SQLFluff."""
         pass
 
@@ -45,16 +45,16 @@ class SQLFluffViolationReporter(QualityReporter):
 
     supported_extensions = ["sql"]
 
-    def __init__(self, reports=None, options=None):
+    def __init__(self, **kw):
         """Calls the base class constructor to set the object's name."""
-        super().__init__(SQLFluffDriver())
+        super().__init__(SQLFluffDriver(), **kw)
 
     def violations_batch(self, src_paths):
         """Return a dictionary of Violations recorded in `src_paths`."""
         # Check if SQLFluff is installed.
         if self.driver_tool_installed is None:
             self.driver_tool_installed = self.driver.installed()
-        if not self.driver_tool_installed:
+        if not self.driver_tool_installed:  # pragma: no cover
             raise OSError(f"{self.driver.name} is not installed")
 
         # Prepare the SQLFluff command to run.
@@ -67,9 +67,13 @@ class SQLFluffViolationReporter(QualityReporter):
                 command.append(src_path.encode(sys.getfilesystemencoding()))
 
         # Run SQLFluff.
-        logger.warning(
-            f"{' '.join([c.decode(sys.getfilesystemencoding()) for c in command])}"
+        printable_command = " ".join(
+            [
+                c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
+                for c in command
+            ]
         )
+        logger.warning(f"{printable_command}")
         output = execute(command, self.driver.exit_codes)
         if self.driver.output_stderr:
             output = output[1]
@@ -89,7 +93,7 @@ class SQLFluffViolationReporter(QualityReporter):
 
 
 @diff_cover_hookimpl
-def diff_cover_report_quality() -> SQLFluffViolationReporter:
+def diff_cover_report_quality(**kw) -> SQLFluffViolationReporter:
     """Returns the SQLFluff plugin.
 
     This function is registered as a diff_cover entry point. diff-quality calls
@@ -97,4 +101,4 @@ def diff_cover_report_quality() -> SQLFluffViolationReporter:
 
     :return: Object that implements the BaseViolationReporter ABC
     """
-    return SQLFluffViolationReporter()
+    return SQLFluffViolationReporter(**kw)
