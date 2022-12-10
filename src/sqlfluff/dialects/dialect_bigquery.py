@@ -1877,7 +1877,10 @@ class ExportStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("SingleQuotedLiteralSegment"),
+                        Ref("DoubleQuotedLiteralSegment"),
+                    ),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with
