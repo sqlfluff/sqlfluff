@@ -1,6 +1,7 @@
 """Tests for the SQLFluff integration with the "diff-quality" tool."""
 
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -28,6 +29,8 @@ def test_diff_quality_plugin(sql_path, expected_violations_lines, monkeypatch):
     """Test the plugin at least finds errors on the expected lines."""
     monkeypatch.chdir("test/fixtures/")
     violation_reporter = diff_quality_plugin.diff_cover_report_quality()
+    sql_path = str(Path(sql_path))
+
     violations_dict = violation_reporter.violations_batch([sql_path])
     assert isinstance(violations_dict, dict)
     if expected_violations_lines:
