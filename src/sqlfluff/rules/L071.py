@@ -35,14 +35,14 @@ class Rule_L071(BaseRule):
     """
 
     groups = ("all", "core")
-    crawl_behaviour = SegmentSeekerCrawler(
-        {"start_bracket", "end_bracket"}
-    )
+    crawl_behaviour = SegmentSeekerCrawler({"start_bracket", "end_bracket"}, provide_raw_stack=True)
 
-    def _eval(self, context: RuleContext) -> List[LintResult]:
+    def _eval(self, context: RuleContext) -> List[LintResult] | None:
         """Parenthesis blocks should be surrounded by whitespaces."""
 
-        if context.segment.is_type('start_bracket'):
+        if context.segment.is_type("start_bracket") and context.raw_stack[-2].is_type("keyword"):
+            # and prior section not from or where
+            # reserved_keywords
             return (
                 ReflowSequence.from_around_target(
                     context.segment,
@@ -53,7 +53,7 @@ class Rule_L071(BaseRule):
                 .respace()
                 .get_results()
             )
-        if context.segment.is_type('end_bracket'):
+        if context.segment.is_type("end_bracket"):
             return (
                 ReflowSequence.from_around_target(
                     context.segment,
@@ -64,3 +64,5 @@ class Rule_L071(BaseRule):
                 .respace()
                 .get_results()
             )
+
+        return None
