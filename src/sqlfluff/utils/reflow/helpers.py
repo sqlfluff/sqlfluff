@@ -39,7 +39,7 @@ def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> st
     indent_seg = None
     # Use range and a lookup here because it's more efficient than slicing
     # as we only need a subset of the long series.
-    for idx in range(seg_idx, step=-1):
+    for idx in range(seg_idx, -1, -1):
         seg = root_segment.raw_segments[idx]
         if seg.is_code:
             indent_seg = None
