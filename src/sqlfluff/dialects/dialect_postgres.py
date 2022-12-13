@@ -4390,7 +4390,7 @@ class CreateTypeStatementSegment(BaseSegment):
 class AlterTypeStatementSegment(BaseSegment):
     """An `ALTER TYPE` statement.
 
-    https://www.postgresql.org/docs/current/sql-createtype.html
+    https://www.postgresql.org/docs/current/sql-altertype.html
     """
 
     type = "alter_type_statement"
@@ -4408,6 +4408,13 @@ class AlterTypeStatementSegment(BaseSegment):
                     "CURRENT_ROLE",
                     Ref("ObjectReferenceSegment"),
                 ),
+            ),
+            Sequence(
+                "RENAME",
+                "VALUE",
+                Ref("QuotedLiteralSegment"),
+                "TO",
+                Ref("QuotedLiteralSegment"),
             ),
             Sequence(
                 "RENAME",

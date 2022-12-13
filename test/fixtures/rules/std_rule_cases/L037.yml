@@ -24,3 +24,8 @@ test_desc_unspecified:
 
 test_desc_asc:
   pass_str: SELECT * FROM t ORDER BY a DESC, b ASC
+
+
+test_nulls_last:
+  fail_str: SELECT * FROM t ORDER BY a DESC, b NULLS LAST
+  fix_str: SELECT * FROM t ORDER BY a DESC, b ASC NULLS LAST

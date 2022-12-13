@@ -571,7 +571,7 @@ def lint(
     )
 
     # Output the results as we go
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(format_linting_result_header())
 
     with PathAndUserErrorHandler(formatter):
@@ -587,7 +587,7 @@ def lint(
             )
 
     # Output the final stats
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
@@ -680,7 +680,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     return False  # pragma: no cover
 
 
-@cli.command()
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @click.option(
@@ -710,9 +710,12 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
+    "--disable_progress_bar",
     "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
+    cls=DeprecatedOption,
+    deprecated=["--disable_progress_bar"],
 )
 @click.option(
     "--FIX-EVEN-UNPARSABLE",

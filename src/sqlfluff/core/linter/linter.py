@@ -163,7 +163,7 @@ class Linter:
             linter_logger.info(
                 "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
             )
-        except SQLLexError as err:
+        except SQLLexError as err:  # pragma: no cover
             linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
             violations.append(err)
             return None, violations, config
