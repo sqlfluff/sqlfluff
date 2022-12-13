@@ -13,7 +13,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 class OrderByColumnInfo(NamedTuple):
     """For L037, segment that ends an ORDER BY column and any order provided."""
 
-    separator: BaseSegment
+    column_reference: BaseSegment
     order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
@@ -52,35 +52,37 @@ class Rule_L037(BaseRule):
         assert segment.is_type("orderby_clause")
 
         result = []
-        found_column_reference = False
+        column_reference = None
         ordering_reference = None
         for child_segment in segment.segments:
             if child_segment.is_type("column_reference"):
-                found_column_reference = True
+                column_reference = child_segment
             elif child_segment.is_type("keyword") and child_segment.raw_upper in (
                 "ASC",
                 "DESC",
             ):
                 ordering_reference = child_segment.raw_upper
-            elif found_column_reference and child_segment.type not in [
+            elif column_reference and child_segment.type not in [
                 "keyword",
                 "whitespace",
                 "indent",
                 "dedent",
             ]:
                 result.append(
-                    OrderByColumnInfo(separator=child_segment, order=ordering_reference)
+                    OrderByColumnInfo(
+                        column_reference=column_reference, order=ordering_reference
+                    )
                 )
 
                 # Reset findings
-                found_column_reference = False
+                column_reference = None
                 ordering_reference = None
 
         # Special handling for last column
-        if found_column_reference:
+        if column_reference:
             result.append(
                 OrderByColumnInfo(
-                    separator=segment.segments[-1], order=ordering_reference
+                    column_reference=column_reference, order=ordering_reference
                 )
             )
         return result
@@ -106,8 +108,8 @@ class Rule_L037(BaseRule):
             if not col_info.order:
                 # Since ASC is default in SQL, add in ASC for fix
                 lint_fixes.append(
-                    LintFix.create_before(
-                        col_info.separator,
+                    LintFix.create_after(
+                        col_info.column_reference,
                         [WhitespaceSegment(), KeywordSegment("ASC")],
                     )
                 )
