@@ -18,7 +18,7 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
+from sqlfluff_templater_dbt.templater import DbtFailedToConnectException, DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -26,7 +26,7 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
     try:
         import dbt  # noqa: F401
 
-        pytest.skip(msg="dbt is installed")
+        pytest.skip(reason="dbt is installed")
     except ModuleNotFoundError:
         pass
 
@@ -105,9 +105,10 @@ def test_dbt_profiles_dir_env_var_uppercase(
 
 
 def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
+    path = Path(project_dir) / "models/my_new_project" / fname
     templated_file, _ = dbt_templater.process(
-        in_str="",
-        fname=os.path.join(project_dir, "models/my_new_project/", fname),
+        in_str=path.read_text(),
+        fname=str(path),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     template_output_folder_path = Path(
@@ -237,9 +238,10 @@ def test__templater_dbt_templating_test_lex(
         source_dbt_sql = source_dbt_model.read()
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    path = Path(project_dir) / fname
     templated_file, _ = dbt_templater.process(
-        in_str="",
-        fname=os.path.join(project_dir, fname),
+        in_str=path.read_text(),
+        fname=str(path),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     tokens, lex_vs = lexer.lex(templated_file)
@@ -392,6 +394,9 @@ def test__templater_dbt_handle_database_connection_failure(
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
 
+    # Clear the adapter cache to force this test to create a new connection.
+    DbtTemplater.adapters.clear()
+
     set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 
     src_fpath = (
@@ -469,9 +474,11 @@ def test__context_in_config_is_loaded(
     config_dict["templater"]["dbt"]["context"] = context
     config = FluffConfig(config_dict)
 
-    fname = os.path.abspath(os.path.join(project_dir, model_path))
+    path = Path(project_dir) / model_path
 
-    processed, violations = dbt_templater.process(in_str="", fname=fname, config=config)
+    processed, violations = dbt_templater.process(
+        in_str=path.read_text(), fname=str(path), config=config
+    )
 
     assert violations == []
     assert str(var_value) in processed.templated_str

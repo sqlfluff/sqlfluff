@@ -1,0 +1,4 @@
+[sqlfluff]
+dialect = ansi
+rules = L010
+encoding = utf-8

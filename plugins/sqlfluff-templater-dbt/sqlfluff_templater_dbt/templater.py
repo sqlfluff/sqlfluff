@@ -22,6 +22,8 @@ from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.cli.formatters import OutputStreamFormatter
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 
@@ -67,6 +69,7 @@ class DbtTemplater(JinjaTemplater):
 
     name = "dbt"
     sequential_fail_limit = 3
+    adapters = {}
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
@@ -75,7 +78,6 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self._sequential_fails = 0
-        self.connection_acquired = False
         super().__init__(**kwargs)
 
     def config_pairs(self):  # pragma: no cover TODO?
@@ -323,15 +325,22 @@ class DbtTemplater(JinjaTemplater):
                 )
 
     @large_file_check
-    def process(self, *, fname, in_str=None, config=None, formatter=None):
+    def process(
+        self,
+        *,
+        fname: str,
+        in_str: Optional[str] = None,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[OutputStreamFormatter] = None,
+    ):
         """Compile a dbt model and return the compiled SQL.
 
         Args:
-            fname (:obj:`str`): Path to dbt model(s)
-            in_str (:obj:`str`, optional): This is ignored for dbt
-            config (:obj:`FluffConfig`, optional): A specific config to use for this
+            fname: Path to dbt model(s)
+            in_str: fname contents using configured encoding
+            config: A specific config to use for this
                 templating operation. Only necessary for some templaters.
-            formatter (:obj:`CallbackFormatter`): Optional object for output.
+            formatter: Optional object for output.
         """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
@@ -515,10 +524,7 @@ class DbtTemplater(JinjaTemplater):
                     "dbt templater compilation failed silently, check your "
                     "configuration by running `dbt compile` directly."
                 )
-
-            with open(fname) as source_dbt_model:
-                source_dbt_sql = source_dbt_model.read()
-
+            source_dbt_sql = in_str
             if not source_dbt_sql.rstrip().endswith("-%}"):
                 n_trailing_newlines = len(source_dbt_sql) - len(
                     source_dbt_sql.rstrip("\n")
@@ -603,11 +609,13 @@ class DbtTemplater(JinjaTemplater):
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
         if DBT_VERSION_TUPLE >= (1, 0):
-            if not self.connection_acquired:
+            adapter = self.adapters.get(self.project_dir)
+            if adapter is None:
                 adapter = get_adapter(self.dbt_config)
+                self.adapters[self.project_dir] = adapter
                 adapter.acquire_connection("master")
                 adapter.set_relations_cache(self.dbt_manifest)
-                self.connection_acquired = True
+
             yield
             # :TRICKY: Once connected, we never disconnect. Making multiple
             # connections during linting has proven to cause major performance

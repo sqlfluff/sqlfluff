@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fcf2838c216e8ba4ec76d64187dd0c676f7221754a408049ec97c33c7ee7f84c
+_hash: 020ef3781f2ea1fb9fb536740624bacbc93a67b65d6a5b5380a2699a6b0aa8cc
 file:
 - statement:
     alter_type_statement:
@@ -135,4 +135,18 @@ file:
     - quoted_literal: "'quux'"
     - keyword: AFTER
     - quoted_literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: financial
+      - dot: .
+      - naked_identifier: reporting_statuses
+    - keyword: RENAME
+    - keyword: VALUE
+    - quoted_literal: "'partially'"
+    - keyword: TO
+    - quoted_literal: "'partially-reported'"
 - statement_terminator: ;
