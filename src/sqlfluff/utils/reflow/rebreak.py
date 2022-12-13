@@ -193,7 +193,7 @@ def identify_rebreak_spans(
                     continue
                 elif key not in end_elem.depth_info.stack_positions:
                     # If we get here, it means the last block was the end.
-                    # NOTE: This feels a little hacky, but it's because of limitation
+                    # NOTE: This feels a little hacky, but it's because of a limitation
                     # in detecting the "end" and "solo" markers effectively in larger
                     # sections.
                     final_idx = end_idx - 2

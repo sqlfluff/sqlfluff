@@ -34,7 +34,7 @@ def pretty_segment_name(segment: BaseSegment) -> str:
 
 
 def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> str:
-    """Given a raw segment, deduce the indent of it's line."""
+    """Given a raw segment, deduce the indent of its line."""
     seg_idx = root_segment.raw_segments.index(raw_segment)
     indent_seg = None
     for seg in root_segment.raw_segments[seg_idx::-1]:
@@ -45,7 +45,4 @@ def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> st
         elif seg.is_type("newline"):
             break
     reflow_logger.debug("Deduced indent for %s as %s", raw_segment, indent_seg)
-    if indent_seg:
-        return indent_seg.raw
-    else:
-        return ""
+    return indent_seg.raw if indent_seg else ""

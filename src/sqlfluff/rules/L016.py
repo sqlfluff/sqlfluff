@@ -73,7 +73,7 @@ class Rule_L016(BaseRule):
             raw_segments = context.segment.raw_segments
             for res in results[:]:
                 # First handle the easy case that the anchor (i.e. the start
-                # of the line in a comment).
+                # of the line is a comment).
                 if res.anchor.is_type("comment"):
                     self.logger.debug(
                         "Purging result on long line starting with comment: %s",
@@ -83,7 +83,7 @@ class Rule_L016(BaseRule):
                     continue
                 # Then look for comments on the rest of the line:
                 raw_idx = raw_segments.index(res.anchor)
-                for _, seg in enumerate(raw_segments[raw_idx:], raw_idx):
+                for seg in raw_segments[raw_idx:]:
                     if (
                         seg.pos_marker.working_line_no
                         != res.anchor.pos_marker.working_line_no
