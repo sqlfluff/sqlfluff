@@ -985,8 +985,8 @@ def _source_char_len(elements: ReflowSequenceType):
                 char_len += len(seg.raw)
                 # NOTE: Don't update the last_source_slice.
             elif not slice_len:
-                # If it's not got a raw and no length, it's a
-                # distraction. Ignore it. It's probably a meta.
+                # If it's not got a raw and no length, it's
+                # irrelevant. Ignore it. It's probably a meta.
                 continue
             # Otherwise if we're literal, use the raw length
             # because it might be an edit.
@@ -1097,7 +1097,7 @@ def _match_indents(
             # container is split.
 
             # Also to spread out the breaks within an indent, we further
-            # add hints to distinguish between then. This is where operator
+            # add hints to distinguish between them. This is where operator
             # precedence (as defined above) actually comes into effect.
             priority = rebreak_priorities[idx]
             # Assume `priority` in range 0 - 50. So / 100 to add to 0.5.
@@ -1250,7 +1250,7 @@ def lint_line_length(
                     fixes.append(
                         # NOTE: This looks a little convoluted, but we create *before*
                         # a block here rather than *after* a point, because the point
-                        # may have been modified already by reflow code a may not be
+                        # may have been modified already by reflow code and may not be
                         # a reliable anchor.
                         LintFix.create_before(
                             elements[last_indent_idx + 1].segments[0],
@@ -1327,7 +1327,7 @@ def lint_line_length(
                 if target_balance >= 1:
                     desired_indent += single_indent
                 reflow_logger.debug(
-                    "    Targetting balance of %s, indent: %r for %s",
+                    "    Targeting balance of %s, indent: %r for %s",
                     target_balance,
                     desired_indent,
                     matched_indents[target_balance],
