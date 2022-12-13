@@ -15,7 +15,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## Highlights
 
 * Rewrote `diff-quality` plugin to run SQLFluff as a subprocess. More reliable, easier to switch between `diff-quality` and running `sqlfluff lint` directly.
-* New rule L069 enforces consistent syntax for type casts.
+* New rule L067 enforces consistent syntax for type casts.
+* New rule L068 enforces a consistent number of columns in set queries (e.g. UNION).
 * Initial support for Materialize dialect.
 
 ## What's Changed
