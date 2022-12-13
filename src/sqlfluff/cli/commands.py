@@ -571,7 +571,7 @@ def lint(
     )
 
     # Output the results as we go
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(format_linting_result_header())
 
     with PathAndUserErrorHandler(formatter):
@@ -587,7 +587,7 @@ def lint(
             )
 
     # Output the final stats
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
