@@ -10,6 +10,102 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.3] - 2022-12-13
+
+## Highlights
+
+## Highlights
+
+* Rewrote `diff-quality` plugin to run SQLFluff as a subprocess. More reliable, easier to switch between `diff-quality` and running `sqlfluff lint` directly.
+* New rule L069 enforces consistent syntax for type casts.
+* Initial support for Materialize dialect.
+
+## What's Changed
+* Add flyway variables support via placeholder templater by @srjonemed in https://github.com/sqlfluff/sqlfluff/pull/4026
+* Fix Spark comparison parsing by @ms32035 in https://github.com/sqlfluff/sqlfluff/pull/4066
+* Add errors and fails to pytest summary by @alanmcruickshank in https://github.com/sqlfluff/sqlfluff/pull/4076
+* Storage reference segment by @YilangHe in https://github.com/sqlfluff/sqlfluff/pull/4057
+* New rule L069: Consistent syntax for sql type casting by @bolajiwahab in https://github.com/sqlfluff/sqlfluff/pull/3747
+* Postgres: Views and named notations by @davetapley in https://github.com/sqlfluff/sqlfluff/pull/4073
+* Switch reflow buffer from LintFix to LintResult by @alanmcruickshank in https://github.com/sqlfluff/sqlfluff/pull/4083
+* Support parallel linting when many individual files specified by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4084
+* Rule: check number of columns in set operations match by @erevear in https://github.com/sqlfluff/sqlfluff/pull/4028
+* Fix syntax in indentation sample code docs by @PBalsdon in https://github.com/sqlfluff/sqlfluff/pull/4087
+* Remove "mystery" binary file added in PR #2923 by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4088
+* Fix mypy issue with regex by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4097
+* Enable variable reference names to have leading underscore for snowflake dialect by @gavin-tsang in https://github.com/sqlfluff/sqlfluff/pull/4098
+* Fix flake8 issue with segment_predicates.py by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4101
+* Fix bug in example rule plugin by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4103
+* Fix bug where L034 should ignore INSERT or "CREATE TABLE AS SELECT" with CTE by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4108
+* Postgres: Alter type rename value by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4100
+* Bug fix: dbt templater ignores .sqlfluff file encoding on Windows by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4109
+* Add initial Materialize dialect by @bobbyiliev in https://github.com/sqlfluff/sqlfluff/pull/4112
+* L015: Handle COUNT(DISTINCT(col)) by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4110
+* [Snowflake] format type options extensions for copy_into_location by @YilangHe in https://github.com/sqlfluff/sqlfluff/pull/4129
+* Fix tox arguments by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4144
+* [DB2] Fix parsing of string identifiers by @borchero in https://github.com/sqlfluff/sqlfluff/pull/4134
+* BigQuery: Allow double quoted literal in export_option_list by @yoichi in https://github.com/sqlfluff/sqlfluff/pull/4126
+* Only upload 3 sets of test results to codecov (possible workaround for hanging builds) by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4147
+* SparkSQL: ILIKE by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4138
+* SparkSQL: Mark `AS` as optional keyword for CTE & CTS by @ulixius9 in https://github.com/sqlfluff/sqlfluff/pull/4127
+* Fix passenv to work with tox 4 by @tunetheweb in https://github.com/sqlfluff/sqlfluff/pull/4154
+* Allow deprecated --disable_progress_bar flag for fix command by @pdebelak in https://github.com/sqlfluff/sqlfluff/pull/4151
+* Implement diff_quality_plugin using command-line rather than Python by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4148
+* L037: insert ASC just after column_reference by @yoichi in https://github.com/sqlfluff/sqlfluff/pull/4149
+
+## New Contributors
+* @srjonemed made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4026
+* @ms32035 made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4066
+* @davetapley made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4073
+* @PBalsdon made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4087
+* @gavin-tsang made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4098
+* @bobbyiliev made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4112
+* @ulixius9 made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4127
+
+**Full Changelog**: https://github.com/sqlfluff/sqlfluff/compare/1.4.2...1.4.3
+## New Contributors
+
+* @ulixius9 made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4127
+* @bobbyiliev made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4112
+* @gavin-tsang made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4098
+* @PBalsdon made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4087
+* @davetapley made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4073
+* @ms32035 made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4066
+* @srjonemed made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/4026
+* L037: insert ASC just after column_reference by @yoichi in https://github.com/sqlfluff/sqlfluff/pull/4149
+* Implement diff_quality_plugin using command-line rather than Python by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4148
+* Allow deprecated --disable_progress_bar flag for fix command by @pdebelak in https://github.com/sqlfluff/sqlfluff/pull/4151
+* Fix passenv to work with tox 4 by @tunetheweb in https://github.com/sqlfluff/sqlfluff/pull/4154
+* SparkSQL: Mark `AS` as optional keyword for CTE & CTS by @ulixius9 in https://github.com/sqlfluff/sqlfluff/pull/4127
+* SparkSQL: ILIKE by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4138
+* Only upload 3 sets of test results to codecov (possible workaround for hanging builds) by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4147
+* BigQuery: Allow double quoted literal in export_option_list by @yoichi in https://github.com/sqlfluff/sqlfluff/pull/4126
+* [DB2] Fix parsing of string identifiers by @borchero in https://github.com/sqlfluff/sqlfluff/pull/4134
+* Fix tox arguments by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4144
+* L015: Handle COUNT(DISTINCT(col)) by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4110
+* Add initial Materialize dialect by @bobbyiliev in https://github.com/sqlfluff/sqlfluff/pull/4112
+* Bug fix: dbt templater ignores .sqlfluff file encoding on Windows by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4109
+* Postgres: Alter type rename value by @greg-finley in https://github.com/sqlfluff/sqlfluff/pull/4100
+* Fix bug where L034 should ignore INSERT or "CREATE TABLE AS SELECT" with CTE by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4108
+* Fix bug in example rule plugin by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4103
+* Fix flake8 issue with segment_predicates.py by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4101
+* Enable variable reference names to have leading underscore for snowflake dialect by @gavin-tsang in https://github.com/sqlfluff/sqlfluff/pull/4098
+* Fix mypy issue with regex by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4097
+* Remove "mystery" binary file added in PR #2923 by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4088
+* Fix syntax in indentation sample code docs by @PBalsdon in https://github.com/sqlfluff/sqlfluff/pull/4087
+* Rule: check number of columns in set operations match by @erevear in https://github.com/sqlfluff/sqlfluff/pull/4028
+* Support parallel linting when many individual files specified by @barrywhart in https://github.com/sqlfluff/sqlfluff/pull/4084
+* Switch reflow buffer from LintFix to LintResult by @alanmcruickshank in https://github.com/sqlfluff/sqlfluff/pull/4083
+* Postgres: Views and named notations by @davetapley in https://github.com/sqlfluff/sqlfluff/pull/4073
+* New rule L069: Consistent syntax for sql type casting by @bolajiwahab in https://github.com/sqlfluff/sqlfluff/pull/3747
+* Storage reference segment by @YilangHe in https://github.com/sqlfluff/sqlfluff/pull/4057
+* Add errors and fails to pytest summary by @alanmcruickshank in https://github.com/sqlfluff/sqlfluff/pull/4076
+* Fix Spark comparison parsing by @ms32035 in https://github.com/sqlfluff/sqlfluff/pull/4066
+* Add flyway variables support via placeholder templater by @srjonemed in https://github.com/sqlfluff/sqlfluff/pull/4026
+* Initial support for Materialize dialect.
+* New rule L069 enforces consistent syntax for type casts.
+* Rewrote `diff-quality` plugin to run SQLFluff as a subprocess. More reliable, easier to switch between `diff-quality` and running `sqlfluff lint` directly.
+
 ## [1.4.2] - 2022-11-13
 
 ## Highlights
