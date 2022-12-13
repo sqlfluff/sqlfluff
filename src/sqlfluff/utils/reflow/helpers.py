@@ -37,7 +37,10 @@ def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> st
     """Given a raw segment, deduce the indent of its line."""
     seg_idx = root_segment.raw_segments.index(raw_segment)
     indent_seg = None
-    for seg in root_segment.raw_segments[seg_idx::-1]:
+    # Use range and a lookup here because it's more efficient than slicing
+    # as we only need a subset of the long series.
+    for idx in range(seg_idx, step=-1):
+        seg = root_segment.raw_segments[idx]
         if seg.is_code:
             indent_seg = None
         elif seg.is_type("whitespace"):

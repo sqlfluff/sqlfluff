@@ -427,7 +427,7 @@ test_fail_long_inline_statement:
       max_line_length: 50
 
 test_pass_check_off_1:
-  # Tests that we can disable the check
+  # Tests that we can disable the check (using 0).
   pass_str: |
     select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
   configs:
@@ -435,7 +435,7 @@ test_pass_check_off_1:
       max_line_length: 0
 
 test_pass_check_off_2:
-  # Tests that we can disable the check
+  # Tests that we can disable the check (using -1).
   pass_str: |
     select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
   configs:
@@ -443,7 +443,6 @@ test_pass_check_off_2:
       max_line_length: -1
 
 test_comment_move_mid_query:
-  # Tests that we can disable the check
   fail_str: |
     select
         my_long_long_line as foo -- with some comment

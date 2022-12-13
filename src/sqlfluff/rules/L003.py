@@ -81,6 +81,4 @@ class Rule_L003(BaseRule):
             .reindent()
             .get_results()
         )
-        return [
-            res for res in results if not res.description.startswith("Line is too long")
-        ]
+        return [res for res in results if res.source != "reflow.long_line"]

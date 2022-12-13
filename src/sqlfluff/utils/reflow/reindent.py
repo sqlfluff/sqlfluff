@@ -588,7 +588,8 @@ def _deduce_line_current_indent(
             )
         raise NotImplementedError(
             "Unexpected templated indent. Report this as a bug on "
-            f"GitHub. Segment: {indent_seg}"
+            f"GitHub. Segment: {indent_seg}\n"
+            "https://github.com/sqlfluff/sqlfluff/issues/new/choose"
         )
 
 
@@ -1060,8 +1061,6 @@ def _match_indents(
     rebreak points.
     """
     balance = 0
-    # Expect fractional keys, because of the half values for
-    # rebreak points.
     matched_indents: DefaultDict[float, List[int]] = defaultdict(list)
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
@@ -1197,9 +1196,11 @@ def lint_line_length(
             # Potential places to shorten the line are either indent locations
             # or segments with a defined line position (like operators).
 
-            # NOTE: We need the closing indent too for the next operations because
-            # it might be an option contain the closing indent for a potential
-            # indent earlier in the line.
+            # NOTE: We make a buffer including the closing point, because the we're
+            # looking for pairs of indents and dedents. The closing dedent for one
+            # of those pairs might be in the closing point so if we don't have it
+            # then we'll miss the any locations which have their closing dedent at
+            # the end of the line.
             line_elements = line_buffer + [elem]
 
             # Identify rebreak spans first so we can work out their indentation
@@ -1215,7 +1216,7 @@ def lint_line_length(
             reflow_logger.debug("    matched_indents: %s", matched_indents)
 
             # If we don't have any matched_indents, we don't have any options.
-            # This could be for things like comment lines. We have
+            # This could be for things like comment lines.
             desc = f"Line is too long ({line_len} > {line_length_limit})."
             # Easiest option are lines ending with comments, but that aren't *all*
             # comments and the comment itself is shorter than the limit.
@@ -1309,12 +1310,16 @@ def lint_line_length(
 
             # Lastly deal with the "normal" case.
             else:
-                # As a blunt solution, force indents at the lowest available
-                # option.
-                reflow_logger.debug("    Handling as normal line.")
+                # For now, the algorithm we apply isn't particularly elegant
+                # and just finds the "outermost" opportunity to add additional
+                # line breaks and adds them. It doesn't add more them at more
+                # levels or selectively to add indents preferentially to an
+                # inner level without there already being indents in the outer
+                # level.
                 # TODO: Make this more elegant later, with the option to
                 # potentially add linebreaks at more than one level.
-                # TODO: Double indents (or more likely dedents) will be
+                reflow_logger.debug("    Handling as normal line.")
+                # NOTE: Double indents (or more likely dedents) will be
                 # potentially in *multiple* sets - don't double count them
                 # if we start doing something more clever.
                 target_balance = min(matched_indents.keys())
