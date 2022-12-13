@@ -1,10 +1,12 @@
 """Tests for the SQLFluff integration with the "diff-quality" tool."""
-
+import sys
 from pathlib import Path
 
 import pytest
 
 from sqlfluff import diff_quality_plugin
+from sqlfluff.cli.commands import lint
+from sqlfluff.utils.testing.cli import invoke_assert_code
 
 
 @pytest.mark.parametrize(
@@ -19,6 +21,26 @@ from sqlfluff import diff_quality_plugin
 )
 def test_diff_quality_plugin(sql_path, expected_violations_lines, monkeypatch):
     """Test the plugin at least finds errors on the expected lines."""
+
+    def execute(command, exit_codes):
+        printable_command_parts = [
+            c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
+            for c in command
+        ]
+
+        result = invoke_assert_code(
+            ret_code=1 if expected_violations_lines else 0,
+            args=[
+                lint,
+                printable_command_parts[2:],
+            ],
+        )
+        return result.output, ""
+
+    # Mock the execute function -- this is an attempt to prevent the CircleCI
+    # coverage check from hanging. (We've seen issues in the past where using
+    # subprocesses caused things to occasionally hang.)
+    monkeypatch.setattr(diff_quality_plugin, "execute", execute)
     monkeypatch.chdir("test/fixtures/")
     violation_reporter = diff_quality_plugin.diff_cover_report_quality(
         options="--processes=1"
