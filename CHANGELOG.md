@@ -10,6 +10,19 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.4] - 2022-12-14
+
+## Highlights
+
+Bug fix for 1.4.3 which was incorrectly flagging L006 for concat operators (`||`) and other two-symbol binary operators.
+
+## What’s Changed
+
+* Recognise || as an operator to avoid rule L006 flagging it [#4168](https://github.com/sqlfluff/sqlfluff/pull/4168) [@tunetheweb](https://github.com/tunetheweb)
+* :bug: Check verbosity level of pytest run before running certain tests [#4167](https://github.com/sqlfluff/sqlfluff/pull/4167) [@pwildenhain](https://github.com/pwildenhain)
+* [snowflake] Add support for snowflake select * exclude/replace syntax [#4160](https://github.com/sqlfluff/sqlfluff/pull/4160) [@moreaupascal56](https://github.com/moreaupascal56)
+
+
 ## [1.4.3] - 2022-12-13
 
 ## Highlights
