@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.4.3] - 2022-12-13
+## [1.4.3] - 2022-12-14
 
 ## Highlights
 
@@ -79,6 +79,15 @@ improvements and dialect changes. The most notable are:
 We've also got dialect improvements for Redshift, SOQL & SparkSQL.
 
 ## What’s Changed
+
+* Recognise || as an operator to avoid rule L006 flagging it [#4168](https://github.com/sqlfluff/sqlfluff/pull/4168) [@tunetheweb](https://github.com/tunetheweb)
+* :bug: Check verbosity level of pytest run before running certain tests [#4167](https://github.com/sqlfluff/sqlfluff/pull/4167) [@pwildenhain](https://github.com/pwildenhain)
+* [snowflake] Add support for snowflake select * exclude/replace syntax [#4160](https://github.com/sqlfluff/sqlfluff/pull/4160) [@moreaupascal56](https://github.com/moreaupascal56)
+
+
+## New Contributors
+
+
 
 * Fix type error in `get_rules` hook of plugin example [#4060](https://github.com/sqlfluff/sqlfluff/pull/4060) [@Samyak2](https://github.com/Samyak2)
 * L003: Add missing "pragma: no cover" [#4058](https://github.com/sqlfluff/sqlfluff/pull/4058) [@barrywhart](https://github.com/barrywhart)
