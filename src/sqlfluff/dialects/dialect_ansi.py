@@ -215,6 +215,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("divide", "/", CodeSegment),
         StringLexer("percent", "%", CodeSegment),
         StringLexer("ampersand", "&", CodeSegment),
+        StringLexer("double_vertical_bar", "||", CodeSegment),
         StringLexer("vertical_bar", "|", CodeSegment),
         StringLexer("caret", "^", CodeSegment),
         StringLexer("star", "*", CodeSegment),
@@ -317,6 +318,7 @@ ansi_dialect.add(
     ModuloSegment=StringParser("%", SymbolSegment, type="binary_operator"),
     SlashSegment=StringParser("/", SymbolSegment, type="slash"),
     AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
+    ConcatSegment=StringParser("||", SymbolSegment, type="binary_operator"),
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
     LikeOperatorSegment=TypedParser("like_operator", ComparisonOperatorSegment),
@@ -2005,14 +2007,6 @@ class NotEqualToSegment(CompositeComparisonOperatorSegment):
         Sequence(
             Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
         ),
-    )
-
-
-class ConcatSegment(CompositeBinaryOperatorSegment):
-    """Concat operator."""
-
-    match_grammar: Matchable = Sequence(
-        Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False
     )
 
 
