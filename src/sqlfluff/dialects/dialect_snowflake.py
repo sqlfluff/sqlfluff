@@ -1424,6 +1424,62 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Snowflake."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional Exclude or Rename clause
+            Ref("ExcludeClauseSegment", optional=True),
+            Ref("RenameClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExcludeClauseSegment(BaseSegment):
+    """A snowflake SELECT EXCLUDE clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_exclude_clause"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class RenameClauseSegment(BaseSegment):
+    """A snowflake SELECT RENAME clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_rename_clause"
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "AS",
+                        Ref("SingleIdentifierGrammar"),
+                    )
+                )
+            ),
+        ),
+    )
+
+
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns, specifically for Snowflake.
 
