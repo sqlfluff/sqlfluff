@@ -41,8 +41,10 @@ class Rule_L071(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult] | None:
         """Parenthesis blocks should be surrounded by whitespaces."""
-        if context.segment.is_type("start_bracket") and context.raw_stack[-2].is_type(
-            "keyword"
+        if (
+            context.segment.is_type("start_bracket")
+            and len(context.raw_stack) > 2
+            and context.raw_stack[-2].is_type("keyword")
         ):
             # and prior section not from or where
             # reserved_keywords
