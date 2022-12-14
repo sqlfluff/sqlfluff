@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e830009c18c7e67f90c88311fef42426ae60190acbc09005dab500ff861ffed
+_hash: ff4d2fa69759372f4d3bc11a761c5120bd908dffde43fcec59efbf422f874dcc
 file:
 - statement:
     export_statement:
@@ -149,6 +149,67 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"gs://bucket/folder/*.csv"'
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"CSV"'
       - comma: ','
       - export_option: overwrite
       - comparison_operator:

@@ -1,0 +1,465 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a3d984f3cf9c375c5ada88ba1c0222d93beeb3efd0f472dad53eadcc7eb54eeb
+file:
+- statement:
+    create_source_kafka_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: avro_source
+    - keyword: FROM
+    - keyword: KAFKA
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - bracketed:
+        start_bracket: (
+        raw: TOPIC
+        single_quote: "'test_topic'"
+        end_bracket: )
+    - keyword: FORMAT
+    - raw: AVRO
+    - raw: USING
+    - raw: CONFLUENT
+    - raw: SCHEMA
+    - raw: REGISTRY
+    - raw: CONNECTION
+    - raw: csr_connection
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: jsonified_kafka_source
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: data
+              binary_operator: ->>
+              quoted_literal: "'field1'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: field_1
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: data
+              binary_operator: ->>
+              quoted_literal: "'field2'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: field_2
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: data
+              binary_operator: ->>
+              quoted_literal: "'field3'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: field_3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        expression:
+                          cast_expression:
+                            function:
+                              function_name:
+                                function_name_identifier: CONVERT_FROM
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  column_reference:
+                                    naked_identifier: data
+                              - comma: ','
+                              - expression:
+                                  quoted_literal: "'utf8'"
+                              - end_bracket: )
+                            casting_operator: '::'
+                            data_type:
+                              keyword: jsonb
+                        alias_expression:
+                          keyword: AS
+                          naked_identifier: data
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: json_source
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_kafka_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: proto_source
+    - keyword: FROM
+    - keyword: KAFKA
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - bracketed:
+        start_bracket: (
+        raw: TOPIC
+        single_quote: "'test_topic'"
+        end_bracket: )
+    - keyword: FORMAT
+    - raw: PROTOBUF
+    - raw: USING
+    - raw: CONFLUENT
+    - raw: SCHEMA
+    - raw: REGISTRY
+    - raw: CONNECTION
+    - raw: csr_connection
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_kafka_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: text_source
+    - keyword: FROM
+    - keyword: KAFKA
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - bracketed:
+        start_bracket: (
+        raw: TOPIC
+        single_quote: "'test_topic'"
+        end_bracket: )
+    - keyword: FORMAT
+    - raw: TEXT
+    - raw: ENVELOPE
+    - raw: UPSERT
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_kafka_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: csv_source
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_foo
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_baz
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: KAFKA
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - bracketed:
+        start_bracket: (
+        raw: TOPIC
+        single_quote: "'test_topic'"
+        end_bracket: )
+    - keyword: FORMAT
+    - raw: CSV
+    - raw: WITH
+    - numeric_literal: '3'
+    - raw: COLUMNS
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: auction_house
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: AUCTION
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: tpch
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: TPCH
+    - bracketed:
+      - start_bracket: (
+      - raw: SCALE
+      - raw: FACTOR
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: counter
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: COUNTER
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+        start_bracket: (
+        raw: PUBLICATION
+        single_quote: "'mz_source'"
+        end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+        start_bracket: (
+        raw: PUBLICATION
+        single_quote: "'mz_source'"
+        end_bracket: )
+    - keyword: FOR
+    - keyword: TABLES
+    - bracketed:
+      - start_bracket: (
+      - raw: table_1
+      - comma: ','
+      - raw: table_2
+      - raw: AS
+      - raw: alias_table_2
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+      - start_bracket: (
+      - raw: PUBLICATION
+      - single_quote: "'mz_source'"
+      - comma: ','
+      - raw: TEXT
+      - raw: COLUMNS
+      - bracketed:
+        - start_bracket: (
+        - raw: table
+        - raw: .
+        - raw: column_of_unsupported_type
+        - end_bracket: )
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+        start_bracket: (
+        raw: PUBLICATION
+        single_quote: "'mz_source'"
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: SIZE
+      - raw: '='
+      - single_quote: "'3xsmall'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: type_name
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: field_name
+      - data_type:
+          data_type_identifier: field_type
+      - comma: ','
+      - object_reference:
+          naked_identifier: field_name
+      - data_type:
+          data_type_identifier: field_type
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: row_type
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: int
+      - comma: ','
+      - object_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: text
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: nested_row_type
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: a
+      - data_type:
+          data_type_identifier: row_type
+      - comma: ','
+      - object_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: float8
+      - end_bracket: )
+- statement_terminator: ;

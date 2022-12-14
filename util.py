@@ -69,9 +69,6 @@ def benchmark(cmd, runs, from_file):
     # Try and detect a CI environment
     if "CI" in os.environ:
         click.echo("CI detected!")
-        # available_vars = [var for var in os.environ.keys()]
-        # if var.startswith('CIRCLE')
-        # click.echo("Available keys: {0!r}".format(available_vars))
         commit_hash = os.environ.get("GITHUB_SHA", None)
         post_results = True
         click.echo(f"Commit hash is: {commit_hash!r}")

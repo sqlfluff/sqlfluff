@@ -234,7 +234,7 @@ class RegexLexer(StringLexer):
             match_str = match.group(0)
             if match_str:
                 return LexedElement(match_str, self)
-            else:
+            else:  # pragma: no cover
                 lexer_logger.warning(
                     f"Zero length Lex item returned from {self.name!r}. Report this as "
                     "a bug."
@@ -542,7 +542,7 @@ class Lexer:
             element_buffer += res.elements
             if res.forward_string:
                 resort_res = self.last_resort_lexer.match(res.forward_string)
-                if not resort_res:
+                if not resort_res:  # pragma: no cover
                     # If we STILL can't match, then just panic out.
                     raise SQLLexError(
                         f"Fatal. Unable to lex characters: {0!r}".format(

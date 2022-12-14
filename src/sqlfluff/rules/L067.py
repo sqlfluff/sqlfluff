@@ -1,4 +1,4 @@
-"""Implementation of Rule L069."""
+"""Implementation of Rule L067."""
 
 from typing import Optional, List
 
@@ -22,7 +22,7 @@ from sqlfluff.core.parser import (
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_L069(BaseRule):
+class Rule_L067(BaseRule):
     """Enforce consistent type casting style.
 
     .. note::
