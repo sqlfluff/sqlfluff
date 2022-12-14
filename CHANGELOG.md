@@ -14,6 +14,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+Bug fix for 1.4.3 which was incorrectly flagging L006 for concat operators (`||`) and other two-symbol binary operators.
+
 ## What’s Changed
 
 * Recognise || as an operator to avoid rule L006 flagging it [#4168](https://github.com/sqlfluff/sqlfluff/pull/4168) [@tunetheweb](https://github.com/tunetheweb)
