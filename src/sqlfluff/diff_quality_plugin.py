@@ -22,7 +22,7 @@ class SQLFluffDriver(QualityDriver):
 
     def __init__(self):
         super().__init__(
-            "sqlfluff",
+            [sys.executable, "-m", "sqlfluff.cli.commands"],
             [".sql"],
             [
                 s.encode(sys.getfilesystemencoding())
