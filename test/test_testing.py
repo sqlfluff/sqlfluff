@@ -46,7 +46,7 @@ def test_rules__test_helper_skipped_when_test_case_skipped():
     skipped_test.match("Skip this one for now")
 
 
-def test_rules__test_helper_has_variable_introspection():
+def test_rules__test_helper_has_variable_introspection(test_verbosity_level):
     """Make sure the helper gives variable introspection information on failure."""
     rule_test_case = RuleTestCase(
         rule="L003",
@@ -66,5 +66,6 @@ def test_rules__test_helper_has_variable_introspection():
     )
     with pytest.raises(AssertionError) as skipped_test:
         rules__test_helper(rule_test_case)
-    # Enough to check that a query diff is displayed
-    skipped_test.match("select")
+    if test_verbosity_level >= 2:
+        # Enough to check that a query diff is displayed
+        skipped_test.match("select")
