@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import Iterator, List, Optional
 
 from dbt.clients import jinja
-from dbt.exceptions import CompilationException as DbtCompilationException
+from dbt.exceptions import (
+    RuntimeException as DbtRuntimeException,
+)
 from dbt.flags import PROFILES_DIR
 from dbt.version import get_installed_version
 from jinja2_simple_tags import StandaloneTag
@@ -42,12 +44,14 @@ class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 
     name = "dbt"
+    sequential_fail_limit = 3
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
         self.profiles_dir = None
+        self._sequential_fails = 0
         self.dbt_project_container: DbtProjectContainer = kwargs.pop(
             "dbt_project_container"
         )
@@ -181,19 +185,27 @@ class DbtTemplater(JinjaTemplater):
         self.formatter = formatter
         self.sqlfluff_config = config
         try:
-            return self._unsafe_process(
+            processsed_result = self._unsafe_process(
                 os.path.abspath(fname) if fname else None, in_str, config
             )
-        except DbtCompilationException as e:
-            if e.node:
-                return None, [
-                    SQLTemplaterError(
-                        f"dbt compilation error on file '{e.node.original_file_path}', "
-                        f"{e.msg}"
-                    )
-                ]
-            else:
-                raise  # pragma: no cover
+            # Reset the fail counter
+            self._sequential_fails = 0
+            return processsed_result
+        except DbtRuntimeException as e:
+            # Increment the counter
+            self._sequential_fails += 1
+            message = (
+                f"dbt error on file '{e.node.original_file_path}', " f"{e.msg}"
+                if e.node
+                else f"dbt error: {e.msg}"
+            )
+            return None, [
+                SQLTemplaterError(
+                    message,
+                    # It's fatal if we're over the limit
+                    fatal=self._sequential_fails > self.sequential_fail_limit,
+                )
+            ]
         # If a SQLFluff error is raised, just pass it through
         except SQLTemplaterError as e:  # pragma: no cover
             return None, [e]
@@ -216,8 +228,9 @@ class DbtTemplater(JinjaTemplater):
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
     ):
         # Get project_dir from '.sqlfluff' config file
-        self.project_dir = config.get_section(
-            (self.templater_selector, self.name, "project_dir")
+        self.project_dir = (
+            config.get_section((self.templater_selector, self.name, "project_dir"))
+            or os.getcwd()
         )
         # Get project
         osmosis_dbt_project = self.dbt_project_container.get_project_by_root_dir(
