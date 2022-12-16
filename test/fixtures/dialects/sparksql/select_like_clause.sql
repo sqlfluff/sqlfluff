@@ -62,3 +62,7 @@ SELECT
     a,
     b
 FROM person WHERE name NOT LIKE SOME ('%an%', '%an');
+
+SELECT company FROM ilike_all_table WHERE company ILIKE ALL ('%oO%', '%Go%');
+
+SELECT company FROM ilike_any_table WHERE company ILIKE ANY ('%oo%', '%IN', 'fA%');

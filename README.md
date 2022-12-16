@@ -28,6 +28,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
+- [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)

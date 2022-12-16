@@ -41,7 +41,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
+        # We don't enforce coverage on older Python versions.
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+    name: Python ${{ matrix.python-version }} tests
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e py -- -n 2 test
+  python-version-tests-cov:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # We enforce coverage on this, the latest Python version.
+        python-version: [ '3.11' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -120,7 +140,8 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dbt-version: [ 'dbt100', 'dbt130' ]
+        # We don't enforce coverage on older dbt versions.
+        dbt-version: [ 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -202,10 +223,6 @@ jobs:
       # None of these test need temp dir set
       run: |
         python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842

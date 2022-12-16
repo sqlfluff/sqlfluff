@@ -1,4 +1,4 @@
-"""Implementation of Rule L070."""
+"""Implementation of Rule L068."""
 from typing import Optional
 
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
@@ -8,7 +8,7 @@ from sqlfluff.core.rules.doc_decorators import document_groups
 
 
 @document_groups
-class Rule_L070(BaseRule):
+class Rule_L068(BaseRule):
     """Queries within set query produce different numbers of columns.
 
     **Anti-pattern**

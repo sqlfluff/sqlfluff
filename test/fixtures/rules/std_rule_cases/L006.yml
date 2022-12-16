@@ -86,3 +86,6 @@ pass_tsql_assignment_operator:
   configs:
     core:
       dialect: tsql
+
+pass_concat_string:
+  pass_str: SELECT 'barry' || 'pollard'

@@ -1424,6 +1424,62 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Snowflake."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional Exclude or Rename clause
+            Ref("ExcludeClauseSegment", optional=True),
+            Ref("RenameClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExcludeClauseSegment(BaseSegment):
+    """A snowflake SELECT EXCLUDE clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_exclude_clause"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class RenameClauseSegment(BaseSegment):
+    """A snowflake SELECT RENAME clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_rename_clause"
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                "AS",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        "AS",
+                        Ref("SingleIdentifierGrammar"),
+                    )
+                )
+            ),
+        ),
+    )
+
+
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns, specifically for Snowflake.
 
@@ -4073,6 +4129,12 @@ class FormatTypeOptions(BaseSegment):
 
     https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#format-type-options
     https://docs.snowflake.com/en/sql-reference/sql/copy-into-location.html#format-type-options
+
+    This part specifically works for the format:
+        `FILE_FORMAT = (FORMAT_NAME = myformatname)`
+    Another case:
+        `FILE_FORMAT = (TYPE = mytype)` their fileFormatOptions are implemented in
+    their specific `FormatTypeParameters`
     """
 
     type = "format_type_options"
@@ -4104,6 +4166,44 @@ class FormatTypeOptions(BaseSegment):
                 "ESCAPE_UNENCLOSED_FIELD",
                 Ref("EqualsSegment"),
                 OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "DATA_FORMAT",
+                Ref("EqualsSegment"),
+                OneOf("AUTO", Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "TIME_FORMAT",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "TIMESTAMP_FORMAT",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")
+            ),
+            Sequence(
+                "FIELD_OPTIONALITY_ENCLOSED_BY",
+                Ref("EqualsSegment"),
+                OneOf("NONE", Ref("QuotedLiteralSegment")),
+            ),
+            Sequence(
+                "NULL_IF",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "EMPTY_FIELD_AS_NULL",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SNAPPY_COMPRESSION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
             ),
         ),
         # COPY INTO <table>, open for extension
@@ -4232,6 +4332,21 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     )
 
 
+class PartitionBySegment(BaseSegment):
+    """A `PARTITION BY` for `copy_into_location` functions."""
+
+    type = "partition_by_segment"
+
+    match_grammar: Matchable = Sequence(
+        "PARTITION",
+        "BY",
+        Indent,
+        # Brackets are optional in a partition by statement
+        OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
+        Dedent,
+    )
+
+
 class CopyIntoLocationStatementSegment(BaseSegment):
     """A Snowflake `COPY INTO <location>` statement.
 
@@ -4253,28 +4368,30 @@ class CopyIntoLocationStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("S3ExternalStageParameters", optional=True),
+        OneOf(
+            Ref("S3ExternalStageParameters"),
+            Ref("AzureBlobStorageExternalStageParameters"),
+            optional=True,
+        ),
         Ref("InternalStageParameters", optional=True),
         AnySetOf(
-            Ref("PartitionClauseSegment"),
+            Ref("PartitionBySegment"),
             Sequence(
                 "FILE_FORMAT",
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
             ),
             Ref("CopyOptionsSegment"),
-        ),
-        Sequence(
-            "VALIDATION_MODE",
-            Ref("EqualsSegment"),
-            Ref("ValidationModeOptionSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "HEADER",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
+            Sequence(
+                "VALIDATION_MODE",
+                Ref("EqualsSegment"),
+                Ref("ValidationModeOptionSegment"),
+            ),
+            Sequence(
+                "HEADER",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
         ),
     )
 
@@ -4300,7 +4417,11 @@ class CopyIntoTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("S3ExternalStageParameters", optional=True),
+        OneOf(
+            Ref("S3ExternalStageParameters"),
+            Ref("AzureBlobStorageExternalStageParameters"),
+            optional=True,
+        ),
         Ref("InternalStageParameters", optional=True),
         AnySetOf(
             Sequence(
