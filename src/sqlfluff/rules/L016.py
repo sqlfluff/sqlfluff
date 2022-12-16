@@ -118,8 +118,7 @@ class Rule_L016(BaseRule):
                 # until we're not on the line. Check if any have a parent which
                 # is a comment_clause.
                 raw_idx = raw_segments.index(res.anchor)
-                for _, seg in enumerate(raw_segments[raw_idx:], raw_idx):
-                    path = context.segment.path_to(seg)
+                for seg in raw_segments[raw_idx:]:
                     if (
                         seg.pos_marker.working_line_no
                         != res.anchor.pos_marker.working_line_no
@@ -127,7 +126,7 @@ class Rule_L016(BaseRule):
                         # We've gone past the end of the line. Stop looking.
                         break
                     # Look to see if any are in comment clauses
-                    for ps in path:
+                    for ps in context.segment.path_to(seg):
                         if ps.segment.is_type(
                             "comment_clause", "comment_equals_clause"
                         ):
