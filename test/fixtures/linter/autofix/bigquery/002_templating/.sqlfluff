@@ -1,4 +1,4 @@
-[sqlfluff:indentation]
+[sqlfluff]
 max_line_length = 50
 
 [sqlfluff:templater:jinja:context]

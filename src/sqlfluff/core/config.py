@@ -51,9 +51,9 @@ REMOVED_CONFIGS = [
         ("rules", "max_line_length"),
         (
             "The max_line_length config has moved "
-            "from sqlfluff:rules to sqlfluff:indentation."
+            "from sqlfluff:rules to the root sqlfluff level."
         ),
-        ("indentation", "max_line_length"),
+        ("max_line_length"),
         (lambda x: x),
     ),
     _RemovedConfig(

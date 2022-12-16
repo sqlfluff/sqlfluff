@@ -138,9 +138,7 @@ class Rule_L016(BaseRule):
                             # will have a position marker at this stage.
                             assert ps.segment.pos_marker
                             line_pos = ps.segment.pos_marker.working_line_pos
-                            if line_pos < context.config.get(
-                                "max_line_length", ["indentation"]
-                            ):
+                            if line_pos < context.config.get("max_line_length"):
                                 # OK purge it.
                                 self.logger.debug(
                                     "Purging result on long line with comment "
