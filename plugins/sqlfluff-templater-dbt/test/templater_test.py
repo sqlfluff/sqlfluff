@@ -6,6 +6,7 @@ import os
 import logging
 import shutil
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -15,6 +16,9 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
     project_dir,
+)
+from dbt.exceptions import (
+    RuntimeException as DbtRuntimeException,
 )
 
 
@@ -318,6 +322,42 @@ def test__templater_dbt_handle_exceptions(
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
+
+
+@mock.patch("sqlfluff_templater_dbt.osmosis.DbtProjectContainer.add_project")
+def test__templater_dbt_handle_database_connection_failure(
+    add_project, project_dir, dbt_templater  # noqa: F811
+):
+    """Test the result of a failed database connection."""
+    add_project.side_effect = DbtRuntimeException("dummy error")
+
+    src_fpath = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
+        "/exception_connect_database.sql"
+    )
+    target_fpath = os.path.abspath(
+        os.path.join(
+            project_dir, "models/my_new_project/exception_connect_database.sql"
+        )
+    )
+    dbt_fluff_config_fail = deepcopy(DBT_FLUFF_CONFIG)
+    dbt_fluff_config_fail["templater"]["dbt"][
+        "profiles_dir"
+    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    # We move the file that throws an error in and out of the project directory
+    # as dbt throws an error if a node fails to parse while computing the DAG
+    os.rename(src_fpath, target_fpath)
+    try:
+        _, violations = dbt_templater.process(
+            in_str="",
+            fname=target_fpath,
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
+    finally:
+        os.rename(target_fpath, src_fpath)
+    assert violations
+    # NB: Replace slashes to deal with different platform paths being returned.
+    assert violations[0].desc().replace("\\", "/").startswith("dbt error")
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
