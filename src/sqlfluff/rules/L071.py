@@ -1,6 +1,6 @@
 """Implementation of Rule L071."""
 
-from typing import List
+from typing import List, Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.context import RuleContext
@@ -39,7 +39,7 @@ class Rule_L071(BaseRule):
         {"start_bracket", "end_bracket"}, provide_raw_stack=True
     )
 
-    def _eval(self, context: RuleContext) -> List[LintResult] | None:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Parenthesis blocks should be surrounded by whitespaces."""
         if (
             context.segment.is_type("start_bracket")
