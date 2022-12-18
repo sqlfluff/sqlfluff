@@ -10,6 +10,20 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.5] - 2022-12-18
+
+## Highlights
+
+## What’s Changed
+
+* Add rule for space around parenthesis [#4131](https://github.com/sqlfluff/sqlfluff/pull/4131) [@NelsonTorres](https://github.com/NelsonTorres)
+* diff-quality plugin: Print invalid JSON on parse failure [#4176](https://github.com/sqlfluff/sqlfluff/pull/4176) [@barrywhart](https://github.com/barrywhart)
+* Ensure diff-quality runs the correct SQLFluff [#4175](https://github.com/sqlfluff/sqlfluff/pull/4175) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+
+* [@NelsonTorres](https://github.com/NelsonTorres) made their first contribution in [#4131](https://github.com/sqlfluff/sqlfluff/pull/4131)
+
 ## [1.4.4] - 2022-12-14
 
 ## Highlights
