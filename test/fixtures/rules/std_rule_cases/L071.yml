@@ -1,0 +1,16 @@
+rule: L071
+
+test_pass_parenthesis_block_isolated:
+  pass_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+
+test_pass_parenthesis_block_not_isolated:
+  fail_str: |
+    SELECT * FROM(SELECT 1 AS C1)AS T1;
+  fix_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+test_pass_parenthesis_function:
+  pass_str: |
+    SELECT foo(5) FROM T1;
