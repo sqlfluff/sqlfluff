@@ -973,7 +973,6 @@ class RuleSet:
             ), "Rule {!r} must belong to the 'all' group".format(code)
             groups = cls.groups
         except AttributeError as attr_err:
-
             raise AttributeError(
                 (
                     "Rule {!r} doesn't belong to any rule groups. "
