@@ -148,7 +148,43 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
+  dbt-tests-cov:
+    runs-on: ubuntu-latest
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    strategy:
+      matrix:
+        # We enforce coverage on this, the latest dbt version.
+        dbt-version: [ 'dbt130' ]
+    name: DBT Plugin ${{ matrix.dbt-version }} tests
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
     - name: Install dependencies
       run: |
         pip install tox
@@ -161,7 +197,7 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.8 Windows tests
+    name: Python 3.9 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -171,7 +207,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.9'
     - name: List Env
       shell: bash
       run: |
@@ -194,7 +230,7 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.8 Windows tests
+    name: DBT Plugin Python 3.9 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -212,7 +248,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.9'
     - name: Install dependencies
       shell: bash
       run: |
@@ -222,7 +258,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt130-winpy -- plugins/sqlfluff-templater-dbt
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
