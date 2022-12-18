@@ -148,7 +148,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -184,7 +184,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -197,7 +197,7 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.9 Windows tests
+    name: Python 3.10 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -207,7 +207,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: List Env
       shell: bash
       run: |
@@ -230,7 +230,7 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.9 Windows tests
+    name: DBT Plugin Python 3.10 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -248,7 +248,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       shell: bash
       run: |
