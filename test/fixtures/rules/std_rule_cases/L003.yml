@@ -1338,3 +1338,11 @@ test_pass_jinja_tag_multiline:
     {%       endif
     %}
         4
+
+test_pass_trailing_inline_noqa:
+  pass_str: |
+    SELECT
+        col1,
+        col2
+    FROM
+        table1 -- noqa: L062

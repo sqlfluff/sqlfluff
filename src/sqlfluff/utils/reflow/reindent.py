@@ -728,6 +728,18 @@ def _lint_line_untaken_negative_indents(
         ):
             # Yep, untaken.
             continue
+
+        # Edge Case: Comments. For now we don't introduce line breaks
+        # before comments, largely because a trailing comment line is
+        # probably referring to that line (and may contain noqa elements).
+        if elements[ip.idx + 1 :] and "comment" in elements[ip.idx + 1].class_types:
+            reflow_logger.debug(
+                "    Detected missing -ve line break @ line %s, before "
+                "comment. Ignoring...",
+                elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
+            )
+            continue
+
         # Edge Case: Semicolons. For now, semicolon placement is a little
         # more complicated than what we do here. For now we don't (by
         # default) introduce missing -ve indents before semicolons.
