@@ -14,6 +14,9 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a bugfix release, primarily for diff-quality. In addition, a new rules for spacing
+around parenthesis is also included.
+
 ## What’s Changed
 
 * Add rule for space around parenthesis [#4131](https://github.com/sqlfluff/sqlfluff/pull/4131) [@NelsonTorres](https://github.com/NelsonTorres)
