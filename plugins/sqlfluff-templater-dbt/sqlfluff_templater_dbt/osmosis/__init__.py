@@ -13,6 +13,7 @@ import dbt.adapters.factory
 dbt.adapters.factory.get_adapter = lambda config: config.adapter
 
 import os
+import re
 import threading
 import time
 import uuid
@@ -46,14 +47,11 @@ from dbt.clients import jinja  # monkey-patched for perf
 from dbt.config.runtime import RuntimeConfig
 from dbt.context.providers import generate_runtime_model_context
 from dbt.contracts.connection import AdapterResponse
-from dbt.contracts.graph.compiled import CompiledModelNode
 from dbt.contracts.graph.manifest import (
     ManifestNode,
     MaybeNonSource,
     MaybeParsedSource,
-    NodeType,
 )
-from dbt.contracts.graph.parsed import ColumnInfo
 from dbt.events.functions import fire_event  # monkey-patched for perf
 from dbt.exceptions import CompilationException, InternalException, RuntimeException
 from dbt.flags import DEFAULT_PROFILES_DIR, set_from_args
@@ -89,7 +87,9 @@ CACHE_VERSION = 1
 SQL_CACHE_SIZE = 1024
 
 MANIFEST_ARTIFACT = "manifest.json"
-DBT_MAJOR_VER, DBT_MINOR_VER, DBT_PATCH_VER = (int(v) for v in dbt_version.split("."))
+DBT_MAJOR_VER, DBT_MINOR_VER, DBT_PATCH_VER = (
+    int(v) for v in re.search(r"^([0-9\.])+", dbt_version).group().split(".")
+)
 RAW_CODE = "raw_code" if DBT_MAJOR_VER >= 1 and DBT_MINOR_VER >= 3 else "raw_sql"
 COMPILED_CODE = (
     "compiled_code" if DBT_MAJOR_VER >= 1 and DBT_MINOR_VER >= 3 else "compiled_sql"
@@ -460,7 +460,6 @@ class DbtProject:
         self.get_ref_node.cache_clear()
         self.get_source_node.cache_clear()
         self.get_macro_function.cache_clear()
-        self.get_columns.cache_clear()
         self.compile_sql.cache_clear()
 
     @lru_cache(maxsize=10)
@@ -604,29 +603,6 @@ class DbtProject:
         return self.adapter.get_columns_in_relation(
             self.create_relation_from_node(node)
         )
-
-    @lru_cache(maxsize=5)
-    def get_columns(self, node: ManifestNode) -> List[ColumnInfo]:
-        """Get a list of columns from a compiled node"""
-        columns = []
-        try:
-            columns.extend(
-                [
-                    c.name
-                    for c in self.get_columns_in_relation(
-                        self.create_relation_from_node(node)
-                    )
-                ]
-            )
-        except CompilationException:
-            original_sql = str(getattr(node, RAW_CODE))
-            # TODO: account for `TOP` syntax
-            setattr(node, RAW_CODE, f"select * from ({original_sql}) limit 0")
-            result = self.execute_node(node)
-            setattr(node, RAW_CODE, original_sql)
-            delattr(node, COMPILED_CODE)
-            columns.extend(result.table.column_names)
-        return columns
 
     def get_or_create_relation(
         self, database: str, schema: str, name: str
@@ -961,14 +937,6 @@ class DbtYamlManager(DbtProject):
     @staticmethod
     def get_database_parts(node: ManifestNode) -> Tuple[str, str, str]:
         return node.database, node.schema, getattr(node, "alias", node.name)
-
-    def get_base_model(self, node: ManifestNode) -> Dict[str, Any]:
-        """Construct a base model object with model name, column names populated from database"""
-        columns = self.get_columns(node)
-        return {
-            "name": node.alias or node.name,
-            "columns": [{"name": column_name} for column_name in columns],
-        }
 
     def bootstrap_existing_model(
         self, model_documentation: Dict[str, Any], node: ManifestNode
@@ -1406,59 +1374,6 @@ class DbtYamlManager(DbtProject):
             ]
             changes_committed += 1
             logger().info(":wrench: Removing column %s from dbt schema", column)
-        return changes_committed
-
-    def update_undocumented_columns_with_prior_knowledge(
-        self,
-        undocumented_columns: Iterable[str],
-        node: ManifestNode,
-        yaml_file_model_section: Dict[str, Any],
-    ) -> int:
-        """Update undocumented columns with prior knowledge in node and model simultaneously
-        THIS MUTATES THE NODE AND MODEL OBJECTS so that state is always accurate"""
-        knowledge = self.get_node_columns_with_inherited_knowledge(node)
-        inheritables = ("description", "tags", "meta")
-        changes_committed = 0
-        for column in undocumented_columns:
-            prior_knowledge = knowledge.get(column, {})
-            progenitor = prior_knowledge.pop("progenitor", "Unknown")
-            prior_knowledge = {
-                k: v for k, v in prior_knowledge.items() if k in inheritables
-            }
-            if not prior_knowledge:
-                continue
-            if column not in node.columns:
-                node.columns[column] = ColumnInfo.from_dict(
-                    {"name": column, **prior_knowledge}
-                )
-            else:
-                node.columns[column].replace(kwargs={"name": column, **prior_knowledge})
-            for model_column in yaml_file_model_section["columns"]:
-                if model_column["name"] == column:
-                    model_column.update(prior_knowledge)
-            changes_committed += 1
-            logger().info(
-                ":light_bulb: Column %s is inheriting knowledge from the lineage of progenitor (%s)",
-                column,
-                progenitor,
-            )
-            logger().info(prior_knowledge)
-        return changes_committed
-
-    @staticmethod
-    def add_missing_cols_to_node_and_model(
-        missing_columns: Iterable,
-        node: ManifestNode,
-        yaml_file_model_section: Dict[str, Any],
-    ) -> int:
-        """Add missing columns to node and model simultaneously
-        THIS MUTATES THE NODE AND MODEL OBJECTS so that state is always accurate"""
-        changes_committed = 0
-        for column in missing_columns:
-            node.columns[column] = ColumnInfo.from_dict({"name": column})
-            yaml_file_model_section.setdefault("columns", []).append({"name": column})
-            changes_committed += 1
-            logger().info(":syringe: Injecting column %s into dbt schema", column)
         return changes_committed
 
     def update_schema_file_and_node(
