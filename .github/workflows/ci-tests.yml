@@ -148,7 +148,9 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.10'
+        # Use Python 3.10 rather than 3.9 due to this issue.
+        # https://github.com/dbt-labs/dbt-core/issues/2827
+        python-version: '3.9'
     - name: Install dependencies
       run: |
         pip install tox
