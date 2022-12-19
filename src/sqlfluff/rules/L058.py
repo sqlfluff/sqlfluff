@@ -6,6 +6,8 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
 
+from sqlfluff.utils.reflow.reindent import construct_single_indent
+
 
 @document_groups
 @document_fix_compatible
@@ -82,6 +84,9 @@ class Rule_L058(BaseRule):
         # Delete the nested "CASE" expression.
         fixes = case1_to_delete.apply(lambda seg: LintFix.delete(seg))
 
+        tab_space_size: int = context.config.get("tab_space_size", ["indentation"])
+        indent_unit: str = context.config.get("indent_unit", ["indentation"])
+
         # Determine the indentation to use when we move the nested "WHEN"
         # and "ELSE" clauses, based on the indentation of case1_last_when.
         # If no whitespace segments found, use default indent.
@@ -90,7 +95,11 @@ class Rule_L058(BaseRule):
             .reversed()
             .select(sp.is_type("whitespace"))
         )
-        indent_str = "".join(seg.raw for seg in indent) if indent else self.indent
+        indent_str = (
+            "".join(seg.raw for seg in indent)
+            if indent
+            else construct_single_indent(indent_unit, tab_space_size)
+        )
 
         # Move the nested "when" and "else" clauses after the last outer
         # "when".
