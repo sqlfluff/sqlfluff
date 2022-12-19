@@ -1050,18 +1050,72 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
     return rebreak_priority
 
 
+MatchedIndentsType = DefaultDict[float, List[int]]
+
+
+def _increment_balance(
+    input_balance: int,
+    indent_stats: Tuple[int, int],
+    elem_idx: int,
+) -> Tuple[int, MatchedIndentsType]:
+    """Logic for stepping through _match_indents.
+
+    This is the part of that logic which is potentially fragile
+    so is separated here into a more isolated function for
+    better testing. It's very easy to get wrong and necessary
+    so we don't mistake empty elements, but potentially
+    fragile nonetheless.
+
+    Returns:
+        A tuple where the first element is the resulting balance
+            and the second is a :obj:`defaultdict` of the new
+            elements to add to `matched_indents`.
+
+    Positive indent example:
+    >>> _increment_balance(0, (1, 0), 7)
+    (1, defaultdict(<class 'list'>, {1.0: [7]}))
+
+    Negative indent example:
+    >>> _increment_balance(3, (-1, -1), 11)
+    (2, defaultdict(<class 'list'>, {3.0: [11]}))
+
+    Double negative indent example:
+    >>> _increment_balance(3, (-2, -2), 16)
+    (1, defaultdict(<class 'list'>, {3.0: [16], 2.0: [16]}))
+
+    Dip indent example:
+    >>> _increment_balance(3, (0, -1), 21)
+    (3, defaultdict(<class 'list'>, {3.0: [21]}))
+    """
+    balance = input_balance
+    matched_indents: MatchedIndentsType = defaultdict(list)
+    if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
+        # in case of more than one indent we loop and apply to all.
+        for b in range(0, indent_stats[1], -1):
+            matched_indents[(balance + b) * 1.0].append(elem_idx)
+        # NOTE: We carry forward the impulse, not the trough.
+        # This is important for dedent+indent pairs.
+        balance += indent_stats[0]
+    elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
+        # in case of more than one indent we loop and apply to all.
+        for b in range(0, indent_stats[0]):
+            matched_indents[(balance + b + 1) * 1.0].append(elem_idx)
+        balance += indent_stats[0]
+    return balance, matched_indents
+
+
 def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: Dict[int, int],
     newline_idx: int,
-) -> DefaultDict[float, List[int]]:
+) -> MatchedIndentsType:
     """Identify indent points, taking into account rebreak_priorities.
 
     Expect fractional keys, because of the half values for
     rebreak points.
     """
     balance = 0
-    matched_indents: DefaultDict[float, List[int]] = defaultdict(list)
+    matched_indents: MatchedIndentsType = defaultdict(list)
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -1071,23 +1125,12 @@ def _match_indents(
         # so what number we store the point against depends on whether
         # it's positive or negative.
         indent_stats = e.get_indent_impulse()
-        # TODO: Better isolation and test coverage of this
-        # indexing maths. Very easy to get wrong. Necessary
-        # so we don't mistake empty elements, but potentially
-        # fragile nonetheless.
         e_idx = newline_idx - len(line_elements) + idx + 1
-        if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
-            # in case of more than one indent we loop and apply to all.
-            for b in range(0, indent_stats[1], -1):
-                matched_indents[(balance + b) * 1.0].append(e_idx)
-            # NOTE: We carry forward the impulse, not the trough.
-            # This is important for dedent+indent pairs.
-            balance += indent_stats[0]
-        elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
-            # in case of more than one indent we loop and apply to all.
-            for b in range(0, indent_stats[0]):
-                matched_indents[(balance + b + 1) * 1.0].append(e_idx)
-            balance += indent_stats[0]
+        balance, nmi = _increment_balance(balance, indent_stats, e_idx)
+        # Incorporate nmi into matched_indents
+        for b, indices in nmi.items():
+            matched_indents[b].extend(indices)
+
         # Something can be both an indent point AND a rebreak point.
         if idx in rebreak_priorities:
             # For potential rebreak options (i.e. ones without an indent)
