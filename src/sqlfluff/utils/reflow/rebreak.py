@@ -247,7 +247,6 @@ def rebreak_sequence(
 
     # Handle each span:
     for loc in locations:
-
         reflow_logger.debug(
             "Handing Rebreak Span (%r: %s): %r",
             loc.line_position,
@@ -272,7 +271,6 @@ def rebreak_sequence(
 
         # So we know we have a preference, is it ok?
         if loc.line_position == "leading":
-
             if elem_buff[loc.prev.newline_pt_idx].num_newlines():
                 # We're good. It's already leading.
                 continue
@@ -353,7 +351,6 @@ def rebreak_sequence(
                 )
 
         elif loc.line_position == "trailing":
-
             if elem_buff[loc.next.newline_pt_idx].num_newlines():
                 # We're good, it's already trailing.
                 continue

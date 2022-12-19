@@ -76,7 +76,6 @@ class Rule_L066(BaseRule):
         # For each table, check whether it is aliased, and if so check the
         # lengths.
         for from_expression_element in from_expression_elements:
-
             table_expression = from_expression_element.get_child("table_expression")
             table_ref = (
                 table_expression.get_child("object_reference")

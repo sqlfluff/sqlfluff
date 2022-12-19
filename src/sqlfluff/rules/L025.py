@@ -85,7 +85,6 @@ class Rule_L025(BaseRule):
 
         alias: AliasInfo
         for alias in query.aliases:
-
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
             if alias.from_expression_element and self.is_alias_required(
