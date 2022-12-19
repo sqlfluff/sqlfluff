@@ -28,7 +28,7 @@ def parse_ansi_string(sql, config):
         ("select 1+\n2", "select 1\n+ 2"),  # NOTE: Implicit respace.
         ("select\n  1 +\n  2", "select\n  1\n  + 2"),
         ("select\n  1 +\n  -- comment\n  2", "select\n  1\n  -- comment\n  + 2"),
-        # These rely on the details config being for trailing commas
+        # These rely on the default config being for trailing commas
         ("select a,b", "select a,b"),
         ("select a\n,b", "select a,\nb"),
         ("select\n  a\n  , b", "select\n  a,\n  b"),

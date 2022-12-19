@@ -13,7 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy, copy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from itertools import takewhile, chain
+from itertools import chain
 from typing import (
     Any,
     Callable,
@@ -111,35 +111,6 @@ class FixPatch:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
-    @classmethod
-    def infer_from_template(
-        cls,
-        templated_slice: slice,
-        fixed_raw: str,
-        patch_category: str,
-        templated_file: TemplatedFile,
-    ):
-        """Infer source position from just templated position.
-
-        In cases where we expect it to be uncontroversial it
-        is sometimes more straightforward to just leverage
-        the existing mapping functions to auto-generate the
-        source position rather than calculating it explicitly.
-        """
-        # NOTE: There used to be error handling here to catch ValueErrors.
-        # Removed in July 2022 because untestable.
-        source_slice = templated_file.templated_slice_to_source_slice(
-            templated_slice,
-        )
-        return cls(
-            source_slice=source_slice,
-            templated_slice=templated_slice,
-            patch_category=patch_category,
-            fixed_raw=fixed_raw,
-            templated_str=templated_file.templated_str[templated_slice],
-            source_str=templated_file.source_str[source_slice],
-        )
-
 
 @dataclass
 class AnchorEditInfo:
@@ -160,6 +131,10 @@ class AnchorEditInfo:
         We also allow potentially multiple source fixes on the same
         anchor by condensing them together here.
         """
+        if fix in self.fixes:
+            # Deduplicate fixes in case it's already in there.
+            return
+
         if fix.is_just_source_edit():
             assert fix.edit
             # is_just_source_edit confirms there will be a list
@@ -1407,46 +1382,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 seg_buffer.append(s)
                 seg_buffer.extend(after)
 
-            before = []
-            after = []
-            # If there's a parse grammar and this segment is not allowed to
-            # start or end with non-code, check for (and fix) misplaced
-            # segments. The reason for the parse grammar check is autofix if and
-            # only if parse() would've complained, and it has the same parse
-            # grammar check prior to checking can_start_end_non_code.
-            if r.parse_grammar and not r.can_start_end_non_code:
-                idx_non_code = self._find_start_or_end_non_code(seg_buffer)
-                # Are there misplaced segments from a fix?
-                if idx_non_code is not None:
-                    # Yes. Fix the misplaced segments: Do not include them
-                    # in the new segment's children. Instead, return them to the
-                    # caller, which will place them *adjacent to* the new
-                    # segment, in effect, bubbling them up to the tree to a
-                    # valid location.
-                    save_seg_buffer = list(seg_buffer)
-                    before.extend(
-                        takewhile(
-                            lambda seg: not self._is_code_or_meta(seg), seg_buffer
-                        )
-                    )
-                    seg_buffer = seg_buffer[len(before) :]
-                    after.extend(
-                        takewhile(
-                            lambda seg: not self._is_code_or_meta(seg),
-                            reversed(seg_buffer),
-                        )
-                    )
-                    after.reverse()
-                    seg_buffer = seg_buffer[: len(seg_buffer) - len(after)]
-                    assert before + seg_buffer + after == save_seg_buffer
-                    linter_logger.debug(
-                        "After applying fixes, segment %s violated "
-                        "'can_start_end_non_code=False' constraint. Autofixing, "
-                        "before=%s, after=%s",
-                        self,
-                        before,
-                        after,
-                    )
+            # After fixing we should be able to rely on whitespace being
+            # inserted in appropriate places. That logic now lives in
+            # `BaseRule._choose_anchor_segment()`, rather than here.
+
+            # Rather than fix that here, we simply assert that it has been
+            # done. This will raise issues in testing, but shouldn't in use.
+            if r.parse_grammar and not r.can_start_end_non_code and seg_buffer:
+                assert not self._find_start_or_end_non_code(seg_buffer), (
+                    "Found inappropriate fix application: inappropriate "
+                    "whitespace positioning. Post `_choose_anchor_segment`. "
+                    "Please report this issue on GitHub with your SQL query. "
+                )
+
             # Reform into a new segment
             r = r.__class__(
                 # Realign the segments within
@@ -1560,11 +1508,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # First yield any source fixes
             yield from self._iter_source_fix_patches(templated_file)
             # Then yield the position in the source file and the patch
-            yield FixPatch.infer_from_template(
-                self.pos_marker.templated_slice,
-                self.raw,
+            yield FixPatch(
+                source_slice=self.pos_marker.source_slice,
+                templated_slice=self.pos_marker.templated_slice,
                 patch_category="literal",
-                templated_file=templated_file,
+                fixed_raw=self.raw,
+                templated_str=templated_file.templated_str[
+                    self.pos_marker.templated_slice
+                ],
+                source_str=templated_file.source_str[self.pos_marker.source_slice],
             )
         # Can we go deeper?
         elif not self.segments:
@@ -1603,6 +1555,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
                 # If we get here, then we know it's an original. Check for deletions at
                 # the point before this segment (vs the TEMPLATED).
+                # Deletions in this sense could also mean source consumption.
                 start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
                 # Check to see whether there's a discontinuity before the current
@@ -1610,15 +1563,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
-                    yield FixPatch.infer_from_template(
-                        slice(
-                            segment.pos_marker.templated_slice.start
-                            - max(start_diff, 0),
-                            segment.pos_marker.templated_slice.start,
+
+                    # For the start of the next segment, we need the position of the
+                    # first raw, not the pos marker of the whole thing. That accounts
+                    # better for loops.
+                    first_segment_pos = segment.raw_segments[0].pos_marker
+                    yield FixPatch(
+                        # Whether the source slice is zero depends on the start_diff.
+                        # A non-zero start diff implies a deletion, or more likely
+                        # a consumed element of the source. We can use the tracking
+                        # markers from the last segment to recreate where this element
+                        # should be inserted in both source and template.
+                        source_slice=slice(
+                            source_idx,
+                            first_segment_pos.source_slice.start,
                         ),
-                        insert_buff,
+                        templated_slice=slice(
+                            templated_idx,
+                            first_segment_pos.templated_slice.start,
+                        ),
                         patch_category="mid_point",
-                        templated_file=templated_file,
+                        fixed_raw=insert_buff,
+                        templated_str="",
+                        source_str="",
                     )
 
                     insert_buff = ""

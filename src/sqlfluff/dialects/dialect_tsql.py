@@ -776,13 +776,13 @@ class CreateIndexStatementSegment(BaseSegment):
     type = "create_index_statement"
     match_grammar = Sequence(
         "CREATE",
-        Indent,
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
         OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
         OneOf("INDEX", "STATISTICS"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
+        Indent,
         "ON",
         Ref("TableReferenceSegment"),
         Ref("BracketedIndexColumnListGrammar"),
@@ -2965,9 +2965,12 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(
             Sequence(
                 Ref("TableExpressionSegment"),
+                # TODO: Revisit this to make sure it's sensible.
                 Conditional(Dedent, indented_joins=False),
+                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 Conditional(Dedent, indented_joins=True),
+                Conditional(Indent, indented_joins=True),
             )
         ),
     )
@@ -3116,11 +3119,9 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
-        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
-        Dedent,
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),

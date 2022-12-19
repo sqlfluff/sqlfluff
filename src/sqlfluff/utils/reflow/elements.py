@@ -5,11 +5,14 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
-from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    RawSegment,
     NewlineSegment,
     WhitespaceSegment,
     TemplateSegment,
+    Indent,
+    SourceFix,
 )
 from sqlfluff.core.rules.base import LintFix, LintResult
 
@@ -28,6 +31,27 @@ from sqlfluff.utils.reflow.respace import (
 # logs to appear in the context of rules. Hence it's a subset
 # of the rules logger.
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
+
+
+def get_consumed_whitespace(segment: Optional[RawSegment]) -> Optional[str]:
+    """A helper function to extract possible consumed whitespace.
+
+    Args:
+        segment (:obj:`RawSegment`, optional): A segment to test for
+            suitability and extract the source representation of if
+            appropriate. If passed None, then returns None.
+
+    Returns:
+        Returns the :code:`source_str` if the segment is of type
+        :code:`placeholder` and has a :code:`block_type` of
+        :code:`literal`. Otherwise None.
+    """
+    if not segment or not segment.is_type("placeholder"):
+        return None
+    placeholder = cast(TemplateSegment, segment)
+    if placeholder.block_type != "literal":
+        return None
+    return placeholder.source_str
 
 
 @dataclass(frozen=True)
@@ -54,8 +78,17 @@ class ReflowElement:
         return "".join(seg.raw for seg in self.segments)
 
     def num_newlines(self) -> int:
-        """Return the number of newlines in this element."""
-        return sum(bool("newline" in seg.class_types) for seg in self.segments)
+        """Return the number of newlines in this element.
+
+        These newlines are either newline segments or contained
+        within consumed sections of whitespace. This counts
+        both.
+        """
+        return sum(
+            bool("newline" in seg.class_types)
+            + (get_consumed_whitespace(seg) or "").count("\n")
+            for seg in self.segments
+        )
 
 
 @dataclass(frozen=True)
@@ -171,19 +204,54 @@ class ReflowPoint(ReflowElement):
                 return indent
             elif seg.is_type("whitespace"):
                 indent = seg
+            elif "\n" in (get_consumed_whitespace(seg) or ""):
+                # Consumed whitespace case.
+                # NOTE: In this situation, we're not looking for
+                # separate newline and indent segments, we're
+                # making the assumption that they'll be together
+                # which I think is a safe one for now.
+                return seg
         # i.e. if we never find a newline, it's not an indent.
         return None
 
     def get_indent(self) -> Optional[str]:
         """Get the current indent (if there)."""
+        # If no newlines, it's not an indent. Return None.
+        if not self.num_newlines():
+            return None
+        # If there are newlines but no indent segment. Return "".
         seg = self._get_indent_segment()
-        return seg.raw if seg else None
+        consumed_whitespace = get_consumed_whitespace(seg)
+        if consumed_whitespace:  # pragma: no cover
+            # Return last bit after newline.
+            # NOTE: Not tested, because usually this would happen
+            # directly via _get_indent_segment.
+            return consumed_whitespace.split("\n")[-1]
+        return seg.raw if seg else ""
+
+    def get_indent_impulse(self) -> Tuple[int, int]:
+        """Get the change in intended indent balance from this point.
+
+        Returns:
+            :obj:`tuple` of :obj:`int`: The first value is the raw
+                impulse. The second is the deepest trough in the indent
+                through the values to allow wiping of buffers.
+        """
+        trough = 0
+        running_sum = 0
+        for seg in self.segments:
+            if seg.is_type("indent"):
+                running_sum += cast(Indent, seg).indent_val
+            if running_sum < trough:
+                trough = running_sum
+        return running_sum, trough
 
     def indent_to(
         self,
         desired_indent: str,
         after: Optional[BaseSegment] = None,
         before: Optional[BaseSegment] = None,
+        description: Optional[str] = None,
     ) -> Tuple[List[LintResult], "ReflowPoint"]:
         """Coerce a point to have a particular indent.
 
@@ -194,7 +262,11 @@ class ReflowPoint(ReflowElement):
         More specifically, the newline is *inserted before* the existing
         whitespace, with the new indent being a *replacement* for that
         same whitespace.
+
+        For placeholder newlines or indents we generate appropriate
+        source fixes.
         """
+        assert "\n" not in desired_indent, "Newline found in desired indent."
         # Get the indent (or in the case of no newline, the last whitespace)
         indent_seg = self._get_indent_segment()
         reflow_logger.debug(
@@ -203,8 +275,47 @@ class ReflowPoint(ReflowElement):
             desired_indent,
             self.num_newlines(),
         )
-        if self.num_newlines():
-            # There is already a newline.
+
+        if indent_seg and indent_seg.is_type("placeholder"):
+            # Handle the placeholder case.
+            indent_seg = cast(TemplateSegment, indent_seg)
+            # There should always be a newline, so assert that.
+            assert "\n" in indent_seg.source_str
+            # We should always replace the section _containing_ the
+            # newline, rather than just bluntly inserting. This
+            # makes slicing later easier.
+            current_indent = indent_seg.source_str.split("\n")[-1]
+            source_slice = slice(
+                # Minus _one more_ for to cover the newline too.
+                indent_seg.pos_marker.source_slice.stop - len(current_indent) - 1,
+                indent_seg.pos_marker.source_slice.stop,
+            )
+            new_placeholder = indent_seg.edit(
+                source_fixes=[
+                    SourceFix(
+                        "\n" + desired_indent,
+                        source_slice,
+                        # The templated slice is going to be a zero slice _anyway_.
+                        indent_seg.pos_marker.templated_slice,
+                    )
+                ],
+                source_str=indent_seg.source_str[: -len(current_indent)]
+                + desired_indent,
+            )
+            new_segments = [
+                new_placeholder if seg is indent_seg else seg for seg in self.segments
+            ]
+            return [
+                LintResult(
+                    indent_seg,
+                    [LintFix.replace(indent_seg, [new_placeholder])],
+                    description=description
+                    or f"Expected {_indent_description(desired_indent)}.",
+                )
+            ], ReflowPoint(tuple(new_segments))
+
+        elif self.num_newlines():
+            # There is already a newline. Is there an indent?
             if indent_seg:
                 # Coerce existing indent to desired.
                 if indent_seg.raw == desired_indent:
@@ -218,7 +329,7 @@ class ReflowPoint(ReflowElement):
                         LintResult(
                             indent_seg,
                             [LintFix.delete(indent_seg)],
-                            description="Line should not be indented.",
+                            description=description or "Line should not be indented.",
                         )
                     ], ReflowPoint(self.segments[:idx] + self.segments[idx + 1 :])
 
@@ -229,7 +340,8 @@ class ReflowPoint(ReflowElement):
                     LintResult(
                         indent_seg,
                         [LintFix.replace(indent_seg, [new_indent])],
-                        description=f"Expected {_indent_description(desired_indent)}.",
+                        description=description
+                        or f"Expected {_indent_description(desired_indent)}.",
                     )
                 ], ReflowPoint(
                     self.segments[:idx] + (new_indent,) + self.segments[idx + 1 :]
@@ -237,16 +349,33 @@ class ReflowPoint(ReflowElement):
 
             else:
                 # There is a newline, but no indent. Make one after the newline
-                # Find the index of the last newline.
-                for idx in range(len(self.segments) - 1, 0, -1):
+                # Find the index of the last newline (there _will_ be one because
+                # we checked self.num_newlines() above).
+                for idx in range(len(self.segments) - 1, -1, -1):
                     if self.segments[idx].is_type("newline"):
                         break
                 new_indent = WhitespaceSegment(desired_indent)
                 return [
                     LintResult(
-                        self.segments[idx],
-                        [LintFix.create_after(self.segments[idx], [new_indent])],
-                        description=f"Expected {_indent_description(desired_indent)}.",
+                        # The anchor for the *result* should be the segment
+                        # *after* the newline, otherwise the location of the fix
+                        # is confusing.
+                        # For this method, `before` is optional, but normally
+                        # passed. If it is there, use that as the anchor
+                        # instead. We fall back to the last newline if not.
+                        before if before else self.segments[idx],
+                        # Rather than doing a `create_after` here, we're
+                        # going to do a replace. This is effectively to give a hint
+                        # to the linter that this is safe to do before a templated
+                        # placeholder. This solves some potential bugs - although
+                        # it feels a bit like a workaround.
+                        [
+                            LintFix.replace(
+                                self.segments[idx], [self.segments[idx], new_indent]
+                            )
+                        ],
+                        description=description
+                        or f"Expected {_indent_description(desired_indent)}.",
                     )
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
@@ -282,7 +411,7 @@ class ReflowPoint(ReflowElement):
                         before,
                         [new_newline, new_indent],
                     )
-                    description = (
+                    description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
                         f"before {before_raw!r}."
@@ -298,7 +427,7 @@ class ReflowPoint(ReflowElement):
                         after,
                         [new_newline, new_indent],
                     )
-                    description = (
+                    description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
                         f"after {after_raw!r}."
@@ -316,27 +445,28 @@ class ReflowPoint(ReflowElement):
                 else:
                     new_segs = [new_newline, ws_seg.edit(desired_indent)]
                 idx = self.segments.index(ws_seg)
-                # Prefer before, because it makes the anchoring better.
-                if before:
-                    description = (
-                        "Expected line break and "
-                        f"{_indent_description(desired_indent)} "
-                        f"before {before.raw!r}."
-                    )
-                elif after:
-                    description = (
-                        "Expected line break and "
-                        f"{_indent_description(desired_indent)} "
-                        f"after {after.raw!r}."
-                    )
-                else:  # pragma: no cover
-                    # NOTE: Doesn't have test coverage because there's
-                    # normally an `after` or `before` value, so this
-                    # clause is unused.
-                    description = (
-                        "Expected line break and "
-                        f"{_indent_description(desired_indent)}."
-                    )
+                if not description:
+                    # Prefer before, because it makes the anchoring better.
+                    if before:
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"before {before.raw!r}."
+                        )
+                    elif after:
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)} "
+                            f"after {after.raw!r}."
+                        )
+                    else:  # pragma: no cover
+                        # NOTE: Doesn't have test coverage because there's
+                        # normally an `after` or `before` value, so this
+                        # clause is unused.
+                        description = (
+                            "Expected line break and "
+                            f"{_indent_description(desired_indent)}."
+                        )
                 fix = LintFix.replace(ws_seg, new_segs)
                 new_point = ReflowPoint(
                     self.segments[:idx] + tuple(new_segs) + self.segments[idx + 1 :]
@@ -441,7 +571,7 @@ class ReflowPoint(ReflowElement):
             # Return the results.
             return existing_results + new_results, ReflowPoint(tuple(segment_buffer))
 
-        # Otherwise this is this an inline case? (i.e. no newline)
+        # Otherwise is this an inline case? (i.e. no newline)
         reflow_logger.debug(
             "    Inline case. Constraints: %s <-> %s.",
             pre_constraint,
