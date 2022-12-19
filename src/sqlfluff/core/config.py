@@ -40,6 +40,68 @@ class _RemovedConfig:
 
 REMOVED_CONFIGS = [
     _RemovedConfig(
+        ("rules", "L003", "hanging_indents"),
+        (
+            "Hanging indents are no longer supported in SQLFluff "
+            "from version 2.0.0 onwards. See "
+            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
+        ),
+    ),
+    _RemovedConfig(
+        ("rules", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L002", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L004", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L016", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "indent_unit"),
+        (
+            "The indent_unit config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "indent_unit"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
         ("rules", "L007", "operator_new_lines"),
         (
             "Use the line_position config in the appropriate "

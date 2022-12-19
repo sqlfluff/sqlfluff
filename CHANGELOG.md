@@ -10,6 +10,29 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.4.5] - 2022-12-18
+
+## Highlights
+
+This is a bugfix release, primarily for diff-quality. In addition, a new rules for spacing
+around parenthesis is also included.
+
+This is also the final 1.x.x release. Following releases will be a series of alpha releases
+for 2.x.x. If you affected by any outstanding bugs or regressions from this release, consider
+either rolling _backward_ to a previous release without those issues, or failing _forward_
+to on an alpha release for 2.x.x (or a full release if that's out). Note that 2.x.x will bring
+a selection of breaking changes to config file structure, rule categorisation and dbt support.
+
+## What’s Changed
+
+* Add rule for space around parenthesis [#4131](https://github.com/sqlfluff/sqlfluff/pull/4131) [@NelsonTorres](https://github.com/NelsonTorres)
+* diff-quality plugin: Print invalid JSON on parse failure [#4176](https://github.com/sqlfluff/sqlfluff/pull/4176) [@barrywhart](https://github.com/barrywhart)
+* Ensure diff-quality runs the correct SQLFluff [#4175](https://github.com/sqlfluff/sqlfluff/pull/4175) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+
+* [@NelsonTorres](https://github.com/NelsonTorres) made their first contribution in [#4131](https://github.com/sqlfluff/sqlfluff/pull/4131)
+
 ## [1.4.4] - 2022-12-14
 
 ## Highlights

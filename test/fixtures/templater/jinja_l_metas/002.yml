@@ -5,8 +5,10 @@ file:
       - keyword: SELECT
       - indent: ''
       - newline: "\n"
-      # NB: We *shouldn't* have a template_loop here.
-      - whitespace: '          '
+      # NB: We end up with double whitespace here
+      # because one is literal and one is templated.
+      - whitespace: '    '
+      - whitespace: '      '
       - select_clause_element:
           column_reference:
             naked_identifier: c2
@@ -111,7 +113,11 @@ file:
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
-        - placeholder: '{% else %}... [103 unused template characters] ...{% endif %}'
+        - placeholder: '{% else %}'
+        - indent: ''
+        - placeholder: '... [103 unused template characters] ...'
+        - dedent: ''
+        - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - dedent: ''
@@ -119,7 +125,11 @@ file:
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
+        - placeholder: '{% if loop.first %}'
+        - indent: ''
+        - placeholder: '... [49 unused template characters] ...'
+        - dedent: ''
+        - placeholder: '{% else %}'
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
@@ -135,6 +145,8 @@ file:
                   naked_identifier: b_raw_effect_sizes
           - newline: "\n"
           - whitespace: '        '
+          - dedent: ''
+          - indent: ''
           - keyword: USING
           - indent: ''
           - newline: "\n"
@@ -150,22 +162,26 @@ file:
             - dedent: ''
             - end_bracket: )
           - dedent: ''
+          - newline: "\n"
+          - whitespace: '        '
           - dedent: ''
-        - newline: "\n"
-        - whitespace: '        '
-        - dedent: ''
-        - placeholder: '{% endif %}'
-        - newline: "\n"
-        - whitespace: '    '
-        - dedent: ''
-        - template_loop: ''
-        - indent: ''
-        - newline: "\n"
-        - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
-        - indent: ''
-        - newline: "\n"
-        - whitespace: '        '
+          - placeholder: '{% endif %}'
+          - newline: "\n"
+          - whitespace: '    '
+          - dedent: ''
+          - template_loop: ''
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '        '
+          - placeholder: '{% if loop.first %}'
+          - indent: ''
+          - placeholder: '... [49 unused template characters] ...'
+          - dedent: ''
+          - placeholder: '{% else %}'
+          - indent: ''
+          - newline: "\n"
+          - whitespace: '        '
+          - dedent: ''
         - join_clause:
           - keyword: JOIN
           - indent: ''
@@ -177,6 +193,8 @@ file:
                   naked_identifier: c_raw_effect_sizes
           - newline: "\n"
           - whitespace: '        '
+          - dedent: ''
+          - indent: ''
           - keyword: USING
           - indent: ''
           - newline: "\n"
@@ -192,16 +210,16 @@ file:
             - dedent: ''
             - end_bracket: )
           - dedent: ''
+          - newline: "\n"
+          - whitespace: '        '
           - dedent: ''
-        - newline: "\n"
-        - whitespace: '        '
-        - dedent: ''
-        - placeholder: '{% endif %}'
-        - newline: "\n"
-        - whitespace: '    '
-        - dedent: ''
-        - placeholder: '{% endfor %}'
-        - newline: "\n"
+          - placeholder: '{% endif %}'
+          - newline: "\n"
+          - whitespace: '    '
+          - dedent: ''
+          - placeholder: '{% endfor %}'
+          - newline: "\n"
+          - dedent: ''
         - join_clause:
           - keyword: CROSS
           - whitespace: ' '

@@ -144,6 +144,82 @@ class RawTemplatedTestCase(NamedTuple):
             ],
         ),
         RawTemplatedTestCase(
+            name="strip_and_templated_whitespace",
+            instr="SELECT {{- '  ' -}} 1{{ ' , 2' -}}\n",
+            templated_str="SELECT  1 , 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Placeholder for consumed whitespace
+                "  ",  # Placeholder for templated whitespace
+                "",  # Placeholder for consumed whitespace
+                "1",
+                " , 2",
+                "",  # Placeholder for consumed newline
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_both_block_hard",
+            instr="SELECT {%- set x = 42 %} 1 {%- if true -%} , 2{% endif -%}\n",
+            templated_str="SELECT 1, 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                # NB: Even though the jinja tag consumes whitespace, we still
+                # get it here as a placeholder.
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                # This whitespace is a seperate from the 1 because it's consumed.
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Consumed whitespace placeholder
+                "",  # Jinja block placeholder
+                " 1",
+                "",  # Consumed whitespace
+                "",  # Jinja block placeholder
+                "",  # More consumed whitespace
+                ", 2",
+                "",  # Jinja block
+                "",  # Consumed final newline.
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
+            ],
+        ),
+        RawTemplatedTestCase(
             name="basic_data",
             instr="""select
     c1,
@@ -600,6 +676,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/004", False, True),
         ("jinja_l_metas/005", False, True),
         ("jinja_l_metas/006", False, True),
+        ("jinja_l_metas/007", False, True),
+        ("jinja_l_metas/008", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
@@ -636,7 +714,11 @@ def test__templater_jinja_block_matching(caplog):
     template_segments = [
         seg
         for seg in parsed.raw_segments
-        if seg.is_type("template_loop", "placeholder")
+        if seg.is_type("template_loop")
+        or (
+            seg.is_type("placeholder")
+            and seg.block_type in ("block_start", "block_end", "block_mid")
+        )
     ]
 
     # Group them together by block UUID
@@ -654,9 +736,9 @@ def test__templater_jinja_block_matching(caplog):
     groups = {
         "for actions clause 1": [(6, 5), (9, 5), (12, 5), (15, 5)],
         "for actions clause 2": [(17, 5), (21, 5), (29, 5), (37, 5)],
-        "if loop.first 1": [(18, 9), (20, 9)],
-        "if loop.first 2": [(22, 9), (28, 9)],
-        "if loop.first 3": [(30, 9), (36, 9)],
+        "if loop.first 1": [(18, 9), (20, 9), (20, 9)],
+        "if loop.first 2": [(22, 9), (22, 9), (28, 9)],
+        "if loop.first 3": [(30, 9), (30, 9), (36, 9)],
     }
 
     # Check all are accounted for:
@@ -728,6 +810,34 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 82),
                 ("{{ my_query }}", "templated", 83),
                 ("\n", "literal", 97),
+            ],
+        ),
+        # Tests for jinja blocks that consume whitespace.
+        (
+            """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
+            [
+                ("SELECT 1 FROM ", "literal", 0),
+                ("{%+if true-%}", "block_start", 14),
+                (" ", "literal", 27),
+                ("{{ref('foo')}}", "templated", 28),
+                (" ", "literal", 42),
+                ("{%-endif%}", "block_end", 43),
+            ],
+        ),
+        (
+            """{% for item in some_list -%}
+    SELECT *
+    FROM some_table
+{{ "UNION ALL\n" if not loop.last }}
+{%- endfor %}""",
+            [
+                ("{% for item in some_list -%}", "block_start", 0),
+                # This gets consumed in the templated file, but it's still here.
+                ("\n    ", "literal", 28),
+                ("SELECT *\n    FROM some_table\n", "literal", 33),
+                ('{{ "UNION ALL\n" if not loop.last }}', "templated", 62),
+                ("\n", "literal", 97),
+                ("{%- endfor %}", "block_end", 98),
             ],
         ),
     ],
