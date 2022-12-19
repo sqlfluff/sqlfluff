@@ -1355,12 +1355,12 @@ def lint_line_length(
             else:
                 # For now, the algorithm we apply isn't particularly elegant
                 # and just finds the "outermost" opportunity to add additional
-                # line breaks and adds them. It doesn't add more them at more
-                # levels or selectively to add indents preferentially to an
-                # inner level without there already being indents in the outer
-                # level.
-                # TODO: Make this more elegant later, with the option to
-                # potentially add linebreaks at more than one level.
+                # line breaks and adds them.
+                # TODO: Make this more elegant later. The two obvious directions
+                # would be to potentially add a) line breaks at multiple levels
+                # in a single pass and b) to selectively skip levels if they're
+                # "trivial", or if there would be a more suitable inner indent
+                # to add first (e.g. the case of "(((((((a)))))))").
                 reflow_logger.debug("    Handling as normal line.")
                 # NOTE: Double indents (or more likely dedents) will be
                 # potentially in *multiple* sets - don't double count them
