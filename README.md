@@ -103,3 +103,8 @@ If you want to understand more about the architecture of **SQLFluff**, you can
 find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
 
 If you would like to contribute, check out the [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see the guide to [contributing](CONTRIBUTING.md).
+
+# Sponsors
+
+<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).
