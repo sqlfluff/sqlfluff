@@ -163,7 +163,6 @@ class Delimited(OneOf):
                     )
 
                 if match:
-
                     if elements == delimiter_matchers:
                         delimiters += 1
                         matched_delimiter = True
@@ -178,7 +177,6 @@ class Delimited(OneOf):
                     unmatched_segments = match.unmatched_segments
 
                     if match.is_complete():
-
                         matched_segments += (
                             pre_non_code + match.matched_segments + post_non_code
                         )
@@ -208,14 +206,12 @@ class Delimited(OneOf):
                 return MatchResult.from_unmatched(matched_segments + unmatched_segments)
 
         if matched_delimiter and not self.allow_trailing:
-
             if not unmatched_segments:
                 return MatchResult.from_unmatched(matched_segments + unmatched_segments)
             else:
                 return MatchResult(cached_matched_segments, cached_unmatched_segments)
 
         if not has_matched_segs:
-
             return MatchResult.from_unmatched(matched_segments + unmatched_segments)
 
         if not unmatched_segments:

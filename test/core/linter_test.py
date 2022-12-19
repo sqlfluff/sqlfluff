@@ -283,7 +283,6 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     execution without having to jump through hoops.
     """
     if not force_error:
-
         monkeypatch.setattr(Linter, "allow_process_parallelism", False)
 
     else:
