@@ -229,7 +229,7 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
-    def get_indent_impulse(self) -> Tuple[int, int]:
+    def get_indent_impulse(self) -> Tuple[int, int, Tuple[int, ...]]:
         """Get the change in intended indent balance from this point.
 
         Returns:
@@ -239,12 +239,20 @@ class ReflowPoint(ReflowElement):
         """
         trough = 0
         running_sum = 0
+        implicit_indents = []
         for seg in self.segments:
             if seg.is_type("indent"):
-                running_sum += cast(Indent, seg).indent_val
+                indent_seg = cast(Indent, seg)
+                running_sum += indent_seg.indent_val
+                # Do we need to add a new implicit indent?
+                if indent_seg.is_implicit:
+                    implicit_indents.append(running_sum)
+                # Do we need to remove any?
+                elif implicit_indents and indent_seg.indent_val < 0:
+                    implicit_indents = [i for i in implicit_indents if i <= running_sum]
             if running_sum < trough:
                 trough = running_sum
-        return running_sum, trough
+        return running_sum, trough, tuple(implicit_indents)
 
     def indent_to(
         self,

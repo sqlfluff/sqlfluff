@@ -406,6 +406,7 @@ test_fail_possible_hanger_fix:
     FROM tbl
 
 test_fail_consecutive_hangers:
+  # NOTE: The allowed implicit indent in the WHERE clause.
   fail_str: |
     select *
     from foo
@@ -418,8 +419,7 @@ test_fail_consecutive_hangers:
   fix_str: |
     select *
     from foo
-    where
-        a like 'a%'
+    where a like 'a%'
         and b like 'b%'
         and c like 'c%'
         and d like 'd%'
@@ -1346,3 +1346,12 @@ test_pass_trailing_inline_noqa:
         col2
     FROM
         table1 -- noqa: L062
+
+test_pass_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  pass_str: |
+    SELECT *
+    FROM foo
+    WHERE a
+        AND b

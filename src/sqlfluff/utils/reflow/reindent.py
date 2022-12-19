@@ -451,7 +451,7 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
     untaken_indents: Tuple[int, ...] = ()
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_impulse, indent_trough = elem.get_indent_impulse()
+            indent_impulse, indent_trough, implicit_indents = elem.get_indent_impulse()
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
@@ -504,7 +504,9 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             # After stripping, we may have to add them back in.
             if indent_impulse > indent_trough and not has_newline:
                 for i in range(indent_trough, indent_impulse):
-                    untaken_indents += (indent_balance + i + 1,)
+                    indent_val = indent_balance + i + 1
+                    if indent_val not in implicit_indents:
+                        untaken_indents += (indent_val,)
 
             # Update values
             indent_balance += indent_impulse
@@ -677,6 +679,9 @@ def _lint_line_untaken_positive_indents(
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
     # a good chance that we *should* take it.
+    # NOTE: an implicit indent would not force a newline
+    # because it wouldn't be in the untaken_indents. It's
+    # considered _taken_ even if not.
     if closing_trough not in indent_points[-1].untaken_indents:
         # If the closing point doesn't correspond to an untaken
         # indent within the line (i.e. it _was_ taken), then
