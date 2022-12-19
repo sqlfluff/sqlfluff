@@ -73,8 +73,12 @@ class Rule_L003(BaseRule):
           indent meta segment in the previous line.
 
         """
-        return (
+        # NOTE: Until rule consolidation, we're going to filter out
+        # any long line fixes. After that we'll consolidate the two
+        # into one rule.
+        results = (
             ReflowSequence.from_root(context.segment, context.config)
             .reindent()
             .get_results()
         )
+        return [res for res in results if res.source != "reflow.long_line"]

@@ -1,0 +1,2 @@
+[sqlfluff]
+max_line_length = 70

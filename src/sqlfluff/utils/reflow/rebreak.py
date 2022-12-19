@@ -9,8 +9,11 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintFix, LintResult
 
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
-from sqlfluff.utils.reflow.reindent import deduce_line_indent
-from sqlfluff.utils.reflow.helpers import fixes_from_results, pretty_segment_name
+from sqlfluff.utils.reflow.helpers import (
+    fixes_from_results,
+    pretty_segment_name,
+    deduce_line_indent,
+)
 
 
 # We're in the utils module, but users will expect reflow
@@ -184,9 +187,20 @@ def identify_rebreak_spans(
             # Can we find the end?
             for end_idx in range(idx, len(element_buffer) - 2):
                 end_elem = element_buffer[end_idx]
+                final_idx = None
+
                 if not isinstance(end_elem, ReflowBlock):
                     continue
-                if end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
+                elif key not in end_elem.depth_info.stack_positions:
+                    # If we get here, it means the last block was the end.
+                    # NOTE: This feels a little hacky, but it's because of a limitation
+                    # in detecting the "end" and "solo" markers effectively in larger
+                    # sections.
+                    final_idx = end_idx - 2
+                elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
+                    final_idx = end_idx
+
+                if final_idx is not None:
                     # Found the end. Add it to the stack.
                     # We reference the appropriate element from the parent stack.
                     target_depth = elem.depth_info.stack_hashes.index(key)
@@ -197,7 +211,7 @@ def identify_rebreak_spans(
                         _RebreakSpan(
                             target,
                             idx,
-                            end_idx,
+                            final_idx,
                             # NOTE: this isn't pretty but until it needs to be more
                             # complex, this works.
                             elem.line_position_configs[key].split(":")[0],
@@ -205,6 +219,7 @@ def identify_rebreak_spans(
                         )
                     )
                     break
+
             # If we find the start, but not the end, it's not a problem, but
             # we won't be rebreaking this span. This is important so that we
             # don't rebreak part of something without the context of what's

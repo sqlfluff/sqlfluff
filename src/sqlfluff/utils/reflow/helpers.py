@@ -1,10 +1,16 @@
 """Helper utilities for reflow."""
 
 from itertools import chain
+import logging
 from typing import Iterable, List
 
 from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import RawSegment, BaseSegment
+
+# We're in the utils module, but users will expect reflow
+# logs to appear in the context of rules. Hence it's a subset
+# of the rules logger.
+reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
 def fixes_from_results(results: Iterable[LintResult]) -> List[LintFix]:
@@ -25,3 +31,21 @@ def pretty_segment_name(segment: BaseSegment) -> str:
         # Reference other segments just by their type.
         # (With underscores as spaces)
         return segment.get_type().replace("_", " ")
+
+
+def deduce_line_indent(raw_segment: RawSegment, root_segment: BaseSegment) -> str:
+    """Given a raw segment, deduce the indent of its line."""
+    seg_idx = root_segment.raw_segments.index(raw_segment)
+    indent_seg = None
+    # Use range and a lookup here because it's more efficient than slicing
+    # as we only need a subset of the long series.
+    for idx in range(seg_idx, -1, -1):
+        seg = root_segment.raw_segments[idx]
+        if seg.is_code:
+            indent_seg = None
+        elif seg.is_type("whitespace"):
+            indent_seg = seg
+        elif seg.is_type("newline"):
+            break
+    reflow_logger.debug("Deduced indent for %s as %s", raw_segment, indent_seg)
+    return indent_seg.raw if indent_seg else ""

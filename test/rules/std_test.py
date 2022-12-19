@@ -76,9 +76,11 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L016",
             "block_comment_errors.sql",
-            [(1, 121), (2, 99), (4, 88)],
+            # Two errors on line one, because we call out the missing
+            # indent *and* the long line as two issues.
+            [(1, 7), (1, 8), (2, 5), (4, 5)],
         ),
-        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references
         ("L027", "column_references.sql", [(1, 8)]),
         ("L027", "column_references_bare_function.sql", []),
@@ -113,7 +115,6 @@ def test__rules__std_file(rule, path, violations):
 @pytest.mark.parametrize(
     "rule_config_dict",
     [
-        {"max_line_length": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},

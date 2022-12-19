@@ -62,6 +62,7 @@ class ReflowConfig:
     # testing.
     tab_space_size: int = 4
     indent_unit: str = "    "
+    max_line_length: int = 80
     hanging_indents: bool = False
     skip_indentation_in: FrozenSet[str] = frozenset()
 
@@ -91,6 +92,7 @@ class ReflowConfig:
             indent_unit=config.get("indent_unit", ["indentation"]),
             tab_space_size=config.get("tab_space_size", ["indentation"]),
             hanging_indents=config.get("hanging_indents", ["indentation"]),
+            max_line_length=config.get("max_line_length"),
             skip_indentation_in=frozenset(
                 config.get("skip_indentation_in", ["indentation"]).split(",")
             ),
