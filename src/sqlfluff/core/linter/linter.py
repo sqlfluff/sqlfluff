@@ -1046,7 +1046,7 @@ class Linter:
             for ignore_base, ignore_spec in ignores.items():
                 abs_ignore_base = os.path.abspath(ignore_base)
                 if abs_fpath.startswith(
-                    abs_ignore_base + os.sep
+                    abs_ignore_base + '' if abs_ignore_base == '/' else os.sep
                 ) and ignore_spec.match_file(
                     os.path.relpath(abs_fpath, abs_ignore_base)
                 ):
