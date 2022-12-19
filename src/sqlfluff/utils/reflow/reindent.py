@@ -1239,10 +1239,10 @@ def lint_line_length(
             # Potential places to shorten the line are either indent locations
             # or segments with a defined line position (like operators).
 
-            # NOTE: We make a buffer including the closing point, because the we're
+            # NOTE: We make a buffer including the closing point, because we're
             # looking for pairs of indents and dedents. The closing dedent for one
             # of those pairs might be in the closing point so if we don't have it
-            # then we'll miss the any locations which have their closing dedent at
+            # then we'll miss any locations which have their closing dedent at
             # the end of the line.
             line_elements = line_buffer + [elem]
 

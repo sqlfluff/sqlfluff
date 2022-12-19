@@ -107,7 +107,7 @@ class PositionMarker:
                 start_point_marker.templated_slice.start,
                 end_point_marker.templated_slice.stop,
             ),
-            # The templated file reference from the point markers
+            # The templated file references from the point markers
             # should be the same, so we're just going to pick one.
             # TODO: If we assert that in this function, it's actually not
             # true - but preliminary debugging on this did not reveal why.
