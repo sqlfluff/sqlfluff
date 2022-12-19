@@ -79,6 +79,9 @@ class LintResult:
             identified as part of this result. This will override the
             description of the rule as what gets reported to the user
             with the problem if provided.
+        source (:obj:`str`, optional): A string identifier for what
+            generated the result. Within larger libraries like reflow this
+            can be useful for tracking where a result came from.
 
     """
 
@@ -87,7 +90,8 @@ class LintResult:
         anchor: Optional[BaseSegment] = None,
         fixes: Optional[List["LintFix"]] = None,
         memory=None,
-        description=None,
+        description: Optional[str] = None,
+        source: Optional[str] = None,
     ):
         # An anchor of none, means no issue
         self.anchor = anchor
@@ -99,6 +103,8 @@ class LintResult:
         self.memory = memory
         # store a description_override for later
         self.description = description
+        # Optional code for where the result came from
+        self.source: str = source or ""
 
     def __repr__(self):
         if not self.anchor:
@@ -106,6 +112,11 @@ class LintResult:
         # The "F" at the end is short for "fixes", to indicate how many there are.
         fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
         if self.description:
+            if self.source:
+                return (
+                    f"LintResult({self.description} [{self.source}]"
+                    f": {self.anchor}{fix_coda})"
+                )
             return f"LintResult({self.description}: {self.anchor}{fix_coda})"
         return f"LintResult({self.anchor}{fix_coda})"
 

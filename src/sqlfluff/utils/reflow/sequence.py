@@ -20,6 +20,7 @@ from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
     lint_indent_points,
     construct_single_indent,
+    lint_line_length,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 
@@ -573,10 +574,17 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
-        elements, lint_results = lint_indent_points(
+        elements, indent_results = lint_indent_points(
             self.elements,
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
+        )
+
+        elements, length_results = lint_line_length(
+            elements,
+            self.root_segment,
+            single_indent=single_indent,
+            line_length_limit=self.reflow_config.max_line_length,
         )
 
         return ReflowSequence(
@@ -584,5 +592,5 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            lint_results=lint_results,
+            lint_results=indent_results + length_results,
         )

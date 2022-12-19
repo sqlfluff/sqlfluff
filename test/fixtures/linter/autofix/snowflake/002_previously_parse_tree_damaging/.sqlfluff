@@ -3,6 +3,7 @@ dialect = snowflake
 templater = jinja
 exclude_rules = L011,L016,L031,L034,L035
 output_line_length = 120
+max_line_length = 120
 
 [sqlfluff:layout:type:binary_operator]
 line_position = leading
@@ -12,10 +13,6 @@ line_position = leading
 
 [sqlfluff:indentation]
 tab_space_size = 2
-
-# Some rules can be configured directly from the config common to other rules.
-[sqlfluff:rules]
-max_line_length = 120
 
 [sqlfluff:rules:L010]  # Keywords
 capitalisation_policy = upper

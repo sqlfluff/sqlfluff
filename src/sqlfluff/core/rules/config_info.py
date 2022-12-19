@@ -17,12 +17,6 @@ STANDARD_CONFIG_INFO_DICT = {
             "Used in the fixing step of this rule."
         ),
     },
-    "max_line_length": {
-        "validation": range(1000),
-        "definition": (
-            "The maximum length of a line to allow without raising a violation."
-        ),
-    },
     "indent_unit": {
         "validation": ["space", "tab"],
         "definition": "Whether to use tabs or spaces to add new indents.",
