@@ -247,7 +247,6 @@ class Rule_L036(BaseRule):
 
             # If we have a modifier to move:
             if modifier:
-
                 # Add it to the insert
                 insert_buff = [WhitespaceSegment(), modifier[0]] + insert_buff
 
