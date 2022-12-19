@@ -252,6 +252,7 @@ class ReflowPoint(ReflowElement):
         after: Optional[BaseSegment] = None,
         before: Optional[BaseSegment] = None,
         description: Optional[str] = None,
+        source: Optional[str] = None,
     ) -> Tuple[List[LintResult], "ReflowPoint"]:
         """Coerce a point to have a particular indent.
 
@@ -299,7 +300,7 @@ class ReflowPoint(ReflowElement):
                         indent_seg.pos_marker.templated_slice,
                     )
                 ],
-                source_str=indent_seg.source_str[: -len(current_indent)]
+                source_str=indent_seg.source_str[: -len(current_indent) + 1]
                 + desired_indent,
             )
             new_segments = [
@@ -311,6 +312,7 @@ class ReflowPoint(ReflowElement):
                     [LintFix.replace(indent_seg, [new_placeholder])],
                     description=description
                     or f"Expected {_indent_description(desired_indent)}.",
+                    source=source,
                 )
             ], ReflowPoint(tuple(new_segments))
 
@@ -330,6 +332,7 @@ class ReflowPoint(ReflowElement):
                             indent_seg,
                             [LintFix.delete(indent_seg)],
                             description=description or "Line should not be indented.",
+                            source=source,
                         )
                     ], ReflowPoint(self.segments[:idx] + self.segments[idx + 1 :])
 
@@ -342,6 +345,7 @@ class ReflowPoint(ReflowElement):
                         [LintFix.replace(indent_seg, [new_indent])],
                         description=description
                         or f"Expected {_indent_description(desired_indent)}.",
+                        source=source,
                     )
                 ], ReflowPoint(
                     self.segments[:idx] + (new_indent,) + self.segments[idx + 1 :]
@@ -376,6 +380,7 @@ class ReflowPoint(ReflowElement):
                         ],
                         description=description
                         or f"Expected {_indent_description(desired_indent)}.",
+                        source=source,
                     )
                 ], ReflowPoint(
                     self.segments[: idx + 1] + (new_indent,) + self.segments[idx + 1 :]
@@ -473,7 +478,9 @@ class ReflowPoint(ReflowElement):
                 )
                 anchor = ws_seg
 
-            return [LintResult(anchor, fixes=[fix], description=description)], new_point
+            return [
+                LintResult(anchor, fixes=[fix], description=description, source=source)
+            ], new_point
 
     def respace_point(
         self,

@@ -1,5 +1,4 @@
 """Implementation of Rule L042."""
-import copy
 from functools import partial
 from typing import (
     Iterator,
@@ -562,7 +561,7 @@ class SegmentCloneMap:
     """Clones a segment tree, maps from original segments to their clones."""
 
     def __init__(self, segment: BaseSegment):
-        segment_copy = copy.deepcopy(segment)
+        segment_copy = segment.copy()
         self.segment_map = {}
         for old_segment, new_segment in zip(
             segment.recursive_crawl_all(),

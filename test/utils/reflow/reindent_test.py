@@ -14,8 +14,8 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.sequence import ReflowSequence
+from sqlfluff.utils.reflow.helpers import deduce_line_indent
 from sqlfluff.utils.reflow.reindent import (
-    deduce_line_indent,
     lint_indent_points,
     _crawl_indent_points,
     _IndentPoint,
@@ -429,6 +429,21 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(25, -1, -1, 1, 23, True, ()),
                 # Point between endfor and end-of-file
                 _IndentPoint(27, 0, 0, 0, 25, False, ()),
+            ],
+        ),
+        # Templated case (with templated newline and indent)
+        (
+            "SELECT\n  {{'1 \n, 2'}}\nFROM foo",
+            [
+                # After SELECT
+                _IndentPoint(1, 1, 0, 0, None, True, ()),
+                # NOTE: The newline inside the tag isn't reported.
+                # After the templated section (hence why 7)
+                _IndentPoint(7, -1, -1, 1, 1, True, ()),
+                # After FROM
+                _IndentPoint(9, 1, 0, 0, 7, False, ()),
+                # After foo
+                _IndentPoint(11, -1, -1, 1, 7, False, (1,)),
             ],
         ),
     ],
