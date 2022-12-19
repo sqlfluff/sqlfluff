@@ -298,7 +298,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self._recalculate_caches()
 
     def __setattr__(self, key, value):
-
         try:
             if key == "segments":
                 self._recalculate_caches()
@@ -800,7 +799,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PRIVATE INSTANCE METHODS
 
     def _recalculate_caches(self):
-
         for key in [
             "is_code",
             "is_comment",
@@ -1541,7 +1539,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
             for seg_idx, segment in enumerate(segments):
-
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated
                 # file.
