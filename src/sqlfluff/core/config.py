@@ -53,7 +53,7 @@ REMOVED_CONFIGS = [
             "The max_line_length config has moved "
             "from sqlfluff:rules to the root sqlfluff level."
         ),
-        ("max_line_length"),
+        ("max_line_length",),
         (lambda x: x),
     ),
     _RemovedConfig(
