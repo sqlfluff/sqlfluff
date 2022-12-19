@@ -1410,9 +1410,15 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
+        # TODO: Revisit this to make sure it's sensible.
         Conditional(Dedent, indented_joins=False),
         AnyNumberOf(
-            Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
+            Sequence(
+                Conditional(Indent, indented_joins=True),
+                OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                Conditional(Dedent, indented_joins=True),
+            ),
+            optional=True,
         ),
         Conditional(Dedent, indented_joins=True),
     )
@@ -1572,10 +1578,13 @@ class JoinClauseSegment(BaseSegment):
             Ref("JoinTypeKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
+            Ref("FromExpressionElementSegment"),
+            AnyNumberOf(Ref("NestedJoinGrammar")),
+            Dedent,
             Sequence(
-                Ref("FromExpressionElementSegment"),
-                AnyNumberOf(Ref("NestedJoinGrammar")),
-                Conditional(Dedent, indented_using_on=False),
+                # Using nested sequence here so we only get the indents
+                # if we also have content.
+                Conditional(Indent, indented_using_on=True),
                 # NB: this is optional
                 OneOf(
                     # ON clause
@@ -1601,11 +1610,10 @@ class JoinClauseSegment(BaseSegment):
                     ),
                     # Unqualified joins *are* allowed. They just might not
                     # be a good idea.
-                    optional=True,
                 ),
-                Conditional(Indent, indented_using_on=False),
+                Conditional(Dedent, indented_using_on=True),
+                optional=True,
             ),
-            Dedent,
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
@@ -1741,8 +1749,16 @@ class WhenClauseSegment(BaseSegment):
     type = "when_clause"
     match_grammar: Matchable = Sequence(
         "WHEN",
+        # NOTE: The nested sequence here is to ensure the correct
+        # placement of the meta segments when templated elements
+        # are present.
+        # https://github.com/sqlfluff/sqlfluff/issues/3988
+        Sequence(
+            Indent,
+            Ref("ExpressionSegment"),
+            Dedent,
+        ),
         Indent,
-        Ref("ExpressionSegment"),
         "THEN",
         Ref("ExpressionSegment"),
         Dedent,

@@ -8,6 +8,8 @@ from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
 from typing import Optional, List
 
+from sqlfluff.core.templaters.base import TemplatedFile
+
 
 class MetaSegment(RawSegment):
     """A segment which is empty but indicates where something should be."""
@@ -157,6 +159,28 @@ class TemplateSegment(MetaSegment):
         """Also output what it's a placeholder for."""
         return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
 
+    @classmethod
+    def from_slice(
+        cls,
+        source_slice: slice,
+        templated_slice: slice,
+        block_type: str,
+        templated_file: TemplatedFile,
+        block_uuid: Optional[UUID] = None,
+    ):
+        """Construct template segment from slice of a source file."""
+        pos_marker = PositionMarker(
+            source_slice,
+            templated_slice,
+            templated_file,
+        )
+        return cls(
+            pos_marker=pos_marker,
+            source_str=templated_file.source_str[source_slice],
+            block_type=block_type,
+            block_uuid=block_uuid,
+        )
+
     def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
         """Return a tuple structure from this segment.
 
@@ -170,7 +194,10 @@ class TemplateSegment(MetaSegment):
             return (self.get_type(), self.raw)
 
     def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+        self,
+        raw: Optional[str] = None,
+        source_fixes: Optional[List[SourceFix]] = None,
+        source_str: Optional[str] = None,
     ):
         """Create a new segment, with exactly the same position but different content.
 
@@ -188,7 +215,7 @@ class TemplateSegment(MetaSegment):
             )  # pragma: no cover
         return self.__class__(
             pos_marker=self.pos_marker,
-            source_str=self.source_str,
+            source_str=source_str if source_str is not None else self.source_str,
             block_type=self.block_type,
             source_fixes=source_fixes or self.source_fixes,
             block_uuid=self.block_uuid,

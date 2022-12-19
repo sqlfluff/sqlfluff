@@ -3229,14 +3229,12 @@ class FunctionBodySegment(BaseSegment):
 
     type = "function_body"
     match_grammar = Sequence(
-        Indent,
         OneOf(
             Ref("FunctionAssignmentSegment"),
             Ref("FunctionIfBranchSegment"),
             Ref("FunctionForLoopSegment"),
             Ref("FunctionWhileLoopSegment"),
         ),
-        Dedent,
     )
 
 
@@ -3266,18 +3264,26 @@ class FunctionIfBranchSegment(BaseSegment):
         "IF",
         AnyNumberOf(Ref("ExpressionSegment")),
         "THEN",
+        Indent,
         AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+        Dedent,
         AnyNumberOf(
             Sequence(
                 OneOf("ELSIF", "ELSEIF"),
                 Ref("ExpressionSegment"),
                 "THEN",
+                Indent,
                 AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+                Dedent,
             ),
             optional=True,
         ),
         Sequence(
-            "ELSE", AnyNumberOf(Ref("FunctionBodySegment"), min_times=1), optional=True
+            "ELSE",
+            Indent,
+            AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+            Dedent,
+            optional=True,
         ),
         "END",
         "IF",

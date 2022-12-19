@@ -130,8 +130,10 @@ A few common examples are shown below:
 
     -- Set Indented Joins
     -- sqlfluff:indentation:indented_joins:true
+
     -- Set a smaller indent for this file
     -- sqlfluff:indentation:tab_space_size:2
+
     -- Set keywords to be capitalised
     -- sqlfluff:rules:L010:capitalisation_policy:upper
 
@@ -158,9 +160,7 @@ For example:
 .. code-block:: cfg
 
    [sqlfluff:rules]
-   tab_space_size = 4
    max_line_length = 80
-   indent_unit = space
    allow_scalar = True
    single_table_references = consistent
    unquoted_identifiers_policy = all
