@@ -277,3 +277,20 @@ def fail_on_parse_error_after_fix(monkeypatch):
         "_report_conflicting_fixes_same_anchor",
         raise_error_conflicting_fixes_same_anchor,
     )
+
+
+@pytest.fixture(autouse=True)
+def test_verbosity_level(request):
+    """Report the verbosity level for a given pytest run.
+
+    For example:
+
+    $ pytest -vv
+    Has a verbosity level of 2
+
+    While:
+
+    $ pytest
+    Has a verbosity level of 0
+    """
+    return request.config.getoption("verbose")

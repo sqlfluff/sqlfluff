@@ -84,14 +84,12 @@ def process_spacing(
 
     # Loop through the existing segments looking for spacing.
     for seg in segment_buffer:
-
         # If it's whitespace, store it.
         if seg.is_type("whitespace"):
             last_whitespace.append(seg)
 
         # If it's a newline, react accordingly.
         elif seg.is_type("newline", "end_of_file"):
-
             # Are we stripping newlines?
             if strip_newlines and seg.is_type("newline"):
                 reflow_logger.debug("    Stripping newline: %s", seg)
@@ -287,7 +285,6 @@ def handle_respace__inline_with_space(
     if (
         post_constraint.startswith("align") and next_block
     ) or pre_constraint == post_constraint == "single":
-
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
             alignment_config = post_constraint.split(":")

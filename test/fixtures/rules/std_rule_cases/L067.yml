@@ -1,4 +1,4 @@
-rule: L069
+rule: L067
 
 test_pass_cast:
   pass_str: |
@@ -48,7 +48,7 @@ test_fail_cast_with_comment_when_config_is_set_to_convert:
           */ as int) as bar;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: convert
 
 test_fail_cast_with_comment_when_config_is_set_to_shorthand:
@@ -59,7 +59,7 @@ test_fail_cast_with_comment_when_config_is_set_to_shorthand:
           */ as int) as bar;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: shorthand
 
 test_fail_3_argument_convert_when_config_is_set_to_cast:
@@ -68,7 +68,7 @@ test_fail_3_argument_convert_when_config_is_set_to_cast:
     from foo;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: cast
 
 test_fail_3_argument_convert_when_config_is_set_to_shorthand:
@@ -77,7 +77,7 @@ test_fail_3_argument_convert_when_config_is_set_to_shorthand:
     from foo;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: shorthand
 
 test_fail_inconsistent_type_casting_prior_convert:
@@ -226,7 +226,7 @@ test_fail_inconsistent_type_casting_when_config_cast:
     from foo;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: cast
 
 test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
@@ -243,14 +243,14 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
         cast(10 as text) as coo
     from foo;
   violations_after_fix:
-  - code: L069
+  - code: L067
     description: Used type casting style is different from the preferred type
                  casting style.
     line_no: 2
     line_pos: 5
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: cast
 
 test_fail_inconsistent_type_casting_when_config_convert:
@@ -268,7 +268,7 @@ test_fail_inconsistent_type_casting_when_config_convert:
     from foo;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: convert
 
 test_fail_inconsistent_type_casting_when_config_shorthand:
@@ -286,7 +286,7 @@ test_fail_inconsistent_type_casting_when_config_shorthand:
     from foo;
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: shorthand
 
 test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
@@ -303,14 +303,14 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
         10::text as coo
     from foo;
   violations_after_fix:
-  - code: L069
+  - code: L067
     description: Used type casting style is different from the preferred type
                  casting style.
     line_no: 2
     line_pos: 5
   configs:
     rules:
-      L069:
+      L067:
         preferred_type_casting_style: shorthand
 
 test_pass_when_dialect_is_teradata:

@@ -103,7 +103,6 @@ class Rule_L057(BaseRule):
 
         # Do some extra processing for quoted identifiers.
         if context.segment.is_type("quoted_identifier"):
-
             # Update the default policy to quoted
             policy = self.quoted_identifiers_policy
 
@@ -145,7 +144,6 @@ class Rule_L057(BaseRule):
             #
 
             if context.dialect.name in ["sparksql"] and context.parent_stack:
-
                 # SparkSQL file references for direct file query
                 # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing

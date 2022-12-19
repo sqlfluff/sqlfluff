@@ -22,7 +22,7 @@ class SQLFluffDriver(QualityDriver):
 
     def __init__(self):
         super().__init__(
-            "sqlfluff",
+            [sys.executable, "-m", "sqlfluff.cli.commands"],
             [".sql"],
             [
                 s.encode(sys.getfilesystemencoding())
@@ -60,12 +60,17 @@ class SQLFluffViolationReporter(QualityReporter):
         output = self.reports if self.reports else self._run_sqlfluff(src_paths)
         for o in output:
             # Load and parse SQLFluff JSON output.
-            report = json.loads(o)
-            for file in report:
-                self.violations_dict[file["filepath"]] = [
-                    Violation(v["line_no"], v["description"])
-                    for v in file["violations"]
-                ]
+            try:
+                report = json.loads(o)
+            except json.JSONDecodeError as e:  # pragma: no cover
+                print(f"Error parsing JSON output ({e}): {repr(o)}")
+                raise
+            else:
+                for file in report:
+                    self.violations_dict[file["filepath"]] = [
+                        Violation(v["line_no"], v["description"])
+                        for v in file["violations"]
+                    ]
         return self.violations_dict
 
     def _run_sqlfluff(self, src_paths):

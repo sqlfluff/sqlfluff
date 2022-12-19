@@ -396,7 +396,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,L039",
+                "L006,L007,L031,L039,L071",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
