@@ -4,7 +4,8 @@ test_pass_line_too_long_config_override:
   # Long lines (with config override)
   pass_str: "SELECT COUNT(*) FROM tbl\n"
   configs:
-    max_line_length: 30
+    core:
+      max_line_length: 30
 
 test_fail_line_too_long_with_comments_1:
   # Check we move comments correctly
@@ -12,21 +13,24 @@ test_fail_line_too_long_with_comments_1:
 
   fix_str: "-- Some Comment\nSELECT 1\n"
   configs:
-    max_line_length: 18
+    core:
+      max_line_length: 18
 
 test_fail_line_too_long_with_comments_2:
   # Check we can add newlines after dedents (with an indent)
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
   fix_str: "SELECT\n    COUNT(*)\nFROM tbl\n"
   configs:
-    max_line_length: 20
+    core:
+      max_line_length: 20
 
 test_fail_line_too_long_with_comments_3:
   # Check priority of fixes
   fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
   fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
   configs:
-    max_line_length: 18
+    core:
+      max_line_length: 18
 
 test_fail_line_too_long_with_comments_4:
   # In this case, the inline comment is NOT on a line by itself (note the
@@ -39,7 +43,8 @@ test_fail_line_too_long_with_comments_4:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    max_line_length: 80
+    core:
+      max_line_length: 80
 
 test_pass_line_too_long_with_comments_ignore_comment_lines:
   # Same case as above, but should pass as ignore_comment_lines is set to true
@@ -49,7 +54,8 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    max_line_length: 80
+    core:
+      max_line_length: 80
     rules:
       L016:
         ignore_comment_lines: true
@@ -58,20 +64,23 @@ test_fail_line_too_long_only_comments:
   # Check long lines that are only comments are linted correctly
   fail_str: "-- Some really long comments on their own line\n\nSELECT 1"
   configs:
-    max_line_length: 18
+    core:
+      max_line_length: 18
 
 test_fail_line_too_long_handling_indents:
   # Check we handle indents nicely
   fail_str: "SELECT 12345\n"
   fix_str: "SELECT\n    12345\n"
   configs:
-    max_line_length: 10
+    core:
+      max_line_length: 10
 
 test_pass_line_too_long_ignore_comments_true:
   # Check we can ignore comments if we want
   pass_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    max_line_length: 10
+    core:
+      max_line_length: 10
     rules:
       L016:
         ignore_comment_lines: true
@@ -80,7 +89,8 @@ test_pass_line_too_long_ignore_comments_false:
   # Check we still pick up long comments if we don't want to ignore
   fail_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    max_line_length: 10
+    core:
+      max_line_length: 10
     rules:
       L016:
         ignore_comment_lines: false
@@ -126,7 +136,8 @@ test_long_jinja_comment:
     {# ........................................................................... #}
     FROM table
   configs:
-    max_line_length: 80
+    core:
+      max_line_length: 80
     rules:
       L016:
         ignore_comment_lines: false
@@ -140,7 +151,8 @@ test_long_jinja_comment_ignore:
     {# ........................................................................... #}
     FROM table
   configs:
-    max_line_length: 80
+    core:
+      max_line_length: 80
     rules:
       L016:
         ignore_comment_lines: true
@@ -216,7 +228,8 @@ test_set_statement:
     {% set statement = "SELECT 1 from table1;" %}
     {{ statement }}{{ statement }}
   configs:
-    max_line_length: 80
+    core:
+      max_line_length: 80
 
 
 test_issue_1666_line_too_long_unfixable_jinja:
@@ -345,7 +358,8 @@ test_fail_operator_precedence_1:
         + ISNULL(planned, 100)
     from blah
   configs:
-    max_line_length: 30
+    core:
+      max_line_length: 30
 
 test_fail_operator_precedence_2:
   # Make sure we split at the AND operator.
@@ -359,7 +373,8 @@ test_fail_operator_precedence_2:
         AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
     from blah
   configs:
-    max_line_length: 120
+    core:
+      max_line_length: 120
 
 test_fail_operator_precedence_3:
   # Stretching cases for operators and comma
@@ -379,7 +394,8 @@ test_fail_operator_precedence_3:
         OR long_name as bar
     from blah
   configs:
-    max_line_length: 30
+    core:
+      max_line_length: 30
 
 test_pass_long_multiline_jinja:
   # None of the lines are longer than 30
@@ -393,7 +409,8 @@ test_pass_long_multiline_jinja:
         }}
     from blah
   configs:
-    max_line_length: 30
+    core:
+      max_line_length: 30
 
 test_fail_long_inline_statement:
   # Tests that breaks happen between clauses properly
@@ -406,21 +423,24 @@ test_fail_long_inline_statement:
     where f = g and h = i
     order by j
   configs:
-    max_line_length: 50
+    core:
+      max_line_length: 50
 
 test_pass_check_off_1:
   # Tests that we can disable the check (using 0).
   pass_str: |
     select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
   configs:
-    max_line_length: 0
+    core:
+      max_line_length: 0
 
 test_pass_check_off_2:
   # Tests that we can disable the check (using -1).
   pass_str: |
     select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
   configs:
-    max_line_length: -1
+    core:
+      max_line_length: -1
 
 test_comment_move_mid_query:
   fail_str: |
@@ -433,4 +453,5 @@ test_comment_move_mid_query:
         my_long_long_line as foo
     from foo
   configs:
-    max_line_length: 40
+    core:
+      max_line_length: 40
