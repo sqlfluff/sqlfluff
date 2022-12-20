@@ -86,7 +86,7 @@ class SQLFluffViolationReporter(QualityReporter):
                 command.append(src_path.encode(sys.getfilesystemencoding()))
 
         with tempfile.NamedTemporaryFile(
-            mode="w+", prefix="sqlfluff-", suffix=".json", delete=False
+            prefix="sqlfluff-", suffix=".json", delete=False
         ) as f:
             f.close()
             try:
