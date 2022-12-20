@@ -3,7 +3,9 @@ import copy
 import json
 import logging
 import os
+import pathlib
 import sys
+import tempfile
 
 from diff_cover.command_runner import execute, run_command_for_code
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
@@ -83,16 +85,24 @@ class SQLFluffViolationReporter(QualityReporter):
             if src_path.endswith(".sql") and os.path.exists(src_path):
                 command.append(src_path.encode(sys.getfilesystemencoding()))
 
-        # Run SQLFluff.
-        printable_command = " ".join(
-            [
-                c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
-                for c in command
-            ]
-        )
-        logger.warning(f"{printable_command}")
-        output = execute(command, self.driver.exit_codes)
-        return [output[1]] if self.driver.output_stderr else [output[0]]
+        with tempfile.NamedTemporaryFile(
+            mode="w+", prefix="sqlfluff-", suffix=".json"
+        ) as f:
+            # Write output to a temporary file. This avoids issues where
+            # extraneous SQLFluff or dbt output results in the JSON output
+            # being invalid.
+            command += ["--write-output", f.name]
+
+            # Run SQLFluff.
+            printable_command = " ".join(
+                [
+                    c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
+                    for c in command
+                ]
+            )
+            logger.warning(f"{printable_command}")
+            execute(command, self.driver.exit_codes)
+            return [pathlib.Path(f.name).read_text()]
 
     def measured_lines(self, src_path: str) -> None:  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
