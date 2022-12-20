@@ -86,23 +86,29 @@ class SQLFluffViolationReporter(QualityReporter):
                 command.append(src_path.encode(sys.getfilesystemencoding()))
 
         with tempfile.NamedTemporaryFile(
-            mode="w+", prefix="sqlfluff-", suffix=".json"
+            mode="w+", prefix="sqlfluff-", suffix=".json", delete=False
         ) as f:
-            # Write output to a temporary file. This avoids issues where
-            # extraneous SQLFluff or dbt output results in the JSON output
-            # being invalid.
-            command += ["--write-output", f.name]
+            f.close()
+            try:
+                # Write output to a temporary file. This avoids issues where
+                # extraneous SQLFluff or dbt output results in the JSON output
+                # being invalid.
+                command += ["--write-output", f.name]
 
-            # Run SQLFluff.
-            printable_command = " ".join(
-                [
-                    c.decode(sys.getfilesystemencoding()) if isinstance(c, bytes) else c
-                    for c in command
-                ]
-            )
-            logger.warning(f"{printable_command}")
-            execute(command, self.driver.exit_codes)
-            return [pathlib.Path(f.name).read_text()]
+                # Run SQLFluff.
+                printable_command = " ".join(
+                    [
+                        c.decode(sys.getfilesystemencoding())
+                        if isinstance(c, bytes)
+                        else c
+                        for c in command
+                    ]
+                )
+                logger.warning(f"{printable_command}")
+                execute(command, self.driver.exit_codes)
+                return [pathlib.Path(f.name).read_text()]
+            finally:
+                os.remove(f.name)
 
     def measured_lines(self, src_path: str) -> None:  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
