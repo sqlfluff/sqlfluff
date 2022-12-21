@@ -74,9 +74,9 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e py -- -n 2 test
+        tox -e py -- test
     - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml
   other-tests:
@@ -194,7 +194,7 @@ jobs:
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml
   python-windows-tests:
@@ -226,10 +226,6 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
