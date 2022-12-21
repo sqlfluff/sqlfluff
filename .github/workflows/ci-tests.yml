@@ -74,11 +74,12 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e py -- -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+        tox -e py -- test
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
       with:
-        files: ./coverage.xml
+        parallel: true
+        flag-name: Python ${{ matrix.python-version }} tests
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -193,10 +194,11 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
       with:
-        files: ./coverage.xml
+        parallel: true
+        flag-name: DBT Plugin ${{ matrix.dbt-version }} tests
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -225,11 +227,12 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+        python -m tox -e winpy -- test
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
       with:
-        files: ./coverage.xml
+        parallel: true
+        flag-name: Python 3.10 Windows tests
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -291,3 +294,12 @@ jobs:
     - name: Run a simple select lint test via file
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
+
+  coveralls_finish:
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
