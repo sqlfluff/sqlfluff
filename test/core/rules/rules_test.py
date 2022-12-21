@@ -139,9 +139,9 @@ def test_rules_configs_are_dynamically_documented():
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
-        config_keywords = ["max_line_length"]
+        config_keywords = ["unquoted_identifiers_policy"]
 
-    assert "max_line_length" in RuleWithConfig.__doc__
+    assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
 
     @document_configuration
     class RuleWithoutConfig(BaseRule):

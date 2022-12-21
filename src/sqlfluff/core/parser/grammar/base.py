@@ -243,7 +243,6 @@ class BaseGrammar(Matchable):
                     best_match_length = res_match.trimmed_matched_length
 
                     if terminators:
-
                         _, segs, _ = trim_non_code_segments(
                             best_match[0].unmatched_segments
                         )

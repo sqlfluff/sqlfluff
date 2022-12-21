@@ -14,7 +14,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L003",
             "indentation_errors.sql",
-            [(2, 4), (3, 4), (4, 6)],
+            [(2, 1), (3, 1), (4, 1), (5, 1)],
         ),
         (
             "L004",
@@ -55,7 +55,20 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L003",
             "indentation_error_hard.sql",
-            [(2, 4), (6, 5), (9, 13), (14, 14), (19, 5), (20, 6)],
+            [
+                (2, 1),
+                (6, 1),
+                (9, 1),
+                (11, 15),
+                (12, 1),
+                (12, 33),
+                (13, 15),
+                (14, 1),
+                (14, 36),
+                (18, 1),
+                (19, 1),
+                (20, 1),
+            ],
         ),
         # Check bracket handling with closing brackets and contained indents works.
         ("L003", "indentation_error_contained.sql", []),
@@ -63,9 +76,11 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L016",
             "block_comment_errors.sql",
-            [(1, 121), (2, 99), (4, 88)],
+            # Two errors on line one, because we call out the missing
+            # indent *and* the long line as two issues.
+            [(1, 7), (1, 8), (2, 5), (4, 5)],
         ),
-        ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
+        ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references
         ("L027", "column_references.sql", [(1, 8)]),
         ("L027", "column_references_bare_function.sql", []),
@@ -100,9 +115,6 @@ def test__rules__std_file(rule, path, violations):
 @pytest.mark.parametrize(
     "rule_config_dict",
     [
-        {"tab_space_size": "blah"},
-        {"max_line_length": "blah"},
-        {"indent_unit": "blah"},
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},

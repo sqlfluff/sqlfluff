@@ -141,14 +141,16 @@ jobs:
     strategy:
       matrix:
         # We don't enforce coverage on older dbt versions.
-        dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
+        dbt-version: [ 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        # Use Python 3.10 rather than 3.9 due to this issue.
+        # https://github.com/dbt-labs/dbt-core/issues/2827
+        python-version: '3.9'
     - name: Install dependencies
       run: |
         pip install tox
@@ -184,7 +186,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -197,7 +199,7 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.8 Windows tests
+    name: Python 3.10 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -207,7 +209,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.10'
     - name: List Env
       shell: bash
       run: |
@@ -230,7 +232,7 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.8 Windows tests
+    name: DBT Plugin Python 3.10 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -248,7 +250,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.10'
     - name: Install dependencies
       shell: bash
       run: |
@@ -258,7 +260,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt130-winpy -- plugins/sqlfluff-templater-dbt
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842

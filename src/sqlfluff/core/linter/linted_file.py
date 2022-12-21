@@ -27,7 +27,6 @@ from sqlfluff.core.errors import (
     SQLLintError,
     CheckTuple,
 )
-from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
@@ -88,7 +87,7 @@ class LintedFile(NamedTuple):
                 new_violations.append(v)
                 dedupe_buffer.add(signature)
             else:
-                linter_logger.debug("Removing duplicate source violation: %s", v)
+                linter_logger.debug("Removing duplicate source violation: %r", v)
         return new_violations
 
     def get_violations(
@@ -298,11 +297,12 @@ class LintedFile(NamedTuple):
         # Generate patches from the fixed tree. In the process we sort
         # and deduplicate them so that the resultant list is in the
         # the right order for the source file without any duplicates.
-        # TODO: Requires a mechanism for generating patches for source only
-        # fixes.
         filtered_source_patches = self._generate_source_patches(
             self.tree, self.templated_file
         )
+        linter_logger.debug("Filtered source patches:")
+        for idx, patch in enumerate(filtered_source_patches):
+            linter_logger.debug("    %s: %s", idx, patch)
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
@@ -311,7 +311,6 @@ class LintedFile(NamedTuple):
 
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
-        # TODO: This is the last hurdle for source only fixes.
         slice_buff = self._slice_source_file_using_patches(
             filtered_source_patches, source_only_slices, self.templated_file.source_str
         )
@@ -395,40 +394,15 @@ class LintedFile(NamedTuple):
                 dedupe_buffer.append(patch.dedupe_tuple())
             else:  # pragma: no cover
                 # We've got a situation where the ends of our patch need to be
-                # more carefully mapped. Likely because we're greedily including
-                # a section of source templating with our fix and we need to work
-                # around it gracefully.
-
-                # Identify all the places the string appears in the source content.
-                positions = list(findall(patch.templated_str, patch.source_str))
-                if len(positions) != 1:
-                    # NOTE: This section is not covered in tests. While we
-                    # don't have an example of it's use (we should), the
-                    # code after this relies on there being only one
-                    # instance found - so the safety check remains.
-                    linter_logger.debug(  # pragma: no cover
-                        "        - Skipping edit patch on non-unique templated "
-                        "content: %s",
-                        patch,
-                    )
-                    continue  # pragma: no cover
-
-                # We have a single occurrence of the thing we want to patch. This
-                # means we can use its position to place our patch.
-                new_source_slice = slice(
-                    patch.source_slice.start + positions[0],
-                    patch.source_slice.start + positions[0] + len(patch.templated_str),
+                # more carefully mapped. This used to happen with greedy template
+                # element matching, but should now never happen. In the event that
+                # it does, we'll warn but carry on.
+                linter_logger.warning(
+                    "Skipping edit patch on uncertain templated section [%s], "
+                    "Please report this warning on GitHub along with the query "
+                    "that produced it.",
+                    (patch.patch_category, patch.source_slice),
                 )
-                linter_logger.debug(
-                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, "
-                    "Patch: %s",
-                    positions,
-                    new_source_slice,
-                    patch,
-                )
-                patch.source_slice = new_source_slice
-                filtered_source_patches.append(patch)
-                dedupe_buffer.append(patch.dedupe_tuple())
                 continue
 
         # Sort the patches before building up the file.
@@ -493,7 +467,10 @@ class LintedFile(NamedTuple):
                 slice_buff.append(slice(source_idx, patch.source_slice.start))
 
             # Is this patch covering an area we've already covered?
-            if patch.source_slice.start < source_idx:
+            if patch.source_slice.start < source_idx:  # pragma: no cover
+                # NOTE: This shouldn't happen. With more detailed templating
+                # this shouldn't happen - but in the off-chance that this does
+                # happen - then this code path remains.
                 linter_logger.info(
                     "Skipping overlapping patch at Index %s, Patch: %s",
                     source_idx,

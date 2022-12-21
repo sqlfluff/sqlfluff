@@ -10,8 +10,18 @@ from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
 
-from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
+from sqlfluff.utils.reflow.elements import (
+    ReflowBlock,
+    ReflowPoint,
+    ReflowSequenceType,
+    get_consumed_whitespace,
+)
 from sqlfluff.utils.reflow.rebreak import rebreak_sequence
+from sqlfluff.utils.reflow.reindent import (
+    lint_indent_points,
+    construct_single_indent,
+    lint_line_length,
+)
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 
 # We're in the utils module, but users will expect reflow
@@ -127,7 +137,12 @@ class ReflowSequence:
         for seg in segments:
             # NOTE: end_of_file is block-like rather than point-like.
             # This is to facilitate better evaluation of the ends of files.
-            if seg.is_type("whitespace", "newline", "indent"):
+            # NOTE: This also allows us to include literal placeholders for
+            # whitespace only strings.
+            if (
+                seg.is_type("whitespace", "newline", "indent")
+                or (get_consumed_whitespace(seg) or "").isspace()
+            ):
                 # Add to the buffer and move on.
                 seg_buff.append(seg)
                 continue
@@ -545,4 +560,37 @@ class ReflowSequence:
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
             lint_results=lint_results,
+        )
+
+    def reindent(self):
+        """Reindent lines within a sequence."""
+        if self.lint_results:
+            raise NotImplementedError(  # pragma: no cover
+                "rebreak cannot currently handle pre-existing embodied fixes."
+            )
+
+        single_indent = construct_single_indent(
+            indent_unit=self.reflow_config.indent_unit,
+            tab_space_size=self.reflow_config.tab_space_size,
+        )
+
+        elements, indent_results = lint_indent_points(
+            self.elements,
+            single_indent=single_indent,
+            skip_indentation_in=self.reflow_config.skip_indentation_in,
+        )
+
+        elements, length_results = lint_line_length(
+            elements,
+            self.root_segment,
+            single_indent=single_indent,
+            line_length_limit=self.reflow_config.max_line_length,
+        )
+
+        return ReflowSequence(
+            elements=elements,
+            root_segment=self.root_segment,
+            reflow_config=self.reflow_config,
+            depth_map=self.depth_map,
+            lint_results=indent_results + length_results,
         )

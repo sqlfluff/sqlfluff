@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.rules.base import LintFix
 
 
 @pytest.fixture(scope="module")
@@ -69,6 +70,56 @@ def test__parser__base_segments_count_segments(raw_seg_list):
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.count_segments() == 4
     assert test_seg.count_segments(raw_only=True) == 2
+
+
+@pytest.mark.parametrize(
+    "list_in, result",
+    [
+        (["foo"], None),
+        (["foo", " "], -1),
+        ([" ", "foo", " "], 0),
+        ([" ", "foo"], 0),
+        ([" "], 0),
+        ([], None),
+    ],
+)
+def test__parser_base_segments_find_start_or_end_non_code(
+    generate_test_segments, list_in, result
+):
+    """Test BaseSegment._find_start_or_end_non_code()."""
+    assert (
+        BaseSegment._find_start_or_end_non_code(generate_test_segments(list_in))
+        == result
+    )
+
+
+def test__parser_base_segments_compute_anchor_edit_info(raw_seg_list):
+    """Test BaseSegment.compute_anchor_edit_info()."""
+    # Construct a fix buffer, intentionally with:
+    # - one duplicate.
+    # - two different incompatible fixes on the same segment.
+    fixes = [
+        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
+        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
+        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="b")]),
+    ]
+    anchor_info_dict = BaseSegment.compute_anchor_edit_info(fixes)
+    # Check the target segment is the only key we have.
+    assert list(anchor_info_dict.keys()) == [raw_seg_list[0].uuid]
+    anchor_info = anchor_info_dict[raw_seg_list[0].uuid]
+    # Check that the duplicate as been deduplicated.
+    # i.e. this isn't 3.
+    assert anchor_info.replace == 2
+    # Check the fixes themselves.
+    # NOTE: There's no duplicated first fix.
+    assert anchor_info.fixes == [
+        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
+        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="b")]),
+    ]
+    # Check the first replace
+    assert anchor_info._first_replace == LintFix.replace(
+        raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]
+    )
 
 
 def test__parser__base_segments_path_to(raw_seg_list):

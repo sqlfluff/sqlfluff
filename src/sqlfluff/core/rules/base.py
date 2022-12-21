@@ -17,6 +17,7 @@ missing.
 import bdb
 import copy
 import fnmatch
+from itertools import chain
 import logging
 import pathlib
 import regex
@@ -32,13 +33,13 @@ from typing import (
 )
 from collections import namedtuple
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -78,6 +79,9 @@ class LintResult:
             identified as part of this result. This will override the
             description of the rule as what gets reported to the user
             with the problem if provided.
+        source (:obj:`str`, optional): A string identifier for what
+            generated the result. Within larger libraries like reflow this
+            can be useful for tracking where a result came from.
 
     """
 
@@ -86,7 +90,8 @@ class LintResult:
         anchor: Optional[BaseSegment] = None,
         fixes: Optional[List["LintFix"]] = None,
         memory=None,
-        description=None,
+        description: Optional[str] = None,
+        source: Optional[str] = None,
     ):
         # An anchor of none, means no issue
         self.anchor = anchor
@@ -98,6 +103,8 @@ class LintResult:
         self.memory = memory
         # store a description_override for later
         self.description = description
+        # Optional code for where the result came from
+        self.source: str = source or ""
 
     def __repr__(self):
         if not self.anchor:
@@ -105,6 +112,11 @@ class LintResult:
         # The "F" at the end is short for "fixes", to indicate how many there are.
         fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
         if self.description:
+            if self.source:
+                return (
+                    f"LintResult({self.description} [{self.source}]"
+                    f": {self.anchor}{fix_coda})"
+                )
             return f"LintResult({self.description}: {self.anchor}{fix_coda})"
         return f"LintResult({self.anchor}{fix_coda})"
 
@@ -142,7 +154,6 @@ class LintFix:
             `create` fixes, this holds iterable of segments that provided
             code. IMPORTANT: The linter uses this to prevent copying material
             from templated areas.
-
     """
 
     def __init__(
@@ -250,11 +261,28 @@ class LintFix:
         """
         if not self.edit_type == other.edit_type:
             return False
-        if not self.anchor == other.anchor:
+        # For checking anchor equality, first check types.
+        if not self.anchor.class_types == other.anchor.class_types:
             return False
-        if not self.edit == other.edit:
+        # If types match, check uuids to see if they're the same original segment.
+        if self.anchor.uuid != other.anchor.uuid:
             return False
-        return True  # pragma: no cover TODO?
+        # Then compare edits, here we only need to check the raw and source
+        # fixes (positions are meaningless).
+        # Only do this if we have edits.
+        if self.edit:
+            # 1. Check lengths
+            if len(self.edit) != len(other.edit):
+                return False  # pragma: no cover
+            # 2. Zip and compare
+            for a, b in zip(self.edit, other.edit):
+                # Check raws
+                if a.raw != b.raw:
+                    return False
+                # Check source fixes
+                if a.source_fixes != b.source_fixes:
+                    return False
+        return True
 
     @classmethod
     def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
@@ -279,7 +307,12 @@ class LintFix:
         source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments before the supplied anchor segment."""
-        return cls("create_before", anchor_segment, edit_segments, source)
+        return cls(
+            "create_before",
+            anchor_segment,
+            edit_segments,
+            source,
+        )
 
     @classmethod
     def create_after(
@@ -289,7 +322,12 @@ class LintFix:
         source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
-        return cls("create_after", anchor_segment, edit_segments, source)
+        return cls(
+            "create_after",
+            anchor_segment,
+            edit_segments,
+            source,
+        )
 
     def get_fix_slices(
         self, templated_file: TemplatedFile, within_only: bool
@@ -332,6 +370,41 @@ class LintFix:
             # We return an empty set because this edit doesn't touch anything
             # in the source.
             return set()
+        elif (
+            self.edit_type == "replace"
+            and all(edit.is_type("raw") for edit in cast(List[RawSegment], self.edit))
+            and all(edit._source_fixes for edit in cast(List[RawSegment], self.edit))
+        ):
+            # As an exception to the general rule about "replace" fixes (where
+            # they're only safe if they don't touch a templated section at all),
+            # source-only fixes are different. This clause handles that exception.
+
+            # So long as the fix is *purely* source-only we can assume that the
+            # rule has done the relevant due diligence on what it's editing in
+            # the source and just yield the source slices directly.
+
+            # More complicated fixes that are a blend or source and templated
+            # fixes are currently not supported but this (mostly because they've
+            # not arisen yet!), so further work would be required to support them
+            # elegantly.
+            rules_logger.debug("Source only fix.")
+            source_edit_slices = [
+                fix.source_slice
+                # We can assume they're all raw and all have source fixes, because we
+                # check that above.
+                for fix in chain.from_iterable(
+                    cast(List[SourceFix], edit._source_fixes)
+                    for edit in cast(List[RawSegment], self.edit)
+                )
+            ]
+
+            if len(source_edit_slices) > 1:  # pragma: no cover
+                raise NotImplementedError(
+                    "Unable to handle multiple source only slices."
+                )
+            return set(
+                templated_file.raw_slices_spanning_source_slice(source_edit_slices[0])
+            )
 
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
@@ -632,16 +705,6 @@ class BaseRule:
         if not ignored:
             new_fixes.extend(res.fixes)
 
-    @cached_property
-    def indent(self) -> str:
-        """String for a single indent, based on configuration."""
-        self.tab_space_size: int
-        self.indent_unit: str
-
-        tab = "\t"
-        space = " "
-        return space * self.tab_space_size if self.indent_unit == "space" else tab
-
     @staticmethod
     def filter_meta(segments, keep_meta=False):
         """Filter the segments to non-meta.
@@ -774,7 +837,12 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
-                    context.parent_stack[0], fix.edit_type, fix.anchor
+                    # If no parent stack, that means the segment itself is the root
+                    context.parent_stack[0]
+                    if context.parent_stack
+                    else context.segment,
+                    fix.edit_type,
+                    fix.anchor,
                 )
 
     @staticmethod
@@ -973,7 +1041,6 @@ class RuleSet:
             ), "Rule {!r} must belong to the 'all' group".format(code)
             groups = cls.groups
         except AttributeError as attr_err:
-
             raise AttributeError(
                 (
                     "Rule {!r} doesn't belong to any rule groups. "

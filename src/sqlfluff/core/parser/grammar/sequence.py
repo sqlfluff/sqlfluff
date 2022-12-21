@@ -84,10 +84,19 @@ class Sequence(BaseGrammar):
                 if elem.is_meta:
                     # Elements with a negative indent value come AFTER
                     # the whitespace. Positive or neutral come BEFORE.
-                    if elem.indent_val < 0:
-                        meta_post_nc += (elem(),)
-                    else:
+                    # HOWEVER: If one is already there, we must preserve
+                    # the order. This forced ordering is fine if there's
+                    # a positive followed by a negative in the sequence,
+                    # but if by design a positive arrives *after* a
+                    # negative then we should insert it after the positive
+                    # instead.
+                    # https://github.com/sqlfluff/sqlfluff/issues/3836
+                    if elem.indent_val >= 0 and not any(
+                        seg.indent_val < 1 for seg in meta_post_nc
+                    ):
                         meta_pre_nc += (elem(),)
+                    else:
+                        meta_post_nc += (elem(),)
                     break
 
                 # Is it a conditional? If so is it active

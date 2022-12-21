@@ -4,7 +4,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, Set, Optional
+from typing import AbstractSet, Dict, FrozenSet, Set, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
@@ -57,9 +57,17 @@ class ReflowConfig:
 
     _config_dict: ConfigDictType
     config_types: Set[str]
+    # In production, these values are almost _always_ set because we
+    # use `.from_fluff_config`, but the defaults are here to aid in
+    # testing.
+    tab_space_size: int = 4
+    indent_unit: str = "    "
+    max_line_length: int = 80
+    hanging_indents: bool = False
+    skip_indentation_in: FrozenSet[str] = frozenset()
 
     @classmethod
-    def from_dict(cls, config_dict: ConfigDictType):
+    def from_dict(cls, config_dict: ConfigDictType, **kwargs):
         """Construct a ReflowConfig from a dict."""
         config_types = set(config_dict.keys())
         # Enrich any of the "align" keys with what they're aligning with.
@@ -74,12 +82,21 @@ class ReflowConfig:
                         if config_dict[seg_type].get("align_scope", None):
                             new_key += ":" + config_dict[seg_type]["align_scope"]
                     config_dict[seg_type][key] = new_key
-        return cls(_config_dict=config_dict, config_types=config_types)
+        return cls(_config_dict=config_dict, config_types=config_types, **kwargs)
 
     @classmethod
     def from_fluff_config(cls, config: FluffConfig):
         """Constructs a ReflowConfig from a FluffConfig."""
-        return cls.from_dict(config.get_section(["layout", "type"]))
+        return cls.from_dict(
+            config.get_section(["layout", "type"]),
+            indent_unit=config.get("indent_unit", ["indentation"]),
+            tab_space_size=config.get("tab_space_size", ["indentation"]),
+            hanging_indents=config.get("hanging_indents", ["indentation"]),
+            max_line_length=config.get("max_line_length"),
+            skip_indentation_in=frozenset(
+                config.get("skip_indentation_in", ["indentation"]).split(",")
+            ),
+        )
 
     def get_block_config(
         self,
