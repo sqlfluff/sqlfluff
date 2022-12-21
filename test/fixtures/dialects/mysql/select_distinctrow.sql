@@ -1,1 +1,1 @@
-select distinctrow * from table;
+select distinctrow * from table1;

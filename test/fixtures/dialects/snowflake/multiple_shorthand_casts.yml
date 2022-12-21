@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1ee0fab94f2e2ade22759250f5e8ce286b26eab9f33624c98e1f781b606de25
+_hash: d4da930e99a348f0e3aedda22c084498cab4794b1c3d2620880d13ea47cfe5b4
 file:
 - statement:
     select_statement:
@@ -11,47 +11,49 @@ file:
         keyword: select
         select_clause_element:
           expression:
-          - literal: "'1'"
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            cast_expression:
+            - quoted_literal: "'1'"
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: int
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: boolean
           alias_expression:
             keyword: as
-            identifier: bool
+            naked_identifier: bool
 - statement_terminator: ;
 - statement:
     update_statement:
       keyword: update
       table_reference:
-        identifier: table_name
+        naked_identifier: table_name
       set_clause_list:
       - keyword: set
       - set_clause:
           column_reference:
-            identifier: col1
-          comparison_operator: '='
-          bare_function: CURRENT_TIMESTAMP
-          cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: TIMESTAMP_TZ
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            cast_expression:
+              bare_function: CURRENT_TIMESTAMP
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMP_TZ
       - comma: ','
       - set_clause:
-        - column_reference:
-            identifier: col2
-        - comparison_operator: '='
-        - literal: "'1'"
-        - cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: int
-        - cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: boolean
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            cast_expression:
+            - quoted_literal: "'1'"
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: int
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: boolean
 - statement_terminator: ;

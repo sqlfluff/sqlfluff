@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f71f2a325b847958a50b2f0fca94bb7ce16361a24b43946c596194993dfb0d5b
+_hash: 7ea812fc14414f5738321bfb716f97ea4e58cdf87c32d5726d981a0bf1ebcc38
 file:
   statement:
     create_view_statement:
     - keyword: create
     - keyword: view
     - table_reference:
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_view
+      - naked_identifier: my_view
     - keyword: as
     - select_statement:
         select_clause:
@@ -27,9 +27,9 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: schema
+                - naked_identifier: schema
                 - dot: .
-                - identifier: table
+                - naked_identifier: table
     - with_no_schema_binding_clause:
       - keyword: with
       - keyword: 'no'

@@ -1,24 +1,32 @@
 """Implementation of Rule L011."""
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
     KeywordSegment,
 )
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+    document_groups,
+)
+from sqlfluff.utils.reflow import ReflowSequence
 
 
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L011(BaseRule):
     """Implicit/explicit aliasing of table.
 
     Aliasing of table to follow preference
-    (explicit using an `AS` clause is default).
+    (requiring an explicit ``AS`` is the default).
 
-    | **Anti-pattern**
-    | In this example, the alias 'voo' is implicit.
+    **Anti-pattern**
+
+    In this example, the alias ``voo`` is implicit.
 
     .. code-block:: sql
 
@@ -26,8 +34,9 @@ class Rule_L011(BaseRule):
             voo.a
         FROM foo voo
 
-    | **Best practice**
-    | Add `AS` to make it explicit.
+    **Best practice**
+
+    Add ``AS`` to make it explicit.
 
     .. code-block:: sql
 
@@ -37,68 +46,62 @@ class Rule_L011(BaseRule):
 
     """
 
+    groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
+    crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
 
-    _target_elems = ("from_expression_element",)
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "from_expression_element"),
+        ("type", "merge_statement"),
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
 
         We look for the alias segment, and then evaluate its parent and whether
         it contains an AS keyword. This is the _eval function for both L011 and L012.
-
-        The use of `raw_stack` is just for working out how much whitespace to add.
-
         """
-        fixes = []
+        # Config type hints
+        self.aliasing: str
 
-        if context.segment.is_type("alias_expression"):
-            if context.parent_stack[-1].is_type(*self._target_elems):
-                if any(e.name.lower() == "as" for e in context.segment.segments):
-                    if self.aliasing == "implicit":  # type: ignore
-                        if context.segment.segments[0].name.lower() == "as":
+        assert context.segment.is_type("alias_expression")
+        if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
+            if any(e.raw_upper == "AS" for e in context.segment.segments):
+                if self.aliasing == "implicit":
+                    if context.segment.segments[0].raw_upper == "AS":
+                        self.logger.debug("Removing AS keyword and respacing.")
+                        as_keyword = context.segment.segments[0]
+                        return LintResult(
+                            anchor=as_keyword,
+                            # Generate the fixes to remove and respace accordingly.
+                            fixes=ReflowSequence.from_around_target(
+                                as_keyword,
+                                context.parent_stack[0],
+                                config=context.config,
+                            )
+                            .without(as_keyword)
+                            .respace()
+                            .get_fixes(),
+                        )
 
-                            # Remove the AS as we're using implict aliasing
-                            fixes.append(LintFix("delete", context.segment.segments[0]))
-                            anchor = context.raw_stack[-1]
-
-                            # Remove whitespace before (if exists) or after (if not)
-                            if (
-                                len(context.raw_stack) > 0
-                                and context.raw_stack[-1].type == "whitespace"
-                            ):
-                                fixes.append(LintFix("delete", context.raw_stack[-1]))
-                            elif (
-                                len(context.segment.segments) > 0
-                                and context.segment.segments[1].type == "whitespace"
-                            ):
-                                fixes.append(
-                                    LintFix("delete", context.segment.segments[1])
-                                )
-
-                            return LintResult(anchor=anchor, fixes=fixes)
-
-                else:
-                    insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
-
-                    # Add initial whitespace if we need to...
-                    if context.raw_stack[-1].name not in ["whitespace", "newline"]:
-                        insert_buff.append(WhitespaceSegment())
-
-                    # Add an AS (Uppercase for now, but could be corrected later)
-                    insert_buff.append(KeywordSegment("AS"))
-
-                    # Add a trailing whitespace if we need to
-                    if context.segment.segments[0].name not in [
-                        "whitespace",
-                        "newline",
-                    ]:
-                        insert_buff.append(WhitespaceSegment())
-
-                    return LintResult(
-                        anchor=context.segment,
-                        fixes=[
-                            LintFix("create", context.segment.segments[0], insert_buff)
-                        ],
+            elif self.aliasing != "implicit":
+                self.logger.debug("Inserting AS keyword and respacing.")
+                return LintResult(
+                    anchor=context.segment,
+                    # Work out the insertion and reflow fixes.
+                    fixes=ReflowSequence.from_around_target(
+                        context.segment.raw_segments[0],
+                        context.parent_stack[0],
+                        config=context.config,
+                        # Only reflow before, otherwise we catch too much.
+                        sides="before",
                     )
+                    .insert(
+                        KeywordSegment("AS"),
+                        target=context.segment.raw_segments[0],
+                        pos="before",
+                    )
+                    .respace()
+                    .get_fixes(),
+                )
         return None

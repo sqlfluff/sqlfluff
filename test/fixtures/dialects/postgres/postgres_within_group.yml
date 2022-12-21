@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 404848c33f1e1e51dcd99176dfad131dfb5fc4336d2b8bab724f446678812971
+_hash: f6e928977dc64f6d50b765793b36530e5619c76dd380c3a033dc340676fac3e1
 file:
   statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: o_orderkey
+                  naked_identifier: o_orderkey
               end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
@@ -28,7 +28,7 @@ file:
                 - keyword: ORDER
                 - keyword: BY
                 - column_reference:
-                    identifier: o_orderkey
+                    naked_identifier: o_orderkey
                 - keyword: ASC
                 end_bracket: )
       from_clause:
@@ -37,4 +37,4 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders

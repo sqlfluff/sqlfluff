@@ -1,0 +1,18 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          boolean_literal: 'True'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table1
+      where_clause:
+      - keyword: WHERE
+      - expression:
+          boolean_literal: 'TRUE'

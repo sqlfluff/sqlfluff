@@ -1,0 +1,64 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0e1728a3d30a3a0255a6e7c3669cb5d0b83b21017da070cd60e71bc62ffb179c
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          function:
+          - function_name:
+              function_name_identifier: LAST_VALUE
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: foo
+              end_bracket: )
+          - keyword: IGNORE
+          - keyword: NULLS
+          - over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: bar
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: baz
+                  - keyword: ASC
+                  frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - variable: $my_var
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: vehicle_type_id_last_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+  statement_terminator: ;

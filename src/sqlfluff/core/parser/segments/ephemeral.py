@@ -1,10 +1,13 @@
 """Ephemeral segment definitions."""
 
 import copy
-from typing import Optional
+import logging
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
+
+
+parser_logger = logging.getLogger("sqlfluff.parser")
 
 
 class EphemeralSegment(BaseSegment):
@@ -18,10 +21,16 @@ class EphemeralSegment(BaseSegment):
 
     type = "ephemeral"
 
-    def __init__(self, segments, pos_marker, parse_grammar, name: Optional[str] = None):
+    def __init__(self, segments, pos_marker, parse_grammar, ephemeral_name: str):
         # Stash the parse grammar for now.
         self._parse_grammar = parse_grammar
-        super().__init__(segments, pos_marker=pos_marker, name=name)
+        self.ephemeral_name = ephemeral_name
+        super().__init__(segments, pos_marker=pos_marker)
+
+    @property
+    def expected_form(self) -> str:
+        """What to return to the user when unparsable."""
+        return self.ephemeral_name
 
     @property
     def is_expandable(self):
@@ -69,10 +78,14 @@ def allow_ephemeral(func):
             # Reset the ephemeral name on the new version of the grammar otherwise
             # we get infinite recursion.
             new_grammar.ephemeral_name = None
-            # We shouldn't allow nested ephemerals. If they're present, don't create another.
-            # This can happen when grammars call super() on their match method.
+            # We shouldn't allow nested ephemerals. If they're present, don't create
+            # another. This can happen when grammars call super() on their match method.
             if len(segments) == 1 and segments[0].is_type("ephemeral"):
-                return MatchResult.from_matched(segments)
+                parser_logger.debug(
+                    "Developer Note: Nested ephemeral segments found. This "
+                    "is an anti-pattern: Consider alternative implementation."
+                )  # pragma: no cover
+                return MatchResult.from_matched(segments)  # pragma: no cover
             else:
                 return MatchResult.from_matched(
                     (
@@ -81,7 +94,7 @@ def allow_ephemeral(func):
                             pos_marker=None,
                             # Ephemeral segments get a copy of the parent grammar.
                             parse_grammar=new_grammar,
-                            name=self.ephemeral_name,
+                            ephemeral_name=self.ephemeral_name,
                         ),
                     )
                 )

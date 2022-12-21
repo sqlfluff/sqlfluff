@@ -3,20 +3,63 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4bf4f4edeaac5286379526a4187cc60a9c048430ef38e4a4cb3fb3a9fe35f513
+_hash: 55438b24f9c3193ab3eae96d8dc40ef8d77e87dfa87b431d31c7fce238cd8387
 file:
-  batch:
+- batch:
     statement:
       create_sequence_statement:
       - keyword: CREATE
       - keyword: SEQUENCE
       - sequence_reference:
-          identifier: SEQ_MELDER
+          naked_identifier: SEQ_MELDER
       - create_sequence_options_segment:
         - keyword: START
         - keyword: WITH
-        - literal: '1'
+        - numeric_literal: '1'
       - create_sequence_options_segment:
         - keyword: INCREMENT
         - keyword: BY
-        - literal: '1'
+        - numeric_literal: '1'
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: Test
+        - dot: .
+        - naked_identifier: DecSeq
+      - create_sequence_options_segment:
+          keyword: AS
+          data_type:
+            data_type_identifier: decimal
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '3'
+            - comma: ','
+            - expression:
+                numeric_literal: '0'
+            - end_bracket: )
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '125'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '25'
+      - create_sequence_options_segment:
+          keyword: MINVALUE
+          numeric_literal: '100'
+      - create_sequence_options_segment:
+          keyword: MAXVALUE
+          numeric_literal: '200'
+      - create_sequence_options_segment:
+          keyword: CYCLE
+      - create_sequence_options_segment:
+          keyword: CACHE
+          numeric_literal: '3'
+    statement_terminator: ;

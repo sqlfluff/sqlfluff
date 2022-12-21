@@ -3,7 +3,7 @@
 
  -- If this test is failing, then check the structure of expression
  -- parsing.
- 
+
  select
         1
     from

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1eabbbf7187911728236ad955aac6db71d59b9eb3b9cb2616151546fa45813a
+_hash: 1904673c879383bfd4b5053b1af3ff5eda6317ab68619647a3910c79a2d0107a
 file:
 - statement:
     select_statement:
@@ -11,17 +11,16 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: some_table
+          - naked_identifier: some_table
           - dot: .
-          - identifier: foo_id
+          - naked_identifier: foo_id
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: array
-            bracketed:
-              start_bracket: (
-              expression:
+          expression:
+            typeless_array:
+              keyword: array
+              bracketed:
+                start_bracket: (
                 select_statement:
                   select_clause:
                     keyword: select
@@ -38,27 +37,28 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: another_table
+                            naked_identifier: another_table
                   where_clause:
                     keyword: where
                     expression:
                     - column_reference:
-                      - identifier: another_table
+                      - naked_identifier: another_table
                       - dot: .
-                      - identifier: foo_id
-                    - comparison_operator: '='
+                      - naked_identifier: foo_id
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: some_table
+                      - naked_identifier: some_table
                       - dot: .
-                      - identifier: foo_id
-              end_bracket: )
+                      - naked_identifier: foo_id
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: another_table
+                naked_identifier: another_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -68,69 +68,227 @@ file:
         - keyword: as
         - keyword: struct
       - select_clause_element:
-          literal: "'1'"
+          quoted_literal: "'1'"
           alias_expression:
             keyword: as
-            identifier: bb
+            naked_identifier: bb
       - comma: ','
       - select_clause_element:
-          literal: '2'
+          numeric_literal: '2'
           alias_expression:
             keyword: as
-            identifier: aa
+            naked_identifier: aa
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          typeless_struct:
-            keyword: struct
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_id
-            - alias_expression:
-                keyword: as
-                identifier: id
-            - comma: ','
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_name
-            - alias_expression:
-                keyword: as
-                identifier: bar
-            - end_bracket: )
+          expression:
+            typeless_struct:
+              keyword: struct
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: bar
+                - dot: .
+                - naked_identifier: bar_id
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: id
+              - comma: ','
+              - column_reference:
+                - naked_identifier: bar
+                - dot: .
+                - naked_identifier: bar_name
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: bar
+              - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: bar
+            naked_identifier: bar
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
           join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
           - join_on_condition:
               keyword: 'on'
               expression:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
                 - dot: .
-                - identifier: foo_id
-              - comparison_operator: '='
+                - naked_identifier: foo_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: foo
+                - naked_identifier: foo
                 - dot: .
-                - identifier: foo_id
+                - naked_identifier: foo_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col_1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col_2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    array_literal:
+                    - keyword: ARRAY
+                    - start_angle_bracket: <
+                    - data_type:
+                        struct_type:
+                        - keyword: STRUCT
+                        - start_angle_bracket: <
+                        - parameter: col_1
+                        - data_type:
+                            data_type_identifier: STRING
+                        - comma: ','
+                        - parameter: col_2
+                        - data_type:
+                            data_type_identifier: STRING
+                        - end_angle_bracket: '>'
+                    - end_angle_bracket: '>'
+                    - start_square_bracket: '['
+                    - expression:
+                        bracketed:
+                        - start_bracket: (
+                        - quoted_literal: "'hello'"
+                        - comma: ','
+                        - quoted_literal: "'world'"
+                        - end_bracket: )
+                    - comma: ','
+                    - expression:
+                        bracketed:
+                        - start_bracket: (
+                        - quoted_literal: "'hi'"
+                        - comma: ','
+                        - quoted_literal: "'there'"
+                        - end_bracket: )
+                    - end_square_bracket: ']'
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: int64
+              end_angle_bracket: '>'
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5'
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: date
+              end_angle_bracket: '>'
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: '"2011-05-05"'
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            struct_type:
+            - keyword: STRUCT
+            - start_angle_bracket: <
+            - parameter: x
+            - data_type:
+                data_type_identifier: int64
+            - comma: ','
+            - parameter: y
+            - data_type:
+                data_type_identifier: string
+            - end_angle_bracket: '>'
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: str_col
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          expression:
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: int64
+              end_angle_bracket: '>'
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: int_col
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            typeless_struct:
+              keyword: STRUCT
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: some_field
+              - comma: ','
+              - column_reference:
+                  naked_identifier: some_other_field
+              - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table
 - statement_terminator: ;

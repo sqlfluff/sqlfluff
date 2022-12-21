@@ -17,3 +17,7 @@ test_pass_trailing_whitespace_before_template_code:
         {{ elem }},
         {% endfor %}
         0
+
+test_fail_trailing_whitespace_and_whitespace_control:
+  fail_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n"
+  fix_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1,\n    2,\n"

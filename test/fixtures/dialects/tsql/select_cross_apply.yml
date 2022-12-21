@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0bc4b039ebf0a388fe704b591548f408c116472b58410b75ba40edab65c65aa8
+_hash: 978778c9521da1e4ee1f39a434056c89bc91157e37ca808ef7949771b01af7a9
 file:
   batch:
   - statement:
@@ -12,36 +12,36 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: DeptID
+              naked_identifier: DeptID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: DeptName
+              naked_identifier: DeptName
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: DeptMgrID
+              naked_identifier: DeptMgrID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpID
+              naked_identifier: EmpID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpLastName
+              naked_identifier: EmpLastName
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpSalary
+              naked_identifier: EmpSalary
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Departments
+                  naked_identifier: Departments
               alias_expression:
-                identifier: d
+                naked_identifier: d
             join_clause:
             - keyword: CROSS
             - keyword: APPLY
@@ -49,16 +49,16 @@ file:
                 table_expression:
                   function:
                     function_name:
-                      identifier: dbo
+                      naked_identifier: dbo
                       dot: .
                       function_name_identifier: GetReports
                     bracketed:
                       start_bracket: (
                       expression:
                         column_reference:
-                        - identifier: d
+                        - naked_identifier: d
                         - dot: .
-                        - identifier: DeptMgrID
+                        - naked_identifier: DeptMgrID
                       end_bracket: )
           statement_terminator: ;
   - statement:
@@ -75,9 +75,9 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Department
+                  naked_identifier: Department
               alias_expression:
-                identifier: D
+                naked_identifier: D
             join_clause:
             - keyword: OUTER
             - keyword: APPLY
@@ -85,16 +85,16 @@ file:
                 table_expression:
                   function:
                     function_name:
-                      identifier: dbo
+                      naked_identifier: dbo
                       dot: .
                       function_name_identifier: fn_GetAllEmployeeOfADepartment
                     bracketed:
                       start_bracket: (
                       expression:
                         column_reference:
-                        - identifier: D
+                        - naked_identifier: D
                         - dot: .
-                        - identifier: DepartmentID
+                        - naked_identifier: DepartmentID
                       end_bracket: )
           statement_terminator: ;
   - statement:
@@ -103,25 +103,25 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-            - identifier: s
+            - naked_identifier: s
             - dot: .
-            - identifier: column_id
+            - naked_identifier: column_id
         - comma: ','
         - select_clause_element:
             column_reference:
-            - identifier: sp
+            - naked_identifier: sp
             - dot: .
-            - identifier: value
+            - naked_identifier: value
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
                 keyword: as
-                identifier: s
+                naked_identifier: s
             join_clause:
             - keyword: cross
             - keyword: apply
@@ -140,21 +140,21 @@ file:
                           - start_bracket: (
                           - expression:
                               column_reference:
-                              - identifier: s
+                              - naked_identifier: s
                               - dot: .
-                              - identifier: some_path
+                              - naked_identifier: some_path
                           - comma: ','
                           - expression:
-                              literal: "'->'"
+                              quoted_literal: "'->'"
                           - comma: ','
                           - expression:
-                              literal: "'{'"
+                              quoted_literal: "'{'"
                           - end_bracket: )
                     - comma: ','
                     - expression:
-                        literal: "'{'"
+                        quoted_literal: "'{'"
                     - end_bracket: )
                 alias_expression:
                   keyword: as
-                  identifier: sp
+                  naked_identifier: sp
           statement_terminator: ;

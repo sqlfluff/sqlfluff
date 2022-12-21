@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2453ec227853be4f8cd172f70bedf92bdc447d41ed96b716b1aa01e5dc191bb3
+file:
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - keyword: ADD
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - keyword: DROP
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+    - keyword: SYNC
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_identifier
+- statement_terminator: ;
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    msck_table_statement:
+    - keyword: MSCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: emp_part
+    - keyword: DROP
+    - keyword: PARTITIONS
+- statement_terminator: ;

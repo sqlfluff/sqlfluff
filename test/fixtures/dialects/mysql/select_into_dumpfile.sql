@@ -1,1 +1,1 @@
-select * into dumpfile '' from table;
+select * into dumpfile '' from table1;

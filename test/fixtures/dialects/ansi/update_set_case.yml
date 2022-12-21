@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8bda546d9e67ac39e4b62470c06e8bd4b711510e0a1aa122c158b2eb78c3b911
+file:
+  statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: table1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: column
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'T'"
+              - keyword: THEN
+              - expression:
+                  boolean_literal: 'TRUE'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: column
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'F'"
+              - keyword: THEN
+              - expression:
+                  boolean_literal: 'FALSE'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  null_literal: 'NULL'
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table2
+            alias_expression:
+              naked_identifier: t2
+  statement_terminator: ;

@@ -3,31 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f726a8ca0e76af32fd72902e8b89fe2a5289a0bdb426836ecaad92e446dd2e8b
+_hash: 74ba87761cac0f656c136be0907cf0c68088419fb3524ed5bdc65a4714ca4bf2
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t1
+                  naked_identifier: t1

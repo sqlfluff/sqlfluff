@@ -1,1 +1,1 @@
-select SQL_NO_CACHE * from table;
+select SQL_NO_CACHE * from table1;

@@ -14,3 +14,6 @@ test_fail_no_whitespace_after_comma:
 test_fail_no_whitespace_after_comma_2:
   fail_str: SELECT FLOOR(dt) ,count(*) FROM test
   fix_str: SELECT FLOOR(dt) , count(*) FROM test
+
+test_pass_bigquery_trailing_comma:
+  pass_str: SELECT 1, 2,

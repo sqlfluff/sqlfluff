@@ -3,26 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7694790fd163527b75e6083384113f7f888dc440a87bb91fab08469c01a6140
+_hash: 01fbe10e33e9d07cea2ff2a3357ec3730607c4d29d3f169c31f6d322c7e59715
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: SET
     - keyword: OWNER
     - keyword: ROLE
-    - literal: '"role"'
+    - quoted_literal: '"role"'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: SET
     - keyword: MANAGEDLOCATION
-    - literal: '"hdfs://alternate_path"'
+    - quoted_literal: '"hdfs://alternate_path"'
 - statement_terminator: ;

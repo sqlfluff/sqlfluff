@@ -1,0 +1,69 @@
+name: Enhancement
+description: Suggest an enhancement to help improve SQLFluff
+labels: [ "enhancement" ]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Use this enhancement template to suggest new features or functionality for SQLFluff. Please note that
+        missing syntax support for any of our currently supported dialects, should instead be filed as a
+        [Bug Report](https://github.com/sqlfluff/sqlfluff/issues/new?assignees=&labels=bug&template=bug-report.yml).
+
+  - type: checkboxes
+    attributes:
+      label: Search before asking
+      description: >
+        Please make sure to search in the [issues](https://github.com/sqlfluff/sqlfluff/issues) first to see
+        whether the same issue was reported already.
+      options:
+        - label: >
+            I searched the [issues](https://github.com/sqlfluff/sqlfluff/issues) and found
+            no similar issues.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: A short description of the feature
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Use case
+      description: What do you want to happen?
+      placeholder: >
+        Rather than telling us how you might implement this feature, try to take a
+        step back and describe what you are trying to achieve.
+
+  - type: textarea
+    attributes:
+      label: Dialect
+      description: If the enhancement relates to a particular dialect, which one?
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Are you willing to work on and submit a PR to address the issue?
+      description: >
+        This is absolutely not required, but we are happy to guide you in the contribution process,
+        especially if you already have a good understanding of how to implement the fix.
+        SQLFluff is a totally community-driven project and we love to bring new contributors in.
+      options:
+        - label: Yes I am willing to submit a PR!
+
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: |
+        The Code of Conduct helps create a safe space for everyone. We require that everyone agrees to it.
+      options:
+        - label: >
+            I agree to follow this project's
+            [Code of Conduct](https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "Thanks for completing our form!"

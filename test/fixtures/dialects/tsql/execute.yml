@@ -3,93 +3,98 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbfd89cdc5e7abb7d1cad5c8dab9e5b4809bb68bdda042b4cd6683b97cab0c8b
+_hash: 553a622220bf6d28a299ea98be359e711753afc5a911a494ec15d8b49db728d4
 file:
   batch:
   - statement:
       execute_script_statement:
         keyword: EXEC
         object_reference:
-        - identifier: '[Reporting]'
+        - quoted_identifier: '[Reporting]'
         - dot: .
-        - identifier: '[Load_CLL]'
+        - quoted_identifier: '[Load_CLL]'
   - statement:
       execute_script_statement:
         keyword: EXECUTE
         object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
+        - naked_identifier: ProcTestDefaults
         parameter: '@p2'
-        comparison_operator: '='
-        literal: "'A'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'A'"
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+        numeric_literal: '68'
+        comma: ','
+        quoted_literal: "'B'"
         statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
-      - literal: '68'
+        - naked_identifier: ProcTestDefaults
+      - numeric_literal: '68'
       - comma: ','
-      - literal: "'B'"
+      - quoted_literal: "'C'"
+      - comma: ','
+      - quoted_literal: "'House'"
       - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
-      - literal: '68'
-      - comma: ','
-      - literal: "'C'"
-      - comma: ','
-      - literal: "'House'"
-      - statement_terminator: ;
-  - statement:
-      execute_script_statement:
-      - keyword: EXECUTE
-      - object_reference:
-        - identifier: dbo
-        - dot: .
-        - identifier: ProcTestDefaults
+        - naked_identifier: ProcTestDefaults
       - parameter: '@p1'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: DEFAULT
       - comma: ','
       - parameter: '@p2'
-      - comparison_operator: '='
-      - literal: "'D'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'D'"
       - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
+        - naked_identifier: ProcTestDefaults
       - keyword: DEFAULT
       - comma: ','
       - parameter: '@p3'
-      - comparison_operator: '='
-      - literal: "'Local'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Local'"
       - comma: ','
       - parameter: '@p2'
-      - comparison_operator: '='
-      - literal: "'E'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'E'"
       - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
+        - naked_identifier: ProcTestDefaults
       - keyword: DEFAULT
       - comma: ','
-      - literal: "'H'"
+      - quoted_literal: "'H'"
       - comma: ','
       - keyword: DEFAULT
       - statement_terminator: ;
@@ -97,42 +102,123 @@ file:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: ProcTestDefaults
+        - naked_identifier: ProcTestDefaults
       - keyword: DEFAULT
       - comma: ','
-      - literal: "'I'"
+      - quoted_literal: "'I'"
       - comma: ','
       - parameter: '@p3'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: DEFAULT
       - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
       - object_reference:
-          identifier: sp_addextendedproperty
+          naked_identifier: sp_addextendedproperty
       - parameter: '@name'
-      - comparison_operator: '='
-      - literal: "N'MS_Description'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'MS_Description'"
       - comma: ','
       - parameter: '@value'
-      - comparison_operator: '='
-      - literal: "'my text description'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my text description'"
       - comma: ','
       - parameter: '@level0type'
-      - comparison_operator: '='
-      - literal: "N'SCHEMA'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'SCHEMA'"
       - comma: ','
       - parameter: '@level0name'
-      - comparison_operator: '='
-      - literal: "N'my_schema_name'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'my_schema_name'"
       - comma: ','
       - parameter: '@level1type'
-      - comparison_operator: '='
-      - literal: "N'my_object_type'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'my_object_type'"
       - comma: ','
       - parameter: '@level1name'
-      - comparison_operator: '='
-      - literal: "N'my_object_name'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "N'my_object_name'"
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        parameter: '@pRes'
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXEC
+      - parameter: '@pRes'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+      - parameter: '@p1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        parameter: '@pRes'
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - parameter: '@pRes'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: ProcTestDefaults
+      - parameter: '@p1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@statement'
+        data_type:
+          data_type_identifier: nvarchar
+          bracketed:
+            start_bracket: (
+            keyword: max
+            end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'SELECT 1'"
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        bracketed:
+          start_bracket: (
+          object_reference:
+            parameter: '@statement'
+          end_bracket: )

@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 070409e28b6b4bc14acd531925db47a93eb0244d204f6d51bea9b81391735c5a
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: books
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: title
+      - comma: ','
+      - column_reference:
+          naked_identifier: author
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'The Great Gatsby'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'F. Scott Fitzgerald'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+      keyword: INSERT
+      table_reference:
+        naked_identifier: books
+      bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: title
+      - comma: ','
+      - column_reference:
+          naked_identifier: author
+      - end_bracket: )
+      values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'The Great Gatsby'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'F. Scott Fitzgerald'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        quoted_identifier: '`project.dataset.table`'
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table1
+        end_bracket: )
+- statement_terminator: ;

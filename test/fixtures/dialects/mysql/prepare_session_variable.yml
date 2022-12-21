@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48de1a2cb897f77488711a1cd4843e38ce89a185872a30a2db541a304457273c
+_hash: 465db8acb36a650a88c7dd35993d5321557e4b9b2241b2ee99a97b8ef7f39058
 file:
   statement:
     prepare_segment:
     - keyword: PREPARE
-    - identifier: test
+    - naked_identifier: test
     - keyword: FROM
     - variable: '@test'
   statement_terminator: ;

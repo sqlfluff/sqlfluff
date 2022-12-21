@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = ansi
+
+[sqlfluff:templater:jinja]
+load_macros_from_path = test/fixtures/linter/autofix/ansi/macro_file_jinja_include_undefined_variable/macros

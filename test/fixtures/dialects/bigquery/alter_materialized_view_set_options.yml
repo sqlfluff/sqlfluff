@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f920358a40ae793dac230cb79235d4b77daac481e600270d82c487e513493ed0
+file:
+- statement:
+    alter_materialized_view_set_options_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: enable_refresh
+          comparison_operator:
+            raw_comparison_operator: '='
+          boolean_literal: 'false'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_set_options_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: friendly_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"my_mv"'
+        - comma: ','
+        - parameter: labels
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - array_literal:
+            start_square_bracket: '['
+            expression:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: '"org_unit"'
+              - comma: ','
+              - quoted_literal: '"development"'
+              - end_bracket: )
+            end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;

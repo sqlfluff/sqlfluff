@@ -1,19 +1,21 @@
 """Implementation of Rule L008."""
-from typing import Optional
+from typing import List
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L008(BaseRule):
     """Commas should be followed by a single whitespace unless followed by a comment.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | In this example, there is no space between the comma and 'zoo'.
+    **Anti-pattern**
+
+    In this example, there is no space between the comma and ``'zoo'``.
 
     .. code-block:: sql
 
@@ -22,8 +24,9 @@ class Rule_L008(BaseRule):
         FROM foo
         WHERE a IN ('plop','zoo')
 
-    | **Best practice**
-    | Keep a single space after the comma.
+    **Best practice**
+
+    Keep a single space after the comma. The ``•`` character represents a space.
 
     .. code-block:: sql
        :force:
@@ -34,45 +37,18 @@ class Rule_L008(BaseRule):
         WHERE a IN ('plop',•'zoo')
     """
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Commas should be followed by a single whitespace unless followed by a comment.
+    groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
-        This is a slightly odd one, because we'll almost always evaluate from a point a few places
-        after the problem site. NB: We need at least two segments behind us for this to work.
-        """
-        if len(context.raw_stack) < 1:
-            return None
-
-        # Get the first element of this segment.
-        first_elem = next(context.segment.iter_raw_seg())
-
-        cm1 = context.raw_stack[-1]
-        if cm1.name == "comma":
-            # comma followed by something that isn't whitespace?
-            if first_elem.name not in ["whitespace", "newline", "Dedent"]:
-                self.logger.debug(
-                    "Comma followed by something other than whitespace: %s", first_elem
-                )
-                ins = WhitespaceSegment(raw=" ")
-                return LintResult(
-                    anchor=cm1,
-                    fixes=[LintFix("edit", context.segment, [ins, context.segment])],
-                )
-
-        if len(context.raw_stack) < 2:
-            return None
-
-        cm2 = context.raw_stack[-2]
-        if cm2.name == "comma":
-            # comma followed by too much whitespace?
-            if (
-                cm1.is_whitespace  # Must be whitespace
-                and cm1.raw != " "  # ...and not a single one
-                and cm1.name != "newline"  # ...and not a newline
-                and not first_elem.is_comment  # ...and not followed by a comment
-            ):
-                self.logger.debug("Comma followed by too much whitespace: %s", cm1)
-                repl = WhitespaceSegment(raw=" ")
-                return LintResult(anchor=cm1, fixes=[LintFix("edit", cm1, repl)])
-        # Otherwise we're fine
-        return None
+    def _eval(self, context: RuleContext) -> List[LintResult]:
+        """Commas should not have whitespace directly before them."""
+        return (
+            ReflowSequence.from_around_target(
+                context.segment,
+                context.parent_stack[0],
+                config=context.config,
+                sides="after",
+            )
+            .respace()
+            .get_results()
+        )

@@ -1,0 +1,15 @@
+ALTER DATASHARE salesshare SET PUBLICACCESSIBLE FALSE;
+
+ALTER DATASHARE salesshare SET INCLUDENEW = TRUE FOR SCHEMA public;
+
+ALTER DATASHARE salesshare ADD TABLE public.tbl1;
+
+ALTER DATASHARE salesshare ADD TABLE public.tbl1, public.tbl2;
+
+ALTER DATASHARE salesshare ADD SCHEMA public;
+
+ALTER DATASHARE salesshare ADD FUNCTION public.fn1, public.fn2;
+
+ALTER DATASHARE salesshare ADD ALL TABLES IN SCHEMA public;
+
+ALTER DATASHARE salesshare REMOVE TABLE public.tbl1;

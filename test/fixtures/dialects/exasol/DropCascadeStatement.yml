@@ -3,30 +3,40 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: feb8543680fc200e3dfe88a1850d8792678145f94487ab41a401e2f953c5545c
+_hash: d9fd30c72dc770f52417ead9cd818a71d9634e0c07cd5c668b91b5bce95d9c6c
 file:
 - statement:
-    drop_statement:
-      drop_cascade:
-      - keyword: DROP
-      - keyword: USER
-      - object_reference:
-          identifier: test_user1
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        naked_identifier: test_user1
 - statement_terminator: ;
 - statement:
-    drop_statement:
-      drop_cascade:
-      - keyword: DROP
-      - keyword: USER
-      - object_reference:
-          identifier: test_user2
-      - keyword: CASCADE
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        naked_identifier: test_user2
+    - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_statement:
-      drop_cascade:
-      - keyword: DROP
-      - keyword: ROLE
-      - object_reference:
-          identifier: myrole
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: myrole
 - statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+        quoted_identifier: '"ADMIN"'
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: '"Important"'

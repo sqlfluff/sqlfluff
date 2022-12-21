@@ -1,8 +1,8 @@
-"""Test the sqlfluff.testing module."""
+"""Test the sqlfluff.utils.testing module."""
 
 from _pytest.outcomes import Failed, Skipped
 import pytest
-from sqlfluff.testing.rules import (
+from sqlfluff.utils.testing.rules import (
     assert_rule_fail_in_sql,
     assert_rule_pass_in_sql,
     rules__test_helper,
@@ -18,7 +18,7 @@ def test_assert_rule_fail_in_sql_handle_parse_error():
 
 
 def test_assert_rule_fail_in_sql_should_fail_queries_that_unexpectedly_pass():
-    """Util assert_rule_fail_in_sql should fail tests when a query passes rules that it violates."""
+    """Util assert_rule_fail_in_sql should fail if no failure."""
     with pytest.raises(Failed) as failed_test:
         assert_rule_fail_in_sql(code="L001", sql="select 1")
     failed_test.match("No L001 failures found in query which should fail")
@@ -46,7 +46,7 @@ def test_rules__test_helper_skipped_when_test_case_skipped():
     skipped_test.match("Skip this one for now")
 
 
-def test_rules__test_helper_has_variable_introspection():
+def test_rules__test_helper_has_variable_introspection(test_verbosity_level):
     """Make sure the helper gives variable introspection information on failure."""
     rule_test_case = RuleTestCase(
         rule="L003",
@@ -66,5 +66,6 @@ def test_rules__test_helper_has_variable_introspection():
     )
     with pytest.raises(AssertionError) as skipped_test:
         rules__test_helper(rule_test_case)
-    # Enough to check that a query diff is displayed
-    skipped_test.match("select")
+    if test_verbosity_level >= 2:
+        # Enough to check that a query diff is displayed
+        skipped_test.match("select")

@@ -30,6 +30,10 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
         ("SelectClauseElementSegment", "c is not null as c_notnull"),
         ("SelectClauseElementSegment", "c isnull as c_isnull"),
         ("SelectClauseElementSegment", "c notnull as c_notnull"),
+        ("ArrayAccessorSegment", "[2:10]"),
+        ("ArrayAccessorSegment", "[:10]"),
+        ("ArrayAccessorSegment", "[2:]"),
+        ("ArrayAccessorSegment", "[2]"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(
@@ -52,7 +56,8 @@ def test_dialect_postgres_specific_segment_parses(
     "raw",
     [
         "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime) AS myepoch FROM t1",
-        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch FROM t1",
+        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch "
+        "FROM t1",
     ],
 )
 def test_epoch_datetime_unit(raw: str) -> None:
@@ -147,3 +152,7 @@ def test_get_keywords() -> None:
     expected_result_2 = ["C", "E"]
 
     assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
+
+    expected_result_3 = ["B"]
+
+    assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)

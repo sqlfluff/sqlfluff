@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 371c117719284838c3ed35657264ef371c8c0e2fc685de5aaa84f39173629ba2
+_hash: b6c296b4ef1b5c85ed1f47862ae387fe5da2ce0695f429a9e9509155f5766fe8
 file:
   statement:
     set_expression:
@@ -12,19 +12,19 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: some_table
-        having_clause:
+                  naked_identifier: some_table
+        qualify_clause:
           keyword: qualify
           expression:
             function:
@@ -43,15 +43,16 @@ file:
                     - keyword: by
                     - expression:
                         column_reference:
-                          identifier: col1
+                          naked_identifier: col1
                     orderby_clause:
                     - keyword: order
                     - keyword: by
                     - column_reference:
-                        identifier: col1
+                        naked_identifier: col1
                   end_bracket: )
-            comparison_operator: '='
-            literal: '1'
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
     - set_operator:
       - keyword: union
       - keyword: all
@@ -60,19 +61,19 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: some_table
-        having_clause:
+                  naked_identifier: some_table
+        qualify_clause:
           keyword: qualify
           expression:
             function:
@@ -91,12 +92,13 @@ file:
                     - keyword: by
                     - expression:
                         column_reference:
-                          identifier: col1
+                          naked_identifier: col1
                     orderby_clause:
                     - keyword: order
                     - keyword: by
                     - column_reference:
-                        identifier: col1
+                        naked_identifier: col1
                   end_bracket: )
-            comparison_operator: '='
-            literal: '1'
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'

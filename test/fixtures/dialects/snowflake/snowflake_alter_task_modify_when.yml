@@ -3,15 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48f3c1d1821912d92d4e5d22b2aea7318200088c4f0a220d43134bcbbefb7d5e
+_hash: 5e508027a2af0aa45d938ebd27a1f7422fadabb4d2c0782e3d116985cea689c5
 file:
   statement:
     alter_task_statement:
     - keyword: ALTER
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+        naked_identifier: my_task
     - keyword: MODIFY
     - keyword: WHEN
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
   statement_terminator: ;

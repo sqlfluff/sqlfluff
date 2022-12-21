@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75f18ba099702cb2a7896133549317d4ceee9c8daa7e2441db3cc1e25ec8c6ae
+_hash: 4e5953616cbac22fc7369a90d331a14a0874d138082d9d7fceb7cf6e6c1bdfc5
 file:
   statement:
     select_statement:
@@ -24,14 +24,14 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: '1'
+                        numeric_literal: '1'
                       keyword: AS
                       data_type:
                         data_type_identifier: BOOLEAN
                       end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: foo
+                    naked_identifier: foo
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -44,8 +44,8 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '1'
+                      numeric_literal: '1'
                       alias_expression:
                         keyword: AS
-                        identifier: foo
+                        naked_identifier: foo
                 end_bracket: )

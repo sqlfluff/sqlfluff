@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae09d433bab0b53a47a3f1b9696cc9f5183af4465966e014eac61f04223069fd
+_hash: 1b26ead6a431fd6f9c3f727271035493f6fc0bc7eb2cc7d9913fbe518449496e
 file:
   statement:
     select_statement:
@@ -12,66 +12,66 @@ file:
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: nullable_field
+              naked_identifier: nullable_field
           - keyword: IS
           - keyword: 'NULL'
           alias_expression:
             keyword: as
-            identifier: standard_is_null
+            naked_identifier: standard_is_null
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: nullable_field
+              naked_identifier: nullable_field
             keyword: ISNULL
           alias_expression:
             keyword: as
-            identifier: non_standard_is_null
+            naked_identifier: non_standard_is_null
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: nullable_field
+              naked_identifier: nullable_field
           - keyword: IS
           - keyword: NOT
           - keyword: 'NULL'
           alias_expression:
             keyword: as
-            identifier: standard_not_null
+            naked_identifier: standard_not_null
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: nullable_field
+              naked_identifier: nullable_field
             keyword: NOTNULL
           alias_expression:
             keyword: as
-            identifier: non_standard_not_null
+            naked_identifier: non_standard_not_null
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_test
+                naked_identifier: t_test
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: nullable_field
+            naked_identifier: nullable_field
         - keyword: IS
         - keyword: 'NULL'
         - binary_operator: OR
         - column_reference:
-            identifier: nullable_field
+            naked_identifier: nullable_field
         - keyword: ISNULL
         - binary_operator: OR
         - column_reference:
-            identifier: nullable_field
+            naked_identifier: nullable_field
         - keyword: IS
         - keyword: NOT
         - keyword: 'NULL'
         - binary_operator: OR
         - column_reference:
-            identifier: nullable_field
+            naked_identifier: nullable_field
         - keyword: NOTNULL

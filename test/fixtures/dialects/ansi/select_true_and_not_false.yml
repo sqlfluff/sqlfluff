@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b77bfefa7508e2ce3c1f5209f4327eb39d3b9d492959af6c499c975031d187ec
+_hash: 1eab200cd987526c057e1c1be42cf2bfdba7609dadf9e6b155fbd91b01860942
 file:
 - statement:
     select_statement:
@@ -11,17 +11,17 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: 'TRUE'
+          - boolean_literal: 'TRUE'
           - binary_operator: AND
           - keyword: NOT
-          - literal: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -29,9 +29,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: 'TRUE'
+          - boolean_literal: 'TRUE'
           - binary_operator: AND
-          - literal: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -40,7 +40,7 @@ file:
         select_clause_element:
           expression:
             keyword: NOT
-            literal: 'TRUE'
+            boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,7 +49,7 @@ file:
         select_clause_element:
           expression:
           - keyword: NOT
-          - literal: 'TRUE'
+          - boolean_literal: 'TRUE'
           - binary_operator: AND
-          - literal: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;

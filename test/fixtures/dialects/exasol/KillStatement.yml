@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb77e9a1a5dc37520c39664e8987633d224fd26ed3320aefc2c76286104e0c91
+_hash: c1a4373db22db074b7786018802971d2ddad47caa2e178cc8c204728654f9186
 file:
 - statement:
     kill_statement:
@@ -11,13 +11,13 @@ file:
     - keyword: STATEMENT
     - keyword: IN
     - keyword: SESSION
-    - literal: '7792436882684342285'
+    - numeric_literal: '7792436882684342285'
 - statement_terminator: ;
 - statement:
     kill_statement:
     - keyword: KILL
     - keyword: SESSION
-    - literal: '7792436882684342285'
+    - numeric_literal: '7792436882684342285'
 - statement_terminator: ;
 - statement:
     kill_statement:
@@ -29,11 +29,11 @@ file:
     kill_statement:
     - keyword: KILL
     - keyword: STATEMENT
-    - literal: '1234'
+    - numeric_literal: '1234'
     - keyword: IN
     - keyword: SESSION
-    - literal: '7792436882684342285'
+    - numeric_literal: '7792436882684342285'
     - keyword: WITH
     - keyword: MESSAGE
-    - literal: "'not allowed!'"
+    - quoted_literal: "'not allowed!'"
 - statement_terminator: ;

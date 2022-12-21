@@ -1,2 +1,2 @@
-[sqlfluff:rules:L019]
-comma_style=leading
+[sqlfluff:layout:type:comma]
+line_position = leading

@@ -4,16 +4,52 @@ from collections import Counter, defaultdict
 from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+    document_groups,
+)
+
+from sqlfluff.utils.functional import sp, FunctionalContext
 
 
+class TableAliasInfo(NamedTuple):
+    """Structure yielded by_filter_table_expressions()."""
+
+    table_ref: BaseSegment
+    whitespace_ref: BaseSegment
+    alias_exp_ref: BaseSegment
+    alias_identifier_ref: BaseSegment
+
+
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
-    | **Anti-pattern**
-    | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
+    .. note::
+       This rule was taken from the `dbt Style Guide
+       <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_
+       which notes that:
+
+        Avoid table aliases in join conditions (especially initialisms) - it's
+        harder to understand what the table called "c" is compared to "customers".
+
+       This rule is controversial and for many larger databases avoiding alias is
+       neither realistic nor desirable. In this case this rule should be disabled.
+
+       This rule is disabled by default for BigQuery due to the complexity of
+       backtick requirements and determining whether a name refers to a project
+       or dataset, and automated fixes can potentially break working SQL code..
+       It can be enabled with the ``force_enable = True`` flag.
+
+    **Anti-pattern**
+
+    In this example, alias ``o`` is used for the orders table, and ``c`` is used for
+    ``customers`` table.
 
     .. code-block:: sql
 
@@ -24,8 +60,9 @@ class Rule_L031(BaseRule):
         JOIN customers as c on o.id = c.user_id
 
 
-    | **Best practice**
-    |  Avoid aliases.
+    **Best practice**
+
+    Avoid aliases.
 
     .. code-block:: sql
 
@@ -38,77 +75,83 @@ class Rule_L031(BaseRule):
         -- Self-join will not raise issue
 
         SELECT
-            table.a,
+            table1.a,
             table_alias.b,
         FROM
-            table
-            LEFT JOIN table AS table_alias ON table.foreign_key = table_alias.foreign_key
+            table1
+            LEFT JOIN table1 AS table_alias ON
+                table1.foreign_key = table_alias.foreign_key
 
     """
+
+    groups = ("all",)
+    config_keywords = ["force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
+    _dialects_disabled_by_default = ["bigquery"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
 
-        Find base table, table expressions in join, and other expressions in select clause
-        and decide if it's needed to report them.
+        Find base table, table expressions in join, and other expressions in select
+        clause and decide if it's needed to report them.
         """
-        if context.segment.is_type("select_statement"):
-            # A buffer for all table expressions in join conditions
-            from_expression_elements = []
-            column_reference_segments = []
+        # Config type hints
+        self.force_enable: bool
 
-            from_clause_segment = context.segment.get_child("from_clause")
+        # Issue 2810: BigQuery has some tricky expectations (apparently not
+        # documented, but subject to change, e.g.:
+        # https://www.reddit.com/r/bigquery/comments/fgk31y/new_in_bigquery_no_more_backticks_around_table/)
+        # about whether backticks are required (and whether the query is valid
+        # or not, even with them), depending on whether the GCP project name is
+        # present, or just the dataset name. Since SQLFluff doesn't have access
+        # to BigQuery when it is looking at the query, it would be complex for
+        # this rule to do the right thing. For now, the rule simply disables
+        # itself.
+        if (
+            context.dialect.name in self._dialects_disabled_by_default
+            and not self.force_enable
+        ):
+            return LintResult()
 
-            if not from_clause_segment:
-                return None
+        assert context.segment.is_type("select_statement")
 
-            from_expression = from_clause_segment.get_child("from_expression")
-            from_expression_element = None
-            if from_expression:
-                from_expression_element = from_expression.get_child(
-                    "from_expression_element"
-                )
+        children = FunctionalContext(context).segment.children()
+        from_clause_segment = children.select(sp.is_type("from_clause")).first()
+        base_table = (
+            from_clause_segment.children(sp.is_type("from_expression"))
+            .first()
+            .children(sp.is_type("from_expression_element"))
+            .first()
+            .children(sp.is_type("table_expression"))
+            .first()
+            .children(sp.is_type("object_reference"))
+            .first()
+        )
+        if not base_table:
+            return None
 
-            if not from_expression_element:
-                return None
-            from_expression_element = from_expression_element.get_child(
-                "table_expression"
+        # A buffer for all table expressions in join conditions
+        from_expression_elements = []
+        column_reference_segments = []
+
+        after_from_clause = children.select(start_seg=from_clause_segment[0])
+        for clause in from_clause_segment + after_from_clause:
+            for from_expression_element in clause.recursive_crawl(
+                "from_expression_element"
+            ):
+                from_expression_elements.append(from_expression_element)
+            for column_reference in clause.recursive_crawl("column_reference"):
+                column_reference_segments.append(column_reference)
+
+        return (
+            self._lint_aliases_in_join(
+                base_table[0] if base_table else None,
+                from_expression_elements,
+                column_reference_segments,
+                context.segment,
             )
-
-            # Find base table
-            base_table = None
-            if from_expression_element:
-                base_table = from_expression_element.get_child("object_reference")
-
-            from_clause_index = context.segment.segments.index(from_clause_segment)
-            from_clause_and_after = context.segment.segments[from_clause_index:]
-
-            for clause in from_clause_and_after:
-                for from_expression_element in clause.recursive_crawl(
-                    "from_expression_element"
-                ):
-                    from_expression_elements.append(from_expression_element)
-                for column_reference in clause.recursive_crawl("column_reference"):
-                    column_reference_segments.append(column_reference)
-
-            return (
-                self._lint_aliases_in_join(
-                    base_table,
-                    from_expression_elements,
-                    column_reference_segments,
-                    context.segment,
-                )
-                or None
-            )
-        return None
-
-    class TableAliasInfo(NamedTuple):
-        """Structure yielded by_filter_table_expressions()."""
-
-        table_ref: BaseSegment
-        whitespace_ref: BaseSegment
-        alias_exp_ref: BaseSegment
-        alias_identifier_ref: BaseSegment
+            or None
+        )
 
     @classmethod
     def _filter_table_expressions(
@@ -117,7 +160,7 @@ class Rule_L031(BaseRule):
         for from_expression in from_expression_elements:
             table_expression = from_expression.get_child("table_expression")
             if not table_expression:
-                continue
+                continue  # pragma: no cover
             table_ref = table_expression.get_child("object_reference")
 
             # If the from_expression_element has no object_references - skip it
@@ -142,7 +185,7 @@ class Rule_L031(BaseRule):
                 continue
 
             alias_identifier_ref = alias_exp_ref.get_child("identifier")
-            yield cls.TableAliasInfo(
+            yield TableAliasInfo(
                 table_ref, whitespace_ref, alias_exp_ref, alias_identifier_ref
             )
 
@@ -164,7 +207,8 @@ class Rule_L031(BaseRule):
         # interested in the NUMBER of different aliases used.)
         table_aliases = defaultdict(set)
         for ai in to_check:
-            table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
+            if ai and ai.table_ref and ai.alias_identifier_ref:
+                table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
 
         # For each aliased table, check whether to keep or remove it.
         for alias_info in to_check:
@@ -183,16 +227,20 @@ class Rule_L031(BaseRule):
             ids_refs = []
 
             # Find all references to alias in select clause
-            alias_name = alias_info.alias_identifier_ref.raw
-            for alias_with_column in select_clause.recursive_crawl("object_reference"):
-                used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref and used_alias_ref.raw == alias_name:
-                    ids_refs.append(used_alias_ref)
+            if alias_info.alias_identifier_ref:
+                alias_name = alias_info.alias_identifier_ref.raw
+                for alias_with_column in select_clause.recursive_crawl(
+                    "object_reference"
+                ):
+                    used_alias_ref = alias_with_column.get_child("identifier")
+                    if used_alias_ref and used_alias_ref.raw == alias_name:
+                        ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
             for exp_ref in column_reference_segments:
                 used_alias_ref = exp_ref.get_child("identifier")
-                # exp_ref.get_child('dot') ensures that the column reference includes a table reference
+                # exp_ref.get_child('dot') ensures that the column reference includes a
+                # table reference
                 if (
                     used_alias_ref
                     and used_alias_ref.raw == alias_name
@@ -201,14 +249,22 @@ class Rule_L031(BaseRule):
                     ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
+            # Note unparsable errors have cause the delete to fail (see #2484)
+            # so check there is a d before doing deletes.
             fixes = [
                 *[
-                    LintFix("delete", d)
+                    LintFix.delete(d)
                     for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
+                    if d
                 ],
                 *[
-                    LintFix("edit", alias, alias.edit(alias_info.table_ref.raw))
+                    LintFix.replace(
+                        alias,
+                        [alias.edit(alias_info.table_ref.raw)],
+                        source=[alias_info.table_ref],
+                    )
                     for alias in [alias_info.alias_identifier_ref, *ids_refs]
+                    if alias
                 ],
             ]
 

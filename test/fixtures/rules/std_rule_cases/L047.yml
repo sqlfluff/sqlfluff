@@ -21,7 +21,7 @@ passes_on_count_1:
   configs: &prefer_count_1
     rules:
       L047:
-        prefer_count_1: True
+        prefer_count_1: true
 
 changes_count_0_to_count_star:
   fail_str: |
@@ -52,7 +52,7 @@ passes_on_count_0:
   configs: &prefer_count_0
     rules:
       L047:
-        prefer_count_0: True
+        prefer_count_0: true
 
 passes_on_count_1_if_both_present:
   pass_str: |
@@ -66,8 +66,8 @@ passes_on_count_1_if_both_present:
   configs: &prefer_both
     rules:
       L047:
-        prefer_count_0: True
-        prefer_count_1: True
+        prefer_count_0: true
+        prefer_count_1: true
 
 changes_to_count_1_if_both_present:
   fail_str: |

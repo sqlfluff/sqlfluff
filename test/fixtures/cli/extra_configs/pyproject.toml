@@ -1,0 +1,2 @@
+[tool.sqlfluff.core]
+dialect = "tsql"

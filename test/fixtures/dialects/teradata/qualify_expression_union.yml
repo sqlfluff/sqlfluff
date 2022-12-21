@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f6d9afa2747242b3c11b93c40d5ea425b36b0a71e5a7165f693d9e0d05eac54
+_hash: 7efd41312f2179e83d194313ba3e11714b6bee9f358317573b142b06ba9cbe6f
 file:
   statement:
     set_expression:
@@ -12,21 +12,22 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: id
+              naked_identifier: id
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: mytable
+                  naked_identifier: mytable
         qualify_clause:
           keyword: qualify
           expression:
             column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '1'
+              naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -35,19 +36,20 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: id
+              naked_identifier: id
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: mytable
+                  naked_identifier: mytable
         qualify_clause:
           keyword: qualify
           expression:
             column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '1'
+              naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
   statement_terminator: ;

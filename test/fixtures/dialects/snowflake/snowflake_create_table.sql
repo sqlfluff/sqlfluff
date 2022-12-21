@@ -9,6 +9,14 @@ CREATE TABLE IF NOT EXISTS table_name (
 
 create table mytable (amount number);
 
+create table mytable (amount number) CLUSTER BY (amount);
+
+create table mytable (amount number) CLUSTER BY LINEAR(amount);
+
+create table mytable CLUSTER BY (amount) (amount number);
+
+create table mytable CLUSTER BY LINEAR(amount) (amount number);
+
 create table mytable_copy2 as select b+1 as c from mytable_copy;
 
 create table mytable_2 like mytable;
@@ -75,3 +83,14 @@ CREATE TABLE timestamp_column_default_value_demo (
 create table test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create or replace table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
+create table test_schema.test_table (test_column INTEGER AUTOINCREMENT);
+
+CREATE TABLE test_table (test_column NUMBER WITH MASKING POLICY my_policy USING(test_column, test_column > 10));
+
+CREATE OR REPLACE TABLE SCHEMA1.TABLE1
+(
+    "COL1" varchar(128) NOT NULL,
+    "COL2" varchar(128) NOT NULL
+) CHANGE_TRACKING = TRUE WITH TAG (
+    account_objects.tags.IRM = '{"IRM":[{"Primary":"ABC123"}]}'
+);

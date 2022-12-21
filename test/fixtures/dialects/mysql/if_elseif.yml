@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c2cfa717fbdc9399919fcf0063171f102f6fe35b1ec89f59bac3f4856ed99f1
+_hash: 541352fb1913bbea13363d80cee97028508476b4a3bd851fb97b09d48b14d71f
 file:
 - statement:
     if_then_statement:
@@ -13,24 +13,26 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '0'
+              naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '0'
           end_bracket: )
     - keyword: then
     - statement:
         set_statement:
           keyword: set
           variable: '@errmsg'
-          comparison_operator: '='
-          literal: "''"
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: '1'
+          numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     if_then_statement:
@@ -40,16 +42,18 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '1'
+              naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
           end_bracket: )
     - keyword: then
     - statement:
         set_statement:
         - keyword: set
         - variable: _test
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - variable: '1'
 - statement_terminator: ;
 - statement:
@@ -60,10 +64,10 @@ file:
           select_clause:
             keyword: select
             select_clause_element:
-              literal: '2'
+              numeric_literal: '2'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: end
-      identifier: if
+    if_then_statement:
+    - keyword: end
+    - keyword: if
 - statement_terminator: ;

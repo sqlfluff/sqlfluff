@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 89f707d226c8e01b98f90d63009e2aa2603dbdebbf5187f6257efdea1cd3ab4f
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: li1
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: entries_data
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: id
+      - comma: ','
+      - index_column_definition:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: chunk
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: acctchng_magnitude
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: account_change
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: acct_no
+      - comma: ','
+      - index_column_definition:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: abs
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: amt
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: t2xy
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          expression:
+          - column_reference:
+              naked_identifier: x
+          - binary_operator: +
+          - column_reference:
+              naked_identifier: y
+        end_bracket: )
+- statement_terminator: ;

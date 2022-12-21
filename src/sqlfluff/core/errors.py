@@ -1,5 +1,5 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any, List
 
 CheckTuple = Tuple[str, int, int]
 
@@ -18,10 +18,12 @@ class SQLBaseError(ValueError):
         line_pos=0,
         ignore=False,
         fatal=False,
+        warning=False,
         **kwargs
     ):
         self.fatal = fatal
         self.ignore = ignore
+        self.warning = warning
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
@@ -34,7 +36,7 @@ class SQLBaseError(ValueError):
         """Should this error be considered fixable?"""
         return False
 
-    def rule_code(self):
+    def rule_code(self) -> str:
         """Fetch the code of the rule which cause this error.
 
         NB: This only returns a real code for some subclasses of
@@ -42,11 +44,11 @@ class SQLBaseError(ValueError):
         returns a placeholder value which can be used instead.
         """
         if hasattr(self, "rule"):
-            return self.rule.code
-        else:
-            return self._code or "????"
+            return getattr(self, "rule").code
 
-    def desc(self):
+        return self._code or "????"
+
+    def desc(self) -> str:
         """Fetch a description of this violation.
 
         NB: For violations which don't directly implement a rule
@@ -54,20 +56,22 @@ class SQLBaseError(ValueError):
         caused the violation. Optionally some errors may have their
         description set directly.
         """
-        if hasattr(self, "description") and self.description:
+        if hasattr(self, "description") and getattr(self, "description", None):
             # This can only override if it's present AND
             # if it's non-null.
-            return self.description
-        elif hasattr(self, "rule"):
-            return self.rule.description
-        else:
-            # Return the first element - probably a string message
-            if len(self.args) > 1:  # pragma: no cover TODO?
-                return self.args
-            elif len(self.args) == 1:
-                return self.args[0]
-            else:  # pragma: no cover TODO?
-                return self.__class__.__name__
+            return getattr(self, "description")
+
+        if hasattr(self, "rule"):
+            return getattr(self, "rule").description
+
+        # Return the first element - probably a string message
+        if len(self.args) > 1 and isinstance(self.args, str):  # pragma: no cover TODO?
+            return self.args
+
+        if len(self.args) == 1:
+            return self.args[0]
+
+        return self.__class__.__name__  # pragma: no cover
 
     def get_info_dict(self):
         """Return a dict of properties.
@@ -81,14 +85,31 @@ class SQLBaseError(ValueError):
             "description": self.desc(),
         }
 
-    def ignore_if_in(self, ignore_iterable):
+    def check_tuple(self) -> CheckTuple:
+        """Get a tuple representing this error. Mostly for testing."""
+        return (
+            self.rule_code(),
+            self.line_no,
+            self.line_pos,
+        )
+
+    def source_signature(self) -> Tuple[Any, ...]:
+        """Return hashable source signature for deduplication."""
+        return (self.check_tuple(), self.desc())
+
+    def ignore_if_in(self, ignore_iterable: List[str]):
         """Ignore this violation if it matches the iterable."""
-        # Type conversion
-        if isinstance(ignore_iterable, str):  # pragma: no cover TODO?
-            ignore_iterable = []
-        # Ignoring
         if self._identifier in ignore_iterable:
             self.ignore = True
+
+    def warning_if_in(self, warning_iterable: List[str]):
+        """Warning only for this violation if it matches the iterable.
+
+        Designed for rule codes so works with L001, L00X but also TMP or PRS
+        for templating and parsing errors.
+        """
+        if self.rule_code() in warning_iterable:
+            self.warning = True
 
 
 class SQLTemplaterError(SQLBaseError):
@@ -96,7 +117,7 @@ class SQLTemplaterError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
@@ -104,7 +125,7 @@ class SQLTemplaterError(SQLBaseError):
     _identifier = "templating"
 
 
-class SQLTemplaterSkipFile(RuntimeError):
+class SQLFluffSkipFile(RuntimeError):
     """An error returned from a templater to skip a file."""
 
     pass
@@ -115,7 +136,7 @@ class SQLLexError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
@@ -180,13 +201,21 @@ class SQLLintError(SQLBaseError):
             return True
         return False
 
-    def check_tuple(self) -> CheckTuple:
-        """Get a tuple representing this error. Mostly for testing."""
-        return (
-            self.rule.code,
-            self.line_no,
-            self.line_pos,
+    def source_signature(self) -> Tuple[Any, ...]:
+        """Return hashable source signature for deduplication.
+
+        For linting errors we need to dedupe on more than just location and
+        description, we also need to check the edits potentially made, both
+        in the templated file but also in the source.
+        """
+        fix_raws = tuple(
+            tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
+        source_fixes = tuple(
+            tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
+            for f in self.fixes
+        )
+        return (self.check_tuple(), self.description, fix_raws, source_fixes)
 
     def __repr__(self):
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(

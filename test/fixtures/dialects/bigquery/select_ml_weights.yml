@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ca9412d414028ea8a21359fbb134c2d8cc5f10d592e0f6186fc91ca12f4220f
+_hash: 745e8980f1829e521701aed0b6d4ef96d4546f7d6a1d4d5b4b4b1dd2ccc54075
 file:
   statement:
     select_statement:
@@ -19,16 +19,16 @@ file:
           ml_table_expression:
             keyword: ML
             dot: .
-            identifier: WEIGHTS
+            naked_identifier: WEIGHTS
             bracketed:
               start_bracket: (
               keyword: MODEL
               object_reference:
-                identifier: '`project.dataset.model`'
+                quoted_identifier: '`project.dataset.model`'
               end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
-      - literal: '1'
+      - numeric_literal: '1'

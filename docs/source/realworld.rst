@@ -84,7 +84,7 @@ correctness), but the values don't need to match actual values used in
 production. This means that you can use *much simpler* dummy values than
 what you would really use. The recommendation is to use *the simplest*
 possible dummy value that still allows your code to evaluate to valid SQL
-so that the configuration values can be a streamlined as possible.
+so that the configuration values can be as streamlined as possible.
 
 .. _`infrastructure as code`: https://en.wikipedia.org/wiki/Infrastructure_as_code
 .. _`viewpoint section of the docs for the open-source tool dbt`: https://docs.getdbt.com/docs/viewpoint

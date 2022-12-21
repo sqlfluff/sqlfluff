@@ -20,14 +20,22 @@ class Parser:
         self.RootSegment = self.config.get("dialect_obj").get_root_segment()
 
     def parse(
-        self, segments: Sequence["BaseSegment"], recurse=True, fname: str = None
+        self,
+        segments: Sequence["BaseSegment"],
+        recurse=True,
+        fname: Optional[str] = None,
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
-        if not segments:
+        if not segments:  # pragma: no cover
+            # This should normally never happen because there will usually
+            # be an end_of_file segment. It would probably only happen in
+            # api use cases.
             return None
         # Instantiate the root segment
         root_segment = self.RootSegment(segments=segments, fname=fname)
         # Call .parse() on that segment
+
         with RootParseContext.from_config(config=self.config, recurse=recurse) as ctx:
             parsed = root_segment.parse(parse_context=ctx)
+
         return parsed

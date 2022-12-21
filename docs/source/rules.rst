@@ -9,38 +9,38 @@ a particular rule or set of rules. The intent is that the definition of
 each specific rule should be really streamlined and only contain the logic
 for the rule itself, with all the other mechanics abstracted away.
 
+Core Rules
+----------
+
+Certain rules belong to the :code:`core` rule group. In order for
+a rule to be designated as :code:`core`, it must meet the following
+criteria:
+
+* Stable
+* Applies to most dialects
+* Could detect a syntax issue
+* Isn’t too opinionated toward one style (e.g. the :code:`dbt` style guide)
+
+Core rules can also make it easier to roll out SQLFluff to a team by
+only needing to follow a 'common sense' subset of rules initially,
+rather than spending time understanding and configuring all the
+rules, some of which your team may not necessarily agree with.
+
+We believe teams will eventually want to enforce more than just
+the core rules, and we encourage everyone to explore all the rules
+and customize a rule set that best suites their organization.
+
+See the :ref:`config` section for more information on how to enable
+only :code:`core` rules by default.
+
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.core.rules
+.. automodule:: sqlfluff.rules
    :members:
    :member-order: alphabetical
 
-
-Implementation
---------------
-
-.. autoclass:: sqlfluff.core.rules.base.RuleSet
-   :members:
-
-.. autoclass:: sqlfluff.core.rules.base.BaseRule
-   :members:
-   :private-members:
-
-.. autoclass:: sqlfluff.core.rules.base.LintResult
-   :members:
-
-.. autoclass:: sqlfluff.core.rules.base.LintFix
-   :members:
-
-
-The `_eval` function of each rule should take enough arguments that it can
-evaluate the position of the given segment in relation to its neighbors,
-and that the segment which finally "triggers" the error, should be the one
-that would be corrected OR if the rule relates to something that is missing,
-then it should flag on the segment FOLLOWING, the place that the desired
-element is missing.
-
+.. _inline_ignoring_errors:
 
 Inline Ignoring Errors
 -----------------------
@@ -62,7 +62,14 @@ ignore templating (``TMP``) & parsing (``PRS``) errors.
 
 .. code-block:: sql
 
-   WHERE dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+   WHERE
+     col1 = 2 AND
+     dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+
+.. note::
+   It should be noted that ignoring ``TMP`` and ``PRS`` errors can lead to
+   incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as `SQLFluff` can
+   misinterpret the SQL being analysed.
 
 Should the need arise, not specifying specific rules to ignore will ignore
 all rules on the given line.
@@ -83,13 +90,13 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 .. code-block:: sql
 
     -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo --noqa: disable=L012
+    SELECT col_a a FROM foo -- noqa: disable=L012
 
     -- Ignore all rules from this line forward
-    SELECT col_a a FROM foo --noqa: disable=all
+    SELECT col_a a FROM foo -- noqa: disable=all
 
     -- Enforce all rules from this line forward
-    SELECT col_a a FROM foo --noqa: enable=all
+    SELECT col_a a FROM foo -- noqa: enable=all
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html

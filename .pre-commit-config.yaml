@@ -1,0 +1,67 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      # If adding any exceptions here, make sure to add them to .editorconfig as well
+      - id: end-of-file-fixer
+        exclude: |
+            (?x)^(
+              test/fixtures/linter/sqlfluffignore/|
+              test/fixtures/config/inheritance_b/example.sql|
+              test/fixtures/config/inheritance_b/nested/example.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/trailing_newlines.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/trailing_newlines.sql
+            )$
+      - id: trailing-whitespace
+        exclude: |
+            (?x)^(
+              test/fixtures/linter/indentation_errors.sql|
+              test/fixtures/templater/jinja_d_roundtrip/test.sql|
+              test/fixtures/config/inheritance_b/example.sql|
+              test/fixtures/config/inheritance_b/nested/example.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sq|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/last_day.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/dbt_utils_0.8.0/last_day.sql|
+              test/fixtures/linter/sqlfluffignore/
+            )$
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.931
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies: [
+          types-toml,
+          types-pkg_resources,
+          types-chardet,
+          types-appdirs,
+          types-colorama,
+          types-pyyaml,
+          types-regex,
+        ]
+        files: ^src/sqlfluff/.*
+  - repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [
+          flake8-black>=0.2.4,
+          flake8-docstrings,
+        ]
+  - repo: https://github.com/pycqa/doc8
+    rev: 0.10.1
+    hooks:
+      - id: doc8
+        args: [
+          --file-encoding,
+          utf8,
+        ]
+        files: docs/source/.*\.rst$
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint]

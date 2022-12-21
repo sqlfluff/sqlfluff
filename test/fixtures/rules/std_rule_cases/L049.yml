@@ -22,6 +22,16 @@ test_not_equals_null_upper:
     FROM foo
     WHERE a IS NOT NULL
 
+test_not_equals_null_multi_nulls:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> NULL AND b != NULL AND c = 'foo'
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'
+
 test_not_equals_null_lower:
   fail_str: |
     SELECT a
@@ -61,3 +71,28 @@ test_complex_case_1:
     SELECT a
     FROM foo
     WHERE a = b or (c > d or e IS NULL)
+
+test_set_clause:
+  pass_str: |
+    UPDATE table1 SET col = NULL
+    WHERE col = ""
+
+test_tsql_exec_clause:
+  pass_str: |
+    exec something
+      @param1 = 'blah',
+      @param2 = 'blah',
+      @param3 = null,
+      @param4 = 'blah';
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_alternate_alias_syntax:
+  pass_str: |
+    select
+      name = null
+    from t
+  configs:
+    core:
+      dialect: tsql

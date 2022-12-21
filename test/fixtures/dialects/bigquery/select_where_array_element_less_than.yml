@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09b9fd51ff369d07b6d31b59633c197a34955267ec2bad29cdb0999b6366ea57
+_hash: 6ae4d34ee738a9bd107170906922423de913ff7884e1a415e895e5baccdbb83f
 file:
   statement:
     select_statement:
@@ -19,12 +19,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`project.dataset.table_1`'
+                quoted_identifier: '`project.dataset.table_1`'
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: effect_size_list
+            naked_identifier: effect_size_list
         - array_accessor:
             start_square_bracket: '['
             expression:
@@ -34,12 +34,13 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '1'
+                    numeric_literal: '1'
                   end_bracket: )
             end_square_bracket: ']'
-        - comparison_operator: <
+        - comparison_operator:
+            raw_comparison_operator: <
         - column_reference:
-            identifier: effect_size_list
+            naked_identifier: effect_size_list
         - array_accessor:
             start_square_bracket: '['
             expression:
@@ -49,8 +50,8 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                  - literal: '1'
+                  - numeric_literal: '1'
                   - binary_operator: +
-                  - literal: '1'
+                  - numeric_literal: '1'
                   end_bracket: )
             end_square_bracket: ']'

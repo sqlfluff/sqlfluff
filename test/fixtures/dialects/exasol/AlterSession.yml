@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 755bd299eb68a4dec809ff8b84723bfd2f4bb14087b3cb1267f75b051131099b
+_hash: f3be0ce4a7bdbfe38682bbbcca6f44e8eec5dd1ce10ceb56e0cfd3056f4acd74
 file:
 - statement:
     alter_session_statement:
@@ -11,8 +11,9 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: TIME_ZONE
-    - comparison_operator: '='
-    - literal: "'EUROPE/BERLIN'"
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'EUROPE/BERLIN'"
 - statement_terminator: ;
 - statement:
     alter_session_statement:
@@ -20,8 +21,9 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: QUERY_TIMEOUT
-    - comparison_operator: '='
-    - literal: '120'
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '120'
 - statement_terminator: ;
 - statement:
     alter_session_statement:
@@ -29,8 +31,9 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: NLS_DATE_FORMAT
-    - comparison_operator: '='
-    - literal: "'DDD-YYYY'"
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'DDD-YYYY'"
 - statement_terminator: ;
 - statement:
     alter_session_statement:
@@ -38,6 +41,37 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: SESSION_TEMP_DB_RAM_LIMIT
-    - comparison_operator: '='
-    - literal: "'10240M'"
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'10240M'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'OFF'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SYSTEM TABLES'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '2400'
 - statement_terminator: ;

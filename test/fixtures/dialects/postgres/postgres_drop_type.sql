@@ -1,0 +1,9 @@
+DROP TYPE foo;
+
+DROP TYPE IF EXISTS foo;
+
+DROP TYPE foo, bar;
+
+DROP TYPE foo CASCADE;
+
+DROP TYPE foo RESTRICT;

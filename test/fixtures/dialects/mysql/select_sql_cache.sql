@@ -1,1 +1,1 @@
-select SQL_CACHE * from table;
+select SQL_CACHE * from table1;

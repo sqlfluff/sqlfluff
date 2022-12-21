@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1faf15f84e873b3e2be5b00bf51587fe7e641b27ecc10fdfd77ea0c3bc5e56df
+file:
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+        naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: QUICK
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: USE_FRM
+- statement_terminator: ;
+- statement:
+    repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: QUICK
+    - keyword: EXTENDED
+    - keyword: USE_FRM
+- statement_terminator: ;

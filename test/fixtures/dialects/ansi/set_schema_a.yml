@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecdad8567cc8e855ee3053f841eac5cfb13560b07e0f35198e4c907f6a0a6bf7
+_hash: 7f948d86ae8ddb413b44c667a3dee6096cf7db4569f3ab72d981b230bf87d3a2
 file:
   statement:
     set_schema_statement:
     - keyword: set
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema

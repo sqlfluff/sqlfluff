@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b2a3dd4a0c267ab6a4bb5ee56d115d61875e0c3dd153dba41ca69892e37086a
+_hash: e8bad254979fce30874d61d54ea4a291c0fc6f3f4127e5a0556317c742155cec
 file:
   statement:
     select_statement:
@@ -11,14 +11,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: user_id
+            naked_identifier: user_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
           - table_expression:
               table_reference:
-                identifier: '`project.dataset.table1`'
+                quoted_identifier: '`project.dataset.table1`'
           - keyword: FOR
           - keyword: SYSTEM_TIME
           - keyword: AS
@@ -30,7 +30,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'2020-05-11T14:02:52+00:00'"
+                    quoted_literal: "'2020-05-11T14:02:52+00:00'"
                   keyword: AS
                   data_type:
                     data_type_identifier: TIMESTAMP

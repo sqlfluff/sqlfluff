@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bca610d47e019516ba441b63373191e05033d648901ce30da4aef65f2a3feaa6
+_hash: 5c9454897c6fb0804ca61cd756db50740fc13aabf09a5232ea602068cc2fa713
 file:
   statement:
     bteq_statement:
@@ -12,12 +12,13 @@ file:
         keyword: if
     - bteq_key_word_segment:
         keyword: errorcode
-    - comparison_operator: '>'
-    - literal: '0'
+    - comparison_operator:
+        raw_comparison_operator: '>'
+    - numeric_literal: '0'
     - bteq_key_word_segment:
         keyword: then
     - bteq_key_word_segment:
         dot: .
         keyword: quit
-        literal: '4'
+        numeric_literal: '4'
   statement_terminator: ;

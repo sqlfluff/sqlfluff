@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3a65a953e0ab6ea4cbc28fa63539b4694fdad3bc54d171b39d62d58276ef718
+_hash: a774db06cd2a028f74beaf8e4fbc800bf95454357357782ca3dad888a9580e8b
 file:
   statement:
     get_diagnostics_segment:
@@ -12,10 +12,12 @@ file:
     - keyword: CONDITION
     - variable: '1'
     - variable: _test
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: CLASS_ORIGIN
     - comma: ','
     - variable: '@test'
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: TABLE_NAME
   statement_terminator: ;

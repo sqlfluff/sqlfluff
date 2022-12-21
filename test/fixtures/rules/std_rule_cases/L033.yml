@@ -137,7 +137,6 @@ test_exasol:
       c,
       d
     from tbl2
-
   configs:
     core:
       dialect: exasol
@@ -153,7 +152,6 @@ test_exasol_union_all:
       c,
       d
     from tbl2
-
   configs:
     core:
       dialect: exasol
@@ -169,12 +167,11 @@ test_postgres:
       c,
       d
     from tbl2
-
   configs:
     core:
       dialect: postgres
 
-test_bigquery:
+test_redshift:
   fail_str: |
     SELECT
       a,
@@ -195,33 +192,6 @@ test_bigquery:
       c,
       d
     FROM tbl2
-
   configs:
     core:
-      dialect: bigquery
-
-test_bigquery_lower:
-  fail_str: |
-    select
-      a,
-      b
-    from tbl1
-    union
-    select
-      c,
-      d
-    from tbl2
-  fix_str: |
-    select
-      a,
-      b
-    from tbl1
-    union distinct
-    select
-      c,
-      d
-    from tbl2
-
-  configs:
-    core:
-      dialect: bigquery
+      dialect: redshift

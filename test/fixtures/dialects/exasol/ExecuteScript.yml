@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6681b20a2a0f43830205d4e154910b53cfb41982f4e1a437cdce9ef6ad8c9f09
+_hash: e4ba845f29b7865fdff23fb31eb5570dee3f66d9bfaa6cb66eab375eb8bdccfb
 file:
 - statement:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
-        identifier: script_1
+    - script_reference:
+        naked_identifier: script_1
 - statement_terminator: ;
 - statement:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
-        identifier: script_1
+    - script_reference:
+        naked_identifier: script_1
     - keyword: WITH
     - keyword: OUTPUT
 - statement_terminator: ;
@@ -25,18 +25,18 @@ file:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
-        identifier: script_2
+    - script_reference:
+        naked_identifier: script_2
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: "'ABC'"
+          quoted_literal: "'ABC'"
       - end_bracket: )
     - keyword: WITH
     - keyword: OUTPUT
@@ -45,8 +45,8 @@ file:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
-        identifier: script_3
+    - script_reference:
+        naked_identifier: script_3
     - bracketed:
         start_bracket: (
         expression:
@@ -56,13 +56,13 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - comma: ','
             - expression:
-                literal: '4'
+                numeric_literal: '4'
             - comma: ','
             - expression:
-                literal: '5'
+                numeric_literal: '5'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;

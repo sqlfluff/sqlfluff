@@ -12,6 +12,8 @@ import logging
 import uuid
 
 # Get the parser logger
+from typing import Dict
+
 parser_logger = logging.getLogger("sqlfluff.parser")
 
 
@@ -34,24 +36,23 @@ class RootParseContext:
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
-        # Initialise the blacklist
-        self.blacklist = ParseBlacklist()
+        # Initialise the denylist
+        self.denylist = ParseDenylist()
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
         self.uuid = uuid.uuid4()
 
     @classmethod
-    def from_config(cls, config, **overrides):
+    def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
         """Construct a `RootParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
         except TypeError:  # pragma: no cover
             raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {!r}".format(
-                    indentation_config
-                )
+                "One of the configuration keys in the `indentation` section is not "
+                "True or False: {!r}".format(indentation_config)
             )
         ctx = cls(
             dialect=config.get("dialect_obj"),
@@ -100,7 +101,7 @@ class ParseContext:
     itself).
     """
 
-    # We create a destroy many ParseContexts so we limit the slots
+    # We create and destroy many ParseContexts, so we limit the slots
     # to improve performance.
     __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
 
@@ -172,16 +173,16 @@ class ParseContext:
         return ctx
 
 
-class ParseBlacklist:
+class ParseDenylist:
     """Acts as a cache to stop unnecessary matching."""
 
     def __init__(self):
-        self._blacklist_struct = {}
+        self._denylist_struct = {}
 
     def _hashed_version(self):  # pragma: no cover TODO?
         return {
-            k: {hash(e) for e in self._blacklist_struct[k]}
-            for k in self._blacklist_struct
+            k: {hash(e) for e in self._denylist_struct[k]}
+            for k in self._denylist_struct
         }
 
     def check(self, seg_name, seg_tuple):
@@ -190,18 +191,18 @@ class ParseBlacklist:
         Has this seg_tuple already been matched
         unsuccessfully against this segment name.
         """
-        if seg_name in self._blacklist_struct:  # pragma: no cover TODO?
-            if seg_tuple in self._blacklist_struct[seg_name]:
+        if seg_name in self._denylist_struct:  # pragma: no cover TODO?
+            if seg_tuple in self._denylist_struct[seg_name]:
                 return True
         return False
 
     def mark(self, seg_name, seg_tuple):
         """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._blacklist_struct:
-            self._blacklist_struct[seg_name].add(seg_tuple)
+        if seg_name in self._denylist_struct:
+            self._denylist_struct[seg_name].add(seg_tuple)
         else:
-            self._blacklist_struct[seg_name] = {seg_tuple}
+            self._denylist_struct[seg_name] = {seg_tuple}
 
     def clear(self):
-        """Clear the blacklist struct."""
-        self._blacklist_struct = {}
+        """Clear the denylist struct."""
+        self._denylist_struct = {}

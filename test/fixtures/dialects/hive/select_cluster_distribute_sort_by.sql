@@ -1,0 +1,13 @@
+SELECT col1, col2 FROM t1 ORDER BY col1;
+
+SELECT col1, col2 FROM t1 CLUSTER BY col1;
+
+SELECT col1, col2 FROM t1 ORDER BY col1 CLUSTER BY col1;
+
+SELECT key, value FROM src SORT BY key ASC, value DESC;
+
+SELECT col1, col2 FROM t1 DISTRIBUTE BY col1;
+
+SELECT col1, col2 FROM t1 DISTRIBUTE BY col1 SORT BY col1 ASC, col2 DESC;
+
+SELECT col1, col2 FROM t1 ORDER BY col1 DISTRIBUTE BY col1 SORT BY col1 ASC, col2 DESC;

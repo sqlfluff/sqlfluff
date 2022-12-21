@@ -39,7 +39,13 @@ test-reports
 # Ignore dbt outputs from testing
 /target
 
+# Ignore any timing outputs
+/*.csv
+
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml
 .envrc
 **/*FIXED.sql
+*.prof
+# Ignore temp packages.yml generated during testing.
+plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/packages.yml

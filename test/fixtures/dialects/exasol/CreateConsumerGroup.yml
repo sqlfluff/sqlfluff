@@ -3,76 +3,117 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86f6771f34ef09dbc4d8ec329f93dffdb72d1f629e3cdd171d7203018c0d0e7b
+_hash: d861350ac870b76d40cd5f810b294da273c5218402d8210df4b1bd3b7b9fd416
 file:
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: CEO
+    - naked_identifier: CEO
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'1000'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'1000'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'900'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'900'"
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: BI_TEAM
+    - naked_identifier: BI_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'900'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'900'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'500'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'500'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'200G'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'200G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: USER_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'100G'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'100G'"
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: TEST_TEAM
+    - naked_identifier: TEST_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'800'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'800'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'100'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'100'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'10G'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'10G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: SESSION_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'5G'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'5G'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: QUERY_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '60'
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: IDLE_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+    create_consumer_group_statement:
+    - keyword: CREATE
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - quoted_identifier: '"ADMIN"'
+    - keyword: WITH
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'1000'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: CPU_WEIGHT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'900'"
 - statement_terminator: ;

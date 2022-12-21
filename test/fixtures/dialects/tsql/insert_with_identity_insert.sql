@@ -1,0 +1,8 @@
+SET IDENTITY_INSERT someTable ON;
+
+INSERT INTO someTable
+  (ID, Value)
+VALUES
+  (1, 2);
+
+SET IDENTITY_INSERT someTable OFF;

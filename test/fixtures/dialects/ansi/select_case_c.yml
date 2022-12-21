@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d26fa771004edf865282c60bb242a3b79f88f339ba4b27dddb01cad247c4ccd
+_hash: ea171e2218df3a613023d2a683870954ca0b9e3d75cc3dc5b42592f7fcf71db0
 file:
 - statement:
     select_statement:
@@ -11,39 +11,41 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: col0
+            naked_identifier: col0
       - comma: ','
       - select_clause_element:
           expression:
-            case_expression:
-            - keyword: case
-            - keyword: when
-            - expression:
-                column_reference:
-                  identifier: col1
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: col2
-            - keyword: else
-            - expression:
-                column_reference:
-                  identifier: col3
-            - keyword: end
             cast_expression:
+              case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                - keyword: then
+                - expression:
+                    column_reference:
+                      naked_identifier: col2
+              - else_clause:
+                  keyword: else
+                  expression:
+                    column_reference:
+                      naked_identifier: col3
+              - keyword: end
               casting_operator: '::'
               data_type:
                 data_type_identifier: text
           alias_expression:
             keyword: as
-            identifier: mycol
+            naked_identifier: mycol
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -51,43 +53,44 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: col0
+            naked_identifier: col0
       - comma: ','
       - select_clause_element:
           expression:
-          - case_expression:
-            - keyword: case
-            - keyword: when
-            - expression:
-                column_reference:
-                  identifier: col1
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: col2
-            - keyword: else
-            - expression:
-                column_reference:
-                  identifier: col3
-            - keyword: end
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            cast_expression:
+            - case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                - keyword: then
+                - expression:
+                    column_reference:
+                      naked_identifier: col2
+              - else_clause:
+                  keyword: else
+                  expression:
+                    column_reference:
+                      naked_identifier: col3
+              - keyword: end
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: int
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
+            - casting_operator: '::'
+            - data_type:
                 data_type_identifier: float
           alias_expression:
             keyword: as
-            identifier: mycol
+            naked_identifier: mycol
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -95,7 +98,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: col0
+            naked_identifier: col0
       - comma: ','
       - select_clause_element:
           function:
@@ -106,18 +109,20 @@ file:
               expression:
                 case_expression:
                 - keyword: case
-                - keyword: when
-                - expression:
-                    column_reference:
-                      identifier: col1
-                - keyword: then
-                - expression:
-                    column_reference:
-                      identifier: col2
-                - keyword: else
-                - expression:
-                    column_reference:
-                      identifier: col3
+                - when_clause:
+                  - keyword: when
+                  - expression:
+                      column_reference:
+                        naked_identifier: col1
+                  - keyword: then
+                  - expression:
+                      column_reference:
+                        naked_identifier: col2
+                - else_clause:
+                    keyword: else
+                    expression:
+                      column_reference:
+                        naked_identifier: col3
                 - keyword: end
               keyword: as
               data_type:
@@ -125,12 +130,12 @@ file:
               end_bracket: )
           alias_expression:
             keyword: as
-            identifier: mycol
+            naked_identifier: mycol
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
 - statement_terminator: ;

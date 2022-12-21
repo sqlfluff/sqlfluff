@@ -1,0 +1,433 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 716360cf5074e9649b480c59a6dd51b0f9edb1dfe792ca9c77e57098faa33d35
+file:
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: createdb
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: createdb
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: nocreatedb
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: nocreatedb
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        quoted_identifier: '"dbuser"'
+    - keyword: reset
+    - object_reference:
+        naked_identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        quoted_identifier: '"dbuser"'
+    - keyword: with
+    - keyword: reset
+    - object_reference:
+        naked_identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: createuser
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: createuser
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: nocreateuser
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: nocreateuser
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: syslog
+    - keyword: access
+    - keyword: restricted
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: syslog
+    - keyword: access
+    - keyword: restricted
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: syslog
+    - keyword: access
+    - keyword: unrestricted
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: syslog
+    - keyword: access
+    - keyword: unrestricted
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: iam_superuser
+    - keyword: password
+    - quoted_literal: "'mdA51234567890123456780123456789012'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: iam_superuser
+    - keyword: with
+    - keyword: password
+    - quoted_literal: "'mdA51234567890123456780123456789012'"
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: iam_superuser
+    - keyword: password
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: iam_superuser
+    - keyword: with
+    - keyword: password
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: password
+    - quoted_literal: "'adminPass9'"
+    - keyword: valid
+    - keyword: until
+    - quoted_literal: "'2017-12-31 23:59'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: password
+    - quoted_literal: "'adminPass9'"
+    - keyword: valid
+    - keyword: until
+    - quoted_literal: "'2017-12-31 23:59'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: rename
+    - keyword: to
+    - role_reference:
+        naked_identifier: sysadmin
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: rename
+    - keyword: to
+    - object_reference:
+        naked_identifier: sysadmin
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: connection
+    - keyword: limit
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: connection
+    - keyword: limit
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: connection
+    - keyword: limit
+    - keyword: unlimited
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: admin
+    - keyword: with
+    - keyword: connection
+    - keyword: limit
+    - keyword: unlimited
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: session
+    - keyword: timeout
+    - numeric_literal: '300'
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: session
+    - keyword: timeout
+    - numeric_literal: '300'
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: reset
+    - keyword: session
+    - keyword: timeout
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: reset
+    - keyword: session
+    - keyword: timeout
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - keyword: to
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - keyword: to
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'hi'"
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'hi'"
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - keyword: to
+    - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - keyword: to
+    - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: set
+    - object_reference:
+        naked_identifier: var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: reset
+    - object_reference:
+        naked_identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user_statement:
+    - keyword: alter
+    - keyword: user
+    - role_reference:
+        naked_identifier: dbuser
+    - keyword: with
+    - keyword: reset
+    - object_reference:
+        naked_identifier: var
+- statement_terminator: ;

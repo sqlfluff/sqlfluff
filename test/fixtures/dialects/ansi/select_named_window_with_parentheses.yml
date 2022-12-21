@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5bcfa2f777d2a37d09a6ecc5387679a3764b0d9347d26a29e557be42ab526679
+_hash: e8e8673b1c2cfd9a8d10aed2e4584b1e967d309e6c23d23c14014e6e90ada267
 file:
   statement:
     select_statement:
@@ -17,21 +17,21 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
                 start_bracket: (
                 window_specification:
-                  identifier: w1
+                  naked_identifier: w1
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: baz
+            naked_identifier: baz
       - comma: ','
       - select_clause_element:
           function:
@@ -41,10 +41,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
             over_clause:
               keyword: OVER
@@ -53,18 +53,18 @@ file:
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: foo
+            naked_identifier: foo
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
       named_window:
         keyword: WINDOW
         named_window_expression:
-          identifier: w1
+          naked_identifier: w1
           keyword: AS
           bracketed:
             start_bracket: (
@@ -74,19 +74,19 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: x
+                    naked_identifier: x
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: z
+                    naked_identifier: z
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: abc
+                  naked_identifier: abc
               - keyword: DESC
             end_bracket: )

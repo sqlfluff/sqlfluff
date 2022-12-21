@@ -16,7 +16,6 @@ SELECT
   FROM
     {% for action in considered_actions %}
     {% if loop.first %}
-    -- This next section gets very strange with forced template_blocks_indent
     {{action}}_raw_effect_sizes
     {% else %}
   JOIN

@@ -4,9 +4,11 @@ import logging
 import os
 import os.path
 import configparser
+from dataclasses import dataclass
+
 import pluggy
 from itertools import chain
-from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
+from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable, Callable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.errors import SQLFluffUserError
@@ -15,7 +17,7 @@ import appdirs
 
 import toml
 
-# Instantiate the templater logger
+# Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
 
 global_loader = None
@@ -24,6 +26,126 @@ global_loader = None
 We define a global loader, so that between calls to load config, we
 can still cache appropriately
 """
+
+ConfigElemType = Tuple[Tuple[str, ...], Any]
+
+
+@dataclass
+class _RemovedConfig:
+    old_path: Tuple[str, ...]
+    warning: str
+    new_path: Optional[Tuple[str, ...]] = None
+    translation_func: Optional[Callable[[str], str]] = None
+
+
+REMOVED_CONFIGS = [
+    _RemovedConfig(
+        ("rules", "L003", "hanging_indents"),
+        (
+            "Hanging indents are no longer supported in SQLFluff "
+            "from version 2.0.0 onwards. See "
+            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
+        ),
+    ),
+    _RemovedConfig(
+        ("rules", "max_line_length"),
+        (
+            "The max_line_length config has moved "
+            "from sqlfluff:rules to the root sqlfluff level."
+        ),
+        ("max_line_length",),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L002", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L004", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L016", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "indent_unit"),
+        (
+            "The indent_unit config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "indent_unit"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L007", "operator_new_lines"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":binary_operator)."
+        ),
+        ("layout", "type", "binary_operator", "line_position"),
+        (lambda x: "trailing" if x == "before" else "leading"),
+    ),
+    _RemovedConfig(
+        ("rules", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    # L019 used to have a more specific version of the same /config itself.
+    _RemovedConfig(
+        ("rules", "L019", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "lint_templated_tokens"),
+        "No longer used.",
+    ),
+]
 
 
 def coerce_value(val: str) -> Any:
@@ -64,6 +186,13 @@ def nested_combine(*dicts: dict) -> dict:
     Returns:
         `dict`: A combined dictionary from the input dictionaries.
 
+    A simple example:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"d": "e"}})
+    {'a': {'b': 'c', 'd': 'e'}}
+
+    Keys overwrite left to right:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"b": "e"}})
+    {'a': {'b': 'e'}}
     """
     r: dict = {}
     for d in dicts:
@@ -73,9 +202,8 @@ def nested_combine(*dicts: dict) -> dict:
                     r[k] = nested_combine(r[k], d[k])
                 else:  # pragma: no cover
                     raise ValueError(
-                        "Key {!r} is a dict in one config but not another! PANIC: {!r}".format(
-                            k, d[k]
-                        )
+                        "Key {!r} is a dict in one config but not another! PANIC: "
+                        "{!r}".format(k, d[k])
                     )
             else:
                 r[k] = d[k]
@@ -99,10 +227,20 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
         left (:obj:`dict`): The object containing the *new* elements
             which will be compared against the other.
         right (:obj:`dict`): The object to compare against.
+        ignore (:obj:`list` of `str`, optional): Keys to ignore.
 
     Returns:
         `dict`: A dictionary representing the difference.
 
+    Basic functionality shown, especially returning the left as:
+    >>> dict_diff({"a": "b", "c": "d"}, {"a": "b", "c": "e"})
+    {'c': 'd'}
+
+    Ignoring works on a key basis:
+    >>> dict_diff({"a": "b"}, {"a": "c"})
+    {'a': 'b'}
+    >>> dict_diff({"a": "b"}, {"a": "c"}, ["a"])
+    {}
     """
     buff: dict = {}
     for k in left:
@@ -117,13 +255,17 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
         # If it's not the same but both are dicts, then compare
         elif isinstance(left[k], dict) and isinstance(right[k], dict):
             diff = dict_diff(left[k], right[k], ignore=ignore)
-            # Only if the difference is not ignored it do we include it.
+            # Only include the difference if non-null.
             if diff:
                 buff[k] = diff
         # It's just different
         else:
             buff[k] = left[k]
     return buff
+
+
+def _split_comma_separated_string(raw_str: str) -> List[str]:
+    return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
 class ConfigLoader:
@@ -136,7 +278,7 @@ class ConfigLoader:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: check that this cache implementation is actually useful
         self._config_cache: dict = {}
 
@@ -162,7 +304,44 @@ class ConfigLoader:
         return buff
 
     @classmethod
-    def _get_config_elems_from_toml(cls, fpath: str) -> List[Tuple[tuple, Any]]:
+    def _iter_config_elems_from_dict(cls, configs: dict) -> Iterator[ConfigElemType]:
+        """Walk a config dict and get config elements.
+
+        >>> list(
+        ...    ConfigLoader._iter_config_elems_from_dict(
+        ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
+        ...    )
+        ... )
+        [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
+        """
+        for key, val in configs.items():
+            if isinstance(val, dict):
+                for partial_key, sub_val in cls._iter_config_elems_from_dict(val):
+                    yield (key,) + partial_key, sub_val
+            else:
+                yield (key,), val
+
+    @classmethod
+    def _config_elems_to_dict(cls, configs: Iterable[ConfigElemType]) -> dict:
+        """Reconstruct config elements into a dict.
+
+        >>> ConfigLoader._config_elems_to_dict(
+        ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
+        ... )
+        {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
+        """
+        result: Dict[str, Union[dict, str]] = {}
+        for key, val in configs:
+            ref = result
+            for step in key[:-1]:
+                if step not in ref:
+                    ref[step] = {}
+                ref = ref[step]  # type: ignore
+            ref[key[-1]] = val
+        return result
+
+    @classmethod
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a TOML file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -173,8 +352,8 @@ class ConfigLoader:
 
         return cls._walk_toml(tool)
 
-    @staticmethod
-    def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
+    @classmethod
+    def _get_config_elems_from_file(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -194,7 +373,7 @@ class ConfigLoader:
         # Disable interpolation so we can load macros
         kw: Dict = {}
         kw["interpolation"] = None
-        config = configparser.ConfigParser(**kw)
+        config = configparser.ConfigParser(delimiters="=", **kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
@@ -217,20 +396,37 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower().endswith(("_path", "_dir")):
-                    # Try to resolve the path.
-                    # Make the referenced path.
-                    ref_path = os.path.join(os.path.dirname(fpath), val)
-                    # Check if it exists, and if it does, replace the value with the path.
-                    if os.path.exists(ref_path):
-                        v = ref_path
+                if name.lower() == "load_macros_from_path":
+                    # Comma-separated list of paths.
+                    paths = _split_comma_separated_string(val)
+                    v_temp = []
+                    for path in paths:
+                        v_temp.append(cls._resolve_path(fpath, path))
+                    v = ",".join(v_temp)
+                elif name.lower().endswith(("_path", "_dir")):
+                    # One path
+                    v = cls._resolve_path(fpath, val)
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
 
+    @classmethod
+    def _resolve_path(cls, fpath, val):
+        """Try to resolve a path."""
+        # Make the referenced path.
+        ref_path = os.path.join(os.path.dirname(fpath), val)
+        # Check if it exists, and if it does, replace the value with the path.
+        return ref_path if os.path.exists(ref_path) else val
+
     @staticmethod
-    def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
-        """Take a list of tuples and incorporate it into a dictionary."""
+    def _incorporate_vals(ctx: dict, vals: List[ConfigElemType]) -> dict:
+        """Take a list of tuples and incorporate it into a dictionary.
+
+        >>> ConfigLoader._incorporate_vals({}, [(("a", "b"), "c")])
+        {'a': {'b': 'c'}}
+        >>> ConfigLoader._incorporate_vals({"a": {"b": "c"}}, [(("a", "d"), "e")])
+        {'a': {'b': 'c', 'd': 'e'}}
+        """
         for k, v in vals:
             # Keep a ref we can use for recursion
             r = ctx
@@ -252,13 +448,78 @@ class ConfigLoader:
             r[n] = v
         return ctx
 
-    def load_default_config_file(self, file_dir: str, file_name: str) -> dict:
+    @staticmethod
+    def _validate_configs(
+        configs: Iterable[ConfigElemType], file_path
+    ) -> List[ConfigElemType]:
+        """Validate config elements against removed list."""
+        config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
+        # Materialise the configs into a list to we can iterate twice.
+        new_configs = list(configs)
+        defined_keys = {k for k, _ in new_configs}
+        validated_configs = []
+        for k, v in new_configs:
+            if k in config_map.keys():
+                formatted_key = ":".join(k)
+                removed_option = config_map[k]
+                # Is there a mapping option?
+                if removed_option.translation_func and removed_option.new_path:
+                    formatted_new_key = ":".join(removed_option.new_path)
+                    # Before mutating, check we haven't _also_ set the new value.
+                    if removed_option.new_path in defined_keys:
+                        # Raise an warning.
+                        config_logger.warning(
+                            f"\nWARNING: Config file {file_path} set a deprecated "
+                            f"config value `{formatted_key}` (which can be migrated) "
+                            f"but ALSO set the value it would be migrated to. The new "
+                            f"value (`{removed_option.new_path}`) takes precedence. "
+                            "Please update your configuration to remove this warning. "
+                            f"\n\n{removed_option.warning}\n\n"
+                            "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                            " for more details.\n"
+                        )
+                        # continue to NOT add this value in the set
+                        continue
+
+                    # Mutate and warn.
+                    v = removed_option.translation_func(v)
+                    k = removed_option.new_path
+                    # NOTE: At the stage of emitting this warning, we may not yet
+                    # have set up red logging because we haven't yet loaded the config
+                    # file. For that reason, this error message has a bit more padding.
+                    config_logger.warning(
+                        f"\nWARNING: Config file {file_path} set a deprecated config "
+                        f"value `{formatted_key}`. This will be removed in a later "
+                        "release. This has been mapped to "
+                        f"`{formatted_new_key}` set to a value of `{v}` for this run. "
+                        "Please update your configuration to remove this warning. "
+                        f"\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details.\n"
+                    )
+                else:
+                    # Raise an error.
+                    raise SQLFluffUserError(
+                        f"Config file {file_path} set an outdated config "
+                        f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details."
+                    )
+
+            validated_configs.append((k, v))
+        return validated_configs
+
+    def load_config_file(
+        self, file_dir: str, file_name: str, configs: Optional[dict] = None
+    ) -> dict:
         """Load the default config file."""
+        file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
-            elems = self._get_config_elems_from_toml(os.path.join(file_dir, file_name))
+            elems = self._get_config_elems_from_toml(file_path)
         else:
-            elems = self._get_config_elems_from_file(os.path.join(file_dir, file_name))
-        return self._incorporate_vals({}, elems)
+            elems = self._get_config_elems_from_file(file_path)
+        elems = self._validate_configs(elems, file_path)
+        return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
         """Load config from a given path."""
@@ -287,14 +548,32 @@ class ConfigLoader:
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                if fname == "pyproject.toml":
-                    elems = self._get_config_elems_from_toml(os.path.join(p, fname))
-                else:
-                    elems = self._get_config_elems_from_file(os.path.join(p, fname))
-                configs = self._incorporate_vals(configs, elems)
+                configs = self.load_config_file(p, fname, configs=configs)
 
         # Store in the cache
         self._config_cache[str(path)] = configs
+        return configs
+
+    def load_extra_config(self, extra_config_path: str) -> dict:
+        """Load specified extra config."""
+        if not os.path.exists(extra_config_path):
+            raise SQLFluffUserError(
+                f"Extra config '{extra_config_path}' does not exist."
+            )
+
+        # First check the cache
+        if str(extra_config_path) in self._config_cache:
+            return self._config_cache[str(extra_config_path)]
+
+        configs: dict = {}
+        if extra_config_path.endswith("pyproject.toml"):
+            elems = self._get_config_elems_from_toml(extra_config_path)
+        else:
+            elems = self._get_config_elems_from_file(extra_config_path)
+        configs = self._incorporate_vals(configs, elems)
+
+        # Store in the cache
+        self._config_cache[str(extra_config_path)] = configs
         return configs
 
     @staticmethod
@@ -328,17 +607,37 @@ class ConfigLoader:
         user_home_path = os.path.expanduser("~")
         return self.load_config_at_path(user_home_path)
 
-    def load_config_up_to_path(self, path: str) -> dict:
+    def load_config_up_to_path(
+        self,
+        path: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+    ) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
-        user_appdir_config = self.load_user_appdir_config()
-        user_config = self.load_user_config()
-        config_paths = self.iter_config_locations_up_to_path(path)
-        config_stack = [self.load_config_at_path(p) for p in config_paths]
-        return nested_combine(user_appdir_config, user_config, *config_stack)
+        user_appdir_config = (
+            self.load_user_appdir_config() if not ignore_local_config else {}
+        )
+        user_config = self.load_user_config() if not ignore_local_config else {}
+        config_paths = (
+            self.iter_config_locations_up_to_path(path)
+            if not ignore_local_config
+            else {}
+        )
+        config_stack = (
+            [self.load_config_at_path(p) for p in config_paths]
+            if not ignore_local_config
+            else []
+        )
+        extra_config = (
+            self.load_extra_config(extra_config_path) if extra_config_path else {}
+        )
+        return nested_combine(
+            user_appdir_config, user_config, *config_stack, extra_config
+        )
 
     @classmethod
     def find_ignore_config_files(
-        cls, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+        cls, path, working_path=Path.cwd(), ignore_file_name=".sqlfluffignore"
     ):
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
@@ -360,8 +659,8 @@ class ConfigLoader:
         The lowest priority is the user appdir, then home dir, then increasingly
         the configs closest to the file being directly linted.
         """
-        given_path = Path(path).resolve()
-        working_path = Path(working_path).resolve()
+        given_path = Path(path).absolute()
+        working_path = Path(working_path).absolute()
 
         # If we've been passed a file and not a directory,
         # then go straight to the directory.
@@ -387,22 +686,53 @@ class ConfigLoader:
 
 
 class FluffConfig:
-    """.The class that actually gets passed around as a config object."""
+    """The class that actually gets passed around as a config object."""
 
-    private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
+    private_vals = "rule_denylist", "rule_allowlist", "dialect_obj", "templater_obj"
 
     def __init__(
         self,
         configs: Optional[dict] = None,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
+        # Ideally a dialect should be set when config is read but sometimes
+        # it might only be set in nested .sqlfluff config files, so allow it
+        # to be not required.
+        require_dialect: bool = True,
     ):
+        self._extra_config_path = (
+            extra_config_path  # We only store this for child configs
+        )
+        self._ignore_local_config = (
+            ignore_local_config  # We only store this for child configs
+        )
+        # If overrides are provided, validate them early.
+        if overrides:
+            overrides = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    [
+                        (("core",) + k, v)
+                        for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                    ],
+                    "<provided overrides>",
+                )
+            )["core"]
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
         self._plugin_manager = plugin_manager or get_plugin_manager()
 
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
+        # If any existing configs are provided. Validate them:
+        if configs:
+            configs = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    ConfigLoader._iter_config_elems_from_dict(configs),
+                    "<provided configs>",
+                )
+            )
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )
@@ -410,28 +740,21 @@ class FluffConfig:
         self._configs["core"]["color"] = (
             False if self._configs["core"].get("nocolor", False) else None
         )
-        # Deal with potential ignore parameters
-        if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = self._split_comma_separated_string(
-                self._configs["core"]["ignore"]
-            )
-        else:
-            self._configs["core"]["ignore"] = []
-        # Whitelists and blacklists
-        if self._configs["core"].get("rules", None):
-            self._configs["core"][
-                "rule_whitelist"
-            ] = self._split_comma_separated_string(self._configs["core"]["rules"])
-        else:
-            self._configs["core"]["rule_whitelist"] = None
-        if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"][
-                "rule_blacklist"
-            ] = self._split_comma_separated_string(
-                self._configs["core"]["exclude_rules"]
-            )
-        else:
-            self._configs["core"]["rule_blacklist"] = None
+        # Handle inputs which are potentially comma separated strings
+        for in_key, out_key in [
+            # Deal with potential ignore & warning parameters
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            # Allowlists and denylists
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = _split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
@@ -440,12 +763,32 @@ class FluffConfig:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        self._configs["core"]["dialect_obj"] = dialect_selector(
-            self._configs["core"]["dialect"]
-        )
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is not None:
+            self._configs["core"]["dialect_obj"] = dialect_selector(
+                self._configs["core"]["dialect"]
+            )
+        elif require_dialect:
+            self.verify_dialect_specified()
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def verify_dialect_specified(self) -> None:
+        """Check if the config specifies a dialect, raising an error if not."""
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is None:
+            # Get list of available dialects for the error message. We must
+            # import here rather than at file scope in order to avoid a circular
+            # import.
+            from sqlfluff.core.dialects import dialect_readout
+
+            raise SQLFluffUserError(
+                "No dialect was specified. You must configure a dialect or "
+                "specify one on the command line using --dialect after the "
+                "command. Available dialects:\n"
+                f"{', '.join([d.label for d in dialect_readout()])}"
+            )
 
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
@@ -456,7 +799,7 @@ class FluffConfig:
         del state["_plugin_manager"]
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state):  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
         # NB: We don't reinstate the plugin manager, but this should only
@@ -471,30 +814,60 @@ class FluffConfig:
         # in the child processes.
 
     @classmethod
-    def from_root(cls, overrides: Optional[dict] = None) -> "FluffConfig":
+    def from_root(
+        cls,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[dict] = None,
+        **kw,
+    ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path=".")
-        return cls(configs=c, overrides=overrides)
+        c = loader.load_config_up_to_path(
+            path=".",
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+        )
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            **kw,
+        )
 
     @classmethod
     def from_path(
         cls,
         path: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path=path)
-        return cls(configs=c, overrides=overrides, plugin_manager=plugin_manager)
+        c = loader.load_config_up_to_path(
+            path=path,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+        )
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
+        )
 
     @classmethod
     def from_kwargs(
         cls,
         config: Optional["FluffConfig"] = None,
         dialect: Optional[str] = None,
-        rules: Optional[Union[str, List[str]]] = None,
+        rules: Optional[List[str]] = None,
+        exclude_rules: Optional[List[str]] = None,
+        require_dialect: bool = True,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -514,12 +887,12 @@ class FluffConfig:
         if dialect:
             overrides["dialect"] = dialect
         if rules:
-            # If it's a string, make it a list
-            if isinstance(rules, str):
-                rules = [rules]
             # Make a comma separated string to pass in as override
             overrides["rules"] = ",".join(rules)
-        return cls(overrides=overrides)
+        if exclude_rules:
+            # Make a comma separated string to pass in as override
+            overrides["exclude_rules"] = ",".join(exclude_rules)
+        return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
         """Fetch a templater by name."""
@@ -536,19 +909,23 @@ class FluffConfig:
         except KeyError:
             if templater_name == "dbt":  # pragma: no cover
                 config_logger.warning(
-                    "Starting in sqlfluff version 0.7.0 the dbt templater is distributed as a "
-                    "seperate python package. Please pip install sqlfluff-templater-dbt to use it."
+                    "Starting in sqlfluff version 0.7.0 the dbt templater is "
+                    "distributed as a separate python package. Please pip install "
+                    "sqlfluff-templater-dbt to use it."
                 )
             raise SQLFluffUserError(
-                "Requested templater {!r} which is not currently available. Try one of {}".format(
-                    templater_name, ", ".join(templater_lookup.keys())
-                )
+                "Requested templater {!r} which is not currently available. Try one of "
+                "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides."""
+        """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
-            path, overrides=self._overrides, plugin_manager=self._plugin_manager
+            path,
+            extra_config_path=self._extra_config_path,
+            ignore_local_config=self._ignore_local_config,
+            overrides=self._overrides,
+            plugin_manager=self._plugin_manager,
         )
 
     def diff_to(self, other: "FluffConfig") -> dict:
@@ -564,7 +941,7 @@ class FluffConfig:
             or are different to the other.
 
         """
-        # We igonre some objects which are not meaningful in the comparison
+        # We ignore some objects which are not meaningful in the comparison
         # e.g. dialect_obj, which is generated on the fly.
         return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
@@ -572,9 +949,13 @@ class FluffConfig:
         self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
     ):
         """Get a particular value from the config."""
-        return self._configs[section].get(val, default)
+        section_dict = self.get_section(section)
+        if section_dict is None:
+            return default
 
-    def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
+        return section_dict.get(val, default)
+
+    def get_section(self, section: Union[str, Iterable[str]]) -> Any:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not
@@ -674,6 +1055,33 @@ class FluffConfig:
                 # Found a in-file config command
                 self.process_inline_config(raw_line)
 
-    @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
+
+class ProgressBarConfiguration:
+    """Singleton-esque progress bar configuration.
+
+    It's expected to be set during starting with parameters coming from commands
+    parameters, then to be just utilized as just
+    ```
+    from sqlfluff.core.config import progress_bar_configuration
+    is_progressbar_disabled = progress_bar_configuration.disable_progress_bar
+    ```
+    """
+
+    _disable_progress_bar: Optional[bool] = True
+
+    @property
+    def disable_progress_bar(self) -> Optional[bool]:  # noqa: D102
+        return self._disable_progress_bar
+
+    @disable_progress_bar.setter
+    def disable_progress_bar(self, value: Optional[bool]) -> None:
+        """`disable_progress_bar` setter.
+
+        `True` means that progress bar should be always hidden, `False` fallbacks
+        into `None` which is an automatic mode.
+        From tqdm documentation: 'If set to None, disable on non-TTY.'
+        """
+        self._disable_progress_bar = value or None
+
+
+progress_bar_configuration = ProgressBarConfiguration()

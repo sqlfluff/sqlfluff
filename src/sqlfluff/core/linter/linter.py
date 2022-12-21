@@ -1,41 +1,46 @@
 """Defines the linter class."""
 
+import fnmatch
 import os
 import time
 import logging
 from typing import (
     Any,
-    List,
-    Sequence,
-    Optional,
-    Tuple,
-    Union,
-    cast,
     Iterable,
     Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    cast,
 )
 
 import pathspec
+import regex
+from tqdm import tqdm
 
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
-    SQLTemplaterSkipFile,
+    SQLFluffSkipFile,
+    SQLFluffUserError,
 )
-from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.config import FluffConfig, ConfigLoader
+from sqlfluff.core.rules.doc_decorators import is_fix_compatible
+from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
-from sqlfluff.core.linter.runner import get_runner
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-from sqlfluff.core.rules.base import BaseRule
+from sqlfluff.core.rules import BaseRule
 
 from sqlfluff.core.linter.common import (
     RuleTuple,
@@ -65,12 +70,20 @@ class Linter:
         config: Optional[FluffConfig] = None,
         formatter: Any = None,
         dialect: Optional[str] = None,
-        rules: Optional[Union[str, List[str]]] = None,
-        user_rules: Optional[Union[str, List[str]]] = None,
+        rules: Optional[List[str]] = None,
+        user_rules: Optional[List[Type[BaseRule]]] = None,
+        exclude_rules: Optional[List[str]] = None,
     ) -> None:
         # Store the config object
         self.config = FluffConfig.from_kwargs(
-            config=config, dialect=dialect, rules=rules
+            config=config,
+            dialect=dialect,
+            rules=rules,
+            exclude_rules=exclude_rules,
+            # Don't require a dialect to be provided yet. Defer this until we
+            # are actually linting something, since the directory we are linting
+            # from may provide additional configuration, including a dialect.
+            require_dialect=False,
         )
         # Get the dialect and templater
         self.dialect = self.config.get("dialect_obj")
@@ -98,16 +111,36 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(fname, root_config):
+    def load_raw_file_and_config(
+        fname: str, root_config: FluffConfig
+    ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
         encoding = get_encoding(fname=fname, config=file_config)
+        # Check file size before loading.
+        limit = file_config.get("large_file_skip_byte_limit")
+        if limit:
+            # Get the file size
+            file_size = os.path.getsize(fname)
+            if file_size > limit:
+                raise SQLFluffSkipFile(
+                    f"Length of file {fname!r} is {file_size} bytes which is over "
+                    f"the limit of {limit} bytes. Skipping to avoid parser lock. "
+                    "Users can increase this limit in their config by setting the "
+                    "'large_file_skip_byte_limit' value, or disable by setting it "
+                    "to zero."
+                )
         with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
         file_config.process_raw_file_for_config(raw_file)
         # Return the raw file and config
         return raw_file, file_config, encoding
+
+    @staticmethod
+    def _normalise_newlines(string: str) -> str:
+        """Normalise newlines to unix-style line endings."""
+        return regex.sub(r"\r\n|\r", "\n", string)
 
     @staticmethod
     def _lex_templated_file(
@@ -130,7 +163,7 @@ class Linter:
             linter_logger.info(
                 "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
             )
-        except SQLLexError as err:
+        except SQLLexError as err:  # pragma: no cover
             linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
             violations.append(err)
             return None, violations, config
@@ -154,7 +187,8 @@ class Linter:
             )
             if indent_balance != 0:
                 linter_logger.debug(
-                    "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                    "Indent balance test failed for %r. Template indents will not be "
+                    "linted for this file.",
                     templated_file.fname,
                 )
                 # Don't enable the templating blocks.
@@ -171,6 +205,7 @@ class Linter:
                     if not templating_blocks_indent:
                         continue
             new_tokens.append(token)
+
         # Return new buffer
         return new_tokens, violations, config
 
@@ -186,7 +221,9 @@ class Linter:
         # Parse the file and log any problems
         try:
             parsed: Optional[BaseSegment] = parser.parse(
-                tokens, recurse=recurse, fname=fname
+                tokens,
+                recurse=recurse,
+                fname=fname,
             )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
@@ -196,13 +233,15 @@ class Linter:
         if parsed:
             linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
             linter_logger.info("\n" + parsed.stringify())
-            # We may succeed parsing, but still have unparsable segments. Extract them here.
+            # We may succeed parsing, but still have unparsable segments. Extract them
+            # here.
             for unparsable in parsed.iter_unparsables():
                 # No exception has been raised explicitly, but we still create one here
                 # so that we can use the common interface
                 violations.append(
                     SQLParseError(
-                        "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                        "Line {0[0]}, Position {0[1]}: Found unparsable section: "
+                        "{1!r}".format(
                             unparsable.pos_marker.working_loc,
                             unparsable.raw
                             if len(unparsable.raw) < 40
@@ -216,9 +255,19 @@ class Linter:
         return parsed, violations
 
     @staticmethod
-    def parse_noqa(comment: str, line_no: int):
+    def parse_noqa(
+        comment: str,
+        line_no: int,
+        rule_codes: List[str],
+    ):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
+
+        # Comment lines can also have noqa e.g.
+        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: L016
+        # Therefore extract last possible inline ignore.
+        comment = [c.strip() for c in comment.split("--")][-1]
+
         if comment.startswith("noqa"):
             # This is an ignore identifier
             comment_remainder = comment[4:]
@@ -252,7 +301,27 @@ class Linter:
                             )
                     rules: Optional[Tuple[str, ...]]
                     if rule_part != "all":
-                        rules = tuple(r.strip() for r in rule_part.split(","))
+                        # Rules can be globs therefore we compare to the rule_set to
+                        # expand the globs.
+                        unexpanded_rules = tuple(
+                            r.strip() for r in rule_part.split(",")
+                        )
+                        expanded_rules = []
+                        for r in unexpanded_rules:
+                            expanded_rule = [
+                                x
+                                for x in fnmatch.filter(rule_codes, r)
+                                if x not in expanded_rules
+                            ]
+                            if expanded_rule:
+                                expanded_rules.extend(expanded_rule)
+                            elif r not in expanded_rules:
+                                # We were unable to expand the glob.
+                                # Therefore assume the user is referencing
+                                # a special error type (e.g. PRS, LXR, or TMP)
+                                # and add this to the list of rules to ignore.
+                                expanded_rules.append(r)
+                        rules = tuple(expanded_rules)
                     else:
                         rules = None
                     return NoQaDirective(line_no, rules, action)
@@ -263,7 +332,7 @@ class Linter:
     def remove_templated_errors(
         linting_errors: List[SQLBaseError],
     ) -> List[SQLBaseError]:
-        """Filter a list of lint errors, removing those which only occur in templated slices."""
+        """Filter a list of lint errors, removing those from the templated slices."""
         # Filter out any linting errors in templated sections if relevant.
         result: List[SQLBaseError] = []
         for e in linting_errors:
@@ -282,6 +351,12 @@ class Linter:
         return result
 
     @staticmethod
+    def _report_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+        # This function exists primarily in order to let us monkeypatch it at
+        # runtime (replacing it with a function that raises an exception).
+        linter_logger.critical(message)
+
+    @staticmethod
     def _warn_unfixable(code: str):
         linter_logger.warning(
             f"One fix for {code} not applied, it would re-cause the same error."
@@ -291,7 +366,11 @@ class Linter:
     # These compose the base static methods into useful recipes.
 
     @classmethod
-    def parse_rendered(cls, rendered: RenderedFile, recurse: bool = True):
+    def parse_rendered(
+        cls,
+        rendered: RenderedFile,
+        recurse: bool = True,
+    ) -> ParsedString:
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
@@ -309,7 +388,10 @@ class Linter:
 
         if tokens:
             parsed, pvs = cls._parse_tokens(
-                tokens, rendered.config, recurse=recurse, fname=rendered.fname
+                tokens,
+                rendered.config,
+                recurse=recurse,
+                fname=rendered.fname,
             )
             violations += pvs
         else:
@@ -327,31 +409,66 @@ class Linter:
             rendered.templated_file,
             rendered.config,
             rendered.fname,
+            rendered.source_str,
         )
 
     @classmethod
-    def extract_ignore_from_comment(cls, comment: RawSegment):
+    def extract_ignore_from_comment(
+        cls,
+        comment: RawSegment,
+        rule_codes: List[str],
+    ):
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
         comment_line, _ = comment.pos_marker.source_position()
-        result = cls.parse_noqa(comment_content, comment_line)
+        result = cls.parse_noqa(comment_content, comment_line, rule_codes)
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
 
     @classmethod
-    def extract_ignore_mask(
-        cls, tree: BaseSegment
+    def extract_ignore_mask_tree(
+        cls,
+        tree: BaseSegment,
+        rule_codes: List[str],
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
-            if comment.name == "inline_comment":
-                ignore_entry = cls.extract_ignore_from_comment(comment)
+            if comment.is_type("inline_comment"):
+                ignore_entry = cls.extract_ignore_from_comment(comment, rule_codes)
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
+        if ignore_buff:
+            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
+        return ignore_buff, violations
+
+    @classmethod
+    def extract_ignore_mask_source(
+        cls,
+        source: str,
+        inline_comment_regex: RegexLexer,
+        rule_codes: List[str],
+    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
+        """Look for inline ignore comments and return NoQaDirectives.
+
+        Very similar to extract_ignore_mask_tree(), but can be run on raw source
+        (i.e. does not require the code to have parsed successfully).
+        """
+        ignore_buff: List[NoQaDirective] = []
+        violations: List[SQLBaseError] = []
+        for idx, line in enumerate(source.split("\n")):
+            match = inline_comment_regex.search(line) if line else None
+            if match:
+                ignore_entry = cls.parse_noqa(
+                    line[match[0] : match[1]], idx + 1, rule_codes
+                )
+                if isinstance(ignore_entry, SQLParseError):
+                    violations.append(ignore_entry)  # pragma: no cover
                 elif ignore_entry:
                     ignore_buff.append(ignore_entry)
         if ignore_buff:
@@ -370,14 +487,18 @@ class Linter:
         formatter: Any = None,
     ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
-        # Keep track of the linting errors
-        all_linting_errors = []
+        # Keep track of the linting errors on the very first linter pass. The
+        # list of issues output by "lint" and "fix" only includes issues present
+        # in the initial SQL code, EXCLUDING any issues that may be created by
+        # the fixes themselves.
+        initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
-        previous_versions = {tree.raw}
+        previous_versions: Set[Tuple[str, Tuple[SourceFix, ...]]] = {(tree.raw, ())}
 
-        # If we are fixing then we want to loop up to the runaway_limit, otherwise just once for linting.
+        # If we are fixing then we want to loop up to the runaway_limit, otherwise just
+        # once for linting.
         loop_limit = config.get("runaway_limit") if fix else 1
 
         # Dispatch the output for the lint header
@@ -385,62 +506,183 @@ class Linter:
             formatter.dispatch_lint_header(fname)
 
         # Look for comment segments which might indicate lines to ignore.
-        ignore_buff, ivs = cls.extract_ignore_mask(tree)
-        all_linting_errors += ivs
+        if not config.get("disable_noqa"):
+            rule_codes = [r.code for r in rule_set]
+            ignore_buff, ivs = cls.extract_ignore_mask_tree(tree, rule_codes)
+            initial_linting_errors += ivs
+        else:
+            ignore_buff = []
 
-        for loop in range(loop_limit):
-            changed = False
-            for crawler in rule_set:
-                # fixes should be a dict {} with keys edit, delete, create
-                # delete is just a list of segments to delete
-                # edit and create are list of tuples. The first element is the
-                # "anchor", the segment to look for either to edit or to insert BEFORE.
-                # The second is the element to insert or create.
-                linting_errors, _, fixes, _ = crawler.crawl(
-                    tree,
-                    ignore_mask=ignore_buff,
-                    dialect=config.get("dialect_obj"),
-                    fname=fname,
-                    templated_file=templated_file,
-                )
-                all_linting_errors += linting_errors
+        save_tree = tree
+        # There are two phases of rule running.
+        # 1. The main loop is for most rules. These rules are assumed to
+        # interact and cause a cascade of fixes requiring multiple passes.
+        # These are run the `runaway_limit` number of times (default 10).
+        # 2. The post loop is for post-processing rules, not expected to trigger
+        # any downstream rules, e.g. capitalization fixes. They are run on the
+        # first loop and then twice at the end (once to fix, and once again to
+        # check result of fixes), but not in the intervening loops.
+        phases = ["main"]
+        if fix:
+            phases.append("post")
+        for phase in phases:
+            if len(phases) > 1:
+                rules_this_phase = [
+                    rule for rule in rule_set if rule.lint_phase == phase
+                ]
+            else:
+                rules_this_phase = rule_set
+            for loop in range(loop_limit if phase == "main" else 2):
 
-                if fix and fixes:
-                    linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
-                    # Do some sanity checks on the fixes before applying.
-                    if fixes == last_fixes:  # pragma: no cover
-                        cls._warn_unfixable(crawler.code)
-                    else:
-                        last_fixes = fixes
-                        new_tree, _ = tree.apply_fixes(fixes)
-                        # Check for infinite loops
-                        if new_tree.raw not in previous_versions:
-                            # We've not seen this version of the file so far. Continue.
-                            tree = new_tree
-                            previous_versions.add(tree.raw)
-                            changed = True
-                            continue
-                        else:
-                            # Applying these fixes took us back to a state which we've
-                            # seen before. Abort.
-                            cls._warn_unfixable(crawler.code)
+                def is_first_linter_pass():
+                    return phase == phases[0] and loop == 0
 
-            if loop == 0:
-                # Keep track of initial errors for reporting.
-                initial_linting_errors = all_linting_errors.copy()
-
-            if fix and not changed:
-                # We did not change the file. Either the file is clean (no fixes), or
-                # any fixes which are present will take us back to a previous state.
+                # Additional newlines are to assist in scanning linting loops
+                # during debugging.
                 linter_logger.info(
-                    f"Fix loop complete. Stability achieved after {loop}/{loop_limit} loops."
+                    f"\n\nEntering linter phase {phase}, loop {loop+1}/{loop_limit}\n"
                 )
-                break
-        if fix and loop + 1 == loop_limit:
-            linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+                changed = False
+
+                if is_first_linter_pass():
+                    # In order to compute initial_linting_errors correctly, need
+                    # to run all rules on the first loop of the main phase.
+                    rules_this_phase = rule_set
+                progress_bar_crawler = tqdm(
+                    rules_this_phase,
+                    desc="lint by rules",
+                    leave=False,
+                    disable=progress_bar_configuration.disable_progress_bar,
+                )
+
+                for crawler in progress_bar_crawler:
+                    # Performance: After first loop pass, skip rules that don't
+                    # do fixes. Any results returned won't be seen by the user
+                    # anyway (linting errors ADDED by rules changing SQL, are
+                    # not reported back to the user - only initial linting errors),
+                    # so there's absolutely no reason to run them.
+                    if (
+                        fix
+                        and not is_first_linter_pass()
+                        and not is_fix_compatible(crawler)
+                    ):
+                        continue
+
+                    progress_bar_crawler.set_description(f"rule {crawler.code}")
+
+                    # fixes should be a dict {} with keys edit, delete, create
+                    # delete is just a list of segments to delete
+                    # edit and create are list of tuples. The first element is
+                    # the "anchor", the segment to look for either to edit or to
+                    # insert BEFORE. The second is the element to insert or create.
+                    linting_errors, _, fixes, _ = crawler.crawl(
+                        tree,
+                        dialect=config.get("dialect_obj"),
+                        fix=fix,
+                        templated_file=templated_file,
+                        ignore_mask=ignore_buff,
+                        fname=fname,
+                        config=config,
+                    )
+                    if is_first_linter_pass():
+                        initial_linting_errors += linting_errors
+
+                    if fix and fixes:
+                        linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
+                        # Do some sanity checks on the fixes before applying.
+                        anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                        if any(
+                            not info.is_valid for info in anchor_info.values()
+                        ):  # pragma: no cover
+                            message = (
+                                f"Rule {crawler.code} returned conflicting "
+                                "fixes with the same anchor. This is only "
+                                "supported for create_before+create_after, so "
+                                "the fixes will not be applied. "
+                            )
+                            for uuid, info in anchor_info.items():
+                                if not info.is_valid:
+                                    message += f"\n{uuid}:"
+                                    for fix in info.fixes:
+                                        message += f"\n    {fix}"
+                            cls._report_conflicting_fixes_same_anchor(message)
+                            for lint_result in linting_errors:
+                                lint_result.fixes = []
+                        elif fixes == last_fixes:  # pragma: no cover
+                            # If we generate the same fixes two times in a row,
+                            # that means we're in a loop, and we want to stop.
+                            # (Fixes should address issues, hence different
+                            # and/or fewer fixes next time.)
+                            cls._warn_unfixable(crawler.code)
+                        else:
+                            # This is the happy path. We have fixes, now we want to
+                            # apply them.
+                            last_fixes = fixes
+                            new_tree, _, _ = tree.apply_fixes(
+                                config.get("dialect_obj"), crawler.code, anchor_info
+                            )
+                            # Check for infinite loops. We use a combination of the
+                            # fixed templated file and the list of source fixes to
+                            # apply.
+                            loop_check_tuple = (
+                                new_tree.raw,
+                                tuple(new_tree.source_fixes),
+                            )
+                            if loop_check_tuple not in previous_versions:
+                                # We've not seen this version of the file so
+                                # far. Continue.
+                                tree = new_tree
+                                previous_versions.add(loop_check_tuple)
+                                changed = True
+                                continue
+                            else:
+                                # Applying these fixes took us back to a state
+                                # which we've seen before. We're in a loop, so
+                                # we want to stop.
+                                cls._warn_unfixable(crawler.code)
+
+                if fix and not changed:
+                    # We did not change the file. Either the file is clean (no
+                    # fixes), or any fixes which are present will take us back
+                    # to a previous state.
+                    linter_logger.info(
+                        f"Fix loop complete for {phase} phase. Stability "
+                        f"achieved after {loop}/{loop_limit} loops."
+                    )
+                    break
+            else:
+                if fix:
+                    # The linter loop hit the limit before reaching a stable point
+                    # (i.e. free of lint errors). If this happens, it's usually
+                    # because one or more rules produced fixes which did not address
+                    # the original issue **or** created new issues.
+                    linter_logger.warning(
+                        f"Loop limit on fixes reached [{loop_limit}]."
+                    )
+
+                    # Discard any fixes for the linting errors, since they caused a
+                    # loop. IMPORTANT: By doing this, we are telling SQLFluff that
+                    # these linting errors are "unfixable". This is important,
+                    # because when "sqlfluff fix" encounters unfixable lint errors,
+                    # it exits with a "failure" exit code, which is exactly what we
+                    # want in this situation. (Reason: Although this is more of an
+                    # internal SQLFluff issue, users deserve to know about it,
+                    # because it means their file(s) weren't fixed.
+                    for violation in initial_linting_errors:
+                        if isinstance(violation, SQLLintError):
+                            violation.fixes = []
+
+                    # Return the original parse tree, before any fixes were applied.
+                    # Reason: When the linter hits the loop limit, the file is often
+                    # messy, e.g. some of the fixes were applied repeatedly, possibly
+                    # other weird things. We don't want the user to see this junk!
+                    return save_tree, initial_linting_errors, ignore_buff
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
+
+        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
+        linter_logger.info("\n" + tree.stringify())
 
         return tree, initial_linting_errors, ignore_buff
 
@@ -479,14 +721,31 @@ class Linter:
             # If no parsed tree, set to None
             tree = None
             ignore_buff = []
+            if not parsed.config.get("disable_noqa"):
+                # Templating and/or parsing have failed. Look for "noqa"
+                # comments (the normal path for identifying these comments
+                # requires access to the parse tree, and because of the failure,
+                # we don't have a parse tree).
+                ignore_buff, ignore_violations = cls.extract_ignore_mask_source(
+                    parsed.source_str,
+                    [
+                        lm
+                        for lm in parsed.config.get("dialect_obj").lexer_matchers
+                        if lm.name == "inline_comment"
+                    ][0],
+                    [r.code for r in rule_set],
+                )
+                violations += ignore_violations
 
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
+            violation.warning_if_in(parsed.config.get("warnings"))
 
         linted_file = LintedFile(
             parsed.fname,
-            violations,
+            # Deduplicate violations
+            LintedFile.deduplicate_in_source_space(violations),
             time_dict,
             tree,
             ignore_mask=ignore_buff,
@@ -501,11 +760,11 @@ class Linter:
             )
 
         # Safety flag for unset dialects
-        if parsed.config.get("dialect") == "ansi" and linted_file.get_violations(
+        if linted_file.get_violations(
             fixable=True if fix else None, types=SQLParseError
         ):
             if formatter:  # pragma: no cover TODO?
-                formatter.dispatch_dialect_warning()
+                formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
         return linted_file
 
@@ -540,20 +799,32 @@ class Linter:
         # Start the templating timer
         t0 = time.monotonic()
 
+        # Newlines are normalised to unix-style line endings (\n).
+        # The motivation is that Jinja normalises newlines during templating and
+        # we want consistent mapping between the raw and templated slices.
+        in_str = self._normalise_newlines(in_str)
+
+        # Since Linter.__init__() does not require a dialect to be specified,
+        # check for one now. (We're processing a string, not a file, so we're
+        # not going to pick up a .sqlfluff or other config file to provide a
+        # missing dialect at this point.)
+        config.verify_dialect_specified()
         if not config.get("templater_obj") == self.templater:
             linter_logger.warning(
                 (
-                    f"Attempt to set templater to {config.get('templater_obj').name} failed. Using {self.templater.name} "
-                    "templater. Templater cannot be set in a .sqlfluff file in a subdirectory of the current working "
-                    "directory. It can be set in a .sqlfluff in the current working directory. See Nesting section of the "
-                    "docs for more details."
+                    f"Attempt to set templater to {config.get('templater_obj').name} "
+                    f"failed. Using {self.templater.name} templater. Templater cannot "
+                    "be set in a .sqlfluff file in a subdirectory of the current "
+                    "working directory. It can be set in a .sqlfluff in the current "
+                    "working directory. See Nesting section of the docs for more "
+                    "details."
                 )
             )
         try:
             templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             )
-        except SQLTemplaterSkipFile as s:  # pragma: no cover
+        except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
             templated_file = None
             templater_violations = []
@@ -565,13 +836,19 @@ class Linter:
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file, templater_violations, config, time_dict, fname, encoding
+            templated_file,
+            templater_violations,
+            config,
+            time_dict,
+            fname,
+            encoding,
+            in_str,
         )
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config, encoding = self._load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self.load_raw_file_and_config(fname, root_config)
         # Render the file
         return self.render_string(raw_file, fname, config, encoding)
 
@@ -663,12 +940,20 @@ class Linter:
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
         # Parse the string.
-        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        parsed = self.parse_string(
+            in_str=in_str,
+            fname=fname,
+            config=config,
+        )
         # Get rules as appropriate
         rule_set = self.get_ruleset(config=config)
         # Lint the file and return the LintedFile
         return self.lint_parsed(
-            parsed, rule_set, fix=fix, formatter=self.formatter, encoding=encoding
+            parsed,
+            rule_set,
+            fix=fix,
+            formatter=self.formatter,
+            encoding=encoding,
         )
 
     def paths_from_path(
@@ -695,12 +980,15 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise OSError("Specified path does not exist")
+                raise SQLFluffUserError(
+                    f"Specified path does not exist. Check it/they exist(s): {path}."
+                )
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
         is_exact_file = os.path.isfile(path)
 
+        path_walk: WalkableType
         if is_exact_file:
             # When the exact file to lint is passed, we
             # fill path_walk with an input that follows
@@ -708,24 +996,26 @@ class Linter:
             #   (root, directories, files)
             dirpath = os.path.dirname(path)
             files = [os.path.basename(path)]
-            ignore_file_paths = ConfigLoader.find_ignore_config_files(
-                path=path, working_path=working_path, ignore_file_name=ignore_file_name
-            )
-            # Add paths that could contain "ignore files"
-            # to the path_walk list
-            path_walk_ignore_file = [
-                (
-                    os.path.dirname(ignore_file_path),
-                    None,
-                    # Only one possible file, since we only
-                    # have one "ignore file name"
-                    [os.path.basename(ignore_file_path)],
-                )
-                for ignore_file_path in ignore_file_paths
-            ]
-            path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
+            path_walk = [(dirpath, None, files)]
         else:
-            path_walk = os.walk(path)
+            path_walk = list(os.walk(path))
+
+        ignore_file_paths = ConfigLoader.find_ignore_config_files(
+            path=path, working_path=working_path, ignore_file_name=ignore_file_name
+        )
+        # Add paths that could contain "ignore files"
+        # to the path_walk list
+        path_walk_ignore_file = [
+            (
+                os.path.dirname(ignore_file_path),
+                None,
+                # Only one possible file, since we only
+                # have one "ignore file name"
+                [os.path.basename(ignore_file_path)],
+            )
+            for ignore_file_path in ignore_file_paths
+        ]
+        path_walk += path_walk_ignore_file
 
         # If it's a directory then expand the path!
         buffer = []
@@ -738,30 +1028,38 @@ class Linter:
                     with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                         ignores[dirpath] = spec
-                    # We don't need to process the ignore file any futher
+                    # We don't need to process the ignore file any further
                     continue
 
                 # We won't purge files *here* because there's an edge case
                 # that the ignore file is processed after the sql file.
 
                 # Scan for remaining files
-                for ext in self.config.get("sql_file_exts", default=".sql").split(","):
+                for ext in (
+                    self.config.get("sql_file_exts", default=".sql").lower().split(",")
+                ):
                     # is it a sql file?
-                    if fname.endswith(ext):
+                    if fname.lower().endswith(ext):
                         buffer.append(fpath)
 
         if not ignore_files:
             return sorted(buffer)
 
         # Check the buffer for ignore items and normalise the rest.
-        filtered_buffer = []
+        # It's a set, so we can do natural deduplication.
+        filtered_buffer = set()
 
         for fpath in buffer:
             abs_fpath = os.path.abspath(fpath)
             for ignore_base, ignore_spec in ignores.items():
                 abs_ignore_base = os.path.abspath(ignore_base)
                 if abs_fpath.startswith(
-                    abs_ignore_base + os.sep
+                    abs_ignore_base
+                    + (
+                        ""
+                        if os.path.dirname(abs_ignore_base) == abs_ignore_base
+                        else os.sep
+                    )
                 ) and ignore_spec.match_file(
                     os.path.relpath(abs_fpath, abs_ignore_base)
                 ):
@@ -781,13 +1079,25 @@ class Linter:
                         )
                     break
             else:
-                filtered_buffer.append(os.path.normpath(fpath))
+                npath = os.path.normpath(fpath)
+                # For debugging, log if we already have the file.
+                if npath in filtered_buffer:
+                    linter_logger.debug(  # pragma: no cover
+                        "Developer Warning: Path crawler attempted to "
+                        "requeue the same file twice. %s is already in "
+                        "filtered buffer.",
+                        npath,
+                    )
+                filtered_buffer.add(npath)
 
-        # Return
+        # Return a sorted list
         return sorted(filtered_buffer)
 
     def lint_string_wrapped(
-        self, string: str, fname: str = "<string input>", fix: bool = False
+        self,
+        string: str,
+        fname: str = "<string input>",
+        fix: bool = False,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
@@ -803,32 +1113,12 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        processes: int = 1,
+        processes: Optional[int] = None,
     ) -> LintedDir:
         """Lint a path."""
-        linted_path = LintedDir(path)
-        if self.formatter:
-            self.formatter.dispatch_path(path)
-        fnames = list(
-            self.paths_from_path(
-                path,
-                ignore_non_existent_files=ignore_non_existent_files,
-                ignore_files=ignore_files,
-            )
-        )
-        runner = get_runner(
-            self,
-            self.config,
-            processes=processes,
-            allow_process_parallelism=self.allow_process_parallelism,
-        )
-        for linted_file in runner.run(fnames, fix):
-            linted_path.add(linted_file)
-            # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
-                linter_logger.error("Fatal linting error. Halting further linting.")
-                break
-        return linted_path
+        return self.lint_paths(
+            (path,), fix, ignore_non_existent_files, ignore_files, processes
+        ).paths[0]
 
     def lint_paths(
         self,
@@ -836,30 +1126,78 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        processes: int = 1,
+        processes: Optional[int] = None,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
-        if len(paths) == 0:  # pragma: no cover
+        if not paths:  # pragma: no cover
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
         result = LintingResult()
+
+        expanded_paths: List[str] = []
+        expanded_path_to_linted_dir = {}
         for path in paths:
-            # Iterate through files recursively in the specified directory (if it's a directory)
-            # or read the file directly if it's not
-            result.add(
-                self.lint_path(
-                    path,
-                    fix=fix,
-                    ignore_non_existent_files=ignore_non_existent_files,
-                    ignore_files=ignore_files,
-                    processes=processes,
-                )
-            )
+            linted_dir = LintedDir(path)
+            result.add(linted_dir)
+            for fname in self.paths_from_path(
+                path,
+                ignore_non_existent_files=ignore_non_existent_files,
+                ignore_files=ignore_files,
+            ):
+                expanded_paths.append(fname)
+                expanded_path_to_linted_dir[fname] = linted_dir
+
+        files_count = len(expanded_paths)
+        if processes is None:
+            processes = self.config.get("processes", default=1)
+
+        # to avoid circular import
+        from sqlfluff.core.linter.runner import get_runner
+
+        runner, effective_processes = get_runner(
+            self,
+            self.config,
+            processes=processes,
+            allow_process_parallelism=self.allow_process_parallelism,
+        )
+
+        if self.formatter and effective_processes != 1:
+            self.formatter.dispatch_processing_header(effective_processes)
+
+        # Show files progress bar only when there is more than one.
+        first_path = expanded_paths[0] if expanded_paths else ""
+        progress_bar_files = tqdm(
+            total=files_count,
+            desc=f"file {first_path}",
+            leave=False,
+            disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
+        )
+
+        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
+            linted_dir = expanded_path_to_linted_dir[linted_file.path]
+            linted_dir.add(linted_file)
+            # If any fatal errors, then stop iteration.
+            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
+                linter_logger.error("Fatal linting error. Halting further linting.")
+                break
+
+            # Progress bar for files is rendered only when there is more than one file.
+            # Additionally, as it's updated after each loop, we need to get file name
+            # from the next loop. This is why `enumerate` starts with `1` and there
+            # is `i < len` to not exceed files list length.
+            progress_bar_files.update(n=1)
+            if i < len(expanded_paths):
+                progress_bar_files.set_description(f"file {expanded_paths[i]}")
+
         result.stop_timer()
         return result
 
-    def parse_path(self, path: str, recurse: bool = True) -> Iterator[ParsedString]:
+    def parse_path(
+        self,
+        path: str,
+        recurse: bool = True,
+    ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file
@@ -869,9 +1207,17 @@ class Linter:
             if self.formatter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
-            raw_file, config, encoding = self._load_raw_file_and_config(
-                fname, self.config
-            )
+            try:
+                raw_file, config, encoding = self.load_raw_file_and_config(
+                    fname, self.config
+                )
+            except SQLFluffSkipFile as s:
+                linter_logger.warning(str(s))
+                continue
             yield self.parse_string(
-                raw_file, fname=fname, recurse=recurse, config=config, encoding=encoding
+                raw_file,
+                fname=fname,
+                recurse=recurse,
+                config=config,
+                encoding=encoding,
             )

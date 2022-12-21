@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d5f0a8d3128ebea1086e01094a1b756d356c8158171b08d07a9184072e94b5a
+_hash: 571e816a81663534057907cc5669e5ee844180a98182353e94f101aca0e2c5c4
 file:
   batch:
     statement:
@@ -12,49 +12,49 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: '[ID]'
+              quoted_identifier: '[ID]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[FIN]'
+              quoted_identifier: '[FIN]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[Unit]'
+              quoted_identifier: '[Unit]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[EventNM]'
+              quoted_identifier: '[EventNM]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[Date]'
+              quoted_identifier: '[Date]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[CHGFlag]'
+              quoted_identifier: '[CHGFlag]'
         into_table_clause:
           keyword: INTO
           object_reference:
-            identifier: '#CHG'
+            hash_identifier: '#CHG'
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Final
+                  naked_identifier: Final
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - column_reference:
-            identifier: '[FIN]'
+            quoted_identifier: '[FIN]'
         - comma: ','
         - column_reference:
-            identifier: '[EventNM]'
+            quoted_identifier: '[EventNM]'
         - comma: ','
         - column_reference:
-            identifier: '[Unit]'
+            quoted_identifier: '[Unit]'
         - comma: ','
         - column_reference:
-            identifier: '[Date]'
+            quoted_identifier: '[Date]'

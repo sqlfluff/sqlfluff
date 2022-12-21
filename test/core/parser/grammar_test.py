@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Indent,
 )
 from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
@@ -27,6 +28,7 @@ from sqlfluff.core.parser.grammar import (
     Conditional,
 )
 from sqlfluff.core.errors import SQLParseError
+from os import getenv
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -161,7 +163,7 @@ def test__parser__grammar__base__look_ahead_match(
 def test__parser__grammar__base__ephemeral_segment(seg_list):
     """Test the ephemeral features on BaseGrammar.
 
-    Normally you cant call .match() on a BaseGrammar, but
+    Normally you can't call .match() on a BaseGrammar, but
     if things are set up right, then it should be possible
     in the case that the ephemeral_name is set.
 
@@ -195,7 +197,7 @@ def test__parser__grammar__oneof__ephemeral_segment(seg_list):
         assert isinstance(seg, TestSegment)
         # Check the content is ephemeral
         assert isinstance(seg.segments[0], EphemeralSegment)
-        assert seg.segments[0].name == "foofoo"
+        assert seg.segments[0].ephemeral_name == "foofoo"
         # Expand the segment
         res = seg.parse(ctx)
         # Check we still have a test segment
@@ -327,6 +329,17 @@ def test__parser__grammar__ref_eq():
     assert r1 not in check_list
 
 
+def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect):
+    """Test the Ref grammar exclude option."""
+    ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
+    ts = generate_test_segments(["ABS", "ABSOLUTE"])
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        # Asset ABS does not match, due to the exclude
+        assert not ni.match([ts[0]], parse_context=ctx)
+        # Asset ABSOLUTE does match
+        assert ni.match([ts[1]], parse_context=ctx)
+
+
 def test__parser__grammar__oneof__copy():
     """Test grammar copying."""
     bs = StringParser("bar", KeywordSegment)
@@ -434,23 +447,11 @@ def test__parser__grammar_oneof_take_first(seg_list):
         )
 
 
-@pytest.mark.parametrize(
-    "keyword,match_truthy",
-    [
-        ("baar", False),
-        ("bar", True),
-    ],
-)
-def test__parser__grammar_startswith_a(
-    keyword, match_truthy, seg_list, fresh_ansi_dialect, caplog
-):
-    """Test the StartsWith grammar simply."""
-    Keyword = StringParser(keyword, KeywordSegment)
-    grammar = StartsWith(Keyword)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = grammar.match(seg_list, parse_context=ctx)
-            assert bool(m) is match_truthy
+def test__parser__grammar_startswith_a():
+    """Test the StartsWith grammar fails when no terminator supplied."""
+    Keyword = StringParser("foo", KeywordSegment)
+    with pytest.raises(AssertionError):
+        StartsWith(Keyword)
 
 
 @pytest.mark.parametrize(
@@ -464,7 +465,7 @@ def test__parser__grammar_startswith_a(
 def test__parser__grammar_startswith_b(
     include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
 ):
-    """Test the StartsWith grammar with a terminator (included & exluded)."""
+    """Test the StartsWith grammar with a terminator (included & excluded)."""
     baar = StringParser("baar", KeywordSegment)
     bar = StringParser("bar", KeywordSegment)
     grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
@@ -479,6 +480,9 @@ def test__parser__grammar_sequence(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = Sequence(bs, fs)
+    # If running in the test environment, assert that Sequence recognises this
+    if getenv("SQLFLUFF_TESTENV", ""):
+        assert g.test_env
     gc = Sequence(bs, fs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
@@ -541,7 +545,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     # We will assume the default config has indented_joins = False.
-    # We're testing without explictly setting the `config_type` because
+    # We're testing without explicitly setting the `config_type` because
     # that's the assumed way of using the grammar in practice.
     g = Sequence(
         Conditional(Indent, indented_joins=False),
@@ -571,7 +575,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
         # Testing allow_trailing
         (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 3),
+        (["bar", " \t ", ".", "   "], None, True, True, 4),
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
@@ -601,7 +605,7 @@ def test__parser__grammar_delimited(
     seg_list = generate_test_segments(token_list)
     g = Delimited(
         StringParser("bar", KeywordSegment),
-        delimiter=StringParser(".", SymbolSegment, name="dot"),
+        delimiter=StringParser(".", SymbolSegment),
         allow_gaps=allow_gaps,
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,
@@ -622,7 +626,7 @@ def test__parser__grammar_delimited(
         ("bar", False, 0),
         # Greedy matching up to baar should return bar, foo...
         ("baar", False, 3),
-        # ... except if whitespace is required to preceed it
+        # ... except if whitespace is required to precede it
         ("baar", True, 6),
     ],
 )
@@ -672,5 +676,26 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+        # NonCode Matcher doesn't work with simple
+        assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     assert len(m) == 1
+
+
+def test__parser__grammar_anysetof(generate_test_segments):
+    """Test the AnySetOf grammar."""
+    token_list = ["bar", "  \t ", "foo", "  \t ", "bar"]
+    seg_list = generate_test_segments(token_list)
+
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
+    g = AnySetOf(fs, bs)
+    with RootParseContext(dialect=None) as ctx:
+        # Check directly
+        assert g.match(seg_list, parse_context=ctx).matched_segments == (
+            KeywordSegment("bar", seg_list[0].pos_marker),
+            WhitespaceSegment("  \t ", seg_list[1].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
+        )
+        # Check with a bit of whitespace
+        assert not g.match(seg_list[1:], parse_context=ctx)

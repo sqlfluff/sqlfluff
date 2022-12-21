@@ -1,17 +1,18 @@
 """Implementation of Rule L039."""
 from typing import List, Optional
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
-
+@document_groups
 @document_fix_compatible
 class Rule_L039(BaseRule):
     """Unnecessary whitespace found.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -19,9 +20,10 @@ class Rule_L039(BaseRule):
             a,        b
         FROM foo
 
-    | **Best practice**
-    | Unless an indent or preceding a comment, whitespace should
-    | be a single space.
+    **Best practice**
+
+    Unless an indent or preceding a comment, whitespace should
+    be a single space.
 
     .. code-block:: sql
 
@@ -30,39 +32,24 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
+    crawl_behaviour = RootOnlyCrawler()
+
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
-        # For the given segment, lint whitespace directly within it.
-        prev_newline = True
-        prev_whitespace = None
-        violations = []
-        for seg in context.segment.segments:
-            if seg.is_type("newline"):
-                prev_newline = True
-                prev_whitespace = None
-            elif seg.is_type("whitespace"):
-                # This is to avoid indents
-                if not prev_newline:
-                    prev_whitespace = seg
-                prev_newline = False
-            elif seg.is_type("comment"):
-                prev_newline = False
-                prev_whitespace = None
-            else:
-                if prev_whitespace:
-                    if prev_whitespace.raw != " ":
-                        violations.append(
-                            LintResult(
-                                anchor=prev_whitespace,
-                                fixes=[
-                                    LintFix(
-                                        "edit",
-                                        prev_whitespace,
-                                        WhitespaceSegment(),
-                                    )
-                                ],
-                            )
-                        )
-                prev_newline = False
-                prev_whitespace = None
-        return violations or None
+        sequence = ReflowSequence.from_root(context.segment, config=context.config)
+        results = sequence.respace(filter="inline").get_results()
+
+        # For now, respace rules are separate for creation and reduction.
+        # That shouldn't be true in future.
+
+        # But, until then - "not enough whitespace" is handled in other
+        # rules and this one should just handle "too much" (or "wrong amount").
+
+        # That means we take the returned results, and only keep the ones
+        # that modify or remove whitespace.
+        return [
+            result
+            for result in results
+            if any(fix.edit_type in ("replace", "delete") for fix in result.fixes)
+        ]

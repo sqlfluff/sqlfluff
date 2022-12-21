@@ -1,0 +1,27 @@
+version: "2.4"
+
+services:
+  app:
+    platform: linux/amd64
+    build:
+      context: ../../..
+      dockerfile: plugins/sqlfluff-templater-dbt/docker/Dockerfile.dev
+    volumes:
+      # Host source code directory
+      - ../../../:/app/
+      - ../test/fixtures/dbt/profiles_yml:/root/.dbt
+    depends_on:
+      - postgres
+    entrypoint: /bin/bash
+    environment:
+      - POSTGRES_HOST=postgres
+    tty: true
+  postgres:
+    image: postgres:14-bullseye
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      # NOTE: "5432:5432" makes the Postgres server accessible to both the host
+      # developer machine *and* the "app" container in Docker. If you don't want
+      # it available on the host machine, change this to simply "5432".
+      - 5432:5432

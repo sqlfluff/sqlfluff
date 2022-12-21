@@ -1,3 +1,5 @@
+# dbt <1.0.0
 dbt_modules/
-macros/
+# dbt >=1.0.0
+dbt_packages/
 target/

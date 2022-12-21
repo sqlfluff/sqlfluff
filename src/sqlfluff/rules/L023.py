@@ -1,18 +1,21 @@
 """Implementation of Rule L023."""
 
-from typing import Optional, List
+from typing import List
 
-from sqlfluff.core.parser import BaseSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.utils.functional import FunctionalContext, sp
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L023(BaseRule):
-    """Single whitespace expected after AS in WITH clause.
+    """Single whitespace expected after ``AS`` in ``WITH`` clause.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -23,10 +26,10 @@ class Rule_L023(BaseRule):
         SELECT a FROM plop
 
 
-    | **Best practice**
-    | The • character represents a space.
-    | Add a space after AS, to avoid confusing
-    | it for a function.
+    **Best practice**
+
+    Add a space after ``AS``, to avoid confusing it for a function.
+    The ``•`` character represents a space.
 
     .. code-block:: sql
        :force:
@@ -38,54 +41,33 @@ class Rule_L023(BaseRule):
         SELECT a FROM plop
     """
 
-    expected_mother_segment_type = "with_compound_statement"
-    pre_segment_identifier = ("name", "as")
-    post_segment_identifier = ("type", "bracketed")
-    allow_newline = False
-    expand_children: Optional[List[str]] = ["common_table_expression"]
+    groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"common_table_expression"})
+    target_keyword = "AS"
+    strip_newlines = True
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        """Single whitespace expected in mother segment between pre and post segments."""
-        error_buffer: List[LintResult] = []
-        if context.segment.is_type(self.expected_mother_segment_type):
-            last_code = None
-            mid_segs: List[BaseSegment] = []
-            for seg in context.segment.iter_segments(expanding=self.expand_children):
-                if seg.is_code:
-                    if (
-                        last_code
-                        and self.matches_target_tuples(
-                            last_code, [self.pre_segment_identifier]
-                        )
-                        and self.matches_target_tuples(
-                            seg, [self.post_segment_identifier]
-                        )
-                    ):
-                        # Do we actually have the right amount of whitespace?
-                        raw_inner = "".join(s.raw for s in mid_segs)
-                        if raw_inner != " " and not (
-                            self.allow_newline
-                            and any(s.name == "newline" for s in mid_segs)
-                        ):
-                            if not raw_inner:
-                                # There's nothing between. Just add a whitespace
-                                fixes = [
-                                    LintFix(
-                                        "create",
-                                        seg,
-                                        [WhitespaceSegment()],
-                                    )
-                                ]
-                            else:
-                                # Don't otherwise suggest a fix for now.
-                                # TODO: Enable more complex fixing here.
-                                fixes = None  # pragma: no cover
-                            error_buffer.append(
-                                LintResult(anchor=last_code, fixes=fixes)
-                            )
-                    mid_segs = []
-                    if not seg.is_meta:
-                        last_code = seg
-                else:
-                    mid_segs.append(seg)
-        return error_buffer or None
+    def _eval(self, context: RuleContext) -> List[LintResult]:
+        """Single whitespace expected in mother middle segment."""
+        functional = FunctionalContext(context)
+
+        as_keyword = (
+            functional.segment.children(sp.is_keyword(self.target_keyword))
+            .first()
+            .get()
+        )
+        if not as_keyword:
+            # No target keyword. Abort.
+            return []
+
+        # Respace the section immediately after the keyword. If any fixes
+        # are returned it implies there was an issue.
+        return (
+            ReflowSequence.from_around_target(
+                as_keyword,
+                context.parent_stack[0],
+                config=context.config,
+                sides="after",
+            )
+            .respace(strip_newlines=self.strip_newlines)
+            .get_results()
+        )

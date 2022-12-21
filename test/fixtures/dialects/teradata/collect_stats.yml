@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b447cc55b4535f32f5a4312c0f61d92d27c203a8159c6518bfa6660b9049c03c
+_hash: 38cc97435a4c56f52a92245df291dd02dcbfef74d01c9128bb47e4b3e10c68ca
 file:
 - statement:
     collect_statistics_statement:
@@ -13,13 +13,13 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: IND_TIPO_TARJETA
+          naked_identifier: IND_TIPO_TARJETA
         end_bracket: )
     - keyword: 'ON'
     - table_reference:
-      - identifier: DB_1
+      - naked_identifier: DB_1
       - dot: .
-      - identifier: TABLE_1
+      - naked_identifier: TABLE_1
 - statement_terminator: ;
 - statement:
     collect_statistics_statement:
@@ -29,20 +29,20 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: COD_TARJETA
+          naked_identifier: COD_TARJETA
       - comma: ','
       - column_reference:
-          identifier: COD_EST
+          naked_identifier: COD_EST
       - comma: ','
       - column_reference:
-          identifier: IND_TIPO_TARJETA
+          naked_identifier: IND_TIPO_TARJETA
       - comma: ','
       - column_reference:
-          identifier: FEC_ANIO_MES
+          naked_identifier: FEC_ANIO_MES
       - end_bracket: )
     - keyword: 'ON'
     - table_reference:
-      - identifier: DB_1
+      - naked_identifier: DB_1
       - dot: .
-      - identifier: TABLE_1
+      - naked_identifier: TABLE_1
 - statement_terminator: ;

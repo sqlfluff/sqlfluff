@@ -1,4 +1,4 @@
-CREATE PROC [Reporting].[PowerPlan] AS 
+CREATE PROC [Reporting].[PowerPlan] AS
 
 DECLARE @DATEFUNCTION DATE = GETDATE()
 
@@ -11,7 +11,7 @@ BEGIN
 	CREATE TABLE #TempTest
 	WITH (DISTRIBUTION = ROUND_ROBIN, HEAP) AS
 	(SELECT 2 AS Two,
-			3 AS Three, 
+			3 AS Three,
 			4 AS Four
 	)
 END

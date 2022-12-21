@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 202beaad04e718b7b9b006acd5376ec0ca72c8d7eaf0677716fd721f5a86e6ef
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test_foo'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'test_bar'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "'test_foo'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'test_bar'"
+            alias_expression:
+              keyword: AS
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: bar
+- statement_terminator: ;

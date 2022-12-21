@@ -24,9 +24,10 @@ def time_function(func, name, iterations=20):
 
 
 # Set up some classes to process the data
-lexer = Lexer()
-parser = Parser()
-linter = Linter()
+kwargs = dict(dialect="ansi")
+lexer = Lexer(**kwargs)
+parser = Parser(**kwargs)
+linter = Linter(**kwargs)
 
 # Pre-process the lexing step for the parsing step
 tokens, _ = lexer.lex(sql)

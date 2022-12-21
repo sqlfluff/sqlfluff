@@ -1,0 +1,112 @@
+name: Bug report
+description: Report a bug to help improve SQLFluff
+labels: [ "bug" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this bug report template to report issues with SQLFluff functionality, including missing
+        syntax support for any of our currently supported dialects.
+
+  - type: checkboxes
+    attributes:
+      label: Search before asking
+      description: >
+        Please make sure to search in the [issues](https://github.com/sqlfluff/sqlfluff/issues) first to see
+        whether the same issue was reported already.
+      options:
+        - label: >
+            I searched the [issues](https://github.com/sqlfluff/sqlfluff/issues) and found
+            no similar issues.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: What Happened
+      description: Describe what happened.
+      placeholder: >
+        Please provide the context in which the problem occurred and explain what happened
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behaviour
+      description: What is your expected behaviour
+      placeholder: Please explain what behaviour you expected.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Observed Behaviour
+      description: What is your observed behaviour
+      placeholder: >
+        Please explain what you observed, and why you think the behaviour is erroneous. It is extremely
+        helpful if you include SQL output and logging output with exact error messages, stack traces, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How to reproduce
+      description: >
+        What should we do to reproduce the problem?
+      placeholder: >
+        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem,
+        including the exact command(s) you ran as well as the `.sql` file.
+        as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
+        If the issue requires more than two files (i.e. `.sql` file and `.sqlfluff` files) to reproduce, please
+        consider providing a GitHub repo instead. Unfortunately non-reproducible issues will have to be closed.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Dialect
+      description: What SQLFluff dialect did you use?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Version
+      description: Which SQLFluff version did you use?
+      placeholder: >
+        * Include the output of `sqlfluff --version` along with your Python version.
+        * If you are using dbt, then please additionally include the sqlfluff-templater-dbt
+        and dbt package versions.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Configuration
+      description: Include your SQLFluff configuration (e.g. `.sqlfluff`, `.sqlfluffignore`) here
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Are you willing to work on and submit a PR to address the issue?
+      description: >
+        This is absolutely not required, but we are happy to guide you in the contribution process,
+        especially if you already have a good understanding of how to implement the fix.
+        SQLFluff is a totally community-driven project and we love to bring new contributors in.
+      options:
+        - label: Yes I am willing to submit a PR!
+
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: |
+        The Code of Conduct helps create a safe space for everyone. We require that everyone agrees to it.
+      options:
+        - label: >
+            I agree to follow this project's
+            [Code of Conduct](https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "Thanks for completing our form!"

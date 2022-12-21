@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ec2cc6ef40a6e64fe7ae86d988ba4d1eb2d53665e248dd06237a4bd23ebc693
+_hash: a43f172c076893a09ec340877e05d2bfe8881c298e7fd4bd5614e0545818f817
 file:
 - statement:
     alter_virtual_schema_statement:
@@ -11,12 +11,13 @@ file:
     - keyword: VIRTUAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s2
+        naked_identifier: s2
     - keyword: SET
     - column_reference:
-        identifier: CONNECTION_STRING
-    - comparison_operator: '='
-    - literal: "'jdbc:hive2://localhost:10000/default'"
+        naked_identifier: CONNECTION_STRING
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'jdbc:hive2://localhost:10000/default'"
 - statement_terminator: ;
 - statement:
     alter_virtual_schema_statement:
@@ -24,6 +25,28 @@ file:
     - keyword: VIRTUAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s2
+        naked_identifier: s2
     - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - quoted_identifier: '"role1"'
+- statement_terminator: ;
+- statement:
+    alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: role1
 - statement_terminator: ;

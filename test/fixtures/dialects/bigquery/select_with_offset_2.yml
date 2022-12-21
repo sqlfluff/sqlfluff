@@ -3,39 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6aa83086d55161a8e103066eed41801931d37db119184d680dbcfae2ec5d3f8
+_hash: 75e49530984992ff87e54e238cb77e823a9e6484475b723c439faca5747acb2b
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ARRAY
-            bracketed:
-              start_bracket: (
-              expression:
+          expression:
+            typeless_array:
+              keyword: ARRAY
+              bracketed:
+                start_bracket: (
                 select_statement:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
                       column_reference:
-                        identifier: a
+                        naked_identifier: a
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                       - table_expression:
                           table_reference:
-                            identifier: foo
+                            naked_identifier: foo
                       - keyword: WITH
                       - keyword: OFFSET
                   where_clause:
                     keyword: WHERE
                     expression:
                       column_reference:
-                        identifier: OFFSET
-                      comparison_operator: '>'
-                      literal: '1'
-              end_bracket: )
+                        naked_identifier: OFFSET
+                      comparison_operator:
+                        raw_comparison_operator: '>'
+                      numeric_literal: '1'
+                end_bracket: )

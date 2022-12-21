@@ -1,1 +1,1 @@
-select SQL_BUFFER_RESULT * from table;
+select SQL_BUFFER_RESULT * from table1;

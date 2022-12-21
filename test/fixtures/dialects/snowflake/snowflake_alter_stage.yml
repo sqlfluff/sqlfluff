@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1e138be38f4d4af06d8e5e2b9ae66a8c867cc1b83859d927584ff6f9f886aa6f
+file:
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_int_stage
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_int_stage
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_ext_stage
+    - keyword: SET
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://loading/files/new/'"
+    - keyword: COPY_OPTIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        copy_options:
+          keyword: ON_ERROR
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'skip_file'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_ext_stage
+    - keyword: SET
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: myint
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_ext_stage
+    - keyword: SET
+    - stage_parameters:
+        keyword: CREDENTIALS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+        - start_bracket: (
+        - keyword: AWS_KEY_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'d4c3b2a1'"
+        - keyword: AWS_SECRET_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'z9y8x7w6'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_ext_stage3
+    - keyword: SET
+    - stage_parameters:
+        keyword: ENCRYPTION
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          keyword: TYPE
+          comparison_operator:
+            raw_comparison_operator: '='
+          stage_encryption_option: "'AWS_SSE_S3'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_stage_statement:
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - keyword: REFRESH
+    - keyword: SUBPATH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'data'"
+- statement_terminator: ;

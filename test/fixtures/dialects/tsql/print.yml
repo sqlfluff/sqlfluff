@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccc3078339f97b77c695b4327a6d0b12d1d6007c5abfaa5460ca49f812164c4e
+_hash: 5da646ea7ac1fc4b9d5602093d75a4521539f0acbe14d93e17ac7b7cccd339ad
 file:
   batch:
   - statement:
@@ -11,20 +11,21 @@ file:
         keyword: DECLARE
         parameter: '@TestVal'
         data_type:
-          identifier: VARCHAR
+          data_type_identifier: VARCHAR
           bracketed:
             start_bracket: (
             expression:
-              literal: '20'
+              numeric_literal: '20'
             end_bracket: )
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         expression:
-          literal: "'Test Print'"
+          quoted_literal: "'Test Print'"
   - statement:
       print_statement:
         keyword: PRINT
         expression:
-          literal: "'#Dates'"
+          quoted_literal: "'#Dates'"
   - statement:
       print_statement:
         keyword: PRINT
@@ -43,11 +44,11 @@ file:
                     end_bracket: )
               keyword: AS
               data_type:
-                identifier: VARCHAR
+                data_type_identifier: VARCHAR
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '50'
+                    numeric_literal: '50'
                   end_bracket: )
               end_bracket: )
         statement_terminator: ;
@@ -55,5 +56,4 @@ file:
       print_statement:
         keyword: PRINT
         expression:
-          column_reference:
-            parameter: '@TestVal'
+          parameter: '@TestVal'

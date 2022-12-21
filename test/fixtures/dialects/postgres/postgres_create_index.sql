@@ -20,3 +20,5 @@ CREATE INDEX pointloc
     ON points USING gist (box(location,location));
 
 CREATE INDEX CONCURRENTLY sales_quantity_index ON sales_table (quantity);
+
+CREATE INDEX super_idx ON super_table USING BTREE (super_column DESC);

@@ -3,3 +3,10 @@ rule: L040
 test_fail_inconsistent_boolean_capitalisation:
   fail_str: SeLeCt true, FALSE, NULL
   fix_str: SeLeCt true, false, null
+
+test_pass_ignore_word:
+  pass_str: SELECT true, FALSE, NULL
+  configs:
+    rules:
+      L040:
+        ignore_words: true

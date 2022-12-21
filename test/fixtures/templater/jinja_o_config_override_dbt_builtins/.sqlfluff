@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja:macros]
+dbt_is_incremental = {% macro is_incremental() %}False{% endmacro %}

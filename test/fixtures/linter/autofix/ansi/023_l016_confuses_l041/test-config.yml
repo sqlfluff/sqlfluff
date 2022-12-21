@@ -1,0 +1,8 @@
+test-config:
+  # NOTE: L003 is included in this test case because the fix for
+  # L016 doesn't really make sense without it as the existing
+  # query is poorly indented.
+  rules:
+    - L003
+    - L016
+    - L041

@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 13e3b4d4c698c500750e8957a91ac71d8ee8d711d531847e9b197400f95fd866
+file:
+- statement:
+    alter_trigger:
+    - keyword: ALTER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: RENAME
+    - keyword: TO
+    - trigger_reference:
+        naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_trigger:
+    - keyword: ALTER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: extension_name
+- statement_terminator: ;
+- statement:
+    alter_trigger:
+    - keyword: ALTER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: 'NO'
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: extension_name
+- statement_terminator: ;
+- statement:
+    alter_trigger:
+    - keyword: ALTER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: emp_stamp
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: emp
+    - keyword: RENAME
+    - keyword: TO
+    - trigger_reference:
+        naked_identifier: emp_track_chgs
+- statement_terminator: ;
+- statement:
+    alter_trigger:
+    - keyword: ALTER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: emp_stamp
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: emp
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: emplib
+- statement_terminator: ;

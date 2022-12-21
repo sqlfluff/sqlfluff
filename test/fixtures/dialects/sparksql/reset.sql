@@ -1,0 +1,3 @@
+RESET;
+
+RESET spark.abc;

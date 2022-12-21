@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 726904c5d4b645237dec5b9983008eead7c83d5317ee19144a98b23bb397000c
+_hash: 2afc5679e2f6222a23b44a89c5bbce53d71f5869fd4b0e4f4eb791dc3bcdbd61
 file:
   statement:
     select_statement:
@@ -11,14 +11,14 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: value
+            naked_identifier: value
           alias_expression:
             keyword: as
-            identifier: p_id
+            naked_identifier: p_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           function:
@@ -43,54 +43,56 @@ file:
                         - keyword: by
                         - expression:
                             column_reference:
-                              identifier: id
+                              naked_identifier: id
                         orderby_clause:
                         - keyword: order
                         - keyword: by
                         - column_reference:
-                            identifier: t_id
+                            naked_identifier: t_id
                         - keyword: desc
                       end_bracket: )
-                comparison_operator: '='
-                literal: '1'
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: 'true'
+                boolean_literal: 'true'
             - comma: ','
             - expression:
-                literal: 'false'
+                boolean_literal: 'false'
             - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: most_recent
+            naked_identifier: most_recent
       from_clause:
       - keyword: from
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
           join_clause:
           - keyword: inner
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: b
+                  naked_identifier: b
           - join_on_condition:
               keyword: 'on'
               bracketed:
                 start_bracket: (
                 expression:
                 - column_reference:
-                  - identifier: b
+                  - naked_identifier: b
                   - dot: .
-                  - identifier: c_id
-                - comparison_operator: '='
+                  - naked_identifier: c_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: a
+                  - naked_identifier: a
                   - dot: .
-                  - identifier: c_id
+                  - naked_identifier: c_id
                 end_bracket: )
       - comma: ','
       - from_expression:
@@ -106,7 +108,7 @@ file:
                     parameter: input
                     parameter_assigner: =>
                     column_reference:
-                    - identifier: b
+                    - naked_identifier: b
                     - dot: .
-                    - identifier: cool_ids
+                    - naked_identifier: cool_ids
                   end_bracket: )

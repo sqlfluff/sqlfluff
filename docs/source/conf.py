@@ -20,8 +20,8 @@ import configparser
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
 config = configparser.ConfigParser()
-config.read(["../../src/sqlfluff/config.ini"])
-stable_version = config.get("sqlfluff", "stable_version")
+config.read(["../../setup.cfg"])
+stable_version = config.get("sqlfluff_docs", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
@@ -45,6 +45,8 @@ extensions = [
     "sphinx.ext.napoleon",
     # Documenting click commands
     "sphinx_click.ext",
+    # Redirects
+    "sphinx_reredirects",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -90,10 +92,20 @@ html_theme_options = {
     "github_banner": True,
     # GitHub star button
     "github_type": "star",
-    # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com for details
+    # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com
     "github_count": "true",
     # Codecov button
     "codecov_button": True,
+}
+
+# -- Options for redirects ---------------------------------------------
+# https://documatt.gitlab.io/sphinx-reredirects/usage.html
+
+redirects = {
+    # There's an old link to /indentation in config files.
+    # That should point to the layout section now.
+    "indentation": "layout.html#configuring-indent-locations",
+    "architecture": "internals.html#architecture",
 }
 
 

@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dc9e42ca7dac29e96e7c93596f533e5ccef4a0db1fe35bb1f46c8aaff86b57f5
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: UNIQUE
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: UNIQUE
+          index_reference:
+            naked_identifier: idx_c
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: KEY
+        - index_reference:
+            naked_identifier: idx_a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - index_reference:
+            naked_identifier: idx_b
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - end_bracket: )

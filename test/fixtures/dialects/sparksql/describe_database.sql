@@ -1,0 +1,5 @@
+DESCRIBE DATABASE employees;
+
+DESCRIBE DATABASE EXTENDED employees;
+
+DESC DATABASE deployment;

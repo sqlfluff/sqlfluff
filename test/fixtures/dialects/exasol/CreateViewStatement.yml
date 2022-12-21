@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b25106d8887ebd4a10cae8483c0907e6c1a7ed10e9f52812748cd41eb63b04
+_hash: 651b70f72362f42ca96206b4b51f7f42bbbbed4d17d670b24b6fef8ec7a7e0b4
 file:
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - view_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - keyword: as
     - bracketed:
         start_bracket: (
@@ -19,29 +19,30 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-                identifier: x
+                naked_identifier: x
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t
+                    naked_identifier: t
         end_bracket: )
-    - keyword: COMMENT
-    - keyword: IS
-    - literal: "'nice view'"
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'nice view'"
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - view_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - keyword: as
     - bracketed:
@@ -51,58 +52,59 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-                identifier: x
+                naked_identifier: x
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t
+                    naked_identifier: t
         end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FORCE
     - keyword: VIEW
     - view_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - keyword: as
     - select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             column_reference:
-              identifier: y
+              naked_identifier: y
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - view_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col_1
-      - keyword: COMMENT
-      - keyword: IS
-      - literal: "'something important'"
+          naked_identifier: col_1
+      - comment_clause:
+        - keyword: COMMENT
+        - keyword: IS
+        - quoted_literal: "'something important'"
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: as
     - select_statement:
@@ -116,7 +118,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
                 end_bracket: )
         from_clause:
           keyword: from
@@ -124,20 +126,20 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - view_reference:
-      - identifier: schem
+      - naked_identifier: schem
       - dot: .
-      - identifier: few
+      - naked_identifier: few
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - keyword: as
     - bracketed:
@@ -147,14 +149,14 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-                identifier: x
+                naked_identifier: x
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t
+                    naked_identifier: t
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -162,13 +164,13 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - view_reference:
-      - identifier: schem
+      - naked_identifier: schem
       - dot: .
-      - identifier: few
+      - naked_identifier: few
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - keyword: as
     - bracketed:
@@ -178,13 +180,39 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-                identifier: x
+                naked_identifier: x
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t
+                    naked_identifier: t
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - view_reference:
+        naked_identifier: T
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: A
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'BLABLA'"
 - statement_terminator: ;

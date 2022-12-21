@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16bf8629e6d8b94c3a926820f026d60a41cfd645ff2c47c338c6f1b933cf1533
+_hash: 7c5075062f6d6da74e8109008486152d5135e26ba31c9d725ad4bac17ee3dfeb
 file:
   statement:
     select_statement:
@@ -12,43 +12,45 @@ file:
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: c1
-          - binary_operator: '&'
+              naked_identifier: c1
+          - binary_operator:
+              ampersand: '&'
           - column_reference:
-              identifier: c2
+              naked_identifier: c2
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: c3
-          - binary_operator: '|'
+              naked_identifier: c3
+          - binary_operator:
+              pipe: '|'
           - column_reference:
-              identifier: c4
+              naked_identifier: c4
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: c5
+              naked_identifier: c5
           - binary_operator: ^
           - column_reference:
-              identifier: c6
+              naked_identifier: c6
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: c7
+              naked_identifier: c7
           - binary_operator:
-            - comparison_operator: <
-            - comparison_operator: <
+            - raw_comparison_operator: <
+            - raw_comparison_operator: <
           - column_reference:
-              identifier: c8
+              naked_identifier: c8
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: c9
+              naked_identifier: c9
           - binary_operator:
-            - comparison_operator: '>'
-            - comparison_operator: '>'
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '>'
           - column_reference:
-              identifier: c10
+              naked_identifier: c10

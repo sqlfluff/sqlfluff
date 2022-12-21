@@ -3,91 +3,98 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 598e7d6ac49d3e11aa16c27217daa811c75dafd62a6bb0f9324da41ba557e3c0
+_hash: ccec964f5d1d6a5487cf768b3f963f6a47fe9b86abda53240e605d8e8580a8e1
 file:
 - statement:
     use_statement:
     - keyword: use
     - keyword: role
     - object_reference:
-        identifier: my_role
+        naked_identifier: my_role
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: warehouse
     - object_reference:
-        identifier: my_warehouse
+        naked_identifier: my_warehouse
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: database
-    - object_reference:
-        identifier: my_database
+    - database_reference:
+        naked_identifier: my_database
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: schema
-    - object_reference:
-        identifier: my_schema
+    - schema_reference:
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: ROLE
     - object_reference:
-        identifier: '"MY_ROLE"'
+        quoted_identifier: '"MY_ROLE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: '"MY_WAREHOUSE"'
-- statement_terminator: ;
-- statement:
-    use_statement:
-    - keyword: USE
-    - keyword: WAREHOUSE
-    - object_reference:
-        variable: '&warehouse'
+        quoted_identifier: '"MY_WAREHOUSE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: DATABASE
-    - object_reference:
-        identifier: '"MY_DATABASE"'
+    - database_reference:
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
-      object_reference:
-        identifier: '"MY_DATABASE"'
+      database_reference:
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - object_reference:
-      - identifier: '"MY_DATABASE"'
+    - schema_reference:
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - object_reference:
-        identifier: '"MY_SCHEMA"'
+    - schema_reference:
+        quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
-      object_reference:
-      - identifier: '"MY_DATABASE"'
+      database_reference:
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: NONE
 - statement_terminator: ;

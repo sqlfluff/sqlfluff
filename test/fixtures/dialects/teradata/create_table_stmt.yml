@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6be6d17607bb10ca622ea6050c2f854034ef9d10e00a1a4b75d39eea79d431e9
+_hash: ed3990efbc92aa72a08ed29dd6371d853cb3be43fab5668e69a1a2427b9ed575
 file:
   statement:
     create_table_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: CONSUMOS
+        naked_identifier: CONSUMOS
     - create_table_options_statement:
       - comma: ','
       - keyword: 'NO'
@@ -26,7 +26,8 @@ file:
       - keyword: JOURNAL
       - comma: ','
       - keyword: CHECKSUM
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: DEFAULT
       - comma: ','
       - keyword: DEFAULT
@@ -35,13 +36,13 @@ file:
         start_bracket: (
         column_definition:
           column_reference:
-            identifier: FIELD1
-          td_internal_data_type:
+            naked_identifier: FIELD1
+          data_type:
             data_type_identifier: CHAR
             bracketed:
               start_bracket: (
               expression:
-                literal: '9'
+                numeric_literal: '9'
               end_bracket: )
         end_bracket: )
     - td_table_constraint:
@@ -49,6 +50,6 @@ file:
       - keyword: INDEX
       - bracketed:
           start_bracket: (
-          identifier: FIELD1
+          naked_identifier: FIELD1
           end_bracket: )
   statement_terminator: ;

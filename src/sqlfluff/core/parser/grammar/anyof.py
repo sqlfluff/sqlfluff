@@ -2,18 +2,18 @@
 
 from typing import List, Optional, Tuple
 
-from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
+from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 
 
 class AnyNumberOf(BaseGrammar):
@@ -22,18 +22,22 @@ class AnyNumberOf(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self.max_times = kwargs.pop("max_times", None)
         self.min_times = kwargs.pop("min_times", 0)
+        self.max_times_per_element = kwargs.pop("max_times_per_element", None)
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
         simple_buff = [
-            opt.simple(parse_context=parse_context) for opt in self._elements
+            opt.simple(parse_context=parse_context, crumbs=crumbs)
+            for opt in self._elements
         ]
         if any(elem is None for elem in simple_buff):
             return None
@@ -48,12 +52,18 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
+    @staticmethod
+    def _first_non_whitespace(segments) -> Optional[str]:
+        """Return the upper first non-whitespace segment in the iterable."""
+        for segment in segments:
+            if segment.first_non_whitespace_segment_raw_upper:
+                return segment.first_non_whitespace_segment_raw_upper
+        return None
+
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> Tuple[List[MatchableType], List[str]]:
         """Use the simple matchers to prune which options to match on."""
-        str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
-
         available_options = []
         simple_opts = []
         prune_buff = []
@@ -62,11 +72,7 @@ class AnyNumberOf(BaseGrammar):
         matched_simple = 0
 
         # Find the first code element to match against.
-        first_elem = None
-        for elem in str_buff:
-            if elem.strip():
-                first_elem = elem
-                break
+        first_elem = self._first_non_whitespace(segments)
 
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
@@ -86,16 +92,16 @@ class AnyNumberOf(BaseGrammar):
                     )
                 # We want to know if the first meaningful element of the str_buff
                 # matches the option.
-                if simple_opt in str_buff:
-                    # match the FIRST non-whitespace element of the list.
-                    if first_elem != simple_opt:
-                        # No match, carry on.
-                        continue
-                    # If we get here, it's matched the FIRST element of the string buffer.
-                    available_options.append(opt)
-                    simple_opts.append(simple_opt)
-                    matched_simple += 1
-                    break
+
+                # match the FIRST non-whitespace element of the list.
+                if first_elem != simple_opt:
+                    # No match, carry on.
+                    continue
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                simple_opts.append(simple_opt)
+                matched_simple += 1
+                break
             else:
                 # Ditch this option, the simple match has failed
                 prune_buff.append(opt)
@@ -119,7 +125,7 @@ class AnyNumberOf(BaseGrammar):
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> MatchResult:
+    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -139,14 +145,14 @@ class AnyNumberOf(BaseGrammar):
             return MatchResult.from_unmatched(segments)
 
         with parse_context.deeper_match() as ctx:
-            match, _ = self._longest_trimmed_match(
+            match, matched_option = self._longest_trimmed_match(
                 segments,
                 available_options,
                 parse_context=ctx,
                 trim_noncode=False,
             )
 
-        return match
+        return match, matched_option
 
     @match_wrapper()
     @allow_ephemeral
@@ -169,6 +175,13 @@ class AnyNumberOf(BaseGrammar):
         matched_segments: MatchResult = MatchResult.from_empty()
         unmatched_segments: Tuple[BaseSegment, ...] = segments
         n_matches = 0
+
+        # Keep track of the number of times each option has been matched.
+        available_options, _ = self._prune_options(
+            segments, parse_context=parse_context
+        )
+        available_option_counter = {str(o): 0 for o in available_options}
+
         while True:
             if self.max_times and n_matches >= self.max_times:
                 # We've matched as many times as we can
@@ -195,7 +208,23 @@ class AnyNumberOf(BaseGrammar):
             else:
                 pre_seg = ()  # empty tuple
 
-            match = self._match_once(unmatched_segments, parse_context=parse_context)
+            match, matched_option = self._match_once(
+                unmatched_segments, parse_context=parse_context
+            )
+
+            # Increment counter for matched option.
+            if matched_option and (str(matched_option) in available_option_counter):
+                available_option_counter[str(matched_option)] += 1
+                # Check if we have matched an option too many times.
+                if (
+                    self.max_times_per_element
+                    and available_option_counter[str(matched_option)]
+                    > self.max_times_per_element
+                ):
+                    return MatchResult(
+                        matched_segments.matched_segments, unmatched_segments
+                    )
+
             if match:
                 matched_segments += pre_seg + match.matched_segments
                 unmatched_segments = match.unmatched_segments
@@ -238,3 +267,10 @@ class OptionallyBracketed(OneOf):
             args[0] if len(args) == 1 else Sequence(*args),
             **kwargs,
         )
+
+
+class AnySetOf(AnyNumberOf):
+    """Match any number of the elements but each element can only be matched once."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, max_times_per_element=1, **kwargs)

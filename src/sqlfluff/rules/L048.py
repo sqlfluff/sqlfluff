@@ -1,20 +1,23 @@
 """Implementation of Rule L048."""
 
-from typing import Tuple, List
+from typing import List
 
-from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.context import RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
+from sqlfluff.utils.reflow import ReflowSequence
 
-from sqlfluff.rules.L006 import Rule_L006
 
-
+@document_groups
 @document_fix_compatible
-class Rule_L048(Rule_L006):
+class Rule_L048(BaseRule):
     """Quoted literals should be surrounded by a single whitespace.
 
-    | **Anti-pattern**
-    | In this example, there is a space missing space between the string 'foo'
-    | and the keyword AS.
+    **Anti-pattern**
+
+    In this example, there is a space missing between the string
+    ``'foo'`` and the keyword ``AS``.
 
     .. code-block:: sql
 
@@ -23,8 +26,9 @@ class Rule_L048(Rule_L006):
         FROM foo
 
 
-    | **Best practice**
-    | Keep a single space.
+    **Best practice**
+
+    Keep a single space.
 
     .. code-block:: sql
 
@@ -33,18 +37,17 @@ class Rule_L048(Rule_L006):
         FROM foo
     """
 
-    _target_elems: List[Tuple[str, str]] = [
-        ("name", "quoted_literal"),
-    ]
+    groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"quoted_literal", "date_constructor_literal"}
+    )
 
-    @staticmethod
-    def _missing_whitespace(seg: BaseSegment, before=True) -> bool:
-        """Check whether we're missing whitespace given an adjoining segment.
-
-        This avoids flagging for commas after quoted strings.
-        https://github.com/sqlfluff/sqlfluff/issues/943
-        """
-        simple_res = Rule_L006._missing_whitespace(seg, before=before)
-        if not before and seg and seg.is_type("comma", "statement_terminator"):
-            return False
-        return simple_res
+    def _eval(self, context: RuleContext) -> List[LintResult]:
+        """Quoted literals should be surrounded by a single whitespace."""
+        return (
+            ReflowSequence.from_around_target(
+                context.segment, context.parent_stack[0], config=context.config
+            )
+            .respace()
+            .get_results()
+        )

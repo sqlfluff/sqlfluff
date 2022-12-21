@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ba593bbf1fa0ccc9eefa05a2a5384a80c662fc635660cb22a13c748688521334
+file:
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+        start_bracket: (
+        raw: r1
+        bracketed:
+          start_bracket: (
+          raw: size
+          single_quote: "'1'"
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+      - start_bracket: (
+      - raw: r1
+      - bracketed:
+          start_bracket: (
+          raw: size
+          single_quote: "'1'"
+          end_bracket: )
+      - comma: ','
+      - raw: r2
+      - bracketed:
+          start_bracket: (
+          raw: size
+          single_quote: "'1'"
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: size_1
+    - raw: SIZE
+    - single_quote: "'large'"
+- statement_terminator: ;
+- statement:
+    create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: c1
+      - dot: .
+      - naked_identifier: r1
+    - raw: SIZE
+    - raw: '='
+    - single_quote: "'medium'"
+- statement_terminator: ;
+- statement:
+    create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: replica
+    - raw: AVAILABILITY
+    - raw: ZONE
+    - single_quote: "'a'"
+    - comma: ','
+    - raw: AVAILABILITY
+    - raw: ZONE
+    - single_quote: "'b'"
+- statement_terminator: ;

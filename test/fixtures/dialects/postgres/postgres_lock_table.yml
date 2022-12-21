@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0b634bc3cad1afb1344957fa51eeb1e7115d94e2c30635877c25bbed99daad50
+file:
+- statement:
+    lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: films
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: MODE
+- statement_terminator: ;
+- statement:
+    lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: films
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: ROW
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement:
+    lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: team
+    - keyword: IN
+    - keyword: ACCESS
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement:
+    lock_table_statement:
+    - keyword: lock
+    - keyword: table
+    - table_reference:
+        naked_identifier: stud1
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: UPDATE
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement:
+    lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: crontable
+    - keyword: NOWAIT
+- statement_terminator: ;

@@ -3,49 +3,49 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18a5bdf54d42aa4c9ef1954d008615f99f29eec6f6e36b9d8a07047c6ed6430c
+_hash: ce3aa039eb41a592cc11abb2b60f23315a74ffa3a705616f63f2b3223fa5c590
 file:
 - statement:
     rename_statement:
     - keyword: RENAME
     - keyword: SCHEMA
     - object_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: TO
     - object_reference:
-        identifier: s2
+        naked_identifier: s2
 - statement_terminator: ;
 - statement:
     rename_statement:
     - keyword: RENAME
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: TO
     - object_reference:
-        identifier: t2
+        naked_identifier: t2
 - statement_terminator: ;
 - statement:
     rename_statement:
     - keyword: RENAME
     - object_reference:
-      - identifier: s2
+      - naked_identifier: s2
       - dot: .
-      - identifier: t3
+      - naked_identifier: t3
     - keyword: TO
     - object_reference:
-        identifier: t4
+        naked_identifier: t4
 - statement_terminator: ;
 - statement:
     rename_statement:
     - keyword: RENAME
     - object_reference:
-      - identifier: s2
+      - naked_identifier: s2
       - dot: .
-      - identifier: t3
+      - naked_identifier: t3
     - keyword: TO
     - object_reference:
-      - identifier: s2
+      - naked_identifier: s2
       - dot: .
-      - identifier: t4
+      - naked_identifier: t4
 - statement_terminator: ;

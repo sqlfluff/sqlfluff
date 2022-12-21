@@ -45,7 +45,10 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
     """Test get_encoding."""
     assert (
         get_encoding(
-            fname=fname, config=FluffConfig(overrides={"encoding": config_encoding})
+            fname=fname,
+            config=FluffConfig(
+                overrides={"encoding": config_encoding, "dialect": "ansi"}
+            ),
         )
         == result
     )

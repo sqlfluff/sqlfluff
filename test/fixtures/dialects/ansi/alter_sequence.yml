@@ -3,28 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1128b45a714b35f69abd1eb988090d43b7b148919fc7abbcaa2b71a6b1a7581d
+_hash: 8702692b6970efbc664e56a683b682412dff7f788392da48f53763ce454394ea
 file:
 - statement:
     alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: INCREMENT
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_sequence_options_segment:
         keyword: MAXVALUE
-        literal: '7'
+        numeric_literal: '7'
     - alter_sequence_options_segment:
       - keyword: 'NO'
       - keyword: minvalue
@@ -34,7 +34,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_sequence_options_segment:
         keyword: NOCACHE
     - alter_sequence_options_segment:
@@ -45,12 +45,12 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_sequence_options_segment:
         keyword: NOORDER
     - alter_sequence_options_segment:
         keyword: CACHE
-        literal: '5'
+        numeric_literal: '5'
     - alter_sequence_options_segment:
         keyword: NOCYCLE
 - statement_terminator: ;
@@ -59,7 +59,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: foo
+        naked_identifier: foo
     - alter_sequence_options_segment:
         keyword: ORDER
 - statement_terminator: ;

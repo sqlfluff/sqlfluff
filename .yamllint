@@ -1,0 +1,17 @@
+---
+
+extends: default
+ignore: |
+  .tox/
+  .venv/
+  dbt_modules/
+  dbt_packages/
+
+rules:
+  brackets: disable
+  document-start: disable
+  indentation:
+    indent-sequences: whatever
+  line-length: disable
+  truthy:
+    check-keys: false  # .github workflow uses "on:" (but not as a truthy value)

@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53f0288354a7c0c207a84d0cc3965ead2380b7ee847b8c2775dc45398b3e0413
+_hash: c93bb773f206085006bb91a60b1174791819d70a67b1d49f89d67f985871b092
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: '1'
+          numeric_literal: '1'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table
+                naked_identifier: table1
       for_clause:
       - keyword: FOR
       - keyword: UPDATE
