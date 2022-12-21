@@ -79,7 +79,6 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml
-        verbose: true # For debugging codecov uploads
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -198,7 +197,6 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml
-        verbose: true # For debugging codecov uploads
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -232,7 +230,6 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage.xml
-        verbose: true # For debugging codecov uploads
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
