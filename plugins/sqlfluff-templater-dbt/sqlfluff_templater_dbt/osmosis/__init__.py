@@ -267,7 +267,7 @@ class DbtProject:
 
         # Tracks internal state version
         self._version: int = 1
-        self.mutex = threading.Lock()
+        self.mutex = threading.Lock() if not self.args.single_threaded else None
         # atexit.register(lambda dbt_project: dbt_project.adapter.connections.cleanup_all, self)
 
     def get_adapter(self):
