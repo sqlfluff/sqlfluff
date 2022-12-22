@@ -220,7 +220,7 @@ class DbtTemplater(JinjaTemplater):
             for node in nodes:
                 if node.original_file_path == expected_node_path:
                     return "disabled"
-        return None
+        return None  # pragma: no cover
 
     def _unsafe_process(
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
