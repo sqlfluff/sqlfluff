@@ -75,7 +75,6 @@ jobs:
     - name: Run the tests
       run: |
         tox -e py -- --cov=sqlfluff -n 2 test
-        python script/patch_lcov.py
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
       with:
@@ -212,7 +211,6 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
-        #base-path: plugins/sqlfluff-templater-dbt
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.dbt-version }}
