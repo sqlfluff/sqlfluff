@@ -80,7 +80,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
-        COVERALLS_PARALLEL=true coveralls
+        COVERALLS_PARALLEL=true coveralls --service=github
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -200,7 +200,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
-        COVERALLS_PARALLEL=true coveralls
+        COVERALLS_PARALLEL=true coveralls --service=github
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -235,7 +235,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
-        COVERALLS_PARALLEL=true coveralls
+        COVERALLS_PARALLEL=true coveralls --service=github
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -307,4 +307,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
-        coveralls --finish
+        coveralls --service=github --finish
