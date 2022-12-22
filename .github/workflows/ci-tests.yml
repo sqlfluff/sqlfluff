@@ -76,6 +76,8 @@ jobs:
       run: |
         tox -e py -- test
     - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         COVERALLS_PARALLEL=true coveralls
@@ -194,6 +196,8 @@ jobs:
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
     - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         COVERALLS_PARALLEL=true coveralls
@@ -227,6 +231,8 @@ jobs:
         mkdir temp_pytest
         python -m tox -e winpy -- test
     - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         COVERALLS_PARALLEL=true coveralls
@@ -297,6 +303,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         coveralls --finish
