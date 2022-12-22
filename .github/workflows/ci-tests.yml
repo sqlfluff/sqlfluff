@@ -84,6 +84,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        base-path: src/sqlfluff
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
@@ -211,6 +212,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        base-path: plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.dbt-version }}
@@ -253,6 +255,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        base-path: src/sqlfluff
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-windows-${{ matrix.python-version }}
