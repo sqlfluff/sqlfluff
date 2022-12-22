@@ -228,11 +228,6 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- test
-    - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel: true
-        flag-name: Python 3.10 Windows tests
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
