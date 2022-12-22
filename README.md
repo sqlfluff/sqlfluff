@@ -1,5 +1,7 @@
 ![SQLFluff](https://raw.githubusercontent.com/sqlfluff/sqlfluff/main/images/sqlfluff-wide.png)
 
+[![Coverage Status](https://coveralls.io/repos/github/sqlfluff/sqlfluff/badge.svg?branch=main)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
+
 # The SQL Linter for Humans
 
 [![PyPi Version](https://img.shields.io/pypi/v/sqlfluff.svg?style=flat-square&logo=PyPi)](https://pypi.org/project/sqlfluff/)
