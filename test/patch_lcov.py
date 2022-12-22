@@ -7,7 +7,7 @@ if path.exists():
     lines = path.read_text().splitlines()
     modified_lines = []
     for line in lines:
-        if line.startswith("SF:"):
+        if line.startswith("SF:.tox"):
             m = re.search(r"^(SF:).*(sqlfluff/.*)", line)
             if m:
                 modified_lines.append(f"{m.group(1)}src/{m.group(2)}")
