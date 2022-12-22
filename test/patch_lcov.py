@@ -8,7 +8,10 @@ modified_lines = []
 for line in lines:
     if line.startswith("SF:"):
         m = re.search(r"^(SF:).*(sqlfluff/.*)", line)
-        modified_lines.append(f"{m.group(1)}src/{m.group(2)}")
+        if m:
+            modified_lines.append(f"{m.group(1)}src/{m.group(2)}")
+        else:
+            modified_lines.append(line)
     else:
         modified_lines.append(line)
 path.write_text("\n".join(modified_lines))
