@@ -78,6 +78,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
         parallel: true
@@ -198,6 +199,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.dbt-version }}
         parallel: true
@@ -233,6 +235,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
+        path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-windows-${{ matrix.python-version }}
         parallel: true
