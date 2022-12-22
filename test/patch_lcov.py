@@ -11,6 +11,7 @@ for line in lines:
         if m:
             modified_lines.append(f"{m.group(1)}src/{m.group(2)}")
         else:
+            print(f"Could not patch line: {line}")
             modified_lines.append(line)
     else:
         modified_lines.append(line)
