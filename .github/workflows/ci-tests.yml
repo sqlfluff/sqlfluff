@@ -81,6 +81,13 @@ jobs:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        path-to-lcov: coverage.lcov
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.python-version }}
+        parallel: true
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -201,6 +208,13 @@ jobs:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        path-to-lcov: coverage.lcov
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.dbt-version }}
+        parallel: true
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -236,6 +250,13 @@ jobs:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        path-to-lcov: coverage.lcov
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-windows-${{ matrix.python-version }}
+        parallel: true
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -297,3 +318,13 @@ jobs:
     - name: Run a simple select lint test via file
       run: |
         sqlfluff lint --dialect=ansi <(echo "select 1")
+
+  coveralls_finish:
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
