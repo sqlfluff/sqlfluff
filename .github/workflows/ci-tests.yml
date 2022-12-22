@@ -74,13 +74,13 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e py -- test
-    - name: Coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pip install coveralls
-        COVERALLS_PARALLEL=true coveralls --service=github
+        tox -e py -- -n 2 test
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.python-version }}
+        parallel: true
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -195,12 +195,12 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
-    - name: Coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pip install coveralls
-        COVERALLS_PARALLEL=true coveralls --service=github
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.dbt-version }}
+        parallel: true
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -229,13 +229,13 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- test
-    - name: Coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pip install coveralls
-        COVERALLS_PARALLEL=true coveralls --service=github
+        python -m tox -e winpy -- -n 2 test
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-windows-${{ matrix.python-version }}
+        parallel: true
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -302,9 +302,8 @@ jobs:
     needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pip install coveralls
-        coveralls --service=github --finish
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
