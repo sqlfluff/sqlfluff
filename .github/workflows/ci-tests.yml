@@ -77,6 +77,7 @@ jobs:
         tox -e py -- test
     - name: Coveralls
       run: |
+        pip install coveralls
         COVERALLS_PARALLEL=true coveralls
   other-tests:
     runs-on: ubuntu-latest
@@ -194,6 +195,7 @@ jobs:
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
     - name: Coveralls
       run: |
+        pip install coveralls
         COVERALLS_PARALLEL=true coveralls
   python-windows-tests:
     runs-on: windows-latest
@@ -226,6 +228,7 @@ jobs:
         python -m tox -e winpy -- test
     - name: Coveralls
       run: |
+        pip install coveralls
         COVERALLS_PARALLEL=true coveralls
   python-windows-dbt-tests:
     runs-on: windows-latest
@@ -295,4 +298,5 @@ jobs:
     steps:
     - name: Coveralls
       run: |
+        pip install coveralls
         coveralls --finish
