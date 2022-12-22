@@ -75,6 +75,12 @@ jobs:
     - name: Run the tests
       run: |
         tox -e py -- -n 2 test
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v3
+      with:
+        # Public token to allow coverage from forks to work.
+        token: fd44b020-c716-4f72-b5f3-03fa20119956
+        files: ./coverage.xml
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
@@ -196,6 +202,12 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v3
+      with:
+        # Public token to allow coverage from forks to work.
+        token: fd44b020-c716-4f72-b5f3-03fa20119956
+        files: ./coverage.xml
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
@@ -232,6 +244,12 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- -n 2 test
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v3
+      with:
+        # Public token to allow coverage from forks to work.
+        token: fd44b020-c716-4f72-b5f3-03fa20119956
+        files: ./coverage.xml
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
