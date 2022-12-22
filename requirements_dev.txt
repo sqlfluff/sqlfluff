@@ -9,6 +9,7 @@ doc8
 Pygments
 # testing
 coverage>=6.4
+coveralls
 hypothesis
 pytest
 pytest-cov

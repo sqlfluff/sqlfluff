@@ -76,10 +76,8 @@ jobs:
       run: |
         tox -e py -- test
     - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel: true
-        flag-name: Python ${{ matrix.python-version }} tests
+      run: |
+        COVERALLS_PARALLEL=true coveralls
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -195,10 +193,8 @@ jobs:
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
     - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel: true
-        flag-name: DBT Plugin ${{ matrix.dbt-version }} tests
+      run: |
+        COVERALLS_PARALLEL=true coveralls
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -228,6 +224,9 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- test
+    - name: Coveralls
+      run: |
+        COVERALLS_PARALLEL=true coveralls
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -294,7 +293,6 @@ jobs:
     needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel-finished: true
+    - name: Coveralls
+      run: |
+        coveralls --finish
