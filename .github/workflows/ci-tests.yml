@@ -74,7 +74,7 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e py -- -n 2 test
+        tox -e py -- --cov=sqlfluff -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
       with:
@@ -201,7 +201,7 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
+        tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
       with:
@@ -211,7 +211,7 @@ jobs:
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
-        base-path: plugins/sqlfluff-templater-dbt
+        #base-path: plugins/sqlfluff-templater-dbt
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.dbt-version }}
@@ -244,7 +244,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- -n 2 test
+        python -m tox -e winpy -- --cov=sqlfluff -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
       with:
@@ -256,7 +256,7 @@ jobs:
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
-        flag-name: run-windows-${{ matrix.python-version }}
+        flag-name: run-windows
         parallel: true
   python-windows-dbt-tests:
     runs-on: windows-latest
