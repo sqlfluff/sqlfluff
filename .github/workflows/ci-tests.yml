@@ -251,13 +251,16 @@ jobs:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-windows
-        parallel: true
+# It turns out we get 100% coverage from the Linux builds, so we don't need to
+# upload coverage from the Windows builds. By omitting this, the Coveralls
+# action finishes sooner, which provides PR feedback more quickly.
+#    - name: Coveralls Parallel
+#      uses: coverallsapp/github-action@master
+#      with:
+#        path-to-lcov: coverage.lcov
+#        github-token: ${{ secrets.github_token }}
+#        flag-name: run-windows
+#        parallel: true
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests

@@ -503,7 +503,9 @@ class JinjaTemplater(PythonTemplater):
         if make_template is None:
             # make_template() was not provided. Use the base class
             # implementation instead.
-            return super().slice_file(raw_str, templated_str, config, **kwargs)
+            return super().slice_file(
+                raw_str, templated_str, config, **kwargs
+            )  # pragma: no cover
 
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
