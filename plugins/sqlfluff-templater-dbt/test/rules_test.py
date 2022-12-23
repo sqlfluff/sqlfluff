@@ -53,3 +53,16 @@ def test__rules__fix_utf8(project_dir):  # noqa
     # Assert that we fixed as expected
     assert fixed_buff == comp_buff
     os.unlink(fixed_path)
+
+
+def test__rules__order_by(project_dir):  # noqa
+    """Verify that rule L037 works with dbt"""
+    rule = "L037"
+    path = "models/my_new_project/L037_test.sql"
+    lntr = Linter(
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
+    )
+    lnt = lntr.lint_path(os.path.join(project_dir, path))
+
+    violations = lnt.check_tuples()
+    assert len(violations) == 0
