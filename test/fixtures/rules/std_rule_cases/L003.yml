@@ -406,7 +406,29 @@ test_fail_possible_hanger_fix:
     FROM tbl
 
 test_fail_consecutive_hangers:
-  # NOTE: The allowed implicit indent in the WHERE clause.
+  fail_str: |
+    select *
+    from foo
+    where a like 'a%'
+      and b like 'b%'
+      and c like 'c%'
+      and d like 'd%'
+      and e like 'e%'
+      and f like 'f%'
+  fix_str: |
+    select *
+    from foo
+    where
+        a like 'a%'
+        and b like 'b%'
+        and c like 'c%'
+        and d like 'd%'
+        and e like 'e%'
+        and f like 'f%'
+
+test_fail_consecutive_hangers:
+  # NOTE: The allowed implicit indent in the WHERE clause,
+  # but by default they're not enabled.
   fail_str: |
     select *
     from foo
@@ -425,6 +447,9 @@ test_fail_consecutive_hangers:
         and d like 'd%'
         and e like 'e%'
         and f like 'f%'
+  configs:
+    indentation:
+      allow_implicit_indents: True
 
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
@@ -1355,3 +1380,24 @@ test_pass_implicit_indent:
     FROM foo
     WHERE a
         AND b
+  configs:
+    indentation:
+      allow_implicit_indents: True
+
+test_fail_deny_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  fail_str: |
+    SELECT *
+    FROM foo
+    WHERE a
+        AND b
+  fix_str: |
+    SELECT *
+    FROM foo
+    WHERE
+        a
+        AND b
+  configs:
+    indentation:
+      allow_implicit_indents: False

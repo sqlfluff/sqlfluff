@@ -65,6 +65,7 @@ class ReflowConfig:
     max_line_length: int = 80
     hanging_indents: bool = False
     skip_indentation_in: FrozenSet[str] = frozenset()
+    allow_implicit_indents: bool = False
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs):
@@ -95,6 +96,9 @@ class ReflowConfig:
             max_line_length=config.get("max_line_length"),
             skip_indentation_in=frozenset(
                 config.get("skip_indentation_in", ["indentation"]).split(",")
+            ),
+            allow_implicit_indents=config.get(
+                "allow_implicit_indents", ["indentation"]
             ),
         )
 
