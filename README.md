@@ -1,7 +1,5 @@
 ![SQLFluff](https://raw.githubusercontent.com/sqlfluff/sqlfluff/main/images/sqlfluff-wide.png)
 
-[![Coverage Status](https://coveralls.io/repos/github/sqlfluff/sqlfluff/badge.svg?branch=main)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
-
 # The SQL Linter for Humans
 
 [![PyPi Version](https://img.shields.io/pypi/v/sqlfluff.svg?style=flat-square&logo=PyPi)](https://pypi.org/project/sqlfluff/)
@@ -11,6 +9,7 @@
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
 [![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
+[![Coveralls](https://coveralls.io/repos/github/sqlfluff/sqlfluff/badge.svg?branch=main)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sqlfluff/sqlfluff/CI%20Tests?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
