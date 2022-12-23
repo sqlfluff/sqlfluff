@@ -56,7 +56,7 @@ def test__rules__fix_utf8(project_dir):  # noqa
 
 
 def test__rules__order_by(project_dir):  # noqa
-    """Verify that rule L037 works with dbt"""
+    """Verify that rule L037 works with dbt."""
     rule = "L037"
     path = "models/my_new_project/L037_test.sql"
     lntr = Linter(
