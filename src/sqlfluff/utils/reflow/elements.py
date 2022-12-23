@@ -272,9 +272,10 @@ class ReflowPoint(ReflowElement):
                 # Do we need to add a new implicit indent?
                 if allow_implicit_indents and indent_seg.is_implicit:
                     implicit_indents.append(running_sum)
-                # Do we need to remove any?
-                elif implicit_indents and indent_seg.indent_val < 0:
-                    implicit_indents = [i for i in implicit_indents if i <= running_sum]
+                # NOTE: We don't check for removal of implicit indents
+                # because it's unlikely that one would be opened, and then
+                # closed within the same point. That would probably be the
+                # sign of a bug in the dialect.
             if running_sum < trough:
                 trough = running_sum
         return IndentStats(running_sum, trough, tuple(implicit_indents))
