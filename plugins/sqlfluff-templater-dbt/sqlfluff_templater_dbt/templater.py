@@ -32,12 +32,10 @@ DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
-if DBT_VERSION_TUPLE >= (1, 3):
-    COMPILED_SQL_ATTRIBUTE = "compiled_code"
-    RAW_SQL_ATTRIBUTE = "raw_code"
-else:
-    COMPILED_SQL_ATTRIBUTE = "compiled_sql"
-    RAW_SQL_ATTRIBUTE = "raw_sql"
+COMPILED_SQL_ATTRIBUTE = (
+    "compiled_code" if DBT_VERSION_TUPLE >= (1, 3) else "compiled_sql"
+)
+RAW_SQL_ATTRIBUTE = "raw_code" if DBT_VERSION_TUPLE >= (1, 3) else "raw_sql"
 
 
 class DbtTemplater(JinjaTemplater):
@@ -222,7 +220,7 @@ class DbtTemplater(JinjaTemplater):
             for node in nodes:
                 if node.original_file_path == expected_node_path:
                     return "disabled"
-        return None
+        return None  # pragma: no cover
 
     def _unsafe_process(
         self, fname: Optional[str], in_str: str, config: FluffConfig = None
@@ -263,7 +261,7 @@ class DbtTemplater(JinjaTemplater):
             # If injected SQL is present, it contains a better picture
             # of what will actually hit the database (e.g. with tests).
             # However it's not always present.
-            compiled_sql = node.injected_sql
+            compiled_sql = node.injected_sql  # pragma: no cover
         else:
             compiled_sql = getattr(node, COMPILED_SQL_ATTRIBUTE)
 
