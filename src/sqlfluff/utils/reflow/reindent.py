@@ -1103,19 +1103,19 @@ def _increment_balance(
             elements to add to `matched_indents`.
 
     Positive indent example:
-    >>> _increment_balance(0, (1, 0), 7)
+    >>> _increment_balance(0, IndentStats(1, 0), 7)
     (1, defaultdict(<class 'list'>, {1.0: [7]}))
 
     Negative indent example:
-    >>> _increment_balance(3, (-1, -1), 11)
+    >>> _increment_balance(3, IndentStats(-1, -1), 11)
     (2, defaultdict(<class 'list'>, {3.0: [11]}))
 
     Double negative indent example:
-    >>> _increment_balance(3, (-2, -2), 16)
+    >>> _increment_balance(3, IndentStats(-2, -2), 16)
     (1, defaultdict(<class 'list'>, {3.0: [16], 2.0: [16]}))
 
     Dip indent example:
-    >>> _increment_balance(3, (0, -1), 21)
+    >>> _increment_balance(3, IndentStats(0, -1), 21)
     (3, defaultdict(<class 'list'>, {3.0: [21]}))
     """
     balance = input_balance

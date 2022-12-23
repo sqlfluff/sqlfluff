@@ -182,7 +182,7 @@ def _indent_description(indent: str):
 @dataclass(frozen=True)
 class IndentStats:
     """Dataclass to hold summary of indents in a point.
-    
+
     Attributes:
         impulse (int): The net change when summing the impulses
             of all the consecutive indent or dedent segments in
@@ -197,6 +197,7 @@ class IndentStats:
             is identified by the indent balance _after_ and a negative
             indent is identified by the indent balance _before_.
     """
+
     impulse: int
     trough: int
     implicit_indents: Tuple[int, ...]
