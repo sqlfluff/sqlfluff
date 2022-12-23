@@ -426,7 +426,7 @@ test_fail_consecutive_hangers:
         and e like 'e%'
         and f like 'f%'
 
-test_fail_consecutive_hangers:
+test_fail_consecutive_hangers_implicit:
   # NOTE: The allowed implicit indent in the WHERE clause,
   # but by default they're not enabled.
   fail_str: |

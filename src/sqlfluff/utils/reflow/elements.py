@@ -180,6 +180,29 @@ def _indent_description(indent: str):
 
 
 @dataclass(frozen=True)
+class IndentStats:
+    """Dataclass to hold summary of indents in a point.
+    
+    Attributes:
+        impulse (int): The net change when summing the impulses
+            of all the consecutive indent or dedent segments in
+            a point.
+        trough (int): The lowest point reached when summing the
+            impulses (in order) of all the consecutive indent or
+            dedent segments in a point.
+        implicit_indents (tuple of int): The indent balance
+            corresponding to any detected (and enabled) implicit
+            indents. This follows the usual convention that indents
+            are identified by their "uphill" side. A positive indent
+            is identified by the indent balance _after_ and a negative
+            indent is identified by the indent balance _before_.
+    """
+    impulse: int
+    trough: int
+    implicit_indents: Tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
@@ -229,9 +252,7 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
-    def get_indent_impulse(
-        self, allow_implicit_indents: bool = False
-    ) -> Tuple[int, int, Tuple[int, ...]]:
+    def get_indent_impulse(self, allow_implicit_indents: bool = False) -> IndentStats:
         """Get the change in intended indent balance from this point.
 
         Returns:
@@ -254,7 +275,7 @@ class ReflowPoint(ReflowElement):
                     implicit_indents = [i for i in implicit_indents if i <= running_sum]
             if running_sum < trough:
                 trough = running_sum
-        return running_sum, trough, tuple(implicit_indents)
+        return IndentStats(running_sum, trough, tuple(implicit_indents))
 
     def indent_to(
         self,
