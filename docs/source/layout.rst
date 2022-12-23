@@ -385,7 +385,7 @@ or :code:`CASE` expressions.
    FROM my_table
    WHERE condition_a
       AND condition_b;
-   
+
    -- With implicit indents disabled (which is currently the
    -- default), the above formulation is not allowed, and instead
    -- there should be a newline immediately after `WHERE` (which
