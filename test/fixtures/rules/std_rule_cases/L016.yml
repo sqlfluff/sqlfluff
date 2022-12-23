@@ -498,7 +498,7 @@ test_fix_no_implicit_indent:
     SELECT
         CASE
             WHEN longer_and_longer AND much_much_much_longer
-            THEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
             ELSE longer_and_longer AND much_much_much_longer
         END as foobar,
         CASE WHEN a THEN b END as bar
