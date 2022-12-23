@@ -54,7 +54,7 @@ class Rule_L037(BaseRule):
         result = []
         column_reference = None
         ordering_reference = None
-        for index, child_segment in enumerate(segment.segments):
+        for child_segment in segment.segments:
             if child_segment.is_type("column_reference"):
                 column_reference = child_segment
             elif child_segment.is_type("keyword") and child_segment.raw_upper in (
@@ -62,9 +62,7 @@ class Rule_L037(BaseRule):
                 "DESC",
             ):
                 ordering_reference = child_segment.raw_upper
-            if column_reference and (
-                child_segment.raw == "," or index == len(segment.segments) - 1
-            ):
+            if child_segment.raw == ",":
                 result.append(
                     OrderByColumnInfo(
                         column_reference=column_reference, order=ordering_reference
