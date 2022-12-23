@@ -361,6 +361,52 @@ route left to consistency is to **not allow hanging indents**.
 Starting in 2.0.0, any hanging indents detected will be
 converted to traditional indents.
 
+.. _implicitindents:
+
+Implicit Indents
+^^^^^^^^^^^^^^^^
+
+A close cousin of the hanging indent is the *implicit indent*.
+While it does look a little like a hanging indent, it's much
+more consistent in its behaviour and is supported from SQLFluff
+2.0.0 onwards.
+
+An implicit indent is exactly like a normal indent, but doesn't
+have to be actually *taken* to influence the indentation of lines
+after it - it just needs to be left un-closed before the end of
+the line. These are normally available in clauses which take the
+form of :code:`KEYWORD <expression>`, like :code:`WHERE` clauses
+or :code:`CASE` expressions.
+
+.. code-block:: sql
+
+   -- This WHERE clause here takes advantage of an implicit indent.
+   SELECT *
+   FROM my_table
+   WHERE condition_a
+      AND condition_b;
+   
+   -- With implicit indents disabled (which is currently the
+   -- default), the above formulation is not allowed, and instead
+   -- there should be a newline immediately after `WHERE` (which
+   -- is the location of the _implicit_ indent).
+   SELECT *
+   FROM my_table
+   WHERE
+      condition_a
+      AND condition_b;
+
+When addressing both indentation and line-length, implicit
+indents allow a slightly more compact layout, without significant
+drawbacks in legibility. They also enable a style much closer to
+some established style guides.
+
+They are however not recommended by many of the major style guides
+at time of writing (including the `dbt Labs SQL style guide`_
+and the `Mozilla SQL style guide`_), and so are disabled by default.
+To enable them, set the :code:`allow_implicit_indents` flag in
+:code:`sqluff.indentation` to :code:`True`.
+
 .. _templatedindents:
 
 Templated Indents
