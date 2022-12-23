@@ -1195,7 +1195,7 @@ def _match_indents(
                 indent_level,
             )
 
-    # ADDITIONALLY - if implicit indents are allowed we want we should
+    # ADDITIONALLY - if implicit indents are allowed we should
     # only use them if they match another untaken point (which isn't
     # implicit, or the end of the line).
     # NOTE: This logic might be best suited to be sited elsewhere
