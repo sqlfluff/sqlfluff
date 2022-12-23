@@ -1148,6 +1148,7 @@ def _match_indents(
     """
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
+    implicit_indents: Dict[int, Tuple[int, ...]] = {}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -1158,6 +1159,9 @@ def _match_indents(
         # it's positive or negative.
         indent_stats = e.get_indent_impulse(allow_implicit_indents)
         e_idx = newline_idx - len(line_elements) + idx + 1
+        # Save any implicit indents.
+        if indent_stats.implicit_indents:
+            implicit_indents[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
@@ -1187,9 +1191,28 @@ def _match_indents(
         if matched_indents[indent_level] == [newline_idx]:
             matched_indents.pop(indent_level)
             reflow_logger.debug(
-                "    purging balance of %s, it references only the " "final element",
+                "    purging balance of %s, it references only the final element.",
                 indent_level,
             )
+
+    # ADDITIONALLY - if implicit indents are allowed we want we should
+    # only use them if they match another untaken point (which isn't
+    # implicit, or the end of the line).
+    # NOTE: This logic might be best suited to be sited elsewhere
+    # when (and if) we introduce smarter choices on where to add
+    # indents.
+    if allow_implicit_indents:
+        for indent_level in list(matched_indents.keys()):
+            major_points = set(matched_indents[indent_level]).difference(
+                [newline_idx], implicit_indents.keys()
+            )
+            if not major_points:
+                matched_indents.pop(indent_level)
+                reflow_logger.debug(
+                    "    purging balance of %s, it references implicit indents "
+                    "or the final indent.",
+                    indent_level,
+                )
 
     return matched_indents
 

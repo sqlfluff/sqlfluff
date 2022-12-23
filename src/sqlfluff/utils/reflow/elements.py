@@ -200,7 +200,8 @@ class IndentStats:
 
     impulse: int
     trough: int
-    implicit_indents: Tuple[int, ...]
+    # Defaults to an empty tuple if unset.
+    implicit_indents: Tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)

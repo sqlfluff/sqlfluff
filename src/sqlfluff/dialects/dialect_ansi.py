@@ -1761,7 +1761,9 @@ class WhenClauseSegment(BaseSegment):
         ),
         Indent,
         "THEN",
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         Dedent,
     )
 
