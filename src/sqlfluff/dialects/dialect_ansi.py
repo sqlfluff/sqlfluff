@@ -31,6 +31,7 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
+    ImplicitIndent,
     KeywordSegment,
     Matchable,
     MultiStringParser,
@@ -1668,7 +1669,7 @@ class JoinOnConditionSegment(BaseSegment):
     type = "join_on_condition"
     match_grammar: Matchable = Sequence(
         "ON",
-        Conditional(Indent, indented_on_contents=True),
+        Conditional(ImplicitIndent, indented_on_contents=True),
         OptionallyBracketed(Ref("ExpressionSegment")),
         Conditional(Dedent, indented_on_contents=True),
     )
@@ -1754,13 +1755,15 @@ class WhenClauseSegment(BaseSegment):
         # are present.
         # https://github.com/sqlfluff/sqlfluff/issues/3988
         Sequence(
-            Indent,
+            ImplicitIndent,
             Ref("ExpressionSegment"),
             Dedent,
         ),
         Indent,
         "THEN",
+        ImplicitIndent,
         Ref("ExpressionSegment"),
+        Dedent,
         Dedent,
     )
 
@@ -1770,7 +1773,7 @@ class ElseClauseSegment(BaseSegment):
 
     type = "else_clause"
     match_grammar: Matchable = Sequence(
-        "ELSE", Indent, Ref("ExpressionSegment"), Dedent
+        "ELSE", ImplicitIndent, Ref("ExpressionSegment"), Dedent
     )
 
 
@@ -2091,7 +2094,15 @@ class WhereClauseSegment(BaseSegment):
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "WHERE",
-        Indent,
+        # NOTE: The indent here is implicit to allow
+        # constructions like:
+        #
+        #    WHERE a
+        #        AND b
+        #
+        # to be valid without forcing an indent between
+        # "WHERE" and "a".
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
@@ -2170,7 +2181,7 @@ class HavingClauseSegment(BaseSegment):
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "HAVING",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

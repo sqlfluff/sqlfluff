@@ -180,6 +180,31 @@ def _indent_description(indent: str):
 
 
 @dataclass(frozen=True)
+class IndentStats:
+    """Dataclass to hold summary of indents in a point.
+
+    Attributes:
+        impulse (int): The net change when summing the impulses
+            of all the consecutive indent or dedent segments in
+            a point.
+        trough (int): The lowest point reached when summing the
+            impulses (in order) of all the consecutive indent or
+            dedent segments in a point.
+        implicit_indents (tuple of int): The indent balance
+            corresponding to any detected (and enabled) implicit
+            indents. This follows the usual convention that indents
+            are identified by their "uphill" side. A positive indent
+            is identified by the indent balance _after_ and a negative
+            indent is identified by the indent balance _before_.
+    """
+
+    impulse: int
+    trough: int
+    # Defaults to an empty tuple if unset.
+    implicit_indents: Tuple[int, ...] = ()
+
+
+@dataclass(frozen=True)
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
@@ -229,7 +254,7 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
-    def get_indent_impulse(self) -> Tuple[int, int]:
+    def get_indent_impulse(self, allow_implicit_indents: bool = False) -> IndentStats:
         """Get the change in intended indent balance from this point.
 
         Returns:
@@ -239,12 +264,21 @@ class ReflowPoint(ReflowElement):
         """
         trough = 0
         running_sum = 0
+        implicit_indents = []
         for seg in self.segments:
             if seg.is_type("indent"):
-                running_sum += cast(Indent, seg).indent_val
+                indent_seg = cast(Indent, seg)
+                running_sum += indent_seg.indent_val
+                # Do we need to add a new implicit indent?
+                if allow_implicit_indents and indent_seg.is_implicit:
+                    implicit_indents.append(running_sum)
+                # NOTE: We don't check for removal of implicit indents
+                # because it's unlikely that one would be opened, and then
+                # closed within the same point. That would probably be the
+                # sign of a bug in the dialect.
             if running_sum < trough:
                 trough = running_sum
-        return running_sum, trough
+        return IndentStats(running_sum, trough, tuple(implicit_indents))
 
     def indent_to(
         self,
