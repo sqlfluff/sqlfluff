@@ -18,6 +18,9 @@ class MetaSegment(RawSegment):
     _is_code = False
     _template = "<unset>"
     indent_val = 0
+    # Implicit indents are to be considered _taken_ unless
+    # closed on the same line.
+    is_implicit = False
     is_meta = True
 
     def __init__(
@@ -104,6 +107,22 @@ class Indent(MetaSegment):
 
     type = "indent"
     indent_val = 1
+
+
+class ImplicitIndent(Indent):
+    """A variant on the indent, that is considered *taken* unless closed in line.
+
+    This is primarily for facilitating constructions which behave a little
+    like hanging indents, without the complicated indentation spacing.
+
+    .. code-block:: sql
+        SELECT *
+        FROM foo
+        WHERE a  -- The theoretical indent between WHERE and "a" is implicit.
+            AND b
+    """
+
+    is_implicit = True
 
 
 class Dedent(Indent):
