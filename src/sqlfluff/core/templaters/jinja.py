@@ -460,9 +460,9 @@ class JinjaTemplater(PythonTemplater):
                 config=config,
                 make_template=make_template,
             ):
+                undefined_variable_violations: List[SQLBaseError] = []
                 if undefined_variables:
                     # Let's go through and find out where they are:
-                    undefined_variable_violations: List[SQLBaseError] = []
                     for template_err_val in self._crawl_tree(
                         syntax_tree, undefined_variables, in_str
                     ):

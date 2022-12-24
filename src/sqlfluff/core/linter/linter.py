@@ -370,47 +370,54 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
-    ) -> ParsedString:
-        """Parse a rendered file."""
+    ) -> Iterator[ParsedString]:
+        """Parse each TemplatedFile in the rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file:
+        for templated_file in rendered.templated_files:
             tokens, lvs, config = cls._lex_templated_file(
-                rendered.templated_file, rendered.config
+                templated_file, rendered.config
             )
             violations += lvs
-        else:
-            tokens = None
 
-        t1 = time.monotonic()
-        linter_logger.info("PARSING (%s)", rendered.fname)
+            t1 = time.monotonic()
+            linter_logger.info("PARSING (%s)", rendered.fname)
 
-        if tokens:
             parsed, pvs = cls._parse_tokens(
-                tokens,
+                tokens,  # type: ignore
                 rendered.config,
                 recurse=recurse,
                 fname=rendered.fname,
             )
             violations += pvs
-        else:
-            parsed = None
-
-        time_dict = {
-            **rendered.time_dict,
-            "lexing": t1 - t0,
-            "parsing": time.monotonic() - t1,
-        }
-        return ParsedString(
-            parsed,
-            violations,
-            time_dict,
-            rendered.templated_file,
-            rendered.config,
-            rendered.fname,
-            rendered.source_str,
-        )
+            time_dict = {
+                **rendered.time_dict,
+                "lexing": t1 - t0,
+                "parsing": time.monotonic() - t1,
+            }
+            yield ParsedString(
+                parsed,
+                violations,
+                time_dict,
+                templated_file,
+                rendered.config,
+                rendered.fname,
+                rendered.source_str,
+            )
+        if not rendered.templated_files:
+            yield ParsedString(
+                None,
+                violations,
+                {
+                    "lexing": 0,
+                    "parsing": 0,
+                },
+                None,  # type: ignore
+                rendered.config,
+                rendered.fname,
+                rendered.source_str,
+            )
 
     @classmethod
     def extract_ignore_from_comment(
@@ -777,14 +784,19 @@ class Linter:
         formatter: Any = None,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
-        parsed = cls.parse_rendered(rendered)
-        return cls.lint_parsed(
-            parsed,
-            rule_set=rule_set,
-            fix=fix,
-            formatter=formatter,
-            encoding=rendered.encoding,
-        )
+        linted_files = []
+        for parsed in cls.parse_rendered(rendered):
+            linted_files.append(
+                cls.lint_parsed(
+                    parsed,
+                    rule_set=rule_set,
+                    fix=fix,
+                    formatter=formatter,
+                    encoding=rendered.encoding,
+                )
+            )
+        # TODO: Combine the linted files into a single one.
+        return linted_files[0]
 
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
@@ -820,24 +832,30 @@ class Linter:
                     "details."
                 )
             )
+        templated_files = []
+        all_templater_violations = []
         try:
-            templated_file, templater_violations = self.templater.process(
+            for templated_file, templater_violations in self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
+            ):
+                if not templated_file:
+                    linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+                templated_files.append(templated_file)
+                for templater_violation in templater_violations:
+                    if templater_violation not in all_templater_violations:
+                        all_templater_violations.append(templater_violation)
+
         except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
-
-        if not templated_file:
-            linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+            templated_files = []
+            all_templater_violations = []
 
         # Record time
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file,
-            templater_violations,
+            templated_files,
+            all_templater_violations,
             config,
             time_dict,
             fname,
@@ -859,7 +877,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
-    ) -> ParsedString:
+    ) -> Iterator[ParsedString]:
         """Parse a string."""
         violations: List[SQLBaseError] = []
 
@@ -879,7 +897,7 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        return self.parse_rendered(rendered, recurse=recurse)
+        yield from self.parse_rendered(rendered, recurse=recurse)
 
     def fix(
         self,
@@ -939,22 +957,27 @@ class Linter:
         """
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
+        linted_files = []
         # Parse the string.
-        parsed = self.parse_string(
+        for parsed in self.parse_string(
             in_str=in_str,
             fname=fname,
             config=config,
-        )
-        # Get rules as appropriate
-        rule_set = self.get_ruleset(config=config)
-        # Lint the file and return the LintedFile
-        return self.lint_parsed(
-            parsed,
-            rule_set,
-            fix=fix,
-            formatter=self.formatter,
-            encoding=encoding,
-        )
+        ):
+            # Get rules as appropriate
+            rule_set = self.get_ruleset(config=config)
+            # Lint the file and return the LintedFile
+            linted_files.append(
+                self.lint_parsed(
+                    parsed,
+                    rule_set,
+                    fix=fix,
+                    formatter=self.formatter,
+                    encoding=encoding,
+                )
+            )
+        # TODO: Combine the linted files into a single one.
+        return linted_files[0]
 
     def paths_from_path(
         self,
@@ -1214,7 +1237,7 @@ class Linter:
             except SQLFluffSkipFile as s:
                 linter_logger.warning(str(s))
                 continue
-            yield self.parse_string(
+            yield from self.parse_string(
                 raw_file,
                 fname=fname,
                 recurse=recurse,
