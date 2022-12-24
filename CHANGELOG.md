@@ -10,6 +10,28 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.0a1] - 2022-12-24
+
+## Highlights
+
+## What’s Changed
+
+* Implicit Indents [#4054](https://github.com/sqlfluff/sqlfluff/pull/4054) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Tweak Coveralls settings [#4199](https://github.com/sqlfluff/sqlfluff/pull/4199) [@barrywhart](https://github.com/barrywhart)
+* In addition to Codecov, also upload to Coveralls [#4197](https://github.com/sqlfluff/sqlfluff/pull/4197) [@barrywhart](https://github.com/barrywhart)
+* Fix: create table default cast returns unparsable section [#4192](https://github.com/sqlfluff/sqlfluff/pull/4192) [@NelsonTorres](https://github.com/NelsonTorres)
+* Fix JSON parsing issue with diff-quality plugin [#4190](https://github.com/sqlfluff/sqlfluff/pull/4190) [@barrywhart](https://github.com/barrywhart)
+* Codecov migration [#4195](https://github.com/sqlfluff/sqlfluff/pull/4195) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Stop adding trailing os.sep if ignore file is on the root of the file… [#4182](https://github.com/sqlfluff/sqlfluff/pull/4182) [@baa-ableton](https://github.com/baa-ableton)
+* Port dbt-osmosis templater changes to SQLFluff [#3976](https://github.com/sqlfluff/sqlfluff/pull/3976) [@barrywhart](https://github.com/barrywhart)
+* Reflow 4: Long Lines [#4067](https://github.com/sqlfluff/sqlfluff/pull/4067) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix comment bug on reindent [#4179](https://github.com/sqlfluff/sqlfluff/pull/4179) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Reflow 3: Reindent [#3942](https://github.com/sqlfluff/sqlfluff/pull/3942) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@baa-ableton](https://github.com/baa-ableton) made their first contribution in [#4182](https://github.com/sqlfluff/sqlfluff/pull/4182)
+
 ## [1.4.5] - 2022-12-18
 
 ## Highlights
