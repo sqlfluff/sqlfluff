@@ -12,7 +12,27 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## [2.0.0a1] - 2022-12-24
 
+> NOTE: This is an alpha release for testing purposes. There are several new features
+> here, and breaking changes to configuration. We welcome testing feedback from the
+> community, but know that this release may feel less polished than usual.
+
 ## Highlights
+
+This is the first alpha version for 2.0.0. It brings all of the changes to whitespace
+handing, including a total rewrite of indentation and long line logic (L003 & L016).
+That brings several breaking changes to the configuration of layout, see the
+[layout docs](https://docs.sqlfluff.com/en/stable/layout.html) for more details and
+familiarise yourself with the new
+[default configuration](https://docs.sqlfluff.com/en/stable/configuration.html#default-configuration).
+
+In addition, for the dbt templater, this introduces a large re-write of the codebase,
+dropping support for dbt versions before 1.0.0. This leverages functionality from
+[dbt-osmosis](https://github.com/z3z1ma/dbt-osmosis) to reduce the amount of
+functionality supported directly by SQLFluff, and performance during testing of the new
+version has been reported as significantly faster.
+
+There will likely be more changes to rule classification before a full release of 2.0.0,
+so anticipate that configuration files may change slightly again in future alpha releases.
 
 ## What’s Changed
 
