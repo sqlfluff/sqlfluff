@@ -18,7 +18,12 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.slice_helpers import slice_length
-from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
+from sqlfluff.utils.reflow.elements import (
+    ReflowBlock,
+    ReflowPoint,
+    ReflowSequenceType,
+    IndentStats,
+)
 from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans, _RebreakSpan
 
@@ -436,7 +441,9 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
         )
 
 
-def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]:
+def _crawl_indent_points(
+    elements: ReflowSequenceType, allow_implicit_indents: bool = False
+) -> Iterator[_IndentPoint]:
     """Crawl through a reflow sequence, mapping existing indents.
 
     This is where *most* of the logic for smart indentation
@@ -451,14 +458,14 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
     untaken_indents: Tuple[int, ...] = ()
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_impulse, indent_trough = elem.get_indent_impulse()
+            indent_stats = elem.get_indent_impulse(allow_implicit_indents)
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
                 yield _IndentPoint(
                     idx,
-                    indent_impulse,
-                    indent_trough,
+                    indent_stats.impulse,
+                    indent_stats.trough,
                     indent_balance,
                     last_line_break_idx,
                     True,
@@ -471,15 +478,15 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
             # NOTE: Last edge case. If we haven't yielded yet, but the
             # next element is the end of the file. Yield.
             elif (
-                indent_impulse
-                or indent_trough
+                indent_stats.impulse
+                or indent_stats.trough
                 or idx == 0
                 or elements[idx + 1].segments[0].is_type("end_of_file")
             ):
                 yield _IndentPoint(
                     idx,
-                    indent_impulse,
-                    indent_trough,
+                    indent_stats.impulse,
+                    indent_stats.trough,
                     indent_balance,
                     last_line_break_idx,
                     False,
@@ -495,27 +502,33 @@ def _crawl_indent_points(elements: ReflowSequenceType) -> Iterator[_IndentPoint]
                 for x in untaken_indents
                 if x
                 <= (
-                    indent_balance + indent_impulse + indent_trough
-                    if indent_trough < indent_impulse
-                    else indent_balance + indent_impulse
+                    indent_balance + indent_stats.impulse + indent_stats.trough
+                    if indent_stats.trough < indent_stats.impulse
+                    else indent_balance + indent_stats.impulse
                 )
             )
 
             # After stripping, we may have to add them back in.
-            if indent_impulse > indent_trough and not has_newline:
-                for i in range(indent_trough, indent_impulse):
-                    untaken_indents += (indent_balance + i + 1,)
+            if indent_stats.impulse > indent_stats.trough and not has_newline:
+                for i in range(indent_stats.trough, indent_stats.impulse):
+                    indent_val = indent_balance + i + 1
+                    if indent_val not in indent_stats.implicit_indents:
+                        untaken_indents += (indent_val,)
 
             # Update values
-            indent_balance += indent_impulse
+            indent_balance += indent_stats.impulse
 
 
-def _map_line_buffers(elements: ReflowSequenceType) -> List[_IndentLine]:
+def _map_line_buffers(
+    elements: ReflowSequenceType, allow_implicit_indents: bool = False
+) -> List[_IndentLine]:
     """Map the existing elements, building up a list of _IndentLine."""
     # First build up the buffer of lines.
     lines = []
     point_buffer = []
-    for indent_point in _crawl_indent_points(elements):
+    for indent_point in _crawl_indent_points(
+        elements, allow_implicit_indents=allow_implicit_indents
+    ):
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
         point_buffer.append(indent_point)
@@ -677,6 +690,9 @@ def _lint_line_untaken_positive_indents(
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
     # a good chance that we *should* take it.
+    # NOTE: an implicit indent would not force a newline
+    # because it wouldn't be in the untaken_indents. It's
+    # considered _taken_ even if not.
     if closing_trough not in indent_points[-1].untaken_indents:
         # If the closing point doesn't correspond to an untaken
         # indent within the line (i.e. it _was_ taken), then
@@ -891,6 +907,7 @@ def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
     skip_indentation_in: Set[str] = set(),
+    allow_implicit_indents: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -913,7 +930,9 @@ def lint_indent_points(
     break, we need to also know how much to indent by.
     """
     # First map the line buffers.
-    lines: List[_IndentLine] = _map_line_buffers(elements)
+    lines: List[_IndentLine] = _map_line_buffers(
+        elements, allow_implicit_indents=allow_implicit_indents
+    )
 
     # Revise templated indents
     _revise_templated_lines(lines, elements)
@@ -1067,7 +1086,7 @@ MatchedIndentsType = DefaultDict[float, List[int]]
 
 def _increment_balance(
     input_balance: int,
-    indent_stats: Tuple[int, int],
+    indent_stats: IndentStats,
     elem_idx: int,
 ) -> Tuple[int, MatchedIndentsType]:
     """Logic for stepping through _match_indents.
@@ -1084,35 +1103,35 @@ def _increment_balance(
             elements to add to `matched_indents`.
 
     Positive indent example:
-    >>> _increment_balance(0, (1, 0), 7)
+    >>> _increment_balance(0, IndentStats(1, 0), 7)
     (1, defaultdict(<class 'list'>, {1.0: [7]}))
 
     Negative indent example:
-    >>> _increment_balance(3, (-1, -1), 11)
+    >>> _increment_balance(3, IndentStats(-1, -1), 11)
     (2, defaultdict(<class 'list'>, {3.0: [11]}))
 
     Double negative indent example:
-    >>> _increment_balance(3, (-2, -2), 16)
+    >>> _increment_balance(3, IndentStats(-2, -2), 16)
     (1, defaultdict(<class 'list'>, {3.0: [16], 2.0: [16]}))
 
     Dip indent example:
-    >>> _increment_balance(3, (0, -1), 21)
+    >>> _increment_balance(3, IndentStats(0, -1), 21)
     (3, defaultdict(<class 'list'>, {3.0: [21]}))
     """
     balance = input_balance
     matched_indents: MatchedIndentsType = defaultdict(list)
-    if indent_stats[1] < 0:  # NOTE: for negative, *trough* counts.
+    if indent_stats.trough < 0:  # NOTE: for negative, *trough* counts.
         # in case of more than one indent we loop and apply to all.
-        for b in range(0, indent_stats[1], -1):
+        for b in range(0, indent_stats.trough, -1):
             matched_indents[(balance + b) * 1.0].append(elem_idx)
         # NOTE: We carry forward the impulse, not the trough.
         # This is important for dedent+indent pairs.
-        balance += indent_stats[0]
-    elif indent_stats[0] > 0:  # NOTE: for positive, *impulse* counts.
+        balance += indent_stats.impulse
+    elif indent_stats.impulse > 0:  # NOTE: for positive, *impulse* counts.
         # in case of more than one indent we loop and apply to all.
-        for b in range(0, indent_stats[0]):
+        for b in range(0, indent_stats.impulse):
             matched_indents[(balance + b + 1) * 1.0].append(elem_idx)
-        balance += indent_stats[0]
+        balance += indent_stats.impulse
     return balance, matched_indents
 
 
@@ -1120,6 +1139,7 @@ def _match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: Dict[int, int],
     newline_idx: int,
+    allow_implicit_indents: bool = False,
 ) -> MatchedIndentsType:
     """Identify indent points, taking into account rebreak_priorities.
 
@@ -1128,6 +1148,7 @@ def _match_indents(
     """
     balance = 0
     matched_indents: MatchedIndentsType = defaultdict(list)
+    implicit_indents: Dict[int, Tuple[int, ...]] = {}
     for idx, e in enumerate(line_elements):
         # We only care about points, because only they contain indents.
         if not isinstance(e, ReflowPoint):
@@ -1136,8 +1157,11 @@ def _match_indents(
         # As usual, indents are referred to by their "uphill" side
         # so what number we store the point against depends on whether
         # it's positive or negative.
-        indent_stats = e.get_indent_impulse()
+        indent_stats = e.get_indent_impulse(allow_implicit_indents)
         e_idx = newline_idx - len(line_elements) + idx + 1
+        # Save any implicit indents.
+        if indent_stats.implicit_indents:
+            implicit_indents[e_idx] = indent_stats.implicit_indents
         balance, nmi = _increment_balance(balance, indent_stats, e_idx)
         # Incorporate nmi into matched_indents
         for b, indices in nmi.items():
@@ -1167,9 +1191,28 @@ def _match_indents(
         if matched_indents[indent_level] == [newline_idx]:
             matched_indents.pop(indent_level)
             reflow_logger.debug(
-                "    purging balance of %s, it references only the " "final element",
+                "    purging balance of %s, it references only the final element.",
                 indent_level,
             )
+
+    # ADDITIONALLY - if implicit indents are allowed we should
+    # only use them if they match another untaken point (which isn't
+    # implicit, or the end of the line).
+    # NOTE: This logic might be best suited to be sited elsewhere
+    # when (and if) we introduce smarter choices on where to add
+    # indents.
+    if allow_implicit_indents:
+        for indent_level in list(matched_indents.keys()):
+            major_points = set(matched_indents[indent_level]).difference(
+                [newline_idx], implicit_indents.keys()
+            )
+            if not major_points:
+                matched_indents.pop(indent_level)
+                reflow_logger.debug(
+                    "    purging balance of %s, it references implicit indents "
+                    "or the final indent.",
+                    indent_level,
+                )
 
     return matched_indents
 
@@ -1179,6 +1222,7 @@ def lint_line_length(
     root_segment: BaseSegment,
     single_indent: str,
     line_length_limit: int,
+    allow_implicit_indents: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -1267,7 +1311,12 @@ def lint_line_length(
 
             # Identify indent points second, taking into
             # account rebreak_priorities.
-            matched_indents = _match_indents(line_elements, rebreak_priorities, i)
+            matched_indents = _match_indents(
+                line_elements,
+                rebreak_priorities,
+                i,
+                allow_implicit_indents=allow_implicit_indents,
+            )
             reflow_logger.debug("    matched_indents: %s", matched_indents)
 
             # If we don't have any matched_indents, we don't have any options.
@@ -1399,8 +1448,8 @@ def lint_line_length(
                     # We need to check for negative sections so they get the right
                     # indent (otherwise they'll be over indented).
                     # The `desired_indent` above is for the "uphill" side.
-                    balance, trough = e.get_indent_impulse()
-                    if trough < 0:
+                    indent_stats = e.get_indent_impulse(allow_implicit_indents)
+                    if indent_stats.trough < 0:
                         new_indent = current_indent
                     else:
                         new_indent = desired_indent
@@ -1424,7 +1473,7 @@ def lint_line_length(
                     # NOTE: This only makes sense if this is an indent point and
                     # not a rebreaking operation (i.e. this is an integer balance).
                     # Otherwise break at all the points.
-                    if balance < 0 and target_balance % 1 == 0:
+                    if indent_stats.impulse < 0 and target_balance % 1 == 0:
                         reflow_logger.debug("    Stopping as we're back down.")
                         break
 
