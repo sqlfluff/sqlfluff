@@ -202,7 +202,7 @@ class PythonTemplater(RawTemplater):
     @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Iterator[Tuple[Optional[TemplatedFile], list]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -231,23 +231,23 @@ class PythonTemplater(RawTemplater):
                 "Failure in Python templating: {}. Have you configured your "
                 "variables?".format(err)
             )
-        raw_sliced, sliced_file, new_str = self.slice_file(
+        for raw_sliced, sliced_file, new_str in self.slice_file(
             in_str, new_str, config=config
-        )
-        return (
-            TemplatedFile(
-                source_str=in_str,
-                templated_str=new_str,
-                fname=fname,
-                sliced_file=sliced_file,
-                raw_sliced=raw_sliced,
-            ),
-            [],
-        )
+        ):
+            yield (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=new_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                [],
+            )
 
     def slice_file(
         self, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -312,7 +312,7 @@ class PythonTemplater(RawTemplater):
             else:
                 # If it's not equal, loop around
                 templated_str = new_templated_str
-        return raw_sliced, sliced_file, new_templated_str
+        yield raw_sliced, sliced_file, new_templated_str
 
     @classmethod
     def _check_for_wrapped(

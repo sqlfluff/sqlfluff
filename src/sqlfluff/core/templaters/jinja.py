@@ -3,7 +3,7 @@ import logging
 import os.path
 import pkgutil
 from functools import reduce
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Callable, Dict, Generator, Iterator, List, Optional, Tuple
 
 import jinja2.nodes
 from jinja2 import (
@@ -346,7 +346,7 @@ class JinjaTemplater(PythonTemplater):
     @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Iterator[Tuple[Optional[TemplatedFile], list]]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -377,7 +377,8 @@ class JinjaTemplater(PythonTemplater):
                 fname=fname, config=config
             )
         except SQLTemplaterError as err:
-            return None, [err]
+            yield None, [err]
+            return
 
         # Load the template, passing the global context.
         try:
@@ -385,7 +386,7 @@ class JinjaTemplater(PythonTemplater):
         except TemplateSyntaxError as err:
             # Something in the template didn't parse, return the original
             # and a violation around what happened.
-            return (
+            yield (
                 TemplatedFile(source_str=in_str, fname=fname),
                 [
                     SQLTemplaterError(
@@ -394,6 +395,7 @@ class JinjaTemplater(PythonTemplater):
                     )
                 ],
             )
+            return
 
         violations: List[SQLBaseError] = []
 
@@ -452,28 +454,29 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render(**live_context)
             # Slice the file once rendered.
-            raw_sliced, sliced_file, out_str = self.slice_file(
+            for raw_sliced, sliced_file, out_str in self.slice_file(
                 in_str,
                 out_str,
                 config=config,
                 make_template=make_template,
-            )
-            if undefined_variables:
-                # Lets go through and find out where they are:
-                for template_err_val in self._crawl_tree(
-                    syntax_tree, undefined_variables, in_str
-                ):
-                    violations.append(template_err_val)
-            return (
-                TemplatedFile(
-                    source_str=in_str,
-                    templated_str=out_str,
-                    fname=fname,
-                    sliced_file=sliced_file,
-                    raw_sliced=raw_sliced,
-                ),
-                violations,
-            )
+            ):
+                if undefined_variables:
+                    # Let's go through and find out where they are:
+                    undefined_variable_violations: List[SQLBaseError] = []
+                    for template_err_val in self._crawl_tree(
+                        syntax_tree, undefined_variables, in_str
+                    ):
+                        undefined_variable_violations.append(template_err_val)
+                yield (
+                    TemplatedFile(
+                        source_str=in_str,
+                        templated_str=out_str,
+                        fname=fname,
+                        sliced_file=sliced_file,
+                        raw_sliced=raw_sliced,
+                    ),
+                    violations + undefined_variable_violations,
+                )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             template_err: SQLBaseError = SQLTemplaterError(
@@ -490,11 +493,11 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=1,
             )
             violations.append(template_err)
-            return None, violations
+            yield None, violations
 
     def slice_file(
         self, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
@@ -503,7 +506,7 @@ class JinjaTemplater(PythonTemplater):
         if make_template is None:
             # make_template() was not provided. Use the base class
             # implementation instead.
-            return super().slice_file(
+            yield from super().slice_file(
                 raw_str, templated_str, config, **kwargs
             )  # pragma: no cover
 
@@ -515,7 +518,7 @@ class JinjaTemplater(PythonTemplater):
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
         tracer = analyzer.analyze(make_template)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
-        return trace.raw_sliced, trace.sliced_file, trace.templated_str
+        yield trace.raw_sliced, trace.sliced_file, trace.templated_str
 
 
 class DummyUndefined(jinja2.Undefined):

@@ -490,7 +490,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Iterator[Tuple[Optional[TemplatedFile], list]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -510,7 +510,7 @@ class RawTemplater:
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        return TemplatedFile(in_str, fname=fname), []
+        yield TemplatedFile(in_str, fname=fname), []
 
     def __eq__(self, other):
         """Return true if `other` is of the same class as this one.

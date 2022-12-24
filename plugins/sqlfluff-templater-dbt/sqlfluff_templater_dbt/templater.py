@@ -183,12 +183,12 @@ class DbtTemplater(JinjaTemplater):
         self.formatter = formatter
         self.sqlfluff_config = config
         try:
-            processsed_result = self._unsafe_process(
+            for processed_result in self._unsafe_process(
                 os.path.abspath(fname) if fname else None, in_str, config
-            )
+            ):
+                yield processed_result
             # Reset the fail counter
             self._sequential_fails = 0
-            return processsed_result
         except DbtRuntimeException as e:
             # Increment the counter
             self._sequential_fails += 1
@@ -197,7 +197,7 @@ class DbtTemplater(JinjaTemplater):
                 if e.node
                 else f"dbt error: {e.msg}"
             )
-            return None, [
+            yield None, [
                 SQLTemplaterError(
                     message,
                     # It's fatal if we're over the limit
@@ -206,7 +206,7 @@ class DbtTemplater(JinjaTemplater):
             ]
         # If a SQLFluff error is raised, just pass it through
         except SQLTemplaterError as e:  # pragma: no cover
-            return None, [e]
+            yield None, [e]
 
     def _find_skip_reason(self, project, expected_node_path) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
@@ -293,25 +293,24 @@ class DbtTemplater(JinjaTemplater):
         templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
 
         # SLICE
-        raw_sliced, sliced_file, templated_sql = self.slice_file(
+        for raw_sliced, sliced_file, templated_sql in self.slice_file(
             raw_str=in_str,
             templated_str=compiled_sql + "\n" * n_trailing_newlines,
             config=config,
             make_template=make_template,
             append_to_templated="\n" if n_trailing_newlines else "",
-        )
-
-        return (
-            TemplatedFile(
-                source_str=in_str,
-                templated_str=templated_sql,
-                fname=fname,
-                sliced_file=sliced_file,
-                raw_sliced=raw_sliced,
-            ),
-            # No violations returned in this way.
-            [],
-        )
+        ):
+            yield (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=templated_sql,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                # No violations returned in this way.
+                [],
+            )
 
 
 class SnapshotExtension(StandaloneTag):
