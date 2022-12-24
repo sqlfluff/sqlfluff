@@ -90,6 +90,7 @@ class TemplatedFileSlice(NamedTuple):
     slice_type: str
     source_slice: slice
     templated_slice: slice
+    slice_idx: Optional[int] = None
 
 
 class RawSliceBlockInfo(NamedTuple):
@@ -142,7 +143,7 @@ class TemplatedFile:
         # If we get here and we don't have sliced files, then it's raw, so create them.
         self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
             TemplatedFileSlice(
-                "literal", slice(0, len(source_str)), slice(0, len(source_str))
+                "literal", slice(0, len(source_str)), slice(0, len(source_str)), 0
             )
         ]
         self.raw_sliced: List[RawFileSlice] = raw_sliced or [
