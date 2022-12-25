@@ -22,6 +22,10 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.grammar.base import Anything
 from sqlfluff.core.parser.grammar.sequence import Bracketed
 
+from sqlfluff.core.parser.grammar.anyof import OneOf
+
+from sqlfluff.core.parser.grammar.anyof import AnyNumberOf
+
 ansi_dialect = load_raw_dialect("ansi")
 
 db2_dialect = ansi_dialect.copy_as("db2")
@@ -41,6 +45,22 @@ db2_dialect.replace(
     ),
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
+    ),
+    Expression_C_Grammar=OneOf(
+        Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
+        # should be first priority, otherwise EXISTS() would be matched as a function
+        Sequence(
+            OneOf(
+                Ref("Expression_D_Grammar"),
+                Ref("CaseExpressionSegment"),
+            ),
+            AnyNumberOf(Ref("TimeZoneGrammar")),
+        ),
+        Ref("ShorthandCastSegment"),
+        Sequence(
+            Ref("NumericLiteralSegment"),
+            "DAYS"
+        )
     ),
 )
 
