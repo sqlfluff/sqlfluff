@@ -1,5 +1,6 @@
 """pytest fixtures."""
-import dbt.flags
+import os
+
 import pytest
 
 
@@ -10,4 +11,4 @@ def dbt_flags():
     # some test code in core/dbt/parser/models.py, ModelParser. render_update().
     # We've seen occasional runtime errors from that code:
     # TypeError: cannot pickle '_thread.RLock' object
-    dbt.flags.USE_EXPERIMENTAL_PARSER = True
+    os.environ["DBT_USE_EXPERIMENTAL_PARSER"] = "True"
