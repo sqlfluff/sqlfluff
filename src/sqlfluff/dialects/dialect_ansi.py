@@ -521,6 +521,7 @@ ansi_dialect.add(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
+        "FETCH",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
@@ -552,6 +553,7 @@ ansi_dialect.add(
         "WINDOW",
         Ref("FrameClauseUnitGrammar"),
         "SEPARATOR",
+        "FETCH",
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
@@ -2243,6 +2245,25 @@ class NamedWindowSegment(BaseSegment):
     )
 
 
+class FetchClauseSegment(BaseSegment):
+    """A `FETCH` clause like in `SELECT."""
+
+    type = "fetch_clause"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        Ref("NumericLiteralSegment"),
+        OneOf(
+            "ROW",
+            "ROWS"
+        ),
+        "ONLY"
+    )
+
+
 class NamedWindowExpressionSegment(BaseSegment):
     """Named window expression."""
 
@@ -2348,7 +2369,10 @@ class SelectStatementSegment(BaseSegment):
     # Inherit most of the parse grammar from the original.
     parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
-            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("FetchClauseSegment", optional=True)
+            ),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ]
