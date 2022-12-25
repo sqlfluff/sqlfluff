@@ -1919,7 +1919,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
-        Sequence(Ref("NumericLiteralSegment"), "DAYS")
+        #Sequence(Ref("NumericLiteralSegment"), "DAYS")
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -2252,8 +2252,8 @@ class FetchClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "FETCH",
         OneOf(
-            "FIRST",
-            "NEXT",
+           "FIRST",
+           "NEXT",
         ),
         Ref("NumericLiteralSegment"),
         OneOf(
@@ -2369,10 +2369,8 @@ class SelectStatementSegment(BaseSegment):
     # Inherit most of the parse grammar from the original.
     parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
-            Sequence(
-                Ref("OrderByClauseSegment", optional=True),
-                Ref("FetchClauseSegment", optional=True)
-            ),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ]
