@@ -64,13 +64,14 @@ class RawFileSlice(NamedTuple):
     slice_subtype: Optional[str] = None
     # Block index, incremented on start or end block tags, e.g. "if", "for"
     block_idx: int = 0
+    tag: Optional[str] = None
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
     def source_slice(self):
-        """Return the a slice object for this slice."""
+        """Return a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
     def is_source_only_slice(self):

@@ -65,7 +65,11 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.source_idx: int = 0
 
-    def trace(self, append_to_templated: str = "") -> JinjaTrace:
+    def trace(
+        self,
+        append_to_templated: str = "",
+        override_raw_slices: Optional[List[int]] = None,
+    ) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
             cast(str, self.raw_slice_info[rs].alternate_code)
@@ -119,7 +123,17 @@ class JinjaTracer:
         # 'append_to_templated' gets the default value of "", empty string.)
         # For more detail, see the comments near the call to slice_file() in
         # plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/templater.py.
-        templated_str = self.make_template(self.raw_str).render() + append_to_templated
+        if not override_raw_slices:
+            raw_str = self.raw_str
+        else:
+            raw_str = "".join(
+                cast(str, self.raw_slice_info[rs].alternate_code)
+                if idx in override_raw_slices
+                and self.raw_slice_info[rs].alternate_code is not None
+                else rs.raw
+                for idx, rs in enumerate(self.raw_sliced)
+            )
+        templated_str = self.make_template(raw_str).render() + append_to_templated
         return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
     def find_slice_index(self, slice_identifier) -> int:
@@ -138,8 +152,11 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx, target_slice_length):
+    def move_to_slice(
+        self, target_slice_idx, target_slice_length
+    ) -> Dict[int, List[int]]:
         """Given a template location, walk execution to that point."""
+        choices = {}
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
                 target_slice_length if self.program_counter == target_slice_idx else 0
@@ -164,7 +181,10 @@ class JinjaTracer:
                         candidates.append(next_slice_idx)
                 # Choose the candidate that takes us closest to the target.
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
+                if len(candidates) >= 2:
+                    choices[self.program_counter] = candidates
                 self.program_counter = candidates[0]
+        return choices
 
     def record_trace(self, target_slice_length, slice_idx=None, slice_type=None):
         """Add the specified (default: current) location to the trace."""
@@ -449,6 +469,7 @@ class JinjaAnalyzer:
                             self.idx_raw,
                             block_subtype,
                             block_idx,
+                            tag_contents[0] if tag_contents else None,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
