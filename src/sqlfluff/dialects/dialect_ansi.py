@@ -1917,6 +1917,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
+        Sequence(Ref("NumericLiteralSegment"), "DAYS")
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
