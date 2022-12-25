@@ -628,6 +628,16 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnConstraintSegment.match_grammar,
+        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
+        Sequence("COLLATE", Ref("NakedIdentifierSegment")),
+    )
+
+
 class IndexTypeGrammar(BaseSegment):
     """index_type in table_constraint."""
 

@@ -345,7 +345,8 @@ class DbtProject:
     def sql_parser(self) -> SqlBlockParser:
         """A dbt-core SQL parser capable of parsing and adding nodes to the manifest via `parse_remote` which will
         also return the added node to the caller. Note that post-parsing this still typically requires calls to
-        `_process_nodes_for_ref` and `_process_sources_for_ref` from `dbt.parser.manifest`"""
+        `_process_nodes_for_ref` and `_process_sources_for_ref` from `dbt.parser.manifest`
+        """
         if self._sql_parser is None:
             self._sql_parser = SqlBlockParser(self.config, self.dbt, self.config)
         return self._sql_parser
@@ -360,7 +361,8 @@ class DbtProject:
     @property
     def sql_runner(self) -> SqlExecuteRunner:
         """A runner which is used internally by the `execute_sql` function of `dbt.lib`.
-        The runners `node` attribute can be updated before calling `compile` or `compile_and_execute`."""
+        The runners `node` attribute can be updated before calling `compile` or `compile_and_execute`.
+        """
         if self._sql_runner is None:
             self._sql_runner = SqlExecuteRunner(
                 self.config, self.adapter, node=None, node_index=1, num_nodes=1
@@ -370,7 +372,8 @@ class DbtProject:
     @property
     def sql_compiler(self) -> SqlCompileRunner:
         """A runner which is used internally by the `compile_sql` function of `dbt.lib`.
-        The runners `node` attribute can be updated before calling `compile` or `compile_and_execute`."""
+        The runners `node` attribute can be updated before calling `compile` or `compile_and_execute`.
+        """
         if self._sql_compiler is None:
             self._sql_compiler = SqlCompileRunner(
                 self.config, self.adapter, node=None, node_index=1, num_nodes=1
@@ -556,7 +559,8 @@ class DbtProject:
     def compile_sql(self, raw_sql: str, retry: int = 3) -> DbtAdapterCompilationResult:
         """Creates a node with `get_server_node` method. Compile generated node.
         Has a retry built in because even uuidv4 cannot gaurantee uniqueness at the speed
-        in which we can call this function concurrently. A retry significantly increases the stability"""
+        in which we can call this function concurrently. A retry significantly increases the stability
+        """
         temp_node_id = str(uuid.uuid4())
         try:
             node = self.compile_node(self.get_server_node(raw_sql, temp_node_id))

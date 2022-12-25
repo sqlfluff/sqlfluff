@@ -455,3 +455,79 @@ test_comment_move_mid_query:
   configs:
     core:
       max_line_length: 40
+
+test_fix_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer
+                AND much_much_much_longer
+                THEN longer_and_longer
+                    AND much_much_much_longer
+            ELSE longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field
+        AND a_nother_really_long_field
+    HAVING a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      allow_implicit_indents: True
+
+test_fix_no_implicit_indent:
+  # Test explicitly preventing implicit indents.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN
+                longer_and_longer
+                AND much_much_much_longer
+                THEN
+                    longer_and_longer
+                    AND much_much_much_longer
+            ELSE
+                longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE
+        a_really_long_field
+        AND a_nother_really_long_field
+    HAVING
+        a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      allow_implicit_indents: False
