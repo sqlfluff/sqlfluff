@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+pip install --no-dependencies -e . -e plugins/sqlfluff-templater-dbt
+pushd plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project
+dbt deps
+popd
