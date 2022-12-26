@@ -36,6 +36,8 @@ so anticipate that configuration files may change slightly again in future alpha
 
 ## What’s Changed
 
+* MySQL: Support column character set and collation [#4204](https://github.com/sqlfluff/sqlfluff/pull/4204) [@yoichi](https://github.com/yoichi)
+* Fix some issues with Docker Compose environment [#4201](https://github.com/sqlfluff/sqlfluff/pull/4201) [@barrywhart](https://github.com/barrywhart)
 * Implicit Indents [#4054](https://github.com/sqlfluff/sqlfluff/pull/4054) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Tweak Coveralls settings [#4199](https://github.com/sqlfluff/sqlfluff/pull/4199) [@barrywhart](https://github.com/barrywhart)
 * In addition to Codecov, also upload to Coveralls [#4197](https://github.com/sqlfluff/sqlfluff/pull/4197) [@barrywhart](https://github.com/barrywhart)
