@@ -841,7 +841,7 @@ class Linter:
 
         except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
-            templated_files = []
+            templated_files.append(None)
             all_templater_violations = []
 
         # Record time
