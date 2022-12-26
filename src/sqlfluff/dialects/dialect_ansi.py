@@ -2251,15 +2251,12 @@ class FetchClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "FETCH",
         OneOf(
-           "FIRST",
-           "NEXT",
+            "FIRST",
+            "NEXT",
         ),
         Ref("NumericLiteralSegment"),
-        OneOf(
-            "ROW",
-            "ROWS"
-        ),
-        "ONLY"
+        OneOf("ROW", "ROWS"),
+        "ONLY",
     )
 
 

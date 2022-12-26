@@ -57,10 +57,7 @@ db2_dialect.replace(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
-        Sequence(
-            Ref("NumericLiteralSegment"),
-            "DAYS"
-        )
+        Sequence(Ref("NumericLiteralSegment"), "DAYS"),
     ),
 )
 
@@ -95,9 +92,7 @@ db2_dialect.patch_lexer_matchers(
 
 
 class WithinGroupClauseSegment(BaseSegment):
-    """An WITHIN GROUP clause for window functions.
-
-    """
+    """An WITHIN GROUP clause for window functions."""
 
     type = "withingroup_clause"
     match_grammar = Sequence(
@@ -111,7 +106,3 @@ class WithinGroupClauseSegment(BaseSegment):
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
     )
-
-
-
-
