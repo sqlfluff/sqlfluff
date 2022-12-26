@@ -422,6 +422,11 @@ postgres_dialect.replace(
         before=Ref("ArrayLiteralSegment"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref("ForClauseSegment")],
+    ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
         Sequence("GROUP", "BY"),
@@ -432,6 +437,7 @@ postgres_dialect.replace(
         "OVERLAPS",
         "RETURNING",
         Sequence("ON", "CONFLICT"),
+        Ref("ForClauseSegment"),
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -442,6 +448,7 @@ postgres_dialect.replace(
         Ref("FrameClauseUnitGrammar"),
         "SEPARATOR",
         Sequence("WITH", "DATA"),
+        Ref("ForClauseSegment"),
     ),
     Accessor_Grammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
@@ -1139,6 +1146,37 @@ class IntoClauseSegment(BaseSegment):
     )
 
 
+class ForClauseSegment(BaseSegment):
+    """`FOR ...` clause in `SELECT` statements.
+
+    As specified in https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE.
+    """
+
+    type = "for_clause"
+
+    match_grammar = Sequence(
+        "FOR",
+        OneOf(
+            "UPDATE",
+            Sequence("NO", "KEY", "UPDATE"),
+            "SHARE",
+            Sequence("KEY", "SHARE"),
+        ),
+        Sequence(
+            "OF",
+            Delimited(
+                Ref("TableReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            "NOWAIT",
+            Sequence("SKIP", "LOCKED"),
+            optional=True,
+        ),
+    )
+
+
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
@@ -1153,6 +1191,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("IntoClauseSegment", optional=True),
         ],
         before=Ref("FromClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("ForClauseSegment", optional=True)],
     )
 
 
@@ -1171,6 +1211,8 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ]
+    ).copy(
+        insert=[Ref("ForClauseSegment", optional=True)],
     )
 
 
