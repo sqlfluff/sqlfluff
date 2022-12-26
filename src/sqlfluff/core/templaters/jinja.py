@@ -521,9 +521,18 @@ class JinjaTemplater(PythonTemplater):
         tracer_copy = copy.deepcopy(tracer_probe)
         append_to_templated = kwargs.pop("append_to_templated", "")
         trace = tracer_probe.trace(append_to_templated=append_to_templated)
-        print(f"Yielding trace for {trace.templated_str!r}")
+        # print(f"Yielding trace for {trace.templated_str!r}")
         yield trace.raw_sliced, trace.sliced_file, trace.templated_str
-        return
+
+        lint_unreached_code = (
+            config.get_section(
+                (self.templater_selector, self.name, "lint_unreached_code")
+            )
+            if config
+            else False
+        )
+        if not lint_unreached_code:
+            return
 
         # Find uncovered code (if any), tweak the template to hit that code.
         all_slices = set(range(len(trace.raw_sliced)))

@@ -1,5 +1,4 @@
 """Defines the linter class."""
-
 import fnmatch
 import os
 import time
@@ -760,12 +759,6 @@ class Linter:
             encoding=encoding,
         )
 
-        # This is the main command line output from linting.
-        if formatter:
-            formatter.dispatch_file_violations(
-                parsed.fname, linted_file, only_fixable=fix
-            )
-
         # Safety flag for unset dialects
         if linted_file.get_violations(
             fixable=True if fix else None, types=SQLParseError
@@ -795,7 +788,14 @@ class Linter:
                     encoding=rendered.encoding,
                 )
             )
-        # TODO: Combine the linted files into a single one.
+        # This is the main command line output from linting.
+        if formatter:
+            for linted_file in linted_files:
+                formatter.dispatch_file_violations(
+                    linted_file.path, linted_file, only_fixable=fix
+                )
+        # TODO: Rethink the structure of LintedFile, return a single object with
+        # all the linted variations?
         return linted_files[0]
 
     # ### Instance Methods
