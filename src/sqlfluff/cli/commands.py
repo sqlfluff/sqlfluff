@@ -1167,7 +1167,7 @@ def render(
             click.echo(formatter.format_violation(v))
         sys.exit(EXIT_FAIL)
     else:
-        click.echo(rendered.templated_file.templated_str)
+        click.echo(rendered.templated_files[0].templated_str)
         sys.exit(EXIT_SUCCESS)
 
 
