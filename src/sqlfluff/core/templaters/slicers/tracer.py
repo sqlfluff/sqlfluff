@@ -181,8 +181,7 @@ class JinjaTracer:
                         candidates.append(next_slice_idx)
                 # Choose the candidate that takes us closest to the target.
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
-                if len(candidates) >= 2:
-                    choices[self.program_counter] = candidates
+                choices[self.program_counter] = candidates
                 self.program_counter = candidates[0]
         return choices
 
