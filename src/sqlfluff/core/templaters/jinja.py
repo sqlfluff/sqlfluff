@@ -538,42 +538,56 @@ class JinjaTemplater(PythonTemplater):
         all_slices = set(range(len(trace.raw_sliced)))
         covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
         uncovered_slices = all_slices - covered_slices
-        if not uncovered_slices:
-            return
-        tracer_probe = copy.deepcopy(tracer_copy)
-        tracer_trace = copy.deepcopy(tracer_copy)
-        override_raw_slices = []
-        for uncovered_slice in uncovered_slices:
+        yield from self._handle_unreached_code(
+            append_to_templated, make_template, tracer_copy, uncovered_slices
+        )
+
+    def _handle_unreached_code(
+        self, append_to_templated, make_template, tracer_copy, uncovered_slices
+    ):
+        """Address uncovered slices by tweaking the template to hit them."""
+        while uncovered_slices:
+            uncovered_slice = sorted(uncovered_slices)[0]
+            tracer_probe = copy.deepcopy(tracer_copy)
+            tracer_trace = copy.deepcopy(tracer_copy)
+            override_raw_slices = []
             # Find a path that takes us to the uncovered slice.
             choices = tracer_probe.move_to_slice(uncovered_slice, 0)
             for branch, options in choices.items():
-                if tracer_probe.raw_sliced[branch].tag == "if":
+                tag = tracer_probe.raw_sliced[branch].tag
+                if tag in ("if", "elif"):
                     if options[0] == branch + 1:
                         # Force it to take the "if".
                         tracer_trace.raw_slice_info[
                             tracer_probe.raw_sliced[branch]
-                        ].alternate_code = "{% if True %}"
+                        ].alternate_code = f"{{% {tag} True %}}"
                         override_raw_slices.append(branch)
                     else:
                         # Force it not to take the "if".
                         tracer_trace.raw_slice_info[
                             tracer_probe.raw_sliced[branch]
-                        ].alternate_code = "{% if False %}"
+                        ].alternate_code = f"{{% {tag} False %}}"
                         override_raw_slices.append(branch)
-        variant_raw_str = "".join(
-            cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
-            if idx in override_raw_slices
-            and tracer_trace.raw_slice_info[rs].alternate_code is not None
-            else rs.raw
-            for idx, rs in enumerate(tracer_trace.raw_sliced)
-        )
-        analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
-        tracer_trace = analyzer.analyze(make_template)
-        trace = tracer_trace.trace(
-            append_to_templated=append_to_templated,
-        )
-        # print(f"Yielding trace for {trace.templated_str!r}")
-        yield trace.raw_sliced, trace.sliced_file, trace.templated_str, trace.raw_str
+            variant_raw_str = "".join(
+                cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
+                if idx in override_raw_slices
+                and tracer_trace.raw_slice_info[rs].alternate_code is not None
+                else rs.raw
+                for idx, rs in enumerate(tracer_trace.raw_sliced)
+            )
+            analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+            tracer_trace = analyzer.analyze(make_template)
+            trace = tracer_trace.trace(
+                append_to_templated=append_to_templated,
+            )
+            # print(f"Yielding trace for {trace.templated_str!r}")
+            yield (
+                trace.raw_sliced,
+                trace.sliced_file,
+                trace.templated_str,
+                trace.raw_str,
+            )
+            uncovered_slices.remove(uncovered_slice)
 
 
 class DummyUndefined(jinja2.Undefined):

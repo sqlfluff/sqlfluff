@@ -1512,11 +1512,47 @@ def test_undefined_magic_methods():
             ],
             id="simple_if_false",
         ),
+        pytest.param(
+            "if_elif_else.sql",
+            [
+                (
+                    "{% if True %}\n"
+                    "SELECT 1\n"
+                    "{% elif True %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif True %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n",
+                    "\nSELECT 2\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n",
+                    "\nSELECT 3\n\n",
+                ),
+            ],
+            id="if_elif_else",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
     """Test that Jinja templater slices raw and templated file correctly."""
-    test_dir = Path("test/fixtures/templater/lint_unreached_code")
+    test_dir = Path("test/fixtures/templater/jinja_lint_unreached_code")
     t = JinjaTemplater()
     renderings = []
     for templated_file, _ in t.process(
