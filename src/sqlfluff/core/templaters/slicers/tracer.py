@@ -25,6 +25,8 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 class JinjaTrace(NamedTuple):
     """Returned by JinjaTracer.trace()."""
 
+    # Raw string prior to template execution
+    raw_str: str
     # Template output
     templated_str: str
     # Raw (i.e. before rendering) Jinja template sliced into tokens
@@ -134,7 +136,7 @@ class JinjaTracer:
                 for idx, rs in enumerate(self.raw_sliced)
             )
         templated_str = self.make_template(raw_str).render() + append_to_templated
-        return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
+        return JinjaTrace(raw_str, templated_str, self.raw_sliced, self.sliced_file)
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier, return its index.

@@ -231,7 +231,7 @@ class PythonTemplater(RawTemplater):
                 "Failure in Python templating: {}. Have you configured your "
                 "variables?".format(err)
             )
-        for raw_sliced, sliced_file, new_str in self.slice_file(
+        for raw_sliced, sliced_file, new_str, _ in self.slice_file(
             in_str, new_str, config=config
         ):
             yield (
@@ -247,7 +247,7 @@ class PythonTemplater(RawTemplater):
 
     def slice_file(
         self, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str, str]]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -312,7 +312,7 @@ class PythonTemplater(RawTemplater):
             else:
                 # If it's not equal, loop around
                 templated_str = new_templated_str
-        yield raw_sliced, sliced_file, new_templated_str
+        yield raw_sliced, sliced_file, new_templated_str, raw_str
 
     @classmethod
     def _check_for_wrapped(

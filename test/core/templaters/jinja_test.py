@@ -8,6 +8,7 @@ loops and placeholders.
 
 from collections import defaultdict
 import logging
+from pathlib import Path
 from typing import List, NamedTuple
 
 import pytest
@@ -1478,3 +1479,24 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+@pytest.mark.parametrize(
+    "sql_path, expected_renderings",
+    [
+        ("simple_if_true.sql", []),
+        ("simple_if_false.sql", []),
+    ],
+)
+def test__templater_lint_unreached_code(sql_path, expected_renderings):
+    """Test that Jinja templater slices raw and templated file correctly."""
+    test_dir = Path("test/fixtures/templater/lint_unreached_code")
+    t = JinjaTemplater()
+    for templated_file, _ in t.process(
+        in_str=(test_dir / sql_path).read_text(),
+        fname=str(sql_path),
+        config=FluffConfig.from_path(str(test_dir)),
+    ):
+        print(f"source_str:\n{templated_file.source_str}")
+        print()
+        print("templated_str:\n{templated_file.templated_str}")
