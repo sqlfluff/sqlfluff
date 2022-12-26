@@ -293,7 +293,7 @@ class DbtTemplater(JinjaTemplater):
         templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
 
         # SLICE
-        for raw_sliced, sliced_file, templated_sql in self.slice_file(
+        for raw_sliced, sliced_file, templated_sql, raw_str in self.slice_file(
             raw_str=in_str,
             templated_str=compiled_sql + "\n" * n_trailing_newlines,
             config=config,
@@ -302,7 +302,7 @@ class DbtTemplater(JinjaTemplater):
         ):
             yield (
                 TemplatedFile(
-                    source_str=in_str,
+                    source_str=raw_str,
                     templated_str=templated_sql,
                     fname=fname,
                     sliced_file=sliced_file,
