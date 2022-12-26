@@ -13,6 +13,7 @@ from sqlfluff.core.parser.segments import (
     SymbolSegment,
     Indent,
     Dedent,
+    ImplicitIndent,
     SegmentGenerator,
     IdentitySet,
 )
@@ -55,6 +56,7 @@ __all__ = (
     "SymbolSegment",
     "Indent",
     "Dedent",
+    "ImplicitIndent",
     "SegmentGenerator",
     "Sequence",
     "GreedyUntil",
