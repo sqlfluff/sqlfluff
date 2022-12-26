@@ -1484,19 +1484,45 @@ def test_undefined_magic_methods():
 @pytest.mark.parametrize(
     "sql_path, expected_renderings",
     [
-        ("simple_if_true.sql", []),
-        ("simple_if_false.sql", []),
+        pytest.param(
+            "simple_if_true.sql",
+            [
+                (
+                    "{% if True %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+                (
+                    "{% if False %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
+                    "\nSELECT 2\n\n",
+                ),
+            ],
+            id="simple_if_true",
+        ),
+        pytest.param(
+            "simple_if_false.sql",
+            [
+                (
+                    "{% if False %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
+                    "\nSELECT 2\n\n",
+                ),
+                (
+                    "{% if True %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+            ],
+            id="simple_if_false",
+        ),
     ],
 )
-def test__templater_lint_unreached_code(sql_path, expected_renderings):
+def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
     """Test that Jinja templater slices raw and templated file correctly."""
     test_dir = Path("test/fixtures/templater/lint_unreached_code")
     t = JinjaTemplater()
+    renderings = []
     for templated_file, _ in t.process(
         in_str=(test_dir / sql_path).read_text(),
         fname=str(sql_path),
         config=FluffConfig.from_path(str(test_dir)),
     ):
-        print(f"source_str:\n{templated_file.source_str}")
-        print()
-        print("templated_str:\n{templated_file.templated_str}")
+        renderings.append((templated_file.source_str, templated_file.templated_str))
+    assert renderings == expected_renderings

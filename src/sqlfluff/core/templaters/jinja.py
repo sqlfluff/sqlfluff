@@ -4,7 +4,7 @@ import logging
 import os.path
 import pkgutil
 from functools import reduce
-from typing import Callable, Dict, Generator, Iterator, List, Optional, Tuple
+from typing import Callable, cast, Dict, Generator, Iterator, List, Optional, Tuple
 
 import jinja2.nodes
 from jinja2 import (
@@ -560,9 +560,17 @@ class JinjaTemplater(PythonTemplater):
                             tracer_probe.raw_sliced[branch]
                         ].alternate_code = "{% if False %}"
                         override_raw_slices.append(branch)
+        variant_raw_str = "".join(
+            cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
+            if idx in override_raw_slices
+            and tracer_trace.raw_slice_info[rs].alternate_code is not None
+            else rs.raw
+            for idx, rs in enumerate(tracer_trace.raw_sliced)
+        )
+        analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+        tracer_trace = analyzer.analyze(make_template)
         trace = tracer_trace.trace(
             append_to_templated=append_to_templated,
-            override_raw_slices=override_raw_slices,
         )
         # print(f"Yielding trace for {trace.templated_str!r}")
         yield trace.raw_sliced, trace.sliced_file, trace.templated_str, trace.raw_str

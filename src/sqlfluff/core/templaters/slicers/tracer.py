@@ -70,7 +70,6 @@ class JinjaTracer:
     def trace(
         self,
         append_to_templated: str = "",
-        override_raw_slices: Optional[List[int]] = None,
     ) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
@@ -125,18 +124,10 @@ class JinjaTracer:
         # 'append_to_templated' gets the default value of "", empty string.)
         # For more detail, see the comments near the call to slice_file() in
         # plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/templater.py.
-        if not override_raw_slices:
-            raw_str = self.raw_str
-        else:
-            raw_str = "".join(
-                cast(str, self.raw_slice_info[rs].alternate_code)
-                if idx in override_raw_slices
-                and self.raw_slice_info[rs].alternate_code is not None
-                else rs.raw
-                for idx, rs in enumerate(self.raw_sliced)
-            )
-        templated_str = self.make_template(raw_str).render() + append_to_templated
-        return JinjaTrace(raw_str, templated_str, self.raw_sliced, self.sliced_file)
+        templated_str = self.make_template(self.raw_str).render() + append_to_templated
+        return JinjaTrace(
+            self.raw_str, templated_str, self.raw_sliced, self.sliced_file
+        )
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier, return its index.
