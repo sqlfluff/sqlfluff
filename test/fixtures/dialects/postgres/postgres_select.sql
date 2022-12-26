@@ -69,3 +69,16 @@ select id, start, periods.end from periods;
 SELECT concat_lower_or_upper('Hello', 'World', true);
 SELECT concat_lower_or_upper(a => 'Hello', b => 'World');
 SELECT concat_lower_or_upper('Hello', 'World', uppercase => true);
+
+-- row-level locks can be used in Selects
+SELECT * FROM mytable FOR UPDATE;
+SELECT * FROM (SELECT * FROM mytable FOR UPDATE) ss WHERE col1 = 5;
+
+SELECT col1, col2
+FROM mytable1
+JOIN mytable2 ON col1 = col2
+ORDER BY sync_time ASC
+FOR SHARE OF mytable1, mytable2 SKIP LOCKED
+LIMIT 1;
+
+

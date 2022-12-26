@@ -1191,8 +1191,6 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("IntoClauseSegment", optional=True),
         ],
         before=Ref("FromClauseSegment", optional=True),
-    ).copy(
-        insert=[Ref("ForClauseSegment", optional=True)],
     )
 
 
@@ -1213,6 +1211,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         ]
     ).copy(
         insert=[Ref("ForClauseSegment", optional=True)],
+        before=Ref("LimitClauseSegment", optional=True),
     )
 
 
