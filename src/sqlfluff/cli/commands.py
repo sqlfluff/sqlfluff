@@ -1046,14 +1046,14 @@ def parse(
     # handle stdin if specified via lone '-'
     with PathAndUserErrorHandler(formatter):
         if "-" == path:
-            parsed_strings = [
+            parsed_strings = list(
                 lnt.parse_string(
                     sys.stdin.read(),
                     "stdin",
                     recurse=recurse,
                     config=lnt.config,
                 ),
-            ]
+            )
         else:
             # A single path must be specified for this command
             parsed_strings = list(
