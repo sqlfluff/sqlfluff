@@ -375,21 +375,28 @@ class Linter:
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
         for templated_file in rendered.templated_files:
-            tokens, lvs, config = cls._lex_templated_file(
-                templated_file, rendered.config
-            )
-            violations += lvs
+            if templated_file:
+                tokens, lvs, config = cls._lex_templated_file(
+                    templated_file, rendered.config
+                )
+                violations += lvs
+            else:
+                tokens = None
 
             t1 = time.monotonic()
             linter_logger.info("PARSING (%s)", rendered.fname)
 
-            parsed, pvs = cls._parse_tokens(
-                tokens,  # type: ignore
-                rendered.config,
-                recurse=recurse,
-                fname=rendered.fname,
-            )
-            violations += pvs
+            if tokens:
+                parsed, pvs = cls._parse_tokens(
+                    tokens,
+                    rendered.config,
+                    recurse=recurse,
+                    fname=rendered.fname,
+                )
+                violations += pvs
+            else:
+                parsed = None
+
             time_dict = {
                 **rendered.time_dict,
                 "lexing": t1 - t0,
@@ -400,19 +407,6 @@ class Linter:
                 violations,
                 time_dict,
                 templated_file,
-                rendered.config,
-                rendered.fname,
-                rendered.source_str,
-            )
-        if not rendered.templated_files:
-            yield ParsedString(
-                None,
-                violations,
-                {
-                    "lexing": 0,
-                    "parsing": 0,
-                },
-                None,  # type: ignore
                 rendered.config,
                 rendered.fname,
                 rendered.source_str,
