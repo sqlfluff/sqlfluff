@@ -797,12 +797,10 @@ class FluffConfig:
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
         del state["_plugin_manager"]
-        if "templater_obj" in state["_configs"]["core"]:
-            # If it's already removed, don't try again.
-            # The dbt templater doesn't pickle well, but isn't required
-            # within threaded operations. If it was, it could easily be
-            # rehydrated within the thread.
-            del state["_configs"]["core"]["templater_obj"]
+        # The dbt templater doesn't pickle well, but isn't required
+        # within threaded operations. If it was, it could easily be
+        # rehydrated within the thread.
+        state["_configs"]["core"].pop("templater_obj", None)
         return state
 
     def __setstate__(self, state):  # pragma: no cover
