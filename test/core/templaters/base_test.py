@@ -32,8 +32,11 @@ def test__templater_raw():
     """Test the raw templater."""
     t = RawTemplater()
     instr = "SELECT * FROM {{blah}}"
-    outstr, _ = t.process(in_str=instr, fname="test")
-    assert instr == str(outstr)
+    for outstr, _ in t.process(in_str=instr, fname="test"):
+        assert instr == str(outstr)
+        break
+    else:
+        assert False
 
 
 SIMPLE_SOURCE_STR = "01234\n6789{{foo}}fo\nbarss"
