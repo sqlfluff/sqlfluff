@@ -57,10 +57,13 @@ FROM events
 def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
-    outstr, _ = t.process(
+    for outstr, _ in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert str(outstr) == expected_outstr
+    ):
+        assert str(outstr) == expected_outstr
+        break
+    else:
+        assert False
 
 
 class RawTemplatedTestCase(NamedTuple):
@@ -479,39 +482,44 @@ SELECT
 def test__templater_jinja_slices(case: RawTemplatedTestCase):
     """Test that Jinja templater slices raw and templated file correctly."""
     t = JinjaTemplater()
-    templated_file, _ = t.process(
+    for templated_file, _ in t.process(
         in_str=case.instr,
         fname="test",
         config=FluffConfig(overrides={"dialect": "ansi"}),
-    )
-    assert templated_file
-    assert templated_file.source_str == case.instr
-    assert templated_file.templated_str == case.templated_str
-    # Build and check the list of source strings referenced by "sliced_file".
-    actual_ts_source_list = [
-        case.instr[ts.source_slice] for ts in templated_file.sliced_file
-    ]
-    assert actual_ts_source_list == case.expected_templated_sliced__source_list
+    ):
+        assert templated_file
+        assert templated_file.source_str == case.instr
+        assert templated_file.templated_str == case.templated_str
+        # Build and check the list of source strings referenced by "sliced_file".
+        actual_ts_source_list = [
+            case.instr[ts.source_slice] for ts in templated_file.sliced_file
+        ]
+        assert actual_ts_source_list == case.expected_templated_sliced__source_list
 
-    # Build and check the list of templated strings referenced by "sliced_file".
-    actual_ts_templated_list = [
-        templated_file.templated_str[ts.templated_slice]
-        for ts in templated_file.sliced_file
-    ]
-    assert actual_ts_templated_list == case.expected_templated_sliced__templated_list
+        # Build and check the list of templated strings referenced by "sliced_file".
+        actual_ts_templated_list = [
+            templated_file.templated_str[ts.templated_slice]
+            for ts in templated_file.sliced_file
+        ]
+        assert (
+            actual_ts_templated_list == case.expected_templated_sliced__templated_list
+        )
 
-    # Build and check the list of source strings referenced by "raw_sliced".
-    previous_rs = None
-    actual_rs_source_list: List[RawFileSlice] = []
-    for rs in templated_file.raw_sliced + [None]:  # type: ignore
-        if previous_rs:
-            if rs:
-                actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
-            else:
-                actual_source = case.instr[previous_rs.source_idx :]
-            actual_rs_source_list.append(actual_source)
-        previous_rs = rs
-    assert actual_rs_source_list == case.expected_raw_sliced__source_list
+        # Build and check the list of source strings referenced by "raw_sliced".
+        previous_rs = None
+        actual_rs_source_list: List[RawFileSlice] = []
+        for rs in templated_file.raw_sliced + [None]:  # type: ignore
+            if previous_rs:
+                if rs:
+                    actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
+                else:
+                    actual_source = case.instr[previous_rs.source_idx :]
+                actual_rs_source_list.append(actual_source)
+            previous_rs = rs
+        assert actual_rs_source_list == case.expected_raw_sliced__source_list
+        break
+    else:
+        assert False
 
 
 def test_templater_set_block_handling():
@@ -538,25 +546,33 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 
 {{ run_query(my_query2) }}
 """
-    outstr, vs = t.process(
+    for outstr, vs in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert str(outstr) == "\n\n\n\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n\n"
-    assert len(vs) == 0
+    ):
+        assert (
+            str(outstr) == "\n\n\n\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n\n"
+        )
+        assert len(vs) == 0
+        break
+    else:
+        assert False
 
 
 def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
     instr = JINJA_STRING
-    outstr, vs = t.process(
+    for outstr, vs in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
-    # Check we have violations.
-    assert len(vs) > 0
-    # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+    ):
+        assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
+        # Check we have violations.
+        assert len(vs) > 0
+        # Check one of them is a templating error on line 1
+        assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+        break
+    else:
+        assert False
 
 
 def test__templater_jinja_dynamic_variable_no_violations():
@@ -567,38 +583,47 @@ def test__templater_jinja_dynamic_variable_no_violations():
     SELECT {{some_var}}
 {% endif %}
 """
-    outstr, vs = t.process(
+    for outstr, vs in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert str(outstr) == "\n    \n    SELECT 1\n\n"
-    # Check we have no violations.
-    assert len(vs) == 0
+    ):
+        assert str(outstr) == "\n    \n    SELECT 1\n\n"
+        # Check we have no violations.
+        assert len(vs) == 0
+        break
+    else:
+        assert False
 
 
 def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(
+    for outstr, vs in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    # Check we just skip templating.
-    assert str(outstr) == instr
-    # Check we have violations.
-    assert len(vs) > 0
-    # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+    ):
+        # Check we just skip templating.
+        assert str(outstr) == instr
+        # Check we have violations.
+        assert len(vs) > 0
+        # Check one of them is a templating error on line 1
+        assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+        break
+    else:
+        assert False
 
 
 def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(
+    for outstr, vs in t.process(
         in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert not outstr
-    assert len(vs) > 0
+    ):
+        assert not outstr
+        assert len(vs) > 0
+        break
+    else:
+        assert False
 
 
 def test__templater_jinja_error_macro_path_does_not_exist():
@@ -618,10 +643,13 @@ def test__templater_jinja_lint_empty():
     No exception should be raised, but the parsed tree should be None.
     """
     lntr = Linter(dialect="ansi")
-    parsed = lntr.parse_string(in_str='{{ "" }}')
-    assert parsed.templated_file.source_str == '{{ "" }}'
-    assert parsed.templated_file.templated_str == ""
-    assert parsed.tree is None
+    for parsed in lntr.parse_string(in_str='{{ "" }}'):
+        assert parsed.templated_file.source_str == '{{ "" }}'
+        assert parsed.templated_file.templated_str == ""
+        assert parsed.tree is None
+        break
+    else:
+        assert False
 
 
 def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
@@ -1338,34 +1366,39 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        raw_sliced, sliced_file, templated_str = templater.slice_file(
+        for raw_sliced, sliced_file, templated_str, raw_str in templater.slice_file(
             raw_file, templated_file, make_template=make_template
-        )
-    # Create a TemplatedFile from the results. This runs some useful sanity
-    # checks.
-    _ = TemplatedFile(raw_file, "<<DUMMY>>", templated_str, sliced_file, raw_sliced)
-    # Check contiguous on the TEMPLATED VERSION
-    print(sliced_file)
-    prev_slice = None
-    for elem in sliced_file:
-        print(elem)
-        if prev_slice:
-            assert elem[2].start == prev_slice.stop
-        prev_slice = elem[2]
-    # Check that all literal segments have a raw slice
-    for elem in sliced_file:
-        if elem[0] == "literal":
-            assert elem[1] is not None
-    # check result
-    actual = [
-        (
-            templated_file_slice.slice_type,
-            templated_file_slice.source_slice,
-            templated_file_slice.templated_slice,
-        )
-        for templated_file_slice in sliced_file
-    ]
-    assert actual == result
+        ):
+            # Create a TemplatedFile from the results. This runs some useful sanity
+            # checks.
+            _ = TemplatedFile(
+                raw_file, "<<DUMMY>>", templated_str, sliced_file, raw_sliced
+            )
+            # Check contiguous on the TEMPLATED VERSION
+            print(sliced_file)
+            prev_slice = None
+            for elem in sliced_file:
+                print(elem)
+                if prev_slice:
+                    assert elem[2].start == prev_slice.stop
+                prev_slice = elem[2]
+            # Check that all literal segments have a raw slice
+            for elem in sliced_file:
+                if elem[0] == "literal":
+                    assert elem[1] is not None
+            # check result
+            actual = [
+                (
+                    templated_file_slice.slice_type,
+                    templated_file_slice.source_slice,
+                    templated_file_slice.templated_slice,
+                )
+                for templated_file_slice in sliced_file
+            ]
+            assert actual == result
+            break
+        else:
+            assert False
 
 
 def test__templater_jinja_large_file_check():
@@ -1417,7 +1450,7 @@ def test__templater_jinja_large_file_check():
 def test_jinja_undefined_callable(ignore, expected_violation):
     """Test undefined callable returns TemplatedFile and sensible error."""
     templater = JinjaTemplater()
-    templated_file, violations = templater.process(
+    for templated_file, violations in templater.process(
         in_str="""WITH streams_cadence_test AS (
 {{  test_event_cadence(
     model= ref('fct_recording_progression_stream'),
@@ -1428,16 +1461,19 @@ SELECT * FROM final
 """,
         fname="test.sql",
         config=FluffConfig(overrides={"dialect": "ansi", "ignore": ignore}),
-    )
-    # This was previously failing to process, due to UndefinedRecorder not
-    # supporting __call__(), also Jinja thinking it was not *safe* to call.
-    assert templated_file is not None
-    if expected_violation:
-        assert len(violations) == 1
-        isinstance(violations[0], type(expected_violation))
-        assert str(violations[0]) == str(expected_violation)
+    ):
+        # This was previously failing to process, due to UndefinedRecorder not
+        # supporting __call__(), also Jinja thinking it was not *safe* to call.
+        assert templated_file is not None
+        if expected_violation:
+            assert len(violations) == 1
+            isinstance(violations[0], type(expected_violation))
+            assert str(violations[0]) == str(expected_violation)
+        else:
+            assert len(violations) == 0
+        break
     else:
-        assert len(violations) == 0
+        assert False
 
 
 def test_dummy_undefined_fail_with_undefined_error():

@@ -32,13 +32,14 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
         pass
 
     with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
-        list(
-            dbt_templater.process(
-                in_str="",
-                fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
-                config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-            )
-        )
+        for _ in dbt_templater.process(
+            in_str="",
+            fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        ):
+            break
+        else:
+            assert False
 
 
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
@@ -227,13 +228,14 @@ def test__templater_dbt_skips_file(
 ):
     """A disabled dbt model should be skipped."""
     with pytest.raises(SQLFluffSkipFile, match=reason):
-        list(
-            dbt_templater.process(
-                in_str="",
-                fname=os.path.join(project_dir, path),
-                config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-            )
-        )
+        for _ in dbt_templater.process(
+            in_str="",
+            fname=os.path.join(project_dir, path),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        ):
+            break
+        else:
+            assert False
 
 
 @pytest.mark.parametrize(
@@ -304,15 +306,16 @@ def test__templater_dbt_templating_absolute_path(
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
     try:
-        list(
-            dbt_templater.process(
-                in_str="",
-                fname=os.path.abspath(
-                    os.path.join(project_dir, "models/my_new_project/use_var.sql")
-                ),
-                config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-            )
-        )
+        for _ in dbt_templater.process(
+            in_str="",
+            fname=os.path.abspath(
+                os.path.join(project_dir, "models/my_new_project/use_var.sql")
+            ),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        ):
+            break
+        else:
+            assert False
     except Exception as e:
         pytest.fail(f"Unexpected RuntimeError: {e}")
 
