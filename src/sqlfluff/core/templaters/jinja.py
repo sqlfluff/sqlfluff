@@ -521,7 +521,6 @@ class JinjaTemplater(PythonTemplater):
         tracer_copy = copy.deepcopy(tracer_probe)
         append_to_templated = kwargs.pop("append_to_templated", "")
         trace = tracer_probe.trace(append_to_templated=append_to_templated)
-        # print(f"Yielding trace for {trace.templated_str!r}")
         yield trace.raw_sliced, trace.sliced_file, trace.templated_str, trace.raw_str
 
         lint_unreached_code = (
@@ -586,25 +585,32 @@ class JinjaTemplater(PythonTemplater):
             if variant_raw_str not in variants:
                 analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
                 tracer_trace = analyzer.analyze(make_template)
-                trace = tracer_trace.trace(
-                    append_to_templated=append_to_templated,
-                )
-                # Compute a score for the variant based on the size of initially
-                # uncovered literal slices it hits.
-                covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
-                score = 0
-                for newly_covered_slice_idx in covered_slices.intersection(
-                    uncovered_slices
-                ):
-                    newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
-                    score += (
-                        len(newly_covered_slice.raw)
-                        if newly_covered_slice.slice_type == "literal"
-                        else 0
+                try:
+                    trace = tracer_trace.trace(
+                        append_to_templated=append_to_templated,
                     )
-                variants[variant_raw_str] = (score, trace)
-            # print(f"Yielding trace for {trace.templated_str!r}")
+                except:  # noqa: E722
+                    # If we get an error tracing the variant, skip it. This may
+                    # happen for a variety of reasons. Basically there's no
+                    # guarantee that the variant will be valid Jinja.
+                    continue
+                else:
+                    # Compute a score for the variant based on the size of initially
+                    # uncovered literal slices it hits.
+                    covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
+                    score = 0
+                    for newly_covered_slice_idx in covered_slices.intersection(
+                        uncovered_slices
+                    ):
+                        newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
+                        score += (
+                            len(newly_covered_slice.raw)
+                            if newly_covered_slice.slice_type == "literal"
+                            else 0
+                        )
+                    variants[variant_raw_str] = (score, trace)
 
+        # Return the top-scoring variants.
         sorted_variants = sorted(variants.values(), key=lambda v: v[0], reverse=True)
         for _, trace in sorted_variants[:max_variants_returned]:
             yield (

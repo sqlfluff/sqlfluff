@@ -1730,6 +1730,34 @@ def test_undefined_magic_methods():
             ],
             id="if_elif_else_chain_scoring",
         ),
+        # This test case results in a TypeError executing the variant. This
+        # should be ignored, and only the primary should be returned.
+        pytest.param(
+            "if_true_elif_type_error_else.sql",
+            [
+                (
+                    "{% if True %}\n"
+                    "SELECT 1\n"
+                    "{% elif True %}\n"
+                    'SELECT {{ 1 + "2" }}\n'
+                    "{% else %}\n"
+                    "SELECT 2\n"
+                    "{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    'SELECT {{ 1 + "2" }}\n'
+                    "{% else %}\n"
+                    "SELECT 2\n"
+                    "{% endif %}\n",
+                    "\nSELECT 2\n\n",
+                ),
+            ],
+            id="if_true_elif_type_error_else",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
