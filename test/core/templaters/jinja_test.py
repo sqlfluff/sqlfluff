@@ -1548,6 +1548,146 @@ def test_undefined_magic_methods():
             ],
             id="if_elif_else",
         ),
+        # This test case exercises the scoring function. Generates up to 10
+        # variants, but only the top 5 are returned.
+        pytest.param(
+            "if_elif_else_chain_scoring.sql",
+            [
+                (
+                    "{% if True %}\n"
+                    "SELECT 1\n"
+                    "{% elif True %}\n"
+                    "SELECT 10\n"
+                    "{% elif True %}\n"
+                    "SELECT 100\n"
+                    "{% elif True %}\n"
+                    "SELECT 1000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000\n"
+                    "{% elif True %}\n"
+                    "SELECT 100000\n"
+                    "{% elif True %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 10\n"
+                    "{% elif False %}\n"
+                    "SELECT 100\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000\n"
+                    "{% elif False %}\n"
+                    "SELECT 10000\n"
+                    "{% elif False %}\n"
+                    "SELECT 100000\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif False %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 100000000\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 10\n"
+                    "{% elif False %}\n"
+                    "SELECT 100\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000\n"
+                    "{% elif False %}\n"
+                    "SELECT 10000\n"
+                    "{% elif False %}\n"
+                    "SELECT 100000\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 10000000\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 10\n"
+                    "{% elif False %}\n"
+                    "SELECT 100\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000\n"
+                    "{% elif False %}\n"
+                    "SELECT 10000\n"
+                    "{% elif False %}\n"
+                    "SELECT 100000\n"
+                    "{% elif True %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 1000000\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 10\n"
+                    "{% elif False %}\n"
+                    "SELECT 100\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000\n"
+                    "{% elif False %}\n"
+                    "SELECT 10000\n"
+                    "{% elif True %}\n"
+                    "SELECT 100000\n"
+                    "{% elif True %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 100000\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% elif False %}\n"
+                    "SELECT 10\n"
+                    "{% elif False %}\n"
+                    "SELECT 100\n"
+                    "{% elif False %}\n"
+                    "SELECT 1000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000\n"
+                    "{% elif True %}\n"
+                    "SELECT 100000\n"
+                    "{% elif True %}\n"
+                    "SELECT 1000000\n"
+                    "{% elif True %}\n"
+                    "SELECT 10000000\n"
+                    "{% else %}\n"
+                    "SELECT 100000000\n"
+                    "{% endif %}\n",
+                    "\nSELECT 10000\n\n",
+                ),
+            ],
+            id="if_elif_else_chain_scoring",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
