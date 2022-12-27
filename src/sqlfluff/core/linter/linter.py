@@ -771,26 +771,29 @@ class Linter:
         formatter: Any = None,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
-        linted_files = []
+        linted_file = None
         for parsed in cls.parse_rendered(rendered):
-            linted_files.append(
-                cls.lint_parsed(
-                    parsed,
-                    rule_set=rule_set,
-                    fix=fix,
-                    formatter=formatter,
-                    encoding=rendered.encoding,
-                )
+            linted_file_tmp = cls.lint_parsed(
+                parsed,
+                rule_set=rule_set,
+                fix=fix,
+                formatter=formatter,
+                encoding=rendered.encoding,
             )
+            if not linted_file:
+                linted_file = linted_file_tmp
+            else:
+                for violation in linted_file_tmp.violations:
+                    if violation not in linted_file.violations:
+                        linted_file.violations.append(violation)
+
         # This is the main command line output from linting.
+        assert linted_file
         if formatter:
-            for linted_file in linted_files:
-                formatter.dispatch_file_violations(
-                    linted_file.path, linted_file, only_fixable=fix
-                )
-        # TODO: Rethink the structure of LintedFile, return a single object with
-        # all the linted variations?
-        return linted_files[0]
+            formatter.dispatch_file_violations(
+                linted_file.path, linted_file, only_fixable=fix
+            )
+        return linted_file
 
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
@@ -951,7 +954,7 @@ class Linter:
         """
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
-        linted_files = []
+        linted_file = None
         # Parse the string.
         for parsed in self.parse_string(
             in_str=in_str,
@@ -961,17 +964,21 @@ class Linter:
             # Get rules as appropriate
             rule_set = self.get_ruleset(config=config)
             # Lint the file and return the LintedFile
-            linted_files.append(
-                self.lint_parsed(
-                    parsed,
-                    rule_set,
-                    fix=fix,
-                    formatter=self.formatter,
-                    encoding=encoding,
-                )
+            linted_file_tmp = self.lint_parsed(
+                parsed,
+                rule_set,
+                fix=fix,
+                formatter=self.formatter,
+                encoding=encoding,
             )
-        # TODO: Combine the linted files into a single one.
-        return linted_files[0]
+            if not linted_file:
+                linted_file = linted_file_tmp
+            else:
+                for violation in linted_file_tmp.violations:
+                    if violation not in linted_file.violations:
+                        linted_file.violations.append(violation)
+        assert linted_file
+        return linted_file
 
     def paths_from_path(
         self,

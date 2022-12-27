@@ -1523,106 +1523,34 @@ def test_undefined_magic_methods():
         pytest.param(
             "simple_if_true.sql",
             [
-                (
-                    "{% if True %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
-                (
-                    "{% if False %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
-                    "\nSELECT 2\n\n",
-                ),
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
             ],
             id="simple_if_true",
         ),
         pytest.param(
             "simple_if_false.sql",
             [
-                (
-                    "{% if False %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
-                    "\nSELECT 2\n\n",
-                ),
-                (
-                    "{% if True %}\nSELECT 1\n{% else %}\nSELECT 2\n{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
+                "\nSELECT 2\n\n",
+                "\nSELECT 1\n\n",
             ],
             id="simple_if_false",
         ),
         pytest.param(
             "if_elif_else.sql",
             [
-                (
-                    "{% if True %}\n"
-                    "SELECT 1\n"
-                    "{% elif True %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif True %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n",
-                    "\nSELECT 2\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n",
-                    "\nSELECT 3\n\n",
-                ),
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
+                "\nSELECT 3\n\n",
             ],
             id="if_elif_else",
         ),
         pytest.param(
             "if_else_if_nested.sql",
             [
-                (
-                    "{% if True %}\n"
-                    "SELECT 1\n"
-                    "{% else %}\n"
-                    "{% if True %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n"
-                    "{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% else %}\n"
-                    "{% if True %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n"
-                    "{% endif %}\n",
-                    "\n\nSELECT 2\n\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% else %}\n"
-                    "{% if False %}\n"
-                    "SELECT 2\n"
-                    "{% else %}\n"
-                    "SELECT 3\n"
-                    "{% endif %}\n"
-                    "{% endif %}\n",
-                    "\n\nSELECT 3\n\n\n",
-                ),
+                "\nSELECT 1\n\n",
+                "\n\nSELECT 2\n\n\n",
+                "\n\nSELECT 3\n\n\n",
             ],
             id="if_else_if_nested",
         ),
@@ -1631,138 +1559,12 @@ def test_undefined_magic_methods():
         pytest.param(
             "if_elif_else_chain_scoring.sql",
             [
-                (
-                    "{% if True %}\n"
-                    "SELECT 1\n"
-                    "{% elif True %}\n"
-                    "SELECT 10\n"
-                    "{% elif True %}\n"
-                    "SELECT 100\n"
-                    "{% elif True %}\n"
-                    "SELECT 1000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000\n"
-                    "{% elif True %}\n"
-                    "SELECT 100000\n"
-                    "{% elif True %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 10\n"
-                    "{% elif False %}\n"
-                    "SELECT 100\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000\n"
-                    "{% elif False %}\n"
-                    "SELECT 10000\n"
-                    "{% elif False %}\n"
-                    "SELECT 100000\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif False %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 100000000\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 10\n"
-                    "{% elif False %}\n"
-                    "SELECT 100\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000\n"
-                    "{% elif False %}\n"
-                    "SELECT 10000\n"
-                    "{% elif False %}\n"
-                    "SELECT 100000\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 10000000\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 10\n"
-                    "{% elif False %}\n"
-                    "SELECT 100\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000\n"
-                    "{% elif False %}\n"
-                    "SELECT 10000\n"
-                    "{% elif False %}\n"
-                    "SELECT 100000\n"
-                    "{% elif True %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 1000000\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 10\n"
-                    "{% elif False %}\n"
-                    "SELECT 100\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000\n"
-                    "{% elif False %}\n"
-                    "SELECT 10000\n"
-                    "{% elif True %}\n"
-                    "SELECT 100000\n"
-                    "{% elif True %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 100000\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    "SELECT 10\n"
-                    "{% elif False %}\n"
-                    "SELECT 100\n"
-                    "{% elif False %}\n"
-                    "SELECT 1000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000\n"
-                    "{% elif True %}\n"
-                    "SELECT 100000\n"
-                    "{% elif True %}\n"
-                    "SELECT 1000000\n"
-                    "{% elif True %}\n"
-                    "SELECT 10000000\n"
-                    "{% else %}\n"
-                    "SELECT 100000000\n"
-                    "{% endif %}\n",
-                    "\nSELECT 10000\n\n",
-                ),
+                "\nSELECT 1\n\n",
+                "\nSELECT 100000000\n\n",
+                "\nSELECT 10000000\n\n",
+                "\nSELECT 1000000\n\n",
+                "\nSELECT 100000\n\n",
+                "\nSELECT 10000\n\n",
             ],
             id="if_elif_else_chain_scoring",
         ),
@@ -1771,26 +1573,8 @@ def test_undefined_magic_methods():
         pytest.param(
             "if_true_elif_type_error_else.sql",
             [
-                (
-                    "{% if True %}\n"
-                    "SELECT 1\n"
-                    "{% elif True %}\n"
-                    'SELECT {{ 1 + "2" }}\n'
-                    "{% else %}\n"
-                    "SELECT 2\n"
-                    "{% endif %}\n",
-                    "\nSELECT 1\n\n",
-                ),
-                (
-                    "{% if False %}\n"
-                    "SELECT 1\n"
-                    "{% elif False %}\n"
-                    'SELECT {{ 1 + "2" }}\n'
-                    "{% else %}\n"
-                    "SELECT 2\n"
-                    "{% endif %}\n",
-                    "\nSELECT 2\n\n",
-                ),
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
             ],
             id="if_true_elif_type_error_else",
         ),
@@ -1806,5 +1590,5 @@ def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
         fname=str(sql_path),
         config=FluffConfig.from_path(str(test_dir)),
     ):
-        renderings.append((templated_file.source_str, templated_file.templated_str))
+        renderings.append(templated_file.templated_str)
     assert renderings == expected_renderings

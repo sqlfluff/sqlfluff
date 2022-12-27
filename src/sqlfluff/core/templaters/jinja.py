@@ -396,7 +396,7 @@ class JinjaTemplater(PythonTemplater):
                     )
                 ],
             )
-            return
+            return  # pragma: no cover
 
         violations: List[SQLBaseError] = []
 
@@ -572,7 +572,7 @@ class JinjaTemplater(PythonTemplater):
                         ].alternate_code = f"{{% {tag} False %}}"
                         override_raw_slices.append(branch)
             # Render and analyze the template with the overrides.
-            variant_raw_str = "".join(
+            variant_key = tuple(
                 cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
                 if idx in override_raw_slices
                 and tracer_trace.raw_slice_info[rs].alternate_code is not None
@@ -582,7 +582,8 @@ class JinjaTemplater(PythonTemplater):
             # In some cases (especially with nested if statements), we may
             # generate a variant that duplicates an existing variant. Skip
             # those.
-            if variant_raw_str not in variants:
+            if variant_key not in variants:
+                variant_raw_str = "".join(variant_key)
                 analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
                 tracer_trace = analyzer.analyze(make_template)
                 try:
@@ -613,11 +614,25 @@ class JinjaTemplater(PythonTemplater):
         # Return the top-scoring variants.
         sorted_variants = sorted(variants.values(), key=lambda v: v[0], reverse=True)
         for _, trace in sorted_variants[:max_variants_returned]:
+            # :TRICKY: Yield variants that _look like_ they were rendered from
+            # the original template, but actually were rendered from a modified
+            # template. This should ensure that lint issues and fixes for the
+            # variants are handled correctly and can be combined with those from
+            # the original template.
             yield (
-                trace.raw_sliced,
-                trace.sliced_file,
+                tracer_copy.raw_sliced,
+                [
+                    tfs._replace(
+                        source_slice=slice(
+                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx,
+                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx
+                            + len(tracer_copy.raw_sliced[tfs.slice_idx].raw),
+                        )
+                    )
+                    for tfs in trace.sliced_file
+                ],
                 trace.templated_str,
-                trace.raw_str,
+                tracer_copy.raw_str,
             )
 
 
