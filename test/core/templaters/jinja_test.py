@@ -1548,6 +1548,48 @@ def test_undefined_magic_methods():
             ],
             id="if_elif_else",
         ),
+        pytest.param(
+            "if_else_if_nested.sql",
+            [
+                (
+                    "{% if True %}\n"
+                    "SELECT 1\n"
+                    "{% else %}\n"
+                    "{% if True %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n"
+                    "{% endif %}\n",
+                    "\nSELECT 1\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% else %}\n"
+                    "{% if True %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n"
+                    "{% endif %}\n",
+                    "\n\nSELECT 2\n\n\n",
+                ),
+                (
+                    "{% if False %}\n"
+                    "SELECT 1\n"
+                    "{% else %}\n"
+                    "{% if False %}\n"
+                    "SELECT 2\n"
+                    "{% else %}\n"
+                    "SELECT 3\n"
+                    "{% endif %}\n"
+                    "{% endif %}\n",
+                    "\n\nSELECT 3\n\n\n",
+                ),
+            ],
+            id="if_else_if_nested",
+        ),
         # This test case exercises the scoring function. Generates up to 10
         # variants, but only the top 5 are returned.
         pytest.param(

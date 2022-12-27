@@ -535,9 +535,11 @@ class JinjaTemplater(PythonTemplater):
             return
 
         # Find uncovered code (if any), tweak the template to hit that code.
-        all_slices = set(range(len(trace.raw_sliced)))
+        literal_slices = {
+            idx for idx, s in enumerate(trace.raw_sliced) if s.slice_type == "literal"
+        }
         covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
-        uncovered_slices = all_slices - covered_slices
+        uncovered_slices = literal_slices - covered_slices
         yield from self._handle_unreached_code(
             append_to_templated, make_template, tracer_copy, uncovered_slices
         )
@@ -548,7 +550,7 @@ class JinjaTemplater(PythonTemplater):
         """Address uncovered slices by tweaking the template to hit them."""
         max_variants_generated = 10
         max_variants_returned = 5
-        variants = []
+        variants = {}
         for uncovered_slice in sorted(uncovered_slices)[:max_variants_generated]:
             tracer_probe = copy.deepcopy(tracer_copy)
             tracer_trace = copy.deepcopy(tracer_copy)
@@ -578,29 +580,33 @@ class JinjaTemplater(PythonTemplater):
                 else rs.raw
                 for idx, rs in enumerate(tracer_trace.raw_sliced)
             )
-            analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
-            tracer_trace = analyzer.analyze(make_template)
-            trace = tracer_trace.trace(
-                append_to_templated=append_to_templated,
-            )
-            # Compute a score for the variant based on the size of initially
-            # uncovered literal slices it hits.
-            covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
-            score = 0
-            for newly_covered_slice_idx in covered_slices.intersection(
-                uncovered_slices
-            ):
-                newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
-                score += (
-                    len(newly_covered_slice.raw)
-                    if newly_covered_slice.slice_type == "literal"
-                    else 0
+            # In some cases (especially with nested if statements), we may
+            # generate a variant that duplicates an existing variant. Skip
+            # those.
+            if variant_raw_str not in variants:
+                analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+                tracer_trace = analyzer.analyze(make_template)
+                trace = tracer_trace.trace(
+                    append_to_templated=append_to_templated,
                 )
-            variants.append((score, trace))
+                # Compute a score for the variant based on the size of initially
+                # uncovered literal slices it hits.
+                covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
+                score = 0
+                for newly_covered_slice_idx in covered_slices.intersection(
+                    uncovered_slices
+                ):
+                    newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
+                    score += (
+                        len(newly_covered_slice.raw)
+                        if newly_covered_slice.slice_type == "literal"
+                        else 0
+                    )
+                variants[variant_raw_str] = (score, trace)
             # print(f"Yielding trace for {trace.templated_str!r}")
 
-        variants.sort(key=lambda v: v[0], reverse=True)
-        for _, trace in variants[:max_variants_returned]:
+        sorted_variants = sorted(variants.values(), key=lambda v: v[0], reverse=True)
+        for _, trace in sorted_variants[:max_variants_returned]:
             yield (
                 trace.raw_sliced,
                 trace.sliced_file,
