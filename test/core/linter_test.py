@@ -395,8 +395,11 @@ def test__linter__empty_file():
     """Test linter behaves nicely with an empty string."""
     lntr = Linter(dialect="ansi")
     # Make sure no exceptions raised and no violations found in empty file.
-    parsed = lntr.parse_string("")
-    assert not parsed.violations
+    for parsed in lntr.parse_string(""):
+        assert not parsed.violations
+        break
+    else:
+        assert False
 
 
 @pytest.mark.parametrize(
@@ -1012,14 +1015,16 @@ def test_advanced_api_methods():
     INNER JOIN tab_b;
     """
     linter = Linter(dialect="ansi")
-    parsed = linter.parse_string(sql)
+    for parsed in linter.parse_string(sql):
+        # CTEDefinitionSegment.get_identifier
+        cte_segment = next(parsed.tree.recursive_crawl("common_table_expression"))
+        assert cte_segment.get_identifier().raw == "cte"
 
-    # CTEDefinitionSegment.get_identifier
-    cte_segment = next(parsed.tree.recursive_crawl("common_table_expression"))
-    assert cte_segment.get_identifier().raw == "cte"
-
-    # BaseFileSegment.get_table_references & StatementSegment.get_table_references
-    assert parsed.tree.get_table_references() == {"tab_a", "tab_b"}
+        # BaseFileSegment.get_table_references & StatementSegment.get_table_references
+        assert parsed.tree.get_table_references() == {"tab_a", "tab_b"}
+        break
+    else:
+        assert False
 
 
 def test_normalise_newlines():

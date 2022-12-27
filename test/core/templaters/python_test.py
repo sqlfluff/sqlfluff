@@ -18,8 +18,11 @@ def test__templater_python():
     """Test the python templater."""
     t = PythonTemplater(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
-    outstr, _ = t.process(in_str=instr, fname="test")
-    assert str(outstr) == "SELECT * FROM foo"
+    for outstr, _ in t.process(in_str=instr, fname="test"):
+        assert str(outstr) == "SELECT * FROM foo"
+        break
+    else:
+        assert False
 
 
 def test__templater_python_error():
@@ -27,7 +30,10 @@ def test__templater_python_error():
     t = PythonTemplater(override_context=dict(noblah="foo"))
     instr = PYTHON_STRING
     with pytest.raises(SQLTemplaterError):
-        t.process(in_str=instr, fname="test")
+        for _ in t.process(in_str=instr, fname="test"):
+            break
+        else:
+            assert False
 
 
 @pytest.mark.parametrize(
@@ -408,7 +414,7 @@ def test__templater_python_split_uniques_coalesce_rest(
             "foo",
             "foo",
             True,
-            [("literal", slice(0, 3, None), slice(0, 3, None))],
+            [("literal", slice(0, 3, None), slice(0, 3, None), None)],
         ),
         (
             "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertible from "
@@ -416,15 +422,15 @@ def test__templater_python_split_uniques_coalesce_rest(
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertible from something",
             True,
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 13, None), slice(7, 14, None)),
-                ("literal", slice(13, 15, None), slice(14, 16, None)),
-                ("templated", slice(15, 24, None), slice(16, 22, None)),
-                ("literal", slice(24, 33, None), slice(22, 31, None)),
-                ("templated", slice(33, 38, None), slice(31, 35, None)),
-                ("literal", slice(38, 41, None), slice(35, 38, None)),
-                ("escaped", slice(41, 45, None), slice(38, 40, None)),
-                ("literal", slice(45, 76, None), slice(40, 71, None)),
+                ("literal", slice(0, 7, None), slice(0, 7, None), None),
+                ("templated", slice(7, 13, None), slice(7, 14, None), None),
+                ("literal", slice(13, 15, None), slice(14, 16, None), None),
+                ("templated", slice(15, 24, None), slice(16, 22, None), None),
+                ("literal", slice(24, 33, None), slice(22, 31, None), None),
+                ("templated", slice(33, 38, None), slice(31, 35, None), None),
+                ("literal", slice(38, 41, None), slice(35, 38, None), None),
+                ("escaped", slice(41, 45, None), slice(38, 40, None), None),
+                ("literal", slice(45, 76, None), slice(40, 71, None), None),
             ],
         ),
         # Test a wrapped example. Given the default config is to unwrap any wrapped
@@ -435,9 +441,9 @@ def test__templater_python_split_uniques_coalesce_rest(
             True,
             # The sliced version should have trimmed the ends
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 13, None), slice(7, 14, None)),
-                ("literal", slice(13, 28, None), slice(14, 29, None)),
+                ("literal", slice(0, 7, None), slice(0, 7, None), None),
+                ("templated", slice(7, 13, None), slice(7, 14, None), None),
+                ("literal", slice(13, 28, None), slice(14, 29, None), None),
             ],
         ),
         (
@@ -446,34 +452,37 @@ def test__templater_python_split_uniques_coalesce_rest(
             False,  # Test NOT unwrapping it.
             # The sliced version should NOT have trimmed the ends
             [
-                ("templated", slice(0, 0, None), slice(0, 14, None)),
-                ("literal", slice(0, 7, None), slice(14, 21, None)),
-                ("templated", slice(7, 13, None), slice(21, 28, None)),
-                ("literal", slice(13, 28, None), slice(28, 43, None)),
-                ("templated", slice(28, 28, None), slice(43, 63, None)),
+                ("templated", slice(0, 0, None), slice(0, 14, None), None),
+                ("literal", slice(0, 7, None), slice(14, 21, None), None),
+                ("templated", slice(7, 13, None), slice(21, 28, None), None),
+                ("literal", slice(13, 28, None), slice(28, 43, None), None),
+                ("templated", slice(28, 28, None), slice(43, 63, None), None),
             ],
         ),
     ],
 )
 def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
-    _, resp, _ = PythonTemplater().slice_file(
+    for _, resp, _, _ in PythonTemplater().slice_file(
         raw_file,
         templated_file,
         config=FluffConfig(
             configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}},
             overrides={"dialect": "ansi"},
         ),
-    )
-    # Check contiguous
-    prev_slice = None
-    for templated_slice in resp:
-        if prev_slice:
-            assert templated_slice.source_slice.start == prev_slice[0].stop
-            assert templated_slice.templated_slice.start == prev_slice[1].stop
-        prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
-    # check result
-    assert resp == result
+    ):
+        # Check contiguous
+        prev_slice = None
+        for templated_slice in resp:
+            if prev_slice:
+                assert templated_slice.source_slice.start == prev_slice[0].stop
+                assert templated_slice.templated_slice.start == prev_slice[1].stop
+            prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
+        # check result
+        assert resp == result
+        break
+    else:
+        assert False
 
 
 def test__templater_python_large_file_check():
@@ -483,15 +492,21 @@ def test__templater_python_large_file_check():
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without config.
-    PythonTemplater().process(in_str="SELECT 1", fname="<string>")
+    for _ in PythonTemplater().process(in_str="SELECT 1", fname="<string>"):
+        break
+    else:
+        assert False
     # Then check we raise a skip exception when config is set low.
     with pytest.raises(SQLFluffSkipFile) as excinfo:
-        PythonTemplater().process(
+        for _ in PythonTemplater().process(
             in_str="SELECT 1",
             fname="<string>",
             config=FluffConfig(
                 overrides={"dialect": "ansi", "large_file_skip_char_limit": 2},
             ),
-        )
+        ):
+            break
+        else:
+            assert False
 
     assert "Length of file" in str(excinfo.value)
