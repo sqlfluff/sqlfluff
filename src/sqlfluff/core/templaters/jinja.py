@@ -546,12 +546,14 @@ class JinjaTemplater(PythonTemplater):
         self, append_to_templated, make_template, tracer_copy, uncovered_slices
     ):
         """Address uncovered slices by tweaking the template to hit them."""
-        while uncovered_slices:
-            uncovered_slice = sorted(uncovered_slices)[0]
+        max_variants_generated = 10
+        max_variants_returned = 5
+        variants = []
+        for uncovered_slice in sorted(uncovered_slices)[:max_variants_generated]:
             tracer_probe = copy.deepcopy(tracer_copy)
             tracer_trace = copy.deepcopy(tracer_copy)
             override_raw_slices = []
-            # Find a path that takes us to the uncovered slice.
+            # Find a path that takes us to 'uncovered_slice'.
             choices = tracer_probe.move_to_slice(uncovered_slice, 0)
             for branch, options in choices.items():
                 tag = tracer_probe.raw_sliced[branch].tag
@@ -568,6 +570,7 @@ class JinjaTemplater(PythonTemplater):
                             tracer_probe.raw_sliced[branch]
                         ].alternate_code = f"{{% {tag} False %}}"
                         override_raw_slices.append(branch)
+            # Render and analyze the template with the overrides.
             variant_raw_str = "".join(
                 cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
                 if idx in override_raw_slices
@@ -580,14 +583,30 @@ class JinjaTemplater(PythonTemplater):
             trace = tracer_trace.trace(
                 append_to_templated=append_to_templated,
             )
+            # Compute a score for the variant based on the size of initially
+            # uncovered literal slices it hits.
+            covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
+            score = 0
+            for newly_covered_slice_idx in covered_slices.intersection(
+                uncovered_slices
+            ):
+                newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
+                score += (
+                    len(newly_covered_slice.raw)
+                    if newly_covered_slice.slice_type == "literal"
+                    else 0
+                )
+            variants.append((score, trace))
             # print(f"Yielding trace for {trace.templated_str!r}")
+
+        variants.sort(key=lambda v: v[0], reverse=True)
+        for _, trace in variants[:max_variants_returned]:
             yield (
                 trace.raw_sliced,
                 trace.sliced_file,
                 trace.templated_str,
                 trace.raw_str,
             )
-            uncovered_slices.remove(uncovered_slice)
 
 
 class DummyUndefined(jinja2.Undefined):
