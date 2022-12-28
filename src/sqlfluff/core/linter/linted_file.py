@@ -38,8 +38,8 @@ from sqlfluff.core.linter.common import NoQaDirective
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
-class LintedFile(NamedTuple):
-    """A class to store the idea of a linted file."""
+class LintedVariant(NamedTuple):
+    """A class to store the idea of a linted variant of a file."""
 
     path: str
     violations: List[SQLBaseError]
@@ -97,7 +97,7 @@ class LintedFile(NamedTuple):
         filter_ignore: bool = True,
         filter_warning: bool = True,
         fixable: Optional[bool] = None,
-    ) -> list:
+    ) -> List:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -534,7 +534,7 @@ class LintedFile(NamedTuple):
 
         if success:
             fname = self.path
-            # If there is a suffix specified, then use it.s
+            # If there is a suffix specified, then use it.
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
@@ -574,3 +574,63 @@ class LintedFile(NamedTuple):
         if mode is not None:
             os.chmod(tmp.name, mode)
         shutil.move(tmp.name, output_path)
+
+
+class LintedFile(NamedTuple):
+    """Stores one or more linted variants of the same file."""
+    path: str
+    variants: List[LintedVariant] = list()
+
+    def add_variant(self, variant: LintedVariant):
+        """Add a variant to the file."""
+        if self.variants:
+            if self.variants[0].path != variant.path:
+                raise ValueError(
+                    "Cannot add variant to file with different path: "
+                    f"{self.variants[0].path} != {variant.path}"
+                )
+        self.variants.append(variant)
+
+    def get_violations(
+        self,
+        rules: Optional[Union[str, Tuple[str, ...]]] = None,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        filter_ignore: bool = True,
+        filter_warning: bool = True,
+        fixable: Optional[bool] = None,
+    ) -> List:
+        """Get a list of violations for this file.
+
+        The list of violations returned is suitable for lint output, but not
+        for fixing because the fixes are specific to the variant's tree. We'll
+        address this when generating and applying file patches.
+
+        """
+        violations = []
+        for variant in self.variants:
+            for violation in variant.get_violations(
+                rules=rules,
+                types=types,
+                filter_ignore=filter_ignore,
+                filter_warning=filter_warning,
+                fixable=fixable,
+            ):
+                if violation not in violations:
+                    violations.append(violation)
+        return violations
+
+    def is_clean(self) -> bool:
+        """Return True if there are no ignorable violations."""
+        return not any(self.get_violations(filter_ignore=True))
+
+    def num_violations(self, **kwargs) -> int:
+        """Count the number of violations.
+
+        Optionally now with filters.
+        """
+        violations = self.get_violations(**kwargs)
+        return len(violations)
+
+    def persist_tree(self, suffix: str = "") -> bool:
+        """Persist changes to the given path."""
+        return self.variants[0].persist_tree(suffix=suffix)

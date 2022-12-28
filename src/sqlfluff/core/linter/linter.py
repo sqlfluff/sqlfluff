@@ -47,7 +47,7 @@ from sqlfluff.core.linter.common import (
     NoQaDirective,
     RenderedFile,
 )
-from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.linter.linted_file import LintedFile, LintedVariant
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
 
@@ -694,8 +694,8 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
-    ):
-        """Lint a ParsedString and return a LintedFile."""
+    ) -> LintedVariant:
+        """Lint a ParsedString and return a LintedVariant."""
         violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment]
@@ -742,10 +742,10 @@ class Linter:
             violation.ignore_if_in(parsed.config.get("ignore"))
             violation.warning_if_in(parsed.config.get("warnings"))
 
-        linted_file = LintedFile(
+        linted_variant = LintedVariant(
             parsed.fname,
             # Deduplicate violations
-            LintedFile.deduplicate_in_source_space(violations),
+            LintedVariant.deduplicate_in_source_space(violations),
             time_dict,
             tree,
             ignore_mask=ignore_buff,
@@ -754,13 +754,13 @@ class Linter:
         )
 
         # Safety flag for unset dialects
-        if linted_file.get_violations(
+        if linted_variant.get_violations(
             fixable=True if fix else None, types=SQLParseError
         ):
             if formatter:  # pragma: no cover TODO?
                 formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
-        return linted_file
+        return linted_variant
 
     @classmethod
     def lint_rendered(
@@ -773,7 +773,7 @@ class Linter:
         """Take a RenderedFile and return a LintedFile."""
         linted_file = None
         for parsed in cls.parse_rendered(rendered):
-            linted_file_tmp = cls.lint_parsed(
+            linted_variant = cls.lint_parsed(
                 parsed,
                 rule_set=rule_set,
                 fix=fix,
@@ -781,11 +781,8 @@ class Linter:
                 encoding=rendered.encoding,
             )
             if not linted_file:
-                linted_file = linted_file_tmp
-            else:
-                for violation in linted_file_tmp.violations:
-                    if violation not in linted_file.violations:
-                        linted_file.violations.append(violation)
+                linted_file = LintedFile(path=linted_variant.path)
+            linted_file.add_variant(linted_variant)
 
         # This is the main command line output from linting.
         assert linted_file
@@ -964,7 +961,7 @@ class Linter:
             # Get rules as appropriate
             rule_set = self.get_ruleset(config=config)
             # Lint the file and return the LintedFile
-            linted_file_tmp = self.lint_parsed(
+            linted_variant = self.lint_parsed(
                 parsed,
                 rule_set,
                 fix=fix,
@@ -972,11 +969,8 @@ class Linter:
                 encoding=encoding,
             )
             if not linted_file:
-                linted_file = linted_file_tmp
-            else:
-                for violation in linted_file_tmp.violations:
-                    if violation not in linted_file.violations:
-                        linted_file.violations.append(violation)
+                linted_file = LintedFile(path=linted_variant.path)
+            linted_file.add_variant(linted_variant)
         assert linted_file
         return linted_file
 
@@ -1202,7 +1196,7 @@ class Linter:
             linted_dir = expanded_path_to_linted_dir[linted_file.path]
             linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
+            if any(v.fatal for v in linted_file.get_violations()):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
