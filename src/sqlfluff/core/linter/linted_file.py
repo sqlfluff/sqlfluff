@@ -274,36 +274,10 @@ class LintedVariant(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
-        linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        assert self.tree
-        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
-
-        # The sliced file is contiguous in the TEMPLATED space.
-        # NB: It has gaps and repeats in the source space.
-        # It's also not the FIXED file either.
-        linter_logger.debug("### Templated File.")
-        for idx, file_slice in enumerate(self.templated_file.sliced_file):
-            t_str = self.templated_file.templated_str[file_slice.templated_slice]
-            s_str = self.templated_file.source_str[file_slice.source_slice]
-            if t_str == s_str:
-                linter_logger.debug(
-                    "    File slice: %s %r [invariant]", idx, file_slice
-                )
-            else:
-                linter_logger.debug("    File slice: %s %r", idx, file_slice)
-                linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
-
-        original_source = self.templated_file.source_str
-
-        # Generate patches from the fixed tree. In the process we sort
-        # and deduplicate them so that the resultant list is in the
-        # the right order for the source file without any duplicates.
-        filtered_source_patches = self._generate_source_patches(
-            self.tree, self.templated_file
-        )
-        linter_logger.debug("Filtered source patches:")
-        for idx, patch in enumerate(filtered_source_patches):
-            linter_logger.debug("    %s: %s", idx, patch)
+        (
+            filtered_source_patches,
+            original_source,
+        ) = self.generate_and_log_source_patches()
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
@@ -325,6 +299,37 @@ class LintedVariant(NamedTuple):
 
         # The success metric here is whether anything ACTUALLY changed.
         return fixed_source_string, fixed_source_string != original_source
+
+    def generate_and_log_source_patches(self):
+        """Generate source patches and log them."""
+        linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
+        assert self.tree
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
+        # The sliced file is contiguous in the TEMPLATED space.
+        # NB: It has gaps and repeats in the source space.
+        # It's also not the FIXED file either.
+        linter_logger.debug("### Templated File.")
+        for idx, file_slice in enumerate(self.templated_file.sliced_file):
+            t_str = self.templated_file.templated_str[file_slice.templated_slice]
+            s_str = self.templated_file.source_str[file_slice.source_slice]
+            if t_str == s_str:
+                linter_logger.debug(
+                    "    File slice: %s %r [invariant]", idx, file_slice
+                )
+            else:
+                linter_logger.debug("    File slice: %s %r", idx, file_slice)
+                linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
+        original_source = self.templated_file.source_str
+        # Generate patches from the fixed tree. In the process we sort and
+        # deduplicate them so that the resultant list is in the right order
+        # for the source file without any duplicates.
+        filtered_source_patches = self._generate_source_patches(
+            self.tree, self.templated_file
+        )
+        linter_logger.debug("Filtered source patches:")
+        for idx, patch in enumerate(filtered_source_patches):
+            linter_logger.debug("    %s: %s", idx, patch)
+        return filtered_source_patches, original_source
 
     @classmethod
     def _generate_source_patches(
@@ -539,13 +544,14 @@ class LintedVariant(NamedTuple):
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            self._safe_create_replace_file(self.path, fname, write_buff, self.encoding)
+            self.safe_create_replace_file(self.path, fname, write_buff, self.encoding)
         return success
 
     @staticmethod
-    def _safe_create_replace_file(
+    def safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str
     ):
+        """Create a file, safely replacing the old one if it exists."""
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
 
@@ -635,7 +641,18 @@ class LintedFile(NamedTuple):
 
     def persist_tree(self, suffix: str = "") -> bool:
         """Persist changes to the given path."""
-        return self.variants[0].persist_tree(suffix=suffix)
+        write_buff, success = self.fix_string()
+
+        if success:
+            fname = self.path
+            # If there is a suffix specified, then use it.
+            if suffix:
+                root, ext = os.path.splitext(fname)
+                fname = root + suffix + ext
+            LintedVariant.safe_create_replace_file(
+                self.path, fname, write_buff, self.variants[0].encoding
+            )
+        return success
 
     @property
     def tree(self) -> Optional[BaseSegment]:
@@ -669,6 +686,10 @@ class LintedFile(NamedTuple):
 
     def fix_string(self) -> Tuple[str, bool]:
         """Return the fixed string and a boolean indicating success."""
+        for idx, variant in enumerate(self.variants):
+            linter_logger.debug(f"Variant #{idx}")
+            variant.generate_and_log_source_patches()
+
         # TODO: Currently just returns with fixes applied from the first
         # variant. Needs to consider all variants.
         return self.variants[0].fix_string()
