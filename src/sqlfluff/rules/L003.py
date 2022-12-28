@@ -48,6 +48,7 @@ class Rule_L003(BaseRule):
     groups = ("all", "core")
     crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
+    template_safe_fixes = True
     _adjust_anchors = True
 
     def _eval(self, context: RuleContext) -> List[LintResult]:

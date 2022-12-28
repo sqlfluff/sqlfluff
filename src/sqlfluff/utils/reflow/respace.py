@@ -84,11 +84,18 @@ def process_spacing(
 
     # Loop through the existing segments looking for spacing.
     for seg in segment_buffer:
+        # If it has a position marker, but it's not literal, then
+        # it's a templated element and so we shouldn't consider it
+        # here.
+        if seg.pos_marker and not seg.pos_marker.is_literal():
+            continue
+
         # If it's whitespace, store it.
-        if seg.is_type("whitespace"):
+        elif seg.is_type("whitespace"):
             last_whitespace.append(seg)
 
         # If it's a newline, react accordingly.
+        # NOTE: This should only trigger on literal newlines.
         elif seg.is_type("newline", "end_of_file"):
             # Are we stripping newlines?
             if strip_newlines and seg.is_type("newline"):
