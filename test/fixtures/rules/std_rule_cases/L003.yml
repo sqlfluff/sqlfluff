@@ -1401,3 +1401,19 @@ test_fail_deny_implicit_indent:
   configs:
     indentation:
       allow_implicit_indents: False
+
+test_pass_templated_newlines:
+  # NOTE: The macro has many newlines in it,
+  # and the calling of it is indented. Check that
+  # this doesn't panic.
+  pass_str: |
+    {% macro my_macro() %}
+      
+      macro
+      + with_newlines
+
+    {% endmacro %}
+
+    SELECT
+        {{ my_macro() }} as awkward_indentation
+    FROM foo
