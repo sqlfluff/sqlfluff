@@ -339,8 +339,145 @@ class LintedVariant(NamedTuple):
         # Sort the patches before building up the file.
         return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
 
+
+class LintedFile(NamedTuple):
+    """Stores one or more linted variants of the same file."""
+
+    path: str
+    variants: List[LintedVariant] = list()
+
+    def add_variant(self, variant: LintedVariant):
+        """Add a variant to the file."""
+        if self.variants:
+            if self.variants[0].path != variant.path:
+                raise ValueError(
+                    "Cannot add variant to file with different path: "
+                    f"{self.variants[0].path} != {variant.path}"
+                )
+        self.variants.append(variant)
+
+    def get_violations(
+        self,
+        rules: Optional[Union[str, Tuple[str, ...]]] = None,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        filter_ignore: bool = True,
+        filter_warning: bool = True,
+        fixable: Optional[bool] = None,
+    ) -> List:
+        """Get a list of violations for this file.
+
+        The list of violations returned is suitable for lint output, but not
+        for fixing because the fixes are specific to the variant's tree. We'll
+        address this when generating and applying file patches.
+
+        """
+        violations = []
+        for variant in self.variants:
+            for violation in variant.get_violations(
+                rules=rules,
+                types=types,
+                filter_ignore=filter_ignore,
+                filter_warning=filter_warning,
+                fixable=fixable,
+            ):
+                if violation not in violations:
+                    violations.append(violation)
+        return violations
+
+    def is_clean(self) -> bool:
+        """Return True if there are no ignorable violations."""
+        return not any(self.get_violations(filter_ignore=True))
+
+    def num_violations(self, **kwargs) -> int:
+        """Count the number of violations.
+
+        Optionally now with filters.
+        """
+        violations = self.get_violations(**kwargs)
+        return len(violations)
+
+    def persist_tree(self, suffix: str = "") -> bool:
+        """Persist changes to the given path."""
+        write_buff, success = self.fix_string()
+
+        if success:
+            fname = self.path
+            # If there is a suffix specified, then use it.
+            if suffix:
+                root, ext = os.path.splitext(fname)
+                fname = root + suffix + ext
+            self._safe_create_replace_file(
+                self.path, fname, write_buff, self.variants[0].encoding
+            )
+        return success
+
+    @property
+    def tree(self) -> Optional[BaseSegment]:
+        """Return the tree for the first variant."""
+        return self.variants[0].tree
+
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+        """Make a list of check_tuples.
+
+        This assumes that all the violations found are
+        linting violations. If they don't then this function
+        raises that error.
+        """
+        vs: List[CheckTuple] = []
+        v: SQLLintError
+        for v in self.get_violations():
+            if isinstance(v, SQLLintError):
+                vs.append(v.check_tuple())
+            elif raise_on_non_linting_violations:
+                raise v
+        return vs
+
+    @property
+    def time_dict(self) -> Dict[str, float]:
+        """Return a dictionary of timings."""
+        timings: Dict[str, float] = {}
+        for variant in self.variants:
+            for k, v in variant.time_dict.items():
+                timings[k] = timings.get(k, 0) + v
+        return timings
+
+    def fix_string(self) -> Tuple[str, bool]:
+        """Return the fixed string and a boolean indicating success."""
+        filtered_source_patches: List[FixPatch] = []
+        main_variant = self.variants[0]
+        for idx, variant in enumerate(self.variants):
+            linter_logger.debug(f"Variant #{idx}")
+            # Do we need to deduplicate the patches using FixPatch.dedupe_tuple()?
+            filtered_source_patches += variant.generate_and_log_source_patches()
+
+        # Any Template tags in the source file are off limits, unless
+        # we're explicitly fixing the source file.
+        source_only_slices = main_variant.templated_file.source_only_slices()
+        linter_logger.debug("Source-only slices: %s", source_only_slices)
+
+        # We now slice up the file using the patches and any source only slices.
+        # This gives us regions to apply changes to.
+        slice_buff = self._slice_source_file_using_patches(
+            filtered_source_patches,
+            source_only_slices,
+            main_variant.templated_file.source_str,
+        )
+
+        linter_logger.debug("Final slice buffer: %s", slice_buff)
+
+        # Iterate through the patches, building up the new string.
+        fixed_source_string = self._build_up_fixed_source_string(
+            slice_buff, filtered_source_patches, main_variant.templated_file.source_str
+        )
+
+        # The success metric here is whether anything ACTUALLY changed.
+        return (
+            fixed_source_string,
+            fixed_source_string != main_variant.templated_file.source_str,
+        )
+
     @staticmethod
-    def slice_source_file_using_patches(
+    def _slice_source_file_using_patches(
         source_patches: List[FixPatch],
         source_only_slices: List[RawFileSlice],
         raw_source_string: str,
@@ -460,7 +597,7 @@ class LintedVariant(NamedTuple):
         return str_buff
 
     @staticmethod
-    def safe_create_replace_file(
+    def _safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str
     ):
         """Create a file, safely replacing the old one if it exists."""
@@ -493,140 +630,3 @@ class LintedVariant(NamedTuple):
         if mode is not None:
             os.chmod(tmp.name, mode)
         shutil.move(tmp.name, output_path)
-
-
-class LintedFile(NamedTuple):
-    """Stores one or more linted variants of the same file."""
-
-    path: str
-    variants: List[LintedVariant] = list()
-
-    def add_variant(self, variant: LintedVariant):
-        """Add a variant to the file."""
-        if self.variants:
-            if self.variants[0].path != variant.path:
-                raise ValueError(
-                    "Cannot add variant to file with different path: "
-                    f"{self.variants[0].path} != {variant.path}"
-                )
-        self.variants.append(variant)
-
-    def get_violations(
-        self,
-        rules: Optional[Union[str, Tuple[str, ...]]] = None,
-        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
-        filter_ignore: bool = True,
-        filter_warning: bool = True,
-        fixable: Optional[bool] = None,
-    ) -> List:
-        """Get a list of violations for this file.
-
-        The list of violations returned is suitable for lint output, but not
-        for fixing because the fixes are specific to the variant's tree. We'll
-        address this when generating and applying file patches.
-
-        """
-        violations = []
-        for variant in self.variants:
-            for violation in variant.get_violations(
-                rules=rules,
-                types=types,
-                filter_ignore=filter_ignore,
-                filter_warning=filter_warning,
-                fixable=fixable,
-            ):
-                if violation not in violations:
-                    violations.append(violation)
-        return violations
-
-    def is_clean(self) -> bool:
-        """Return True if there are no ignorable violations."""
-        return not any(self.get_violations(filter_ignore=True))
-
-    def num_violations(self, **kwargs) -> int:
-        """Count the number of violations.
-
-        Optionally now with filters.
-        """
-        violations = self.get_violations(**kwargs)
-        return len(violations)
-
-    def persist_tree(self, suffix: str = "") -> bool:
-        """Persist changes to the given path."""
-        write_buff, success = self.fix_string()
-
-        if success:
-            fname = self.path
-            # If there is a suffix specified, then use it.
-            if suffix:
-                root, ext = os.path.splitext(fname)
-                fname = root + suffix + ext
-            LintedVariant.safe_create_replace_file(
-                self.path, fname, write_buff, self.variants[0].encoding
-            )
-        return success
-
-    @property
-    def tree(self) -> Optional[BaseSegment]:
-        """Return the tree for the first variant."""
-        return self.variants[0].tree
-
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
-        """Make a list of check_tuples.
-
-        This assumes that all the violations found are
-        linting violations. If they don't then this function
-        raises that error.
-        """
-        vs: List[CheckTuple] = []
-        v: SQLLintError
-        for v in self.get_violations():
-            if isinstance(v, SQLLintError):
-                vs.append(v.check_tuple())
-            elif raise_on_non_linting_violations:
-                raise v
-        return vs
-
-    @property
-    def time_dict(self) -> Dict[str, float]:
-        """Return a dictionary of timings."""
-        timings: Dict[str, float] = {}
-        for variant in self.variants:
-            for k, v in variant.time_dict.items():
-                timings[k] = timings.get(k, 0) + v
-        return timings
-
-    def fix_string(self) -> Tuple[str, bool]:
-        """Return the fixed string and a boolean indicating success."""
-        filtered_source_patches: List[FixPatch] = []
-        main_variant = self.variants[0]
-        for idx, variant in enumerate(self.variants):
-            linter_logger.debug(f"Variant #{idx}")
-            # Do we need to deduplicate the patches using FixPatch.dedupe_tuple()?
-            filtered_source_patches += variant.generate_and_log_source_patches()
-
-        # Any Template tags in the source file are off limits, unless
-        # we're explicitly fixing the source file.
-        source_only_slices = main_variant.templated_file.source_only_slices()
-        linter_logger.debug("Source-only slices: %s", source_only_slices)
-
-        # We now slice up the file using the patches and any source only slices.
-        # This gives us regions to apply changes to.
-        slice_buff = main_variant.slice_source_file_using_patches(
-            filtered_source_patches,
-            source_only_slices,
-            main_variant.templated_file.source_str,
-        )
-
-        linter_logger.debug("Final slice buffer: %s", slice_buff)
-
-        # Iterate through the patches, building up the new string.
-        fixed_source_string = main_variant._build_up_fixed_source_string(
-            slice_buff, filtered_source_patches, main_variant.templated_file.source_str
-        )
-
-        # The success metric here is whether anything ACTUALLY changed.
-        return (
-            fixed_source_string,
-            fixed_source_string != main_variant.templated_file.source_str,
-        )
