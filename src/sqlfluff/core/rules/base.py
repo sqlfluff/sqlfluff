@@ -348,20 +348,13 @@ class LintFix:
         # include the area of code "within" the area of insertion, not the other
         # side.
         adjust_boundary = 1 if not within_only else 0
-        raw_edit = "".join(seg.raw for seg in self.edit) if self.edit else ""
-        # create_before - or a replace behaving like a create_before.
-        if self.edit_type == "create_before" or (
-            self.edit_type == "replace" and raw_edit.endswith(self.anchor.raw)
-        ):
+        if self.edit_type == "create_before":
             # Consider the first position of the anchor segment and the
             # position just before it.
             templated_slices = [
                 slice(anchor_slice.start - 1, anchor_slice.start + adjust_boundary),
             ]
-        # create_after - or a replace behaving like a create_after.
-        elif self.edit_type == "create_after" or (
-            self.edit_type == "replace" and raw_edit.startswith(self.anchor.raw)
-        ):
+        elif self.edit_type == "create_after":
             # Consider the last position of the anchor segment and the
             # character just after it.
             templated_slices = [
@@ -811,7 +804,6 @@ class BaseRule:
         block_indices: Set[int] = set()
         for fix in lint_result.fixes:
             fix_slices = fix.get_fix_slices(templated_file, within_only=True)
-            linter_logger.warning("FIX SLICES: %s", fix_slices)
             for fix_slice in fix_slices:
                 # Ignore fix slices that exist only in the source. For purposes
                 # of this check, it's not meaningful to say that a fix "touched"
