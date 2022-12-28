@@ -25,6 +25,7 @@ class Rule_L016(BaseRule):
     groups = ("all", "core")
     crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
+    template_safe_fixes = True
     _adjust_anchors = True
     _check_docstring = False
 
