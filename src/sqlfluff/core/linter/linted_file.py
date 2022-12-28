@@ -10,6 +10,7 @@ import logging
 import shutil
 import stat
 import tempfile
+from dataclasses import dataclass, field
 from typing import (
     Dict,
     Iterable,
@@ -341,11 +342,12 @@ class LintedVariant(NamedTuple):
         return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
 
 
-class LintedFile(NamedTuple):
+@dataclass
+class LintedFile:
     """Stores one or more linted variants of the same file."""
 
     path: str
-    variants: List[LintedVariant] = list()
+    variants: List[LintedVariant] = field(default_factory=list)
 
     def add_variant(self, variant: LintedVariant):
         """Add a variant to the file."""

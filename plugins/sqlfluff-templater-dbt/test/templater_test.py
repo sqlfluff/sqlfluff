@@ -261,11 +261,11 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         # Log the rendered file to facilitate better debugging of the files.
         print(f"## FILE: {linted_file.path}")
         print("\n\n## RENDERED FILE:\n\n")
-        print(linted_file.templated_file.templated_str)
+        print(linted_file.templated_file.variants[0].templated_str)
         print("\n\n## PARSED TREE:\n\n")
         print(linted_file.tree.stringify())
         print("\n\n## VIOLATIONS:")
-        for idx, v in enumerate(linted_file.violations):
+        for idx, v in enumerate(linted_file.get_violations()):
             print(f"   {idx}:{v.get_info_dict()}")
 
     violations = lnt.check_tuples()
