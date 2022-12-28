@@ -11,7 +11,6 @@ import shutil
 import stat
 import tempfile
 from typing import (
-    Any,
     Dict,
     Iterable,
     List,
@@ -50,22 +49,6 @@ class LintedVariant(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
-        """Make a list of check_tuples.
-
-        This assumes that all the violations found are
-        linting violations. If they don't then this function
-        raises that error.
-        """
-        vs: List[CheckTuple] = []
-        v: SQLLintError
-        for v in self.get_violations():
-            if isinstance(v, SQLLintError):
-                vs.append(v.check_tuple())
-            elif raise_on_non_linting_violations:
-                raise v
-        return vs
-
     @staticmethod
     def deduplicate_in_source_space(
         violations: List[SQLBaseError],
@@ -76,9 +59,8 @@ class LintedVariant(NamedTuple):
         get a violation for each pass around the loop, but the user
         only cares about it once and we're only going to fix it once.
 
-        By filtering them early we get a more a more helpful CLI
-        output *and* and more efficient fixing routine (by handling
-        fewer fixes).
+        By filtering them early we get a more helpful CLI output *and* more
+        more efficient fixing routine (by handling fewer fixes).
         """
         new_violations = []
         dedupe_buffer = set()
@@ -220,18 +202,6 @@ class LintedVariant(NamedTuple):
         violations = cls._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
-    def num_violations(self, **kwargs) -> int:
-        """Count the number of violations.
-
-        Optionally now with filters.
-        """
-        violations = self.get_violations(**kwargs)
-        return len(violations)
-
-    def is_clean(self) -> bool:
-        """Return True if there are no ignorable violations."""
-        return not any(self.get_violations(filter_ignore=True))
-
     @staticmethod
     def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
         """Log hints for debugging during patch generation."""
@@ -254,50 +224,6 @@ class LintedVariant(NamedTuple):
             post_hint = templated_file.templated_str[patch.templated_slice.stop :]
         linter_logger.debug(
             "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
-        )
-
-    def fix_string(self) -> Tuple[Any, bool]:
-        """Obtain the changes to a path as a string.
-
-        We use the source mapping features of TemplatedFile
-        to generate a list of "patches" which cover the non
-        templated parts of the file and refer back to the locations
-        in the original file.
-
-        NB: This is MUCH FASTER than the original approach
-        using difflib in pre 0.4.0.
-
-        There is an important distinction here between Slices and
-        Segments. A Slice is a portion of a file which is determined
-        by the templater based on which portions of the source file
-        are templated or not, and therefore before Lexing and so is
-        completely dialect agnostic. A Segment is determined by the
-        Lexer from portions of strings after templating.
-        """
-        filtered_source_patches = self.generate_and_log_source_patches()
-
-        # Any Template tags in the source file are off limits, unless
-        # we're explicitly fixing the source file.
-        source_only_slices = self.templated_file.source_only_slices()
-        linter_logger.debug("Source-only slices: %s", source_only_slices)
-
-        # We now slice up the file using the patches and any source only slices.
-        # This gives us regions to apply changes to.
-        slice_buff = self.slice_source_file_using_patches(
-            filtered_source_patches, source_only_slices, self.templated_file.source_str
-        )
-
-        linter_logger.debug("Final slice buffer: %s", slice_buff)
-
-        # Iterate through the patches, building up the new string.
-        fixed_source_string = self._build_up_fixed_source_string(
-            slice_buff, filtered_source_patches, self.templated_file.source_str
-        )
-
-        # The success metric here is whether anything ACTUALLY changed.
-        return (
-            fixed_source_string,
-            fixed_source_string != self.templated_file.source_str,
         )
 
     def generate_and_log_source_patches(self) -> List[FixPatch]:
@@ -532,19 +458,6 @@ class LintedVariant(NamedTuple):
                 )
                 str_buff += raw_source_string[source_slice]
         return str_buff
-
-    def persist_tree(self, suffix: str = "") -> bool:
-        """Persist changes to the given path."""
-        write_buff, success = self.fix_string()
-
-        if success:
-            fname = self.path
-            # If there is a suffix specified, then use it.
-            if suffix:
-                root, ext = os.path.splitext(fname)
-                fname = root + suffix + ext
-            self.safe_create_replace_file(self.path, fname, write_buff, self.encoding)
-        return success
 
     @staticmethod
     def safe_create_replace_file(
