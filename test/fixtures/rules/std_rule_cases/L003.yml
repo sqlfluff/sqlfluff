@@ -1408,7 +1408,7 @@ test_pass_templated_newlines:
   # this doesn't panic.
   pass_str: |
     {% macro my_macro() %}
-      
+
       macro
       + with_newlines
 
