@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.0a1] - 2022-12-24
+## [2.0.0a1] - 2022-12-28
 
 > NOTE: This is an alpha release for testing purposes. There are several new features
 > here, and breaking changes to configuration. We welcome testing feedback from the
@@ -36,6 +36,10 @@ so anticipate that configuration files may change slightly again in future alpha
 
 ## What’s Changed
 
+* Indentation bug [#4217](https://github.com/sqlfluff/sqlfluff/pull/4217) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Show fatal errors regardless [#4214](https://github.com/sqlfluff/sqlfluff/pull/4214) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Don't consider templated whitespace [#4213](https://github.com/sqlfluff/sqlfluff/pull/4213) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Don't pickle the templater [#4208](https://github.com/sqlfluff/sqlfluff/pull/4208) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * MySQL: Support column character set and collation [#4204](https://github.com/sqlfluff/sqlfluff/pull/4204) [@yoichi](https://github.com/yoichi)
 * Fix some issues with Docker Compose environment [#4201](https://github.com/sqlfluff/sqlfluff/pull/4201) [@barrywhart](https://github.com/barrywhart)
 * Implicit Indents [#4054](https://github.com/sqlfluff/sqlfluff/pull/4054) [@alanmcruickshank](https://github.com/alanmcruickshank)
