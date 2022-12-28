@@ -19,7 +19,7 @@ from typing import Callable, List, Tuple, Iterator
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff.core.linter import LintedFile
+from sqlfluff.core.linter import LintedFile, RenderedFile
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -37,7 +37,7 @@ class BaseRunner(ABC):
 
     pass_formatter = True
 
-    def iter_rendered(self, fnames: List[str]) -> Iterator[Tuple]:
+    def iter_rendered(self, fnames: List[str]) -> Iterator[Tuple[str, RenderedFile]]:
         """Iterate through rendered files ready for linting."""
         for fname in self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
