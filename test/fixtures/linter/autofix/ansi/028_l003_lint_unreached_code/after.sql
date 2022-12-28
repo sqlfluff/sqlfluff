@@ -1,5 +1,5 @@
 {% if True %}
-SELECT 1
+    SELECT 1
 {% else %}
     SELECT c
     FROM t

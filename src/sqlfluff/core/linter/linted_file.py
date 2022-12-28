@@ -274,10 +274,7 @@ class LintedVariant(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
-        (
-            filtered_source_patches,
-            original_source,
-        ) = self.generate_and_log_source_patches()
+        filtered_source_patches = self.generate_and_log_source_patches()
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
@@ -286,7 +283,7 @@ class LintedVariant(NamedTuple):
 
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
-        slice_buff = self._slice_source_file_using_patches(
+        slice_buff = self.slice_source_file_using_patches(
             filtered_source_patches, source_only_slices, self.templated_file.source_str
         )
 
@@ -298,9 +295,12 @@ class LintedVariant(NamedTuple):
         )
 
         # The success metric here is whether anything ACTUALLY changed.
-        return fixed_source_string, fixed_source_string != original_source
+        return (
+            fixed_source_string,
+            fixed_source_string != self.templated_file.source_str,
+        )
 
-    def generate_and_log_source_patches(self):
+    def generate_and_log_source_patches(self) -> List[FixPatch]:
         """Generate source patches and log them."""
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
         assert self.tree
@@ -319,7 +319,6 @@ class LintedVariant(NamedTuple):
             else:
                 linter_logger.debug("    File slice: %s %r", idx, file_slice)
                 linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
-        original_source = self.templated_file.source_str
         # Generate patches from the fixed tree. In the process we sort and
         # deduplicate them so that the resultant list is in the right order
         # for the source file without any duplicates.
@@ -329,7 +328,7 @@ class LintedVariant(NamedTuple):
         linter_logger.debug("Filtered source patches:")
         for idx, patch in enumerate(filtered_source_patches):
             linter_logger.debug("    %s: %s", idx, patch)
-        return filtered_source_patches, original_source
+        return filtered_source_patches
 
     @classmethod
     def _generate_source_patches(
@@ -415,7 +414,7 @@ class LintedVariant(NamedTuple):
         return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
 
     @staticmethod
-    def _slice_source_file_using_patches(
+    def slice_source_file_using_patches(
         source_patches: List[FixPatch],
         source_only_slices: List[RawFileSlice],
         raw_source_string: str,
@@ -686,10 +685,35 @@ class LintedFile(NamedTuple):
 
     def fix_string(self) -> Tuple[str, bool]:
         """Return the fixed string and a boolean indicating success."""
+        filtered_source_patches: List[FixPatch] = []
+        main_variant = self.variants[0]
         for idx, variant in enumerate(self.variants):
             linter_logger.debug(f"Variant #{idx}")
-            variant.generate_and_log_source_patches()
+            # Do we need to deduplicate the patches using FixPatch.dedupe_tuple()?
+            filtered_source_patches += variant.generate_and_log_source_patches()
 
-        # TODO: Currently just returns with fixes applied from the first
-        # variant. Needs to consider all variants.
-        return self.variants[0].fix_string()
+        # Any Template tags in the source file are off limits, unless
+        # we're explicitly fixing the source file.
+        source_only_slices = main_variant.templated_file.source_only_slices()
+        linter_logger.debug("Source-only slices: %s", source_only_slices)
+
+        # We now slice up the file using the patches and any source only slices.
+        # This gives us regions to apply changes to.
+        slice_buff = main_variant.slice_source_file_using_patches(
+            filtered_source_patches,
+            source_only_slices,
+            main_variant.templated_file.source_str,
+        )
+
+        linter_logger.debug("Final slice buffer: %s", slice_buff)
+
+        # Iterate through the patches, building up the new string.
+        fixed_source_string = main_variant._build_up_fixed_source_string(
+            slice_buff, filtered_source_patches, main_variant.templated_file.source_str
+        )
+
+        # The success metric here is whether anything ACTUALLY changed.
+        return (
+            fixed_source_string,
+            fixed_source_string != main_variant.templated_file.source_str,
+        )
