@@ -266,6 +266,6 @@ class LintingResult:
                     if num_errors:
                         # File has errors. Discard all the SQLLintError fixes:
                         # they are potentially unsafe.
-                        for violation in linted_file.violations:
+                        for violation in linted_file.get_violations():
                             if isinstance(violation, SQLLintError):
                                 violation.fixes = []

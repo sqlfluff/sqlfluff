@@ -12,6 +12,7 @@ import stat
 import tempfile
 from typing import (
     Any,
+    Dict,
     Iterable,
     List,
     NamedTuple,
@@ -43,7 +44,7 @@ class LintedVariant(NamedTuple):
 
     path: str
     violations: List[SQLBaseError]
-    time_dict: dict
+    time_dict: Dict[str, float]
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
@@ -578,6 +579,7 @@ class LintedVariant(NamedTuple):
 
 class LintedFile(NamedTuple):
     """Stores one or more linted variants of the same file."""
+
     path: str
     variants: List[LintedVariant] = list()
 
@@ -634,3 +636,39 @@ class LintedFile(NamedTuple):
     def persist_tree(self, suffix: str = "") -> bool:
         """Persist changes to the given path."""
         return self.variants[0].persist_tree(suffix=suffix)
+
+    @property
+    def tree(self) -> Optional[BaseSegment]:
+        """Return the tree for the first variant."""
+        return self.variants[0].tree
+
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+        """Make a list of check_tuples.
+
+        This assumes that all the violations found are
+        linting violations. If they don't then this function
+        raises that error.
+        """
+        vs: List[CheckTuple] = []
+        v: SQLLintError
+        for v in self.get_violations():
+            if isinstance(v, SQLLintError):
+                vs.append(v.check_tuple())
+            elif raise_on_non_linting_violations:
+                raise v
+        return vs
+
+    @property
+    def time_dict(self) -> Dict[str, float]:
+        """Return a dictionary of timings."""
+        timings: Dict[str, float] = {}
+        for variant in self.variants:
+            for k, v in variant.time_dict.items():
+                timings[k] = timings.get(k, 0) + v
+        return timings
+
+    def fix_string(self) -> Tuple[str, bool]:
+        """Return the fixed string and a boolean indicating success."""
+        # TODO: Currently just returns with fixes applied from the first
+        # variant. Needs to consider all variants.
+        return self.variants[0].fix_string()
