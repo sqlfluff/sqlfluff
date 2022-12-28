@@ -100,6 +100,19 @@ class _IndentLine:
     initial_indent_balance: int
     indent_points: List[_IndentPoint]
 
+    def __repr__(self):
+        """Compressed repr method to ease logging."""
+        return (
+            f"IndentLine(iib={self.initial_indent_balance}, ipts=["
+            + ", ".join(
+                f"iPt@{ip.idx}({ip.indent_impulse}, {ip.indent_trough}, "
+                f"{ip.initial_indent_balance}, {ip.last_line_break_idx}, "
+                f"{ip.is_line_break}, {ip.untaken_indents})"
+                for ip in self.indent_points
+            )
+            + "])"
+        )
+
     @classmethod
     def from_points(cls, indent_points: List[_IndentPoint]):
         # Catch edge case for first line where we'll start with a
@@ -849,14 +862,16 @@ def _lint_line_buffer_indents(
     This method returns fixes, including appropriate descriptions, to
     allow generation of LintResult objects directly from them.
     """
-    reflow_logger.debug(
-        "  Evaluate Line #%s [source line #%s]. FI %s",
+    reflow_logger.info(
+        "  Evaluate Line #%s [source line #%s]. idx=%s:%s. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.source_position()[0],
+        indent_line.indent_points[0].idx,
+        indent_line.indent_points[-1].idx,
         forced_indents,
     )
     reflow_logger.debug(
@@ -868,7 +883,7 @@ def _lint_line_buffer_indents(
             ]
         ],
     )
-    reflow_logger.info("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
+    reflow_logger.debug("  Evaluate Line: %s. FI %s", indent_line, forced_indents)
     results = []
 
     # First, handle starting indent.
