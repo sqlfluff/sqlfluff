@@ -36,6 +36,7 @@ so anticipate that configuration files may change slightly again in future alpha
 
 ## What’s Changed
 
+* Fixed False Positive for L037 [#4198](https://github.com/sqlfluff/sqlfluff/pull/4198) [@WillAyd](https://github.com/WillAyd)
 * Indentation bug [#4217](https://github.com/sqlfluff/sqlfluff/pull/4217) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Show fatal errors regardless [#4214](https://github.com/sqlfluff/sqlfluff/pull/4214) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Don't consider templated whitespace [#4213](https://github.com/sqlfluff/sqlfluff/pull/4213) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -57,6 +58,7 @@ so anticipate that configuration files may change slightly again in future alpha
 ## New Contributors
 
 * [@baa-ableton](https://github.com/baa-ableton) made their first contribution in [#4182](https://github.com/sqlfluff/sqlfluff/pull/4182)
+* [@WillAyd](https://github.com/WillAyd) made their first contribution in [#4198](https://github.com/sqlfluff/sqlfluff/pull/4198)
 
 ## [1.4.5] - 2022-12-18
 
