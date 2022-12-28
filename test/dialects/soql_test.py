@@ -21,5 +21,5 @@ def test_non_selects_unparseable(raw: str) -> None:
     cfg = FluffConfig(configs={"core": {"dialect": "soql"}})
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
-    assert len(result.violations) == 1
-    assert isinstance(result.violations[0], SQLParseError)
+    assert len(result.get_violations()) == 1
+    assert isinstance(result.get_violations()[0], SQLParseError)

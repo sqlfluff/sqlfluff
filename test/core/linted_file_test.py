@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.linter import LintedFile
+from sqlfluff.core.linter.linted_file import LintedFile, LintedVariant
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     FixPatch,
@@ -356,7 +356,7 @@ templated_file_2 = TemplatedFile(
         ),
     ],
 )
-def test__linted_file__generate_source_patches(
+def test__linted_variant__generate_source_patches(
     tree, templated_file, expected_result, caplog
 ):
     """Test _generate_source_patches.
@@ -364,5 +364,5 @@ def test__linted_file__generate_source_patches(
     This is part of fix_string().
     """
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
-        result = LintedFile._generate_source_patches(tree, templated_file)
+        result = LintedVariant._generate_source_patches(tree, templated_file)
     assert result == expected_result

@@ -781,7 +781,7 @@ class Linter:
                 encoding=rendered.encoding,
             )
             if not linted_file:
-                linted_file = LintedFile(path=linted_variant.path)
+                linted_file = LintedFile()
             linted_file.add_variant(linted_variant)
 
         # This is the main command line output from linting.
@@ -969,7 +969,7 @@ class Linter:
                 encoding=encoding,
             )
             if not linted_file:
-                linted_file = LintedFile(path=linted_variant.path)
+                linted_file = LintedFile()
             linted_file.add_variant(linted_variant)
         assert linted_file
         return linted_file

@@ -23,6 +23,7 @@ from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
+from sqlfluff.core.linter import linted_file
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -735,12 +736,12 @@ def test_parse_noqa_no_dups():
         "1_violations_comment_inline_glob_ignore",
     ],
 )
-def test_linted_file_ignore_masked_violations(
+def test_linted_variant_ignore_masked_violations(
     noqa: dict, violations: List[SQLBaseError], expected
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [Linter.parse_noqa(rule_codes=dummy_rule_codes, **c) for c in noqa]
-    lf = linter.LintedFile(
+    lf = linted_file.LintedVariant(
         path="",
         violations=violations,
         time_dict={},

@@ -463,7 +463,7 @@ def test__templater_python_split_uniques_coalesce_rest(
 )
 def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
-    for _, resp, _, _ in PythonTemplater().slice_file(
+    for _, resp, _ in PythonTemplater().slice_file(
         raw_file,
         templated_file,
         config=FluffConfig(

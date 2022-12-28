@@ -233,6 +233,7 @@ class LintedVariant(NamedTuple):
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
         assert self.tree
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
+
         # The sliced file is contiguous in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
         # It's also not the FIXED file either.
@@ -346,7 +347,6 @@ class LintedVariant(NamedTuple):
 class LintedFile:
     """Stores one or more linted variants of the same file."""
 
-    path: str
     variants: List[LintedVariant] = field(default_factory=list)
 
     def add_variant(self, variant: LintedVariant):
@@ -413,6 +413,22 @@ class LintedFile:
                 self.path, fname, write_buff, self.variants[0].encoding
             )
         return success
+
+    @property
+    def path(self) -> str:
+        """Return the path of the file."""
+        if self.variants:
+            return self.variants[0].path
+        else:
+            raise ValueError("'path' is not defined for an empty LintedFile")
+
+    @property
+    def templated_file(self) -> Optional[TemplatedFile]:
+        """Return the templated file."""
+        if self.variants:
+            return self.variants[0].templated_file
+        else:
+            return None
 
     @property
     def tree(self) -> Optional[BaseSegment]:
@@ -603,7 +619,6 @@ class LintedFile:
     def _safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str
     ):
-        """Create a file, safely replacing the old one if it exists."""
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
 

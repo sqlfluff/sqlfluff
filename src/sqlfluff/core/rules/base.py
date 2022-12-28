@@ -35,7 +35,8 @@ from collections import namedtuple
 
 from sqlfluff.core.config import FluffConfig
 
-from sqlfluff.core.linter import LintedFile, NoQaDirective
+from sqlfluff.core.linter import NoQaDirective
+from sqlfluff.core.linter.linted_file import LintedVariant
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
@@ -704,7 +705,7 @@ class BaseRule:
                     break
 
             if lerr and ignore_mask:
-                filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                filtered = LintedVariant.ignore_masked_violations([lerr], ignore_mask)
                 if not filtered:
                     lerr = None
                     ignored = True

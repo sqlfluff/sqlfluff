@@ -94,7 +94,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
                 )
             )
     fixed, _ = linted.fix_string()
-    return fixed, linted.violations
+    return fixed, linted.get_violations()
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
@@ -125,7 +125,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
         # words, the "rendered" and "parsed" variables above are irrelevant to this
         # line of code.
         lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
-        lerrs = lint_result.violations
+        lerrs = lint_result.get_violations()
         if any(v.rule.code == code for v in lerrs):
             print("Errors Found:")
             for e in lerrs:

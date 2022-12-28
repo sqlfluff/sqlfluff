@@ -160,7 +160,7 @@ def test__templater_dbt_slice_file_wrapped_test(
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        for _, resp, _, _ in dbt_templater.slice_file(
+        for _, resp, _ in dbt_templater.slice_file(
             raw_file,
             templated_file,
         ):
@@ -261,7 +261,7 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         # Log the rendered file to facilitate better debugging of the files.
         print(f"## FILE: {linted_file.path}")
         print("\n\n## RENDERED FILE:\n\n")
-        print(linted_file.templated_file.variants[0].templated_str)
+        print(linted_file.variants[0].templated_file.templated_str)
         print("\n\n## PARSED TREE:\n\n")
         print(linted_file.tree.stringify())
         print("\n\n## VIOLATIONS:")

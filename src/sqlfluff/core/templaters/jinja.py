@@ -455,7 +455,7 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render(**live_context)
             # Slice the file once rendered.
-            for raw_sliced, sliced_file, out_str, raw_str in self.slice_file(
+            for raw_sliced, sliced_file, out_str in self.slice_file(
                 in_str,
                 out_str,
                 config=config,
@@ -470,7 +470,7 @@ class JinjaTemplater(PythonTemplater):
                         undefined_variable_violations.append(template_err_val)
                 yield (
                     TemplatedFile(
-                        source_str=raw_str,
+                        source_str=in_str,
                         templated_str=out_str,
                         fname=fname,
                         sliced_file=sliced_file,
@@ -498,7 +498,7 @@ class JinjaTemplater(PythonTemplater):
 
     def slice_file(
         self, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str, str]]:
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
@@ -521,7 +521,7 @@ class JinjaTemplater(PythonTemplater):
         tracer_copy = copy.deepcopy(tracer_probe)
         append_to_templated = kwargs.pop("append_to_templated", "")
         trace = tracer_probe.trace(append_to_templated=append_to_templated)
-        yield trace.raw_sliced, trace.sliced_file, trace.templated_str, trace.raw_str
+        yield trace.raw_sliced, trace.sliced_file, trace.templated_str
 
         lint_unreached_code = (
             config.get_section(
@@ -632,7 +632,6 @@ class JinjaTemplater(PythonTemplater):
                     for tfs in trace.sliced_file
                 ],
                 trace.templated_str,
-                tracer_copy.raw_str,
             )
 
 

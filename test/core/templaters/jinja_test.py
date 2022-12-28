@@ -1366,7 +1366,7 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        for raw_sliced, sliced_file, templated_str, raw_str in templater.slice_file(
+        for raw_sliced, sliced_file, templated_str in templater.slice_file(
             raw_file, templated_file, make_template=make_template
         ):
             # Create a TemplatedFile from the results. This runs some useful sanity
