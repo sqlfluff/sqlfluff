@@ -1417,3 +1417,23 @@ test_pass_templated_newlines:
     SELECT
         {{ my_macro() }} as awkward_indentation
     FROM foo
+
+test_fail_fix_beside_templated:
+  # Check that templated code checks aren't too aggressive.
+  # https://github.com/sqlfluff/sqlfluff/issues/4215
+  fail_str: |
+    {% if False %}
+    SELECT 1
+    {% else %}
+    SELECT c
+    FROM t
+    WHERE c < 0
+    {% endif %}
+  fix_str: |
+    {% if False %}
+    SELECT 1
+    {% else %}
+        SELECT c
+        FROM t
+        WHERE c < 0
+    {% endif %}
