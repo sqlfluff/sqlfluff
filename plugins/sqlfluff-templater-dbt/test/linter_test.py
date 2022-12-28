@@ -27,7 +27,7 @@ def test__linter__skip_file(path, project_dir):  # noqa
     linted_file = linted_path.files[0]
     # Normalise paths to control for OS variance
     assert os.path.normpath(linted_file.path) == os.path.normpath(model_file_path)
-    assert not linted_file.templated_file
+    assert not linted_file.variants[0].templated_file
     assert not linted_file.tree
 
 
