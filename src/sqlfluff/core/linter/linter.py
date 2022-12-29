@@ -829,9 +829,22 @@ class Linter:
         templated_files = []
         all_templater_violations = []
         try:
-            for templated_file, templater_violations in self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            ):
+            try:
+                process_iter = self.templater.process_with_variants(
+                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
+                )
+            except NotImplementedError:
+                process_iter = iter(
+                    [
+                        self.templater.process(
+                            in_str=in_str,
+                            fname=fname,
+                            config=config,
+                            formatter=self.formatter,
+                        )
+                    ]
+                )
+            for templated_file, templater_violations in process_iter:
                 if not templated_file:
                     linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
                 templated_files.append(templated_file)

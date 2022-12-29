@@ -491,7 +491,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Iterator[Tuple[Optional[TemplatedFile], list]]:
+    ) -> Tuple[Optional[TemplatedFile], List]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -511,7 +511,14 @@ class RawTemplater:
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        yield TemplatedFile(in_str, fname=fname), []
+        return TemplatedFile(in_str, fname=fname), []
+
+    @large_file_check
+    def process_with_variants(
+        self, *, in_str: str, fname: str, config=None, formatter=None
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Extended version of `process` which returns multiple variants."""
+        raise NotImplementedError
 
     def __eq__(self, other):
         """Return true if `other` is of the same class as this one.

@@ -40,8 +40,6 @@ class JinjaTemplater(PythonTemplater):
     See: https://jinja.palletsprojects.com/
     """
 
-    name = "jinja"
-
     class Libraries:
         """Mock namespace for user-defined Jinja library."""
 
@@ -347,7 +345,7 @@ class JinjaTemplater(PythonTemplater):
     @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], list]]:
+    ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -378,8 +376,7 @@ class JinjaTemplater(PythonTemplater):
                 fname=fname, config=config
             )
         except SQLTemplaterError as err:
-            yield None, [err]
-            return
+            return None, [err]
 
         # Load the template, passing the global context.
         try:
@@ -387,7 +384,7 @@ class JinjaTemplater(PythonTemplater):
         except TemplateSyntaxError as err:
             # Something in the template didn't parse, return the original
             # and a violation around what happened.
-            yield (
+            return (
                 TemplatedFile(source_str=in_str, fname=fname),
                 [
                     SQLTemplaterError(
@@ -396,7 +393,6 @@ class JinjaTemplater(PythonTemplater):
                     )
                 ],
             )
-            return  # pragma: no cover
 
         violations: List[SQLBaseError] = []
 
@@ -455,29 +451,28 @@ class JinjaTemplater(PythonTemplater):
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render(**live_context)
             # Slice the file once rendered.
-            for raw_sliced, sliced_file, out_str in self.slice_file(
+            raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
                 out_str,
                 config=config,
                 make_template=make_template,
-            ):
-                undefined_variable_violations: List[SQLBaseError] = []
-                if undefined_variables:
-                    # Let's go through and find out where they are:
-                    for template_err_val in self._crawl_tree(
-                        syntax_tree, undefined_variables, in_str
-                    ):
-                        undefined_variable_violations.append(template_err_val)
-                yield (
-                    TemplatedFile(
-                        source_str=in_str,
-                        templated_str=out_str,
-                        fname=fname,
-                        sliced_file=sliced_file,
-                        raw_sliced=raw_sliced,
-                    ),
-                    violations + undefined_variable_violations,
-                )
+            )
+            if undefined_variables:
+                # Lets go through and find out where they are:
+                for template_err_val in self._crawl_tree(
+                    syntax_tree, undefined_variables, in_str
+                ):
+                    violations.append(template_err_val)
+            return (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=out_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                violations,
+            )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             template_err: SQLBaseError = SQLTemplaterError(
@@ -494,11 +489,11 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=1,
             )
             violations.append(template_err)
-            yield None, violations
+            return None, violations
 
     def slice_file(
         self, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
@@ -507,7 +502,7 @@ class JinjaTemplater(PythonTemplater):
         if make_template is None:
             # make_template() was not provided. Use the base class
             # implementation instead.
-            yield from super().slice_file(
+            return super().slice_file(
                 raw_str, templated_str, config, **kwargs
             )  # pragma: no cover
 
@@ -517,36 +512,17 @@ class JinjaTemplater(PythonTemplater):
         # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
         # uses make_template() to build and render the template itself.
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
-        tracer_probe = analyzer.analyze(make_template)
-        tracer_copy = copy.deepcopy(tracer_probe)
-        append_to_templated = kwargs.pop("append_to_templated", "")
-        trace = tracer_probe.trace(append_to_templated=append_to_templated)
-        yield trace.raw_sliced, trace.sliced_file, trace.templated_str
-
-        lint_unreached_code = (
-            config.get_section(
-                (self.templater_selector, self.name, "lint_unreached_code")
-            )
-            if config
-            else False
-        )
-        if not lint_unreached_code:
-            return
-
-        # Find uncovered code (if any), tweak the template to hit that code.
-        literal_slices = {
-            idx for idx, s in enumerate(trace.raw_sliced) if s.slice_type == "literal"
-        }
-        covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
-        uncovered_slices = literal_slices - covered_slices
-        yield from self._handle_unreached_code(
-            append_to_templated, make_template, tracer_copy, uncovered_slices
-        )
+        tracer = analyzer.analyze(make_template)
+        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
+        return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
     def _handle_unreached_code(
-        self, append_to_templated, make_template, tracer_copy, uncovered_slices
+        self, in_str, make_template, uncovered_slices, append_to_templated=""
     ):
         """Address uncovered slices by tweaking the template to hit them."""
+        analyzer = JinjaAnalyzer(in_str, self._get_jinja_env())
+        tracer_copy = analyzer.analyze(make_template)
+
         max_variants_generated = 10
         max_variants_returned = 5
         variants = {}
@@ -632,6 +608,78 @@ class JinjaTemplater(PythonTemplater):
                     for tfs in trace.sliced_file
                 ],
                 trace.templated_str,
+            )
+
+
+class ConcreteJinjaTemplater(JinjaTemplater):
+    """A templater using the jinja2 library.
+
+    See: https://jinja.palletsprojects.com/
+    """
+
+    name = "jinja"
+
+    @large_file_check
+    def process_with_variants(
+        self, *, in_str: str, fname: str, config=None, formatter=None
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Process a string and return the new string.
+
+        Note that the arguments are enforced as keywords
+        because Templaters can have differences in their
+        `process` method signature.
+        A Templater that only supports reading from a file
+        would need the following signature:
+            process(*, fname, in_str=None, config=None)
+        (arguments are swapped)
+
+        Args:
+            in_str (:obj:`str`): The input string.
+            fname (:obj:`str`, optional): The filename of this string. This is
+                mostly for loading config files at runtime.
+            config (:obj:`FluffConfig`): A specific config to use for this
+                templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
+
+        """
+        templated_file, violations = self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
+        yield templated_file, violations
+
+        lint_unreached_code = (
+            config.get_section(
+                (self.templater_selector, self.name, "lint_unreached_code")
+            )
+            if config
+            else False
+        )
+        if not templated_file or not lint_unreached_code:
+            return
+
+        # Find uncovered code (if any), tweak the template to hit that code.
+        literal_slices = {
+            idx
+            for idx, s in enumerate(templated_file.raw_sliced)
+            if s.slice_type == "literal"
+        }
+        covered_slices = set(tfs.slice_idx for tfs in templated_file.sliced_file)
+        uncovered_slices = literal_slices - covered_slices
+
+        _, _, make_template = self.template_builder(fname=fname, config=config)
+
+        for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
+            in_str, make_template, uncovered_slices
+        ):
+            yield (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=templated_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                violations,
             )
 
 
