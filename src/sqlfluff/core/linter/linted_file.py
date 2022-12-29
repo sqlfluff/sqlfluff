@@ -353,7 +353,7 @@ class LintedFile:
         """Add a variant to the file."""
         if self.variants:
             if self.variants[0].path != variant.path:
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "Cannot add variant to file with different path: "
                     f"{self.variants[0].path} != {variant.path}"
                 )
@@ -420,7 +420,9 @@ class LintedFile:
         if self.variants:
             return self.variants[0].path
         else:
-            raise ValueError("'path' is not defined for an empty LintedFile")
+            raise ValueError(
+                "'path' is not defined for an empty LintedFile"
+            )  # pragma: no cover
 
     @property
     def templated_file(self) -> Optional[TemplatedFile]:
@@ -428,7 +430,7 @@ class LintedFile:
         if self.variants:
             return self.variants[0].templated_file
         else:
-            return None
+            return None  # pragma: no cover
 
     @property
     def tree(self) -> Optional[BaseSegment]:
