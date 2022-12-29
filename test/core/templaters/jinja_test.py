@@ -14,7 +14,7 @@ import pytest
 from jinja2.exceptions import UndefinedError
 
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
-from sqlfluff.core.templaters import ConcreteJinjaTemplater as JinjaTemplater
+from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
 from sqlfluff.core import Linter, FluffConfig

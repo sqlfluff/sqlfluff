@@ -4,11 +4,12 @@ import os
 import os.path
 import shutil
 import sys
+from pathlib import Path
 
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.cli.commands import lint
+from sqlfluff.cli.commands import fix, lint
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 
@@ -91,5 +92,54 @@ profiles_dir = {old_cwd}/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profil
         )
         assert not os.path.exists("target")
         assert os.path.exists("dir1/dir2/dbt/dbt_project/target")
+    finally:
+        os.chdir(old_cwd)
+
+
+def test_dbt_lint_unreached_code(tmpdir):
+    """Test with dbt project that fixing with lint_unreached_code works."""
+    tmp_dbt_dir = str(tmpdir)
+    shutil.copytree(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
+        tmp_dbt_dir,
+        dirs_exist_ok=True,
+    )
+    old_cwd = os.getcwd()
+    os.chdir(tmp_dbt_dir)
+    with open(".sqlfluff", "w") as f:
+        print(
+            """[sqlfluff]
+templater = dbt
+dialect = postgres
+
+[sqlfluff:templater:dbt]
+project_dir = {tmp_base_dir}/dbt_project
+profiles_dir = {old_cwd}/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml
+""".format(
+                old_cwd=old_cwd, tmp_base_dir=tmp_dbt_dir
+            ),
+            file=f,
+        )
+    try:
+        invoke_assert_code(
+            ret_code=0,
+            args=[
+                fix,
+                [
+                    "-f",
+                    "dbt_project/models/lint_unreached_code/before.sql",
+                ],
+            ],
+        )
+        assert (
+            Path("dbt_project/models/lint_unreached_code/before.sql").read_text()
+            == (
+                Path(old_cwd)
+                / Path(
+                    "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/"
+                    "models/lint_unreached_code/after.sql"
+                )
+            ).read_text()
+        )
     finally:
         os.chdir(old_cwd)

@@ -40,6 +40,8 @@ class JinjaTemplater(PythonTemplater):
     See: https://jinja.palletsprojects.com/
     """
 
+    name = "jinja"
+
     class Libraries:
         """Mock namespace for user-defined Jinja library."""
 
@@ -610,20 +612,11 @@ class JinjaTemplater(PythonTemplater):
                 trace.templated_str,
             )
 
-
-class ConcreteJinjaTemplater(JinjaTemplater):
-    """A templater using the jinja2 library.
-
-    See: https://jinja.palletsprojects.com/
-    """
-
-    name = "jinja"
-
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
-        """Process a string and return the new string.
+        """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords
         because Templaters can have differences in their
