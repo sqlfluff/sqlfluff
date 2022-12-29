@@ -537,6 +537,9 @@ class JinjaTemplater(PythonTemplater):
             for branch, options in choices.items():
                 tag = tracer_probe.raw_sliced[branch].tag
                 if tag in ("if", "elif"):
+                    # Replace the existing "if" of "elif" expression with a new,
+                    # hardcoded value that hits the target slice in the template
+                    # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     tracer_trace.raw_slice_info[
                         tracer_probe.raw_sliced[branch]
