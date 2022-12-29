@@ -637,7 +637,7 @@ class JinjaTemplater(PythonTemplater):
         yield templated_file, violations
 
         if not templated_file:
-            return
+            return  # pragma: no cover
 
         # Find uncovered code (if any), tweak the template to hit that code.
         literal_slices = {
