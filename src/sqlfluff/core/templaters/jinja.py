@@ -541,6 +541,7 @@ class JinjaTemplater(PythonTemplater):
                     tracer_trace.raw_slice_info[
                         tracer_probe.raw_sliced[branch]
                     ].alternate_code = f"{{% {tag} {new_value} %}}"
+                    override_raw_slices.append(branch)
             # Render and analyze the template with the overrides.
             variant_key = tuple(
                 cast(str, tracer_trace.raw_slice_info[rs].alternate_code)

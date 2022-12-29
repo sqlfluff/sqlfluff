@@ -8,6 +8,7 @@ loops and placeholders.
 
 from collections import defaultdict
 import logging
+from pathlib import Path
 from typing import List, NamedTuple
 
 import pytest
@@ -1478,3 +1479,80 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+@pytest.mark.parametrize(
+    "sql_path, expected_renderings",
+    [
+        pytest.param(
+            "simple_if_true.sql",
+            [
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
+            ],
+            id="simple_if_true",
+        ),
+        pytest.param(
+            "simple_if_false.sql",
+            [
+                "\nSELECT 2\n\n",
+                "\nSELECT 1\n\n",
+            ],
+            id="simple_if_false",
+        ),
+        pytest.param(
+            "if_elif_else.sql",
+            [
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
+                "\nSELECT 3\n\n",
+            ],
+            id="if_elif_else",
+        ),
+        pytest.param(
+            "if_else_if_nested.sql",
+            [
+                "\nSELECT 1\n\n",
+                "\n\nSELECT 2\n\n\n",
+                "\n\nSELECT 3\n\n\n",
+            ],
+            id="if_else_if_nested",
+        ),
+        # This test case exercises the scoring function. Generates up to 10
+        # variants, but only the top 5 are returned.
+        pytest.param(
+            "if_elif_else_chain_scoring.sql",
+            [
+                "\nSELECT 1\n\n",
+                "\nSELECT 100000000\n\n",
+                "\nSELECT 10000000\n\n",
+                "\nSELECT 1000000\n\n",
+                "\nSELECT 100000\n\n",
+                "\nSELECT 10000\n\n",
+            ],
+            id="if_elif_else_chain_scoring",
+        ),
+        # This test case results in a TypeError executing the variant. This
+        # should be ignored, and only the primary should be returned.
+        pytest.param(
+            "if_true_elif_type_error_else.sql",
+            [
+                "\nSELECT 1\n\n",
+                "\nSELECT 2\n\n",
+            ],
+            id="if_true_elif_type_error_else",
+        ),
+    ],
+)
+def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
+    """Test that Jinja templater slices raw and templated file correctly."""
+    test_dir = Path("test/fixtures/templater/jinja_lint_unreached_code")
+    t = JinjaTemplater()
+    renderings = []
+    for templated_file, _ in t.process_with_variants(
+        in_str=(test_dir / sql_path).read_text(),
+        fname=str(sql_path),
+        config=FluffConfig.from_path(str(test_dir)),
+    ):
+        renderings.append(templated_file.templated_str)
+    assert renderings == expected_renderings
