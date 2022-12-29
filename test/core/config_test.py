@@ -14,7 +14,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
     PythonTemplater,
-    JinjaTemplater,
+    ConcreteJinjaTemplater,
     PlaceholderTemplater,
 )
 
@@ -262,10 +262,10 @@ def test__config__split_comma_separated_string(raw_str, expected):
 def test__config__templater_selection():
     """Test template selection by name."""
     cfg = FluffConfig(overrides={"dialect": "ansi"})
-    assert cfg.get_templater().__class__ is JinjaTemplater
+    assert cfg.get_templater().__class__ is ConcreteJinjaTemplater
     assert cfg.get_templater("raw").__class__ is RawTemplater
     assert cfg.get_templater("python").__class__ is PythonTemplater
-    assert cfg.get_templater("jinja").__class__ is JinjaTemplater
+    assert cfg.get_templater("jinja").__class__ is ConcreteJinjaTemplater
     assert cfg.get_templater("placeholder").__class__ is PlaceholderTemplater
 
     with pytest.raises(ValueError):
