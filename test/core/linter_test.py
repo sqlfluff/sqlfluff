@@ -738,7 +738,7 @@ def test_linted_variant_ignore_masked_violations(
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [Linter.parse_noqa(rule_codes=dummy_rule_codes, **c) for c in noqa]
-    lf = linted_file.LintedVariant(
+    lv = linted_file.LintedVariant(
         path="",
         violations=violations,
         time_dict={},
@@ -747,7 +747,7 @@ def test_linted_variant_ignore_masked_violations(
         templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
     )
-    result = lf.ignore_masked_violations(violations, ignore_mask)
+    result = lv.ignore_masked_violations(violations, ignore_mask)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
 
