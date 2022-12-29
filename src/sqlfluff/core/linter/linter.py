@@ -786,7 +786,19 @@ class Linter:
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         linted_file = None
-        for parsed in cls.parse_rendered_with_variants(rendered):
+        for idx, parsed in enumerate(cls.parse_rendered_with_variants(rendered)):
+            if idx > 0:
+                # After the first (main) variant, ignore any variants that
+                # have parse errors. These may be caused by the tweaked
+                # templated so should be invisible to the user.
+                parse_errors = [
+                    v for v in parsed.violations if isinstance(v, SQLParseError)
+                ]
+                if parse_errors:
+                    linter_logger.warning(
+                        "Skipping variant due to parse errors: %s", parse_errors
+                    )
+                    continue
             linted_variant = cls.lint_parsed(
                 parsed,
                 rule_set=rule_set,
