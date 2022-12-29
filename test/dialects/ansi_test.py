@@ -171,28 +171,22 @@ def test__dialect__ansi_specific_segment_not_match(
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
     lnt = Linter(dialect="ansi")
-    for parsed in lnt.parse_string(raw):
-        assert len(parsed.violations) > 0
-        print(parsed.violations)
-        locs = [(v.line_no, v.line_pos) for v in parsed.violations]
-        assert locs == err_locations
-        break
-    else:
-        assert False
+    parsed = lnt.parse_string(raw)
+    assert len(parsed.violations) > 0
+    print(parsed.violations)
+    locs = [(v.line_no, v.line_pos) for v in parsed.violations]
+    assert locs == err_locations
 
 
 def test__dialect__ansi_is_whitespace():
     """Test proper tagging with is_whitespace."""
     lnt = Linter(dialect="ansi")
     with open("test/fixtures/dialects/ansi/select_in_multiline_comment.sql") as f:
-        for parsed in lnt.parse_string(f.read()):
-            # Check all the segments that *should* be whitespace, ARE
-            for raw_seg in parsed.tree.get_raw_segments():
-                if raw_seg.is_type("whitespace", "newline"):
-                    assert raw_seg.is_whitespace
-            break
-        else:
-            assert False
+        parsed = lnt.parse_string(f.read())
+    # Check all the segments that *should* be whitespace, ARE
+    for raw_seg in parsed.tree.get_raw_segments():
+        if raw_seg.is_type("whitespace", "newline"):
+            assert raw_seg.is_whitespace
 
 
 @pytest.mark.parametrize(
@@ -220,17 +214,14 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
             overrides={"dialect": "ansi"},
         )
     )
-    for parsed in lnt.parse_string(sql_string):
-        # Check that there's nothing unparsable
-        assert "unparsable" not in parsed.tree.type_set()
-        # Check all the segments that *should* be metas, ARE.
-        # NOTE: This includes the end of file marker.
-        res_meta_locs = tuple(
-            idx
-            for idx, raw_seg in enumerate(parsed.tree.get_raw_segments())
-            if raw_seg.is_meta
-        )
-        assert res_meta_locs == meta_loc
-        break
-    else:
-        assert False
+    parsed = lnt.parse_string(sql_string)
+    # Check that there's nothing unparsable
+    assert "unparsable" not in parsed.tree.type_set()
+    # Check all the segments that *should* be metas, ARE.
+    # NOTE: This includes the end of file marker.
+    res_meta_locs = tuple(
+        idx
+        for idx, raw_seg in enumerate(parsed.tree.get_raw_segments())
+        if raw_seg.is_meta
+    )
+    assert res_meta_locs == meta_loc

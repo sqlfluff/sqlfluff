@@ -94,7 +94,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
                 )
             )
     fixed, _ = linted.fix_string()
-    return fixed, linted.get_violations()
+    return fixed, linted.violations
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
@@ -113,29 +113,27 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
 
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
-    for parsed in linter.parse_rendered(rendered, recurse=True):
-        if parsed.violations:
-            if msg:
-                print(msg)  # pragma: no cover
-            pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
-        print(f"Parsed:\n {parsed.tree.stringify()}")
+    parsed = linter.parse_rendered(rendered, recurse=True)
+    if parsed.violations:
+        if msg:
+            print(msg)  # pragma: no cover
+        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
+    print(f"Parsed:\n {parsed.tree.stringify()}")
 
-        # Note that lint_string() runs the templater and parser again, in order to
-        # test the whole linting pipeline in the same way that users do. In other
-        # words, the "rendered" and "parsed" variables above are irrelevant to this
-        # line of code.
-        lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
-        lerrs = lint_result.get_violations()
-        if any(v.rule.code == code for v in lerrs):
-            print("Errors Found:")
-            for e in lerrs:
-                print("    " + repr(e))
+    # Note that lint_string() runs the templater and parser again, in order to
+    # test the whole linting pipeline in the same way that users do. In other
+    # words, the "rendered" and "parsed" variables above are irrelevant to this
+    # line of code.
+    lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
+    lerrs = lint_result.violations
+    if any(v.rule.code == code for v in lerrs):
+        print("Errors Found:")
+        for e in lerrs:
+            print("    " + repr(e))
 
-            if msg:
-                print(msg)  # pragma: no cover
-            pytest.fail(
-                f"Found {code} failures in query which should pass.", pytrace=False
-            )
+        if msg:
+            print(msg)  # pragma: no cover
+        pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
 def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):

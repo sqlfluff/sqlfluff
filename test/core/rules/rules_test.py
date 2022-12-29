@@ -87,18 +87,18 @@ def test__rules__user_rules():
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
 
 
-def test__rules__filter_unparsable():
+def test__rules__filter_uparsable():
     """Test that rules that handle their own crawling respect unparsable."""
     # Set up a linter with the user rule
     linter = Linter(user_rules=[Rule_T002], dialect="ansi", rules=["T002"])
     # Lint a simple parsable file and check we do get issues
     # It's parsable, so we should get issues.
     res = linter.lint_string("SELECT 1")
-    assert any(v.rule_code() == "T002" for v in res.get_violations())
+    assert any(v.rule_code() == "T002" for v in res.violations)
     # Lint an unparsable file. Check we don't get any violations.
     # It's not parsable so we shouldn't get issues.
     res = linter.lint_string("asd asdf sdfg")
-    assert not any(v.rule_code() == "T002" for v in res.get_violations())
+    assert not any(v.rule_code() == "T002" for v in res.violations)
 
 
 def test__rules__runaway_fail_catch():

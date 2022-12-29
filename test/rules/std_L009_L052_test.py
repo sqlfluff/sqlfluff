@@ -17,7 +17,7 @@ def test__rules__std_L009_and_L052_interaction() -> None:
     linted_file = linter.lint_string(sql, fix=True)
 
     # Check expected lint errors are raised.
-    assert set([v.rule.code for v in linted_file.get_violations()]) == {"L009", "L052"}
+    assert set([v.rule.code for v in linted_file.violations]) == {"L009", "L052"}
 
     # Check file is fixed.
     assert linted_file.fix_string()[0] == "SELECT foo FROM bar;\n"

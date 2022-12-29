@@ -18,11 +18,8 @@ def test__templater_python():
     """Test the python templater."""
     t = PythonTemplater(override_context=dict(blah="foo"))
     instr = PYTHON_STRING
-    for outstr, _ in t.process(in_str=instr, fname="test"):
-        assert str(outstr) == "SELECT * FROM foo"
-        break
-    else:
-        assert False
+    outstr, _ = t.process(in_str=instr, fname="test")
+    assert str(outstr) == "SELECT * FROM foo"
 
 
 def test__templater_python_error():
@@ -30,10 +27,7 @@ def test__templater_python_error():
     t = PythonTemplater(override_context=dict(noblah="foo"))
     instr = PYTHON_STRING
     with pytest.raises(SQLTemplaterError):
-        for _ in t.process(in_str=instr, fname="test"):
-            break
-        else:
-            assert False
+        t.process(in_str=instr, fname="test")
 
 
 @pytest.mark.parametrize(
@@ -463,26 +457,23 @@ def test__templater_python_split_uniques_coalesce_rest(
 )
 def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
-    for _, resp, _ in PythonTemplater().slice_file(
+    _, resp, _ = PythonTemplater().slice_file(
         raw_file,
         templated_file,
         config=FluffConfig(
             configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}},
             overrides={"dialect": "ansi"},
         ),
-    ):
-        # Check contiguous
-        prev_slice = None
-        for templated_slice in resp:
-            if prev_slice:
-                assert templated_slice.source_slice.start == prev_slice[0].stop
-                assert templated_slice.templated_slice.start == prev_slice[1].stop
-            prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
-        # check result
-        assert resp == result
-        break
-    else:
-        assert False
+    )
+    # Check contiguous
+    prev_slice = None
+    for templated_slice in resp:
+        if prev_slice:
+            assert templated_slice.source_slice.start == prev_slice[0].stop
+            assert templated_slice.templated_slice.start == prev_slice[1].stop
+        prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
+    # check result
+    assert resp == result
 
 
 def test__templater_python_large_file_check():
@@ -492,21 +483,15 @@ def test__templater_python_large_file_check():
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without config.
-    for _ in PythonTemplater().process(in_str="SELECT 1", fname="<string>"):
-        break
-    else:
-        assert False
+    PythonTemplater().process(in_str="SELECT 1", fname="<string>")
     # Then check we raise a skip exception when config is set low.
     with pytest.raises(SQLFluffSkipFile) as excinfo:
-        for _ in PythonTemplater().process(
+        PythonTemplater().process(
             in_str="SELECT 1",
             fname="<string>",
             config=FluffConfig(
                 overrides={"dialect": "ansi", "large_file_skip_char_limit": 2},
             ),
-        ):
-            break
-        else:
-            assert False
+        )
 
     assert "Length of file" in str(excinfo.value)

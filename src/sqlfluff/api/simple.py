@@ -163,12 +163,11 @@ def parse(
     )
     linter = Linter(config=cfg)
 
-    for parsed in linter.parse_string(sql):
-        # If we encounter any parsing errors, raise them in a combined issue.
-        if parsed.violations:
-            raise APIParsingError(parsed.violations)
-        # Return a JSON representation of the parse tree.
-        if parsed.tree is None:  # pragma: no cover
-            return {}
-        return parsed.tree.as_record(show_raw=True)
-    assert False, "Should never reach here"  # pragma: no cover
+    parsed = linter.parse_string(sql)
+    # If we encounter any parsing errors, raise them in a combined issue.
+    if parsed.violations:
+        raise APIParsingError(parsed.violations)
+    # Return a JSON representation of the parse tree.
+    if parsed.tree is None:  # pragma: no cover
+        return {}
+    return parsed.tree.as_record(show_raw=True)

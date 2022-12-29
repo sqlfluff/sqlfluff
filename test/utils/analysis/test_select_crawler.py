@@ -140,25 +140,22 @@ join prep_1 using (x)
 def test_select_crawler_constructor(sql, expected_json):
     """Test SelectCrawler when created using constructor."""
     linter = Linter(dialect="ansi")
-    for parsed in linter.parse_string(sql):
-        segments = list(
-            parsed.tree.recursive_crawl(
-                "with_compound_statement",
-                "set_expression",
-                "select_statement",
-            )
+    parsed = linter.parse_string(sql)
+    segments = list(
+        parsed.tree.recursive_crawl(
+            "with_compound_statement",
+            "set_expression",
+            "select_statement",
         )
-        segment = segments[0]
-        crawler = select_crawler.SelectCrawler(segment, linter.dialect)
-        assert all(
-            cte.cte_definition_segment is not None
-            for cte in crawler.query_tree.ctes.values()
-        )
-        json_query_tree = crawler.query_tree.as_json()
-        assert expected_json == json_query_tree
-        break
-    else:
-        assert False
+    )
+    segment = segments[0]
+    crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    assert all(
+        cte.cte_definition_segment is not None
+        for cte in crawler.query_tree.ctes.values()
+    )
+    json_query_tree = crawler.query_tree.as_json()
+    assert expected_json == json_query_tree
 
 
 def test_select_crawler_nested():
@@ -175,32 +172,29 @@ join (
 ) using (x)
     """
     linter = Linter(dialect="ansi")
-    for parsed in linter.parse_string(sql):
-        segments = list(
-            parsed.tree.recursive_crawl(
-                "with_compound_statement",
-                "set_expression",
-                "select_statement",
-            )
+    parsed = linter.parse_string(sql)
+    segments = list(
+        parsed.tree.recursive_crawl(
+            "with_compound_statement",
+            "set_expression",
+            "select_statement",
         )
-        segment = segments[0]
-        crawler = select_crawler.SelectCrawler(segment, linter.dialect)
-        sc = select_crawler.SelectCrawler(
-            crawler.query_tree.selectables[0]
-            .select_info.table_aliases[1]
-            .from_expression_element,
-            linter.dialect,
-        )
-        assert sc.query_tree.as_json() == {
-            "selectables": [
-                "select * from d",
-            ],
-            "ctes": {"D": {"selectables": ["select x, z from b"]}},
-            "query_type": "WithCompound",
-        }
-        break
-    else:
-        assert False
+    )
+    segment = segments[0]
+    crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    sc = select_crawler.SelectCrawler(
+        crawler.query_tree.selectables[0]
+        .select_info.table_aliases[1]
+        .from_expression_element,
+        linter.dialect,
+    )
+    assert sc.query_tree.as_json() == {
+        "selectables": [
+            "select * from d",
+        ],
+        "ctes": {"D": {"selectables": ["select x, z from b"]}},
+        "query_type": "WithCompound",
+    }
 
 
 def test_parent_select_crawler():
@@ -215,26 +209,23 @@ def test_parent_select_crawler():
         )
     """
     linter = Linter(dialect="ansi")
-    for parsed in linter.parse_string(sql):
-        segments = list(
-            parsed.tree.recursive_crawl(
-                "with_compound_statement",
-                "set_expression",
-                "select_statement",
-            )
+    parsed = linter.parse_string(sql)
+    segments = list(
+        parsed.tree.recursive_crawl(
+            "with_compound_statement",
+            "set_expression",
+            "select_statement",
         )
-        crawler = select_crawler.SelectCrawler(
-            segments[-1],
-            linter.dialect,
-            parent_stack=segments[: len(segments) - 1],
-        )
-        # be able to recurse up parent stack so that functions can access
-        # ctes from any part of the stack
-        assert crawler.query_tree.parent.parent.parent.parent.as_json() == {
-            "query_type": "WithCompound",
-            "selectables": ["select * from a", "select 2 from d"],
-            "ctes": {"A": {"selectables": ["select * from b"]}},
-        }
-        break
-    else:
-        assert False
+    )
+    crawler = select_crawler.SelectCrawler(
+        segments[-1],
+        linter.dialect,
+        parent_stack=segments[: len(segments) - 1],
+    )
+    # be able to recurse up parent stack so that functions can access
+    # ctes from any part of the stack
+    assert crawler.query_tree.parent.parent.parent.parent.as_json() == {
+        "query_type": "WithCompound",
+        "selectables": ["select * from a", "select 2 from d"],
+        "ctes": {"A": {"selectables": ["select * from b"]}},
+    }

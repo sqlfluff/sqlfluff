@@ -35,22 +35,19 @@ def test_rules_crawlers(CrawlerType, crawler_kwargs, raw_sql_in, target_raws_out
     """Test Crawlers."""
     cfg = FluffConfig(overrides={"dialect": "ansi"})
     linter = Linter(config=cfg)
-    for parsed in linter.parse_string(raw_sql_in):
-        root = parsed.tree
-        root_context = RuleContext(
-            dialect=cfg.get("dialect_obj"),
-            fix=True,
-            templated_file=TemplatedFile(raw_sql_in, "<test-case>"),
-            path=None,
-            segment=root,
-            config=cfg,
-        )
+    root = linter.parse_string(raw_sql_in).tree
 
-        crawler = CrawlerType(**crawler_kwargs)
+    root_context = RuleContext(
+        dialect=cfg.get("dialect_obj"),
+        fix=True,
+        templated_file=TemplatedFile(raw_sql_in, "<test-case>"),
+        path=None,
+        segment=root,
+        config=cfg,
+    )
 
-        result_raws = [context.segment.raw for context in crawler.crawl(root_context)]
+    crawler = CrawlerType(**crawler_kwargs)
 
-        assert result_raws == target_raws_out
-        break
-    else:
-        assert False
+    result_raws = [context.segment.raw for context in crawler.crawl(root_context)]
+
+    assert result_raws == target_raws_out

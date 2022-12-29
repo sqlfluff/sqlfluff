@@ -13,10 +13,7 @@ from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
 def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
-    for parsed in linter.parse_string(sql):
-        return parsed.tree
-    else:
-        assert False
+    return linter.parse_string(sql).tree
 
 
 def assert_reflow_structure(sequence, StartClass, raw_elems):

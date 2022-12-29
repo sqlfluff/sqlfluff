@@ -369,6 +369,19 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
+    ) -> ParsedString:
+        """Parse a rendered file."""
+        for parsed in cls.parse_rendered_with_variants(
+            rendered=rendered, recurse=recurse
+        ):
+            return parsed
+        raise RuntimeError("RenderedFile is empty -- cannot parse.")
+
+    @classmethod
+    def parse_rendered_with_variants(
+        cls,
+        rendered: RenderedFile,
+        recurse: bool = True,
     ) -> Iterator[ParsedString]:
         """Parse each TemplatedFile in the rendered file."""
         t0 = time.monotonic()
@@ -772,7 +785,7 @@ class Linter:
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         linted_file = None
-        for parsed in cls.parse_rendered(rendered):
+        for parsed in cls.parse_rendered_with_variants(rendered):
             linted_variant = cls.lint_parsed(
                 parsed,
                 rule_set=rule_set,
@@ -909,8 +922,27 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
-    ) -> Iterator[ParsedString]:
+    ) -> ParsedString:
         """Parse a string."""
+        for parsed in self.parse_string_with_variants(
+            in_str=in_str,
+            fname=fname,
+            recurse=recurse,
+            config=config,
+            encoding=encoding,
+        ):
+            return parsed
+        raise RuntimeError("Internal error: No variants returned by templater.")
+
+    def parse_string_with_variants(
+        self,
+        in_str: str,
+        fname: str = "<string>",
+        recurse: bool = True,
+        config: Optional[FluffConfig] = None,
+        encoding: str = "utf-8",
+    ) -> Iterator[ParsedString]:
+        """Parse variants of a string."""
         violations: List[SQLBaseError] = []
 
         # Dispatch the output for the template header (including the config diff)
@@ -929,7 +961,7 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        yield from self.parse_rendered(rendered, recurse=recurse)
+        yield from self.parse_rendered_with_variants(rendered, recurse=recurse)
 
     def fix(
         self,
@@ -991,7 +1023,7 @@ class Linter:
         config = config or self.config
         linted_file = None
         # Parse the string.
-        for parsed in self.parse_string(
+        for parsed in self.parse_string_with_variants(
             in_str=in_str,
             fname=fname,
             config=config,
@@ -1234,7 +1266,7 @@ class Linter:
             linted_dir = expanded_path_to_linted_dir[linted_file.path]
             linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.get_violations()):  # pragma: no cover
+            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
@@ -1270,7 +1302,7 @@ class Linter:
             except SQLFluffSkipFile as s:
                 linter_logger.warning(str(s))
                 continue
-            yield from self.parse_string(
+            yield from self.parse_string_with_variants(
                 raw_file,
                 fname=fname,
                 recurse=recurse,
