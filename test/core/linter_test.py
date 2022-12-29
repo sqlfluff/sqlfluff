@@ -2,7 +2,6 @@
 
 import os
 import logging
-import shutil
 from pathlib import Path
 from typing import List
 from unittest.mock import patch
@@ -1059,19 +1058,14 @@ def test_require_match_parse_grammar():
     assert "needs to define 'match_grammar'" in str(e.value)
 
 
-def test_fix_parse_error_lint_unreached_code(tmpdir):
+def test_fix_parse_error_lint_unreached_code():
     """Test that parse error in unreached code does not affect fixing."""
-    old_cwd = os.getcwd()
-    shutil.copytree(
-        "test/fixtures/linter/parse_error_lint_unreached_code",
-        str(tmpdir),
-        dirs_exist_ok=True,
-    )
+    base_dir = Path("test/fixtures/linter/parse_error_lint_unreached_code")
+    fixed_path = base_dir / "beforeFIXED.sql"
     try:
-        os.chdir(str(tmpdir))
         lntr = Linter()
-        result = lntr.lint_path("before.sql", fix=True)
+        result = lntr.lint_path(str(base_dir / "before.sql"), fix=True)
         result.persist_changes(fixed_file_suffix="FIXED")
-        assert Path("beforeFIXED.sql").read_text() == Path("after.sql").read_text()
+        assert fixed_path.read_text() == (base_dir / "after.sql").read_text()
     finally:
-        os.chdir(old_cwd)
+        fixed_path.unlink()
