@@ -61,7 +61,7 @@ class LintedVariant(NamedTuple):
         only cares about it once and we're only going to fix it once.
 
         By filtering them early we get a more helpful CLI output *and* more
-        more efficient fixing routine (by handling fewer fixes).
+        efficient fixing routine (by handling fewer fixes).
         """
         new_violations = []
         dedupe_buffer = set()
@@ -248,9 +248,10 @@ class LintedVariant(NamedTuple):
             else:
                 linter_logger.debug("    File slice: %s %r", idx, file_slice)
                 linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
-        # Generate patches from the fixed tree. In the process we sort and
-        # deduplicate them so that the resultant list is in the right order
-        # for the source file without any duplicates.
+
+        # Generate patches from the fixed tree. In the process we sort
+        # and deduplicate them so that the resultant list is in the
+        # the right order for the source file without any duplicates.
         filtered_source_patches = self._generate_source_patches(
             self.tree, self.templated_file
         )
@@ -403,21 +404,6 @@ class LintedFile:
         """
         violations = self.get_violations(**kwargs)
         return len(violations)
-
-    def persist_tree(self, suffix: str = "") -> bool:
-        """Persist changes to the given path."""
-        write_buff, success = self.fix_string()
-
-        if success:
-            fname = self.path
-            # If there is a suffix specified, then use it.
-            if suffix:
-                root, ext = os.path.splitext(fname)
-                fname = root + suffix + ext
-            self._safe_create_replace_file(
-                self.path, fname, write_buff, self.variants[0].encoding
-            )
-        return success
 
     @property
     def path(self) -> str:
@@ -621,6 +607,21 @@ class LintedFile:
                 )
                 str_buff += raw_source_string[source_slice]
         return str_buff
+
+    def persist_tree(self, suffix: str = "") -> bool:
+        """Persist changes to the given path."""
+        write_buff, success = self.fix_string()
+
+        if success:
+            fname = self.path
+            # If there is a suffix specified, then use it.
+            if suffix:
+                root, ext = os.path.splitext(fname)
+                fname = root + suffix + ext
+            self._safe_create_replace_file(
+                self.path, fname, write_buff, self.variants[0].encoding
+            )
+        return success
 
     @staticmethod
     def _safe_create_replace_file(

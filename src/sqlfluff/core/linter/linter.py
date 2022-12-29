@@ -1,4 +1,5 @@
 """Defines the linter class."""
+
 import fnmatch
 import os
 import time
