@@ -375,7 +375,7 @@ class Linter:
             rendered=rendered, recurse=recurse
         ):
             return parsed
-        raise RuntimeError("RenderedFile is empty -- cannot parse.")
+        raise RuntimeError("RenderedFile is empty -- cannot parse.")  # pragma: no cover
 
     @classmethod
     def parse_rendered_with_variants(
@@ -865,7 +865,7 @@ class Linter:
                         config=config,
                         formatter=self.formatter,
                     )
-                except NotImplementedError:
+                except NotImplementedError:  # pragma: no cover
                     linter_logger.warning(
                         f"Templater {self.templater.name} does not support "
                         f"linting unreached code."
@@ -932,7 +932,9 @@ class Linter:
             encoding=encoding,
         ):
             return parsed
-        raise RuntimeError("Internal error: No variants returned by templater.")
+        raise RuntimeError(
+            "Internal error: No variants returned by templater."
+        )  # pragma: no cover
 
     def parse_string_with_variants(
         self,

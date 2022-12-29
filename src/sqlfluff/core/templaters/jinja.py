@@ -537,18 +537,10 @@ class JinjaTemplater(PythonTemplater):
             for branch, options in choices.items():
                 tag = tracer_probe.raw_sliced[branch].tag
                 if tag in ("if", "elif"):
-                    if options[0] == branch + 1:
-                        # Force it to take the "if".
-                        tracer_trace.raw_slice_info[
-                            tracer_probe.raw_sliced[branch]
-                        ].alternate_code = f"{{% {tag} True %}}"
-                        override_raw_slices.append(branch)
-                    else:
-                        # Force it not to take the "if".
-                        tracer_trace.raw_slice_info[
-                            tracer_probe.raw_sliced[branch]
-                        ].alternate_code = f"{{% {tag} False %}}"
-                        override_raw_slices.append(branch)
+                    new_value = "True" if options[0] == branch + 1 else "False"
+                    tracer_trace.raw_slice_info[
+                        tracer_probe.raw_sliced[branch]
+                    ].alternate_code = f"{{% {tag} {new_value} %}}"
             # Render and analyze the template with the overrides.
             variant_key = tuple(
                 cast(str, tracer_trace.raw_slice_info[rs].alternate_code)

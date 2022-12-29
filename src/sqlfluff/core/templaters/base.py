@@ -518,7 +518,7 @@ class RawTemplater:
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
         """Extended version of `process` which returns multiple variants."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other):
         """Return true if `other` is of the same class as this one.
