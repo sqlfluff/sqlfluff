@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = ansi
+
+[sqlfluff:templater:jinja]
+lint_unreached_code = True
