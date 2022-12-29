@@ -387,6 +387,11 @@ class LintedFile:
                     violations.append(violation)
         return violations
 
+    @property
+    def violations(self) -> List:
+        """Return a list of all violations for this file."""
+        return self.get_violations()
+
     def is_clean(self) -> bool:
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))

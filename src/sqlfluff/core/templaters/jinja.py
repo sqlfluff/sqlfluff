@@ -647,14 +647,7 @@ class ConcreteJinjaTemplater(JinjaTemplater):
         )
         yield templated_file, violations
 
-        lint_unreached_code = (
-            config.get_section(
-                (self.templater_selector, self.name, "lint_unreached_code")
-            )
-            if config
-            else False
-        )
-        if not templated_file or not lint_unreached_code:
+        if not templated_file:
             return
 
         # Find uncovered code (if any), tweak the template to hit that code.

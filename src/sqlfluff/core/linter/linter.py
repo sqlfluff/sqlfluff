@@ -829,11 +829,36 @@ class Linter:
         templated_files = []
         all_templater_violations = []
         try:
-            try:
-                process_iter = self.templater.process_with_variants(
-                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            lint_unreached_code = (
+                config.get_section(
+                    (
+                        self.templater.templater_selector,
+                        self.templater.name,
+                        "lint_unreached_code",
+                    )
                 )
-            except NotImplementedError:
+                if config
+                else False
+            )
+
+            process_iter = None
+            if lint_unreached_code:
+                try:
+                    # If configured to do so and the templater supports it, lint
+                    # unreached code.
+                    process_iter = self.templater.process_with_variants(
+                        in_str=in_str,
+                        fname=fname,
+                        config=config,
+                        formatter=self.formatter,
+                    )
+                except NotImplementedError:
+                    linter_logger.warning(
+                        f"Templater {self.templater.name} does not support "
+                        f"linting unreached code."
+                    )
+            if not process_iter:
+                # Default/fallback behavior: Lint just the primary variant.
                 process_iter = iter(
                     [
                         self.templater.process(

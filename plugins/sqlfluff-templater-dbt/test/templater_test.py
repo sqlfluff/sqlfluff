@@ -32,14 +32,11 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
         pass
 
     with pytest.raises(ModuleNotFoundError, match=r"pip install sqlfluff\[dbt\]"):
-        for _ in dbt_templater.process(
+        dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        ):
-            break
-        else:
-            assert False
+        )
 
 
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
@@ -110,19 +107,16 @@ def test_dbt_profiles_dir_env_var_uppercase(
 
 def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
     path = Path(project_dir) / "models/my_new_project" / fname
-    for templated_file, _ in dbt_templater.process(
+    templated_file, _ = dbt_templater.process(
         in_str=path.read_text(),
         fname=str(path),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-    ):
-        template_output_folder_path = Path(
-            "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
-        )
-        fixture_path = _get_fixture_path(template_output_folder_path, fname)
-        assert str(templated_file) == fixture_path.read_text()
-        break
-    else:
-        assert False
+    )
+    template_output_folder_path = Path(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
+    )
+    fixture_path = _get_fixture_path(template_output_folder_path, fname)
+    assert str(templated_file) == fixture_path.read_text()
 
 
 def _get_fixture_path(template_output_folder_path, fname):
@@ -160,14 +154,11 @@ def test__templater_dbt_slice_file_wrapped_test(
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        for _, resp, _ in dbt_templater.slice_file(
+        _, resp, _ = dbt_templater.slice_file(
             raw_file,
             templated_file,
-        ):
-            assert resp == result
-            break
-        else:
-            assert False
+        )
+    assert resp == result
 
 
 @pytest.mark.parametrize(
@@ -191,23 +182,20 @@ def test__templater_dbt_templating_test_lex(
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
     lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     path = Path(project_dir) / fname
-    for templated_file, _ in dbt_templater.process(
+    templated_file, _ = dbt_templater.process(
         in_str=path.read_text(),
         fname=str(path),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-    ):
-        tokens, lex_vs = lexer.lex(templated_file)
-        assert (
-            templated_file.source_str
-            == "select a\nfrom table_a" + "\n" * n_trailing_newlines
-        )
-        assert (
-            templated_file.templated_str
-            == "select a\nfrom table_a" + "\n" * n_trailing_newlines
-        )
-        break
-    else:
-        assert False
+    )
+    tokens, lex_vs = lexer.lex(templated_file)
+    assert (
+        templated_file.source_str
+        == "select a\nfrom table_a" + "\n" * n_trailing_newlines
+    )
+    assert (
+        templated_file.templated_str
+        == "select a\nfrom table_a" + "\n" * n_trailing_newlines
+    )
 
 
 @pytest.mark.parametrize(
@@ -228,14 +216,11 @@ def test__templater_dbt_skips_file(
 ):
     """A disabled dbt model should be skipped."""
     with pytest.raises(SQLFluffSkipFile, match=reason):
-        for _ in dbt_templater.process(
+        dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        ):
-            break
-        else:
-            assert False
+        )
 
 
 @pytest.mark.parametrize(
@@ -261,11 +246,11 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         # Log the rendered file to facilitate better debugging of the files.
         print(f"## FILE: {linted_file.path}")
         print("\n\n## RENDERED FILE:\n\n")
-        print(linted_file.variants[0].templated_file.templated_str)
+        print(linted_file.templated_file.templated_str)
         print("\n\n## PARSED TREE:\n\n")
         print(linted_file.tree.stringify())
         print("\n\n## VIOLATIONS:")
-        for idx, v in enumerate(linted_file.get_violations()):
+        for idx, v in enumerate(linted_file.violations):
             print(f"   {idx}:{v.get_info_dict()}")
 
     violations = lnt.check_tuples()
@@ -306,16 +291,13 @@ def test__templater_dbt_templating_absolute_path(
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
     try:
-        for _ in dbt_templater.process(
+        dbt_templater.process(
             in_str="",
             fname=os.path.abspath(
                 os.path.join(project_dir, "models/my_new_project/use_var.sql")
             ),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        ):
-            break
-        else:
-            assert False
+        )
     except Exception as e:
         pytest.fail(f"Unexpected RuntimeError: {e}")
 
@@ -343,20 +325,16 @@ def test__templater_dbt_handle_exceptions(
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
-        for _, violations in dbt_templater.process(
+        _, violations = dbt_templater.process(
             in_str="",
             fname=target_fpath,
             config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
-        ):
-            assert violations
-            # NB: Replace slashes to deal with different platform paths being returned.
-            assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
-            break
-        else:
-            assert False
-
+        )
     finally:
         os.rename(target_fpath, src_fpath)
+    assert violations
+    # NB: Replace slashes to deal with different platform paths being returned.
+    assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
 @mock.patch("sqlfluff_templater_dbt.osmosis.DbtProjectContainer.add_project")
@@ -383,19 +361,16 @@ def test__templater_dbt_handle_database_connection_failure(
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
-        for _, violations in dbt_templater.process(
+        _, violations = dbt_templater.process(
             in_str="",
             fname=target_fpath,
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        ):
-            assert violations
-            # NB: Replace slashes to deal with different platform paths being returned.
-            assert violations[0].desc().replace("\\", "/").startswith("dbt error")
-            break
-        else:
-            assert False
+        )
     finally:
         os.rename(target_fpath, src_fpath)
+    assert violations
+    # NB: Replace slashes to deal with different platform paths being returned.
+    assert violations[0].desc().replace("\\", "/").startswith("dbt error")
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
@@ -440,11 +415,9 @@ def test__context_in_config_is_loaded(
 
     path = Path(project_dir) / model_path
 
-    for processed, violations in dbt_templater.process(
+    processed, violations = dbt_templater.process(
         in_str=path.read_text(), fname=str(path), config=config
-    ):
-        assert violations == []
-        assert str(var_value) in processed.templated_str
-        break
-    else:
-        assert False
+    )
+
+    assert violations == []
+    assert str(var_value) in processed.templated_str
