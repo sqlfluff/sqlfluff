@@ -96,6 +96,10 @@ profiles_dir = {old_cwd}/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profil
         os.chdir(old_cwd)
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Fails on GitHub Windows with: Paths don't have the same drive",
+)
 def test_dbt_lint_unreached_code(tmpdir):
     """Test with dbt project that fixing with lint_unreached_code works."""
     tmp_dbt_dir = str(tmpdir)
