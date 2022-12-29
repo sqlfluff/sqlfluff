@@ -74,7 +74,7 @@ class SQLFluffViolationReporter(QualityReporter):
                             Violation(v["line_no"], v["description"])
                             for v in file["violations"]
                         ]
-        else:  # pragma: no cover
+        else:
             logger.warning("Not running SQLFluff: No files to check")
         return self.violations_dict
 
