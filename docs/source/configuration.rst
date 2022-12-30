@@ -953,6 +953,81 @@ linted and the sub files will also be applied within that subdirectory.
 
 .. _defaultconfig:
 
+Linting & Fixing Unreached Code
+-------------------------------
+
+Because the `jinja` and `dbt` templaters support `if` statements, it is
+possible to have code that is not generated when compiled using your SQLFluff
+configuration. A common example of this is
+`incremental dbt models <https://docs.getdbt.com/docs/build/incremental-models>`_:
+
+.. code-block:: sql
+
+   {{
+       config(
+           materialized='incremental'
+       )
+   }}
+
+   select
+       *,
+       my_slow_function(my_column)
+
+   from raw_app_data.events
+
+   {% if is_incremental() %}
+
+     -- this filter will only be applied on an incremental run
+     where event_time > (select max(event_time) from {{ this }})
+
+   {% endif %}
+
+Sometimes you may want to lint and fix this code as well.
+You can do this by enabling the ``lint_unreached_code`` option in your
+``.sqlfluff`` config file:
+
+.. code-block:: cfg
+
+      [sqlfluff:templater:jinja]
+      lint_unreached_code = True
+
+or
+
+.. code-block:: cfg
+
+      [sqlfluff:templater:dbt]
+      lint_unreached_code = True
+
+depending on which templater you are using.
+
+When ``lint_unreached_code`` is enabled, SQLFluff records which areas of a
+SQL file are reached during template compilation. For areas that aren't
+reached, SQLFluff will automatically generate _variations_ of the SQL file,
+modifying `if` or `elif` statements as needed in order to reach those areas of
+code. These variations are also linted and/or fixed, with the violations and
+fixes merged together automatically. This process is designed to be seamless,
+but be aware of the following:
+
+* Generating and linting these extra variations increases the time it takes to
+  lint and fix your code.
+* Even with this feature enabled, SQLFluff may not reach all of your code:
+
+  * At most 10 variations are generated for each file, and at most 5 will be
+    linted and fixed. If your file has complex templating logic, SQLFluff may
+    not reach all of it.
+  * SQLFluff only modifies `if` and `elif` statements. Other Jinja constructs
+    are not considered by this feature (e.g. loops, macros, etc.).
+
+.. note::
+
+    ``lint_unreached_code`` is a very powerful feature. It's literally changing
+    your code without your knowledge and executing code that you didn't write.
+    If you're not comfortable with that, you should not enable this feature. One
+    potential risk is that SQLFluff may send unwanted commands to your database.
+    This is because of dbt, because **dbt** interacts with the database during
+    template compilation. For this reason, **SQLFluff and its maintainers are
+    not responsible for any issues caused by this feature**.
+
 Default Configuration
 ---------------------
 
