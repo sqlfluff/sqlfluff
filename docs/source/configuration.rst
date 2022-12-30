@@ -961,7 +961,7 @@ possible to have code that is not generated when compiled using your SQLFluff
 configuration. A common example of this is
 `incremental dbt models <https://docs.getdbt.com/docs/build/incremental-models>`_:
 
-.. code-block:: sql
+.. code-block:: SQL+Jinja
 
    {{
        config(
