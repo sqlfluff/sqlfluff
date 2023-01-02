@@ -442,8 +442,8 @@ class LintedFile:
                     result.append(violation)
         return result
 
+    @staticmethod
     def _include_violation(
-        self,
         raw_slices: Set[Tuple[int, int]],
         templated_slices: List[TemplatedFileSlice],
     ) -> bool:
