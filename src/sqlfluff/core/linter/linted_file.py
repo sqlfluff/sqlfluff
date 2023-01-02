@@ -10,6 +10,7 @@ import logging
 import shutil
 import stat
 import tempfile
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import (
     Dict,
@@ -17,6 +18,7 @@ from typing import (
     List,
     NamedTuple,
     Optional,
+    Set,
     Tuple,
     Union,
     cast,
@@ -28,7 +30,11 @@ from sqlfluff.core.errors import (
     SQLLintError,
     CheckTuple,
 )
-from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
+from sqlfluff.core.templaters.base import (
+    TemplatedFile,
+    RawFileSlice,
+    TemplatedFileSlice,
+)
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
@@ -373,10 +379,26 @@ class LintedFile:
         The list of violations returned is suitable for lint output, but not
         for fixing because the fixes are specific to the variant's tree. We'll
         address this when generating and applying file patches.
-
         """
-        violations = []
-        for variant in self.variants:
+        # Trivial case: Just one variant
+        if len(self.variants) == 1:
+            return self.variants[0].get_violations(
+                rules=rules,
+                types=types,
+                filter_ignore=filter_ignore,
+                filter_warning=filter_warning,
+                fixable=fixable,
+            )
+
+        # In order to be included, a violation must meet one of the following
+        # criteria.
+        # - Case 1: It appears in _all_ variants
+        # - Case 2: It appears in a secondary variant and is contained in "source only"
+        #   slices of the primary variant.
+
+        # Case 1 bookkeeping
+        violations_dict = defaultdict(set)
+        for idx, variant in enumerate(self.variants):
             for violation in variant.get_violations(
                 rules=rules,
                 types=types,
@@ -384,9 +406,56 @@ class LintedFile:
                 filter_warning=filter_warning,
                 fixable=fixable,
             ):
-                if violation not in violations:
-                    violations.append(violation)
-        return violations
+                violations_dict[violation].add(idx)
+        result = [
+            violation
+            for violation, idxs in violations_dict.items()
+            if len(idxs) == len(self.variants)
+        ]
+
+        # Case 2 bookkeeping
+        for variant in self.variants[1:]:  # Skip variant 0
+            violations = variant.get_violations(
+                rules=rules,
+                types=types,
+                filter_ignore=filter_ignore,
+                filter_warning=filter_warning,
+                fixable=fixable,
+            )
+            for idx, violation in enumerate(violations):
+                if violation in result:
+                    continue
+                # Get the source slices touched by the violation.
+                violation_source_slices: Set[Tuple[int, int]] = set()
+                if violation.fixes:
+                    for fix in violation.fixes:
+                        temp_slice = fix.anchor.pos_marker.source_slice
+                        violation_source_slices.add((temp_slice.start, temp_slice.stop))
+                else:
+                    temp_slice = violation.segment.pos_marker.source_slice
+                    violation_source_slices.add((temp_slice.start, temp_slice.stop))
+                # Check if any of these slices appear in *templated* slices in the
+                # primary variant. If so, don't include the violation.
+                if self._include_violation(
+                    violation_source_slices, self.variants[0].templated_file.sliced_file
+                ):
+                    result.append(violation)
+        return result
+
+    def _include_violation(
+        self,
+        raw_slices: Set[Tuple[int, int]],
+        templated_slices: List[TemplatedFileSlice],
+    ) -> bool:
+        """Return True if any raw_slices appear in templated_slices."""
+        for raw_slice in raw_slices:
+            for ts in templated_slices:
+                if (
+                    raw_slice[1] > ts.source_slice.start
+                    and ts.source_slice.stop > raw_slice[0]
+                ):
+                    return False
+        return True
 
     @property
     def violations(self) -> List:

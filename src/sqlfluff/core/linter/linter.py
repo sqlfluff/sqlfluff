@@ -710,7 +710,7 @@ class Linter:
         encoding: str = "utf8",
     ) -> LintedVariant:
         """Lint a ParsedString and return a LintedVariant."""
-        violations = parsed.violations
+        violations = list(parsed.violations)
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment]
         if parsed.tree:
