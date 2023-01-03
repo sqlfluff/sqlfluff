@@ -59,20 +59,23 @@ class SQLFluffViolationReporter(QualityReporter):
         if not self.driver_tool_installed:  # pragma: no cover
             raise OSError(f"{self.driver.name} is not installed")
 
-        output = self.reports if self.reports else self._run_sqlfluff(src_paths)
-        for o in output:
-            # Load and parse SQLFluff JSON output.
-            try:
-                report = json.loads(o)
-            except json.JSONDecodeError as e:  # pragma: no cover
-                print(f"Error parsing JSON output ({e}): {repr(o)}")
-                raise
-            else:
-                for file in report:
-                    self.violations_dict[file["filepath"]] = [
-                        Violation(v["line_no"], v["description"])
-                        for v in file["violations"]
-                    ]
+        if src_paths:
+            output = self.reports if self.reports else self._run_sqlfluff(src_paths)
+            for o in output:
+                # Load and parse SQLFluff JSON output.
+                try:
+                    report = json.loads(o)
+                except json.JSONDecodeError as e:  # pragma: no cover
+                    print(f"Error parsing JSON output ({e}): {repr(o)}")
+                    raise
+                else:
+                    for file in report:
+                        self.violations_dict[file["filepath"]] = [
+                            Violation(v["line_no"], v["description"])
+                            for v in file["violations"]
+                        ]
+        else:
+            logger.warning("Not running SQLFluff: No files to check")
         return self.violations_dict
 
     def _run_sqlfluff(self, src_paths):

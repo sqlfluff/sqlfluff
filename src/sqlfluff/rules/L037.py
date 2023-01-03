@@ -62,12 +62,7 @@ class Rule_L037(BaseRule):
                 "DESC",
             ):
                 ordering_reference = child_segment.raw_upper
-            elif column_reference and child_segment.type not in [
-                "keyword",
-                "whitespace",
-                "indent",
-                "dedent",
-            ]:
+            if column_reference and child_segment.raw == ",":
                 result.append(
                     OrderByColumnInfo(
                         column_reference=column_reference, order=ordering_reference

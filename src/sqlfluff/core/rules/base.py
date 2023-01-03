@@ -488,6 +488,11 @@ class BaseRule:
     _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
+    # Some fix routines do their own checking for whether their fixes
+    # are safe around templated elements. For those - the default
+    # safety checks might be inappropriate. In those cases, set
+    # template_safe_fixes to True.
+    template_safe_fixes = False
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
@@ -588,8 +593,12 @@ class BaseRule:
             # Any exception at this point would halt the linter and
             # cause the user to get no results
             except Exception as e:
+                # If a filename is present, include it in the critical exception.
                 self.logger.critical(
-                    f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
+                    f"Applying rule {self.code} to {fname!r} threw an Exception: {e}"
+                    if fname
+                    else f"Applying rule {self.code} threw an Exception: {e}",
+                    exc_info=True,
                 )
                 assert context.segment.pos_marker
                 exception_line, _ = context.segment.pos_marker.source_position()
@@ -661,7 +670,10 @@ class BaseRule:
     def _process_lint_result(
         self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
     ):
-        self.discard_unsafe_fixes(res, templated_file)
+        # Unless the rule declares that it's already template safe. Do safety
+        # checks.
+        if not self.template_safe_fixes:
+            self.discard_unsafe_fixes(res, templated_file)
         lerr = res.to_linting_error(rule=self)
         ignored = False
         if lerr:

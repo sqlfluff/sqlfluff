@@ -222,10 +222,21 @@ class ReflowPoint(ReflowElement):
     """
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
-        """Get the current indent segment (if there)."""
+        """Get the current indent segment (if there).
+
+        NOTE: This only returns _untemplated_ indents. If templated
+        newline or whitespace segments are found they are skipped.
+        """
         indent = None
         for seg in reversed(self.segments):
-            if seg.is_type("newline"):
+            if seg.pos_marker and not seg.pos_marker.is_literal():
+                # Skip any templated elements.
+                # NOTE: It must _have_ a position marker at this
+                # point however to take this route. A segment
+                # without a position marker at all, is an edit
+                # or insertion, and so should still be considered.
+                continue
+            elif seg.is_type("newline"):
                 return indent
             elif seg.is_type("whitespace"):
                 indent = seg
