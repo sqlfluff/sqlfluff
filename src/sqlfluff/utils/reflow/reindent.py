@@ -1015,7 +1015,12 @@ def _source_char_len(elements: ReflowSequenceType):
         # however.
         if seg.is_type("indent"):
             continue
-        # Get the source position.
+        # Get the source position. If there is no source position then it's
+        # a recent edit or modification. We shouldn't evaluate it until it's
+        # been positioned. Without a source marker we don't know how to treat
+        # it.
+        if not seg.pos_marker:
+            break
         source_slice = seg.pos_marker.source_slice
         # Is there a newline in the source string?
         source_str = seg.pos_marker.source_str()
