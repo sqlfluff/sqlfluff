@@ -463,15 +463,21 @@ def _crawl_indent_points(
     happens. The values returned here have a large impact on
     exactly how indentation is treated.
 
+    NOTE: If a line ends with a comment, indent impulses are pushed
+    to the point _after_ the comment rather than before to aid with
+    indentation. This saves searching for them later.
+
     TODO: Once this function *works*, there's definitely headroom
     for simplification and optimisation. We should do that.
     """
     last_line_break_idx = None
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
+    cached_indent_stats: Optional[IndentStats] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_stats = elem.get_indent_impulse(allow_implicit_indents)
+            indent_stats = cached_indent_stats or elem.get_indent_impulse(allow_implicit_indents)
+            cached_indent_stats = None
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
@@ -496,6 +502,27 @@ def _crawl_indent_points(
                 or idx == 0
                 or elements[idx + 1].segments[0].is_type("end_of_file")
             ):
+                # If the next block contains comments, then don't yield the
+                # impulses here. Yield them afterwards. Instead generate a
+                # point here with no balance change instead. It's a point
+                # we might later add a line break - but not very interesting
+                # otherwise.
+                if "comment" in elements[idx + 1].class_types:
+                    cached_indent_stats = indent_stats
+                    yield _IndentPoint(
+                        idx,
+                        0,
+                        0,
+                        indent_balance,
+                        last_line_break_idx,
+                        False,
+                        untaken_indents,
+                    )
+                    # Stop here and continue onward. Because we're treating
+                    # this point as though it has no impulse, we don't want
+                    # to update any balance values.
+                    continue
+
                 yield _IndentPoint(
                     idx,
                     indent_stats.impulse,
@@ -506,7 +533,7 @@ def _crawl_indent_points(
                     untaken_indents,
                 )
                 has_newline = False
-
+            
             # Strip any untaken indents above the new balance.
             # NOTE: We strip back to the trough, not just the end point
             # if the trough was lower than the impulse.
@@ -679,8 +706,18 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    if indent_line.closing_balance() <= starting_balance:
-        return [], []
+    # Work back through points until we're past any comments.
+    for ip in reversed(indent_line.indent_points):
+        # Check whether it closes the opening indent.
+        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
+            return [], []
+        # Is it preceded by comments?
+        if "comment" in elements[ip.idx - 1].class_types:
+            # It is, keep searching
+            continue
+        else:
+            # It's not, we don't close out an opened indent.
+            break
 
     indent_points = indent_line.indent_points
 
