@@ -232,18 +232,15 @@ class ReflowSequence:
         """Generate a sequence around a target.
 
         Args:
-            target_segment (:obj:`RawSegment`):
-                The segment to center around when considering the sequence
-                to construct.
-            root_segment (:obj:`BaseSegment`):
-                The relevant root segment (usually the base :obj:`FileSegment`).
-            config (:obj:`FluffConfig`):
-                A config object from which to load the spacing behaviours
-                of different segments.
-            sides (:obj:`str`):
-                Limit the reflow sequence to just one side of the target.
-                Default is two sided ("both"), but set to "before" or "after"
-                to limit to either side.
+            target_segment (:obj:`RawSegment`): The segment to center
+                around when considering the sequence to construct.
+            root_segment (:obj:`BaseSegment`): The relevant root
+                segment (usually the base :obj:`FileSegment`).
+            config (:obj:`FluffConfig`): A config object from which
+                to load the spacing behaviours of different segments.
+            sides (:obj:`str`): Limit the reflow sequence to just one
+                side of the target. Default is two sided ("both"), but
+                set to "before" or "after" to limit to either side.
 
 
         **NOTE**: We don't just expand to the first block around the
@@ -465,15 +462,14 @@ class ReflowSequence:
         """Returns a new :obj:`ReflowSequence` with points respaced.
 
         Args:
-            strip_newlines (:obj:`bool`):
-                Optionally strip newlines before respacing. This is
-                primarily used on focused sequences to coerce objects
-                onto a single line. This does not apply any prioritisation
-                to which line breaks to remove and so is not a substitute
-                for the full `reindent` or `reflow` methods.
-            filter (:obj:`str`):
-                Optionally filter which reflow points to respace.
-                Default configuration is `all`. Other options
+            strip_newlines (:obj:`bool`): Optionally strip newlines
+                before respacing. This is primarily used on focused
+                sequences to coerce objects onto a single line. This
+                does not apply any prioritisation to which line breaks
+                to remove and so is not a substitute for the full
+                `reindent` or `reflow` methods.
+            filter (:obj:`str`): Optionally filter which reflow points
+                to respace. Default configuration is `all`. Other options
                 are `line_break` which only respaces points containing
                 a `newline` or followed by an `end_of_file` marker, or
                 `inline` which is the inverse of `line_break`. This is
