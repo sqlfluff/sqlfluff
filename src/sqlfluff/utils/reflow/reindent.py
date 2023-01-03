@@ -765,7 +765,7 @@ def _lint_line_untaken_negative_indents(
             range(
                 ip.initial_indent_balance,
                 ip.initial_indent_balance + ip.indent_trough,
-                ip.initial_indent_balance - 1,
+                -1,
             )
         )
         untaken_indents = set(ip.untaken_indents).difference(forced_indents)
