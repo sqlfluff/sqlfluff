@@ -759,11 +759,17 @@ def _lint_line_untaken_negative_indents(
         # Is line break, or positive indent?
         if ip.is_line_break or ip.indent_impulse >= 0:
             continue
-        # It's negative, is it untaken?
-        if (
-            ip.initial_indent_balance in ip.untaken_indents
-            and ip.initial_indent_balance not in forced_indents
-        ):
+        # It's negative, is it untaken? In the case of a multi-dedent
+        # they must _all_ be untaken to take this route.
+        covered_indents = set(
+            range(
+                ip.initial_indent_balance,
+                ip.initial_indent_balance + ip.indent_trough,
+                -1,
+            )
+        )
+        untaken_indents = set(ip.untaken_indents).difference(forced_indents)
+        if covered_indents.issubset(untaken_indents):
             # Yep, untaken.
             continue
 

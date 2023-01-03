@@ -1437,3 +1437,27 @@ test_fail_fix_beside_templated:
         FROM t
         WHERE c < 0
     {% endif %}
+
+test_fail_case_else_end_clause:
+  # Checks linting of missing newline in CASE statement.
+  # More specifically this is a case of a multi-dedent
+  # not being handled properly when one of the indents
+  # it covers is taken, but the other is untaken.
+  # https://github.com/sqlfluff/sqlfluff/issues/4222
+  fail_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi' end as field,
+        bar
+    from foo
+  fix_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi'
+        end as field,
+        bar
+    from foo
