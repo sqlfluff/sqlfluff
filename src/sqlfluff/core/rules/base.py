@@ -593,8 +593,12 @@ class BaseRule:
             # Any exception at this point would halt the linter and
             # cause the user to get no results
             except Exception as e:
+                # If a filename is present, include it in the critical exception.
                 self.logger.critical(
-                    f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
+                    f"Applying rule {self.code} to {fname!r} threw an Exception: {e}"
+                    if fname
+                    else f"Applying rule {self.code} threw an Exception: {e}",
+                    exc_info=True,
                 )
                 assert context.segment.pos_marker
                 exception_line, _ = context.segment.pos_marker.source_position()
