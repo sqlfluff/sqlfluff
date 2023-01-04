@@ -1437,3 +1437,29 @@ test_fail_fix_beside_templated:
         FROM t
         WHERE c < 0
     {% endif %}
+
+test_fail_fix_consistency_around_comments:
+  # Check that comments don't make fixes inconsistent.
+  # https://github.com/sqlfluff/sqlfluff/issues/4223
+  fail_str: |
+    select
+        case
+            when a
+            then b
+        end as foo,
+        case
+            when a -- bar
+            then b
+        end as bar
+    from c
+  fix_str: |
+    select
+        case
+            when a
+                then b
+        end as foo,
+        case
+            when a -- bar
+                then b
+        end as bar
+    from c
