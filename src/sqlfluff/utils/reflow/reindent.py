@@ -476,7 +476,9 @@ def _crawl_indent_points(
     cached_indent_stats: Optional[IndentStats] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_stats = cached_indent_stats or elem.get_indent_impulse(allow_implicit_indents)
+            indent_stats = cached_indent_stats or elem.get_indent_impulse(
+                allow_implicit_indents
+            )
             cached_indent_stats = None
 
             # Is it a line break? AND not a templated one.
@@ -533,7 +535,7 @@ def _crawl_indent_points(
                     untaken_indents,
                 )
                 has_newline = False
-            
+
             # Strip any untaken indents above the new balance.
             # NOTE: We strip back to the trough, not just the end point
             # if the trough was lower than the impulse.
