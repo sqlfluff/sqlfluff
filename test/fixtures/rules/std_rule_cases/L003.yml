@@ -1467,7 +1467,9 @@ test_fix_block_comment:
         */
         good_foo,
         /*
-           and this
+            and this
+        this is ok
+    this is NOT ok
         */
         bar
     FROM tbl
@@ -1484,7 +1486,9 @@ test_fix_block_comment:
         */
         good_foo,
         /*
-           and this
+            and this
+        this is ok
+        this is NOT ok
         */
         bar
     FROM tbl
