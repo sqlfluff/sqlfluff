@@ -122,8 +122,9 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if v.rule_code() in rules]
         # Filter fixable
         if fixable is not None:
-            # Assume that fixable is true or false if not None
-            violations = [v for v in violations if v.fixable is fixable]
+            # Assume that fixable is true or false if not None.
+            # Fatal errors should always come through, regardless.
+            violations = [v for v in violations if v.fixable is fixable or v.fatal]
         # Filter ignorable violations
         if filter_ignore:
             violations = [v for v in violations if not v.ignore]

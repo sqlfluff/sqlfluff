@@ -797,6 +797,10 @@ class FluffConfig:
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
         del state["_plugin_manager"]
+        # The dbt templater doesn't pickle well, but isn't required
+        # within threaded operations. If it was, it could easily be
+        # rehydrated within the thread.
+        state["_configs"]["core"].pop("templater_obj", None)
         return state
 
     def __setstate__(self, state):  # pragma: no cover
@@ -812,6 +816,9 @@ class FluffConfig:
         # process invocations of sqlfluff. In the event that user registered
         # rules are used in a multi-process invocation, they will not be applied
         # in the child processes.
+        # NOTE: Likewise we don't reinstate the "templater_obj" config value
+        # which should also only be used in the main thread rather than child
+        # processes.
 
     @classmethod
     def from_root(
