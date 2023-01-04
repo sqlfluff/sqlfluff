@@ -732,12 +732,6 @@ def _lint_line_untaken_positive_indents(
         closing_trough = (
             indent_points[-1].initial_indent_balance + indent_points[-1].indent_impulse
         )
-    # Edge case: if closing_balance > starting balance
-    # but closing_trough isn't, then we shouldn't insert
-    # a new line. That means we just dropped back down to
-    # close the untaken newline.
-    if closing_trough <= starting_balance:
-        return [], []
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -806,16 +800,11 @@ def _lint_line_untaken_negative_indents(
             # Yep, untaken.
             continue
 
-        # Edge Case: Comments. For now we don't introduce line breaks
-        # before comments, largely because a trailing comment line is
-        # probably referring to that line (and may contain noqa elements).
-        if elements[ip.idx + 1 :] and "comment" in elements[ip.idx + 1].class_types:
-            reflow_logger.debug(
-                "    Detected missing -ve line break @ line %s, before "
-                "comment. Ignoring...",
-                elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
-            )
-            continue
+        # Edge Case: Comments. Since introducing the code to push indent effects
+        # to the point _after_ comments, we no longer need to detect an edge case
+        # for them here. If we change that logic again in the future, so that
+        # indent values are allowed before comments - that code should be
+        # reintroduced here.
 
         # Edge Case: Semicolons. For now, semicolon placement is a little
         # more complicated than what we do here. For now we don't (by
