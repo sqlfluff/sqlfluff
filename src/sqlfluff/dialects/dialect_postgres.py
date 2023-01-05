@@ -1149,7 +1149,8 @@ class IntoClauseSegment(BaseSegment):
 class ForClauseSegment(BaseSegment):
     """`FOR ...` clause in `SELECT` statements.
 
-    As specified in https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE.
+    As specified in
+    https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE.
     """
 
     type = "for_clause"
