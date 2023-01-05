@@ -45,6 +45,7 @@ RESERVED_KEYWORDS = [
     "CURRENT",
     "CURSOR",
     "DATABASE",
+    "DAY",
     "DBCC",
     "DEALLOCATE",
     "DECLARE",
