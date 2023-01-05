@@ -650,6 +650,7 @@ def _lint_line_starting_indent(
     # indentation which the logic here is not smart enough to handle.
     if (
         initial_point_idx > 0
+        and initial_point_idx < len(elements) - 1
         and "block_comment" in elements[initial_point_idx - 1].class_types
         and "block_comment" in elements[initial_point_idx + 1].class_types
     ):
