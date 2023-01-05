@@ -165,7 +165,8 @@ class TemplateSegment(MetaSegment):
         block_uuid: Optional[UUID] = None,
     ):
         """Initialise a placeholder with the source code embedded."""
-        if not source_str:  # pragma: no cover
+        # NOTE: Empty string is ok, None is not.
+        if source_str is None:  # pragma: no cover
             raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
