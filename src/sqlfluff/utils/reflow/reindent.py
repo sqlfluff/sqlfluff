@@ -775,11 +775,17 @@ def _lint_line_untaken_negative_indents(
         # Is line break, or positive indent?
         if ip.is_line_break or ip.indent_impulse >= 0:
             continue
-        # It's negative, is it untaken?
-        if (
-            ip.initial_indent_balance in ip.untaken_indents
-            and ip.initial_indent_balance not in forced_indents
-        ):
+        # It's negative, is it untaken? In the case of a multi-dedent
+        # they must _all_ be untaken to take this route.
+        covered_indents = set(
+            range(
+                ip.initial_indent_balance,
+                ip.initial_indent_balance + ip.indent_trough,
+                -1,
+            )
+        )
+        untaken_indents = set(ip.untaken_indents).difference(forced_indents)
+        if covered_indents.issubset(untaken_indents):
             # Yep, untaken.
             continue
 
@@ -1025,7 +1031,12 @@ def _source_char_len(elements: ReflowSequenceType):
         # however.
         if seg.is_type("indent"):
             continue
-        # Get the source position.
+        # Get the source position. If there is no source position then it's
+        # a recent edit or modification. We shouldn't evaluate it until it's
+        # been positioned. Without a source marker we don't know how to treat
+        # it.
+        if not seg.pos_marker:
+            break
         source_slice = seg.pos_marker.source_slice
         # Is there a newline in the source string?
         source_str = seg.pos_marker.source_str()

@@ -509,7 +509,7 @@ snowflake_dialect.replace(
             Ref("ConnectByClauseSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
-            Ref("FromUnpivotExpressionSegment"),
+            AnyNumberOf(Ref("FromUnpivotExpressionSegment")),
             Ref("SamplingExpressionSegment"),
             min_times=1,
         ),
