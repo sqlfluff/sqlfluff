@@ -1437,3 +1437,15 @@ test_fail_fix_beside_templated:
         FROM t
         WHERE c < 0
     {% endif %}
+
+test_fail_hard_templated_indents:
+  # Test for consumed initial indents and consumed line indents.
+  # https://github.com/sqlfluff/sqlfluff/issues/4230
+  fail_str: |
+      {%- if true -%}
+    SELECT * FROM {{ "t1" }}
+      {%- endif %}
+  fix_str: |
+    {%- if true -%}
+        SELECT * FROM {{ "t1" }}
+    {%- endif %}
