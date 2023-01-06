@@ -672,7 +672,7 @@ def _lint_line_starting_indent(
             fixes = [
                 LintFix.replace(
                     init_seg,
-                    [init_seg.edit(source_fixes=[src_fix])],
+                    [init_seg.edit(source_fixes=[src_fix], source_str="")],
                 )
             ]
         else:
