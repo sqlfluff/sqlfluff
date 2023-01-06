@@ -587,7 +587,7 @@ def _deduce_line_current_indent(
             # Is the placeholder a consumed whitespace?
             if seg.source_str.startswith((" ", "\t")):
                 indent_seg = seg
-        # Otherwise it's n initial leading literal whitespace.
+        # Otherwise it's an initial leading literal whitespace.
         else:
             reflow_logger.debug("    Handling as initial leading whitespace")
             for indent_seg in elements[0].segments[::-1]:
