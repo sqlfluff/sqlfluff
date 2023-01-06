@@ -449,7 +449,7 @@ test_fail_consecutive_hangers_implicit:
         and f like 'f%'
   configs:
     indentation:
-      allow_implicit_indents: True
+      allow_implicit_indents: true
 
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
@@ -1382,7 +1382,7 @@ test_pass_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: True
+      allow_implicit_indents: true
 
 test_fail_deny_implicit_indent:
   # Test for ImplicitIndent.
@@ -1400,7 +1400,7 @@ test_fail_deny_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: False
+      allow_implicit_indents: false
 
 test_pass_templated_newlines:
   # NOTE: The macro has many newlines in it,
@@ -1516,6 +1516,21 @@ test_fail_case_else_end_clause:
         end as field,
         bar
     from foo
+
+test_fail_hard_templated_indents:
+  # Test for consumed initial indents and consumed line indents.
+  # https://github.com/sqlfluff/sqlfluff/issues/4230
+  # NOTE: We're using a block indentation indicator because the
+  # test query has initial leading whitespace.
+  # https://yaml.org/spec/1.2.2/#8111-block-indentation-indicator
+  fail_str: |2
+      {%- if true -%}
+    SELECT * FROM {{ "t1" }}
+      {%- endif %}
+  fix_str: |2
+    {%- if true -%}
+        SELECT * FROM {{ "t1" }}
+    {%- endif %}
 
 test_fail_fix_consistency_around_comments:
   # Check that comments don't make fixes inconsistent.
