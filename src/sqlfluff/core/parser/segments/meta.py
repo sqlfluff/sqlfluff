@@ -236,7 +236,9 @@ class TemplateSegment(MetaSegment):
 
         if source_fixes or self.source_fixes:
             sf = (source_fixes or []) + (self.source_fixes + [])
-        else:
+        else:  # pragma: no cover
+            # There's _usually_ a source fix if we're editing a templated
+            # segment - but not necessarily guaranteed.
             sf = None
         return self.__class__(
             pos_marker=self.pos_marker,
