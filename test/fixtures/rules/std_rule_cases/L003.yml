@@ -1438,6 +1438,85 @@ test_fail_fix_beside_templated:
         WHERE c < 0
     {% endif %}
 
+test_pass_block_comment:
+  # Check that subsequent block comment lines are ok to be indented.
+  # https://github.com/sqlfluff/sqlfluff/issues/4224
+  pass_str: |
+    SELECT
+        /* This comment
+           is unusually indented
+              - and contains
+              - even more indents
+        */
+        foo
+    FROM bar
+
+test_fix_block_comment:
+  # Check other comments are still fixed.
+  # https://github.com/sqlfluff/sqlfluff/issues/4224
+  fail_str: |
+    SELECT
+      -- bad
+        -- good
+        foo,
+      /* bad */
+           foo_bad,
+        /* long
+           comment which should keep indent
+              - including this
+        */
+        good_foo,
+        /*
+            and this
+        this is ok
+    this is NOT ok
+        */
+        bar
+    FROM tbl
+  fix_str: |
+    SELECT
+        -- bad
+        -- good
+        foo,
+        /* bad */
+        foo_bad,
+        /* long
+           comment which should keep indent
+              - including this
+        */
+        good_foo,
+        /*
+            and this
+        this is ok
+        this is NOT ok
+        */
+        bar
+    FROM tbl
+
+test_fail_case_else_end_clause:
+  # Checks linting of missing newline in CASE statement.
+  # More specifically this is a case of a multi-dedent
+  # not being handled properly when one of the indents
+  # it covers is taken, but the other is untaken.
+  # https://github.com/sqlfluff/sqlfluff/issues/4222
+  fail_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi' end as field,
+        bar
+    from foo
+  fix_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi'
+        end as field,
+        bar
+    from foo
+
 test_fail_fix_consistency_around_comments:
   # Check that comments don't make fixes inconsistent.
   # https://github.com/sqlfluff/sqlfluff/issues/4223
