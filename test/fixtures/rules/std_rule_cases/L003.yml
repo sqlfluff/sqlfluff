@@ -1542,3 +1542,16 @@ test_fail_fix_consistency_around_comments:
                 then b
         end as bar
     from c
+
+test_fail_coverage_indent_trough:
+  # This test primarily tests the handling of closing trough indents
+  fail_str: |
+    WITH bar as (SELECT 1
+        FROM foo)
+    SELECT a FROM bar
+  fix_str: |
+    WITH bar as (
+        SELECT 1
+        FROM foo
+    )
+    SELECT a FROM bar
