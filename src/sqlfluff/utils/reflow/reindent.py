@@ -678,6 +678,7 @@ def _lint_line_starting_indent(
     if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
         init_seg = elements[indent_points[0].idx].segments[0]
         if init_seg.is_type("placeholder"):
+            init_seg = cast(TemplateSegment, init_seg)
             # If it's a placeholder initial indent, then modify the placeholder
             # to remove the indent from it.
             src_fix = SourceFix(

@@ -233,7 +233,7 @@ class TemplateSegment(MetaSegment):
             raise ValueError(
                 "Cannot set raw of a template placeholder!"
             )  # pragma: no cover
-        
+
         if source_fixes or self.source_fixes:
             sf = (source_fixes or []) + (self.source_fixes + [])
         else:
