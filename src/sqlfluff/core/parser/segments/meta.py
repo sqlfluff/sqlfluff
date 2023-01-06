@@ -165,7 +165,8 @@ class TemplateSegment(MetaSegment):
         block_uuid: Optional[UUID] = None,
     ):
         """Initialise a placeholder with the source code embedded."""
-        if not source_str:  # pragma: no cover
+        # NOTE: Empty string is ok, None is not.
+        if source_str is None:  # pragma: no cover
             raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
@@ -232,10 +233,17 @@ class TemplateSegment(MetaSegment):
             raise ValueError(
                 "Cannot set raw of a template placeholder!"
             )  # pragma: no cover
+
+        if source_fixes or self.source_fixes:
+            sf = (source_fixes or []) + (self.source_fixes + [])
+        else:  # pragma: no cover
+            # There's _usually_ a source fix if we're editing a templated
+            # segment - but not necessarily guaranteed.
+            sf = None
         return self.__class__(
             pos_marker=self.pos_marker,
             source_str=source_str if source_str is not None else self.source_str,
             block_type=self.block_type,
-            source_fixes=source_fixes or self.source_fixes,
+            source_fixes=sf,
             block_uuid=self.block_uuid,
         )

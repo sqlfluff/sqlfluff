@@ -7,7 +7,7 @@ from typing import Iterator, List, Optional, Set, Tuple, cast, Dict, DefaultDict
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
-from sqlfluff.core.parser.segments import Indent
+from sqlfluff.core.parser.segments import Indent, SourceFix
 
 from sqlfluff.core.parser import (
     RawSegment,
@@ -578,16 +578,24 @@ def _deduce_line_current_indent(
         0
     ].pos_marker.working_loc == (1, 1):
         # No last_line_break_idx, but this is a point. It's the first line.
-        # Get the last whitespace element.
-        # TODO: We don't currently handle the leading swallowed whitespace case.
-        # That could be added here, but it's an edge case which can be done
-        # at a later date easily. For now it won't get picked up.
-        for indent_seg in elements[0].segments[::-1]:
-            if indent_seg.is_type("whitespace"):
-                break
-        # Handle edge case of no whitespace, but with newline.
-        if not indent_seg.is_type("whitespace"):
-            indent_seg = None
+
+        # First check whether this is a first line with a leading
+        # placeholder.
+        if elements[0].segments[0].is_type("placeholder"):
+            reflow_logger.debug("    Handling as initial leading placeholder")
+            seg = cast(TemplateSegment, elements[0].segments[0])
+            # Is the placeholder a consumed whitespace?
+            if seg.source_str.startswith((" ", "\t")):
+                indent_seg = seg
+        # Otherwise it's an initial leading literal whitespace.
+        else:
+            reflow_logger.debug("    Handling as initial leading whitespace")
+            for indent_seg in elements[0].segments[::-1]:
+                if indent_seg.is_type("whitespace"):
+                    break
+            # Handle edge case of no whitespace, but with newline.
+            if not indent_seg.is_type("whitespace"):
+                indent_seg = None
 
     if not indent_seg:
         return ""
@@ -667,11 +675,31 @@ def _lint_line_starting_indent(
     )
 
     # Initial point gets special handling if it has no newlines.
-    if initial_point_idx == 0 and not indent_points[0].is_line_break:
+    if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
+        init_seg = elements[indent_points[0].idx].segments[0]
+        if init_seg.is_type("placeholder"):
+            init_seg = cast(TemplateSegment, init_seg)
+            # If it's a placeholder initial indent, then modify the placeholder
+            # to remove the indent from it.
+            src_fix = SourceFix(
+                "",
+                source_slice=slice(0, len(current_indent) + 1),
+                templated_slice=slice(0, 0),
+            )
+            fixes = [
+                LintFix.replace(
+                    init_seg,
+                    [init_seg.edit(source_fixes=[src_fix], source_str="")],
+                )
+            ]
+        else:
+            # Otherwise it's just initial whitespace. Remove it.
+            fixes = [LintFix.delete(seg) for seg in initial_point.segments]
+
         new_results = [
             LintResult(
                 initial_point.segments[0],
-                [LintFix.delete(seg) for seg in initial_point.segments],
+                fixes,
                 description="First line should not be indented.",
                 source="reflow.indent.existing",
             )
