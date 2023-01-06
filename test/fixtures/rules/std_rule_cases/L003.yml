@@ -449,7 +449,7 @@ test_fail_consecutive_hangers_implicit:
         and f like 'f%'
   configs:
     indentation:
-      allow_implicit_indents: True
+      allow_implicit_indents: true
 
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
@@ -1382,7 +1382,7 @@ test_pass_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: True
+      allow_implicit_indents: true
 
 test_fail_deny_implicit_indent:
   # Test for ImplicitIndent.
@@ -1400,7 +1400,7 @@ test_fail_deny_implicit_indent:
         AND b
   configs:
     indentation:
-      allow_implicit_indents: False
+      allow_implicit_indents: false
 
 test_pass_templated_newlines:
   # NOTE: The macro has many newlines in it,
@@ -1531,4 +1531,3 @@ test_fail_hard_templated_indents:
     {%- if true -%}
         SELECT * FROM {{ "t1" }}
     {%- endif %}
-
