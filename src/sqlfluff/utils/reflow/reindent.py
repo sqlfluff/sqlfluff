@@ -631,27 +631,43 @@ def _lint_line_starting_indent(
     """
     indent_points = indent_line.indent_points
     # Set up the default anchor
-    anchor = {"before": elements[indent_points[0].idx + 1].segments[0]}
+    initial_point_idx = indent_points[0].idx
+    anchor = {"before": elements[initial_point_idx + 1].segments[0]}
     # Find initial indent, and deduce appropriate string indent.
     current_indent = _deduce_line_current_indent(
         elements, indent_points[-1].last_line_break_idx
     )
     desired_indent_units = indent_line.desired_indent_units(forced_indents)
     desired_starting_indent = desired_indent_units * single_indent
-    initial_point = cast(ReflowPoint, elements[indent_points[0].idx])
+    initial_point = cast(ReflowPoint, elements[initial_point_idx])
 
     if current_indent == desired_starting_indent:
         return []
 
+    # Edge case: Multiline comments. If the previous line was a multiline
+    # comment and this line starts with a multiline comment, then we should
+    # only lint the indent if it's _too small_. Otherwise we risk destroying
+    # indentation which the logic here is not smart enough to handle.
+    if (
+        initial_point_idx > 0
+        and initial_point_idx < len(elements) - 1
+        and "block_comment" in elements[initial_point_idx - 1].class_types
+        and "block_comment" in elements[initial_point_idx + 1].class_types
+    ):
+        reflow_logger.debug("    Indent inside block comment.")
+        if len(current_indent) > len(desired_starting_indent):
+            reflow_logger.debug("    Indent is bigger than required. OK.")
+            return []
+
     reflow_logger.debug(
         "    Correcting indent @ line %s. Existing indent: %r -> %r",
-        elements[indent_points[0].idx + 1].segments[0].pos_marker.working_line_no,
+        elements[initial_point_idx + 1].segments[0].pos_marker.working_line_no,
         current_indent,
         desired_starting_indent,
     )
 
     # Initial point gets special handling if it has no newlines.
-    if indent_points[0].idx == 0 and not indent_points[0].is_line_break:
+    if initial_point_idx == 0 and not indent_points[0].is_line_break:
         new_results = [
             LintResult(
                 initial_point.segments[0],
@@ -669,7 +685,7 @@ def _lint_line_starting_indent(
             **anchor,  # type: ignore
         )
 
-    elements[indent_points[0].idx] = new_point
+    elements[initial_point_idx] = new_point
     return new_results
 
 
