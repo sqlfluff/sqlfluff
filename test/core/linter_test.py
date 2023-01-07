@@ -747,6 +747,7 @@ def test_linted_variant_ignore_masked_violations(
         ignore_mask=ignore_mask,
         templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
+        original_tree=None,  # type: ignore
     )
     result = lv.ignore_masked_violations(violations, ignore_mask)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]

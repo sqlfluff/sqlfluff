@@ -765,6 +765,7 @@ class Linter:
             ignore_mask=ignore_buff,
             templated_file=parsed.templated_file,
             encoding=encoding,
+            original_tree=parsed.tree,
         )
 
         # Safety flag for unset dialects

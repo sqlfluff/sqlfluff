@@ -17,6 +17,7 @@ from typing_extensions import Literal
 
 from sqlfluff.core.errors import (
     CheckTuple,
+    SQLBaseError,
 )
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -115,8 +116,13 @@ class LintedDir:
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
-            if file.num_violations(fixable=True, **kwargs) > 0:
-                buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
+            violations_to_fix: List[SQLBaseError] = file.get_violations(
+                fixable=True, **kwargs
+            )
+            if violations_to_fix:
+                buffer[file.path] = file.persist_tree(
+                    violations_to_fix, suffix=fixed_file_suffix
+                )
                 result = buffer[file.path]
             else:  # pragma: no cover TODO?
                 buffer[file.path] = True

@@ -51,10 +51,13 @@ class LintedVariant(NamedTuple):
     path: str
     violations: List[SQLBaseError]
     time_dict: Dict[str, float]
+    # Parse tree after any fixes have been applied
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
     encoding: str
+    # Original parse tree (before fixes)
+    original_tree: Optional[BaseSegment]
 
     @staticmethod
     def deduplicate_in_source_space(
@@ -87,7 +90,7 @@ class LintedVariant(NamedTuple):
         filter_ignore: bool = True,
         filter_warning: bool = True,
         fixable: Optional[bool] = None,
-    ) -> List:
+    ) -> List[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -234,11 +237,11 @@ class LintedVariant(NamedTuple):
             "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
         )
 
-    def generate_and_log_source_patches(self) -> List[FixPatch]:
+    def generate_and_log_source_patches(self, tree) -> List[FixPatch]:
         """Generate source patches and log them."""
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        assert self.tree
-        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
+        assert tree
+        linter_logger.debug("Fixed Tree: %r", tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.
         # NB: It has gaps and repeats in the source space.
@@ -259,7 +262,7 @@ class LintedVariant(NamedTuple):
         # and deduplicate them so that the resultant list is in the
         # the right order for the source file without any duplicates.
         filtered_source_patches = self._generate_source_patches(
-            self.tree, self.templated_file
+            tree, self.templated_file
         )
         linter_logger.debug("Filtered source patches:")
         for idx, patch in enumerate(filtered_source_patches):
@@ -424,7 +427,7 @@ class LintedFile:
                     fixable=fixable,
                 )
                 for violation in violations:
-                    if violation in result:
+                    if violation in result or not isinstance(violation, SQLLintError):
                         continue
                     # Get the source slices touched by the violation.
                     violation_source_slices: Set[Tuple[int, int]] = set()
@@ -527,14 +530,48 @@ class LintedFile:
                 timings[k] = timings.get(k, 0) + v
         return timings
 
-    def fix_string(self) -> Tuple[str, bool]:
+    def fix_string(
+        self, violations: Optional[List[SQLBaseError]] = None
+    ) -> Tuple[str, bool]:
         """Return the fixed string and a boolean indicating success."""
+        fixed_trees: List[BaseSegment]
+        if violations is None:
+            fixed_trees = [variant.tree for variant in self.variants if variant.tree]
+        else:
+            # Partition the violations to fix based on the variant they belong to.
+            violations_by_variant: Dict[int, List[SQLBaseError]] = defaultdict(list)
+            variant: LintedVariant
+            for violation in violations:
+                for idx, variant in enumerate(self.variants):
+                    if violation in variant.violations:
+                        violations_by_variant[idx].append(violation)
+                        break
+                else:
+                    raise ValueError(f"Violation {violation} not found in any variant.")
+            # Now start over from the original string for each variant and apply the
+            # fixes.
+            # Reference: Linter.lint_rendered()
+            fixed_trees = []
+            for idx, variant in enumerate(self.variants):
+                fixes_by_rule_code: Dict[str, List] = defaultdict(list)
+                for violation in violations_by_variant[idx]:
+                    if isinstance(violation, SQLLintError):
+                        fixes_by_rule_code[violation.rule_code()] += violation.fixes
+                tree = variant.original_tree
+                assert tree
+                for rule_code, fixes in fixes_by_rule_code.items():
+                    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                    tree, _, _ = tree.apply_fixes(None, rule_code, anchor_info)
+                fixed_trees.append(tree)
+
         filtered_source_patches: List[FixPatch] = []
         main_variant = self.variants[0]
         for idx, variant in enumerate(self.variants):
             linter_logger.debug(f"Variant #{idx}")
             # Do we need to deduplicate the patches using FixPatch.dedupe_tuple()?
-            filtered_source_patches += variant.generate_and_log_source_patches()
+            filtered_source_patches += variant.generate_and_log_source_patches(
+                fixed_trees[idx]
+            )
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
@@ -682,9 +719,9 @@ class LintedFile:
                 str_buff += raw_source_string[source_slice]
         return str_buff
 
-    def persist_tree(self, suffix: str = "") -> bool:
+    def persist_tree(self, violations: List[SQLBaseError], suffix: str = "") -> bool:
         """Persist changes to the given path."""
-        write_buff, success = self.fix_string()
+        write_buff, success = self.fix_string(violations)
 
         if success:
             fname = self.path

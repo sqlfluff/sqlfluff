@@ -1291,7 +1291,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def apply_fixes(
         self, dialect, rule_code: str, fixes: Dict
     ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
-        """Apply an iterable of fixes to this segment.
+        """Apply a dictionary of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
         If anything changes, this should return a new version of the segment
