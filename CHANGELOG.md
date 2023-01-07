@@ -10,11 +10,34 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.0a1] - 2022-12-28
+## [2.0.0a2] - 2023-01-07
 
 > NOTE: This is an alpha release for testing purposes. There are several new features
 > here, and breaking changes to configuration. We welcome testing feedback from the
 > community, but know that this release may feel less polished than usual.
+
+## Highlights
+
+This is the second alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a1
+to allow continued testing along with dialect improvements for Snowflake, Postgres and DB2.
+
+There will likely be more changes to rule classification before a full release of 2.0.0,
+so anticipate that configuration files may change slightly again in future alpha releases.
+
+## What’s Changed
+
+* Push indents to after comments [#4239](https://github.com/sqlfluff/sqlfluff/pull/4239) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Templated fix improvements and indentation [#4245](https://github.com/sqlfluff/sqlfluff/pull/4245) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix block comment indent fixes #4224 [#4240](https://github.com/sqlfluff/sqlfluff/pull/4240) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix for #4222 [#4236](https://github.com/sqlfluff/sqlfluff/pull/4236) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Allow multiple unpivot [#4242](https://github.com/sqlfluff/sqlfluff/pull/4242) [@greg-finley](https://github.com/greg-finley)
+* postgres: add row-level locks to SELECT statements [#4209](https://github.com/sqlfluff/sqlfluff/pull/4209) [@Yiwen-Gao](https://github.com/Yiwen-Gao)
+* Add more parsing logic for db2 [#4206](https://github.com/sqlfluff/sqlfluff/pull/4206) [@NelsonTorres](https://github.com/NelsonTorres)
+* Include the filename in critical exceptions [#4225](https://github.com/sqlfluff/sqlfluff/pull/4225) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update Readme Badges [#4219](https://github.com/sqlfluff/sqlfluff/pull/4219) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* diff-quality: Handle the case where there are no files to check [#4220](https://github.com/sqlfluff/sqlfluff/pull/4220) [@barrywhart](https://github.com/barrywhart)
+
+## [2.0.0a1] - 2022-12-28
 
 ## Highlights
 
@@ -30,9 +53,6 @@ dropping support for dbt versions before 1.0.0. This leverages functionality fro
 [dbt-osmosis](https://github.com/z3z1ma/dbt-osmosis) to reduce the amount of
 functionality supported directly by SQLFluff, and performance during testing of the new
 version has been reported as significantly faster.
-
-There will likely be more changes to rule classification before a full release of 2.0.0,
-so anticipate that configuration files may change slightly again in future alpha releases.
 
 ## What’s Changed
 
