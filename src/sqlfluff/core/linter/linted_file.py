@@ -393,8 +393,8 @@ class LintedFile:
         # In order to be included, a violation must meet one of the following
         # criteria.
         # - Case 1: It appears in _all_ variants
-        # - Case 2: It appears in a secondary variant and is contained in "source only"
-        #   slices of the primary variant.
+        # - Case 2: It appears in one variant and is "source only" in the other
+        #   variant. (For now, we assume there are at most 2 variants.)
 
         # Case 1 bookkeeping
         violations_dict = defaultdict(set)
@@ -414,32 +414,37 @@ class LintedFile:
         ]
 
         # Case 2 bookkeeping
-        for variant in self.variants[1:]:  # Skip variant 0
-            violations = variant.get_violations(
-                rules=rules,
-                types=types,
-                filter_ignore=filter_ignore,
-                filter_warning=filter_warning,
-                fixable=fixable,
-            )
-            for idx, violation in enumerate(violations):
-                if violation in result:
-                    continue
-                # Get the source slices touched by the violation.
-                violation_source_slices: Set[Tuple[int, int]] = set()
-                if violation.fixes:
-                    for fix in violation.fixes:
-                        temp_slice = fix.anchor.pos_marker.source_slice
+        if len(self.variants) == 2:
+            for idx, variant in enumerate(self.variants):
+                violations = variant.get_violations(
+                    rules=rules,
+                    types=types,
+                    filter_ignore=filter_ignore,
+                    filter_warning=filter_warning,
+                    fixable=fixable,
+                )
+                for violation in violations:
+                    if violation in result:
+                        continue
+                    # Get the source slices touched by the violation.
+                    violation_source_slices: Set[Tuple[int, int]] = set()
+                    if violation.fixes:
+                        for fix in violation.fixes:
+                            temp_slice = fix.anchor.pos_marker.source_slice
+                            violation_source_slices.add(
+                                (temp_slice.start, temp_slice.stop)
+                            )
+                    else:
+                        temp_slice = violation.segment.pos_marker.source_slice
                         violation_source_slices.add((temp_slice.start, temp_slice.stop))
-                else:
-                    temp_slice = violation.segment.pos_marker.source_slice
-                    violation_source_slices.add((temp_slice.start, temp_slice.stop))
-                # Check if any of these slices appear in *templated* slices in the
-                # primary variant. If so, don't include the violation.
-                if self._include_violation(
-                    violation_source_slices, self.variants[0].templated_file.sliced_file
-                ):
-                    result.append(violation)
+                    # Check if any of these slices appear in *templated* slices in the
+                    # other variant. If so, don't include the violation.
+                    other_variant_idx = 1 - idx
+                    if self._include_violation(
+                        violation_source_slices,
+                        self.variants[other_variant_idx].templated_file.sliced_file,
+                    ):
+                        result.append(violation)
         return result
 
     @staticmethod
