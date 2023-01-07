@@ -76,9 +76,8 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         (
             "L016",
             "block_comment_errors.sql",
-            # Two errors on line one, because we call out the missing
-            # indent *and* the long line as two issues.
-            [(1, 7), (1, 8), (2, 5), (4, 5)],
+            # Errors should flag on the first element of the line.
+            [(1, 1), (2, 5), (4, 5)],
         ),
         ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references

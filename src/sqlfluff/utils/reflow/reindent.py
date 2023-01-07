@@ -463,15 +463,23 @@ def _crawl_indent_points(
     happens. The values returned here have a large impact on
     exactly how indentation is treated.
 
+    NOTE: If a line ends with a comment, indent impulses are pushed
+    to the point _after_ the comment rather than before to aid with
+    indentation. This saves searching for them later.
+
     TODO: Once this function *works*, there's definitely headroom
     for simplification and optimisation. We should do that.
     """
     last_line_break_idx = None
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
+    cached_indent_stats: Optional[IndentStats] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_stats = elem.get_indent_impulse(allow_implicit_indents)
+            indent_stats = cached_indent_stats or elem.get_indent_impulse(
+                allow_implicit_indents
+            )
+            cached_indent_stats = None
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
@@ -496,6 +504,27 @@ def _crawl_indent_points(
                 or idx == 0
                 or elements[idx + 1].segments[0].is_type("end_of_file")
             ):
+                # If the next block contains comments, then don't yield the
+                # impulses here. Yield them afterwards. Instead generate a
+                # point here with no balance change instead. It's a point
+                # we might later add a line break - but not very interesting
+                # otherwise.
+                if "comment" in elements[idx + 1].class_types:
+                    cached_indent_stats = indent_stats
+                    yield _IndentPoint(
+                        idx,
+                        0,
+                        0,
+                        indent_balance,
+                        last_line_break_idx,
+                        False,
+                        untaken_indents,
+                    )
+                    # Stop here and continue onward. Because we're treating
+                    # this point as though it has no impulse, we don't want
+                    # to update any balance values.
+                    continue
+
                 yield _IndentPoint(
                     idx,
                     indent_stats.impulse,
@@ -723,8 +752,18 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    if indent_line.closing_balance() <= starting_balance:
-        return [], []
+    # Work back through points until we're past any comments.
+    for ip in reversed(indent_line.indent_points):
+        # Check whether it closes the opening indent.
+        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
+            return [], []
+        # Is it preceded by comments?
+        if "comment" in elements[ip.idx - 1].class_types:
+            # It is, keep searching
+            continue
+        else:
+            # It's not, we don't close out an opened indent.
+            break
 
     indent_points = indent_line.indent_points
 
@@ -737,12 +776,6 @@ def _lint_line_untaken_positive_indents(
         closing_trough = (
             indent_points[-1].initial_indent_balance + indent_points[-1].indent_impulse
         )
-    # Edge case: if closing_balance > starting balance
-    # but closing_trough isn't, then we shouldn't insert
-    # a new line. That means we just dropped back down to
-    # close the untaken newline.
-    if closing_trough <= starting_balance:
-        return [], []
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -817,16 +850,11 @@ def _lint_line_untaken_negative_indents(
             # Yep, untaken.
             continue
 
-        # Edge Case: Comments. For now we don't introduce line breaks
-        # before comments, largely because a trailing comment line is
-        # probably referring to that line (and may contain noqa elements).
-        if elements[ip.idx + 1 :] and "comment" in elements[ip.idx + 1].class_types:
-            reflow_logger.debug(
-                "    Detected missing -ve line break @ line %s, before "
-                "comment. Ignoring...",
-                elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
-            )
-            continue
+        # Edge Case: Comments. Since introducing the code to push indent effects
+        # to the point _after_ comments, we no longer need to detect an edge case
+        # for them here. If we change that logic again in the future, so that
+        # indent values are allowed before comments - that code should be
+        # reintroduced here.
 
         # Edge Case: Semicolons. For now, semicolon placement is a little
         # more complicated than what we do here. For now we don't (by

@@ -1531,3 +1531,42 @@ test_fail_hard_templated_indents:
     {%- if true -%}
         SELECT * FROM {{ "t1" }}
     {%- endif %}
+
+test_fail_fix_consistency_around_comments:
+  # Check that comments don't make fixes inconsistent.
+  # https://github.com/sqlfluff/sqlfluff/issues/4223
+  fail_str: |
+    select
+        case
+            when a
+            then b
+        end as foo,
+        case
+            when a -- bar
+            then b
+        end as bar
+    from c
+  fix_str: |
+    select
+        case
+            when a
+                then b
+        end as foo,
+        case
+            when a -- bar
+                then b
+        end as bar
+    from c
+
+test_fail_coverage_indent_trough:
+  # This test primarily tests the handling of closing trough indents
+  fail_str: |
+    WITH bar as (SELECT 1
+        FROM foo)
+    SELECT a FROM bar
+  fix_str: |
+    WITH bar as (
+        SELECT 1
+        FROM foo
+    )
+    SELECT a FROM bar
