@@ -39,15 +39,10 @@ DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
-if DBT_VERSION_TUPLE >= (1, 0):
-    from dbt.flags import PROFILES_DIR
-else:
-    from dbt.config.profile import PROFILES_DIR
-
 if DBT_VERSION_TUPLE >= (1, 3):
     COMPILED_SQL_ATTRIBUTE = "compiled_code"
     RAW_SQL_ATTRIBUTE = "raw_code"
-else:
+else:  # pragma: no cover
     COMPILED_SQL_ATTRIBUTE = "compiled_sql"
     RAW_SQL_ATTRIBUTE = "raw_sql"
 
@@ -85,7 +80,7 @@ class DbtTemplater(JinjaTemplater):
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
     @property
-    def dbt_version(self):
+    def dbt_version(self):  # pragma: no cover
         """Gets the dbt version."""
         return DBT_VERSION_STRING
 
@@ -97,23 +92,22 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        if self.dbt_version_tuple >= (1, 0):
-            # Here, we read flags.PROFILE_DIR directly, prior to calling
-            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-            # to a lowercase version of the value, and the profile wouldn't be
-            # found if the directory name contained uppercase letters. This fix
-            # was suggested and described here:
-            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-            user_config = read_user_config(flags.PROFILES_DIR)
-            flags.set_from_args(
-                DbtConfigArgs(
-                    project_dir=self.project_dir,
-                    profiles_dir=self.profiles_dir,
-                    profile=self._get_profile(),
-                    vars=self._get_cli_vars(),
-                ),
-                user_config,
-            )
+        # Here, we read flags.PROFILE_DIR directly, prior to calling
+        # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+        # to a lowercase version of the value, and the profile wouldn't be
+        # found if the directory name contained uppercase letters. This fix
+        # was suggested and described here:
+        # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+        user_config = read_user_config(flags.PROFILES_DIR)
+        flags.set_from_args(
+            DbtConfigArgs(
+                project_dir=self.project_dir,
+                profiles_dir=self.profiles_dir,
+                profile=self._get_profile(),
+                vars=self._get_cli_vars(),
+            ),
+            user_config,
+        )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -197,7 +191,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
-                or PROFILES_DIR
+                or flags.PROFILES_DIR
             )
         )
 
@@ -425,16 +419,11 @@ class DbtTemplater(JinjaTemplater):
             if os.path.abspath(macro.original_file_path) == abspath:
                 return "a macro"
 
-        if DBT_VERSION_TUPLE >= (1, 0):
-            # Scan disabled nodes.
-            for nodes in self.dbt_manifest.disabled.values():
-                for node in nodes:
-                    if os.path.abspath(node.original_file_path) == abspath:
-                        return "disabled"
-        else:
-            model_name = os.path.splitext(os.path.basename(fname))[0]
-            if self.dbt_manifest.find_disabled_by_name(name=model_name):
-                return "disabled"
+        # Scan disabled nodes.
+        for nodes in self.dbt_manifest.disabled.values():
+            for node in nodes:
+                if os.path.abspath(node.original_file_path) == abspath:
+                    return "disabled"
         return None
 
     def _unsafe_process(self, fname, in_str=None, config=None):
@@ -491,7 +480,7 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
-            except Exception as err:
+            except Exception as err:  # pragma: no cover
                 templater_logger.exception(
                     "Fatal dbt compilation error on %s. This occurs most often "
                     "during incorrect sorting of ephemeral models before linting. "
@@ -513,7 +502,7 @@ class DbtTemplater(JinjaTemplater):
                 # If injected SQL is present, it contains a better picture
                 # of what will actually hit the database (e.g. with tests).
                 # However it's not always present.
-                compiled_sql = node.injected_sql
+                compiled_sql = node.injected_sql  # pragma: no cover
             else:
                 compiled_sql = getattr(node, COMPILED_SQL_ATTRIBUTE)
 
@@ -608,20 +597,17 @@ class DbtTemplater(JinjaTemplater):
         # We have to register the connection in dbt >= 1.0.0 ourselves
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
-        if DBT_VERSION_TUPLE >= (1, 0):
-            adapter = self.adapters.get(self.project_dir)
-            if adapter is None:
-                adapter = get_adapter(self.dbt_config)
-                self.adapters[self.project_dir] = adapter
-                adapter.acquire_connection("master")
-                adapter.set_relations_cache(self.dbt_manifest)
+        adapter = self.adapters.get(self.project_dir)
+        if adapter is None:
+            adapter = get_adapter(self.dbt_config)
+            self.adapters[self.project_dir] = adapter
+            adapter.acquire_connection("master")
+            adapter.set_relations_cache(self.dbt_manifest)
 
-            yield
-            # :TRICKY: Once connected, we never disconnect. Making multiple
-            # connections during linting has proven to cause major performance
-            # issues.
-        else:
-            yield
+        yield
+        # :TRICKY: Once connected, we never disconnect. Making multiple
+        # connections during linting has proven to cause major performance
+        # issues.
 
 
 class SnapshotExtension(StandaloneTag):
