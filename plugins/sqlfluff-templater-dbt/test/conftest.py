@@ -3,15 +3,6 @@ import os
 
 import pytest
 
-from sqlfluff_templater_dbt import dbt_project_container
-
-
-@pytest.fixture(autouse=True)
-def dbt_project_container_reset():
-    """Drops all projects before each test, to ensure tests are independent."""
-    print("Dropping all projects")
-    dbt_project_container.drop_all_projects()
-
 
 @pytest.fixture(scope="session", autouse=True)
 def dbt_flags():

@@ -17,9 +17,7 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
-from dbt.exceptions import (
-    RuntimeException as DbtRuntimeException,
-)
+from sqlfluff_templater_dbt.templater import DbtFailedToConnectException, DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -317,6 +315,8 @@ def test__templater_dbt_handle_exceptions(
     project_dir, dbt_templater, fname, exception_msg  # noqa: F811
 ):
     """Test that exceptions during compilation are returned as violation."""
+    from dbt.adapters.factory import get_adapter
+
     src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/" + fname
     target_fpath = os.path.abspath(
         os.path.join(project_dir, "models/my_new_project/", fname)
@@ -332,17 +332,23 @@ def test__templater_dbt_handle_exceptions(
         )
     finally:
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
-@mock.patch("sqlfluff_templater_dbt.osmosis.DbtProjectContainer.add_project")
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 def test__templater_dbt_handle_database_connection_failure(
-    add_project, project_dir, dbt_templater  # noqa: F811
+    set_relations_cache, project_dir, dbt_templater  # noqa: F811
 ):
     """Test the result of a failed database connection."""
-    add_project.side_effect = DbtRuntimeException("dummy error")
+    from dbt.adapters.factory import get_adapter
+
+    # Clear the adapter cache to force this test to create a new connection.
+    DbtTemplater.adapters.clear()
+
+    set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 
     src_fpath = (
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
@@ -368,9 +374,15 @@ def test__templater_dbt_handle_database_connection_failure(
         )
     finally:
         os.rename(target_fpath, src_fpath)
+        get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert violations[0].desc().replace("\\", "/").startswith("dbt error")
+    assert (
+        violations[0]
+        .desc()
+        .replace("\\", "/")
+        .startswith("dbt tried to connect to the database")
+    )
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
