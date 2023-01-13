@@ -13,6 +13,7 @@ import tempfile
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import (
+    Any,
     Dict,
     Iterable,
     List,
@@ -530,74 +531,178 @@ class LintedFile:
                 timings[k] = timings.get(k, 0) + v
         return timings
 
-    def fix_string(
-        self, violations: Optional[List[SQLBaseError]] = None
-    ) -> Tuple[str, bool]:
-        """Return the fixed string and a boolean indicating success."""
-        fixed_trees: List[BaseSegment]
-        if violations is None:
-            fixed_trees = [variant.tree for variant in self.variants if variant.tree]
+    @staticmethod
+    def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
+        """Log hints for debugging during patch generation."""
+        # This next bit is ALL FOR LOGGING AND DEBUGGING
+        max_log_length = 10
+        if patch.templated_slice.start >= max_log_length:
+            pre_hint = templated_file.templated_str[
+                patch.templated_slice.start
+                - max_log_length : patch.templated_slice.start
+            ]
         else:
-            # Partition the violations to fix based on the variant they belong to.
-            violations_by_variant: Dict[int, List[SQLBaseError]] = defaultdict(list)
-            variant: LintedVariant
-            for violation in violations:
-                for idx, variant in enumerate(self.variants):
-                    if violation in variant.violations:
-                        violations_by_variant[idx].append(violation)
-                        break
-                else:
-                    raise ValueError(f"Violation {violation} not found in any variant.")
-            # Now start over from the original string for each variant and apply the
-            # fixes.
-            # Reference: Linter.lint_rendered()
-            fixed_trees = []
-            for idx, variant in enumerate(self.variants):
-                fixes_by_rule_code: Dict[str, List] = defaultdict(list)
-                for violation in violations_by_variant[idx]:
-                    if isinstance(violation, SQLLintError):
-                        fixes_by_rule_code[violation.rule_code()] += violation.fixes
-                tree = variant.original_tree
-                assert tree
-                for rule_code, fixes in fixes_by_rule_code.items():
-                    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
-                    tree, _, _ = tree.apply_fixes(None, rule_code, anchor_info)
-                fixed_trees.append(tree)
+            pre_hint = templated_file.templated_str[: patch.templated_slice.start]
+        if patch.templated_slice.stop + max_log_length < len(
+            templated_file.templated_str
+        ):
+            post_hint = templated_file.templated_str[
+                patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
+            ]
+        else:
+            post_hint = templated_file.templated_str[patch.templated_slice.stop :]
+        linter_logger.debug(
+            "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
+        )
 
-        filtered_source_patches: List[FixPatch] = []
-        main_variant = self.variants[0]
-        for idx, variant in enumerate(self.variants):
-            linter_logger.debug(f"Variant #{idx}")
-            # Do we need to deduplicate the patches using FixPatch.dedupe_tuple()?
-            filtered_source_patches += variant.generate_and_log_source_patches(
-                fixed_trees[idx]
-            )
+    def fix_string(self) -> Tuple[Any, bool]:
+        """Obtain the changes to a path as a string.
+        We use the source mapping features of TemplatedFile
+        to generate a list of "patches" which cover the non
+        templated parts of the file and refer back to the locations
+        in the original file.
+        NB: This is MUCH FASTER than the original approach
+        using difflib in pre 0.4.0.
+        There is an important distinction here between Slices and
+        Segments. A Slice is a portion of a file which is determined
+        by the templater based on which portions of the source file
+        are templated or not, and therefore before Lexing and so is
+        completely dialect agnostic. A Segment is determined by the
+        Lexer from portions of strings after templating.
+        """
+        linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
+        assert self.tree
+        linter_logger.debug("Fixed Tree: %r", self.tree.raw)
+
+        # The sliced file is contiguous in the TEMPLATED space.
+        # NB: It has gaps and repeats in the source space.
+        # It's also not the FIXED file either.
+        linter_logger.debug("### Templated File.")
+        for idx, file_slice in enumerate(self.templated_file.sliced_file):
+            t_str = self.templated_file.templated_str[file_slice.templated_slice]
+            s_str = self.templated_file.source_str[file_slice.source_slice]
+            if t_str == s_str:
+                linter_logger.debug(
+                    "    File slice: %s %r [invariant]", idx, file_slice
+                )
+            else:
+                linter_logger.debug("    File slice: %s %r", idx, file_slice)
+                linter_logger.debug("    \t\t\ttemplated: %r\tsource: %r", t_str, s_str)
+
+        original_source = self.templated_file.source_str
+
+        # Generate patches from the fixed tree. In the process we sort
+        # and deduplicate them so that the resultant list is in the
+        # the right order for the source file without any duplicates.
+        filtered_source_patches = self._generate_source_patches(
+            self.tree, self.templated_file
+        )
+        linter_logger.debug("Filtered source patches:")
+        for idx, patch in enumerate(filtered_source_patches):
+            linter_logger.debug("    %s: %s", idx, patch)
 
         # Any Template tags in the source file are off limits, unless
         # we're explicitly fixing the source file.
-        source_only_slices = main_variant.templated_file.source_only_slices()
+        source_only_slices = self.templated_file.source_only_slices()
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
         slice_buff = self._slice_source_file_using_patches(
-            filtered_source_patches,
-            source_only_slices,
-            main_variant.templated_file.source_str,
+            filtered_source_patches, source_only_slices, self.templated_file.source_str
         )
 
         linter_logger.debug("Final slice buffer: %s", slice_buff)
 
         # Iterate through the patches, building up the new string.
         fixed_source_string = self._build_up_fixed_source_string(
-            slice_buff, filtered_source_patches, main_variant.templated_file.source_str
+            slice_buff, filtered_source_patches, self.templated_file.source_str
         )
 
         # The success metric here is whether anything ACTUALLY changed.
-        return (
-            fixed_source_string,
-            fixed_source_string != main_variant.templated_file.source_str,
-        )
+        return fixed_source_string, fixed_source_string != original_source
+
+    @classmethod
+    def _generate_source_patches(
+        cls, tree: BaseSegment, templated_file: TemplatedFile
+    ) -> List[FixPatch]:
+        """Use the fixed tree to generate source patches.
+        Importantly here we deduplicate and sort the patches
+        from their position in the templated file into their
+        intended order in the source file.
+        """
+        # Iterate patches, filtering and translating as we go:
+        linter_logger.debug("### Beginning Patch Iteration.")
+        filtered_source_patches = []
+        dedupe_buffer = []
+        # We use enumerate so that we get an index for each patch. This is entirely
+        # so when debugging logs we can find a given patch again!
+        for idx, patch in enumerate(tree.iter_patches(templated_file=templated_file)):
+            linter_logger.debug("  %s Yielded patch: %s", idx, patch)
+            cls._log_hints(patch, templated_file)
+
+            # Check for duplicates
+            if patch.dedupe_tuple() in dedupe_buffer:
+                linter_logger.info(
+                    "      - Skipping. Source space Duplicate: %s",
+                    patch.dedupe_tuple(),
+                )
+                continue
+
+            # We now evaluate patches in the source-space for whether they overlap
+            # or disrupt any templated sections.
+            # The intent here is that unless explicitly stated, a fix should never
+            # disrupt a templated section.
+            # NOTE: We rely here on the patches being generated in order.
+            # TODO: Implement a mechanism for doing templated section fixes. Given
+            # these patches are currently generated from fixed segments, there will
+            # likely need to be an entirely different mechanism
+
+            # Get the affected raw slices.
+            local_raw_slices = templated_file.raw_slices_spanning_source_slice(
+                patch.source_slice
+            )
+            local_type_list = [slc.slice_type for slc in local_raw_slices]
+
+            # Deal with the easy cases of 1) New code at end 2) only literals
+            if not local_type_list or set(local_type_list) == {"literal"}:
+                linter_logger.info(
+                    "      * Keeping patch on new or literal-only section.",
+                )
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
+            # Handle the easy case of an explicit source fix
+            elif patch.patch_category == "source":
+                linter_logger.info(
+                    "      * Keeping explicit source fix patch.",
+                )
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
+            # Is it a zero length patch.
+            elif (
+                patch.source_slice.start == patch.source_slice.stop
+                and patch.source_slice.start == local_raw_slices[0].source_idx
+            ):
+                linter_logger.info(
+                    "      * Keeping insertion patch on slice boundary.",
+                )
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
+            else:  # pragma: no cover
+                # We've got a situation where the ends of our patch need to be
+                # more carefully mapped. This used to happen with greedy template
+                # element matching, but should now never happen. In the event that
+                # it does, we'll warn but carry on.
+                linter_logger.warning(
+                    "Skipping edit patch on uncertain templated section [%s], "
+                    "Please report this warning on GitHub along with the query "
+                    "that produced it.",
+                    (patch.patch_category, patch.source_slice),
+                )
+                continue
+
+        # Sort the patches before building up the file.
+        return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
 
     @staticmethod
     def _slice_source_file_using_patches(
@@ -719,19 +824,17 @@ class LintedFile:
                 str_buff += raw_source_string[source_slice]
         return str_buff
 
-    def persist_tree(self, violations: List[SQLBaseError], suffix: str = "") -> bool:
+    def persist_tree(self, suffix: str = "") -> bool:
         """Persist changes to the given path."""
-        write_buff, success = self.fix_string(violations)
+        write_buff, success = self.fix_string()
 
         if success:
             fname = self.path
-            # If there is a suffix specified, then use it.
+            # If there is a suffix specified, then use it.s
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            self._safe_create_replace_file(
-                self.path, fname, write_buff, self.variants[0].encoding
-            )
+            self._safe_create_replace_file(self.path, fname, write_buff, self.variants[0].encoding)
         return success
 
     @staticmethod

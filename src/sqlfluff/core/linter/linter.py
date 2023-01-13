@@ -4,6 +4,7 @@ import fnmatch
 import os
 import time
 import logging
+from collections import defaultdict
 from typing import (
     Any,
     Iterable,
@@ -493,6 +494,7 @@ class Linter:
     def lint_fix_parsed(
         cls,
         tree: BaseSegment,
+        parsed_variants: List[ParsedString],
         config: FluffConfig,
         rule_set: List[BaseRule],
         fix: bool = False,
@@ -629,6 +631,35 @@ class Linter:
                             # and/or fewer fixes next time.)
                             cls._warn_unfixable(crawler.code)
                         else:
+                            # If "lint_unreached_code" is set, lint the
+                            # secondary variants to see if they generate the
+                            # same violations. We only apply fixes that appear
+                            # in all the variants.
+                            # templater_name = config.get_section("core")["templater"]
+                            # if config.get_section(
+                            #     (
+                            #         "templater",
+                            #         templater_name,
+                            #         "lint_unreached_code",
+                            #     )
+                            # ):
+                            #     # TODO: Is it safe to use the same 'crawler'
+                            #     # instance across variants?
+                            #     filtered_fixes = cls._filter_fixes_across_variants(
+                            #         parsed_variants,
+                            #         fixes,
+                            #         fname,
+                            #         crawler,
+                            #         config,
+                            #         ignore_buff,
+                            #     )
+                            #     if len(filtered_fixes) < len(fixes):
+                            #         # Recompute anchor_info since some fixes were removed.
+                            #         fixes = filtered_fixes
+                            #         anchor_info = BaseSegment.compute_anchor_edit_info(
+                            #             fixes
+                            #         )
+
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
                             last_fixes = fixes
@@ -704,6 +735,7 @@ class Linter:
     def lint_parsed(
         cls,
         parsed: ParsedString,
+        parsed_variants: List[ParsedString],
         rule_set: List[BaseRule],
         fix: bool = False,
         formatter: Any = None,
@@ -718,6 +750,7 @@ class Linter:
             linter_logger.info("LINTING (%s)", parsed.fname)
             tree, initial_linting_errors, ignore_buff = cls.lint_fix_parsed(
                 parsed.tree,
+                parsed_variants=parsed_variants,
                 config=parsed.config,
                 rule_set=rule_set,
                 fix=fix,
@@ -786,33 +819,38 @@ class Linter:
         formatter: Any = None,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
-        linted_file = None
+        parsed_variants = []
         for idx, parsed in enumerate(cls.parse_rendered_with_variants(rendered)):
-            if idx > 0:
+            if not idx:
+                parsed_variants.append(parsed)
+            else:
                 # After the first (main) variant, ignore any variants that
                 # have parse errors. These may be caused by the tweaked
                 # templated so should be invisible to the user.
                 parse_errors = [
                     v for v in parsed.violations if isinstance(v, SQLParseError)
                 ]
-                if parse_errors:
+                if not parse_errors:
+                    parsed_variants.append(parsed)
+                else:
                     linter_logger.warning(
                         "Skipping variant due to parse errors: %s", parse_errors
                     )
+                    parsed_variants.append(None)
                     continue
-            linted_variant = cls.lint_parsed(
-                parsed,
-                rule_set=rule_set,
-                fix=fix,
-                formatter=formatter,
-                encoding=rendered.encoding,
-            )
-            if not linted_file:
-                linted_file = LintedFile()
-            linted_file.add_variant(linted_variant)
+        assert len(parsed_variants) == len(rendered.templated_files)
+        linted_variant = cls.lint_parsed(
+            parsed_variants[0],
+            rule_set=rule_set,
+            parsed_variants=parsed_variants,
+            fix=fix,
+            formatter=formatter,
+            encoding=rendered.encoding,
+        )
+        linted_file = LintedFile()
+        linted_file.add_variant(linted_variant)
 
         # This is the main command line output from linting.
-        assert linted_file
         if formatter:
             formatter.dispatch_file_violations(
                 linted_file.path, linted_file, only_fixable=fix
@@ -1325,3 +1363,43 @@ class Linter:
                 config=config,
                 encoding=encoding,
             )
+
+    @classmethod
+    def _filter_fixes_across_variants(
+        cls, parsed_variants, fixes, fname, rule, config, ignore_buff
+    ):
+        """Filter fixes across variants.
+
+        Run the same rule sequentially against secondary variants. Keep a fix
+        only if every variant generates the same fix.
+
+        Parameters:
+        :param parse_variants: List of ParsedFile, one for each variant
+        :param fixes: List of fixes generated for the 0th variant
+        :param fname: Name of the file
+        :param rule: Rule object that generated 'fixes'
+        :param config: Config object
+        :param ignore_buff: List of ignored violations
+        """
+        # Count occurrences of each fix across the secondary variants.
+        fixes_count = defaultdict(int)
+        for variant_idx, parsed_variant in enumerate(parsed_variants):
+            if variant_idx:
+                _, _, variant_fixes, _ = rule.crawl(
+                    parsed_variant.tree,
+                    dialect=config.get("dialect_obj"),
+                    fix=True,
+                    templated_file=parsed_variant.templated_file,
+                    ignore_mask=ignore_buff,
+                    fname=fname,
+                    config=config,
+                )
+                for fix_idx, fix in enumerate(fixes):
+                    if any(fix.equivalent(variant_fix) for variant_fix in variant_fixes):
+                        fixes_count[fix_idx] += 1
+        # Keep only fixes that were found in all secondary variants.
+        filtered_fixes = []
+        for fix_idx, fix_count in fixes_count.items():
+            if fix_count == len(parsed_variants) - 1:
+                filtered_fixes.append(fixes[fix_idx])
+        return filtered_fixes

@@ -110,19 +110,13 @@ class LintedDir:
         self, formatter: Any = None, fixed_file_suffix: str = "", **kwargs
     ) -> Dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
-
         This also logs the output as we go using the formatter if present.
         """
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
-            violations_to_fix: List[SQLBaseError] = file.get_violations(
-                fixable=True, **kwargs
-            )
-            if violations_to_fix:
-                buffer[file.path] = file.persist_tree(
-                    violations_to_fix, suffix=fixed_file_suffix
-                )
+            if file.num_violations(fixable=True, **kwargs) > 0:
+                buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
                 result = buffer[file.path]
             else:  # pragma: no cover TODO?
                 buffer[file.path] = True
