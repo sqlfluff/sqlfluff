@@ -1395,7 +1395,9 @@ class Linter:
                     config=config,
                 )
                 for fix_idx, fix in enumerate(fixes):
-                    if any(fix.equivalent(variant_fix) for variant_fix in variant_fixes):
+                    if any(
+                        fix.equivalent(variant_fix) for variant_fix in variant_fixes
+                    ):
                         fixes_count[fix_idx] += 1
         # Keep only fixes that were found in all secondary variants.
         filtered_fixes = []

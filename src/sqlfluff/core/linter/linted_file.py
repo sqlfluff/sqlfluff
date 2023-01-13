@@ -834,7 +834,9 @@ class LintedFile:
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            self._safe_create_replace_file(self.path, fname, write_buff, self.variants[0].encoding)
+            self._safe_create_replace_file(
+                self.path, fname, write_buff, self.variants[0].encoding
+            )
         return success
 
     @staticmethod

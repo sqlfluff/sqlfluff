@@ -283,7 +283,10 @@ class LintFix:
         if not self.anchor.class_types == other.anchor.class_types:
             return False
         # If types match, check uuids to see if they're the same original segment.
-        if self.anchor.pos_marker.source_position() != other.anchor.pos_marker.source_position():
+        if (
+            self.anchor.pos_marker.source_position()
+            != other.anchor.pos_marker.source_position()
+        ):
             return False
         return self._eq_helper(other)
 
