@@ -25,3 +25,6 @@ services:
       # developer machine *and* the "app" container in Docker. If you don't want
       # it available on the host machine, change this to simply "5432".
       - 5432:5432
+networks:
+  default:
+    name: "sqlfluff"

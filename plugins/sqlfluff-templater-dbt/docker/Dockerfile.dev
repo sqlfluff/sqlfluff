@@ -1,5 +1,10 @@
 FROM python:3.9-slim-bullseye
 
+RUN apt-get update && \
+    apt-get install -y procps && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Set separate working directory for easier debugging.
 WORKDIR /app
 

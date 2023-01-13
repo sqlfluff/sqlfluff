@@ -244,7 +244,13 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 vars=self._get_cli_vars(),
             )
-
+            # :TRICKY: Clear the project cache because it "remembers" the fact
+            # the project is not found, but we just added it.
+            self.dbt_project_container.get_project_by_root_dir.cache_clear()
+            assert (
+                self.dbt_project_container.get_project_by_root_dir(self.project_dir)
+                is osmosis_dbt_project
+            )
         # If in_str not provided, use path if file is present.
         fpath = Path(fname)
         if fpath.exists() and not in_str:
