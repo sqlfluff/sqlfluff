@@ -84,11 +84,6 @@ class DbtTemplater(JinjaTemplater):
         """Gets the dbt version."""
         return DBT_VERSION_STRING
 
-    @property
-    def dbt_version_tuple(self):
-        """Gets the dbt version as a tuple on (major, minor)."""
-        return DBT_VERSION_TUPLE
-
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
