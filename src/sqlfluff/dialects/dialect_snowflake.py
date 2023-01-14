@@ -4436,7 +4436,10 @@ class CopyIntoTableStatementSegment(BaseSegment):
             Sequence(
                 "PATTERN",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                )
             ),
             Sequence(
                 "FILE_FORMAT",
