@@ -108,6 +108,19 @@ snowflake_dialect.sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
+# Set the bare functions
+snowflake_dialect.sets("bare_functions").clear()
+snowflake_dialect.sets("bare_functions").update(
+    [
+        "CURRENT_DATE",
+        "CURRENT_TIME",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+    ]
+)
+
 # Add all Snowflake compression types
 snowflake_dialect.sets("compression_types").clear()
 snowflake_dialect.sets("compression_types").update(
