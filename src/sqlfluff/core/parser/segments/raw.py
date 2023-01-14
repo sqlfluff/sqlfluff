@@ -58,14 +58,12 @@ class RawSegment(BaseSegment):
         self._source_fixes = source_fixes
         # UUID for matching
         self.uuid = uuid or uuid4()
-        # self.representation = "<{}: ({}) {!r}>".format(
-        #     self.__class__.__name__, self.pos_marker, self.raw
-        # )
-
-    def __repr__(self):
-        return "<{}: ({}) {!r}>".format(
+        self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+
+    def __repr__(self):
+        return self.representation
 
     def __setattr__(self, key, value):
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
