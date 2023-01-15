@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06b564929ba88492d7ffef906cbb94b2c4bc6d4ab8b85168216445715d867c98
+_hash: 33362b518a68ba15d8346bcee14783b8dc1efcf5370199f667d53e4095821211
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -61,4 +61,166 @@ file:
     - keyword: STORED
     - keyword: AS
     - keyword: ORC
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: product
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: product_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: product_vendor_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: product_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: product_fk_1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: product_vendor_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: vendor
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: vendor_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: vendor
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: vendor_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+        comma: ','
+        table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: vendor_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+        - keyword: RELY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: product
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: product_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: product_vendor_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: product_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: product_fk_1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: product_vendor_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: vendor
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: vendor_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: vendor
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: vendor_id
+          data_type:
+            primitive_type:
+              keyword: INTEGER
+        comma: ','
+        table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: vendor_id
+            end_bracket: )
+        - keyword: DISABLE
+        - keyword: NOVALIDATE
+        - keyword: NORELY
+        end_bracket: )
+- statement_terminator: ;
