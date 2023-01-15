@@ -95,3 +95,7 @@ grant create account on account to role my_role;
 grant create share on account to role my_role;
 grant create network policy on account to role my_role;
 grant create data exchange listing on account to role my_role;
+
+GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE my_role;
+GRANT MANAGE ORGANIZATION SUPPORT CASES ON ACCOUNT TO ROLE my_role;
+GRANT MANAGE USER SUPPORT CASES ON ACCOUNT TO ROLE my_role;
