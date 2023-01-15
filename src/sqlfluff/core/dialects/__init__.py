@@ -24,7 +24,9 @@ _dialect_lookup = {
     "athena": ("dialect_athena", "athena_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
     "clickhouse": ("dialect_clickhouse", "clickhouse_dialect"),
+    "databricks": ("dialect_sparksql", "sparksql_dialect"),
     "db2": ("dialect_db2", "db2_dialect"),
+    "duckdb": ("dialect_duckdb", "duckdb_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "materialize": ("dialect_materialize", "materialize_dialect"),
@@ -34,11 +36,10 @@ _dialect_lookup = {
     "redshift": ("dialect_redshift", "redshift_dialect"),
     "snowflake": ("dialect_snowflake", "snowflake_dialect"),
     "soql": ("dialect_soql", "soql_dialect"),
+    "sparksql": ("dialect_sparksql", "sparksql_dialect"),
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
-    "sparksql": ("dialect_sparksql", "sparksql_dialect"),
-    "databricks": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {

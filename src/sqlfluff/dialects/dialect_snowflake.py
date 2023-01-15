@@ -2124,7 +2124,13 @@ class AccessStatementSegment(BaseSegment):
         Sequence("ATTACH", "POLICY"),
         Sequence("EXECUTE", "TASK"),
         Sequence("IMPORT", "SHARE"),
-        Sequence("MANAGE", "GRANTS"),
+        Sequence(
+            "MANAGE",
+            OneOf(
+                "GRANTS",
+                Sequence(OneOf("ACCOUNT", "ORGANIZATION", "USER"), "SUPPORT", "CASES"),
+            ),
+        ),
         Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
         Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
     )
