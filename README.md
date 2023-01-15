@@ -27,6 +27,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [ClickHouse](https://clickhouse.com/)
 - [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
 - [Db2](https://www.ibm.com/analytics/db2)
+- [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [Materialize](https://materialize.com/)
