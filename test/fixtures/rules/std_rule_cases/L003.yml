@@ -1582,7 +1582,7 @@ test_pass_combined_comment_impulses:
             FROM table
             WHERE
                 NOT bool_column AND NOT bool_column
-                AND some_column >= 1
+                AND some_column >= 1  -- This is a comment
         )
     ),
 
