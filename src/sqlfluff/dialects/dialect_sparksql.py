@@ -339,6 +339,19 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    ArithmeticBinaryOperatorGrammar=OneOf(
+        Ref("PlusSegment"),
+        Ref("MinusSegment"),
+        Ref("DivideSegment"),
+        Ref("MultiplySegment"),
+        Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
+        Ref("DivBinaryOperatorSegment")
+    ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),
@@ -659,6 +672,13 @@ sparksql_dialect.insert_lexer_matchers(
     ],
     before="like_operator",
 )
+
+
+class DivBinaryOperatorSegment(BaseSegment):
+    """DIV type binary_operator."""
+
+    type = "binary_operator"
+    match_grammar = Ref.keyword("DIV")
 
 
 class QualifyClauseSegment(BaseSegment):
