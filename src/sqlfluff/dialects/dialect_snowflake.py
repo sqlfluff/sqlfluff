@@ -2128,16 +2128,8 @@ class AccessStatementSegment(BaseSegment):
             "MANAGE",
             OneOf(
                 "GRANTS",
-                Sequence(
-                    OneOf(
-                        "ACCOUNT",
-                        "ORGANIZATION",
-                        "USER"
-                    ),
-                    "SUPPORT",
-                    "CASES"
-                )
-            )
+                Sequence(OneOf("ACCOUNT", "ORGANIZATION", "USER"), "SUPPORT", "CASES"),
+            ),
         ),
         Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
         Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
