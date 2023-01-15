@@ -34,6 +34,7 @@ test-reports
 # Ignore root testing sql & python files
 /test*.sql
 /test*.py
+/test*.txt
 /.hypothesis/
 
 # Ignore dbt outputs from testing
