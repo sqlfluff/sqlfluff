@@ -203,6 +203,28 @@ class IndentStats:
     # Defaults to an empty tuple if unset.
     implicit_indents: Tuple[int, ...] = ()
 
+    @classmethod
+    def from_combination(cls, first: Optional["IndentStats"], second: "IndentStats"):
+        """Create IndentStats from two consecutive IndentStats.
+
+        This is mostly used for combining the effects of indent and dedent
+        tokens either side of a comment.
+
+        NOTE: The *first* is considered optional, because if we're
+        calling this function, we're assuming that there's always
+        a second.
+        """
+        # First check for the trivial case that we only have one.
+        if not first:
+            return second
+
+        # Otherwise, combine the two into one.
+        return cls(
+            first.impulse + second.impulse,
+            min(first.trough, first.impulse + second.trough),
+            second.implicit_indents,
+        )
+
 
 @dataclass(frozen=True)
 class ReflowPoint(ReflowElement):
