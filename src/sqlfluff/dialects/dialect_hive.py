@@ -338,6 +338,40 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    type = "table_constraint"
+
+    match_grammar: Matchable = Sequence(
+        Sequence("CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Sequence(
+                    "DISABLE",
+                    "NOVALIDATE",
+                    OneOf("RELY", "NORELY", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("ForeignKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
+                Sequence("DISABLE", "NOVALIDATE", optional=True),
+            ),
+        ),
+    )
+
+
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """Modified from ANSI to allow for `LATERAL VIEW` clause."""
 
