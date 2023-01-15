@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3794c727e6ea51d7748a9aef8ef801977031285882a50454ca7145a7746b11d3
+_hash: 943412daaab1e8723cee6db804cacb1c90e825ce86e3044dc32505f0ec78b5b6
 file:
 - statement:
     create_function_statement:
@@ -143,4 +143,186 @@ file:
     - keyword: SQL
     - keyword: AS
     - udf_body: "$$\n    SELECT 1, 2\n    UNION ALL\n    SELECT 3, 4\n  $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: my_decrement_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: numeric
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '9'
+            - comma: ','
+            - expression:
+                numeric_literal: '0'
+            - end_bracket: )
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: numeric
+    - keyword: language
+    - keyword: java
+    - keyword: imports
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@~/my_decrement_udf_package_dir/my_decrement_udf_jar.jar'"
+        end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_decrement_udf_package.my_decrement_udf_class.my_decrement_udf_method'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: echo_varchar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: varchar
+    - keyword: language
+    - keyword: java
+    - keyword: called
+    - keyword: 'on'
+    - keyword: 'null'
+    - keyword: input
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestFunc.echoVarchar'"
+    - keyword: target_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'@~/testfunc.jar'"
+    - keyword: as
+    - udf_body: "'class TestFunc {\n  public static String echoVarchar(String x) {\n\
+        \    return x;\n  }\n}'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: py_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: packages
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas'"
+      - comma: ','
+      - quoted_literal: "'xgboost==1.5.0'"
+      - end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'udf'"
+    - keyword: as
+    - udf_body: "$$\nimport numpy as np\nimport pandas as pd\nimport xgboost as xgb\n\
+        def udf():\n    return [np.__version__, pd.__version__, xgb.__version__]\n\
+        $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: dream
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'sleepy.snore'"
+    - keyword: imports
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@my_stage/sleepy.py'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: addone
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'addone_py'"
+    - keyword: as
+    - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
 - statement_terminator: ;
