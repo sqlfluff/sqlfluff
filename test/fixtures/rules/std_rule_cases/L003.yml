@@ -1570,3 +1570,26 @@ test_fail_coverage_indent_trough:
         FROM foo
     )
     SELECT a FROM bar
+
+test_pass_combined_comment_impulses:
+  # This tests issue #4252
+  # https://github.com/sqlfluff/sqlfluff/issues/4252
+  pass_str: |
+    WITH cte AS (
+        SELECT *
+        FROM (
+            SELECT *
+            FROM table
+            WHERE
+                NOT bool_column AND NOT bool_column
+                AND some_column >= 1
+        )
+    ),
+
+    SELECT *
+    FROM cte
+    ;
+
+    SELECT *
+    FROM table3
+    ;
