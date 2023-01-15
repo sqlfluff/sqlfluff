@@ -344,9 +344,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     type = "table_constraint"
 
     match_grammar: Matchable = Sequence(
-        Sequence(
-            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
-        ),
+        Sequence("CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True),
         OneOf(
             Sequence(
                 "UNIQUE",
@@ -358,13 +356,9 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 Sequence(
                     "DISABLE",
                     "NOVALIDATE",
-                    OneOf(
-                        "RELY",
-                        "NORELY",
-                        optional=True
-                    ),
-                    optional=True
-                )
+                    OneOf("RELY", "NORELY", optional=True),
+                    optional=True,
+                ),
             ),
             Sequence(
                 Ref("ForeignKeyGrammar"),
@@ -372,11 +366,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 Ref(
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
-                Sequence(
-                    "DISABLE",
-                    "NOVALIDATE",
-                    optional=True
-                )
+                Sequence("DISABLE", "NOVALIDATE", optional=True),
             ),
         ),
     )
