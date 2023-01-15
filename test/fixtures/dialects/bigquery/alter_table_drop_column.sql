@@ -1,0 +1,3 @@
+ALTER TABLE mydataset.mytable
+  DROP COLUMN A,
+  DROP COLUMN IF EXISTS B;
