@@ -107,6 +107,16 @@ The dialect for `Db2`_.
 
 .. _`Db2`: https://www.ibm.com/analytics/db2
 
+.. _duck_dialect_ref:
+
+DuckDB
+------
+
+The dialect for `DuckDB`_.
+
+.. _`DuckDB`: https://duckdb.org/
+
+
 .. _exasol_dialect_ref:
 
 Exasol

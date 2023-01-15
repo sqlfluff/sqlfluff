@@ -42,3 +42,56 @@ CREATE FUNCTION IF NOT EXISTS simple_table_function ()
     UNION ALL
     SELECT 3, 4
   $$;
+
+create function my_decrement_udf(i numeric(9, 0))
+    returns numeric
+    language java
+    imports = ('@~/my_decrement_udf_package_dir/my_decrement_udf_jar.jar')
+    handler = 'my_decrement_udf_package.my_decrement_udf_class.my_decrement_udf_method'
+    ;
+
+create or replace function echo_varchar(x varchar)
+returns varchar
+language java
+called on null input
+handler='TestFunc.echoVarchar'
+target_path='@~/testfunc.jar'
+as
+'class TestFunc {
+  public static String echoVarchar(String x) {
+    return x;
+  }
+}';
+
+create or replace function py_udf()
+  returns variant
+  language python
+  runtime_version = '3.8'
+  packages = ('numpy','pandas','xgboost==1.5.0')
+  handler = 'udf'
+as $$
+import numpy as np
+import pandas as pd
+import xgboost as xgb
+def udf():
+    return [np.__version__, pd.__version__, xgb.__version__]
+$$;
+
+create or replace function dream(i int)
+  returns variant
+  language python
+  runtime_version = '3.8'
+  handler = 'sleepy.snore'
+  imports = ('@my_stage/sleepy.py')
+;
+
+create or replace function addone(i int)
+returns int
+language python
+runtime_version = '3.8'
+handler = 'addone_py'
+as
+$$
+def addone_py(i):
+  return i+1
+$$;
