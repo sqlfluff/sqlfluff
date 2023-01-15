@@ -476,8 +476,8 @@ def _crawl_indent_points(
     cached_indent_stats: Optional[IndentStats] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
-            indent_stats = cached_indent_stats or elem.get_indent_impulse(
-                allow_implicit_indents
+            indent_stats = IndentStats.from_combination(
+                cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
             )
             cached_indent_stats = None
 
