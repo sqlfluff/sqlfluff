@@ -2413,7 +2413,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref("DatatypeSegment"),
             Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
-        AnyNumberOf(
+        AnySetOf(
             Sequence("NOT", "NULL", optional=True),
             Sequence(
                 "LANGUAGE", OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA"), optional=True
