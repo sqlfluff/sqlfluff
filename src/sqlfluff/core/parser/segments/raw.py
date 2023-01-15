@@ -63,6 +63,8 @@ class RawSegment(BaseSegment):
         )
 
     def __repr__(self):
+        # This is calculated at __init__, because all elements are immutable
+        # and this was previously recalculating the pos marker, and became very expensive
         return self.representation
 
     def __setattr__(self, key, value):
