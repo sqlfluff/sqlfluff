@@ -37,12 +37,8 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
                     "EXCLUDE",
                     OneOf(
                         Ref("ColumnReferenceSegment"),
-                        Bracketed(
-                            Delimited(
-                                Ref("ColumnReferenceSegment")
-                            )
-                        )
-                    )
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
                 ),
                 Sequence(
                     "REPLACE",
@@ -53,9 +49,9 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
                         )
-                    )
-                )
-            )
+                    ),
+                ),
+            ),
         ),
         Sequence(
             Ref("BaseExpressionElementGrammar"),
