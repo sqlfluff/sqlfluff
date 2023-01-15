@@ -350,7 +350,7 @@ sparksql_dialect.replace(
         Ref("BitwiseXorSegment"),
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
-        Ref("DivBinaryOperatorSegment")
+        Ref("DivBinaryOperatorSegment"),
     ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
