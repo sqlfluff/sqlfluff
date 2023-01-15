@@ -18,6 +18,11 @@ from @my_int_stage
   file_format = (format_name = myformat)
   pattern='.*sales.*[.]csv';
 
+copy into mytable
+from @my_int_stage
+  file_format = (format_name = myformat)
+  pattern=$my_var;
+
 copy into mytable;
 
 copy into mytable
