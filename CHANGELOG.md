@@ -12,7 +12,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## [2.0.0a3] - 2023-01-16
 
+> NOTE: This is an alpha release for testing purposes. There are several new features
+> here, and breaking changes to configuration. We welcome testing feedback from the
+> community, but know that this release may feel less polished than usual.
+
 ## Highlights
+
+This is the third alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a2
+to allow continued testing. In particular, some of the changes to the dbt templater
+have been reversed due to several issues.
+
+There will likely be more changes to rule classification before a full release of 2.0.0,
+so anticipate that configuration files may change slightly again in future alpha releases.
 
 ## What’s Changed
 
@@ -33,55 +44,17 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * BigQuery: Add ALTER TABLE [#4272](https://github.com/sqlfluff/sqlfluff/pull/4272) [@yoichi](https://github.com/yoichi)
 * Snowflake: Update bare functions [#4276](https://github.com/sqlfluff/sqlfluff/pull/4276) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Improve Dockerfile to reduce image size [#4262](https://github.com/sqlfluff/sqlfluff/pull/4262) [@tdurieux](https://github.com/tdurieux)
-* Prep version 2.0.0a2 [#4247](https://github.com/sqlfluff/sqlfluff/pull/4247) [@github-actions](https://github.com/github-actions)
-* Push indents to after comments [#4239](https://github.com/sqlfluff/sqlfluff/pull/4239) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Templated fix improvements and indentation [#4245](https://github.com/sqlfluff/sqlfluff/pull/4245) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Fix block comment indent fixes #4224 [#4240](https://github.com/sqlfluff/sqlfluff/pull/4240) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Fix for #4222 [#4236](https://github.com/sqlfluff/sqlfluff/pull/4236) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Snowflake: Allow multiple unpivot [#4242](https://github.com/sqlfluff/sqlfluff/pull/4242) [@greg-finley](https://github.com/greg-finley)
-* postgres: add row-level locks to SELECT statements [#4209](https://github.com/sqlfluff/sqlfluff/pull/4209) [@Yiwen-Gao](https://github.com/Yiwen-Gao)
-* Add more parsing logic for db2 [#4206](https://github.com/sqlfluff/sqlfluff/pull/4206) [@NelsonTorres](https://github.com/NelsonTorres)
-* Include the filename in critical exceptions [#4225](https://github.com/sqlfluff/sqlfluff/pull/4225) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Update Readme Badges [#4219](https://github.com/sqlfluff/sqlfluff/pull/4219) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* diff-quality: Handle the case where there are no files to check [#4220](https://github.com/sqlfluff/sqlfluff/pull/4220) [@barrywhart](https://github.com/barrywhart)
-* Prep version 2.0.0a1 [#4203](https://github.com/sqlfluff/sqlfluff/pull/4203) [@github-actions](https://github.com/github-actions)
-* Fixed False Positive for L037 [#4198](https://github.com/sqlfluff/sqlfluff/pull/4198) [@WillAyd](https://github.com/WillAyd)
-* Fix #4215 [#4217](https://github.com/sqlfluff/sqlfluff/pull/4217) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* don't consider templated whitespace [#4213](https://github.com/sqlfluff/sqlfluff/pull/4213) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* show fatal errors regardless [#4214](https://github.com/sqlfluff/sqlfluff/pull/4214) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* don't pickle the templater [#4208](https://github.com/sqlfluff/sqlfluff/pull/4208) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* MySQL: Support column character set and collation [#4204](https://github.com/sqlfluff/sqlfluff/pull/4204) [@yoichi](https://github.com/yoichi)
-* Fix some issues with Docker Compose environment [#4201](https://github.com/sqlfluff/sqlfluff/pull/4201) [@barrywhart](https://github.com/barrywhart)
-* Implicit Indents [#4054](https://github.com/sqlfluff/sqlfluff/pull/4054) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Tweak Coveralls settings [#4199](https://github.com/sqlfluff/sqlfluff/pull/4199) [@barrywhart](https://github.com/barrywhart)
-* In addition to Codecov, also upload to Coveralls [#4197](https://github.com/sqlfluff/sqlfluff/pull/4197) [@barrywhart](https://github.com/barrywhart)
-* Fix: create table default cast returns unparsable section [#4192](https://github.com/sqlfluff/sqlfluff/pull/4192) [@NelsonTorres](https://github.com/NelsonTorres)
-* Fix JSON parsing issue with diff-quality plugin [#4190](https://github.com/sqlfluff/sqlfluff/pull/4190) [@barrywhart](https://github.com/barrywhart)
-* Codecov migration [#4195](https://github.com/sqlfluff/sqlfluff/pull/4195) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Stop adding trailing os.sep if ignore file is on the root of the file… [#4182](https://github.com/sqlfluff/sqlfluff/pull/4182) [@baa-ableton](https://github.com/baa-ableton)
-* Port dbt-osmosis templater changes to SQLFluff [#3976](https://github.com/sqlfluff/sqlfluff/pull/3976) [@barrywhart](https://github.com/barrywhart)
-* Reflow 4: Long Lines [#4067](https://github.com/sqlfluff/sqlfluff/pull/4067) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Fix comment bug on reindent [#4179](https://github.com/sqlfluff/sqlfluff/pull/4179) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Reflow 3: Reindent [#3942](https://github.com/sqlfluff/sqlfluff/pull/3942) [@alanmcruickshank](https://github.com/alanmcruickshank)
 
 ## New Contributors
 
-* [@github-actions](https://github.com/github-actions) made their first contribution in [#4203](https://github.com/sqlfluff/sqlfluff/pull/4203)
 * [@tdurieux](https://github.com/tdurieux) made their first contribution in [#4262](https://github.com/sqlfluff/sqlfluff/pull/4262)
 
 ## [2.0.0a2] - 2023-01-07
-
-> NOTE: This is an alpha release for testing purposes. There are several new features
-> here, and breaking changes to configuration. We welcome testing feedback from the
-> community, but know that this release may feel less polished than usual.
 
 ## Highlights
 
 This is the second alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a1
 to allow continued testing along with dialect improvements for Snowflake, Postgres and DB2.
-
-There will likely be more changes to rule classification before a full release of 2.0.0,
-so anticipate that configuration files may change slightly again in future alpha releases.
 
 ## What’s Changed
 
