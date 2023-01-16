@@ -655,7 +655,7 @@ class Lexer:
 
         self.last_resort_lexer = last_resort_lexer or RegexLexer(
             "<unlexable>",
-            r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
+            r"[^\t\n\ ]*",
             UnlexableSegment,
         )
 
@@ -687,7 +687,7 @@ class Lexer:
                 if not resort_res:  # pragma: no cover
                     # If we STILL can't match, then just panic out.
                     raise SQLLexError(
-                        f"Fatal. Unable to lex characters: {0!r}".format(
+                        "Fatal. Unable to lex characters: {0!r}".format(
                             res.forward_string[:10] + "..."
                             if len(res.forward_string) > 9
                             else res.forward_string
