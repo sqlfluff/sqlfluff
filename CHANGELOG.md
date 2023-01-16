@@ -19,8 +19,10 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## Highlights
 
 This is the third alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a2
-to allow continued testing. In particular, some of the changes to the dbt templater
-have been reversed due to several issues.
+to allow continued testing. In particular, some of the recent 2.0-related changes to the dbt templater
+have been reverted, primarily due to performance and other issues. If those issues can be resolved,
+the changes will be re-introduced. The long-term goal of this work is to ease maintenance of the
+templater by separating dbt integration concerns from SQLFluff concerns.
 
 There will likely be more changes to rule classification before a full release of 2.0.0,
 so anticipate that configuration files may change slightly again in future alpha releases.
