@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.0a2] - 2023-01-07
+## [2.0.0a3] - 2023-01-16
 
 > NOTE: This is an alpha release for testing purposes. There are several new features
 > here, and breaking changes to configuration. We welcome testing feedback from the
@@ -18,11 +18,47 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-This is the second alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a1
-to allow continued testing along with dialect improvements for Snowflake, Postgres and DB2.
+This is the third alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a2
+to allow continued testing. In particular, some of the recent 2.0.0-related changes to the
+dbt templater have been reverted, primarily due to performance and other issues. If
+those issues can be resolved, the changes will be re-introduced. The long-term goal of
+this work is to ease maintenance of the templater by separating dbt integration concerns
+from SQLFluff concerns.
 
 There will likely be more changes to rule classification before a full release of 2.0.0,
 so anticipate that configuration files may change slightly again in future alpha releases.
+
+## What’s Changed
+
+* Move ISSUE from Snowflake reserved keywords to unreserved ones [#4279](https://github.com/sqlfluff/sqlfluff/pull/4279) [@KaoutherElhamdi](https://github.com/KaoutherElhamdi)
+* Due to performance and other issues, revert the osmosis implementation of the templater for now [#4273](https://github.com/sqlfluff/sqlfluff/pull/4273) [@barrywhart](https://github.com/barrywhart)
+* Simplify lexing [#4289](https://github.com/sqlfluff/sqlfluff/pull/4289) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4255 (Fix exception on mixed indent description) [#4288](https://github.com/sqlfluff/sqlfluff/pull/4288) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4253 (incorrect trigger of L006 around placeholders) [#4287](https://github.com/sqlfluff/sqlfluff/pull/4287) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4249 (TSQL block comment indents) [#4286](https://github.com/sqlfluff/sqlfluff/pull/4286) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4252 (Resolve multiple sensible indents) [#4285](https://github.com/sqlfluff/sqlfluff/pull/4285) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Parser Performance: Cache segment string repr to reduce function calls [#4278](https://github.com/sqlfluff/sqlfluff/pull/4278) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: GRANT SUPPORT CASES [#4283](https://github.com/sqlfluff/sqlfluff/pull/4283) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Dialect: duckdb [#4284](https://github.com/sqlfluff/sqlfluff/pull/4284) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: Add variable pattern to CopyIntoTable [#4275](https://github.com/sqlfluff/sqlfluff/pull/4275) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Non-reserved keyword bugfix [#4277](https://github.com/sqlfluff/sqlfluff/pull/4277) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Hive: Add Table constraints DISABLE VALIDATE [#4281](https://github.com/sqlfluff/sqlfluff/pull/4281) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: Add Python and Java UDF support [#4280](https://github.com/sqlfluff/sqlfluff/pull/4280) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SparkSQL: Support DIV binary operator [#4282](https://github.com/sqlfluff/sqlfluff/pull/4282) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* BigQuery: Add ALTER TABLE [#4272](https://github.com/sqlfluff/sqlfluff/pull/4272) [@yoichi](https://github.com/yoichi)
+* Snowflake: Update bare functions [#4276](https://github.com/sqlfluff/sqlfluff/pull/4276) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Improve Dockerfile to reduce image size [#4262](https://github.com/sqlfluff/sqlfluff/pull/4262) [@tdurieux](https://github.com/tdurieux)
+
+## New Contributors
+
+* [@tdurieux](https://github.com/tdurieux) made their first contribution in [#4262](https://github.com/sqlfluff/sqlfluff/pull/4262)
+
+## [2.0.0a2] - 2023-01-07
+
+## Highlights
+
+This is the second alpha release for 2.0.0. It contains primarily bugfixes from 2.0.0a1
+to allow continued testing along with dialect improvements for Snowflake, Postgres and DB2.
 
 ## What’s Changed
 
