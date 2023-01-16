@@ -1570,3 +1570,42 @@ test_fail_coverage_indent_trough:
         FROM foo
     )
     SELECT a FROM bar
+
+test_pass_combined_comment_impulses:
+  # This tests issue #4252
+  # https://github.com/sqlfluff/sqlfluff/issues/4252
+  pass_str: |
+    WITH cte AS (
+        SELECT *
+        FROM (
+            SELECT *
+            FROM table
+            WHERE
+                NOT bool_column AND NOT bool_column
+                AND some_column >= 1  -- This is a comment
+        )
+    ),
+
+    SELECT *
+    FROM cte
+    ;
+
+    SELECT *
+    FROM table3
+    ;
+
+test_indented_comment_tsql:
+  # TSQL redefines the block_comment. This checks that is done correctly.
+  # https://github.com/sqlfluff/sqlfluff/issues/4249
+  pass_str: |
+    /*
+
+        Author:                     tester
+        Create date:                2021-03-16
+
+    */
+
+    SELECT 1 AS a
+  configs:
+    core:
+      dialect: tsql

@@ -108,6 +108,19 @@ snowflake_dialect.sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
+# Set the bare functions
+snowflake_dialect.sets("bare_functions").clear()
+snowflake_dialect.sets("bare_functions").update(
+    [
+        "CURRENT_DATE",
+        "CURRENT_TIME",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+    ]
+)
+
 # Add all Snowflake compression types
 snowflake_dialect.sets("compression_types").clear()
 snowflake_dialect.sets("compression_types").update(
@@ -2111,7 +2124,13 @@ class AccessStatementSegment(BaseSegment):
         Sequence("ATTACH", "POLICY"),
         Sequence("EXECUTE", "TASK"),
         Sequence("IMPORT", "SHARE"),
-        Sequence("MANAGE", "GRANTS"),
+        Sequence(
+            "MANAGE",
+            OneOf(
+                "GRANTS",
+                Sequence(OneOf("ACCOUNT", "ORGANIZATION", "USER"), "SUPPORT", "CASES"),
+            ),
+        ),
         Sequence("MONITOR", OneOf("EXECUTION", "USAGE")),
         Sequence("OVERRIDE", "SHARE", "RESTRICTIONS"),
     )
@@ -2400,22 +2419,60 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref("DatatypeSegment"),
             Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
-        Sequence("NOT", "NULL", optional=True),
-        OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
-        OneOf(
-            Sequence("CALLED", "ON", "NULL", "INPUT"),
-            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
-            "STRICT",
+        AnySetOf(
+            Sequence("NOT", "NULL", optional=True),
+            Sequence(
+                "LANGUAGE", OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA"), optional=True
+            ),
+            OneOf("VOLATILE", "IMMUTABLE", optional=True),
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+                optional=True,
+            ),
+            OneOf("VOLATILE", "IMMUTABLE", optional=True),
+            Sequence(
+                "RUNTIME_VERSION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Sequence(
+                "IMPORTS",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "PACKAGES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "HANDLER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "TARGET_PATH",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
             optional=True,
         ),
-        OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Ref("CommentEqualsClauseSegment", optional=True),
-        "AS",
-        OneOf(
-            Ref("DoubleQuotedUDFBody"),
-            Ref("SingleQuotedUDFBody"),
-            Ref("DollarQuotedUDFBody"),
+        Sequence(
+            "AS",
+            OneOf(
+                Ref("DoubleQuotedUDFBody"),
+                Ref("SingleQuotedUDFBody"),
+                Ref("DollarQuotedUDFBody"),
+            ),
+            optional=True,
         ),
     )
 
@@ -4436,7 +4493,10 @@ class CopyIntoTableStatementSegment(BaseSegment):
             Sequence(
                 "PATTERN",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
             ),
             Sequence(
                 "FILE_FORMAT",

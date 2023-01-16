@@ -179,6 +179,7 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
+            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
             "code", r"[0-9a-zA-Z_#@]+", CodeSegment

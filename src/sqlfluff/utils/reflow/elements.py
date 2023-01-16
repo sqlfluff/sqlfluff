@@ -166,9 +166,21 @@ class ReflowBlock(ReflowElement):
 
 
 def _indent_description(indent: str):
-    """Construct a human readable description of the indent."""
+    """Construct a human readable description of the indent.
+
+    NOTE: We operate assuming that the "correct" indent is
+    never a mix of tabs and spaces. That means if the provided
+    indent *does* contain both that this description is likely
+    a case where we are matching a pre-existing indent, and can
+    assume that the *description* of that indent is non-critical.
+    To handle that situation gracefully we just return "Mixed Indent".
+
+    See: https://github.com/sqlfluff/sqlfluff/issues/4255
+    """
     if indent == "":
         return "no indent"
+    elif " " in indent and "\t" in indent:
+        return "mixed indent"
     elif indent[0] == " ":
         assert all(c == " " for c in indent)
         return f"indent of {len(indent)} spaces"
@@ -202,6 +214,28 @@ class IndentStats:
     trough: int
     # Defaults to an empty tuple if unset.
     implicit_indents: Tuple[int, ...] = ()
+
+    @classmethod
+    def from_combination(cls, first: Optional["IndentStats"], second: "IndentStats"):
+        """Create IndentStats from two consecutive IndentStats.
+
+        This is mostly used for combining the effects of indent and dedent
+        tokens either side of a comment.
+
+        NOTE: The *first* is considered optional, because if we're
+        calling this function, we're assuming that there's always
+        a second.
+        """
+        # First check for the trivial case that we only have one.
+        if not first:
+            return second
+
+        # Otherwise, combine the two into one.
+        return cls(
+            first.impulse + second.impulse,
+            min(first.trough, first.impulse + second.trough),
+            second.implicit_indents,
+        )
 
 
 @dataclass(frozen=True)
