@@ -1593,3 +1593,19 @@ test_pass_combined_comment_impulses:
     SELECT *
     FROM table3
     ;
+
+test_indented_comment_tsql:
+  # TSQL redefines the block_comment. This checks that is done correctly.
+  # https://github.com/sqlfluff/sqlfluff/issues/4249
+  pass_str: |
+    /*
+
+        Author:                     tester
+        Create date:                2021-03-16
+
+    */
+
+    SELECT 1 AS a
+  configs:
+    core:
+      dialect: tsql
