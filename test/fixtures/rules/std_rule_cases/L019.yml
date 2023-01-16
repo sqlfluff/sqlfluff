@@ -328,3 +328,37 @@ trailing_comma_with_templated_column_2:
         {{ "c1
     " }}, c2 AS days_since
     FROM logs
+
+leading_comma_fix_mixed_indent:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/4255
+  # NOTE: Undisturbed mixed indent.
+  fail_str: |
+    select B
+    	  ,C
+    from A
+  fix_str: |
+    select B,
+    	  C
+    from A
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: trailing
+
+trailing_comma_fix_mixed_indent:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/4255
+  # NOTE: Undisturbed mixed indent.
+  fail_str: |
+    select B,
+    	  C
+    from A
+  fix_str: |
+    select B
+    	  , C
+    from A
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
