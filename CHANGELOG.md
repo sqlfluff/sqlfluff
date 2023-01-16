@@ -27,6 +27,7 @@ so anticipate that configuration files may change slightly again in future alpha
 
 ## What’s Changed
 
+* Move ISSUE from Snowflake reserved keywords to unreserved ones [#4279](https://github.com/sqlfluff/sqlfluff/pull/4279) [@KaoutherElhamdi](https://github.com/KaoutherElhamdi)
 * Due to performance and other issues, revert the osmosis implementation of the templater for now [#4273](https://github.com/sqlfluff/sqlfluff/pull/4273) [@barrywhart](https://github.com/barrywhart)
 * Simplify lexing [#4289](https://github.com/sqlfluff/sqlfluff/pull/4289) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix #4255 (Fix exception on mixed indent description) [#4288](https://github.com/sqlfluff/sqlfluff/pull/4288) [@alanmcruickshank](https://github.com/alanmcruickshank)
