@@ -4,6 +4,7 @@ import logging
 import os
 import os.path
 import configparser
+import sys
 from dataclasses import dataclass
 
 import pluggy
@@ -15,7 +16,10 @@ from sqlfluff.core.errors import SQLFluffUserError
 
 import appdirs
 
-import toml
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import toml as tomllib
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
@@ -347,7 +351,8 @@ class ConfigLoader:
         The return value is a list of tuples, were each tuple has two elements,
         the first is a tuple of paths, the second is the value at that path.
         """
-        config = toml.load(fpath)
+        with open(fpath, mode="r") as file:
+            config = tomllib.loads(file.read())
         tool = config.get("tool", {}).get("sqlfluff", {})
 
         return cls._walk_toml(tool)
