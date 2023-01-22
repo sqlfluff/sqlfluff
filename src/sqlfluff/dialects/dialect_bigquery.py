@@ -446,6 +446,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LeaveStatementSegment"),
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("AlterViewStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
@@ -1590,6 +1591,24 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """A `ALTER VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
     )
 
 
