@@ -374,7 +374,11 @@ class BaseGrammar(Matchable):
                 queued_matcher, queued_buff_pos, queued_option = match_queue.pop(0)
                 match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
                 if match:
-                    best_simple_match = (segments[:queued_buff_pos], match, queued_matcher)
+                    best_simple_match = (
+                        segments[:queued_buff_pos],
+                        match,
+                        queued_matcher,
+                    )
                     break
                 else:
                     # We've had something match in simple matching, but then later
