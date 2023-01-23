@@ -1052,6 +1052,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
         ],
+        remove=[
+            # handle CREATE SCHEMA in CreateDatabaseStatementSegment
+            Ref("CreateSchemaStatementSegment"),
+        ],
     )
 
 
@@ -2503,21 +2507,6 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
     )
 
 
-class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
-    """A `CREATE SCHEMA` statement.
-
-    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-database.html
-    """
-
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        "SCHEMA",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("SchemaReferenceSegment"),
-        AnyNumberOf(Ref("CreateOptionSegment")),
-    )
-
-
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -2526,7 +2515,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
 
     match_grammar: Matchable = Sequence(
         "CREATE",
-        "DATABASE",
+        OneOf("DATABASE", "SCHEMA"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         AnyNumberOf(Ref("CreateOptionSegment")),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa887ad7a059282d79375d5933cb81d0df5b12279bfd8e3686c096e881165333
+_hash: 5142ae149abf66ce1a11d844c6ede33d1eee99401cbeda5caa778e8cb0089167
 file:
 - statement:
     create_database_statement:
@@ -67,10 +67,10 @@ file:
       - quoted_literal: "'N'"
 - statement_terminator: ;
 - statement:
-    create_schema_statement:
+    create_database_statement:
     - keyword: CREATE
     - keyword: SCHEMA
-    - schema_reference:
+    - database_reference:
         naked_identifier: my_database
     - create_option_segment:
       - keyword: DEFAULT
