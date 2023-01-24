@@ -1050,6 +1050,11 @@ class StatementSegment(ansi.StatementSegment):
             Ref("FlushStatementSegment"),
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
+            Ref("AlterDatabaseStatementSegment"),
+        ],
+        remove=[
+            # handle CREATE SCHEMA in CreateDatabaseStatementSegment
+            Ref("CreateSchemaStatementSegment"),
         ],
     )
 
@@ -2499,4 +2504,102 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                 ),
             ),
         ]
+    )
+
+
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-database.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        AnyNumberOf(Ref("CreateOptionSegment")),
+    )
+
+
+class CreateOptionSegment(BaseSegment):
+    """A database characteristic.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-database.html
+    """
+
+    type = "create_option_segment"
+    match_grammar = Sequence(
+        Ref.keyword("DEFAULT", optional=True),
+        OneOf(
+            Sequence(
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "ENCRYPTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class AlterDatabaseStatementSegment(BaseSegment):
+    """A `ALTER DATABASE` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+    """
+
+    type = "alter_database_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("DatabaseReferenceSegment", optional=True),
+        AnyNumberOf(Ref("AlterOptionSegment")),
+    )
+
+
+class AlterOptionSegment(BaseSegment):
+    """A database characteristic.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+    """
+
+    type = "alter_option_segment"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "ENCRYPTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "READ",
+                "ONLY",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", Ref("NumericLiteralSegment")),
+            ),
+        ),
     )
