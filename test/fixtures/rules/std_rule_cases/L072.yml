@@ -1,0 +1,130 @@
+rule: L072
+
+test_pass_drop_ansi:
+  pass_str: DROP SCHEMA my_schema
+
+test_pass_drop_mysql:
+  pass_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_drop_hive:
+  pass_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: hive
+
+test_pass_drop_sparksql:
+  pass_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_drop_mysql:
+  fail_str: DROP SCHEMA my_database
+  fix_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_drop_hive:
+  fail_str: DROP SCHEMA my_database
+  fix_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: hive
+
+test_fail_drop_sparksql:
+  fail_str: DROP SCHEMA my_database
+  fix_str: DROP DATABASE my_database
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_create_ansi:
+  pass_str: CREATE SCHEMA my_schema
+
+test_pass_create_mysql:
+  pass_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_create_hive:
+  pass_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: hive
+
+test_pass_create_sparksql:
+  pass_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_create_mysql:
+  fail_str: CREATE SCHEMA my_database
+  fix_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_create_hive:
+  fail_str: CREATE SCHEMA my_database
+  fix_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: hive
+
+test_fail_create_sparksql:
+  fail_str: CREATE SCHEMA my_database
+  fix_str: CREATE DATABASE my_database
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_alter_postgres:
+  pass_str: ALTER SCHEMA my_schema RENAME TO new_schema
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_alter_mysql:
+  pass_str: ALTER DATABASE my_database READ ONLY 1
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_alter_hive:
+  pass_str: ALTER DATABASE my_database SET OWNER USER "user"
+  configs:
+    core:
+      dialect: hive
+
+test_pass_alter_sparksql:
+  pass_str: ALTER DATABASE my_database SET DBPROPERTIES ('Edited-by' = 'John')
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_alter_mysql:
+  fail_str: ALTER SCHEMA my_database READ ONLY 1
+  fix_str: ALTER DATABASE my_database READ ONLY 1
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_alter_hive:
+  fail_str: ALTER SCHEMA my_database SET OWNER USER "user"
+  fix_str: ALTER DATABASE my_database SET OWNER USER "user"
+  configs:
+    core:
+      dialect: hive
+
+test_fail_alter_sparksql:
+  fail_str: ALTER SCHEMA my_database SET DBPROPERTIES ('Edited-by' = 'John')
+  fix_str: ALTER DATABASE my_database SET DBPROPERTIES ('Edited-by' = 'John')
+  configs:
+    core:
+      dialect: sparksql
