@@ -1,0 +1,7 @@
+ALTER TABLE mydataset.mytable
+ALTER COLUMN IF EXISTS A SET OPTIONS (
+        description='some description here'
+),
+ALTER COLUMN IF EXISTS B DROP NOT NULL,
+ALTER COLUMN IF EXISTS C DROP DEFAULT
+;
