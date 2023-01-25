@@ -427,7 +427,7 @@ class DbtTemplater(JinjaTemplater):
             for node in nodes:
                 if os.path.abspath(node.original_file_path) == abspath:
                     return "disabled"
-        return None
+        return None  # pragma: no cover
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
