@@ -1535,7 +1535,21 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     OneOf(
                         Sequence(
                             "SET",
-                            Ref("OptionsSegment"),
+                            OneOf(
+                                Ref("OptionsSegment"),
+                                Sequence(
+                                    "DATA",
+                                    "TYPE",
+                                    Ref("DatatypeSegment"),
+                                ),
+                                Sequence(
+                                    "DEFAULT",
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("FunctionSegment"),
+                                    ),
+                                ),
+                            ),
                         ),
                         Sequence("DROP", OneOf("DEFAULT", Sequence("NOT", "NULL"))),
                     ),
