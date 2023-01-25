@@ -15,6 +15,7 @@ from jinja2 import (
 )
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound, UndefinedError
+from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -259,12 +260,15 @@ class JinjaTemplater(PythonTemplater):
             loader = SafeFileSystemLoader(macros_path or [])
         else:
             loader = FileSystemLoader(macros_path) if macros_path else None
+        extensions = ["jinja2.ext.do"]
+        if self._apply_dbt_builtins(config):
+            extensions.append(DBTTestExtension)
 
         return SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False,
-            extensions=["jinja2.ext.do"],
+            extensions=extensions,
             loader=loader,
         )
 
@@ -279,6 +283,13 @@ class JinjaTemplater(PythonTemplater):
                     return result
         return None
 
+    def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
+        if config:
+            return config.get_section(
+                (self.templater_selector, self.name, "apply_dbt_builtins")
+            )
+        return False
+
     def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # Load the context
@@ -290,10 +301,7 @@ class JinjaTemplater(PythonTemplater):
             # so they can be used by the macros too
             live_context.update(self._extract_libraries_from_config(config=config))
 
-            apply_dbt_builtins = config.get_section(
-                (self.templater_selector, self.name, "apply_dbt_builtins")
-            )
-            if apply_dbt_builtins:
+            if self._apply_dbt_builtins(config):
                 # This feels a bit wrong defining these here, they should probably
                 # be configurable somewhere sensible. But for now they're not.
                 # TODO: Come up with a better solution.
@@ -598,3 +606,16 @@ class DummyUndefined(jinja2.Undefined):
 
     def __iter__(self):
         return [self].__iter__()
+
+
+class DBTTestExtension(Extension):
+    tags = {"test"}
+
+    def parse(self, parser):
+        node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
+        test_name = parser.parse_assign_target(name_only=True).name
+
+        parser.parse_signature(node)
+        node.name = f"test_{test_name}"
+        node.body = parser.parse_statements(("name:endtest",), drop_needle=True)
+        return node
