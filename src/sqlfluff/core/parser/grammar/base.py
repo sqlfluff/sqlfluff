@@ -356,8 +356,6 @@ class BaseGrammar(Matchable):
                     for buff_pos in iter_indices(str_buff, simple_option):
                         match_queue.append((matcher, buff_pos, simple_option))
 
-            # Sort the match queue. First to process AT THE END.
-            # That means we pop from the end.
             match_queue = sorted(match_queue, key=lambda x: x[1])
 
             parse_match_logging(
@@ -373,10 +371,16 @@ class BaseGrammar(Matchable):
             while match_queue:
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                queued_matcher, queued_buff_pos, queued_option = match_queue.pop()
-                # Here we do the actual transform to the new segment.
+                queued_matcher, queued_buff_pos, queued_option = match_queue.pop(0)
                 match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
-                if not match:
+                if match:
+                    best_simple_match = (
+                        segments[:queued_buff_pos],
+                        match,
+                        queued_matcher,
+                    )
+                    break
+                else:
                     # We've had something match in simple matching, but then later
                     # excluded. Log but then move on to the next item on the list.
                     parse_match_logging(
@@ -387,9 +391,6 @@ class BaseGrammar(Matchable):
                         v_level=4,
                         _so=queued_option,
                     )
-                    continue
-                # Ok we have a match. Because we sorted the list, we'll take it!
-                best_simple_match = (segments[:queued_buff_pos], match, queued_matcher)
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
