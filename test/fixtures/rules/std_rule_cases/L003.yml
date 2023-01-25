@@ -1639,7 +1639,7 @@ test_comment_effect_indents_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
-  
+
 test_pass_join_comment_indents_1:
   # https://github.com/sqlfluff/sqlfluff/issues/4291
   pass_str: |
