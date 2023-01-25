@@ -752,18 +752,15 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    # Work back through points until we're past any comments.
-    for ip in reversed(indent_line.indent_points):
-        # Check whether it closes the opening indent.
-        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
-            return [], []
-        # Is it preceded by comments?
-        if "comment" in elements[ip.idx - 1].class_types:
-            # It is, keep searching
-            continue
-        else:
-            # It's not, we don't close out an opened indent.
-            break
+
+    last_ip = indent_line.indent_points[-1]
+    # Check whether it closes the opening indent.
+    if last_ip.initial_indent_balance + last_ip.indent_trough <= starting_balance:
+        return [], []
+    # It's not, we don't close out an opened indent.
+    # NOTE: Because trailing comments should always shift their any
+    # surrounding indentation effects to _after_ their position, we
+    # should just be able to evaluate them safely from the end of the line.
 
     indent_points = indent_line.indent_points
 
@@ -941,7 +938,7 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "  Evaluate Line #%s [source line #%s]. idx=%s:%s. FI %s",
+        "    Line #%s [source line #%s]. idx=%s:%s. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1376,14 +1373,14 @@ def lint_line_length(
             first_seg = line_buffer[1].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s <= %s. OK.",
                 line_no,
                 line_len,
                 line_length_limit,
             )
         else:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s > %s. PROBLEM.",
                 line_no,
                 line_len,

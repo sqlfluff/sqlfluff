@@ -1609,3 +1609,34 @@ test_indented_comment_tsql:
   configs:
     core:
       dialect: tsql
+
+test_comment_effect_indents_default:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE
+        TRUE -- comment
+        AND TRUE
+
+test_comment_effect_indents_implicit:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+        AND TRUE
+  configs:
+    indentation:
+      allow_implicit_indents: true
+  

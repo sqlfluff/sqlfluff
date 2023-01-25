@@ -574,6 +574,7 @@ class ReflowSequence:
             tab_space_size=self.reflow_config.tab_space_size,
         )
 
+        reflow_logger.info("# Evaluating indents.")
         elements, indent_results = lint_indent_points(
             self.elements,
             single_indent=single_indent,
@@ -581,6 +582,7 @@ class ReflowSequence:
             allow_implicit_indents=self.reflow_config.allow_implicit_indents,
         )
 
+        reflow_logger.info("# Evaluating line lengths.")
         elements, length_results = lint_line_length(
             elements,
             self.root_segment,
