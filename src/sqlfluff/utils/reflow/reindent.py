@@ -604,6 +604,12 @@ def _crawl_indent_points(
                 untaken_indents,
             )
 
+            # Update the last newline index if this is a newline.
+            # NOTE: We used the previous value in the construction of the
+            # _IndentPoint above and we only reset after that construction.
+            if has_newline:
+                last_line_break_idx = idx
+
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
             if "comment" in elements[idx + 1].class_types:
@@ -612,16 +618,14 @@ def _crawl_indent_points(
                 cached_point = indent_point
                 # We loop around so that we don't do the untaken indent calcs yet.
                 continue
-            # Is it a line break? AND not a templated one.
-            elif has_newline:
-                yield indent_point
-                last_line_break_idx = idx
-            # Is it otherwise meaningful as an indent point?
+            # Is it meaningful as an indent point?
+            # i.e. Is it a line break? AND not a templated one.
             # NOTE: a point at idx zero is meaningful because it's like an indent.
             # NOTE: Last edge case. If we haven't yielded yet, but the
             # next element is the end of the file. Yield.
             elif (
-                indent_stats.impulse
+                has_newline
+                or indent_stats.impulse
                 or indent_stats.trough
                 or idx == 0
                 or elements[idx + 1].segments[0].is_type("end_of_file")
