@@ -29,7 +29,6 @@ from sqlfluff.core.templaters.base import (
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
 
-
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
@@ -609,9 +608,12 @@ class DummyUndefined(jinja2.Undefined):
 
 
 class DBTTestExtension(Extension):
+    """Jinja extension to handle the dbt test tag."""
+
     tags = {"test"}
 
     def parse(self, parser):
+        """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name
 
