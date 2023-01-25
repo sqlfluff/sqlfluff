@@ -14,10 +14,18 @@ from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
-from dbt.exceptions import (
-    CompilationException as DbtCompilationException,
-    FailedToConnectException as DbtFailedToConnectException,
-)
+
+try:
+    from dbt.exceptions import (
+        CompilationException as DbtCompilationException,
+        FailedToConnectException as DbtFailedToConnectException,
+    )
+except ImportError:
+    from dbt.exceptions import (
+        CompilationError as DbtCompilationException,
+        FailedToConnectError as DbtFailedToConnectException,
+    )
+
 from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
@@ -419,7 +427,7 @@ class DbtTemplater(JinjaTemplater):
             for node in nodes:
                 if os.path.abspath(node.original_file_path) == abspath:
                     return "disabled"
-        return None
+        return None  # pragma: no cover
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
