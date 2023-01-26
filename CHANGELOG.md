@@ -26,7 +26,7 @@ This is the fourth alpha release for 2.0.0. It contains a fix for the renamed db
 * toml: only install `toml` dependency if < Python 3.11 (otherwise use builtin `tomllib`) [#4303](https://github.com/sqlfluff/sqlfluff/pull/4303) [@kevinmarsh](https://github.com/kevinmarsh)
 * Fix #4024 example plugin unit tests import [#4302](https://github.com/sqlfluff/sqlfluff/pull/4302) [@matthieucan](https://github.com/matthieucan)
 * Prep version 2.0.0a3 [#4290](https://github.com/sqlfluff/sqlfluff/pull/4290) [@github-actions](https://github.com/github-actions)
-* Move ISSUE from Snwoflake reserved keywords to unreserved ones [#4279](https://github.com/sqlfluff/sqlfluff/pull/4279) [@KaoutherElhamdi](https://github.com/KaoutherElhamdi)
+* Move ISSUE from Snowflake reserved keywords to unreserved ones [#4279](https://github.com/sqlfluff/sqlfluff/pull/4279) [@KaoutherElhamdi](https://github.com/KaoutherElhamdi)
 * Due to performance and other issues, revert the osmosis implementation of the templater for now [#4273](https://github.com/sqlfluff/sqlfluff/pull/4273) [@barrywhart](https://github.com/barrywhart)
 * Simplify lexing [#4289](https://github.com/sqlfluff/sqlfluff/pull/4289) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix #4255 (Fix exception on mixed indent description) [#4288](https://github.com/sqlfluff/sqlfluff/pull/4288) [@alanmcruickshank](https://github.com/alanmcruickshank)
