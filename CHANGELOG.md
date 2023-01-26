@@ -14,6 +14,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is the fourth alpha release for 2.0.0. It contains a fix for the renamed dbt exceptions in dbt version 1.4.0.
+
 ## What’s Changed
 
 * BigQuery: Alter table alter column [#4316](https://github.com/sqlfluff/sqlfluff/pull/4316) [@greg-finley](https://github.com/greg-finley)
