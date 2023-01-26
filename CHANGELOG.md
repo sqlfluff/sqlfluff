@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-This is the fourth alpha release for 2.0.0. It contains a fix for the renamed dbt exceptions in dbt version 1.4.0.
+This is the fourth alpha release for 2.0.0. It contains a fix for the renamed dbt exceptions in dbt version 1.4.0, a fix for a major performance issue with the 2.0 dbt templater, and improvements to parse performance of large SQL files.
 
 ## What’s Changed
 
