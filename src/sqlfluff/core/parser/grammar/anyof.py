@@ -9,7 +9,7 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
-from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.helpers import consume_non_code_segments
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -123,37 +123,6 @@ class AnyNumberOf(BaseGrammar):
 
         return available_options, simple_opts
 
-    def _match_once(
-        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
-        """Match the forward segments against the available elements once.
-
-        This serves as the main body of OneOf, but also a building block
-        for AnyNumberOf.
-        """
-        # For efficiency, we'll be pruning options if we can
-        # based on their simpleness. this provides a short cut
-        # to return earlier if we can.
-        # `segments` may already be nested so we need to break out
-        # the raw segments within it.
-        available_options, _ = self._prune_options(
-            segments, parse_context=parse_context
-        )
-
-        # If we've pruned all the options, return unmatched (with some logging).
-        if not available_options:
-            return MatchResult.from_unmatched(segments)
-
-        with parse_context.deeper_match() as ctx:
-            match, matched_option = self._longest_trimmed_match(
-                segments,
-                available_options,
-                parse_context=ctx,
-                trim_noncode=False,
-            )
-
-        return match, matched_option
-
     @match_wrapper()
     @allow_ephemeral
     def match(
@@ -203,14 +172,18 @@ class AnyNumberOf(BaseGrammar):
             # If we've already matched once...
             if n_matches > 0 and self.allow_gaps:
                 # Consume any non-code if there is any
-                pre_seg, mid_seg, post_seg = trim_non_code_segments(unmatched_segments)
-                unmatched_segments = mid_seg + post_seg
+                pre_seg, post_seg = consume_non_code_segments(unmatched_segments)
+                unmatched_segments = post_seg
             else:
                 pre_seg = ()  # empty tuple
 
-            match, matched_option = self._match_once(
-                unmatched_segments, parse_context=parse_context
-            )
+            with parse_context.deeper_match() as ctx:
+                match, matched_option = self._longest_trimmed_match(
+                    unmatched_segments,
+                    available_options,
+                    parse_context=ctx,
+                    trim_noncode=False,
+                )
 
             # Increment counter for matched option.
             if matched_option and (str(matched_option) in available_option_counter):
