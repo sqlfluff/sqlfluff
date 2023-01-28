@@ -64,25 +64,6 @@ def trim_non_code_segments(
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
 
 
-def consume_non_code_segments(
-    segments: Tuple["BaseSegment", ...]
-) -> Tuple[Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]]:
-    """Take segments and split off surrounding non-code segments as appropriate.
-
-    We use slices to avoid creating too many unnecessary tuples.
-    """
-    pre_idx = 0
-
-    if segments:
-        seg_len = len(segments)
-
-        # Trim the start
-        while pre_idx < seg_len and not segments[pre_idx].is_code:
-            pre_idx += 1
-
-    return segments[:pre_idx], segments[pre_idx:]
-
-
 def iter_indices(seq: List, val: Any) -> Iterator[int]:
     """Iterate all indices in a list that val occurs at.
 
