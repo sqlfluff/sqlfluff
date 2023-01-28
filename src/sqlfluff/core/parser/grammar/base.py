@@ -330,7 +330,7 @@ class BaseGrammar(Matchable):
         if simple_matchers:
             # If they're all simple we can use a hash match to identify the first one.
             # Build a buffer of all the upper case raw segments ahead of us.
-            str_buff = []
+
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
@@ -355,6 +355,7 @@ class BaseGrammar(Matchable):
             for idx, seg in enumerate(segments):
                 for matcher, simple in simple_matchers:
                     # Simple will be a tuple of options
+                    assert simple
                     for simple_option in simple:
                         if simple_option == _trim_elem(seg):
                             simple_match = (matcher, simple_option)
