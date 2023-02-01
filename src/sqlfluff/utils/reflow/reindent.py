@@ -765,14 +765,9 @@ def _lint_line_untaken_positive_indents(
     indent_points = indent_line.indent_points
 
     # Account for the closing trough.
-    if indent_points[-1].indent_trough:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_trough
-        )
-    else:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_impulse
-        )
+    closing_trough = last_ip.initial_indent_balance + (
+        last_ip.indent_trough or last_ip.indent_impulse
+    )
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -1052,9 +1047,15 @@ def lint_indent_points(
     forced_indents: List[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
-        results += _lint_line_buffer_indents(
+        line_results = _lint_line_buffer_indents(
             elem_buffer, line, single_indent, forced_indents
         )
+        if line_results:
+            reflow_logger.info("      PROBLEMS:")
+            for res in line_results:
+                reflow_logger.info("        %s @ %s", res.source, res.anchor)
+                reflow_logger.info("          %s", res.description)
+        results += line_results
 
     return elem_buffer, results
 
