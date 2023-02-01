@@ -454,6 +454,62 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
         )
 
 
+def _prune_untaken_indents(
+    untaken_indents: Tuple[int, ...],
+    incoming_balance: int,
+    indent_stats: IndentStats,
+    has_newline: bool,
+) -> Tuple[int, ...]:
+    """Update the tracking of untaken indents.
+
+    This is an internal helper function for `_crawl_indent_points`.
+
+    We use the `trough` of the given indent stats to remove any untaken
+    indents which are now no longer relevant after balances are taken
+    into account.
+    """
+    # Strip any untaken indents above the new balance.
+    # NOTE: We strip back to the trough, not just the end point
+    # if the trough was lower than the impulse.
+    ui = tuple(
+        x
+        for x in untaken_indents
+        if x
+        <= (
+            incoming_balance + indent_stats.impulse + indent_stats.trough
+            if indent_stats.trough < indent_stats.impulse
+            else incoming_balance + indent_stats.impulse
+        )
+    )
+
+    # After stripping, we may have to add them back in.
+    if indent_stats.impulse > indent_stats.trough and not has_newline:
+        for i in range(indent_stats.trough, indent_stats.impulse):
+            indent_val = incoming_balance + i + 1
+            if indent_val not in indent_stats.implicit_indents:
+                ui += (indent_val,)
+
+    return ui
+
+
+def _update_crawl_balances(
+    untaken_indents: Tuple[int, ...],
+    incoming_balance: int,
+    indent_stats: IndentStats,
+    has_newline: bool,
+) -> Tuple[int, Tuple[int, ...]]:
+    """Update the tracking of untaken indents and balances.
+
+    This is an internal helper function for `_crawl_indent_points`.
+    """
+    new_untaken_indents = _prune_untaken_indents(
+        untaken_indents, incoming_balance, indent_stats, has_newline
+    )
+    new_balance = incoming_balance + indent_stats.impulse
+
+    return new_balance, new_untaken_indents
+
+
 def _crawl_indent_points(
     elements: ReflowSequenceType, allow_implicit_indents: bool = False
 ) -> Iterator[_IndentPoint]:
@@ -536,29 +592,10 @@ def _crawl_indent_points(
                 )
                 has_newline = False
 
-            # Strip any untaken indents above the new balance.
-            # NOTE: We strip back to the trough, not just the end point
-            # if the trough was lower than the impulse.
-            untaken_indents = tuple(
-                x
-                for x in untaken_indents
-                if x
-                <= (
-                    indent_balance + indent_stats.impulse + indent_stats.trough
-                    if indent_stats.trough < indent_stats.impulse
-                    else indent_balance + indent_stats.impulse
-                )
+            # Update balances
+            indent_balance, untaken_indents = _update_crawl_balances(
+                untaken_indents, indent_balance, indent_stats, has_newline
             )
-
-            # After stripping, we may have to add them back in.
-            if indent_stats.impulse > indent_stats.trough and not has_newline:
-                for i in range(indent_stats.trough, indent_stats.impulse):
-                    indent_val = indent_balance + i + 1
-                    if indent_val not in indent_stats.implicit_indents:
-                        untaken_indents += (indent_val,)
-
-            # Update values
-            indent_balance += indent_stats.impulse
 
 
 def _map_line_buffers(
