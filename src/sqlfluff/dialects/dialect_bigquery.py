@@ -1525,6 +1525,36 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref("SingleIdentifierGrammar"),  # Column name
                 ),
             ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
+            Delimited(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    OneOf(
+                        Sequence(
+                            "SET",
+                            OneOf(
+                                Ref("OptionsSegment"),
+                                Sequence(
+                                    "DATA",
+                                    "TYPE",
+                                    Ref("DatatypeSegment"),
+                                ),
+                                Sequence(
+                                    "DEFAULT",
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("FunctionSegment"),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        Sequence("DROP", OneOf("DEFAULT", Sequence("NOT", "NULL"))),
+                    ),
+                ),
+            ),
         ),
     )
 
