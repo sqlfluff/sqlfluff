@@ -320,3 +320,37 @@ test_pass_when_dialect_is_teradata:
   configs:
     core:
       dialect: teradata
+
+
+test_fail_parenthesize_expression_when_config_shorthand_from_cast:
+  fail_str: |
+    select
+        id::int,
+        cast(calendar_date||' 11:00:00' as timestamp) as calendar_datetime
+    from foo;
+  fix_str: |
+    select
+        id::int,
+        (calendar_date||' 11:00:00')::timestamp as calendar_datetime
+    from foo;
+  configs:
+    rules:
+      L067:
+        preferred_type_casting_style: shorthand
+
+
+test_fail_parenthesize_expression_when_config_shorthand_from_convert:
+  fail_str: |
+    select
+        id::int,
+        convert(timestamp, calendar_date||' 11:00:00') as calendar_datetime
+    from foo;
+  fix_str: |
+    select
+        id::int,
+        (calendar_date||' 11:00:00')::timestamp as calendar_datetime
+    from foo;
+  configs:
+    rules:
+      L067:
+        preferred_type_casting_style: shorthand

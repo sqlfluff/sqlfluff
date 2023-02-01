@@ -174,11 +174,20 @@ class Rule_L067(BaseRule):
         context: RuleContext, shorthand_arg_1: BaseSegment, shorthand_arg_2: BaseSegment
     ) -> List[LintFix]:
         """Generate list of fixes to convert CAST and CONVERT to ShorthandCast."""
-        edits = [
-            shorthand_arg_1,
-            SymbolSegment("::", type="casting_operator"),
-            shorthand_arg_2,
-        ]
+        if len(shorthand_arg_1.raw_segments) > 1:
+            edits = [
+                SymbolSegment("(", type="start_bracket"),
+                shorthand_arg_1,
+                SymbolSegment(")", type="end_bracket"),
+            ]
+        else:
+            edits = [shorthand_arg_1]
+        edits.extend(
+            [
+                SymbolSegment("::", type="casting_operator"),
+                shorthand_arg_2,
+            ]
+        )
 
         fixes = [
             LintFix.replace(

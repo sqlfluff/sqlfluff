@@ -90,6 +90,9 @@ def process_struct(obj):
     if isinstance(obj, dict):
         return tuple((k, process_struct(obj[k])) for k in obj)
     elif isinstance(obj, list):
+        # If empty list, return empty tuple
+        if not len(obj):
+            return tuple()
         # We'll assume that it's a list of dicts
         if isinstance(obj[0], dict):
             buff = [process_struct(elem) for elem in obj]
