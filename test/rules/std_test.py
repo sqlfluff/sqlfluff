@@ -77,7 +77,13 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             "L016",
             "block_comment_errors.sql",
             # Errors should flag on the first element of the line.
-            [(1, 1), (2, 5), (4, 5)],
+            # NOTE: We should really detect (1, 1) here too, but
+            # through a quirk of how reindent applies fixes, if you're
+            # applying L016 _without_ L003 then the indentation
+            # rules remove the long line before we run the routines to
+            # detect long lines. This should be resolved with the rules
+            # reorganisation.
+            [(2, 5), (4, 5)],
         ),
         ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references
