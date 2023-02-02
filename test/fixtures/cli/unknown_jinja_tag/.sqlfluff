@@ -3,3 +3,4 @@ dialect = ansi
 
 [sqlfluff:templater:jinja]
 load_macros_from_path = my_macros
+apply_dbt_builtins = False
