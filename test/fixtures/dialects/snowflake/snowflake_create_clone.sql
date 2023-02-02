@@ -1,4 +1,4 @@
--- Taken from Snowflake Documentation
+-- Taken from Snowflake Documentation https://docs.snowflake.com/en/sql-reference/sql/create-clone.html
 
 CREATE DATABASE mytestdb_clone CLONE mytestdb;
 
