@@ -2324,7 +2324,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment")
+            Ref("NamedWindowSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2357,7 +2357,7 @@ class SelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment")
+            Ref("WithDataClauseSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
