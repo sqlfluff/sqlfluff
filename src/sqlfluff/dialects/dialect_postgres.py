@@ -400,7 +400,6 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
-        Ref("WithCheckOptionSegment")
     ),
     SelectClauseSegmentGrammar=Sequence(
         "SELECT",
