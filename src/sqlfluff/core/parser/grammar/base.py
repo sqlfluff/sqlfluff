@@ -8,7 +8,7 @@ from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
-from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
+from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
     parse_match_logging,
@@ -330,7 +330,7 @@ class BaseGrammar(Matchable):
         if simple_matchers:
             # If they're all simple we can use a hash match to identify the first one.
             # Build a buffer of all the upper case raw segments ahead of us.
-            str_buff = []
+
             # For existing compound segments, we should assume that within
             # that segment, things are internally consistent, that means
             # rather than enumerating all the individual segments of a longer
@@ -343,54 +343,40 @@ class BaseGrammar(Matchable):
                 s = seg.raw_upper.split(maxsplit=1)
                 return s[0] if s else ""
 
-            str_buff = [_trim_elem(seg) for seg in segments]
-            match_queue = []
-
-            for matcher, simple in simple_matchers:
-                # Simple will be a tuple of options
-                assert simple
-                for simple_option in simple:
-                    # NOTE: We use iter_indices to make sure we capture
-                    # all instances of potential matches if there are many.
-                    # This is important for bracket counting.
-                    for buff_pos in iter_indices(str_buff, simple_option):
-                        match_queue.append((matcher, buff_pos, simple_option))
-
-            match_queue = sorted(match_queue, key=lambda x: x[1])
-
             parse_match_logging(
                 cls.__name__,
                 "_look_ahead_match",
                 "SI",
                 parse_context=parse_context,
                 v_level=4,
-                mq=match_queue,
-                sb=str_buff,
             )
 
-            while match_queue:
+            simple_match = None
+            for idx, seg in enumerate(segments):
+                for matcher, simple in simple_matchers:
+                    # Simple will be a tuple of options
+                    assert simple
+                    trimmed_seg = _trim_elem(seg)
+                    for simple_option in simple:
+                        if simple_option == trimmed_seg:
+                            simple_match = (matcher, simple_option)
+                            break
+                    if simple_match:
+                        break
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                queued_matcher, queued_buff_pos, queued_option = match_queue.pop(0)
-                match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
-                if match:
-                    best_simple_match = (
-                        segments[:queued_buff_pos],
-                        match,
-                        queued_matcher,
-                    )
-                    break
-                else:
-                    # We've had something match in simple matching, but then later
-                    # excluded. Log but then move on to the next item on the list.
-                    parse_match_logging(
-                        cls.__name__,
-                        "_look_ahead_match",
-                        "NM",
-                        parse_context=parse_context,
-                        v_level=4,
-                        _so=queued_option,
-                    )
+                if simple_match:
+                    matcher, simple_option = simple_match
+                    match = matcher.match(segments[idx:], parse_context)
+                    if match:
+                        best_simple_match = (
+                            segments[:idx],
+                            match,
+                            matcher,
+                        )
+                        break
+                    else:
+                        simple_match = None
 
         if not non_simple_matchers:
             # There are no other matchers, we can just shortcut now.
