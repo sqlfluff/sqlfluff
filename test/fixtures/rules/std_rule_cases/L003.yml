@@ -1639,4 +1639,3 @@ test_comment_effect_indents_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
-  
