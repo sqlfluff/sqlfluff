@@ -400,6 +400,7 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+        Ref("WithCheckOptionSegment")
     ),
     SelectClauseSegmentGrammar=Sequence(
         "SELECT",
@@ -1185,6 +1186,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[
             Sequence("ON", "CONFLICT"),
+            Ref("WithCheckOptionSegment")
         ],
     )
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
@@ -1202,6 +1204,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[
             Sequence("ON", "CONFLICT"),
+            Ref("WithCheckOptionSegment")
         ],
     )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
@@ -2286,6 +2289,27 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
+
+
+class WithCheckOptionSegment(BaseSegment):
+    """WITH [ CASCADED | LOCAL ] CHECK OPTION for Postgres' CREATE VIEWS.
+
+    https://www.postgresql.org/docs/14/sql-createview.html
+    """
+
+    type = "with_check_option"
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        OneOf(
+            "CASCADED",
+            "LOCAL"
+        ),
+        Sequence(
+            "CHECK",
+            "OPTION"
+        )
+    )
+
 
 class CreateViewStatementSegment(BaseSegment):
     """An `Create VIEW` statement.
