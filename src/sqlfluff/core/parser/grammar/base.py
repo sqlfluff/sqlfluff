@@ -356,15 +356,15 @@ class BaseGrammar(Matchable):
                 for matcher, simple in simple_matchers:
                     # Simple will be a tuple of options
                     assert simple
+                    trimmed_seg = _trim_elem(seg)
                     for simple_option in simple:
-                        if simple_option == _trim_elem(seg):
+                        if simple_option == trimmed_seg:
                             simple_match = (matcher, simple_option)
                             break
                     if simple_match:
                         break
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
-                # queued_matcher, queued_buff_pos, queued_option = match_queue.pop(0)
                 if simple_match:
                     matcher, simple_option = simple_match
                     match = matcher.match(segments[idx:], parse_context)
