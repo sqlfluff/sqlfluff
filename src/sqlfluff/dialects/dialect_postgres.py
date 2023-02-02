@@ -2287,6 +2287,50 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         Ref("DropBehaviorGrammar", optional=True),
     )
 
+class CreateViewStatementSegment(BaseSegment):
+    """An `Create VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-createview.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Ref("ParameterNameSegment")
+                            ),
+                            optional=True,
+                        ),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        "AS",
+        OneOf(
+            # OptionallyBracketed(Ref("UnorderedSelectStatementSegment")),
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            # OptionallyBracketed(Ref("SelectStatementSegment")),
+            Ref("ValuesClauseSegment")
+        ),
+        Ref("WithCheckOptionSegment", optional=True)
+    )
+
 
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW` statement.
@@ -3433,6 +3477,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
+            Ref("CreateViewStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("ListenStatementSegment"),
             Ref("NotifyStatementSegment"),

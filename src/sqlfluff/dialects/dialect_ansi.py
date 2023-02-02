@@ -2325,6 +2325,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
+            Ref("WithCheckOptionSegment")
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2358,6 +2359,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
+            Ref("WithCheckOptionSegment")
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -3634,6 +3636,26 @@ class WithDataClauseSegment(BaseSegment):
 
     type = "with_data_clause"
     match_grammar: Matchable = Sequence("WITH", Sequence("NO", optional=True), "DATA")
+
+
+class WithCheckOptionSegment(BaseSegment):
+    """WITH [ CASCADED | LOCAL ] CHECK OPTION for Postgres' CREATE VIEWS.
+
+    https://www.postgresql.org/docs/14/sql-createview.html
+    """
+
+    type = "with_check_option"
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        OneOf(
+            "CASCADED",
+            "LOCAL"
+        ),
+        Sequence(
+            "CHECK",
+            "OPTION"
+        )
+    )
 
 
 class DescribeStatementSegment(BaseSegment):
