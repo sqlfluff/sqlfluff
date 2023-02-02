@@ -536,6 +536,7 @@ def _crawl_indent_points(
                 cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
             )
             cached_indent_stats = None
+            has_newline = False
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
@@ -590,7 +591,6 @@ def _crawl_indent_points(
                     False,
                     untaken_indents,
                 )
-                has_newline = False
 
             # Update balances
             indent_balance, untaken_indents = _update_crawl_balances(
