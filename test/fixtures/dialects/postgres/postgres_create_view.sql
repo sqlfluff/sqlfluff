@@ -1,4 +1,3 @@
--- From Documentation https://www.postgresql.org/docs/14/sql-createview.html
 CREATE VIEW vista AS SELECT 'Hello World';
 
 CREATE OR REPLACE VIEW vista AS SELECT 'Hello World';
@@ -23,9 +22,6 @@ CREATE VIEW pg_comedies AS
     FROM comedies
     WHERE classification = 'PG' 
     WITH CASCADED CHECK OPTION;
-
--- From Real World Examples - Issue 4331
-
 create view foo with (security_invoker) as select 1;
 create view foo with (security_barrier) as select 1;
 

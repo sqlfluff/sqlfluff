@@ -2329,9 +2329,7 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         "AS",
         OneOf(
-            # OptionallyBracketed(Ref("UnorderedSelectStatementSegment")),
             OptionallyBracketed(Ref("SelectableGrammar")),
-            # OptionallyBracketed(Ref("SelectStatementSegment")),
             Ref("ValuesClauseSegment"),
         ),
         Ref("WithCheckOptionSegment", optional=True),
