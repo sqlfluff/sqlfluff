@@ -21,3 +21,7 @@ alter warehouse LOAD_WH SET MAX_CONCURRENCY_LEVEL = 1;
 alter warehouse LOAD_WH UNSET STATEMENT_QUEUED_TIMEOUT_IN_SECONDS;
 alter warehouse LOAD_WH UNSET WAREHOUSE_SIZE;
 alter warehouse LOAD_WH UNSET WAREHOUSE_SIZE, WAIT_FOR_COMPLETION;
+
+-- Real Life Use Cases Taken from Issue 4342 https://github.com/sqlfluff/sqlfluff/issues/4342
+ALTER WAREHOUSE SET WAREHOUSE_SIZE='X-LARGE';
+alter warehouse set warehouse_size=medium
