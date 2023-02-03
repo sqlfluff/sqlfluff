@@ -693,8 +693,8 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
 
     match_grammar = Sequence(
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
-        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
         OneOf("DISTINCT", "ALL", optional=True),
+        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
     )
 
 
