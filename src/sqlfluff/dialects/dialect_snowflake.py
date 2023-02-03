@@ -1891,7 +1891,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 Ref("NakedIdentifierSegment"),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("NakedIdentifierSegment", optional=True),
                 "SET",
                 OneOf(
                     AnyNumberOf(
