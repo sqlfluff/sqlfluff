@@ -1,5 +1,3 @@
--- Taken from Snowflake Documentation https://docs.snowflake.com/en/sql-reference/sql/create-clone.html
-
 CREATE DATABASE mytestdb_clone CLONE mytestdb;
 
 CREATE SCHEMA mytestschema_clone CLONE testschema;
