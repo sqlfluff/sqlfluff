@@ -1183,10 +1183,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("ON", "CONFLICT"),
-            Ref("WithCheckOptionSegment")
-        ],
+        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
     )
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
@@ -1201,10 +1198,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("ON", "CONFLICT"),
-            Ref("WithCheckOptionSegment")
-        ],
+        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
     )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
@@ -2298,15 +2292,7 @@ class WithCheckOptionSegment(BaseSegment):
 
     type = "with_check_option"
     match_grammar: Matchable = Sequence(
-        "WITH",
-        OneOf(
-            "CASCADED",
-            "LOCAL"
-        ),
-        Sequence(
-            "CHECK",
-            "OPTION"
-        )
+        "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
     )
 
 
@@ -2333,10 +2319,7 @@ class CreateViewStatementSegment(BaseSegment):
                         Ref("ParameterNameSegment"),
                         Sequence(
                             Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("LiteralGrammar"),
-                                Ref("ParameterNameSegment")
-                            ),
+                            OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
                             optional=True,
                         ),
                     )
@@ -2349,9 +2332,9 @@ class CreateViewStatementSegment(BaseSegment):
             # OptionallyBracketed(Ref("UnorderedSelectStatementSegment")),
             OptionallyBracketed(Ref("SelectableGrammar")),
             # OptionallyBracketed(Ref("SelectStatementSegment")),
-            Ref("ValuesClauseSegment")
+            Ref("ValuesClauseSegment"),
         ),
-        Ref("WithCheckOptionSegment", optional=True)
+        Ref("WithCheckOptionSegment", optional=True),
     )
 
 
