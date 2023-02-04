@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 853194d18bbeb03a93c9e91a375c5273675fc2f8b33ff3a636a45c9ffa127a9c
+_hash: 5f02dcc7b7f77bac802dfa4ec4eed5bd2bc024d406fe5bd492a49f0e100e03af
 file:
 - statement:
     select_statement:
@@ -794,4 +794,50 @@ file:
       limit_clause:
         keyword: LIMIT
         numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: Select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+            sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: SYSTEM
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: Select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+            sample_expression:
+              keyword: TABLESAMPLE
+              non_keyword: BERNOULLI
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
 - statement_terminator: ;

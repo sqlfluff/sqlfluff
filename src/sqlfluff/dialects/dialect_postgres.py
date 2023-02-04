@@ -246,6 +246,7 @@ postgres_dialect.add(
     ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    BernoulliGrammer=StringParser("BERNOULLI", CodeSegment, type="non_keyword"),
 )
 
 postgres_dialect.replace(
@@ -1175,6 +1176,16 @@ class ForClauseSegment(BaseSegment):
             Sequence("SKIP", "LOCKED"),
             optional=True,
         ),
+    )
+
+
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
+    """Overrides ANSI Statement. to allow TABLESAMPLE statements for Postgres."""
+
+    match_grammar = ansi.SamplingExpressionSegment.match_grammar.copy(
+        insert=[OneOf(Ref("BernoulliGrammer"), "SYSTEM")],
+        before=OneOf("BERNOULLI", "SYSTEM"),
+        remove=[OneOf("BERNOULLI", "SYSTEM")],
     )
 
 
