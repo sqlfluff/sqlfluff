@@ -243,7 +243,9 @@ UNRESERVED_KEYWORDS = [
     "COMPRESSION_DELAY",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
+    "DATA_CONSISTENCY_CHECK",
     "DATA_COMPRESSION",
+    "DATA_DELETION",
     "DATASOURCE",
     "DATE",
     "DATEFIRST",
@@ -257,6 +259,7 @@ UNRESERVED_KEYWORDS = [
     "DISTRIBUTION",  # Azure Synapse Analytics specific
     "DROP_EXISTING",
     "DUMP",  # listed as reserved but functionally unreserved
+    "DURABILITY",
     "ENCRYPTED",
     "ENCRYPTION",
     "ENCRYPTION_TYPE",
@@ -270,7 +273,13 @@ UNRESERVED_KEYWORDS = [
     "FIELDQUOTE",
     "FILESTREAM",
     "FILESTREAM_ON",
+    "FILETABLE_DIRECTORY",
+    "FILETABLE_COLLATE_FILENAME",
+    "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
+    "FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME",
+    "FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME",
     "FILTER",
+    "FILTER_COLUMN",
     "FIPS_FLAGGER",
     "FIRST",
     "FIRSTROW",
@@ -288,6 +297,7 @@ UNRESERVED_KEYWORDS = [
     "HEAP",  # Azure Synapse Analytics specific
     "HIDDEN",
     "HINT",
+    "HISTORY_TABLE",
     "IGNORE",
     "IGNORE_CONSTRAINTS",
     "IGNORE_DUP_KEY",
@@ -312,6 +322,7 @@ UNRESERVED_KEYWORDS = [
     "LANGUAGE",
     "LAST",
     "LASTROW",
+    "LEDGER",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
     "LOCATION",
@@ -328,6 +339,7 @@ UNRESERVED_KEYWORDS = [
     "MAXERRORS",
     "MAXRECURSION",
     "MAXVALUE",
+    "MEMORY_OPTIMIZED",
     "MIN_GRANT_PERCENT",
     "MINUTES",
     "MINVALUE",
@@ -381,6 +393,7 @@ UNRESERVED_KEYWORDS = [
     "RECEIVE",
     "RECOMPILE",
     "RECURSIVE",
+    "REMOTE_DATA_ARCHIVE",
     "REMOTE_PROC_TRANSACTIONS",
     "RENAME",  # Azure Synapse Analytics specific
     "REPEATABLE",
@@ -390,6 +403,7 @@ UNRESERVED_KEYWORDS = [
     "RESPECT",
     "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
     "RESUMABLE",
+    "RETENTION_PERIOD",
     "RETURNS",
     "ROBUST",
     "ROLE",
@@ -401,6 +415,8 @@ UNRESERVED_KEYWORDS = [
     "ROWS",
     "S",
     "SCALEOUTEXECUTION",
+    "SCHEMA_ONLY",
+    "SCHEMA_AND_DATA",
     "SCHEMABINDING",
     "SECURITYAUDIT",  # listed as reserved but functionally unreserved
     "SELF",
@@ -427,6 +443,7 @@ UNRESERVED_KEYWORDS = [
     "SYNONYM",
     "SWITCH",
     "SYSTEM",
+    "SYSTEM_VERSIONING",
     "TABLOCK",
     "TABLOCKX",
     "TAKE",
@@ -457,5 +474,6 @@ UNRESERVED_KEYWORDS = [
     "XACT_ABORT",
     "XLOCK",
     "XML",
+    "XML_COMPRESSION",
     "ZONE",
 ]

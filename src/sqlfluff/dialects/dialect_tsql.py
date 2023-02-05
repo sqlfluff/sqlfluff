@@ -48,12 +48,14 @@ tsql_dialect.sets("datetime_units").update(
     [
         "D",
         "DAY",
+        "DAYS",
         "DAYOFYEAR",
         "DD",
         "DW",
         "DY",
         "HH",
         "HOUR",
+        "INFINITE",
         "M",
         "MCS",
         "MI",
@@ -74,10 +76,12 @@ tsql_dialect.sets("datetime_units").update(
         "SS",
         "W",
         "WEEK",
+        "WEEKS",
         "WEEKDAY",
         "WK",
         "WW",
         "YEAR",
+        "YEARS",
         "Y",
         "YY",
         "YYYY",
@@ -851,6 +855,211 @@ class TextimageOnOptionSegment(BaseSegment):
         OneOf(
             Ref("FilegroupNameSegment"),
             Ref("LiteralGrammar"),  # for "default" value
+        ),
+    )
+
+
+class TableOptionSegement(BaseSegment):
+    """TABLE option in `CREATE TABLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    _ledger_view_option = Delimited(
+        Sequence(
+            "TRANSACTION_ID_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SEQUENCE_NUMBER_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "OPERATION_TYPE_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "OPERATION_TYPE_DESC_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+    type = "table_option_statement"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence("MEMORY_OPTIMIZED", Ref("EqualsSegment"), "ON"),
+                    Sequence(
+                        "DURABILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("SCHEMA_ONLY", "SCHEMA_AND_DATA"),
+                    ),
+                    Sequence(
+                        "SYSTEM_VERSIONING",
+                        Ref("EqualsSegment"),
+                        "ON",
+                        Sequence(
+                            Bracketed(
+                                "HISTORY_TABLE",
+                                Ref("EqualsSegment"),
+                                Ref("TableReferenceSegment"),
+                                Sequence(
+                                    Ref("CommaSegment"),
+                                    "DATA_CONSISTENCY_CHECK",
+                                    Ref("EqualsSegment"),
+                                    OneOf("ON", "OFF"),
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_COMPRESSION",
+                        OneOf(
+                            "NONE",
+                            "ROW",
+                            "PAGE",
+                        ),
+                        Sequence(
+                            "ON PARTITONS",
+                            Bracketed(
+                                Delimited(
+                                    Ref("NumericLiteralSegment"),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "XML_COMPRESSION",
+                        OneOf("ON", "OFF"),
+                        Sequence(
+                            "ON PARTITONS",
+                            Bracketed(
+                                Delimited(
+                                    Ref("NumericLiteralSegment"),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "FILETABLE_DIRECTORY",
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),
+                    ),
+                    Sequence(
+                        "FILETABLE_COLLATE_FILENAME",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
+                        Ref("EqualsSegment"),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "REMOTE_DATA_ARCHIVE",
+                        OneOf(
+                            Sequence(
+                                "ON",
+                                Bracketed(
+                                    Delimited(
+                                        Sequence(
+                                            "FILTER_PREDICATE",
+                                            OneOf(
+                                                "NULL",
+                                                Ref("FunctionNameSegment"),
+                                            ),
+                                            optional=True,
+                                        ),
+                                        Sequence(
+                                            "MIGRATION_STATE",
+                                            OneOf("OUTBOUND", "INBOUND", "PAUSED"),
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                            Sequence(
+                                "OFF",
+                                Bracketed(
+                                    "MIGRATION_STATE",
+                                    Ref("EqualsSegment"),
+                                    "PAUSED",
+                                ),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_DELETION",
+                        Ref("EqualsSegment"),
+                        "ON",
+                        Bracketed(
+                            "FILTER_COLUMN",
+                            Ref("EqualsSegment"),
+                            Ref("ColumnReferenceSegment"),
+                            Ref("CommaSegment"),
+                            "RETENTION_PERIOD",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment", optional=True),
+                            Ref("DatetimeUnitSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "LEDGER",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Sequence(
+                                "ON",
+                                Bracketed(
+                                    Delimited(
+                                        Sequence(
+                                            "LEDGER_VIEW",
+                                            Ref("EqualsSegment"),
+                                            Ref("TableReferenceSegment"),
+                                            Bracketed(
+                                                _ledger_view_option, optional=True
+                                            ),
+                                            optional=True,
+                                        ),
+                                        Sequence(
+                                            "APPEND_ONLY",
+                                            Ref("EqualsSegment"),
+                                            OneOf("ON", "OFF"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                            "OFF",
+                        ),
+                    ),
+                )
+            )
         ),
     )
 
@@ -2241,7 +2450,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
-        # need to add table options here
+        Ref("TableOptionSegement", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
