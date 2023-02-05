@@ -167,3 +167,30 @@ from
 ) as upd
 ;
 GO
+
+MERGE Production.UnitMeasure WITH (PAGLOCK) AS tgt
+    USING (SELECT @UnitMeasureCode, @Name) as src (UnitMeasureCode, Name)
+    ON (tgt.UnitMeasureCode = src.UnitMeasureCode)
+    WHEN MATCHED THEN
+        UPDATE SET Name = src.Name
+    WHEN NOT MATCHED THEN
+        INSERT (UnitMeasureCode, Name)
+        VALUES (src.UnitMeasureCode, src.Name)
+    OUTPUT deleted.*, $action, inserted.* INTO #MyTempTable;
+GO
+
+MERGE INTO Production.ProductInventory WITH (ROWLOCK, INDEX(myindex, myindex2)) AS pi
+     USING (SELECT ProductID, SUM(OrderQty)
+            FROM Sales.SalesOrderDetail AS sod
+            JOIN Sales.SalesOrderHeader AS soh
+            ON sod.SalesOrderID = soh.SalesOrderID
+            AND soh.OrderDate BETWEEN '20030701' AND '20030731'
+            GROUP BY ProductID) AS src (ProductID, OrderQty)
+     ON pi.ProductID = src.ProductID
+    WHEN MATCHED AND pi.Quantity - src.OrderQty >= 0
+        THEN UPDATE SET pi.Quantity = pi.Quantity - src.OrderQty
+    WHEN MATCHED AND pi.Quantity - src.OrderQty <= 0
+        THEN DELETE
+    OUTPUT $action, Inserted.ProductID, Inserted.LocationID,
+        Inserted.Quantity AS NewQty, Deleted.Quantity AS PreviousQty;
+GO

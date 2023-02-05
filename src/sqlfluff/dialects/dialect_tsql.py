@@ -3479,6 +3479,46 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
+class MergeStatementSegment(ansi.MergeStatementSegment):
+    """Contains dialect specific `MERGE` statement."""
+
+    type = "merge_statement"
+
+    match_grammar = Sequence(
+        Ref("MergeIntoLiteralGrammar"),
+        Indent,
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Ref("TableHintSegment", optional=True),
+                )
+            ),
+            optional=True,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Dedent,
+        "USING",
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Sequence(
+                Bracketed(
+                    Ref("SelectableGrammar"),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+        Dedent,
+        Conditional(Indent, indented_using_on=True),
+        Ref("JoinOnConditionSegment"),
+        Conditional(Dedent, indented_using_on=True),
+        Ref("MergeMatchSegment"),
+    )
+
+
 class MergeMatchSegment(BaseSegment):
     """Contains dialect specific merge operations."""
 
