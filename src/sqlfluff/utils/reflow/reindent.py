@@ -1128,7 +1128,7 @@ def _source_char_len(elements: ReflowSequenceType):
         # a recent edit or modification. We shouldn't evaluate it until it's
         # been positioned. Without a source marker we don't know how to treat
         # it.
-        if not seg.pos_marker:
+        if not seg.pos_marker: # pragma: no cover
             break
         source_slice = seg.pos_marker.source_slice
         # Is there a newline in the source string?
