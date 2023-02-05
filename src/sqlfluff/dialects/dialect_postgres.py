@@ -1726,7 +1726,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                 Sequence(
                     "WITH",
                     Bracketed(
-                        AnyNumberOf(
+                        Delimited(
                             Sequence(
                                 Ref("ParameterNameSegment"),
                                 Sequence(
