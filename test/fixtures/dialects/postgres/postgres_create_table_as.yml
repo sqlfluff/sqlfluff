@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 400575378a328cfd4f1f25bebd8703ee72ed4a8f4fc7ea9abc45593aa25b8734
+_hash: a173e35f5a32531d5851dea1cdff082b24fc506d293846086600078659ff8300
 file:
 - statement:
     create_table_as_statement:
@@ -557,4 +557,52 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: autovacuum_enabled
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: toast_tuple_target
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '123'
+      - comma: ','
+      - parameter: vacuum_index_cleanup
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tablename
 - statement_terminator: ;
