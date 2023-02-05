@@ -32,3 +32,22 @@ GO
 
 ALTER FUNCTION F (@DATE as datetime) RETURNS INT AS BEGIN RETURN 0 END;
 GO
+
+CREATE   FUNCTION [UTIL].[getItemList] (
+     @list ItemList READONLY
+)
+RETURNS nvarchar(max)
+AS
+
+BEGIN
+      DECLARE @str nvarchar(max) = ''
+
+      SELECT @str = @str + [item] FROM (
+        SELECT TOP (9999) [item]
+        FROM @list
+        ORDER BY [order]
+      ) i
+
+      RETURN @str
+END;
+GO
