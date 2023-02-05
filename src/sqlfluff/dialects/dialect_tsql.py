@@ -1558,7 +1558,10 @@ class FunctionParameterListGrammar(BaseSegment):
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            Ref("FunctionParameterGrammar"),
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                Sequence("READONLY", optional=True),
+            ),
             optional=True,
         ),
     )
