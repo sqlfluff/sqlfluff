@@ -3157,6 +3157,27 @@ class FromClauseSegment(BaseSegment):
     get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
+class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """FROM Expression Element Segment.
+
+    Overriding ANSI to add Temporal Query.
+    """
+
+    match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
+        insert=[
+            Ref("TemporalQuerySegement", optional=True),
+        ],
+        before=Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause.
 
@@ -4394,5 +4415,48 @@ class SynonymReferenceSegment(ansi.ObjectReferenceSegment):
             ),
             min_times=0,
             max_times=1,
+        ),
+    )
+
+
+class TemporalQuerySegement(BaseSegment):
+    """A segment that allows Temporal Queries to be run.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables?view=sql-server-ver16
+    """
+
+    type = "temporal_query"
+
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "SYSTEM_TIME",
+        OneOf(
+            Ref.keyword("ALL"),
+            Sequence(
+                "AS",
+                "OF",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "FROM",
+                Ref("QuotedLiteralSegment"),
+                "TO",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "BETWEEN",
+                Ref("QuotedLiteralSegment"),
+                "AND",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "CONTAINED",
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Ref("QuotedLiteralSegment"),
+                    )
+                ),
+            ),
         ),
     )

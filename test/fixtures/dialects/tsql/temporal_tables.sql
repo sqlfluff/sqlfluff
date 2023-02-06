@@ -1,37 +1,24 @@
--- Query Temporal Tables
--- SELECT
---     a
---     , b
--- FROM Sales FOR SYSTEM_TIME ALL AS Sales;
--- GO
+-- Select Query Temporal Tables
 
--- SELECT [DeptID], [DeptName], [ValidFrom], [ValidTo]
--- FROM [dbo].[Department]
--- FOR SYSTEM_TIME AS OF '2021-09-01 T10:00:00.7230011';
--- GO
+SELECT * FROM Employee
+  FOR SYSTEM_TIME
+    BETWEEN '2021-01-01 00:00:00.0000000' AND '2022-01-01 00:00:00.0000000';
 
--- SELECT [DeptID], [DeptName], [ValidFrom], [ValidTo]
--- FROM [dbo].[Department] FOR SYSTEM_TIME AS OF @ADayAgo AS D_1_Ago;
--- GO
+SELECT * FROM Employee
+  FOR SYSTEM_TIME ALL;
 
--- SELECT
---      [DeptID]
---    , [DeptName]
---    , [ValidFrom]
---    , [ValidTo]
---    , IIF (YEAR(ValidTo) = 9999, 1, 0) AS IsActual
--- FROM [dbo].[Department]
--- FOR SYSTEM_TIME BETWEEN '2021-01-01' AND '2021-12-31'
--- WHERE DeptId = 1
--- ORDER BY ValidFrom DESC;
--- GO
 
--- SELECT [DeptID], [DeptName], [ValidFrom],[ValidTo]
--- FROM [dbo].[Department]
--- FOR SYSTEM_TIME CONTAINED IN ('2021-04-01', '2021-09-25')
--- WHERE DeptId = 1
--- ORDER BY ValidFrom DESC;
--- GO
+ SELECT * FROM Employee
+  FOR SYSTEM_TIME
+    FROM '2021-01-01 00:00:00.0000000' TO '2022-01-01 00:00:00.0000000';
+
+SELECT * FROM Employee
+  FOR SYSTEM_TIME
+    AS OF '2021-01-01 00:00:00.0000000';
+
+SELECT * FROM Employee
+  FOR SYSTEM_TIME
+    CONTAINED IN ('2021-01-01 00:00:00.0000000', '2022-01-01 00:00:00.0000000');
 
 -- Create Temporal Tables
 
