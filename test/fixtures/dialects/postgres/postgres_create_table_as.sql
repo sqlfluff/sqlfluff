@@ -124,3 +124,12 @@ select
     , column_2
     , column_3
 from tablename;
+
+create temp table a_new_table
+with (appendoptimized = true, compresstype = zstd) as
+select
+    column_1
+    , column_2
+    , column_3
+from schema.tablename
+group by 1, 2, 3;
