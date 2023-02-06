@@ -63,3 +63,9 @@ insert all
   when c > 10 then
     into t1 (col1, col2) values (a, b)
 select a, b, c from src;
+
+INSERT INTO foo.bar
+(
+  SELECT
+    foo.bar
+);
