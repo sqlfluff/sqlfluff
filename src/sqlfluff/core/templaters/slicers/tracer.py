@@ -6,7 +6,7 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 from dataclasses import dataclass, field
 import logging
 import regex
-from typing import Callable, cast, Dict, List, NamedTuple, Optional
+from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple
 
 from jinja2 import Environment
 from jinja2.environment import Template
@@ -244,7 +244,7 @@ class JinjaAnalyzer:
         m_open: Optional[regex.Match],
         m_close: Optional[regex.Match],
         tag_contents: List[str],
-    ) -> Optional[RawSliceInfo]:
+    ) -> Tuple[Optional[RawSliceInfo], str]:
         """Based on block tag, update whether in a set/call/macro/block section."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "block",
@@ -271,6 +271,10 @@ class JinjaAnalyzer:
                     f"{self.env.block_start_string} {' '.join(trimmed_parts)} "
                     f"{self.env.block_end_string}"
                 )
+                # Here we should mutate the block type to just templated
+                # so we don't treat it as a block.
+                # https://github.com/sqlfluff/sqlfluff/issues/3750
+                block_type = "templated"
             except TemplateSyntaxError as e:
                 if (
                     isinstance(e.message, str)
@@ -286,7 +290,7 @@ class JinjaAnalyzer:
                             assert m_open and m_close
                             result = self.track_call(m_open, m_close, tag_contents)
                         self.inside_set_macro_or_call = True
-                        return result
+                        return result, block_type
                 else:
                     raise  # pragma: no cover
         elif block_type == "block_end":
@@ -296,7 +300,7 @@ class JinjaAnalyzer:
             elif trimmed_parts[0] == "endblock":
                 # Exiting a {% block %} block.
                 self.inside_block = False
-        return None
+        return None, block_type
 
     def make_raw_slice_info(
         self,
@@ -391,7 +395,10 @@ class JinjaAnalyzer:
                         raw_slice_info = self.track_templated(
                             m_open, m_close, tag_contents
                         )
-                raw_slice_info_temp = self.update_inside_set_call_macro_or_block(
+                (
+                    raw_slice_info_temp,
+                    block_type,
+                ) = self.update_inside_set_call_macro_or_block(
                     block_type, tag_contents, m_open, m_close, tag_contents
                 )
                 if raw_slice_info_temp:

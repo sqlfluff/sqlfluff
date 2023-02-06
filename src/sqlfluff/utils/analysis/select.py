@@ -111,9 +111,12 @@ def get_aliases_from_select(segment, dialect=None):
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
-    # functions and pivot columns.
+    # functions, lambda parameters and pivot columns.
+    standalone_aliases = []
+    standalone_aliases += _get_pivot_table_columns(segment, dialect)
+    standalone_aliases += _get_lambda_argument_columns(segment, dialect)
+
     table_aliases = []
-    standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
             if alias_info[0] not in standalone_aliases:
@@ -158,3 +161,48 @@ def _get_pivot_table_columns(segment, dialect):
             pivot_table_column_aliases.append(pivot_table_column_alias.raw)
 
     return pivot_table_column_aliases
+
+
+# Lambda arguments,
+# e.g. `x` and `y` in `x -> x is not null` and `(x, y) -> x + y`
+# are declared in-place, and are as such standalone – i.e. they do not reference
+# identifiers or columns that we should expect to be declared somewhere else.
+# These columns are interesting to identify since they can get special
+# treatment in some rules.
+def _get_lambda_argument_columns(segment, dialect):
+    if not dialect or dialect.name not in ["athena", "sparksql"]:
+        # Only athena and sparksql are known to have lambda expressions,
+        # so all other dialects will have zero lambda columns
+        return []
+
+    lambda_argument_columns = []
+    for potential_lambda in segment.recursive_crawl("expression"):
+        potential_arrow = potential_lambda.get_child("binary_operator")
+        if potential_arrow and potential_arrow.raw == "->":
+            arrow_operator = potential_arrow
+            # The arguments will be before the arrow operator, so we get anything
+            # that is a column reference or a set of bracketed column references before
+            # the arrow. There should be exactly one segment matching this, if there are
+            # more, this doesn't cleanly match a lambda expression
+            argument_segments = potential_lambda.select_children(
+                stop_seg=arrow_operator,
+                select_if=(
+                    lambda x: x.is_type("bracketed") or x.is_type("column_reference")
+                ),
+            )
+
+            assert len(argument_segments) == 1
+            child_segment = argument_segments[0]
+
+            if (
+                child_segment.is_type("bracketed")
+                and child_segment.get_child("start_bracket").raw == "("
+            ):
+                bracketed_arguments = child_segment.get_children("column_reference")
+                raw_arguments = [argument.raw for argument in bracketed_arguments]
+                lambda_argument_columns += raw_arguments
+
+            elif child_segment.is_type("column_reference"):
+                lambda_argument_columns.append(child_segment.raw)
+
+    return lambda_argument_columns

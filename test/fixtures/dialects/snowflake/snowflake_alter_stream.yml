@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bbe3f883fc45f3df4bb453d9b2b4448e70d27fcbd1c885cdcc87b3578f7e3b0
+_hash: 17f8528b83595086c1d083d69e10b12016496e6955fe336060e376b71ee8d3ad
 file:
 - statement:
     alter_stream_statement:
@@ -29,7 +29,8 @@ file:
     - keyword: set
     - tag_equals:
         keyword: tag
-        naked_identifier: mytag
+        tag_reference:
+          naked_identifier: mytag
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'myvalue'"
@@ -49,12 +50,14 @@ file:
     - boolean_literal: 'FALSE'
     - tag_equals:
       - keyword: TAG
-      - naked_identifier: mytag1
+      - tag_reference:
+          naked_identifier: mytag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'myvalue1'"
       - comma: ','
-      - naked_identifier: mytag2
+      - tag_reference:
+          naked_identifier: mytag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'myvalue2'"
@@ -100,7 +103,9 @@ file:
         naked_identifier: mystream
     - keyword: unset
     - keyword: tag
-    - naked_identifier: mytag1
+    - tag_reference:
+        naked_identifier: mytag1
     - comma: ','
-    - naked_identifier: mytag2
+    - tag_reference:
+        naked_identifier: mytag2
 - statement_terminator: ;

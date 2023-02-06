@@ -12,13 +12,13 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from typing import List
+from typing import List, Type
 import os.path
 from sqlfluff.core.config import ConfigLoader
 
 
 @hookimpl
-def get_rules() -> List[BaseRule]:
+def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules."""
     return [Rule_Example_L001]
 
@@ -73,7 +73,7 @@ class Rule_Example_L001(BaseRule):
 
     groups = ("all",)
     config_keywords = ["forbidden_columns"]
-    crawl_behaviour = SegmentSeekerCrawler({"column_reference"})
+    crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
 
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""
@@ -83,12 +83,11 @@ class Rule_Example_L001(BaseRule):
         ]
 
     def _eval(self, context: RuleContext):
-        """We should not use ORDER BY."""
-        if context.segment.is_type("orderby_clause"):
-            for seg in context.segment.segments:
-                col_name = seg.raw.lower()
-                if col_name in self.forbidden_columns:
-                    return LintResult(
-                        anchor=seg,
-                        description=f"Column `{col_name}` not allowed in ORDER BY.",
-                    )
+        """We should not ORDER BY forbidden_columns."""
+        for seg in context.segment.segments:
+            col_name = seg.raw.lower()
+            if col_name in self.forbidden_columns:
+                return LintResult(
+                    anchor=seg,
+                    description=f"Column `{col_name}` not allowed in ORDER BY.",
+                )

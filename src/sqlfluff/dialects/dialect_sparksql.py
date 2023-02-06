@@ -61,7 +61,7 @@ sparksql_dialect.patch_lexer_matchers(
         # == and <=> are valid equal operations
         # <=> is a non-null equals in Spark SQL
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
-        RegexLexer("equals", r"=|==|<=>", CodeSegment),
+        RegexLexer("equals", r"==|<=>|=", CodeSegment),
         # identifiers are delimited with `
         # within a delimited identifier, ` is used to escape special characters,
         # including `
@@ -226,9 +226,11 @@ sparksql_dialect.replace(
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
         "HAVING",
+        "QUALIFY",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
+        "KEYS",
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
@@ -249,8 +251,9 @@ sparksql_dialect.replace(
     ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
+        # ilike: https://github.com/apache/spark/pull/33966/files
         Sequence(
-            "LIKE",
+            OneOf("LIKE", "ILIKE"),
             OneOf(
                 "ALL",
                 "ANY",
@@ -306,6 +309,7 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+        "APPLY",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence(
@@ -335,6 +339,19 @@ sparksql_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    ArithmeticBinaryOperatorGrammar=OneOf(
+        Ref("PlusSegment"),
+        Ref("MinusSegment"),
+        Ref("DivideSegment"),
+        Ref("MultiplySegment"),
+        Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
+        Ref("DivBinaryOperatorSegment"),
+    ),
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
         Ref("StringBinaryOperatorGrammar"),
@@ -342,6 +359,26 @@ sparksql_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add arrow operators for lambdas (e.g. aggregate)
         Ref("RightArrowOperator"),
+    ),
+    # Support for colon sign operator (Databricks SQL)
+    ObjectReferenceDelimiterGrammar=OneOf(
+        Ref("DotSegment"),
+        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+        Ref("ColonSegment"),
+    ),
+    # Support for colon sign operator (Databricks SQL)
+    ObjectReferenceTerminatorGrammar=OneOf(
+        "ON",
+        "AS",
+        "USING",
+        Ref("CommaSegment"),
+        Ref("CastOperatorSegment"),
+        Ref("StartSquareBracketSegment"),
+        Ref("StartBracketSegment"),
+        Ref("BinaryOperatorGrammar"),
+        Ref("DelimiterGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        ansi.BracketedSegment,
     ),
 )
 
@@ -594,6 +631,18 @@ sparksql_dialect.add(
             type="signed_quoted_literal",
         ),
     ),
+    # Delta Live Tables CREATE TABLE and VIEW statements
+    OrRefreshGrammar=Sequence("OR", "REFRESH"),
+    # Databricks widget
+    WidgetNameIdentifierSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        type="widget_name_identifier",
+    ),
+    WidgetDefaultGrammar=Sequence(
+        "DEFAULT",
+        Ref("QuotedLiteralSegment"),
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -623,6 +672,13 @@ sparksql_dialect.insert_lexer_matchers(
     ],
     before="like_operator",
 )
+
+
+class DivBinaryOperatorSegment(BaseSegment):
+    """DIV type binary_operator."""
+
+    type = "binary_operator"
+    match_grammar = Ref.keyword("DIV")
 
 
 class QualifyClauseSegment(BaseSegment):
@@ -929,7 +985,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "SET",
                 Ref("LocationGrammar"),
             ),
-            # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
+            # ALTER TABLE - ADD/DROP CONSTRAINTS (DELTA)
             Sequence(
                 Indent,
                 OneOf("ADD", "DROP"),
@@ -1023,7 +1079,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("STREAMING", optional=True),
+        Ref.keyword("LIVE", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         OneOf(
@@ -1068,7 +1127,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Dedent,
         # Create AS syntax:
         Sequence(
-            "AS",
+            Ref.keyword("AS", optional=True),
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
         ),
@@ -1092,8 +1151,10 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
         Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("STREAMING", optional=True),
+        Ref.keyword("LIVE", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -1114,6 +1175,46 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
+class CreateWidgetStatementSegment(BaseSegment):
+    """A `CREATE WIDGET` STATEMENT.
+
+    https://docs.databricks.com/notebooks/widgets.html#databricks-widget-api
+    """
+
+    type = "create_widget_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "WIDGET",
+        OneOf(
+            Sequence(
+                "DROPDOWN",
+                Ref("WidgetNameIdentifierSegment"),
+                Ref("WidgetDefaultGrammar"),
+                Sequence("CHOICES", Ref("SelectStatementSegment")),
+            ),
+            Sequence(
+                "TEXT", Ref("WidgetNameIdentifierSegment"), Ref("WidgetDefaultGrammar")
+            ),
+        ),
+    )
+
+
+class RemoveWidgetStatementSegment(BaseSegment):
+    """A `REMOVE WIDGET` STATEMENT.
+
+    https://docs.databricks.com/notebooks/widgets.html#databricks-widget-api
+    """
+
+    type = "remove_widget_statement"
+
+    match_grammar = Sequence(
+        "REMOVE",
+        "WIDGET",
+        Ref("WidgetNameIdentifierSegment"),
     )
 
 
@@ -1855,7 +1956,7 @@ class TransformClauseSegment(BaseSegment):
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
-    Enhanced from ANSI dialect to allow for additonal parameters.
+    Enhanced from ANSI dialect to allow for additional parameters.
 
     EXPLAIN [ EXTENDED | CODEGEN | COST | FORMATTED ] explainable_stmt
 
@@ -2372,6 +2473,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
             Ref("RestoreTableStatementSegment"),
+            # Databricks - Delta Live Tables
+            Ref("ConstraintStatementSegment"),
+            Ref("ApplyChangesIntoStatementSegment"),
+            # Databricks - widgets
+            Ref("CreateWidgetStatementSegment"),
+            Ref("RemoveWidgetStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2398,38 +2505,36 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("JoinTypeKeywords", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Sequence(
-                Ref("FromExpressionElementSegment"),
-                Conditional(Dedent, indented_using_on=False),
-                # NB: this is optional
-                OneOf(
-                    # ON clause
-                    Ref("JoinOnConditionSegment"),
-                    # USING clause
-                    Sequence(
-                        "USING",
-                        Indent,
-                        Bracketed(
-                            # NB: We don't use BracketedColumnReferenceListGrammar
-                            # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or
-                            # ColumnReferenceSegment. This is a) so that we don't
-                            # lint it as a reference and b) because the column will
-                            # probably be returned anyway during parsing.
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                                ephemeral_name="UsingClauseContents",
-                            )
-                        ),
-                        Dedent,
-                    ),
-                    # Unqualified joins *are* allowed. They just might not
-                    # be a good idea.
-                    optional=True,
-                ),
-                Conditional(Indent, indented_using_on=False),
-            ),
+            Ref("FromExpressionElementSegment"),
             Dedent,
+            Conditional(Indent, indented_using_on=True),
+            # NB: this is optional
+            OneOf(
+                # ON clause
+                Ref("JoinOnConditionSegment"),
+                # USING clause
+                Sequence(
+                    "USING",
+                    Conditional(Indent, indented_using_on=False),
+                    Bracketed(
+                        # NB: We don't use BracketedColumnReferenceListGrammar
+                        # here because we're just using SingleIdentifierGrammar,
+                        # rather than ObjectReferenceSegment or
+                        # ColumnReferenceSegment. This is a) so that we don't
+                        # lint it as a reference and b) because the column will
+                        # probably be returned anyway during parsing.
+                        Delimited(
+                            Ref("SingleIdentifierGrammar"),
+                            ephemeral_name="UsingClauseContents",
+                        )
+                    ),
+                    Conditional(Dedent, indented_using_on=False),
+                ),
+                # Unqualified joins *are* allowed. They just might not
+                # be a good idea.
+                optional=True,
+            ),
+            Conditional(Dedent, indented_using_on=True),
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
@@ -2475,6 +2580,8 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
+                "KEYS",
+                "FROM",
             ),
         ),
     )
@@ -2701,8 +2808,8 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
         ),
-        # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
         Ref(
             "AliasExpressionSegment",
             exclude=Ref.keyword("SET"),
@@ -2887,3 +2994,141 @@ class RestoreTableStatementSegment(BaseSegment):
             Ref("VersionAsOfGrammar"),
         ),
     )
+
+
+class ConstraintStatementSegment(BaseSegment):
+    """A `CONSTRAINT` statement to to define data quality on data contents.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-expectations.html#manage-data-quality-with-delta-live-tables
+    """
+
+    type = "constraint_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CONSTRAINT",
+        Ref("ObjectReferenceSegment"),
+        "EXPECT",
+        Bracketed(Ref("ExpressionSegment")),
+        Sequence("ON", "VIOLATION", optional=True),
+        OneOf(
+            Sequence("FAIL", "UPDATE"),
+            Sequence("DROP", "ROW"),
+            optional=True,
+        ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement ingest CDC data a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("FromClauseSegment"),
+        Sequence(
+            "KEYS",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+        ),
+        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "APPLY",
+                "AS",
+                OneOf("DELETE", "TRUNCATE"),
+                "WHEN",
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
+            max_times=2,
+        ),
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "COLUMNS",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+        ),
+        Sequence(
+            "STORED",
+            "AS",
+            "SCD",
+            "TYPE",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Databricks."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            # Optional EXCEPT clause
+            # https://docs.databricks.com/release-notes/runtime/9.0.html#exclude-columns-in-select--public-preview
+            Ref("ExceptClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExceptClauseSegment(BaseSegment):
+    """SELECT * EXCEPT clause."""
+
+    type = "select_except_clause"
+    match_grammar = Sequence(
+        "EXCEPT",
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    It's very similar to `SelectClauseSegment` from `dialect_ansi` except does not
+    have set `SetOperatorSegment` as possible terminator - this is to avoid issues
+    with wrongly recognized `EXCEPT`.
+    """
+
+    type = "select_clause"
+    match_grammar: Matchable = StartsWith(
+        "SELECT",
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            "UNION",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")

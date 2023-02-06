@@ -23,6 +23,10 @@ from tqdm import tqdm
 from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
 from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
+from sqlfluff.cli.click_deprecated_option import (
+    DeprecatedOption,
+    DeprecatedOptionsCommand,
+)
 from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
@@ -44,20 +48,6 @@ from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.plugin.host import get_plugin_manager
-
-
-class RedWarningsFilter(logging.Filter):
-    """This filter makes all warnings or above red."""
-
-    def __init__(self, formatter: OutputStreamFormatter):
-        super().__init__()
-        self.formatter = formatter
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        """Filter any warnings (or above) to turn them red."""
-        if record.levelno >= logging.WARNING:
-            record.msg = f"{self.formatter.colorize(record.msg, Color.red)} "
-        return True
 
 
 class StreamHandlerTqdm(logging.StreamHandler):
@@ -109,8 +99,16 @@ def set_logging_level(
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
+
     # Set up a handler to colour warnings red.
-    handler.addFilter(RedWarningsFilter(formatter))
+    # See: https://docs.python.org/3/library/logging.html#filter-objects
+    def red_log_filter(record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            record.msg = f"{formatter.colorize(record.msg, Color.red)} "
+        return True
+
+    handler.addFilter(red_log_filter)
+
     if logger:
         focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
@@ -139,24 +137,14 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter, paths):
+    def __init__(self, formatter):
         self.formatter = formatter
-        self.paths = paths
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is OSError:
-            click.echo(
-                self.formatter.colorize(
-                    f"The path(s) { self.paths } could not be "
-                    "accessed. Check it/they exist(s).",
-                    Color.red,
-                )
-            )
-            sys.exit(EXIT_ERROR)
-        elif exc_type is SQLFluffUserError:
+        if exc_type is SQLFluffUserError:
             click.echo(
                 "\nUser Error: "
                 + self.formatter.colorize(
@@ -309,7 +297,8 @@ def core_options(f: Callable) -> Callable:
     f = click.option(
         "--logger",
         type=click.Choice(
-            ["templater", "lexer", "parser", "linter", "rules"], case_sensitive=False
+            ["templater", "lexer", "parser", "linter", "rules", "config"],
+            case_sensitive=False,
         ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
@@ -455,7 +444,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
         click.echo(payload)
 
 
-@cli.command()
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @click.option(
@@ -509,8 +498,21 @@ def dump_file_payload(filename: Optional[str], payload: str):
 )
 @click.option(
     "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
+    cls=DeprecatedOption,
+    deprecated=["--disable_progress_bar"],
+)
+@click.option(
+    "--persist-timing",
+    default=None,
+    help=(
+        "A filename to persist the timing information for a linting run to "
+        "in csv format for external analysis. NOTE: This feature should be "
+        "treated as beta, and the format of the csv file may change in "
+        "future releases without warning."
+    ),
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
@@ -526,6 +528,7 @@ def lint(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    persist_timing: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Lint SQL files via passing a list of files or using stdin.
@@ -568,10 +571,10 @@ def lint(
     )
 
     # Output the results as we go
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(format_linting_result_header())
 
-    with PathAndUserErrorHandler(formatter, paths):
+    with PathAndUserErrorHandler(formatter):
         # add stdin if specified via lone '-'
         if ("-",) == paths:
             result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
@@ -584,7 +587,7 @@ def lint(
             )
 
     # Output the final stats
-    if verbose >= 1:
+    if verbose >= 1 and not non_human_output:
         click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
@@ -640,6 +643,9 @@ def lint(
     if file_output:
         dump_file_payload(write_output, cast(str, file_output))
 
+    if persist_timing:
+        result.persist_timing_records(persist_timing)
+
     output_stream.close()
     if bench:
         click.echo("==== overall timings ====")
@@ -674,7 +680,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     return False  # pragma: no cover
 
 
-@cli.command()
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @click.option(
@@ -705,8 +711,11 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 )
 @click.option(
     "--disable_progress_bar",
+    "--disable-progress-bar",
     is_flag=True,
     help="Disables progress bars.",
+    cls=DeprecatedOption,
+    deprecated=["--disable_progress_bar"],
 )
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
@@ -792,7 +801,7 @@ def fix(
         if templater_error:
             click.echo(
                 formatter.colorize(
-                    "Fix aborted due to unparseable template variables.",
+                    "Fix aborted due to unparsable template variables.",
                     Color.red,
                 ),
                 err=True,
@@ -817,7 +826,7 @@ def fix(
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
 
-    with PathAndUserErrorHandler(formatter, paths):
+    with PathAndUserErrorHandler(formatter):
         result = lnt.lint_paths(
             paths,
             fix=True,
@@ -1035,7 +1044,7 @@ def parse(
     t0 = time.monotonic()
 
     # handle stdin if specified via lone '-'
-    with PathAndUserErrorHandler(formatter, path):
+    with PathAndUserErrorHandler(formatter):
         if "-" == path:
             parsed_strings = [
                 lnt.parse_string(
@@ -1097,6 +1106,68 @@ def parse(
     if violations_count > 0 and not nofail:
         sys.exit(EXIT_FAIL)  # pragma: no cover
     else:
+        sys.exit(EXIT_SUCCESS)
+
+
+@cli.command()
+@common_options
+@core_options
+@click.argument("path", nargs=1, type=click.Path(allow_dash=True))
+def render(
+    path: str,
+    bench: bool,
+    logger: Optional[logging.Logger] = None,
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+    **kwargs,
+) -> None:
+    """Render SQL files and just spit out the result.
+
+    PATH is the path to a sql file. This should be either a single file
+    file ('path/to/file.sql') or a single ('-') character to indicate reading
+    from *stdin*.
+    """
+    c = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
+    # We don't want anything else to be logged if we want json or yaml output
+    # unless we're writing to a file.
+    output_stream = make_output_stream(c, None, None)
+    lnt, formatter = get_linter_and_formatter(c, output_stream)
+    verbose = c.get("verbose")
+
+    progress_bar_configuration.disable_progress_bar = True
+
+    formatter.dispatch_config(lnt)
+
+    # Set up logging.
+    set_logging_level(
+        verbosity=verbose,
+        formatter=formatter,
+        logger=logger,
+        stderr_output=False,
+    )
+
+    # handle stdin if specified via lone '-'
+    with PathAndUserErrorHandler(formatter):
+        if "-" == path:
+            raw_sql = sys.stdin.read()
+            fname = "stdin"
+            file_config = lnt.config
+        else:
+            raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
+            fname = path
+
+    # Get file specific config
+    file_config.process_raw_file_for_config(raw_sql)
+    rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
+
+    if rendered.templater_violations:
+        for v in rendered.templater_violations:
+            click.echo(formatter.format_violation(v))
+        sys.exit(EXIT_FAIL)
+    else:
+        click.echo(rendered.templated_file.templated_str)
         sys.exit(EXIT_SUCCESS)
 
 

@@ -1,12 +1,19 @@
-"""Tests for templaters."""
+"""Tests for the jinja templater.
 
+These tests also test much of the core lexer, especially
+the treatment of templated sections which only really make
+sense to test in the context of a templater which supports
+loops and placeholders.
+"""
+
+from collections import defaultdict
 import logging
 from typing import List, NamedTuple
 
 import pytest
 from jinja2.exceptions import UndefinedError
 
-from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
@@ -134,6 +141,82 @@ class RawTemplatedTestCase(NamedTuple):
                 "{%- set x = 42 -%}",
                 "\n",
                 "SELECT 1, 2\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_and_templated_whitespace",
+            instr="SELECT {{- '  ' -}} 1{{ ' , 2' -}}\n",
+            templated_str="SELECT  1 , 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Placeholder for consumed whitespace
+                "  ",  # Placeholder for templated whitespace
+                "",  # Placeholder for consumed whitespace
+                "1",
+                " , 2",
+                "",  # Placeholder for consumed newline
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{{- '  ' -}}",
+                " ",
+                "1",
+                "{{ ' , 2' -}}",
+                "\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_both_block_hard",
+            instr="SELECT {%- set x = 42 %} 1 {%- if true -%} , 2{% endif -%}\n",
+            templated_str="SELECT 1, 2",
+            expected_templated_sliced__source_list=[
+                "SELECT",
+                # NB: Even though the jinja tag consumes whitespace, we still
+                # get it here as a placeholder.
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                # This whitespace is a seperate from the 1 because it's consumed.
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT",
+                "",  # Consumed whitespace placeholder
+                "",  # Jinja block placeholder
+                " 1",
+                "",  # Consumed whitespace
+                "",  # Jinja block placeholder
+                "",  # More consumed whitespace
+                ", 2",
+                "",  # Jinja block
+                "",  # Consumed final newline.
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT",
+                " ",
+                "{%- set x = 42 %}",
+                " 1",
+                " ",
+                "{%- if true -%}",
+                " ",
+                ", 2",
+                "{% endif -%}",
+                "\n",
             ],
         ),
         RawTemplatedTestCase(
@@ -572,6 +655,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_c_dbt/dbt_builtins_source", True, False),
         ("jinja_c_dbt/dbt_builtins_this", True, False),
         ("jinja_c_dbt/dbt_builtins_var_default", True, False),
+        ("jinja_c_dbt/dbt_builtins_test", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -589,6 +673,12 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Placeholders and metas
         ("jinja_l_metas/001", False, True),
         ("jinja_l_metas/002", False, True),
+        ("jinja_l_metas/003", False, True),
+        ("jinja_l_metas/004", False, True),
+        ("jinja_l_metas/005", False, True),
+        ("jinja_l_metas/006", False, True),
+        ("jinja_l_metas/007", False, True),
+        ("jinja_l_metas/008", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
@@ -611,6 +701,55 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
         code_only=code_only,
         include_meta=include_meta,
     )
+
+
+def test__templater_jinja_block_matching(caplog):
+    """Test the block UUID matching works with a complicated case."""
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+    path = "test/fixtures/templater/jinja_l_metas/002.sql"
+    # Parse the file.
+    p = list(Linter().parse_path(path))
+    parsed = p[0][0]
+    assert parsed
+    # We only care about the template elements
+    template_segments = [
+        seg
+        for seg in parsed.raw_segments
+        if seg.is_type("template_loop")
+        or (
+            seg.is_type("placeholder")
+            and seg.block_type in ("block_start", "block_end", "block_mid")
+        )
+    ]
+
+    # Group them together by block UUID
+    assert all(
+        seg.block_uuid for seg in template_segments
+    ), "All templated segments should have a block uuid!"
+    grouped = defaultdict(list)
+    for seg in template_segments:
+        grouped[seg.block_uuid].append(seg.pos_marker.working_loc)
+
+    print(grouped)
+
+    # Now the matching block IDs should be found at the following positions.
+    # NOTE: These are working locations in the rendered file.
+    groups = {
+        "for actions clause 1": [(6, 5), (9, 5), (12, 5), (15, 5)],
+        "for actions clause 2": [(17, 5), (21, 5), (29, 5), (37, 5)],
+        "if loop.first 1": [(18, 9), (20, 9), (20, 9)],
+        "if loop.first 2": [(22, 9), (22, 9), (28, 9)],
+        "if loop.first 3": [(30, 9), (30, 9), (36, 9)],
+    }
+
+    # Check all are accounted for:
+    for clause in groups.keys():
+        for block_uuid, locations in grouped.items():
+            if groups[clause] == locations:
+                print(f"Found {clause}, locations with UUID: {block_uuid}")
+                break
+        else:
+            raise ValueError(f"Couldn't find appropriate grouping of blocks: {clause}")
 
 
 @pytest.mark.parametrize(
@@ -672,6 +811,34 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 82),
                 ("{{ my_query }}", "templated", 83),
                 ("\n", "literal", 97),
+            ],
+        ),
+        # Tests for jinja blocks that consume whitespace.
+        (
+            """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
+            [
+                ("SELECT 1 FROM ", "literal", 0),
+                ("{%+if true-%}", "block_start", 14),
+                (" ", "literal", 27),
+                ("{{ref('foo')}}", "templated", 28),
+                (" ", "literal", 42),
+                ("{%-endif%}", "block_end", 43),
+            ],
+        ),
+        (
+            """{% for item in some_list -%}
+    SELECT *
+    FROM some_table
+{{ "UNION ALL\n" if not loop.last }}
+{%- endfor %}""",
+            [
+                ("{% for item in some_list -%}", "block_start", 0),
+                # This gets consumed in the templated file, but it's still here.
+                ("\n    ", "literal", 28),
+                ("SELECT *\n    FROM some_table\n", "literal", 33),
+                ('{{ "UNION ALL\n" if not loop.last }}', "templated", 62),
+                ("\n", "literal", 97),
+                ("{%- endfor %}", "block_end", 98),
             ],
         ),
     ],
@@ -982,13 +1149,15 @@ from my_table
             ],
         ),
         (
-            # Test for issue 2835. There's no space between "col" and "="
+            # Test for issue 2835. There's no space between "col" and "=".
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set col= "col1" %}
 SELECT {{ col }}
 """,
             None,
             [
-                ("block_start", slice(0, 21, None), slice(0, 0, None)),
+                ("templated", slice(0, 21, None), slice(0, 0, None)),
                 ("literal", slice(21, 29, None), slice(0, 8, None)),
                 ("templated", slice(29, 38, None), slice(8, 12, None)),
                 ("literal", slice(38, 39, None), slice(12, 13, None)),
@@ -1026,6 +1195,8 @@ FROM SOME_TABLE
         (
             # Third test for issue 2835. This was the original SQL provided in
             # the issue report.
+            # Also tests for issue 3750 that self contained set statements
+            # are parsed as "templated" and not "block_start".
             """{% set whitelisted= [
     {'name': 'COL_1'},
     {'name': 'COL_2'},
@@ -1043,7 +1214,7 @@ FROM SOME_TABLE
 """,
             None,
             [
-                ("block_start", slice(0, 94, None), slice(0, 0, None)),
+                ("templated", slice(0, 94, None), slice(0, 0, None)),
                 ("literal", slice(94, 96, None), slice(0, 2, None)),
                 ("block_start", slice(96, 128, None), slice(2, 2, None)),
                 ("literal", slice(128, 133, None), slice(2, 2, None)),
@@ -1200,7 +1371,7 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 def test__templater_jinja_large_file_check():
     """Test large file skipping.
 
-    The check is seperately called on each .process() method
+    The check is separately called on each .process() method
     so it makes sense to test a few templaters.
     """
     # First check we can process the file normally without specific config.
@@ -1229,6 +1400,44 @@ def test__templater_jinja_large_file_check():
         )
 
     assert "Length of file" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "ignore, expected_violation",
+    [
+        (
+            "",
+            SQLTemplaterError(
+                "Undefined jinja template variable: 'test_event_cadence'"
+            ),
+        ),
+        ("templating", None),
+    ],
+)
+def test_jinja_undefined_callable(ignore, expected_violation):
+    """Test undefined callable returns TemplatedFile and sensible error."""
+    templater = JinjaTemplater()
+    templated_file, violations = templater.process(
+        in_str="""WITH streams_cadence_test AS (
+{{  test_event_cadence(
+    model= ref('fct_recording_progression_stream'),
+    grouping_column='archive_id', time_column='timestamp',
+    date_part='minute', threshold=1) }}
+)
+SELECT * FROM final
+""",
+        fname="test.sql",
+        config=FluffConfig(overrides={"dialect": "ansi", "ignore": ignore}),
+    )
+    # This was previously failing to process, due to UndefinedRecorder not
+    # supporting __call__(), also Jinja thinking it was not *safe* to call.
+    assert templated_file is not None
+    if expected_violation:
+        assert len(violations) == 1
+        isinstance(violations[0], type(expected_violation))
+        assert str(violations[0]) == str(expected_violation)
+    else:
+        assert len(violations) == 0
 
 
 def test_dummy_undefined_fail_with_undefined_error():

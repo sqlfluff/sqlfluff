@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -26,6 +25,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -88,6 +88,8 @@ tsql_dialect.sets("date_part_function_name").clear()
 tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
+
+tsql_dialect.sets("bare_functions").update(["system_user"])
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -156,7 +158,7 @@ tsql_dialect.patch_lexer_matchers(
         #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
         #   )*                   Match any number of the atomic group contents.
         #   (?>
-        #       (?R)             Recusively match the block comment pattern
+        #       (?R)             Recursively match the block comment pattern
         #                        to match nested block comments.
         #       (?>
         #           [^*/]+
@@ -179,6 +181,7 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
+            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
             "code", r"[0-9a-zA-Z_#@]+", CodeSegment
@@ -399,20 +402,29 @@ tsql_dialect.replace(
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
-    JoinTypeKeywordsGrammar=OneOf(
-        "INNER",
-        Sequence(
-            OneOf(
-                "FULL",
-                "LEFT",
-                "RIGHT",
+    JoinTypeKeywordsGrammar=Sequence(
+        OneOf(
+            "INNER",
+            Sequence(
+                OneOf(
+                    "FULL",
+                    "LEFT",
+                    "RIGHT",
+                ),
+                Ref.keyword("OUTER", optional=True),
             ),
-            Ref.keyword("OUTER", optional=True),
+        ),
+        OneOf(
+            "LOOP",
+            "HASH",
+            "MERGE",
+            optional=True,
         ),
         optional=True,
     ),
-    JoinKeywordsGrammar=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    JoinKeywordsGrammar=OneOf("JOIN", "APPLY"),
     NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    ExtendedNaturalJoinKeywordsGrammar=Sequence("OUTER", "APPLY"),
     NestedJoinGrammar=Sequence(
         Indent,
         Ref("JoinClauseSegment"),
@@ -504,6 +516,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeallocateCursorStatementSegment"),
             Ref("FetchCursorStatementSegment"),
             Ref("CreateTypeStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -670,7 +684,11 @@ class InsertStatementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("OutputClauseSegment", optional=True),
-        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
+        OneOf(
+            Ref("SelectableGrammar"),
+            Ref("ExecuteScriptSegment"),
+            Ref("DefaultValuesGrammar"),
+        ),
     )
 
 
@@ -761,13 +779,13 @@ class CreateIndexStatementSegment(BaseSegment):
     type = "create_index_statement"
     match_grammar = Sequence(
         "CREATE",
-        Indent,
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
         OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
         OneOf("INDEX", "STATISTICS"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
+        Indent,
         "ON",
         Ref("TableReferenceSegment"),
         Ref("BracketedIndexColumnListGrammar"),
@@ -1055,6 +1073,7 @@ class UpdateStatisticsStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("DelimiterGrammar", optional=True),
+        Sequence("WITH", OneOf("FULLSCAN", "RESAMPLE"), optional=True),
     )
 
 
@@ -1541,7 +1560,10 @@ class FunctionParameterListGrammar(BaseSegment):
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            Ref("FunctionParameterGrammar"),
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                Sequence("READONLY", optional=True),
+            ),
             optional=True,
         ),
     )
@@ -2028,14 +2050,9 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             OptionallyBracketed(
                 OneOf(
                     Ref("ColumnReferenceSegment"),
-                    Bracketed(
-                        Ref("SelectStatementSegment"),
-                    ),
-                    Ref("FunctionSegment"),
-                    Ref("VariableIdentifierSegment"),
-                    "NULL",
-                ),
-            ),
+                    Ref("ExpressionSegment"),
+                )
+            )
         ),
     )
     parse_grammar = None
@@ -2954,9 +2971,12 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(
             Sequence(
                 Ref("TableExpressionSegment"),
+                # TODO: Revisit this to make sure it's sensible.
                 Conditional(Dedent, indented_joins=False),
+                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 Conditional(Dedent, indented_joins=True),
+                Conditional(Indent, indented_joins=True),
             )
         ),
     )
@@ -3105,11 +3125,9 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
-        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
-        Dedent,
         Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -4123,3 +4141,72 @@ class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
     """Concat operator."""
 
     match_grammar: Matchable = Ref("PlusSegment")
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement."""
+
+    type = "create_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SYNONYM",
+        Ref("SynonymReferenceSegment"),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement."""
+
+    type = "drop_synonym_statement"
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-synonym-transact-sql
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SynonymReferenceSegment"),
+    )
+
+
+class SynonymReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a synonym.
+
+    A synonym may only (optionally) specify a schema. It may not specify a server
+    or database name.
+    """
+
+    type = "synonym_reference"
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=1,
+        ),
+    )
+
+
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
+    """Override ANSI to use TSQL TABLESAMPLE expression."""
+
+    type = "sample_expression"
+    match_grammar: Matchable = Sequence(
+        "TABLESAMPLE",
+        Sequence("SYSTEM", optional=True),
+        Bracketed(
+            Sequence(
+                Ref("NumericLiteralSegment"), OneOf("PERCENT", "ROWS", optional=True)
+            )
+        ),
+        Sequence(
+            OneOf("REPEATABLE"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+    )

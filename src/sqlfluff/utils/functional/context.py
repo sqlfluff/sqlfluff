@@ -46,7 +46,7 @@ class FunctionalContext:
         )
 
     @property
-    def raw_segments(self):
+    def raw_segments(self):  # pragma: no cover
         """Returns a Segments object for all the raw segments in the file."""
         file_segment = self.context.parent_stack[0]
         return Segments(

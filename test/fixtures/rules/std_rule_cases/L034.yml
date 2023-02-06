@@ -121,6 +121,13 @@ test_insert_statements_ignored:
     FROM
       another_schema.another_table
 
+test_insert_statement_with_cte_ignored:
+  pass_str: |
+    INSERT INTO my_table
+    WITH my_cte AS (SELECT * FROM t1)
+    SELECT MAX(field1), field2
+    FROM t1
+
 test_merge_statements_ignored:
   pass_str: |
     MERGE INTO t
@@ -130,6 +137,20 @@ test_merge_statements_ignored:
             DATE_TRUNC('DAY', end_time) AS time_day,
             b
         FROM u
+    ) AS u ON (a = b)
+    WHEN MATCHED THEN
+    UPDATE SET a = b
+    WHEN NOT MATCHED THEN
+    INSERT (b) VALUES (c)
+
+test_merge_statement_with_cte_ignored:
+  pass_str: |
+    MERGE INTO t
+    USING
+    (
+        WITH my_cte AS (SELECT * FROM t1)
+        SELECT MAX(field1), field2
+        FROM t1
     ) AS u ON (a = b)
     WHEN MATCHED THEN
     UPDATE SET a = b
@@ -150,6 +171,14 @@ test_create_table_as_select_statements_ignored:
           rank_desc
       FROM
         another_schema.another_table
+    )
+
+test_create_table_as_select_with_cte_ignored:
+  pass_str: |
+    CREATE TABLE new_table AS (
+      WITH my_cte AS (SELECT * FROM t1)
+      SELECT MAX(field1), field2
+      FROM t1
     )
 
 test_fail_fix_explicit_column_references_1:

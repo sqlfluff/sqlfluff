@@ -2,6 +2,7 @@
 # code linting and formatting
 flake8
 flake8-docstrings
+pydocstyle<6.2.0  # See: https://github.com/PyCQA/pydocstyle/issues/618
 black>=22.1.0
 flake8-black>=0.2.4
 # documentation checks
@@ -12,7 +13,6 @@ coverage>=6.4
 hypothesis
 pytest
 pytest-cov
-pytest-sugar
 pytest-xdist
 # MyPy
 mypy

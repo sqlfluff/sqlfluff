@@ -6,6 +6,8 @@ This class is a construct to keep track of positions within a file.
 from dataclasses import dataclass
 from typing import Tuple, TYPE_CHECKING
 
+from sqlfluff.core.slice_helpers import zero_slice
+
 if TYPE_CHECKING:
     from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
 
@@ -83,10 +85,36 @@ class PositionMarker:
     ):
         """Convenience method for creating point markers."""
         return cls(
-            slice(source_point, source_point),
-            slice(templated_point, templated_point),
+            zero_slice(source_point),
+            zero_slice(templated_point),
             templated_file,
             **kwargs,
+        )
+
+    @classmethod
+    def from_points(
+        cls,
+        start_point_marker: "PositionMarker",
+        end_point_marker: "PositionMarker",
+    ):
+        """Construct a position marker from the section between two points."""
+        return cls(
+            slice(
+                start_point_marker.source_slice.start,
+                end_point_marker.source_slice.stop,
+            ),
+            slice(
+                start_point_marker.templated_slice.start,
+                end_point_marker.templated_slice.stop,
+            ),
+            # The templated file references from the point markers
+            # should be the same, so we're just going to pick one.
+            # TODO: If we assert that in this function, it's actually not
+            # true - but preliminary debugging on this did not reveal why.
+            start_point_marker.templated_file,
+            # Line position should be of the _start_ of the section.
+            start_point_marker.working_line_no,
+            start_point_marker.working_line_pos,
         )
 
     @classmethod

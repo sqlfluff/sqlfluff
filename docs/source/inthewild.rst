@@ -45,7 +45,7 @@ Just add a section below by raising a PR on GitHub by
   to this project. In particular our annual `Web Almanac <https://almanac.httparchive.org>`_
   attracts hundreds of volunteers to help analyse our BigQuery dataset and
   being able automatically lint Pull Requests through GitHub Actions is a
-  fantastic way to help us maintain our growing repositary of
+  fantastic way to help us maintain our growing repository of
   `over a thousand queries <https://github.com/HTTPArchive/almanac.httparchive.org/tree/main/sql>`_.
 - `Brooklyn Data Co <https://www.brooklyndata.co>`_ has a `dbt_artifacts <https://github.com/brooklyn-data/dbt_artifacts>`_
   dbt package from which runs SQLFluff in CI to lint pull requests

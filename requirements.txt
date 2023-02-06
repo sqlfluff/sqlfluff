@@ -28,7 +28,7 @@ regex
 # For returning exceptions from multiprocessing.Pool.map()
 tblib
 # For parsing pyproject.toml
-toml
+toml; python_version < '3.11'
 # For handling progress bars
 tqdm
 # better type hints for older python versions

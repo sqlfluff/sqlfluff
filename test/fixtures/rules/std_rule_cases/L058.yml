@@ -222,7 +222,7 @@ test_fail_no_copy_code_out_of_template:
     FROM mytable
   configs:
     core:
-      ignore_templated_areas: False
+      ignore_templated_areas: false
     templater:
       jinja:
         context:

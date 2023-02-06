@@ -70,14 +70,14 @@ Contents
    realworld
    vision
    teamrollout
-   indentation
+   layout
    rules
    dialects
    production
    configuration
-   architecture
    cli
    api
+   internals
    developingrules
    developingplugins
    inthewild

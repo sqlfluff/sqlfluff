@@ -15,6 +15,7 @@ from jinja2 import (
 )
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound, UndefinedError
+from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
@@ -27,7 +28,6 @@ from sqlfluff.core.templaters.base import (
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
-
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -259,12 +259,15 @@ class JinjaTemplater(PythonTemplater):
             loader = SafeFileSystemLoader(macros_path or [])
         else:
             loader = FileSystemLoader(macros_path) if macros_path else None
+        extensions = ["jinja2.ext.do"]
+        if self._apply_dbt_builtins(config):
+            extensions.append(DBTTestExtension)
 
         return SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False,
-            extensions=["jinja2.ext.do"],
+            extensions=extensions,
             loader=loader,
         )
 
@@ -279,6 +282,13 @@ class JinjaTemplater(PythonTemplater):
                     return result
         return None
 
+    def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
+        if config:
+            return config.get_section(
+                (self.templater_selector, self.name, "apply_dbt_builtins")
+            )
+        return False
+
     def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # Load the context
@@ -290,10 +300,7 @@ class JinjaTemplater(PythonTemplater):
             # so they can be used by the macros too
             live_context.update(self._extract_libraries_from_config(config=config))
 
-            apply_dbt_builtins = config.get_section(
-                (self.templater_selector, self.name, "apply_dbt_builtins")
-            )
-            if apply_dbt_builtins:
+            if self._apply_dbt_builtins(config):
                 # This feels a bit wrong defining these here, they should probably
                 # be configurable somewhere sensible. But for now they're not.
                 # TODO: Come up with a better solution.
@@ -414,6 +421,12 @@ class JinjaTemplater(PythonTemplater):
         class UndefinedRecorder:
             """Similar to jinja2.StrictUndefined, but remembers, not fails."""
 
+            # Tell Jinja this object is safe to call and does not alter data.
+            # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+            unsafe_callable = False
+            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+            alters_data = False
+
             @classmethod
             def create(cls, name):
                 return UndefinedRecorder(name=name)
@@ -429,6 +442,9 @@ class JinjaTemplater(PythonTemplater):
             def __getattr__(self, item):
                 undefined_variables.add(self.name)
                 return UndefinedRecorder(f"{self.name}.{item}")
+
+            def __call__(self, *args, **kwargs):
+                return UndefinedRecorder(f"{self.name}()")
 
         Undefined = (
             UndefinedRecorder
@@ -494,7 +510,9 @@ class JinjaTemplater(PythonTemplater):
         if make_template is None:
             # make_template() was not provided. Use the base class
             # implementation instead.
-            return super().slice_file(raw_str, templated_str, config, **kwargs)
+            return super().slice_file(
+                raw_str, templated_str, config, **kwargs
+            )  # pragma: no cover
 
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
@@ -514,6 +532,12 @@ class DummyUndefined(jinja2.Undefined):
     treat it as a missing value, even though it has a non-empty value
     in normal contexts.
     """
+
+    # Tell Jinja this object is safe to call and does not alter data.
+    # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
+    # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    alters_data = False
 
     def __init__(self, name):
         super().__init__()
@@ -581,3 +605,19 @@ class DummyUndefined(jinja2.Undefined):
 
     def __iter__(self):
         return [self].__iter__()
+
+
+class DBTTestExtension(Extension):
+    """Jinja extension to handle the dbt test tag."""
+
+    tags = {"test"}
+
+    def parse(self, parser):
+        """Parses out the contents of the test tag."""
+        node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
+        test_name = parser.parse_assign_target(name_only=True).name
+
+        parser.parse_signature(node)
+        node.name = f"test_{test_name}"
+        node.body = parser.parse_statements(("name:endtest",), drop_needle=True)
+        return node

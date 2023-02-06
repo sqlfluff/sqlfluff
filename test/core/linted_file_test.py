@@ -148,7 +148,7 @@ def test__linted_file__build_up_fixed_source_string(
         ),
         # Illustrate potential templating bug (case from L046).
         # In this case we have fixes for all our tempolated sections
-        # and they are all close to eachother and so may be either
+        # and they are all close to each other and so may be either
         # skipped or duplicated if the logic is not precise.
         (
             [

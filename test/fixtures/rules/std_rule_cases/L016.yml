@@ -4,7 +4,7 @@ test_pass_line_too_long_config_override:
   # Long lines (with config override)
   pass_str: "SELECT COUNT(*) FROM tbl\n"
   configs:
-    rules:
+    core:
       max_line_length: 30
 
 test_fail_line_too_long_with_comments_1:
@@ -13,15 +13,15 @@ test_fail_line_too_long_with_comments_1:
 
   fix_str: "-- Some Comment\nSELECT 1\n"
   configs:
-    rules:
+    core:
       max_line_length: 18
 
 test_fail_line_too_long_with_comments_2:
   # Check we can add newlines after dedents (with an indent)
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
-  fix_str: "    SELECT\n        COUNT(*)\n    FROM tbl\n"
+  fix_str: "SELECT\n    COUNT(*)\nFROM tbl\n"
   configs:
-    rules:
+    core:
       max_line_length: 20
 
 test_fail_line_too_long_with_comments_3:
@@ -29,7 +29,7 @@ test_fail_line_too_long_with_comments_3:
   fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
   fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
   configs:
-    rules:
+    core:
       max_line_length: 18
 
 test_fail_line_too_long_with_comments_4:
@@ -43,7 +43,7 @@ test_fail_line_too_long_with_comments_4:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    rules:
+    core:
       max_line_length: 80
 
 test_pass_line_too_long_with_comments_ignore_comment_lines:
@@ -54,8 +54,9 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
   configs:
-    rules:
+    core:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -63,7 +64,7 @@ test_fail_line_too_long_only_comments:
   # Check long lines that are only comments are linted correctly
   fail_str: "-- Some really long comments on their own line\n\nSELECT 1"
   configs:
-    rules:
+    core:
       max_line_length: 18
 
 test_fail_line_too_long_handling_indents:
@@ -71,15 +72,16 @@ test_fail_line_too_long_handling_indents:
   fail_str: "SELECT 12345\n"
   fix_str: "SELECT\n    12345\n"
   configs:
-    rules:
+    core:
       max_line_length: 10
 
 test_pass_line_too_long_ignore_comments_true:
   # Check we can ignore comments if we want
   pass_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    rules:
+    core:
       max_line_length: 10
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -87,8 +89,9 @@ test_pass_line_too_long_ignore_comments_false:
   # Check we still pick up long comments if we don't want to ignore
   fail_str: "SELECT 1\n-- Some long comment over 10 characters\n"
   configs:
-    rules:
+    core:
       max_line_length: 10
+    rules:
       L016:
         ignore_comment_lines: false
 
@@ -126,29 +129,31 @@ test_compute_line_length_before_template_expansion_2:
           table_alias_table_alias_table_alias_table_alias_table_alias_table_alias: t
 
 
-test_long_jina_comment:
+test_long_jinja_comment:
   fail_str: |
     SELECT *
     {# comment #}
     {# ........................................................................... #}
     FROM table
   configs:
-    rules:
+    core:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: false
 
 
-test_long_jina_comment_ignore:
-  # A Jinja comment is not seen as a SQL comment (perhaps it should be?) so should still fail
-  fail_str: |
+test_long_jinja_comment_ignore:
+  # A Jinja comment is a comment.
+  pass_str: |
     SELECT *
     {# comment #}
     {# ........................................................................... #}
     FROM table
   configs:
-    rules:
+    core:
       max_line_length: 80
+    rules:
       L016:
         ignore_comment_lines: true
 
@@ -223,7 +228,7 @@ test_set_statement:
     {% set statement = "SELECT 1 from table1;" %}
     {{ statement }}{{ statement }}
   configs:
-    rules:
+    core:
       max_line_length: 80
 
 
@@ -254,7 +259,7 @@ test_fail_ignore_comment_clauses_2:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses:
   pass_str: |
@@ -266,7 +271,7 @@ test_pass_ignore_comment_clauses:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_teradata:
   pass_str: |
@@ -276,7 +281,7 @@ test_pass_ignore_comment_clauses_teradata:
       dialect: teradata
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_exasol:
   pass_str: |
@@ -288,7 +293,7 @@ test_pass_ignore_comment_clauses_exasol:
       dialect: exasol
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_snowflake:
   pass_str: |
@@ -298,7 +303,7 @@ test_pass_ignore_comment_clauses_snowflake:
       dialect: snowflake
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_postgres:
   pass_str: |
@@ -313,9 +318,9 @@ test_pass_ignore_comment_clauses_postgres:
       dialect: postgres
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_clauses: true
 
-test_fail_templated_comment_clause:
+test_fail_templated_comment_line:
   fail_str: |
     SELECT *
         {# ........................................................................... #}
@@ -325,7 +330,10 @@ test_fail_templated_comment_clause:
       jinja:
         context: {}
 
-test_pass_ignore_templated_comment_clause:
+test_pass_ignore_templated_comment_lines:
+  # NOTE: This is potentially a behaviour change in 2.0.0.
+  # This was erroneously using the `ignore_comment_clauses`
+  # config when this query contains no comment clauses.
   pass_str: |
     SELECT *
         {# ........................................................................... #}
@@ -333,7 +341,193 @@ test_pass_ignore_templated_comment_clause:
   configs:
     rules:
       L016:
-        ignore_comment_clauses: True
+        ignore_comment_lines: true
     templater:
       jinja:
         context: {}
+
+test_fail_operator_precedence_1:
+  # Make sure we split at the + operator.
+  fail_str: |
+    select
+        ISNULL(count, '0') * 10000 + ISNULL(planned, 100)
+    from blah
+  fix_str: |
+    select
+        ISNULL(count, '0') * 10000
+        + ISNULL(planned, 100)
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_operator_precedence_2:
+  # Make sure we split at the AND operator.
+  fail_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line' AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  fix_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line'
+        AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  configs:
+    core:
+      max_line_length: 120
+
+test_fail_operator_precedence_3:
+  # Stretching cases for operators and comma
+  fail_str: |
+    select
+        a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
+    from blah
+  fix_str: |
+    select
+        a,
+        b + c,
+        long_name
+        + long_name * long_name
+        - long_name as foo,
+        long_name AND long_name
+        OR long_name
+        OR long_name as bar
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_pass_long_multiline_jinja:
+  # None of the lines are longer than 30
+  # but the whole tag is. It shouldn't
+  # cause issues.
+  pass_str: |
+    select
+        {{
+          1 + 2 + 3 + 4 + 5
+          + 6 + 7 + 8 + 9 + 10
+        }}
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_long_inline_statement:
+  # Tests that breaks happen between clauses properly
+  fail_str: |
+    select distinct a + b from c join d using (e) where f = g and h = i order by j
+  fix_str: |
+    select distinct a + b
+    from c
+    join d using (e)
+    where f = g and h = i
+    order by j
+  configs:
+    core:
+      max_line_length: 50
+
+test_pass_check_off_1:
+  # Tests that we can disable the check (using 0).
+  pass_str: |
+    select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
+  configs:
+    core:
+      max_line_length: 0
+
+test_pass_check_off_2:
+  # Tests that we can disable the check (using -1).
+  pass_str: |
+    select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
+  configs:
+    core:
+      max_line_length: -1
+
+test_comment_move_mid_query:
+  fail_str: |
+    select
+        my_long_long_line as foo -- with some comment
+    from foo
+  fix_str: |
+    select
+        -- with some comment
+        my_long_long_line as foo
+    from foo
+  configs:
+    core:
+      max_line_length: 40
+
+test_fix_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer
+                AND much_much_much_longer
+                THEN longer_and_longer
+                    AND much_much_much_longer
+            ELSE longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field
+        AND a_nother_really_long_field
+    HAVING a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      allow_implicit_indents: true
+
+test_fix_no_implicit_indent:
+  # Test explicitly preventing implicit indents.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN
+                longer_and_longer
+                AND much_much_much_longer
+                THEN
+                    longer_and_longer
+                    AND much_much_much_longer
+            ELSE
+                longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE
+        a_really_long_field
+        AND a_nother_really_long_field
+    HAVING
+        a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      allow_implicit_indents: false

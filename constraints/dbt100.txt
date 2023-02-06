@@ -1,0 +1,3 @@
+dbt-core==1.0.0
+dbt-postgres==1.0.0
+markupsafe<=2.0.1

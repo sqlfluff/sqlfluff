@@ -2,6 +2,7 @@
 import hashlib
 import io
 import os
+from typing import NamedTuple
 
 import pytest
 import yaml
@@ -28,6 +29,13 @@ from sqlfluff.core.templaters import TemplatedFile
 yaml.add_representer(str, quoted_presenter)
 
 
+class ParseExample(NamedTuple):
+    """A tuple representing an example SQL file to parse."""
+
+    dialect: str
+    sqlfile: str
+
+
 def get_parse_fixtures(fail_on_missing_yml=False):
     """Search for all parsing fixtures."""
     parse_success_examples = []
@@ -44,7 +52,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
             if f.endswith(".sql"):
                 root = f[:-4]
                 # only look for sql files
-                parse_success_examples.append((d, f))
+                parse_success_examples.append(ParseExample(d, f))
                 # Look for the code_only version of the structure
                 y = root + ".yml"
                 if y in dirlist:
@@ -82,6 +90,9 @@ def process_struct(obj):
     if isinstance(obj, dict):
         return tuple((k, process_struct(obj[k])) for k in obj)
     elif isinstance(obj, list):
+        # If empty list, return empty tuple
+        if not len(obj):
+            return tuple()
         # We'll assume that it's a list of dicts
         if isinstance(obj[0], dict):
             buff = [process_struct(elem) for elem in obj]
@@ -269,3 +280,20 @@ def fail_on_parse_error_after_fix(monkeypatch):
         "_report_conflicting_fixes_same_anchor",
         raise_error_conflicting_fixes_same_anchor,
     )
+
+
+@pytest.fixture(autouse=True)
+def test_verbosity_level(request):
+    """Report the verbosity level for a given pytest run.
+
+    For example:
+
+    $ pytest -vv
+    Has a verbosity level of 2
+
+    While:
+
+    $ pytest
+    Has a verbosity level of 0
+    """
+    return request.config.getoption("verbose")

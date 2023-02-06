@@ -86,3 +86,24 @@ pass_tsql_assignment_operator:
   configs:
     core:
       dialect: tsql
+
+pass_concat_string:
+  pass_str: SELECT 'barry' || 'pollard'
+
+test_pass_placeholder_spacing:
+  # Test for spacing issues around placeholders
+  # https://github.com/sqlfluff/sqlfluff/issues/4253
+  pass_str: |
+    {% set is_dev_environment = true %}
+
+    SELECT *
+    FROM table
+    WHERE
+        some_col IS TRUE
+        {% if is_dev_environment %}
+            AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+        {% else %}
+            AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+        {% endif %}
+        AND TRUE
+    ;

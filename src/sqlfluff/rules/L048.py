@@ -44,46 +44,10 @@ class Rule_L048(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Quoted literals should be surrounded by a single whitespace."""
-        fixes = (
+        return (
             ReflowSequence.from_around_target(
                 context.segment, context.parent_stack[0], config=context.config
             )
             .respace()
-            .get_fixes()
+            .get_results()
         )
-
-        fixes = [
-            # Filter for only creations, because edits are handled as excess
-            # whitespace in a different rule.
-            fix
-            for fix in fixes
-            if fix.edit_type in ("create_before", "create_after")
-        ]
-
-        violations = []
-
-        for fix in fixes:
-            # Is it a creation before
-            if fix.anchor.pos_marker < context.segment.pos_marker or (
-                fix.anchor == context.segment and fix.edit_type == "create_before"
-            ):
-                violations.append(
-                    LintResult(
-                        context.segment,
-                        fixes=[fix],
-                        description=f"Missing whitespace before {context.segment.raw}",
-                    )
-                )
-            # Is it a creation after
-            if fix.anchor.pos_marker > context.segment.pos_marker or (
-                fix.anchor == context.segment and fix.edit_type == "create_after"
-            ):
-                violations.append(
-                    LintResult(
-                        context.segment,
-                        fixes=[fix],
-                        description=f"Missing whitespace after {context.segment.raw}",
-                    )
-                )
-
-        return violations

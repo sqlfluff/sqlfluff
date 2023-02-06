@@ -45,7 +45,7 @@ def test_bigquery_relational_operator_parsing(data):
 
     # Do the parse WITHOUT lots of logging
     # The logs get too long here to be useful. We should use
-    # specfic segment tests if we want to debug logs.
+    # specific segment tests if we want to debug logs.
     parsed = Parser(config=config).parse(tokens)
     print(f"Post-parse structure: {parsed.to_tuple(show_raw=True)}")
     print(f"Post-parse structure: {parsed.stringify()}")

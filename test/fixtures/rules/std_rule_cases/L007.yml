@@ -54,9 +54,13 @@ passes_on_before_explicit:
         + b
     from foo
   configs: &operator_after
-    rules:
-      L007:
-        operator_new_lines: after
+    layout:
+      type:
+        binary_operator:
+          line_position: leading
+        comparison_operator:
+          line_position: leading
+
 
 fails_on_after_explicit:
   fail_str: |
@@ -71,6 +75,37 @@ fails_on_after_explicit:
     from foo
   configs: *operator_after
 
+fails_on_after_multi_explicit:
+  fail_str: |
+    SELECT
+        *
+    FROM
+      foo
+    WHERE
+        (g > z) AND
+        (
+          (a = 'a' AND b = 'b') OR
+          (a = 'a' AND b = 'e') OR
+          (a = 'c' AND b = 'g') OR
+          (a = 'c' AND b = 'e') OR
+          1 = 1
+        );
+  fix_str: |
+    SELECT
+        *
+    FROM
+      foo
+    WHERE
+        (g > z)
+        AND (
+          (a = 'a' AND b = 'b')
+          OR (a = 'a' AND b = 'e')
+          OR (a = 'c' AND b = 'g')
+          OR (a = 'c' AND b = 'e')
+          OR 1 = 1
+        );
+  configs: *operator_after
+
 fails_on_before_override:
   fail_str: |
     select
@@ -83,9 +118,12 @@ fails_on_before_override:
         b
     from foo
   configs: &operator_before
-    rules:
-      L007:
-        operator_new_lines: before
+    layout:
+      type:
+        binary_operator:
+          line_position: trailing
+        comparison_operator:
+          line_position: trailing
 
 passes_on_after_override:
   pass_str: |
@@ -98,18 +136,83 @@ passes_on_after_override:
 fails_on_before_override_with_comment_order:
   fail_str: |
     select
-        a
-        -- comment1!
+        a -- comment1!
         -- comment2!
+        -- comment3!
         + b
     from foo
   fix_str: |
     select
-        a +
-        -- comment1!
+        a + -- comment1!
         -- comment2!
+        -- comment3!
         b
     from foo
+  configs: *operator_before
+
+fails_on_after_override_with_comment_order:
+  fail_str: |
+    select
+        a + -- comment1!
+        -- comment2!
+        -- comment3!
+        b
+    from foo
+  fix_str: |
+    select
+        a -- comment1!
+        -- comment2!
+        -- comment3!
+        + b
+    from foo
+  configs: *operator_after
+
+# Fix the different variations of problematic comments in a leading case.
+fails_leading_with_comments:
+  fail_str: |
+    SELECT
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      2,
+      1 /* foo */ +
+      2,
+      1 /* foo */ + -- foo
+      /* foo */ 2
+  fix_str: |
+    SELECT
+      1
+      /* foo */ + 2,
+      1 -- foo
+      + 2,
+      1 /* foo */
+      + 2,
+      1 /* foo */ -- foo
+      /* foo */ + 2
+  configs: *operator_after
+
+# Fix the different variations of problematic comments in a trailing case.
+fails_trailing_with_comments:
+  fail_str: |
+    SELECT
+      1
+      + /* foo */ 2,
+      1 -- foo
+      + 2,
+      1
+      /* foo */ + 2,
+      1 -- foo
+      /* foo */ + /* foo */ 2
+  fix_str: |
+    SELECT
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      2,
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      /* foo */ /* foo */ 2
   configs: *operator_before
 
 passes_templated_newline:

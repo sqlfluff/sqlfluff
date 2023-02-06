@@ -163,7 +163,7 @@ def test__parser__grammar__base__look_ahead_match(
 def test__parser__grammar__base__ephemeral_segment(seg_list):
     """Test the ephemeral features on BaseGrammar.
 
-    Normally you cant call .match() on a BaseGrammar, but
+    Normally you can't call .match() on a BaseGrammar, but
     if things are set up right, then it should be possible
     in the case that the ephemeral_name is set.
 
@@ -465,7 +465,7 @@ def test__parser__grammar_startswith_a():
 def test__parser__grammar_startswith_b(
     include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
 ):
-    """Test the StartsWith grammar with a terminator (included & exluded)."""
+    """Test the StartsWith grammar with a terminator (included & excluded)."""
     baar = StringParser("baar", KeywordSegment)
     bar = StringParser("bar", KeywordSegment)
     grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
@@ -545,7 +545,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     # We will assume the default config has indented_joins = False.
-    # We're testing without explictly setting the `config_type` because
+    # We're testing without explicitly setting the `config_type` because
     # that's the assumed way of using the grammar in practice.
     g = Sequence(
         Conditional(Indent, indented_joins=False),
@@ -626,7 +626,7 @@ def test__parser__grammar_delimited(
         ("bar", False, 0),
         # Greedy matching up to baar should return bar, foo...
         ("baar", False, 3),
-        # ... except if whitespace is required to preceed it
+        # ... except if whitespace is required to precede it
         ("baar", True, 6),
     ],
 )

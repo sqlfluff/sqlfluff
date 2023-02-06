@@ -68,7 +68,7 @@ class Rule_L006(BaseRule):
         # a significant number of them are multiple (thanks TSQL). While
         # we could provide an alternative route for single raws, this is
         # implemented to separately look before, and after. In the single
-        # raw case - they'll be targetting the same segment, and potentially
+        # raw case - they'll be targeting the same segment, and potentially
         # waste some processing overhead, but this makes the code simpler.
 
         # If this is an operator within an operator, we'll double count
@@ -78,38 +78,19 @@ class Rule_L006(BaseRule):
         ):
             return []
 
-        violations = []
-
-        anchors = (
-            # First look for issues before.
-            ("before", context.segment.raw_segments[0]),
-            # Then look for issues after.
-            ("after", context.segment.raw_segments[-1]),
+        results = (
+            ReflowSequence.from_around_target(
+                context.segment, context.parent_stack[0], config=context.config
+            )
+            .respace()
+            .get_results()
         )
 
-        for side, anchor in anchors:
-            fixes = (
-                ReflowSequence.from_around_target(
-                    anchor, context.parent_stack[0], config=context.config, sides=side
-                )
-                .respace()
-                .get_fixes()
-            )
-            # Filter for only creations, because edits are handled as excess
-            # whitespace in a different rule.
-            fixes = [
-                fix
-                for fix in fixes
-                if fix.edit_type in ("create_before", "create_after")
-            ]
+        # Because *excess whitespace* is handled elsewhere until 2.0.0
+        # we should only return results which *create* whitespace.
 
-            if fixes:
-                violations.append(
-                    LintResult(
-                        context.segment,
-                        fixes=fixes,
-                        description=f"Missing whitespace {side} {anchor.raw}",
-                    )
-                )
-
-        return violations
+        return [
+            result
+            for result in results
+            if all(fix.edit_type.startswith("create") for fix in result.fixes)
+        ]

@@ -628,6 +628,16 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    match_grammar: Matchable = OneOf(
+        ansi.ColumnConstraintSegment.match_grammar,
+        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
+        Sequence("COLLATE", Ref("NakedIdentifierSegment")),
+    )
+
+
 class IndexTypeGrammar(BaseSegment):
     """index_type in table_constraint."""
 
@@ -828,7 +838,7 @@ mysql_dialect.add(
         "->>", SymbolSegment, type="column_path_operator"
     ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
-        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # Boolean dynamic system variables can be set to ON/OFF, TRUE/FALSE, or 0/1:
         # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
         # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
         # the correct capitalisation policy.
@@ -909,25 +919,28 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ),
+    match_grammar: Matchable = OneOf(
         Sequence(
-            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            optional=True,
-            allow_gaps=False,
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+                allow_gaps=False,
+            ),
+            allow_gaps=True,
         ),
-        allow_gaps=True,
+        "CURRENT_USER",
     )
 
 
@@ -1036,6 +1049,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
             Ref("LoadDataSegment"),
+            Ref("ReplaceSegment"),
+            Ref("AlterDatabaseStatementSegment"),
+        ],
+        remove=[
+            # handle CREATE SCHEMA in CreateDatabaseStatementSegment
+            Ref("CreateSchemaStatementSegment"),
         ],
     )
 
@@ -1430,7 +1449,7 @@ class IfExpressionStatement(BaseSegment):
 
 
 class DefinerSegment(BaseSegment):
-    """This is the body of a `CREATE FUNCTION` statement."""
+    """This is the body of a `CREATE FUNCTION` and `CREATE TRIGGER` statements."""
 
     type = "definer_segment"
 
@@ -2349,7 +2368,7 @@ class LoadDataSegment(BaseSegment):
         "INTO",
         "TABLE",
         Ref("TableReferenceSegment"),
-        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Ref("SelectPartitionClauseSegment", optional=True),
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
         Sequence(
             OneOf("FIELDS", "COLUMNS"),
@@ -2384,6 +2403,68 @@ class LoadDataSegment(BaseSegment):
             "SET",
             Ref("Expression_B_Grammar"),
             optional=True,
+        ),
+    )
+
+
+class ReplaceSegment(BaseSegment):
+    """A `REPLACE` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/replace.html
+    """
+
+    type = "replace_statement"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf("LOW_PRIORITY", "DELAYED", optional=True),
+        Sequence("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("SelectPartitionClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("ValuesClauseSegment"),
+            ),
+            Ref("SetClauseListSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    As Specified in https://dev.mysql.com/doc/refman/8.0/en/create-trigger.html
+    """
+
+    # "DEFINED = user", optional
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("DefinerSegment", optional=True),
+        "TRIGGER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER"),
+        OneOf("INSERT", "UPDATE", "DELETE"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW"),
+        Sequence(
+            OneOf("FOLLOWS", "PRECEDES"), Ref("SingleIdentifierGrammar"), optional=True
+        ),
+        OneOf(
+            Ref("StatementSegment"),
+            Sequence("BEGIN", Ref("StatementSegment"), "END"),
         ),
     )
 
@@ -2423,4 +2504,102 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                 ),
             ),
         ]
+    )
+
+
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-database.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        AnyNumberOf(Ref("CreateOptionSegment")),
+    )
+
+
+class CreateOptionSegment(BaseSegment):
+    """A database characteristic.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/create-database.html
+    """
+
+    type = "create_option_segment"
+    match_grammar = Sequence(
+        Ref.keyword("DEFAULT", optional=True),
+        OneOf(
+            Sequence(
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "ENCRYPTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+class AlterDatabaseStatementSegment(BaseSegment):
+    """A `ALTER DATABASE` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+    """
+
+    type = "alter_database_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("DatabaseReferenceSegment", optional=True),
+        AnyNumberOf(Ref("AlterOptionSegment")),
+    )
+
+
+class AlterOptionSegment(BaseSegment):
+    """A database characteristic.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/alter-database.html
+    """
+
+    type = "alter_option_segment"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "CHARACTER",
+                "SET",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "COLLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref.keyword("DEFAULT", optional=True),
+                "ENCRYPTION",
+                Ref("EqualsSegment", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "READ",
+                "ONLY",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", Ref("NumericLiteralSegment")),
+            ),
+        ),
     )

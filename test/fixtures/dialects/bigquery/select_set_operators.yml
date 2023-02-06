@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6bfaf31e908af9c1f325c512dd5f00b90151bc17f53bcef9f1d12a08d58a315
+_hash: 1ef2babb8254dc59514cf05078a3d35bfde9a669ecd0070d8e37a361e4ee67ef
 file:
 - statement:
     set_expression:
@@ -146,5 +146,77 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: number2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: c
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: number1
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: c
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: number2
+        end_bracket: )
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: c
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: number3
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: c
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: number4
         end_bracket: )
 - statement_terminator: ;

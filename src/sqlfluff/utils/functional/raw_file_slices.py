@@ -49,7 +49,8 @@ class RawFileSlices(tuple):
         buff = []
         for slice_ in self[start_index + 1 : stop_index]:
             if loop_while is not None and not loop_while(slice_):
-                break
+                # NOTE: This likely needs more tests.
+                break  # pragma: no cover
             if select_if is None or select_if(slice_):
                 buff.append(slice_)
         return RawFileSlices(*buff, templated_file=self.templated_file)

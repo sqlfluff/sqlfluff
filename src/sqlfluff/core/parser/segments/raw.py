@@ -58,11 +58,15 @@ class RawSegment(BaseSegment):
         self._source_fixes = source_fixes
         # UUID for matching
         self.uuid = uuid or uuid4()
-
-    def __repr__(self):
-        return "<{}: ({}) {!r}>".format(
+        self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+
+    def __repr__(self):
+        # This is calculated at __init__, because all elements are immutable
+        # and this was previously recalculating the pos marker,
+        # and became very expensive
+        return self.representation
 
     def __setattr__(self, key, value):
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
@@ -224,7 +228,7 @@ class CodeSegment(RawSegment):
 class UnlexableSegment(CodeSegment):
     """A placeholder to unlexable sections.
 
-    This otherwise behaves exaclty like a code section.
+    This otherwise behaves exactly like a code section.
     """
 
     type = "unlexable"

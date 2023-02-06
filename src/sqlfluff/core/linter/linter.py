@@ -4,7 +4,18 @@ import fnmatch
 import os
 import time
 import logging
-from typing import Any, List, Sequence, Optional, Tuple, cast, Iterable, Iterator, Set
+from typing import (
+    Any,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    cast,
+)
 
 import pathspec
 import regex
@@ -16,6 +27,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
     SQLFluffSkipFile,
+    SQLFluffUserError,
 )
 from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
@@ -59,7 +71,7 @@ class Linter:
         formatter: Any = None,
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
-        user_rules: Optional[List[BaseRule]] = None,
+        user_rules: Optional[List[Type[BaseRule]]] = None,
         exclude_rules: Optional[List[str]] = None,
     ) -> None:
         # Store the config object
@@ -99,7 +111,7 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(
+    def load_raw_file_and_config(
         fname: str, root_config: FluffConfig
     ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
@@ -151,7 +163,7 @@ class Linter:
             linter_logger.info(
                 "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
             )
-        except SQLLexError as err:
+        except SQLLexError as err:  # pragma: no cover
             linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
             violations.append(err)
             return None, violations, config
@@ -586,8 +598,13 @@ class Linter:
                                 f"Rule {crawler.code} returned conflicting "
                                 "fixes with the same anchor. This is only "
                                 "supported for create_before+create_after, so "
-                                f"the fixes will not be applied. {fixes!r}"
+                                "the fixes will not be applied. "
                             )
+                            for uuid, info in anchor_info.items():
+                                if not info.is_valid:
+                                    message += f"\n{uuid}:"
+                                    for fix in info.fixes:
+                                        message += f"\n    {fix}"
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []
@@ -664,6 +681,9 @@ class Linter:
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
+        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
+        linter_logger.info("\n" + tree.stringify())
+
         return tree, initial_linting_errors, ignore_buff
 
     @classmethod
@@ -720,10 +740,12 @@ class Linter:
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
+            violation.warning_if_in(parsed.config.get("warnings"))
 
         linted_file = LintedFile(
             parsed.fname,
-            violations,
+            # Deduplicate violations
+            LintedFile.deduplicate_in_source_space(violations),
             time_dict,
             tree,
             ignore_mask=ignore_buff,
@@ -826,7 +848,7 @@ class Linter:
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config, encoding = self._load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self.load_raw_file_and_config(fname, root_config)
         # Render the file
         return self.render_string(raw_file, fname, config, encoding)
 
@@ -958,7 +980,9 @@ class Linter:
             if ignore_non_existent_files:
                 return []
             else:
-                raise OSError("Specified path does not exist")
+                raise SQLFluffUserError(
+                    f"Specified path does not exist. Check it/they exist(s): {path}."
+                )
 
         # Files referred to exactly are also ignored if
         # matched, but we warn the users when that happens
@@ -1004,7 +1028,7 @@ class Linter:
                     with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
                         ignores[dirpath] = spec
-                    # We don't need to process the ignore file any futher
+                    # We don't need to process the ignore file any further
                     continue
 
                 # We won't purge files *here* because there's an edge case
@@ -1030,7 +1054,12 @@ class Linter:
             for ignore_base, ignore_spec in ignores.items():
                 abs_ignore_base = os.path.abspath(ignore_base)
                 if abs_fpath.startswith(
-                    abs_ignore_base + os.sep
+                    abs_ignore_base
+                    + (
+                        ""
+                        if os.path.dirname(abs_ignore_base) == abs_ignore_base
+                        else os.sep
+                    )
                 ) and ignore_spec.match_file(
                     os.path.relpath(abs_fpath, abs_ignore_base)
                 ):
@@ -1087,17 +1116,39 @@ class Linter:
         processes: Optional[int] = None,
     ) -> LintedDir:
         """Lint a path."""
-        linted_path = LintedDir(path)
-        if self.formatter:
-            self.formatter.dispatch_path(path)
-        fnames = list(
-            self.paths_from_path(
+        return self.lint_paths(
+            (path,), fix, ignore_non_existent_files, ignore_files, processes
+        ).paths[0]
+
+    def lint_paths(
+        self,
+        paths: Tuple[str, ...],
+        fix: bool = False,
+        ignore_non_existent_files: bool = False,
+        ignore_files: bool = True,
+        processes: Optional[int] = None,
+    ) -> LintingResult:
+        """Lint an iterable of paths."""
+        # If no paths specified - assume local
+        if not paths:  # pragma: no cover
+            paths = (os.getcwd(),)
+        # Set up the result to hold what we get back
+        result = LintingResult()
+
+        expanded_paths: List[str] = []
+        expanded_path_to_linted_dir = {}
+        for path in paths:
+            linted_dir = LintedDir(path)
+            result.add(linted_dir)
+            for fname in self.paths_from_path(
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
-            )
-        )
+            ):
+                expanded_paths.append(fname)
+                expanded_path_to_linted_dir[fname] = linted_dir
 
+        files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
 
@@ -1115,72 +1166,29 @@ class Linter:
             self.formatter.dispatch_processing_header(effective_processes)
 
         # Show files progress bar only when there is more than one.
-        files_count = len(fnames)
+        first_path = expanded_paths[0] if expanded_paths else ""
         progress_bar_files = tqdm(
             total=files_count,
-            desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
+            desc=f"file {first_path}",
             leave=False,
             disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
-        for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
-            linted_path.add(linted_file)
+        for i, linted_file in enumerate(runner.run(expanded_paths, fix), start=1):
+            linted_dir = expanded_path_to_linted_dir[linted_file.path]
+            linted_dir.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
             # Progress bar for files is rendered only when there is more than one file.
-            # Additionally as it's updated after each loop, we need to get file name
+            # Additionally, as it's updated after each loop, we need to get file name
             # from the next loop. This is why `enumerate` starts with `1` and there
             # is `i < len` to not exceed files list length.
             progress_bar_files.update(n=1)
-            if i < len(fnames):
-                progress_bar_files.set_description(
-                    f"file {os.path.basename(fnames[i])}"
-                )
-
-        return linted_path
-
-    def lint_paths(
-        self,
-        paths: Tuple[str, ...],
-        fix: bool = False,
-        ignore_non_existent_files: bool = False,
-        ignore_files: bool = True,
-        processes: Optional[int] = None,
-    ) -> LintingResult:
-        """Lint an iterable of paths."""
-        paths_count = len(paths)
-
-        # If no paths specified - assume local
-        if not paths_count:  # pragma: no cover
-            paths = (os.getcwd(),)
-        # Set up the result to hold what we get back
-        result = LintingResult()
-
-        progress_bar_paths = tqdm(
-            total=paths_count,
-            desc="path",
-            leave=False,
-            disable=paths_count <= 1 or progress_bar_configuration.disable_progress_bar,
-        )
-        for path in paths:
-            progress_bar_paths.set_description(f"path {path}")
-
-            # Iterate through files recursively in the specified directory (if it's a
-            # directory) or read the file directly if it's not
-            result.add(
-                self.lint_path(
-                    path,
-                    fix=fix,
-                    ignore_non_existent_files=ignore_non_existent_files,
-                    ignore_files=ignore_files,
-                    processes=processes,
-                )
-            )
-
-            progress_bar_paths.update(1)
+            if i < len(expanded_paths):
+                progress_bar_files.set_description(f"file {expanded_paths[i]}")
 
         result.stop_timer()
         return result
@@ -1200,7 +1208,7 @@ class Linter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
             try:
-                raw_file, config, encoding = self._load_raw_file_and_config(
+                raw_file, config, encoding = self.load_raw_file_and_config(
                     fname, self.config
                 )
             except SQLFluffSkipFile as s:

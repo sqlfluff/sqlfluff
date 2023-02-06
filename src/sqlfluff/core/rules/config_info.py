@@ -17,12 +17,6 @@ STANDARD_CONFIG_INFO_DICT = {
             "Used in the fixing step of this rule."
         ),
     },
-    "max_line_length": {
-        "validation": range(1000),
-        "definition": (
-            "The maximum length of a line to allow without raising a violation."
-        ),
-    },
     "indent_unit": {
         "validation": ["space", "tab"],
         "definition": "Whether to use tabs or spaces to add new indents.",
@@ -30,13 +24,9 @@ STANDARD_CONFIG_INFO_DICT = {
     "hanging_indents": {
         "validation": [True, False],
         "definition": (
-            "Whether hanging indents will be considered when evaluting the "
+            "Whether hanging indents will be considered when evaluating the "
             "indentation of a file."
         ),
-    },
-    "comma_style": {
-        "validation": ["leading", "trailing"],
-        "definition": "The comma style to enforce.",
     },
     "allow_scalar": {
         "validation": [True, False],
@@ -126,7 +116,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "aliasing": {
         "validation": ["implicit", "explicit"],
         "definition": (
-            "Should alias have an explict AS or is implicit aliasing required?"
+            "Should alias have an explicit AS or is implicit aliasing required?"
         ),
     },
     "fully_qualify_join_types": {
@@ -205,6 +195,10 @@ STANDARD_CONFIG_INFO_DICT = {
     "wildcard_policy": {
         "validation": ["single", "multiple"],
         "definition": "Treatment of wildcards. Defaults to ``single``.",
+    },
+    "preferred_type_casting_style": {
+        "validation": ["consistent", "shorthand", "convert", "cast"],
+        "definition": ("The expectation for using sql type casting"),
     },
 }
 

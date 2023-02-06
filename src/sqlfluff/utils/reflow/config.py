@@ -4,7 +4,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, Set, Optional
+from typing import AbstractSet, Dict, FrozenSet, Set, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
@@ -20,12 +20,14 @@ class BlockConfig:
     spacing_before: str = "single"
     spacing_after: str = "single"
     spacing_within: Optional[str] = None
+    line_position: Optional[str] = None
 
     def incorporate(
         self,
         before: Optional[str] = None,
         after: Optional[str] = None,
         within: Optional[str] = None,
+        line_position: Optional[str] = None,
         config: Optional[ConfigElementType] = None,
     ):
         """Mutate the config based on additional information."""
@@ -38,6 +40,9 @@ class BlockConfig:
         )
         self.spacing_within = (
             within or config.get("spacing_within", None) or self.spacing_within
+        )
+        self.line_position = (
+            line_position or config.get("line_position", None) or self.line_position
         )
 
 
@@ -52,9 +57,18 @@ class ReflowConfig:
 
     _config_dict: ConfigDictType
     config_types: Set[str]
+    # In production, these values are almost _always_ set because we
+    # use `.from_fluff_config`, but the defaults are here to aid in
+    # testing.
+    tab_space_size: int = 4
+    indent_unit: str = "    "
+    max_line_length: int = 80
+    hanging_indents: bool = False
+    skip_indentation_in: FrozenSet[str] = frozenset()
+    allow_implicit_indents: bool = False
 
     @classmethod
-    def from_dict(cls, config_dict: ConfigDictType):
+    def from_dict(cls, config_dict: ConfigDictType, **kwargs):
         """Construct a ReflowConfig from a dict."""
         config_types = set(config_dict.keys())
         # Enrich any of the "align" keys with what they're aligning with.
@@ -66,15 +80,27 @@ class ReflowConfig:
                     # NOTE: A `boundary` is only applicable if `within` is present.
                     if config_dict[seg_type].get("align_within", None):
                         new_key += ":" + config_dict[seg_type]["align_within"]
-                        if config_dict[seg_type].get("align_boundary", None):
-                            new_key += ":" + config_dict[seg_type]["align_boundary"]
+                        if config_dict[seg_type].get("align_scope", None):
+                            new_key += ":" + config_dict[seg_type]["align_scope"]
                     config_dict[seg_type][key] = new_key
-        return cls(_config_dict=config_dict, config_types=config_types)
+        return cls(_config_dict=config_dict, config_types=config_types, **kwargs)
 
     @classmethod
     def from_fluff_config(cls, config: FluffConfig):
         """Constructs a ReflowConfig from a FluffConfig."""
-        return cls.from_dict(config.get_section(["layout", "type"]))
+        return cls.from_dict(
+            config.get_section(["layout", "type"]),
+            indent_unit=config.get("indent_unit", ["indentation"]),
+            tab_space_size=config.get("tab_space_size", ["indentation"]),
+            hanging_indents=config.get("hanging_indents", ["indentation"]),
+            max_line_length=config.get("max_line_length"),
+            skip_indentation_in=frozenset(
+                config.get("skip_indentation_in", ["indentation"]).split(",")
+            ),
+            allow_implicit_indents=config.get(
+                "allow_implicit_indents", ["indentation"]
+            ),
+        )
 
     def get_block_config(
         self,
@@ -86,8 +112,8 @@ class ReflowConfig:
         When fetching the config for a single class type for a simple block
         we should just get an appropriate simple config back.
         >>> cfg = ReflowConfig.from_dict({"comma": {"spacing_before": "touch"}})
-        >>> cfg.get_block_config({"comma"})
-        BlockConfig(spacing_before='touch', spacing_after='single', spacing_within=None)
+        >>> cfg.get_block_config({"comma"})  # doctest: +ELLIPSIS
+        BlockConfig(spacing_before='touch', spacing_after='single', ...)
         """
         # set intersection to get the class types which matter
         configured_types = self.config_types.intersection(block_class_types)
@@ -100,11 +126,11 @@ class ReflowConfig:
         # we're at one end (if depth info provided).
         if depth_info:
             parent_start, parent_end = True, True
-            for idx, pos in enumerate(depth_info.stack_positions[::-1]):
+            for idx, key in enumerate(depth_info.stack_hashes[::-1]):
                 # Work out if we're allowed to claim the parent.
-                if pos not in ("solo", "start"):
+                if depth_info.stack_positions[key].type not in ("solo", "start"):
                     parent_start = False
-                if pos not in ("solo", "end"):
+                if depth_info.stack_positions[key].type not in ("solo", "end"):
                     parent_end = False
                 if not (parent_start or parent_end):
                     break

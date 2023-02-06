@@ -289,4 +289,20 @@ UNRESERVED_KEYWORDS = [
     "HISTORY",
     "RETAIN",
     "RUN",
+    # Databricks - Delta Live Tables
+    "CHANGES",
+    "DELETES",
+    "EXPECT",
+    "FAIL",
+    "LIVE",
+    "SCD",
+    "STREAMING",
+    "UPDATES",
+    "VIOLATION",
+    # Databricks widget
+    "WIDGET",
+    "DROPDOWN",
+    "TEXT",
+    "CHOICES",
+    "REMOVE",
 ]

@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
@@ -57,6 +58,12 @@ athena_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
     RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
+    OrcKeywordSegment=StringParser("ORCFILE", KeywordSegment, type="file_format"),
+    ParquetKeywordSegment=StringParser(
+        "PARQUETFILE", KeywordSegment, type="file_format"
+    ),
+    AvroKeywordSegment=StringParser("AVROFILE", KeywordSegment, type="file_format"),
+    IonKeywordSegment=StringParser("IONFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
         "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
@@ -165,6 +172,15 @@ athena_dialect.replace(
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"([_]+|[A-Z0-9_]*[A-Z][A-Z0-9_]*)",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),

@@ -9,3 +9,4 @@ ALTER TYPE colors ADD VALUE 'orange' AFTER 'red';
 ALTER TYPE foo ADD VALUE 'baz';
 ALTER TYPE foo ADD VALUE 'qux' BEFORE 'baz';
 ALTER TYPE foo ADD VALUE 'quux' AFTER 'baz';
+ALTER TYPE financial.reporting_statuses RENAME VALUE 'partially' TO 'partially-reported';

@@ -4,19 +4,24 @@ import logging
 import os
 import os.path
 import configparser
+import sys
+from dataclasses import dataclass
 
 import pluggy
 from itertools import chain
-from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable
+from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable, Callable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.errors import SQLFluffUserError
 
 import appdirs
 
-import toml
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import toml as tomllib
 
-# Instantiate the templater logger
+# Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
 
 global_loader = None
@@ -28,9 +33,123 @@ can still cache appropriately
 
 ConfigElemType = Tuple[Tuple[str, ...], Any]
 
-REMOVED_CONFIGS: Dict[Tuple[str, ...], Any] = {
-    ("rules", "L003", "lint_templated_tokens"): ("No longer used."),
-}
+
+@dataclass
+class _RemovedConfig:
+    old_path: Tuple[str, ...]
+    warning: str
+    new_path: Optional[Tuple[str, ...]] = None
+    translation_func: Optional[Callable[[str], str]] = None
+
+
+REMOVED_CONFIGS = [
+    _RemovedConfig(
+        ("rules", "L003", "hanging_indents"),
+        (
+            "Hanging indents are no longer supported in SQLFluff "
+            "from version 2.0.0 onwards. See "
+            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
+        ),
+    ),
+    _RemovedConfig(
+        ("rules", "max_line_length"),
+        (
+            "The max_line_length config has moved "
+            "from sqlfluff:rules to the root sqlfluff level."
+        ),
+        ("max_line_length",),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L002", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L004", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L016", "tab_space_size"),
+        (
+            "The tab_space_size config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "tab_space_size"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "indent_unit"),
+        (
+            "The indent_unit config has moved "
+            "from sqlfluff:rules to sqlfluff:indentation."
+        ),
+        ("indentation", "indent_unit"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L007", "operator_new_lines"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":binary_operator)."
+        ),
+        ("layout", "type", "binary_operator", "line_position"),
+        (lambda x: "trailing" if x == "before" else "leading"),
+    ),
+    _RemovedConfig(
+        ("rules", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    # L019 used to have a more specific version of the same /config itself.
+    _RemovedConfig(
+        ("rules", "L019", "comma_style"),
+        (
+            "Use the line_position config in the appropriate "
+            "sqlfluff:layout section (e.g. sqlfluff:layout:type"
+            ":comma)."
+        ),
+        ("layout", "type", "comma", "line_position"),
+        (lambda x: x),
+    ),
+    _RemovedConfig(
+        ("rules", "L003", "lint_templated_tokens"),
+        "No longer used.",
+    ),
+]
 
 
 def coerce_value(val: str) -> Any:
@@ -71,6 +190,13 @@ def nested_combine(*dicts: dict) -> dict:
     Returns:
         `dict`: A combined dictionary from the input dictionaries.
 
+    A simple example:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"d": "e"}})
+    {'a': {'b': 'c', 'd': 'e'}}
+
+    Keys overwrite left to right:
+    >>> nested_combine({"a": {"b": "c"}}, {"a": {"b": "e"}})
+    {'a': {'b': 'e'}}
     """
     r: dict = {}
     for d in dicts:
@@ -105,10 +231,20 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
         left (:obj:`dict`): The object containing the *new* elements
             which will be compared against the other.
         right (:obj:`dict`): The object to compare against.
+        ignore (:obj:`list` of `str`, optional): Keys to ignore.
 
     Returns:
         `dict`: A dictionary representing the difference.
 
+    Basic functionality shown, especially returning the left as:
+    >>> dict_diff({"a": "b", "c": "d"}, {"a": "b", "c": "e"})
+    {'c': 'd'}
+
+    Ignoring works on a key basis:
+    >>> dict_diff({"a": "b"}, {"a": "c"})
+    {'a': 'b'}
+    >>> dict_diff({"a": "b"}, {"a": "c"}, ["a"])
+    {}
     """
     buff: dict = {}
     for k in left:
@@ -146,7 +282,7 @@ class ConfigLoader:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # TODO: check that this cache implementation is actually useful
         self._config_cache: dict = {}
 
@@ -173,7 +309,15 @@ class ConfigLoader:
 
     @classmethod
     def _iter_config_elems_from_dict(cls, configs: dict) -> Iterator[ConfigElemType]:
-        """Walk a config dict and get config elements."""
+        """Walk a config dict and get config elements.
+
+        >>> list(
+        ...    ConfigLoader._iter_config_elems_from_dict(
+        ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
+        ...    )
+        ... )
+        [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
+        """
         for key, val in configs.items():
             if isinstance(val, dict):
                 for partial_key, sub_val in cls._iter_config_elems_from_dict(val):
@@ -182,13 +326,33 @@ class ConfigLoader:
                 yield (key,), val
 
     @classmethod
+    def _config_elems_to_dict(cls, configs: Iterable[ConfigElemType]) -> dict:
+        """Reconstruct config elements into a dict.
+
+        >>> ConfigLoader._config_elems_to_dict(
+        ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
+        ... )
+        {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
+        """
+        result: Dict[str, Union[dict, str]] = {}
+        for key, val in configs:
+            ref = result
+            for step in key[:-1]:
+                if step not in ref:
+                    ref[step] = {}
+                ref = ref[step]  # type: ignore
+            ref[key[-1]] = val
+        return result
+
+    @classmethod
     def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a TOML file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
         the first is a tuple of paths, the second is the value at that path.
         """
-        config = toml.load(fpath)
+        with open(fpath, mode="r") as file:
+            config = tomllib.loads(file.read())
         tool = config.get("tool", {}).get("sqlfluff", {})
 
         return cls._walk_toml(tool)
@@ -214,7 +378,7 @@ class ConfigLoader:
         # Disable interpolation so we can load macros
         kw: Dict = {}
         kw["interpolation"] = None
-        config = configparser.ConfigParser(**kw)
+        config = configparser.ConfigParser(delimiters="=", **kw)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
@@ -261,7 +425,13 @@ class ConfigLoader:
 
     @staticmethod
     def _incorporate_vals(ctx: dict, vals: List[ConfigElemType]) -> dict:
-        """Take a list of tuples and incorporate it into a dictionary."""
+        """Take a list of tuples and incorporate it into a dictionary.
+
+        >>> ConfigLoader._incorporate_vals({}, [(("a", "b"), "c")])
+        {'a': {'b': 'c'}}
+        >>> ConfigLoader._incorporate_vals({"a": {"b": "c"}}, [(("a", "d"), "e")])
+        {'a': {'b': 'c', 'd': 'e'}}
+        """
         for k, v in vals:
             # Keep a ref we can use for recursion
             r = ctx
@@ -284,17 +454,65 @@ class ConfigLoader:
         return ctx
 
     @staticmethod
-    def _validate_configs(configs: Iterable[ConfigElemType], file_path):
+    def _validate_configs(
+        configs: Iterable[ConfigElemType], file_path
+    ) -> List[ConfigElemType]:
         """Validate config elements against removed list."""
-        for k, _ in configs:
-            if k in REMOVED_CONFIGS:
+        config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
+        # Materialise the configs into a list to we can iterate twice.
+        new_configs = list(configs)
+        defined_keys = {k for k, _ in new_configs}
+        validated_configs = []
+        for k, v in new_configs:
+            if k in config_map.keys():
                 formatted_key = ":".join(k)
-                raise SQLFluffUserError(
-                    f"Config file {file_path} set an outdated config "
-                    f"value {formatted_key}.\n\n{REMOVED_CONFIGS[k]}\n\n"
-                    "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                    " for more details."
-                )
+                removed_option = config_map[k]
+                # Is there a mapping option?
+                if removed_option.translation_func and removed_option.new_path:
+                    formatted_new_key = ":".join(removed_option.new_path)
+                    # Before mutating, check we haven't _also_ set the new value.
+                    if removed_option.new_path in defined_keys:
+                        # Raise an warning.
+                        config_logger.warning(
+                            f"\nWARNING: Config file {file_path} set a deprecated "
+                            f"config value `{formatted_key}` (which can be migrated) "
+                            f"but ALSO set the value it would be migrated to. The new "
+                            f"value (`{removed_option.new_path}`) takes precedence. "
+                            "Please update your configuration to remove this warning. "
+                            f"\n\n{removed_option.warning}\n\n"
+                            "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                            " for more details.\n"
+                        )
+                        # continue to NOT add this value in the set
+                        continue
+
+                    # Mutate and warn.
+                    v = removed_option.translation_func(v)
+                    k = removed_option.new_path
+                    # NOTE: At the stage of emitting this warning, we may not yet
+                    # have set up red logging because we haven't yet loaded the config
+                    # file. For that reason, this error message has a bit more padding.
+                    config_logger.warning(
+                        f"\nWARNING: Config file {file_path} set a deprecated config "
+                        f"value `{formatted_key}`. This will be removed in a later "
+                        "release. This has been mapped to "
+                        f"`{formatted_new_key}` set to a value of `{v}` for this run. "
+                        "Please update your configuration to remove this warning. "
+                        f"\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details.\n"
+                    )
+                else:
+                    # Raise an error.
+                    raise SQLFluffUserError(
+                        f"Config file {file_path} set an outdated config "
+                        f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
+                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        " for more details."
+                    )
+
+            validated_configs.append((k, v))
+        return validated_configs
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None
@@ -305,7 +523,7 @@ class ConfigLoader:
             elems = self._get_config_elems_from_toml(file_path)
         else:
             elems = self._get_config_elems_from_file(file_path)
-        self._validate_configs(elems, file_path)
+        elems = self._validate_configs(elems, file_path)
         return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -497,13 +715,15 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            ConfigLoader._validate_configs(
-                [
-                    (("core",) + k, v)
-                    for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
-                ],
-                "<provided overrides>",
-            )
+            overrides = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    [
+                        (("core",) + k, v)
+                        for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                    ],
+                    "<provided overrides>",
+                )
+            )["core"]
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
@@ -512,8 +732,11 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            ConfigLoader._validate_configs(
-                ConfigLoader._iter_config_elems_from_dict(configs), "<provided configs>"
+            configs = ConfigLoader._config_elems_to_dict(
+                ConfigLoader._validate_configs(
+                    ConfigLoader._iter_config_elems_from_dict(configs),
+                    "<provided configs>",
+                )
             )
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
@@ -522,26 +745,21 @@ class FluffConfig:
         self._configs["core"]["color"] = (
             False if self._configs["core"].get("nocolor", False) else None
         )
-        # Deal with potential ignore parameters
-        if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = _split_comma_separated_string(
-                self._configs["core"]["ignore"]
-            )
-        else:
-            self._configs["core"]["ignore"] = []
-        # Allowlists and denylists
-        if self._configs["core"].get("rules", None):
-            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
-                self._configs["core"]["rules"]
-            )
-        else:
-            self._configs["core"]["rule_allowlist"] = None
-        if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
-                self._configs["core"]["exclude_rules"]
-            )
-        else:
-            self._configs["core"]["rule_denylist"] = None
+        # Handle inputs which are potentially comma separated strings
+        for in_key, out_key in [
+            # Deal with potential ignore & warning parameters
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            # Allowlists and denylists
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = _split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
@@ -584,6 +802,10 @@ class FluffConfig:
         state = self.__dict__.copy()
         # Remove the unpicklable entries.
         del state["_plugin_manager"]
+        # The dbt templater doesn't pickle well, but isn't required
+        # within threaded operations. If it was, it could easily be
+        # rehydrated within the thread.
+        state["_configs"]["core"].pop("templater_obj", None)
         return state
 
     def __setstate__(self, state):  # pragma: no cover
@@ -599,6 +821,9 @@ class FluffConfig:
         # process invocations of sqlfluff. In the event that user registered
         # rules are used in a multi-process invocation, they will not be applied
         # in the child processes.
+        # NOTE: Likewise we don't reinstate the "templater_obj" config value
+        # which should also only be used in the main thread rather than child
+        # processes.
 
     @classmethod
     def from_root(

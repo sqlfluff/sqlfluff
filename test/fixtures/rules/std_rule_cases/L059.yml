@@ -54,7 +54,7 @@ test_pass_column_reference_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_column_reference_prefer_quoted_ansi:
   fail_str: |
@@ -62,7 +62,7 @@ test_fail_column_reference_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_table_reference_prefer_quoted_ansi:
   pass_str: |
@@ -71,7 +71,7 @@ test_pass_table_reference_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_table_reference_prefer_quoted_ansi:
   fail_str: |
@@ -80,7 +80,7 @@ test_fail_table_reference_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_multiple_references_prefer_quoted_ansi:
   pass_str: |
@@ -89,7 +89,7 @@ test_pass_multiple_references_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_multiple_references_prefer_quoted_ansi:
   fail_str: |
@@ -98,7 +98,7 @@ test_fail_multiple_references_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_whitespace_prefer_quoted_ansi:
   pass_str: |
@@ -106,7 +106,7 @@ test_pass_whitespace_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_special_symbols_prefer_quoted_ansi:
   pass_str: |
@@ -114,7 +114,7 @@ test_pass_special_symbols_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_reserved_keyword_prefer_quoted_ansi:
   pass_str: |
@@ -122,7 +122,7 @@ test_pass_reserved_keyword_prefer_quoted_ansi:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_column_reference_prefer_quoted_backticks:
   pass_str: |
@@ -132,7 +132,7 @@ test_pass_column_reference_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_column_reference_prefer_quoted_backticks:
   fail_str: |
@@ -142,7 +142,7 @@ test_fail_column_reference_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_table_reference_prefer_quoted_backticks:
   pass_str: |
@@ -153,7 +153,7 @@ test_pass_table_reference_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_table_reference_prefer_quoted_backticks:
   fail_str: |
@@ -164,7 +164,7 @@ test_fail_table_reference_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_multiple_references_prefer_quoted_backticks:
   pass_str: |
@@ -175,7 +175,7 @@ test_pass_multiple_references_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_multiple_references_prefer_quoted_backticks:
   fail_str: |
@@ -186,7 +186,7 @@ test_fail_multiple_references_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_whitespace_prefer_quoted_backticks:
   pass_str: |
@@ -196,7 +196,7 @@ test_pass_whitespace_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_special_symbols_prefer_quoted_backticks:
   pass_str: |
@@ -206,7 +206,7 @@ test_pass_special_symbols_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_reserved_keyword_prefer_quoted_backticks:
   pass_str: |
@@ -216,7 +216,7 @@ test_pass_reserved_keyword_prefer_quoted_backticks:
       dialect: bigquery
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_pass_datetime_redshift:
   pass_str: |
@@ -300,7 +300,7 @@ test_pass_ignore_if:
   configs:
     rules:
       L059:
-        prefer_quoted_identifiers: True
+        prefer_quoted_identifiers: true
 
 test_fail_insert_overwrite_directory:
   fail_str: |

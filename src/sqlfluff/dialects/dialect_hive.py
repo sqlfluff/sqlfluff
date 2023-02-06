@@ -208,6 +208,20 @@ hive_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    # Full Apache Hive `CREATE ALTER` reference here:
+    # https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-AlterTable
+    AlterTableOptionsGrammar=ansi_dialect.get_grammar("AlterTableOptionsGrammar").copy(
+        insert=[
+            # Exchange
+            Sequence(
+                "EXCHANGE",
+                Ref("PartitionSpecGrammar"),
+                "WITH",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+        ]
+    ),
 )
 
 
@@ -321,6 +335,80 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("TablePropertiesGrammar", optional=True),
             ),
         ),
+    )
+
+
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    type = "table_constraint"
+
+    match_grammar: Matchable = Sequence(
+        Sequence("CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                "UNIQUE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Sequence(
+                    "DISABLE",
+                    "NOVALIDATE",
+                    OneOf("RELY", "NORELY", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("ForeignKeyGrammar"),
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
+                Sequence("DISABLE", "NOVALIDATE", optional=True),
+            ),
+        ),
+    )
+
+
+class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """Modified from ANSI to allow for `LATERAL VIEW` clause."""
+
+    match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
+        insert=[
+            AnyNumberOf(Ref("LateralViewClauseSegment")),
+        ],
+        after=Ref("SamplingExpressionSegment"),
+    )
+
+
+class LateralViewClauseSegment(BaseSegment):
+    """A `LATERAL VIEW` in a `FROM` clause.
+
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+lateralview
+    """
+
+    type = "lateral_view_clause"
+
+    match_grammar = Sequence(
+        Indent,
+        "LATERAL",
+        "VIEW",
+        Ref.keyword("OUTER", optional=True),
+        Ref("FunctionSegment"),
+        # NB: AliasExpressionSegment is not used here for table
+        # or column alias because `AS` is optional within it
+        # (and in most scenarios). Here it's explicitly defined
+        # for when it is required and not allowed.
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence(
+            "AS",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Dedent,
     )
 
 

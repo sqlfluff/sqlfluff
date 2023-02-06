@@ -1,5 +1,5 @@
 """Implementation of Rule L057."""
-from typing import Optional, Set
+from typing import Optional, Set, List
 
 import regex
 
@@ -103,7 +103,6 @@ class Rule_L057(BaseRule):
 
         # Do some extra processing for quoted identifiers.
         if context.segment.is_type("quoted_identifier"):
-
             # Update the default policy to quoted
             policy = self.quoted_identifiers_policy
 
@@ -136,7 +135,7 @@ class Rule_L057(BaseRule):
                 identifier = identifier.replace(".", "")
 
             # SparkSQL file references for direct file query
-            # are quoted in back ticks to allow for identfiers common
+            # are quoted in back ticks to allow for identifiers common
             # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
             #
@@ -145,9 +144,8 @@ class Rule_L057(BaseRule):
             #
 
             if context.dialect.name in ["sparksql"] and context.parent_stack:
-
                 # SparkSQL file references for direct file query
-                # are quoted in back ticks to allow for identfiers common
+                # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing
                 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
                 #
@@ -202,7 +200,7 @@ class Rule_L057(BaseRule):
 
         return None
 
-    def _init_ignore_words_list(self):
+    def _init_ignore_words_list(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":

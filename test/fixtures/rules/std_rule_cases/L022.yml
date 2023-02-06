@@ -151,9 +151,12 @@ test_fail_oneline_cte_leading_comma:
     select * from my_cte
     cross join other_cte
 
+  # NOTE: we're using the global comma position config
   configs:
-    rules:
-      comma_style: leading
+    layout:
+      type:
+        comma:
+          line_position: leading
 
 test_fail_cte_floating_comma:
   # Fixes cte with a floating comma

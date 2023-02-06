@@ -1,10 +1,14 @@
 """Indent and Dedent classes."""
 
+from uuid import UUID
+
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
 from typing import Optional, List
+
+from sqlfluff.core.templaters.base import TemplatedFile
 
 
 class MetaSegment(RawSegment):
@@ -14,11 +18,32 @@ class MetaSegment(RawSegment):
     _is_code = False
     _template = "<unset>"
     indent_val = 0
+    # Implicit indents are to be considered _taken_ unless
+    # closed on the same line.
+    is_implicit = False
     is_meta = True
 
-    def __init__(self, is_template=False, *args, **kwargs):
+    def __init__(
+        self,
+        is_template: bool = False,
+        block_uuid: Optional[UUID] = None,
+        *args,
+        **kwargs,
+    ):
+        """Constructor for MetaSegment.
+
+        Args:
+            is_template (:obj:`bool`): A flag to indicate whether
+                this meta segment is related to a templated section.
+                This allows proper handling.
+            block_uuid (:obj:`UUID`): A reference to link together
+                markers which refer to the same structure in a
+                template (e.g. the beginning and end of an if
+                statement).
+        """
         super().__init__(*args, **kwargs)
         self.is_template = is_template
+        self.block_uuid = block_uuid
 
     @staticmethod
     def _suffix():
@@ -84,6 +109,22 @@ class Indent(MetaSegment):
     indent_val = 1
 
 
+class ImplicitIndent(Indent):
+    """A variant on the indent, that is considered *taken* unless closed in line.
+
+    This is primarily for facilitating constructions which behave a little
+    like hanging indents, without the complicated indentation spacing.
+
+    .. code-block:: sql
+        SELECT *
+        FROM foo
+        WHERE a  -- The theoretical indent between WHERE and "a" is implicit.
+            AND b
+    """
+
+    is_implicit = True
+
+
 class Dedent(Indent):
     """A segment which is empty but indicates where an dedent should be.
 
@@ -121,18 +162,44 @@ class TemplateSegment(MetaSegment):
         source_str: str = "",
         block_type: str = "",
         source_fixes: Optional[List[SourceFix]] = None,
+        block_uuid: Optional[UUID] = None,
     ):
         """Initialise a placeholder with the source code embedded."""
-        if not source_str:  # pragma: no cover
+        # NOTE: Empty string is ok, None is not.
+        if source_str is None:  # pragma: no cover
             raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
         # Call the super of the pos_marker.
-        super().__init__(pos_marker=pos_marker, source_fixes=source_fixes)
+        super().__init__(
+            pos_marker=pos_marker, source_fixes=source_fixes, block_uuid=block_uuid
+        )
 
     def _suffix(self):
         """Also output what it's a placeholder for."""
         return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
+
+    @classmethod
+    def from_slice(
+        cls,
+        source_slice: slice,
+        templated_slice: slice,
+        block_type: str,
+        templated_file: TemplatedFile,
+        block_uuid: Optional[UUID] = None,
+    ):
+        """Construct template segment from slice of a source file."""
+        pos_marker = PositionMarker(
+            source_slice,
+            templated_slice,
+            templated_file,
+        )
+        return cls(
+            pos_marker=pos_marker,
+            source_str=templated_file.source_str[source_slice],
+            block_type=block_type,
+            block_uuid=block_uuid,
+        )
 
     def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
         """Return a tuple structure from this segment.
@@ -147,7 +214,10 @@ class TemplateSegment(MetaSegment):
             return (self.get_type(), self.raw)
 
     def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+        self,
+        raw: Optional[str] = None,
+        source_fixes: Optional[List[SourceFix]] = None,
+        source_str: Optional[str] = None,
     ):
         """Create a new segment, with exactly the same position but different content.
 
@@ -163,9 +233,17 @@ class TemplateSegment(MetaSegment):
             raise ValueError(
                 "Cannot set raw of a template placeholder!"
             )  # pragma: no cover
+
+        if source_fixes or self.source_fixes:
+            sf = (source_fixes or []) + (self.source_fixes + [])
+        else:  # pragma: no cover
+            # There's _usually_ a source fix if we're editing a templated
+            # segment - but not necessarily guaranteed.
+            sf = None
         return self.__class__(
             pos_marker=self.pos_marker,
-            source_str=self.source_str,
+            source_str=source_str if source_str is not None else self.source_str,
             block_type=self.block_type,
-            source_fixes=source_fixes or self.source_fixes,
+            source_fixes=sf,
+            block_uuid=self.block_uuid,
         )

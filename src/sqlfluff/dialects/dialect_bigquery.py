@@ -343,6 +343,30 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """A set expression with either Union, Minus, Except or Intersect."""
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("NonSetSelectableGrammar"),
+            Bracketed(Ref("SetExpressionSegment")),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("SetOperatorSegment"),
+                OneOf(
+                    Ref("NonSetSelectableGrammar"),
+                    Bracketed(Ref("SetExpressionSegment")),
+                ),
+            ),
+            min_times=1,
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
@@ -422,6 +446,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LeaveStatementSegment"),
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
+            Ref("AlterViewStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
@@ -668,8 +693,8 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
 
     match_grammar = Sequence(
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
-        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
         OneOf("DISTINCT", "ALL", optional=True),
+        Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
     )
 
 
@@ -1018,6 +1043,7 @@ class StructTypeSegment(ansi.StructTypeSegment):
                             Ref("DatatypeSegment"),
                         ),
                     ),
+                    AnyNumberOf(Ref("ColumnConstraintSegment")),
                     Ref("OptionsSegment", optional=True),
                 ),
             ),
@@ -1405,9 +1431,7 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
-        ),
+        AnyNumberOf(Ref("ColumnConstraintSegment")),
         Ref("OptionsSegment", optional=True),
     )
 
@@ -1424,7 +1448,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Sequence(
-            OneOf("COPY", "LIKE"),
+            OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
             optional=True,
         ),
@@ -1432,14 +1456,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             Bracketed(
                 Delimited(
-                    OneOf(
-                        Ref("TableConstraintSegment"),
-                        Ref("ColumnDefinitionSegment"),
-                    ),
+                    Ref("ColumnDefinitionSegment"),
                     allow_trailing=True,
                 )
             ),
-            Ref("CommentClauseSegment", optional=True),
             optional=True,
         ),
         Ref("PartitionBySegment", optional=True),
@@ -1450,6 +1470,91 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             "AS",
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
+        ),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """A `ALTER TABLE` statement."""
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement
+            Sequence(
+                "SET",
+                Ref("OptionsSegment"),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_column_statement
+            Delimited(
+                Sequence(
+                    "ADD",
+                    "COLUMN",
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                ),
+                allow_trailing=True,
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_rename_to_statement
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_rename_column_statement
+            Delimited(
+                Sequence(
+                    "RENAME",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    "TO",
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                ),
+                allow_trailing=True,
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_column_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
+            Delimited(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    OneOf(
+                        Sequence(
+                            "SET",
+                            OneOf(
+                                Ref("OptionsSegment"),
+                                Sequence(
+                                    "DATA",
+                                    "TYPE",
+                                    Ref("DatatypeSegment"),
+                                ),
+                                Sequence(
+                                    "DEFAULT",
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("FunctionSegment"),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        Sequence("DROP", OneOf("DEFAULT", Sequence("NOT", "NULL"))),
+                    ),
+                ),
+            ),
         ),
     )
 
@@ -1476,7 +1581,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        # Although not specified in the BigQuery documentation optinal arguments for
+        # Although not specified in the BigQuery documentation optional arguments for
         # CREATE EXTERNAL TABLE statements can be ordered arbitrarily.
         AnyNumberOf(
             # connection names have the same rules as table names in BigQuery
@@ -1516,6 +1621,24 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """A `ALTER VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
     )
 
 
@@ -1579,7 +1702,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
 
 
 class ParameterizedSegment(BaseSegment):
-    """BigQuery allows named and argument based parameters to help preven SQL Injection.
+    """BigQuery allows named and argument based parameters to prevent SQL Injection.
 
     https://cloud.google.com/bigquery/docs/parameterized-queries
     """
@@ -1853,7 +1976,10 @@ class ExportStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("SingleQuotedLiteralSegment"),
+                        Ref("DoubleQuotedLiteralSegment"),
+                    ),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with

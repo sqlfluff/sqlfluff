@@ -1,0 +1,213 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a34c4368d0453fcd8c9df9799107c972653582fd0b00ea2e230a4a7e47f48183
+file:
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '100'
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t1
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: value
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '100'
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: binary
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        keyword: SUBSCRIBE
+        object_reference:
+          naked_identifier: some_view
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        keyword: SUBSCRIBE
+        object_reference:
+          naked_identifier: some_view
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: binary
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_to_statement:
+    - keyword: COPY
+    - bracketed:
+      - start_bracket: (
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          single_quote: "'2'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '3'
+          comma: ','
+          single_quote: "'4'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '5'
+          comma: ','
+          single_quote: "'\\\\\\t\\n\\rtest\\\\N'"
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '6'
+          comma: ','
+          raw: 'NULL'
+          end_bracket: )
+      - raw: ORDER
+      - raw: BY
+      - raw: column1
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: CSV
+      - comma: ','
+      - raw: DELIMITER
+      - single_quote: "'!'"
+      - comma: ','
+      - raw: QUOTE
+      - single_quote: "'!'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        raw: DELIMITER
+        single_quote: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+    - bracketed:
+      - start_bracket: (
+      - raw: FORMAT
+      - raw: CSV
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_from_statement:
+    - keyword: COPY
+    - object_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - keyword: STDIN
+    - bracketed:
+        start_bracket: (
+        raw: DELIMITER
+        single_quote: "'|'"
+        end_bracket: )
+- statement_terminator: ;

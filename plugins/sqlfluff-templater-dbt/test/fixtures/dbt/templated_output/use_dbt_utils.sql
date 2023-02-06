@@ -13,6 +13,6 @@ select
     a,
     b,
     c,
-    count(*) as occurences
+    count(*) as occurrences
 from orders
 group by 1,2,3

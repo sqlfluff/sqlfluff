@@ -14,14 +14,24 @@ from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
-from dbt.exceptions import (
-    CompilationException as DbtCompilationException,
-    FailedToConnectException as DbtFailedToConnectException,
-)
+
+try:
+    from dbt.exceptions import (
+        CompilationException as DbtCompilationException,
+        FailedToConnectException as DbtFailedToConnectException,
+    )
+except ImportError:
+    from dbt.exceptions import (
+        CompilationError as DbtCompilationException,
+        FailedToConnectError as DbtFailedToConnectException,
+    )
+
 from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.cli.formatters import OutputStreamFormatter
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
 
@@ -37,15 +47,10 @@ DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
-if DBT_VERSION_TUPLE >= (1, 0):
-    from dbt.flags import PROFILES_DIR
-else:
-    from dbt.config.profile import PROFILES_DIR
-
 if DBT_VERSION_TUPLE >= (1, 3):
     COMPILED_SQL_ATTRIBUTE = "compiled_code"
     RAW_SQL_ATTRIBUTE = "raw_code"
-else:
+else:  # pragma: no cover
     COMPILED_SQL_ATTRIBUTE = "compiled_sql"
     RAW_SQL_ATTRIBUTE = "raw_sql"
 
@@ -67,6 +72,7 @@ class DbtTemplater(JinjaTemplater):
 
     name = "dbt"
     sequential_fail_limit = 3
+    adapters = {}
 
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
@@ -75,7 +81,6 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = None
         self.working_dir = os.getcwd()
         self._sequential_fails = 0
-        self.connection_acquired = False
         super().__init__(**kwargs)
 
     def config_pairs(self):  # pragma: no cover TODO?
@@ -83,35 +88,29 @@ class DbtTemplater(JinjaTemplater):
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
     @property
-    def dbt_version(self):
+    def dbt_version(self):  # pragma: no cover
         """Gets the dbt version."""
         return DBT_VERSION_STRING
-
-    @property
-    def dbt_version_tuple(self):
-        """Gets the dbt version as a tuple on (major, minor)."""
-        return DBT_VERSION_TUPLE
 
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        if self.dbt_version_tuple >= (1, 0):
-            # Here, we read flags.PROFILE_DIR directly, prior to calling
-            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-            # to a lowercase version of the value, and the profile wouldn't be
-            # found if the directory name contained uppercase letters. This fix
-            # was suggested and described here:
-            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-            user_config = read_user_config(flags.PROFILES_DIR)
-            flags.set_from_args(
-                DbtConfigArgs(
-                    project_dir=self.project_dir,
-                    profiles_dir=self.profiles_dir,
-                    profile=self._get_profile(),
-                    vars=self._get_cli_vars(),
-                ),
-                user_config,
-            )
+        # Here, we read flags.PROFILE_DIR directly, prior to calling
+        # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+        # to a lowercase version of the value, and the profile wouldn't be
+        # found if the directory name contained uppercase letters. This fix
+        # was suggested and described here:
+        # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+        user_config = read_user_config(flags.PROFILES_DIR)
+        flags.set_from_args(
+            DbtConfigArgs(
+                project_dir=self.project_dir,
+                profiles_dir=self.profiles_dir,
+                profile=self._get_profile(),
+                vars=self._get_cli_vars(),
+            ),
+            user_config,
+        )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -133,10 +132,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        # Identity function used for macro hooks
-        def identity(x):
-            return x
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -147,10 +142,15 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        projects = self.dbt_config.load_dependencies()
-        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-        self.dbt_manifest = loader.load()
-
+        old_cwd = os.getcwd()
+        try:
+            # Changing cwd temporarily as dbt is not using project_dir to
+            # read/write `target/partial_parse.msgpack`. This can be undone when
+            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
+            os.chdir(self.project_dir)
+            self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        finally:
+            os.chdir(old_cwd)
         return self.dbt_manifest
 
     @cached_property
@@ -194,7 +194,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
-                or PROFILES_DIR
+                or flags.PROFILES_DIR
             )
         )
 
@@ -322,15 +322,22 @@ class DbtTemplater(JinjaTemplater):
                 )
 
     @large_file_check
-    def process(self, *, fname, in_str=None, config=None, formatter=None):
+    def process(
+        self,
+        *,
+        fname: str,
+        in_str: Optional[str] = None,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[OutputStreamFormatter] = None,
+    ):
         """Compile a dbt model and return the compiled SQL.
 
         Args:
-            fname (:obj:`str`): Path to dbt model(s)
-            in_str (:obj:`str`, optional): This is ignored for dbt
-            config (:obj:`FluffConfig`, optional): A specific config to use for this
+            fname: Path to dbt model(s)
+            in_str: fname contents using configured encoding
+            config: A specific config to use for this
                 templating operation. Only necessary for some templaters.
-            formatter (:obj:`CallbackFormatter`): Optional object for output.
+            formatter: Optional object for output.
         """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
@@ -415,17 +422,12 @@ class DbtTemplater(JinjaTemplater):
             if os.path.abspath(macro.original_file_path) == abspath:
                 return "a macro"
 
-        if DBT_VERSION_TUPLE >= (1, 0):
-            # Scan disabled nodes.
-            for nodes in self.dbt_manifest.disabled.values():
-                for node in nodes:
-                    if os.path.abspath(node.original_file_path) == abspath:
-                        return "disabled"
-        else:
-            model_name = os.path.splitext(os.path.basename(fname))[0]
-            if self.dbt_manifest.find_disabled_by_name(name=model_name):
-                return "disabled"
-        return None
+        # Scan disabled nodes.
+        for nodes in self.dbt_manifest.disabled.values():
+            for node in nodes:
+                if os.path.abspath(node.original_file_path) == abspath:
+                    return "disabled"
+        return None  # pragma: no cover
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
@@ -481,7 +483,7 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
-            except Exception as err:
+            except Exception as err:  # pragma: no cover
                 templater_logger.exception(
                     "Fatal dbt compilation error on %s. This occurs most often "
                     "during incorrect sorting of ephemeral models before linting. "
@@ -503,7 +505,7 @@ class DbtTemplater(JinjaTemplater):
                 # If injected SQL is present, it contains a better picture
                 # of what will actually hit the database (e.g. with tests).
                 # However it's not always present.
-                compiled_sql = node.injected_sql
+                compiled_sql = node.injected_sql  # pragma: no cover
             else:
                 compiled_sql = getattr(node, COMPILED_SQL_ATTRIBUTE)
 
@@ -514,10 +516,7 @@ class DbtTemplater(JinjaTemplater):
                     "dbt templater compilation failed silently, check your "
                     "configuration by running `dbt compile` directly."
                 )
-
-            with open(fname) as source_dbt_model:
-                source_dbt_sql = source_dbt_model.read()
-
+            source_dbt_sql = in_str
             if not source_dbt_sql.rstrip().endswith("-%}"):
                 n_trailing_newlines = len(source_dbt_sql) - len(
                     source_dbt_sql.rstrip("\n")
@@ -601,18 +600,17 @@ class DbtTemplater(JinjaTemplater):
         # We have to register the connection in dbt >= 1.0.0 ourselves
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
-        if DBT_VERSION_TUPLE >= (1, 0):
-            if not self.connection_acquired:
-                adapter = get_adapter(self.dbt_config)
-                adapter.acquire_connection("master")
-                adapter.set_relations_cache(self.dbt_manifest)
-                self.connection_acquired = True
-            yield
-            # :TRICKY: Once connected, we never disconnect. Making multiple
-            # connections during linting has proven to cause major performance
-            # issues.
-        else:
-            yield
+        adapter = self.adapters.get(self.project_dir)
+        if adapter is None:
+            adapter = get_adapter(self.dbt_config)
+            self.adapters[self.project_dir] = adapter
+            adapter.acquire_connection("master")
+            adapter.set_relations_cache(self.dbt_manifest)
+
+        yield
+        # :TRICKY: Once connected, we never disconnect. Making multiple
+        # connections during linting has proven to cause major performance
+        # issues.
 
 
 class SnapshotExtension(StandaloneTag):

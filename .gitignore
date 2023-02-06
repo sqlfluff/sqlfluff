@@ -34,10 +34,14 @@ test-reports
 # Ignore root testing sql & python files
 /test*.sql
 /test*.py
+/test*.txt
 /.hypothesis/
 
 # Ignore dbt outputs from testing
 /target
+
+# Ignore any timing outputs
+/*.csv
 
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml

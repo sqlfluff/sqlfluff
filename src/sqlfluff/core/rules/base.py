@@ -17,6 +17,7 @@ missing.
 import bdb
 import copy
 import fnmatch
+from itertools import chain
 import logging
 import pathlib
 import regex
@@ -32,13 +33,13 @@ from typing import (
 )
 from collections import namedtuple
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -78,6 +79,9 @@ class LintResult:
             identified as part of this result. This will override the
             description of the rule as what gets reported to the user
             with the problem if provided.
+        source (:obj:`str`, optional): A string identifier for what
+            generated the result. Within larger libraries like reflow this
+            can be useful for tracking where a result came from.
 
     """
 
@@ -86,7 +90,8 @@ class LintResult:
         anchor: Optional[BaseSegment] = None,
         fixes: Optional[List["LintFix"]] = None,
         memory=None,
-        description=None,
+        description: Optional[str] = None,
+        source: Optional[str] = None,
     ):
         # An anchor of none, means no issue
         self.anchor = anchor
@@ -98,6 +103,8 @@ class LintResult:
         self.memory = memory
         # store a description_override for later
         self.description = description
+        # Optional code for where the result came from
+        self.source: str = source or ""
 
     def __repr__(self):
         if not self.anchor:
@@ -105,6 +112,11 @@ class LintResult:
         # The "F" at the end is short for "fixes", to indicate how many there are.
         fix_coda = f"+{len(self.fixes)}F" if self.fixes else ""
         if self.description:
+            if self.source:
+                return (
+                    f"LintResult({self.description} [{self.source}]"
+                    f": {self.anchor}{fix_coda})"
+                )
             return f"LintResult({self.description}: {self.anchor}{fix_coda})"
         return f"LintResult({self.anchor}{fix_coda})"
 
@@ -142,7 +154,6 @@ class LintFix:
             `create` fixes, this holds iterable of segments that provided
             code. IMPORTANT: The linter uses this to prevent copying material
             from templated areas.
-
     """
 
     def __init__(
@@ -236,8 +247,9 @@ class LintFix:
                 detail = f"create:{new_detail!r}"
         else:
             detail = ""  # pragma: no cover TODO?
-        return "<LintFix: {} @{} {}>".format(
-            self.edit_type, self.anchor.pos_marker, detail
+        return (
+            f"<LintFix: {self.edit_type} {self.anchor.get_type()}"
+            f"@{self.anchor.pos_marker} {detail}>"
         )
 
     def __eq__(self, other):
@@ -249,11 +261,28 @@ class LintFix:
         """
         if not self.edit_type == other.edit_type:
             return False
-        if not self.anchor == other.anchor:
+        # For checking anchor equality, first check types.
+        if not self.anchor.class_types == other.anchor.class_types:
             return False
-        if not self.edit == other.edit:
+        # If types match, check uuids to see if they're the same original segment.
+        if self.anchor.uuid != other.anchor.uuid:
             return False
-        return True  # pragma: no cover TODO?
+        # Then compare edits, here we only need to check the raw and source
+        # fixes (positions are meaningless).
+        # Only do this if we have edits.
+        if self.edit:
+            # 1. Check lengths
+            if len(self.edit) != len(other.edit):
+                return False  # pragma: no cover
+            # 2. Zip and compare
+            for a, b in zip(self.edit, other.edit):
+                # Check raws
+                if a.raw != b.raw:
+                    return False
+                # Check source fixes
+                if a.source_fixes != b.source_fixes:
+                    return False
+        return True
 
     @classmethod
     def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
@@ -278,7 +307,12 @@ class LintFix:
         source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments before the supplied anchor segment."""
-        return cls("create_before", anchor_segment, edit_segments, source)
+        return cls(
+            "create_before",
+            anchor_segment,
+            edit_segments,
+            source,
+        )
 
     @classmethod
     def create_after(
@@ -288,7 +322,12 @@ class LintFix:
         source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
-        return cls("create_after", anchor_segment, edit_segments, source)
+        return cls(
+            "create_after",
+            anchor_segment,
+            edit_segments,
+            source,
+        )
 
     def get_fix_slices(
         self, templated_file: TemplatedFile, within_only: bool
@@ -331,6 +370,41 @@ class LintFix:
             # We return an empty set because this edit doesn't touch anything
             # in the source.
             return set()
+        elif (
+            self.edit_type == "replace"
+            and all(edit.is_type("raw") for edit in cast(List[RawSegment], self.edit))
+            and all(edit._source_fixes for edit in cast(List[RawSegment], self.edit))
+        ):
+            # As an exception to the general rule about "replace" fixes (where
+            # they're only safe if they don't touch a templated section at all),
+            # source-only fixes are different. This clause handles that exception.
+
+            # So long as the fix is *purely* source-only we can assume that the
+            # rule has done the relevant due diligence on what it's editing in
+            # the source and just yield the source slices directly.
+
+            # More complicated fixes that are a blend or source and templated
+            # fixes are currently not supported but this (mostly because they've
+            # not arisen yet!), so further work would be required to support them
+            # elegantly.
+            rules_logger.debug("Source only fix.")
+            source_edit_slices = [
+                fix.source_slice
+                # We can assume they're all raw and all have source fixes, because we
+                # check that above.
+                for fix in chain.from_iterable(
+                    cast(List[SourceFix], edit._source_fixes)
+                    for edit in cast(List[RawSegment], self.edit)
+                )
+            ]
+
+            if len(source_edit_slices) > 1:  # pragma: no cover
+                raise NotImplementedError(
+                    "Unable to handle multiple source only slices."
+                )
+            return set(
+                templated_file.raw_slices_spanning_source_slice(source_edit_slices[0])
+            )
 
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
@@ -414,6 +488,11 @@ class BaseRule:
     _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
+    # Some fix routines do their own checking for whether their fixes
+    # are safe around templated elements. For those - the default
+    # safety checks might be inappropriate. In those cases, set
+    # template_safe_fixes to True.
+    template_safe_fixes = False
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
@@ -514,8 +593,12 @@ class BaseRule:
             # Any exception at this point would halt the linter and
             # cause the user to get no results
             except Exception as e:
+                # If a filename is present, include it in the critical exception.
                 self.logger.critical(
-                    f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
+                    f"Applying rule {self.code} to {fname!r} threw an Exception: {e}"
+                    if fname
+                    else f"Applying rule {self.code} threw an Exception: {e}",
+                    exc_info=True,
                 )
                 assert context.segment.pos_marker
                 exception_line, _ = context.segment.pos_marker.source_position()
@@ -548,7 +631,7 @@ class BaseRule:
                 memory = res.memory
                 self._adjust_anchors_for_fixes(context, res)
                 self._process_lint_result(
-                    res, templated_file, ignore_mask, new_lerrs, new_fixes
+                    res, templated_file, ignore_mask, new_lerrs, new_fixes, tree
                 )
             elif isinstance(res, list) and all(
                 isinstance(elem, LintResult) for elem in res
@@ -559,7 +642,7 @@ class BaseRule:
                 for elem in res:
                     self._adjust_anchors_for_fixes(context, elem)
                     self._process_lint_result(
-                        elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                        elem, templated_file, ignore_mask, new_lerrs, new_fixes, tree
                     )
             else:  # pragma: no cover
                 raise TypeError(
@@ -585,13 +668,46 @@ class BaseRule:
         pass
 
     def _process_lint_result(
-        self, res, templated_file, ignore_mask, new_lerrs, new_fixes
+        self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
     ):
-        self.discard_unsafe_fixes(res, templated_file)
+        # Unless the rule declares that it's already template safe. Do safety
+        # checks.
+        if not self.template_safe_fixes:
+            self.discard_unsafe_fixes(res, templated_file)
         lerr = res.to_linting_error(rule=self)
         ignored = False
         if lerr:
-            if ignore_mask:
+            # Check whether this should be filtered out for being unparsable.
+            # To do that we check the parents of the anchors (of the violation
+            # and fixes) against the filter in the crawler.
+            # NOTE: We use `.passes_filter` here to do the test for unparsable
+            # to avoid duplicating code because that test is already implemented
+            # there.
+            anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
+            for anchor in anchors:
+                if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
+                    # NOTE: This clause is untested, because it's a hard to produce
+                    # edge case. The latter clause is much more likely.
+                    linter_logger.info(
+                        "Fix skipped due to anchor not passing filter: %s", anchor
+                    )
+                    lerr = None
+                    ignored = True
+                    break
+                parent_stack = root.path_to(anchor)
+                if not all(
+                    self.crawl_behaviour.passes_filter(ps.segment)
+                    for ps in parent_stack
+                ):
+                    linter_logger.info(
+                        "Fix skipped due to parent of anchor not passing filter: %s",
+                        [ps.segment for ps in parent_stack],
+                    )
+                    lerr = None
+                    ignored = True
+                    break
+
+            if lerr and ignore_mask:
                 filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
                 if not filtered:
                     lerr = None
@@ -600,16 +716,6 @@ class BaseRule:
             new_lerrs.append(lerr)
         if not ignored:
             new_fixes.extend(res.fixes)
-
-    @cached_property
-    def indent(self) -> str:
-        """String for a single indent, based on configuration."""
-        self.tab_space_size: int
-        self.indent_unit: str
-
-        tab = "\t"
-        space = " "
-        return space * self.tab_space_size if self.indent_unit == "space" else tab
 
     @staticmethod
     def filter_meta(segments, keep_meta=False):
@@ -725,7 +831,7 @@ class BaseRule:
             return
 
     @classmethod
-    def _adjust_anchors_for_fixes(cls, context, lint_result):
+    def _adjust_anchors_for_fixes(cls, context, lint_result) -> None:
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
@@ -743,7 +849,12 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
-                    context.parent_stack[0], fix.edit_type, fix.anchor
+                    # If no parent stack, that means the segment itself is the root
+                    context.parent_stack[0]
+                    if context.parent_stack
+                    else context.segment,
+                    fix.edit_type,
+                    fix.anchor,
                 )
 
     @staticmethod
@@ -837,8 +948,8 @@ class RuleSet:
 
     The code for the rule will be parsed from the name, the description
     from the docstring. The eval function is assumed that it will be
-    overriden by the subclass, and the parent class raises an error on
-    this function if not overriden.
+    overridden by the subclass, and the parent class raises an error on
+    this function if not overridden.
 
     """
 
@@ -942,7 +1053,6 @@ class RuleSet:
             ), "Rule {!r} must belong to the 'all' group".format(code)
             groups = cls.groups
         except AttributeError as attr_err:
-
             raise AttributeError(
                 (
                     "Rule {!r} doesn't belong to any rule groups. "

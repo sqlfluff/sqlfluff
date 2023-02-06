@@ -9,7 +9,8 @@
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
 [![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sqlfluff/sqlfluff/CI%20Tests?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
+[![Coveralls](https://img.shields.io/coverallsCoverage/github/sqlfluff/sqlfluff?logo=coveralls&style=flat-square)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/sqlfluff/sqlfluff/.github/workflows/ci-tests.yml?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 [![Docker Pulls](https://img.shields.io/docker/pulls/sqlfluff/sqlfluff?logo=docker&style=flat-square)](https://hub.docker.com/r/sqlfluff/sqlfluff)
@@ -26,8 +27,10 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [ClickHouse](https://clickhouse.com/)
 - [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
 - [Db2](https://www.ibm.com/analytics/db2)
+- [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
+- [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)
 - [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
@@ -98,6 +101,12 @@ Follow us [on Twitter @SQLFluff](https://twitter.com/SQLFluff) for announcements
 
 We are grateful to all our [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There is a lot to do in this project, and we are just getting started.
 
-If you want to understand more about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
+If you want to understand more about the architecture of **SQLFluff**, you can
+find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
 
 If you would like to contribute, check out the [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see the guide to [contributing](CONTRIBUTING.md).
+
+# Sponsors
+
+<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).

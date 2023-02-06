@@ -13,6 +13,10 @@ select as struct
   '1' as bb,
   2 as aa;
 
+select distinct as struct
+    '1' as bb,
+    2 as aa;
+
 -- Example of explicitly building a struct in a select clause.
 select
   struct(

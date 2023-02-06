@@ -963,12 +963,12 @@ postgres_nondocs_keywords = [
     ("SETTINGS", "non-reserved"),
     ("SKIP_LOCKED", "non-reserved"),
     ("SUMMARY", "non-reserved"),
-    ("SUPERUSER", "non-reserverd"),
+    ("SUPERUSER", "non-reserved"),
     ("TIMETZ", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
     ("TIMING", "non-reserved"),
     ("UNSAFE", "non-reserved"),
-    ("USAGE", "reserved"),
+    ("USAGE", "non-reserved"),
     ("WAL", "non-reserved"),
 ]
 

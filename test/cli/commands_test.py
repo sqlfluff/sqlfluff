@@ -31,9 +31,11 @@ from sqlfluff.cli.commands import (
     parse,
     dialects,
     get_config,
+    render,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
+from sqlfluff.utils.testing.cli import invoke_assert_code
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
 
@@ -70,36 +72,8 @@ def contains_ansi_escape(s: str) -> bool:
     return re_ansi_escape.search(s) is not None
 
 
-def invoke_assert_code(
-    ret_code=0,
-    args=None,
-    kwargs=None,
-    cli_input=None,
-    mix_stderr=True,
-    output_contains="",
-):
-    """Invoke a command and check return code."""
-    args = args or []
-    kwargs = kwargs or {}
-    if cli_input:
-        kwargs["input"] = cli_input
-    runner = CliRunner(mix_stderr=mix_stderr)
-    result = runner.invoke(*args, **kwargs)
-    # Output the CLI code for debugging
-    print(result.output)
-    # Check return codes
-    if output_contains != "":
-        assert output_contains in result.output
-    if ret_code == 0:
-        if result.exception:
-            raise result.exception
-    assert ret_code == result.exit_code
-    return result
-
-
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   4 | L003 | Expected 1 indentation, found less than 1 [compared to
-                       | line 01]
+L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
@@ -112,13 +86,13 @@ def test__cli__command_directed():
         args=[
             lint,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
     )
     # We should get a readout of what the error was
-    check_a = "L:   2 | P:   4 | L003"
+    check_a = "L:   2 | P:   1 | L003"
     # NB: Skip the number at the end because it's configurable
     check_b = "ndentation"
     assert check_a in result.output
@@ -163,7 +137,7 @@ def test__cli__command_no_dialect():
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified as commandline option.
     result = invoke_assert_code(
         ret_code=1,
@@ -186,7 +160,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
 def test__cli__command_parse_error_dialect_implicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
-    # and a human-readable warning should be dislayed.
+    # and a human-readable warning should be displayed.
     # Dialect specified in .sqlfluff config.
     result = invoke_assert_code(
         ret_code=1,
@@ -276,6 +250,15 @@ def test__cli__command_lint_stdin(command):
     invoke_assert_code(args=[lint, ("--dialect=ansi",) + command], cli_input=sql)
 
 
+def test__cli__command_render_stdin():
+    """Check render on a simple script using stdin."""
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
+        sql = test_file.read()
+    result = invoke_assert_code(args=[render, ("--dialect=ansi", "-")], cli_input=sql)
+    # Check we get back out the same file we input.
+    assert result.output.startswith(sql)
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -287,6 +270,13 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/passing_b.sql",
                 "--exclude-rules",
                 "L051",
+            ],
+        ),
+        # Basic render
+        (
+            render,
+            [
+                "test/fixtures/cli/passing_b.sql",
             ],
         ),
         # Original tests from test__cli__command_lint
@@ -406,7 +396,7 @@ def test__cli__command_lint_stdin(command):
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,L039",
+                "L006,L007,L031,L039,L071",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -441,6 +431,8 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
+        # Check timing outputs doesn't raise exceptions
+        (lint, ["test/fixtures/cli/passing_a.sql", "--persist-timing", "test.csv"]),
     ],
 )
 def test__cli__command_lint_parse(command):
@@ -498,8 +490,15 @@ def test__cli__command_lint_parse(command):
         (
             (
                 lint,
-                ["test/fixtures/cli/unknown_jinja_tag/test.sql", "-vvvvvvv"],
-                "y",
+                ["test/fixtures/cli/unknown_jinja_tag/test.sql"],
+            ),
+            1,
+        ),
+        # Test render fail
+        (
+            (
+                render,
+                ["test/fixtures/cli/fail_many.sql"],
             ),
             1,
         ),
@@ -562,6 +561,33 @@ def test__cli__command_lint_ignore_local_config():
     )
     assert result.exit_code == 1
     assert "L012" in result.output.strip()
+
+
+def test__cli__command_lint_warning():
+    """Test that configuring warnings works.
+
+    For this test the warnings are configured using
+    inline config in the file. That's more for simplicity
+    however the code paths should be the same if it's
+    configured in a file.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/warning_a.sql",
+        ],
+    )
+    # Because we're only warning. The command should pass.
+    assert result.exit_code == 0
+    # The output should still say PASS.
+    assert "PASS" in result.output.strip()
+    # But should also contain the warnings.
+    # NOTE: Not including the whole description because it's too long.
+    assert (
+        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
+        in result.output.strip()
+    )
 
 
 def test__cli__command_versioning():
@@ -1002,7 +1028,7 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     result = invoke_assert_code(
         args=[
             fix,
-            ("-", "--rules", rules, "--disable_progress_bar", "--dialect=ansi"),
+            ("-", "--rules", rules, "--disable-progress-bar", "--dialect=ansi"),
         ],
         cli_input=stdin,
     )
@@ -1036,7 +1062,7 @@ def test__cli__command_fix_stdin_safety():
 
     # just prints the very same thing
     result = invoke_assert_code(
-        args=[fix, ("-", "--disable_progress_bar", "--dialect=ansi")],
+        args=[fix, ("-", "--disable-progress-bar", "--dialect=ansi")],
         cli_input=perfect_sql,
     )
     assert result.output.strip() == perfect_sql
@@ -1049,7 +1075,7 @@ def test__cli__command_fix_stdin_safety():
             "create TABLE {{ params.dsfsdfds }}.t (a int)",
             1,
             "-v",
-            "Fix aborted due to unparseable template variables.",
+            "Fix aborted due to unparsable template variables.",
         ),  # template error
         ("create TABLE a.t (a int)", 0, "", ""),  # fixable error
         ("create table a.t (a int)", 0, "", ""),  # perfection
@@ -1177,7 +1203,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
                 "L010",
                 "--format",
                 serialize,
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--dialect=ansi",
             ),
         ],
@@ -1203,7 +1229,10 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
     result = invoke_assert_code(args=command, ret_code=2)
-    assert "could not be accessed" in result.output
+    assert (
+        "User Error: Specified path does not exist. Check it/they "
+        "exist(s): this_file_does_not_exist.sql"
+    ) in result.output
 
 
 @patch("click.utils.should_strip_ansi")
@@ -1222,7 +1251,7 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
         "--nocolor",
         "--dialect",
         "ansi",
-        "--disable_progress_bar",
+        "--disable-progress-bar",
         fpath,
         "--write-output",
         output_file,
@@ -1242,18 +1271,19 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Test the output output formats for multiple files.
+    """Test the output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
-    fpath = "test/fixtures/linter/indentation_errors.sql"
+    fpath1 = "test/fixtures/linter/indentation_errors.sql"
+    fpath2 = "test/fixtures/linter/multiple_sql_errors.sql"
 
     cmd_args = (
-        fpath,
-        fpath,
+        fpath1,
+        fpath2,
         "--format",
         serialize,
-        "--disable_progress_bar",
+        "--disable-progress-bar",
     )
 
     if write_file:
@@ -1276,8 +1306,15 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
+    # Print for debugging.
+    payload_length = len(result_payload.split("\n"))
+    print("=== BEGIN RESULT OUTPUT")
+    print(result_payload)
+    print("=== END RESULT OUTPUT")
+    print("Result length:", payload_length)
+
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 33 if write_file else 32
+        assert payload_length == 25 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1287,13 +1324,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     elif serialize == "github-annotation":
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
-        assert len(filepaths) == 1
+        assert len(filepaths) == 2
     elif serialize == "github-annotation-native":
         result = result_payload.split("\n")
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 24
+        assert len(result) == 18
     else:
         raise Exception
 
@@ -1310,7 +1347,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "github-annotation",
                 "--annotation-level",
                 "warning",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1421,7 +1458,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
                 "github-annotation-native",
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1465,7 +1502,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "error",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1480,7 +1517,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 serialize,
                 "--annotation-level",
                 "failure",
-                "--disable_progress_bar",
+                "--disable-progress-bar",
             ),
         ],
         ret_code=1,
@@ -1617,6 +1654,25 @@ class TestProgressBars:
             args=[
                 lint,
                 [
+                    "--disable-progress-bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
+        assert "\rparsing: 0it" not in raw_output
+        assert "\r\rlint by rules:" not in raw_output
+
+    def test_cli_lint_disabled_progress_bar_deprecated_option(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """Same as above but checks additionally if deprecation warning is printed."""
+        result = invoke_assert_code(
+            args=[
+                lint,
+                [
                     "--disable_progress_bar",
                     "test/fixtures/linter/passing.sql",
                 ],
@@ -1627,6 +1683,10 @@ class TestProgressBars:
         assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) in raw_output
 
     def test_cli_lint_enabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock
@@ -1662,8 +1722,16 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
-        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep) in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
@@ -1682,17 +1750,75 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rfile passing.1.sql:" in raw_output
-        assert r"\rfile passing.2.sql:" in raw_output
-        assert r"\rfile passing.3.sql:" in raw_output
+        sep = os.sep
+        if sys.platform == "win32":
+            sep *= 2
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.1.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.2.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
+        assert (
+            r"\rfile test/fixtures/linter/multiple_files/passing.3.sql:".replace(
+                "/", sep
+            )
+            in raw_output
+        )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
 
+    def test_cli_fix_disabled_progress_bar(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """When progress bar is disabled, nothing should be printed into output."""
+        result = invoke_assert_code(
+            args=[
+                fix,
+                [
+                    "--disable-progress-bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) not in raw_output
+
+    def test_cli_fix_disabled_progress_bar_deprecated_option(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """Same as above but checks additionally if deprecation warning is printed."""
+        result = invoke_assert_code(
+            args=[
+                fix,
+                [
+                    "--disable_progress_bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) in raw_output
+
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]
+L:  12 | P:   1 | L003 | Expected indent of 4 spaces.
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
@@ -1709,7 +1835,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
         ],
@@ -1729,7 +1855,7 @@ def test__cli__fix_multiple_errors_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
@@ -1740,10 +1866,7 @@ def test__cli__fix_multiple_errors_show_errors():
     assert check_a in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.
-    assert (
-        "L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]"
-        in result.output
-    )
+    assert "L:  12 | P:   1 | L003 | Expected indent of 4 spaces." in result.output
     assert (
         "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in "
         "select with more than" in result.output
@@ -1771,7 +1894,7 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
         args=[
             fix,
             [
-                "--disable_progress_bar",
+                "--disable-progress-bar",
                 "--show-lint-violations",
                 sql_path,
                 indent_path,
@@ -1791,3 +1914,41 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
 
     # Assert that they are sorted in alphabetical order
     assert unfix_err_log.index(indent_pass_msg) < unfix_err_log.index(multi_fail_msg)
+
+
+def test__cli__render_fail():
+    """Basic how render fails."""
+    expected_render_output = (
+        "L:   3 | P:   8 |  TMP | Undefined jinja template " "variable: 'something'"
+    )
+
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            render,
+            [
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    # Check whole output. The replace command just accounts for
+    # cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_render_output)
+
+
+def test__cli__render_pass():
+    """Basic how render works."""
+    expected_render_output = "SELECT 56 FROM sch1.tbl2"
+
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            render,
+            [
+                "test/fixtures/templater/jinja_a/jinja.sql",
+            ],
+        ],
+    )
+    # Check whole output. The replace command just accounts for
+    # cross platform testing.
+    assert result.output.replace("\\", "/").startswith(expected_render_output)

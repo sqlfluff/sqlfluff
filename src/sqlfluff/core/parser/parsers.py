@@ -16,7 +16,7 @@ from sqlfluff.core.parser.segments import RawSegment, BaseSegment
 class BaseParser(Matchable):
     """An abstract class from which other Parsers should inherit."""
 
-    # Meta segments are handled seperately. All Parser elements
+    # Meta segments are handled separately. All Parser elements
     # are assumed to be not meta.
     is_meta: bool = False
 

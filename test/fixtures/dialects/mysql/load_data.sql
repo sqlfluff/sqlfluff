@@ -1,5 +1,6 @@
 LOAD DATA INFILE '/var/lib/mysql-files/libaccess.csv' INTO TABLE libaccess FIELDS TERMINATED BY '\t' OPTIONALLY ENCLOSED BY '"' IGNORE 1 LINES;
 LOAD DATA INFILE 'data.txt' INTO TABLE db2.my_table;
+LOAD DATA INFILE 'data.txt' INTO TABLE db2.my_table PARTITION (partition_name);
 LOAD DATA INFILE '/tmp/test.txt' INTO TABLE test
   FIELDS TERMINATED BY ','  LINES STARTING BY 'xxx';
 LOAD DATA INFILE '/tmp/test.txt' INTO TABLE test IGNORE 1 LINES;

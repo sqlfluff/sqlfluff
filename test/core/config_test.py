@@ -31,7 +31,9 @@ config_a = {
 
 config_b = {
     "core": {"rules": "L007", "dialect": "ansi"},
-    "rules": {"L007": {"operator_new_lines": "before"}},
+    "layout": {
+        "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
+    },
 }
 
 
@@ -135,6 +137,28 @@ def test__config__load_toml():
     }
 
 
+def test__config__load_placeholder_cfg():
+    """Test loading a sqlfluff configuration file for placeholder templater."""
+    c = ConfigLoader()
+    cfg = c.load_config_file(
+        os.path.join("test", "fixtures", "config", "placeholder"),
+        ".sqlfluff-placeholder",
+    )
+    assert cfg == {
+        "core": {
+            "testing_val": "foobar",
+            "testing_int": 4,
+        },
+        "bar": {"foo": "barbar"},
+        "templater": {
+            "placeholder": {
+                "param_style": "flyway_var",
+                "flyway:database": "test_db",
+            }
+        },
+    }
+
+
 def test__config__iter_config_paths_right_order():
     """Test that config paths are fetched ordered by priority."""
     c = ConfigLoader()
@@ -168,7 +192,7 @@ def test__config__find_sqlfluffignore_in_same_directory():
 
 
 def test__config__nested_config_tests():
-    """Test linting with overriden config in nested paths.
+    """Test linting with overridden config in nested paths.
 
     This looks like a linter test but it's actually a config
     test.
@@ -180,11 +204,11 @@ def test__config__nested_config_tests():
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith("nested\\example.sql"):
-            assert ("L003", 1, 4) in violations[k]
+            assert ("L003", 1, 1) in violations[k]
             assert ("L009", 1, 12) in violations[k]
             assert "L002" not in [c[0] for c in violations[k]]
         elif k.endswith("inheritance_b\\example.sql"):
-            assert ("L003", 1, 4) in violations[k]
+            assert ("L003", 1, 1) in violations[k]
             assert "L002" not in [c[0] for c in violations[k]]
             assert "L009" not in [c[0] for c in violations[k]]
 
@@ -315,7 +339,10 @@ def test__config__get_section():
     cfg = FluffConfig(config_b)
 
     assert cfg.get_section("core").get("rules", None) == "L007"
-    assert cfg.get_section(["rules", "L007"]) == {"operator_new_lines": "before"}
+    assert cfg.get_section(["layout", "type", "comma"]) == {
+        "line_position": "trailing",
+        "spacing_before": "touch",
+    }
     assert cfg.get_section("non_existent") is None
 
 
@@ -327,11 +354,11 @@ def test__config__get():
     assert cfg.get("rulez") is None
     assert cfg.get("rulez", section="core", default=123) == 123
     assert (
-        cfg.get("operator_new_lines", section=["rules", "L007"], default=None)
-        == "before"
+        cfg.get("line_position", section=["layout", "type", "comma"], default=None)
+        == "trailing"
     )
     assert (
-        cfg.get("operator_new_lines", section=["rules", "ASDFSDG007"], default=None)
+        cfg.get("line_position", section=["layout", "type", "ASDFSDG007"], default=None)
         is None
     )
 
@@ -364,9 +391,20 @@ def test__config__validate_configs_direct():
     assert REMOVED_CONFIGS
     # Make sure all raise an error if validated
     for k in REMOVED_CONFIGS:
-        with pytest.raises(SQLFluffUserError) as excinfo:
-            ConfigLoader._validate_configs([(k, "foo")], "<test>")
-        assert "set an outdated config" in str(excinfo.value)
+        print(k)
+        if k.translation_func and k.new_path:
+            res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            print(res)
+            # Check that it's reassigned.
+            assert not any(elem[0] == k.old_path for elem in res)
+            assert any(elem[0] == k.new_path for elem in res)
+            # Really we should check that it's output here, but logging config
+            # seems to make that hard.
+        else:
+            with pytest.raises(SQLFluffUserError) as excinfo:
+                ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
+            assert "set an outdated config" in str(excinfo.value)
+            assert k.warning in str(excinfo.value)
 
 
 def test__config__validate_configs_indirect():
@@ -380,3 +418,24 @@ def test__config__validate_configs_indirect():
                 "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )
+
+
+def test__config__validate_configs_precedence_same_file():
+    """Test _validate_configs method of FluffConfig where there's a conflict."""
+    # Check with a known conflicted value
+    old_key = ("rules", "L007", "operator_new_lines")
+    new_key = ("layout", "type", "binary_operator", "line_position")
+    # Check it's still conflicted.
+    assert any(
+        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
+    ), (
+        "This test depends on this key still being removed. Update the test to "
+        "one that is if this one isn't."
+    )
+    # Test config
+    test_config = [(new_key, "foo"), (old_key, "foo")]
+    assert len(test_config) == 2
+    res = ConfigLoader._validate_configs(test_config, "<test>")
+    assert len(res) == 1
+    # Check that the old key isn't there.
+    assert not any(k == old_key for k, _ in res)
