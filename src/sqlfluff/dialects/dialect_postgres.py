@@ -1731,7 +1731,10 @@ class CreateTableAsStatementSegment(BaseSegment):
                                 Ref("ParameterNameSegment"),
                                 Sequence(
                                     Ref("EqualsSegment"),
-                                    Ref("LiteralGrammar"),
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("NakedIdentifierSegment"),
+                                    ),
                                     optional=True,
                                 ),
                             )
