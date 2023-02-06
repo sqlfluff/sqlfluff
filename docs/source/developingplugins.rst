@@ -14,9 +14,9 @@ Creating a plugin
 -----------------
 
 We have an example plugin in
-`sqlfluff/plugins/sqlfluff-rules-plugin-v1-example`_ which you can use as a template
-for rules, or the `sqlfluff/plugins/sqlfluff-templater-dbt`_ which you can
-use as a template for templater plugins.
+`sqlfluff/plugins/sqlfluff-rules-plugin-v1-example`_ which you can use as
+a template for rules, or the `sqlfluff/plugins/sqlfluff-templater-dbt`_
+which you can use as a template for templater plugins.
 
 Few things to note about plugins:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
