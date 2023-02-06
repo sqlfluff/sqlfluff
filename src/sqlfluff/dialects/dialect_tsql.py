@@ -1769,7 +1769,10 @@ class FunctionParameterListGrammar(BaseSegment):
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
-            Ref("FunctionParameterGrammar"),
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                Sequence("READONLY", optional=True),
+            ),
             optional=True,
         ),
     )
@@ -4415,6 +4418,26 @@ class SynonymReferenceSegment(ansi.ObjectReferenceSegment):
             ),
             min_times=0,
             max_times=1,
+        ),
+    )
+
+
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
+    """Override ANSI to use TSQL TABLESAMPLE expression."""
+
+    type = "sample_expression"
+    match_grammar: Matchable = Sequence(
+        "TABLESAMPLE",
+        Sequence("SYSTEM", optional=True),
+        Bracketed(
+            Sequence(
+                Ref("NumericLiteralSegment"), OneOf("PERCENT", "ROWS", optional=True)
+            )
+        ),
+        Sequence(
+            OneOf("REPEATABLE"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
         ),
     )
 
