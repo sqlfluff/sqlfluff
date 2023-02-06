@@ -14,7 +14,7 @@ Creating a plugin
 -----------------
 
 We have an example plugin in
-`sqlfluff/plugins/sqlfluff-plugin-example`_ which you can use as a template
+`sqlfluff/plugins/sqlfluff-rules-plugin-v1-example`_ which you can use as a template
 for rules, or the `sqlfluff/plugins/sqlfluff-templater-dbt`_ which you can
 use as a template for templater plugins.
 
@@ -53,7 +53,7 @@ Codes are used to display errors, they are also used as configuration keys.
 We make it easy for plugin developers to test their rules by
 exposing a testing library in *sqlfluff.utils.testing*.
 
-.. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
+.. _`sqlfluff/plugins/sqlfluff-rules-plugin-v1-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-rules-plugin-v1-example
 .. _`sqlfluff/plugins/sqlfluff-templater-dbt`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-templater-dbt
 
 Giving feedback

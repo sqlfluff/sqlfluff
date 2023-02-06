@@ -1,4 +1,10 @@
-"""An example of a custom rule implemented through the plugin system."""
+"""An example of a custom rule implemented through the plugin system.
+
+This uses the rules API supported from 0.4.0 onwards. This requires
+rules to have codes _only_ and requires one rule to be implemented
+at a time. For a more flexible rules API, consider using the v2
+interface as shown in `sqlfluff-rules-plugin-v2-example`.
+"""
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import (
