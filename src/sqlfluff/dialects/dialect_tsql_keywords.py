@@ -206,6 +206,7 @@ RESERVED_KEYWORDS = [
 
 
 UNRESERVED_KEYWORDS = [
+    "ABORT",
     "ABORT_AFTER_WAIT",
     "AFTER",
     "ALGORITHM",
@@ -240,6 +241,7 @@ UNRESERVED_KEYWORDS = [
     "CONCAT_NULL_YIELDS_NULL",
     "CONTINUE",
     "CONTROL",
+    "COMPRESS_ALL_ROW_GROUPS",
     "COMPRESSION_DELAY",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
@@ -314,6 +316,7 @@ UNRESERVED_KEYWORDS = [
     "LASTROW",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
+    "LOB_COMPACTION",
     "LOCATION",
     "LOCK_TIMEOUT",
     "LOG",
@@ -359,6 +362,7 @@ UNRESERVED_KEYWORDS = [
     "PARTITION",
     "PARTITIONS",
     "PATH",
+    "PAUSE",
     "PERCENTILE_CONT",
     "PERCENTILE_DISC",
     "PERSISTED",
@@ -373,6 +377,7 @@ UNRESERVED_KEYWORDS = [
     "RANGE",
     "RANK",
     "RAW",
+    "REBUILD",
     "READCOMMITTED",
     "READCOMMITTEDLOCK",
     "READONLY",
@@ -383,6 +388,7 @@ UNRESERVED_KEYWORDS = [
     "RECURSIVE",
     "REMOTE_PROC_TRANSACTIONS",
     "RENAME",  # Azure Synapse Analytics specific
+    "REORGANIZE",
     "REPEATABLE",
     "REPEATABLEREAD",
     "REPLACE",
@@ -390,6 +396,7 @@ UNRESERVED_KEYWORDS = [
     "RESPECT",
     "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
     "RESUMABLE",
+    "RESUME",
     "RETURNS",
     "ROBUST",
     "ROLE",
@@ -457,5 +464,6 @@ UNRESERVED_KEYWORDS = [
     "XACT_ABORT",
     "XLOCK",
     "XML",
+    "XML_COMPRESSION",
     "ZONE",
 ]
