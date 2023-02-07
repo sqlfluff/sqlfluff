@@ -2274,12 +2274,11 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "ALTER",
-                    Ref.keyword("COLUMN", optional=True),
+                    "COLUMN",
                     Ref("ColumnDefinitionSegment"),
                 ),
                 Sequence(
                     "ADD",
-                    Ref.keyword("COLUMN", optional=True),
                     Delimited(
                         Ref("ColumnDefinitionSegment"),
                     ),
