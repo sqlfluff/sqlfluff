@@ -5,3 +5,5 @@ SELECT
     ff.* EXCLUDE cancellation
 FROM star_wars sw, firefly ff
 ;
+
+SELECT * FROM star_wars;
