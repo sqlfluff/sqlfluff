@@ -2273,12 +2273,16 @@ class AlterTableStatementSegment(BaseSegment):
                     OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                 ),
                 Sequence(
-                    OneOf(
-                        "ADD",
-                        "ALTER",
-                    ),
+                    "ALTER",
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
+                ),
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    Delimited(
+                        Ref("ColumnDefinitionSegment"),
+                    ),
                 ),
                 Sequence(
                     "DROP",
