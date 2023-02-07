@@ -859,7 +859,7 @@ class TextimageOnOptionSegment(BaseSegment):
     )
 
 
-class TableOptionSegement(BaseSegment):
+class TableOptionSegment(BaseSegment):
     """TABLE option in `CREATE TABLE` statement.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
@@ -867,29 +867,34 @@ class TableOptionSegement(BaseSegment):
 
     _ledger_view_option = Delimited(
         Sequence(
-            "TRANSACTION_ID_COLUMN_NAME",
+            OneOf(
+                "TRANSACTION_ID_COLUMN_NAME",
+                "SEQUENCE_NUMBER_COLUMN_NAME",
+                "OPERATION_TYPE_COLUMN_NAME",
+                "OPERATION_TYPE_DESC_COLUMN_NAME",
+            ),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
             optional=True,
         ),
+    )
+
+    _on_partitions = Sequence(
         Sequence(
-            "SEQUENCE_NUMBER_COLUMN_NAME",
-            Ref("EqualsSegment"),
-            Ref("ColumnReferenceSegment"),
-            optional=True,
+            "ON",
+            "PARTITIONS",
         ),
-        Sequence(
-            "OPERATION_TYPE_COLUMN_NAME",
-            Ref("EqualsSegment"),
-            Ref("ColumnReferenceSegment"),
-            optional=True,
+        Bracketed(
+            Delimited(
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "TO",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
         ),
-        Sequence(
-            "OPERATION_TYPE_DESC_COLUMN_NAME",
-            Ref("EqualsSegment"),
-            Ref("ColumnReferenceSegment"),
-            optional=True,
-        ),
+        optional=True,
     )
 
     type = "table_option_statement"
@@ -927,33 +932,19 @@ class TableOptionSegement(BaseSegment):
                     ),
                     Sequence(
                         "DATA_COMPRESSION",
+                        Ref("EqualsSegment"),
                         OneOf(
                             "NONE",
                             "ROW",
                             "PAGE",
                         ),
-                        Sequence(
-                            "ON PARTITONS",
-                            Bracketed(
-                                Delimited(
-                                    Ref("NumericLiteralSegment"),
-                                ),
-                            ),
-                            optional=True,
-                        ),
+                        _on_partitions,
                     ),
                     Sequence(
                         "XML_COMPRESSION",
+                        Ref("EqualsSegment"),
                         OneOf("ON", "OFF"),
-                        Sequence(
-                            "ON PARTITONS",
-                            Bracketed(
-                                Delimited(
-                                    Ref("NumericLiteralSegment"),
-                                ),
-                            ),
-                            optional=True,
-                        ),
+                        _on_partitions,
                     ),
                     Sequence(
                         "FILETABLE_DIRECTORY",
@@ -961,27 +952,18 @@ class TableOptionSegement(BaseSegment):
                         Ref("LiteralGrammar"),
                     ),
                     Sequence(
-                        "FILETABLE_COLLATE_FILENAME",
-                        Ref("EqualsSegment"),
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                    Sequence(
-                        "FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME",
-                        Ref("EqualsSegment"),
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                    Sequence(
-                        "FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME",
-                        Ref("EqualsSegment"),
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                    Sequence(
-                        "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
+                        OneOf(
+                            "FILETABLE_COLLATE_FILENAME",
+                            "FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME",
+                            "FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME",
+                            "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
+                        ),
                         Ref("EqualsSegment"),
                         Ref("ObjectReferenceSegment"),
                     ),
                     Sequence(
                         "REMOTE_DATA_ARCHIVE",
+                        Ref("EqualsSegment"),
                         OneOf(
                             Sequence(
                                 "ON",
@@ -989,6 +971,7 @@ class TableOptionSegement(BaseSegment):
                                     Delimited(
                                         Sequence(
                                             "FILTER_PREDICATE",
+                                            Ref("EqualsSegment"),
                                             OneOf(
                                                 "NULL",
                                                 Ref("FunctionNameSegment"),
@@ -997,6 +980,7 @@ class TableOptionSegement(BaseSegment):
                                         ),
                                         Sequence(
                                             "MIGRATION_STATE",
+                                            Ref("EqualsSegment"),
                                             OneOf("OUTBOUND", "INBOUND", "PAUSED"),
                                         ),
                                     ),
@@ -2453,7 +2437,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
-        Ref("TableOptionSegement", optional=True),
+        Ref("TableOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -3168,7 +3152,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
 
     match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
         insert=[
-            Ref("TemporalQuerySegement", optional=True),
+            Ref("TemporalQuerySegment", optional=True),
         ],
         before=Ref(
             "AliasExpressionSegment",
@@ -4442,7 +4426,7 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     )
 
 
-class TemporalQuerySegement(BaseSegment):
+class TemporalQuerySegment(BaseSegment):
     """A segment that allows Temporal Queries to be run.
 
     https://learn.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables?view=sql-server-ver16
@@ -4454,7 +4438,7 @@ class TemporalQuerySegement(BaseSegment):
         "FOR",
         "SYSTEM_TIME",
         OneOf(
-            Ref.keyword("ALL"),
+            "ALL",
             Sequence(
                 "AS",
                 "OF",

@@ -48,3 +48,80 @@ CREATE TABLE [dbo].[EC DC] (
 WITH (DATA_DELETION = ON (FILTER_COLUMN = ColumnC, RETENTION_PERIOD = INFINITE));
 ;
 GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    MEMORY_OPTIMIZED = ON,
+    DURABILITY = SCHEMA_AND_DATA,
+    SYSTEM_VERSIONING = ON (HISTORY_TABLE = History.DepartmentHistory)
+);
+GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    REMOTE_DATA_ARCHIVE = OFF ( MIGRATION_STATE = PAUSED ),
+    LEDGER = ON (LEDGER_VIEW = dbo.ABC (TRANSACTION_ID_COLUMN_NAME = [ColumnC], SEQUENCE_NUMBER_COLUMN_NAME = [ColumnDecimal]))
+);
+GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    DATA_COMPRESSION = ROW
+    XML_COMPRESSION = ON ON PARTITIONS (2)
+);
+GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    DATA_COMPRESSION = PAGE ON PARTITIONS (3, 5)
+    XML_COMPRESSION = OFF
+);
+GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    XML_COMPRESSION = ON ON PARTITIONS (3 TO 5),
+    FILETABLE_DIRECTORY = '/path1/path2',
+    FILETABLE_COLLATE_FILENAME = constraint1,
+    FILETABLE_PRIMARY_KEY_CONSTRAINT_NAME = constraint2,
+    FILETABLE_STREAMID_UNIQUE_CONSTRAINT_NAME = constraint3,
+    FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME = constraint4
+);
+GO
+
+CREATE TABLE [dbo].[EC DC] (
+    [Column B] [varchar](100),
+    [ColumnC] varchar(100),
+    [ColumnDecimal] decimal(10,3)
+)
+WITH
+(
+    REMOTE_DATA_ARCHIVE = ON ( FILTER_PREDICATE = NULL, MIGRATION_STATE = OUTBOUND),
+    LEDGER = ON (LEDGER_VIEW = dbo.ABC, APPEND_ONLY = ON)
+);
+GO
