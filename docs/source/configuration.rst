@@ -54,11 +54,11 @@ For the `pyproject.toml file`_, all valid sections start with
 
 For example, a snippet from a :code:`pyproject.toml` file:
 
-.. code-block:: cfg
+.. code-block:: toml
 
     [tool.sqlfluff.core]
-    templater = jinja
-    sql_file_exts = .sql,.sql.j2,.dml,.ddl
+    templater = "jinja"
+    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
 
     [tool.sqlfluff.indentation]
     indented_joins = false
