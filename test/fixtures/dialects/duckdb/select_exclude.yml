@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 242d1eeab3eff81b4b5dbccabb71871da62ceacd2e365d03e84469e8fe0320af
+_hash: a1d2d32acf940f030e8c387c2b2f487c10e99d359a2bfad44face163eb61b380
 file:
 - statement:
     select_statement:
@@ -76,4 +76,20 @@ file:
                 naked_identifier: firefly
             alias_expression:
               naked_identifier: ff
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: star_wars
 - statement_terminator: ;
