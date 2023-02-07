@@ -816,26 +816,27 @@ class AlterIndexStatementSegment(BaseSegment):
     _low_priority_lock_wait = Sequence(
         "WAIT_AT_LOW_PRIORITY",
         Bracketed(
-            Sequence(
-                "MAX_DURATION",
-                Ref("EqualsSegment"),
-                Ref("NumericLiteralSegment"),
-                Ref.keyword("MINUTES", optional=True),
-            ),
-            Ref("CommaSegment"),
-            Sequence(
-                "ABORT_AFTER_WAIT",
-                OneOf(
-                    "NONE",
-                    "SELF",
-                    "BLOCKERS",
+            Delimited(
+                Sequence(
+                    "MAX_DURATION",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref.keyword("MINUTES", optional=True),
+                ),
+                Sequence(
+                    "ABORT_AFTER_WAIT",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        "NONE",
+                        "SELF",
+                        "BLOCKERS",
+                    ),
                 ),
             ),
         ),
     )
 
     _on_partitions = Sequence(
-        "ON",
         Sequence(
             "ON",
             "PARTITIONS",
@@ -905,7 +906,7 @@ class AlterIndexStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "ON",
-                    Sequence(
+                    Bracketed(
                         _low_priority_lock_wait,
                         optional=True,
                     ),
@@ -1024,7 +1025,7 @@ class AlterIndexStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "ON",
-                    Sequence(
+                    Bracketed(
                         _low_priority_lock_wait,
                         optional=True,
                     ),
