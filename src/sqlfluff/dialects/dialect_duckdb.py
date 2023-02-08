@@ -51,6 +51,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
                         )
                     ),
                 ),
+                optional=True,
             ),
         ),
         Sequence(

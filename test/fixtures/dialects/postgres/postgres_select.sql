@@ -81,4 +81,6 @@ ORDER BY sync_time ASC
 FOR SHARE OF mytable1, mytable2 SKIP LOCKED
 LIMIT 1;
 
+Select * from foo TABLESAMPLE SYSTEM (10);
 
+Select * from foo TABLESAMPLE BERNOULLI (10);
