@@ -403,12 +403,11 @@ class ReflowPoint(ReflowElement):
                     # Trivial case. Indent already correct
                     return [], self
                 elif desired_indent == "":
-                    # Coerce to no indent. We don't want the indent. Delete it.
-                    new_indent = indent_seg.edit(desired_indent)
                     idx = self.segments.index(indent_seg)
                     return [
                         LintResult(
                             indent_seg,
+                            # Coerce to no indent. We don't want the indent. Delete it.
                             [LintFix.delete(indent_seg)],
                             description=description or "Line should not be indented.",
                             source=source,
@@ -434,6 +433,13 @@ class ReflowPoint(ReflowElement):
                 # There is a newline, but no indent. Make one after the newline
                 # Find the index of the last newline (there _will_ be one because
                 # we checked self.num_newlines() above).
+
+                # Before going further, check we have a non-zero indent.
+                if not desired_indent:
+                    # We're trying to coerce a non-existent indent to zero. This
+                    # means we're already ok.
+                    return [], self
+
                 for idx in range(len(self.segments) - 1, -1, -1):
                     if self.segments[idx].is_type("newline"):
                         break
