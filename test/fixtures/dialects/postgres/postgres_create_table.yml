@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c32acebaebd1047787a609acea7ae54506c48a8c08a4fdd1b513c6f284b5725b
+_hash: c158e3d5521d5f515b33918f3d2acbaf9305561e3f78fb82175e1c9c59c2890c
 file:
 - statement:
     create_table_statement:
@@ -1202,12 +1202,11 @@ file:
         - keyword: 'NULL'
       - column_constraint_segment:
           keyword: DEFAULT
-          expression:
-            cast_expression:
-              quoted_literal: "'-1'"
-              casting_operator: '::'
-              data_type:
-                keyword: integer
+          cast_expression:
+            quoted_literal: "'-1'"
+            casting_operator: '::'
+            data_type:
+              keyword: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1446,4 +1445,44 @@ file:
         data_type:
           keyword: int
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: boolean
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: DEFAULT
+          boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: boolean
+      - column_constraint_segment:
+          keyword: DEFAULT
+          boolean_literal: 'false'
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
 - statement_terminator: ;
