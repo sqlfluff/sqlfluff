@@ -2608,10 +2608,8 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(
-                    OneOf(
-                        Ref("ShorthandCastSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
+                    Ref("ShorthandCastSegment"),
+                    Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
                 ),

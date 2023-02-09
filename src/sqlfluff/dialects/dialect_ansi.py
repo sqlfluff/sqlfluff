@@ -2681,10 +2681,8 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(
-                    OneOf(
-                        Ref("ShorthandCastSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
+                    Ref("ShorthandCastSegment"),
+                    Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
                 ),
