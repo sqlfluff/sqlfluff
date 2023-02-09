@@ -1496,6 +1496,8 @@ class DatatypeSegment(BaseSegment):
             Ref("DatatypeIdentifierSegment"),
             Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
         ),
+        # Stop Gap until explicit Data Types as only relevent for character
+        Ref.keyword("VARYING", optional=True),
         Bracketed(
             OneOf(
                 "MAX",
