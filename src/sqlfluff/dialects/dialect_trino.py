@@ -6,7 +6,7 @@ from sqlfluff.core.parser import (
     Delimited,
     OneOf,
     Ref,
-    Sequence,
+    Sequence, Matchable, TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -17,6 +17,17 @@ trino_dialect = ansi_dialect.copy_as("trino")
 trino_dialect.sets("bare_functions").update(
     ["current_date", "current_time", "current_timestamp", "localtime", "localtimestamp"]
 )
+
+trino_dialect.replace(
+    DateTimeLiteralGrammar=OneOf(
+        Sequence(
+            OneOf("DATE", "TIME", "TIMESTAMP"),
+            TypedParser("single_quote", ansi.LiteralSegment, type="date_constructor_literal"),
+        ),
+        Ref("IntervalExpressionSegment")
+    )
+)
+
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
     """A `VALUES` clause within in `WITH`, `SELECT`, `INSERT`."""
     match_grammar = Sequence(
@@ -46,4 +57,25 @@ class IntervalExpressionSegment(BaseSegment):
             "MINUTE",
             "SECOND"
         )
+    )
+
+class FrameClauseSegment(BaseSegment):
+    """A frame clause for window functions.
+
+    https://trino.io/blog/2021/03/10/introducing-new-window-features.html
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(Ref("NumericLiteralSegment"), Ref("DateTimeLiteralGrammar"), "UNBOUNDED"),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
     )
