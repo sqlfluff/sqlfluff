@@ -816,21 +816,20 @@ class AlterIndexStatementSegment(BaseSegment):
     _low_priority_lock_wait = Sequence(
         "WAIT_AT_LOW_PRIORITY",
         Bracketed(
-            Delimited(
-                Sequence(
-                    "MAX_DURATION",
-                    Ref("EqualsSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref.keyword("MINUTES", optional=True),
-                ),
-                Sequence(
-                    "ABORT_AFTER_WAIT",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        "NONE",
-                        "SELF",
-                        "BLOCKERS",
-                    ),
+            Sequence(
+                "MAX_DURATION",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                Ref.keyword("MINUTES", optional=True),
+            ),
+            Ref("CommaSegment"),
+            Sequence(
+                "ABORT_AFTER_WAIT",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "NONE",
+                    "SELF",
+                    "BLOCKERS",
                 ),
             ),
         ),
@@ -856,7 +855,16 @@ class AlterIndexStatementSegment(BaseSegment):
 
     _rebuild_index_option = AnyNumberOf(
         Sequence(
-            "PAD_INDEX",
+            OneOf(
+                "PAD_INDEX",
+                "SORT_IN_TEMPDB",
+                "IGNORE_DUP_KEY",
+                "STATISTICS_NORECOMPUTE",
+                "STATISTICS_INCREMENTAL",
+                "RESUMABLE",
+                "ALLOW_ROW_LOCKS",
+                "ALLOW_PAGE_LOCKS",
+            ),
             Ref("EqualsSegment"),
             OneOf(
                 "ON",
@@ -864,41 +872,14 @@ class AlterIndexStatementSegment(BaseSegment):
             ),
         ),
         Sequence(
-            "FILLFACTOR",
+            OneOf(
+                "MAXDOP",
+                "FILLFACTOR",
+                "MAX_DURATION",
+            ),
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
-        ),
-        Sequence(
-            "SORT_IN_TEMPDB",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "IGNORE_DUP_KEY",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "STATISTICS_NORECOMPUTE",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "STATISTICS_INCREMENTAL",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
+            Ref.keyword("MINUTES", optional=True),
         ),
         Sequence(
             "ONLINE",
@@ -913,41 +894,6 @@ class AlterIndexStatementSegment(BaseSegment):
                 ),
                 "OFF",
             ),
-        ),
-        Sequence(
-            "RESUMABLE",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "MAX_DURATION",
-            Ref("EqualsSegment"),
-            Ref("NumericLiteralSegment"),
-            Ref.keyword("MINUTES", optional=True),
-        ),
-        Sequence(
-            "ALLOW_ROW_LOCKS",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "ALLOW_PAGE_LOCKS",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-        ),
-        Sequence(
-            "MAXDOP",
-            Ref("EqualsSegment"),
-            Ref("NumericLiteralSegment"),
         ),
         Sequence(
             "DATA_COMPRESSION",
@@ -974,7 +920,11 @@ class AlterIndexStatementSegment(BaseSegment):
 
     _single_partition_rebuild_index_option = AnyNumberOf(
         Sequence(
-            "SORT_IN_TEMPDB",
+            OneOf(
+                "XML_COMPRESSION",
+                "SORT_IN_TEMPDB",
+                "RESUMABLE",
+            ),
             Ref("EqualsSegment"),
             OneOf(
                 "ON",
@@ -982,20 +932,10 @@ class AlterIndexStatementSegment(BaseSegment):
             ),
         ),
         Sequence(
-            "MAXDOP",
-            Ref("EqualsSegment"),
-            Ref("NumericLiteralSegment"),
-        ),
-        Sequence(
-            "RESUMABLE",
-            Ref("EqualsSegment"),
             OneOf(
-                "ON",
-                "OFF",
+                "MAXDOP",
+                "MAX_DURATION",
             ),
-        ),
-        Sequence(
-            "MAX_DURATION",
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
             Ref.keyword("MINUTES", optional=True),
@@ -1009,14 +949,6 @@ class AlterIndexStatementSegment(BaseSegment):
                 "PAGE",
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
-            ),
-        ),
-        Sequence(
-            "XML_COMPRESSION",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
             ),
         ),
         Sequence(
@@ -1097,22 +1029,15 @@ class AlterIndexStatementSegment(BaseSegment):
                 Sequence(
                     "WITH",
                     Bracketed(
-                        OneOf(
-                            Sequence(
+                        Sequence(
+                            OneOf(
                                 "LOB_COMPACTION",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "ON",
-                                    "OFF",
-                                ),
-                            ),
-                            Sequence(
                                 "COMPRESS_ALL_ROW_GROUPS",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "ON",
-                                    "OFF",
-                                ),
+                            ),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "ON",
+                                "OFF",
                             ),
                         ),
                     ),
@@ -1125,39 +1050,13 @@ class AlterIndexStatementSegment(BaseSegment):
                     Delimited(
                         AnyNumberOf(
                             Sequence(
-                                "ALLOW_ROW_LOCKS",
-                                Ref("EqualsSegment"),
                                 OneOf(
-                                    "ON",
-                                    "OFF",
+                                    "ALLOW_ROW_LOCKS",
+                                    "ALLOW_PAGE_LOCKS",
+                                    "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+                                    "IGNORE_DUP_KEY",
+                                    "STATISTICS_NORECOMPUTE",
                                 ),
-                            ),
-                            Sequence(
-                                "ALLOW_PAGE_LOCKS",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "ON",
-                                    "OFF",
-                                ),
-                            ),
-                            Sequence(
-                                "OPTIMIZE_FOR_SEQUENTIAL_KEY",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "ON",
-                                    "OFF",
-                                ),
-                            ),
-                            Sequence(
-                                "IGNORE_DUP_KEY",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "ON",
-                                    "OFF",
-                                ),
-                            ),
-                            Sequence(
-                                "STATISTICS_NORECOMPUTE",
                                 Ref("EqualsSegment"),
                                 OneOf(
                                     "ON",
@@ -1167,13 +1066,11 @@ class AlterIndexStatementSegment(BaseSegment):
                             Sequence(
                                 "COMPRESSION_DELAY",
                                 Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NumericLiteralSegment"),
-                                    Ref("NakedIdentifierSegment"),
-                                ),
+                                Ref("NumericLiteralSegment"),
+                                Ref.keyword("MINUTES", optional=True),
                             ),
-                        )
-                    )
+                        ),
+                    ),
                 ),
             ),
             Sequence(
@@ -1182,18 +1079,14 @@ class AlterIndexStatementSegment(BaseSegment):
                     "WITH",
                     Bracketed(
                         Delimited(
-                            AnyNumberOf(
-                                Sequence(
-                                    "MAXDOP",
-                                    Ref("EqualsSegment"),
-                                    Ref("NumericLiteralSegment"),
-                                ),
-                                Sequence(
+                            Sequence(
+                                OneOf(
                                     "MAX_DURATION",
-                                    Ref("EqualsSegment"),
-                                    Ref("NumericLiteralSegment"),
-                                    Ref.keyword("MINUTES", optional=True),
+                                    "MAXDOP",
                                 ),
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref.keyword("MINUTES", optional=True),
                             ),
                             _low_priority_lock_wait,
                         ),

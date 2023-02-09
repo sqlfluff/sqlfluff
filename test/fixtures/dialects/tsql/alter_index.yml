@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e7525286526b8f81f4fbc333cd25b92ff2d851f7f0662cd86d8f0cf49af0d66
+_hash: ae559c6095a99da7a6eaa94388edbca341d6980ecac15a47f886246db5ce0e8e
 file:
   batch:
   - statement:
@@ -435,4 +435,189 @@ file:
             - end_bracket: )
             end_bracket: )
         - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: ALLOW_ROW_LOCKS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: ALLOW_PAGE_LOCKS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: OPTIMIZE_FOR_SEQUENTIAL_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: IGNORE_DUP_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
+        - comma: ','
+        - keyword: STATISTICS_NORECOMPUTE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          keyword: COMPRESSION_DELAY
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '0'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESSION_DELAY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '100'
+        - keyword: minutes
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: MAXDOP
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '100'
+        - comma: ','
+        - keyword: MAX_DURATION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '500'
+        - keyword: minutes
+        - comma: ','
+        - keyword: WAIT_AT_LOW_PRIORITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: MAX_DURATION
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '500'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+          end_bracket: )
   - statement_terminator: ;
