@@ -239,3 +239,11 @@ CREATE TABLE IF NOT EXISTS quotas.usage(foo int);
 
 -- Use non-reserved `usage` word as a column identifier
 CREATE TABLE IF NOT EXISTS quotas.my_table(usage int);
+
+-- NOT NULL both before and after a default constraint
+CREATE TABLE with_constraints1 (
+    col_1 boolean NOT NULL DEFAULT false
+);
+CREATE TABLE with_constraints2 (
+    col_1 boolean DEFAULT false NOT NULL
+);
