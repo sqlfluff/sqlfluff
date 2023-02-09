@@ -98,8 +98,8 @@ SELECT
 	[following]	= count(*) over(order by object_id ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING),
 
     EqualsAlias = ColumnName,
-    OtherColumnName AS AsAlias
-
+    OtherColumnName AS AsAlias,
+	cast(1 as character varying(1)),
+	cast([central] as int)
 
 FROM dbo . all_pop
-
