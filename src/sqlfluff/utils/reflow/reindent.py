@@ -1405,6 +1405,10 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
+        # NOTE: We should be able to rely on the first elements of the line having
+        # a non-zero number of segments. If this isn't the case we may need to add
+        # a clause to handle that scenario here.
+        assert line_buffer[0].segments
         first_seg = line_buffer[0].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
