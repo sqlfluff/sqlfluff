@@ -788,7 +788,8 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    # Work back through points until we're past any comments.
+    last_ip = indent_line.indent_points[-1]
+
     for ip in reversed(indent_line.indent_points):
         # Check whether it closes the opening indent.
         if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
