@@ -1405,10 +1405,7 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
-        if line_buffer[0].segments:
-            first_seg = line_buffer[0].segments[0]
-        else:
-            first_seg = line_buffer[1].segments[0]
+        first_seg = line_buffer[0].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
             reflow_logger.info(
