@@ -41,33 +41,9 @@ class Rule_L016(BaseRule):
         # Reflow and generate fixes.
         results = (
             ReflowSequence.from_root(context.segment, context.config)
-            .reindent()
+            .break_long_lines()
             .get_results()
         )
-
-        # Filter only to results which with the long line flag,
-        # or to other indent ones on the same line as those.
-        fixable_long_lines = set(
-            res.anchor.pos_marker.working_line_no
-            for res in results
-            if res.source == "reflow.long_line" and res.fixes
-        )
-        unfixable_long_lines = set(
-            res.anchor.pos_marker.working_line_no
-            for res in results
-            if res.source == "reflow.long_line" and not res.fixes
-        )
-        results = [
-            res
-            for res in results
-            # Allow other fixes on lines which are too long AND FIXABLE.
-            if res.anchor.pos_marker.working_line_no in fixable_long_lines
-            # OR if it's not fixable, don't correct indents.
-            or (
-                res.anchor.pos_marker.working_line_no in unfixable_long_lines
-                and res.source != "reflow.indent.existing"
-            )
-        ]
 
         # Ignore any comment line if appropriate.
         if self.ignore_comment_lines:

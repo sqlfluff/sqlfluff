@@ -582,9 +582,33 @@ class ReflowSequence:
             allow_implicit_indents=self.reflow_config.allow_implicit_indents,
         )
 
+        return ReflowSequence(
+            elements=elements,
+            root_segment=self.root_segment,
+            reflow_config=self.reflow_config,
+            depth_map=self.depth_map,
+            lint_results=indent_results,
+        )
+
+    def break_long_lines(self):
+        """Rebreak any remaining long lines in a sequence.
+
+        This assumes that reindent() has already been applied.
+        """
+        if self.lint_results:
+            raise NotImplementedError(  # pragma: no cover
+                "break_long_lines cannot currently handle pre-existing "
+                "embodied fixes."
+            )
+
+        single_indent = construct_single_indent(
+            indent_unit=self.reflow_config.indent_unit,
+            tab_space_size=self.reflow_config.tab_space_size,
+        )
+
         reflow_logger.info("# Evaluating line lengths.")
         elements, length_results = lint_line_length(
-            elements,
+            self.elements,
             self.root_segment,
             single_indent=single_indent,
             line_length_limit=self.reflow_config.max_line_length,
@@ -596,5 +620,5 @@ class ReflowSequence:
             root_segment=self.root_segment,
             reflow_config=self.reflow_config,
             depth_map=self.depth_map,
-            lint_results=indent_results + length_results,
+            lint_results=length_results,
         )
