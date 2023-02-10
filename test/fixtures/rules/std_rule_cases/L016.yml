@@ -535,3 +535,30 @@ test_fix_no_implicit_indent:
       max_line_length: 45
     indentation:
       allow_implicit_indents: false
+
+test_fix_window_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/4292
+  fail_str: |
+    select *
+    from t
+    qualify a = coalesce(first_value(iff(b = 'none', null, a)) ignore nulls over (partition by c order by d desc),
+        first_value(a) respect nulls over (partition by c order by d desc))
+  fix_str: |
+    select *
+    from t
+    qualify a = coalesce(
+        first_value(
+            iff(b = 'none', null, a)
+        ) ignore nulls over (
+            partition by c order by d desc
+        ),
+        first_value(
+            a
+        ) respect nulls over (
+            partition by c order by d desc
+        )
+    )
+  configs:
+    core:
+      max_line_length: 50
+      dialect: snowflake
