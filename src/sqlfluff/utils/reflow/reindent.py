@@ -790,17 +790,13 @@ def _lint_line_untaken_positive_indents(
     starting_balance = indent_line.opening_balance()
     last_ip = indent_line.indent_points[-1]
 
-    for ip in reversed(indent_line.indent_points):
-        # Check whether it closes the opening indent.
-        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
-            return [], []
-        # Is it preceded by comments?
-        if "comment" in elements[ip.idx - 1].class_types:
-            # It is, keep searching
-            continue
-        else:
-            # It's not, we don't close out an opened indent.
-            break
+    # Check whether it closes the opening indent.
+    if last_ip.initial_indent_balance + last_ip.indent_trough <= starting_balance:
+        return [], []
+    # It's not, we don't close out an opened indent.
+    # NOTE: Because trailing comments should always shift their any
+    # surrounding indentation effects to _after_ their position, we
+    # should just be able to evaluate them safely from the end of the line.
 
     indent_points = indent_line.indent_points
 
