@@ -97,7 +97,7 @@ postgres_docs_keywords = [
     ("BEGIN", "non-reserved"),
     ("BEGIN_FRAME", "not-keyword"),
     ("BEGIN_PARTITION", "not-keyword"),
-    ("BERNOULLI", "not-keyword"),
+    ("BERNOULLI", "non-reserved"),
     ("BETWEEN", "non-reserved-(cannot-be-function-or-type)"),
     ("BIGINT", "non-reserved-(cannot-be-function-or-type)"),
     ("BIGSERIAL", "non-reserved-(cannot-be-function-or-type)"),

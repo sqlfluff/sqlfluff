@@ -116,3 +116,20 @@ CREATE TABLE t1 WITH (val=70) AS
     SELECT something
     FROM t2
 ;
+
+create temp table t1
+with (autovacuum_enabled = true, toast_tuple_target = 123, vacuum_index_cleanup = false) as
+select
+    column_1
+    , column_2
+    , column_3
+from tablename;
+
+create temp table a_new_table
+with (appendoptimized = true, compresstype = zstd) as
+select
+    column_1
+    , column_2
+    , column_3
+from schema.tablename
+group by 1, 2, 3;

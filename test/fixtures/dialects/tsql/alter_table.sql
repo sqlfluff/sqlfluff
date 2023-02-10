@@ -49,3 +49,8 @@ GO
 ALTER TABLE [Production].[ProductCostHistory]
 CHECK CONSTRAINT [FK_ProductCostHistory_Product_ProductID]
 GO
+
+ALTER TABLE my_table
+ADD my_col_1 INT
+  , my_col_2 INT
+GO

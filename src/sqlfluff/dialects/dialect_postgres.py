@@ -1183,9 +1183,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("ON", "CONFLICT"),
-        ],
+        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
     )
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
@@ -1200,9 +1198,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("ON", "CONFLICT"),
-        ],
+        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
     )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
@@ -1730,12 +1726,15 @@ class CreateTableAsStatementSegment(BaseSegment):
                 Sequence(
                     "WITH",
                     Bracketed(
-                        AnyNumberOf(
+                        Delimited(
                             Sequence(
                                 Ref("ParameterNameSegment"),
                                 Sequence(
                                     Ref("EqualsSegment"),
-                                    Ref("LiteralGrammar"),
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("NakedIdentifierSegment"),
+                                    ),
                                     optional=True,
                                 ),
                             )
@@ -2288,6 +2287,58 @@ class DropMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+class WithCheckOptionSegment(BaseSegment):
+    """WITH [ CASCADED | LOCAL ] CHECK OPTION for Postgres' CREATE VIEWS.
+
+    https://www.postgresql.org/docs/14/sql-createview.html
+    """
+
+    type = "with_check_option"
+    match_grammar: Matchable = Sequence(
+        "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """An `Create VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-createview.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
+                            optional=True,
+                        ),
+                    )
+                )
+            ),
+            optional=True,
+        ),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            Ref("ValuesClauseSegment"),
+        ),
+        Ref("WithCheckOptionSegment", optional=True),
+    )
+
+
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW` statement.
 
@@ -2557,11 +2608,10 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(
+                    Ref("ShorthandCastSegment"),
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
-                    Ref("ExpressionSegment")
-                    # ?? Ref('IntervalExpressionSegment')
                 ),
             ),
             Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
@@ -3433,6 +3483,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
+            Ref("CreateViewStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("ListenStatementSegment"),
             Ref("NotifyStatementSegment"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 400575378a328cfd4f1f25bebd8703ee72ed4a8f4fc7ea9abc45593aa25b8734
+_hash: 1ae3c61fd8e9753e50ab692f5949825c30fa47744146dc30d1fa774fca367f3d
 file:
 - statement:
     create_table_as_statement:
@@ -557,4 +557,105 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: autovacuum_enabled
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: toast_tuple_target
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '123'
+      - comma: ','
+      - parameter: vacuum_index_cleanup
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tablename
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        naked_identifier: a_new_table
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: compresstype
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: zstd
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: column_3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: schema
+                - dot: .
+                - naked_identifier: tablename
+        groupby_clause:
+        - keyword: group
+        - keyword: by
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - comma: ','
+        - numeric_literal: '3'
 - statement_terminator: ;
