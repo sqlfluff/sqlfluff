@@ -522,6 +522,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("BulkInsertStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -692,6 +693,142 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
             Ref("ExecuteScriptSegment"),
             Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
+class BulkInsertStatementSegment(BaseSegment):
+    """A `BULK INSERT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_statement"
+    match_grammar = Sequence(
+        "BULK",
+        "INSERT",
+        Ref("TableReferenceSegment"),
+        "FROM",
+        Ref("QuotedLiteralSegment"),
+        Ref("BulkInsertStatementWithSegment", optional=True),
+    )
+
+
+class BulkInsertStatementWithSegment(BaseSegment):
+    """A `WITH` segment in the BULK INSERT statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_with_segment"
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        "BATCHSIZE",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    "CHECK_CONSTRAINTS",
+                    Sequence(
+                        "CODEPAGE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DATAFILETYPE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DATA_SOURCE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ERRORFILE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ERRORFILE_DATA_SOURCE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FIRSTROW",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    "FIRE_TRIGGERS",
+                    Sequence(
+                        "FORMATFILE_DATA_SOURCE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    "KEEPIDENTITY",
+                    "KEEPNULLS",
+                    Sequence(
+                        "KILOBYTES_PER_BATCH",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LASTROW",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "MAXERRORS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ORDER",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    OneOf("ASC", "DESC", optional=True),
+                                ),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "ROWS_PER_BATCH",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ROWTERMINATOR",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    "TABLOCK",
+                    Sequence(
+                        "FORMAT",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FIELDQUOTE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORMATFILE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FIELDTERMINATOR",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                )
+            )
         ),
     )
 
