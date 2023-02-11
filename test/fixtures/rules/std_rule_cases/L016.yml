@@ -541,8 +541,10 @@ test_fix_window_function:
   fail_str: |
     select *
     from t
-    qualify a = coalesce(first_value(iff(b = 'none', null, a)) ignore nulls over (partition by c order by d desc),
-        first_value(a) respect nulls over (partition by c order by d desc))
+    qualify a = coalesce(
+        first_value(iff(b = 'none', null, a)) ignore nulls over (partition by c order by d desc),
+        first_value(a) respect nulls over (partition by c order by d desc)
+    )
   fix_str: |
     select *
     from t
