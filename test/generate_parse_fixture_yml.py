@@ -68,9 +68,6 @@ def generate_one_parse_fixture(example: ParseExample) -> None:
         # Check we don't have any base types or unparsable sections
         types = tree.type_set()
         if "base" in types:
-            print(f"{types=}")
-            for s in tree.recursive_crawl_all():
-                print(f"{s.type=} {s=}")
             raise SQLParseError(f"Unnamed base section when parsing: {f.name}")
         if "unparsable" in types:
             for unparsable in tree.iter_unparsables():

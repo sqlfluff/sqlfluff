@@ -3173,7 +3173,8 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
 class CreateIndexOpClassSegment(BaseSegment):
     """The Operator class segment in CREATE INDEX.
 
-    The NULLS keyword downstream is non-reserved and can be caught by the parameter name inthis clause.
+    The NULLS keyword downstream is non-reserved and can be caught
+    by the parameter name in this clause.
     Consequently we're excluding the NULLS keyword from matching.
     Technically Postgres allows a operator class named NULLS, but this would require
     us to implement lookahead for NULLS, so this is currently excluded.
