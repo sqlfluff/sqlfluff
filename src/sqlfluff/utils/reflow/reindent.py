@@ -454,6 +454,62 @@ def construct_single_indent(indent_unit: str, tab_space_size: int) -> str:
         )
 
 
+def _prune_untaken_indents(
+    untaken_indents: Tuple[int, ...],
+    incoming_balance: int,
+    indent_stats: IndentStats,
+    has_newline: bool,
+) -> Tuple[int, ...]:
+    """Update the tracking of untaken indents.
+
+    This is an internal helper function for `_crawl_indent_points`.
+
+    We use the `trough` of the given indent stats to remove any untaken
+    indents which are now no longer relevant after balances are taken
+    into account.
+    """
+    # Strip any untaken indents above the new balance.
+    # NOTE: We strip back to the trough, not just the end point
+    # if the trough was lower than the impulse.
+    ui = tuple(
+        x
+        for x in untaken_indents
+        if x
+        <= (
+            incoming_balance + indent_stats.impulse + indent_stats.trough
+            if indent_stats.trough < indent_stats.impulse
+            else incoming_balance + indent_stats.impulse
+        )
+    )
+
+    # After stripping, we may have to add them back in.
+    if indent_stats.impulse > indent_stats.trough and not has_newline:
+        for i in range(indent_stats.trough, indent_stats.impulse):
+            indent_val = incoming_balance + i + 1
+            if indent_val not in indent_stats.implicit_indents:
+                ui += (indent_val,)
+
+    return ui
+
+
+def _update_crawl_balances(
+    untaken_indents: Tuple[int, ...],
+    incoming_balance: int,
+    indent_stats: IndentStats,
+    has_newline: bool,
+) -> Tuple[int, Tuple[int, ...]]:
+    """Update the tracking of untaken indents and balances.
+
+    This is an internal helper function for `_crawl_indent_points`.
+    """
+    new_untaken_indents = _prune_untaken_indents(
+        untaken_indents, incoming_balance, indent_stats, has_newline
+    )
+    new_balance = incoming_balance + indent_stats.impulse
+
+    return new_balance, new_untaken_indents
+
+
 def _crawl_indent_points(
     elements: ReflowSequenceType, allow_implicit_indents: bool = False
 ) -> Iterator[_IndentPoint]:
@@ -480,6 +536,7 @@ def _crawl_indent_points(
                 cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
             )
             cached_indent_stats = None
+            has_newline = False
 
             # Is it a line break? AND not a templated one.
             if has_untemplated_newline(elem) and idx != last_line_break_idx:
@@ -534,31 +591,11 @@ def _crawl_indent_points(
                     False,
                     untaken_indents,
                 )
-                has_newline = False
 
-            # Strip any untaken indents above the new balance.
-            # NOTE: We strip back to the trough, not just the end point
-            # if the trough was lower than the impulse.
-            untaken_indents = tuple(
-                x
-                for x in untaken_indents
-                if x
-                <= (
-                    indent_balance + indent_stats.impulse + indent_stats.trough
-                    if indent_stats.trough < indent_stats.impulse
-                    else indent_balance + indent_stats.impulse
-                )
+            # Update balances
+            indent_balance, untaken_indents = _update_crawl_balances(
+                untaken_indents, indent_balance, indent_stats, has_newline
             )
-
-            # After stripping, we may have to add them back in.
-            if indent_stats.impulse > indent_stats.trough and not has_newline:
-                for i in range(indent_stats.trough, indent_stats.impulse):
-                    indent_val = indent_balance + i + 1
-                    if indent_val not in indent_stats.implicit_indents:
-                        untaken_indents += (indent_val,)
-
-            # Update values
-            indent_balance += indent_stats.impulse
 
 
 def _map_line_buffers(
@@ -752,30 +789,22 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    # Work back through points until we're past any comments.
-    for ip in reversed(indent_line.indent_points):
-        # Check whether it closes the opening indent.
-        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
-            return [], []
-        # Is it preceded by comments?
-        if "comment" in elements[ip.idx - 1].class_types:
-            # It is, keep searching
-            continue
-        else:
-            # It's not, we don't close out an opened indent.
-            break
+
+    last_ip = indent_line.indent_points[-1]
+    # Check whether it closes the opening indent.
+    if last_ip.initial_indent_balance + last_ip.indent_trough <= starting_balance:
+        return [], []
+    # It's not, we don't close out an opened indent.
+    # NOTE: Because trailing comments should always shift their any
+    # surrounding indentation effects to _after_ their position, we
+    # should just be able to evaluate them safely from the end of the line.
 
     indent_points = indent_line.indent_points
 
     # Account for the closing trough.
-    if indent_points[-1].indent_trough:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_trough
-        )
-    else:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_impulse
-        )
+    closing_trough = last_ip.initial_indent_balance + (
+        last_ip.indent_trough or last_ip.indent_impulse
+    )
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -941,7 +970,7 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "  Evaluate Line #%s [source line #%s]. idx=%s:%s. FI %s",
+        "    Line #%s [source line #%s]. idx=%s:%s. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1055,9 +1084,15 @@ def lint_indent_points(
     forced_indents: List[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
-        results += _lint_line_buffer_indents(
+        line_results = _lint_line_buffer_indents(
             elem_buffer, line, single_indent, forced_indents
         )
+        if line_results:
+            reflow_logger.info("      PROBLEMS:")
+            for res in line_results:
+                reflow_logger.info("        %s @ %s", res.source, res.anchor)
+                reflow_logger.info("          %s", res.description)
+        results += line_results
 
     return elem_buffer, results
 
@@ -1091,7 +1126,7 @@ def _source_char_len(elements: ReflowSequenceType):
         # a recent edit or modification. We shouldn't evaluate it until it's
         # been positioned. Without a source marker we don't know how to treat
         # it.
-        if not seg.pos_marker:
+        if not seg.pos_marker:  # pragma: no cover
             break
         source_slice = seg.pos_marker.source_slice
         # Is there a newline in the source string?
@@ -1370,20 +1405,21 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
-        if line_buffer[0].segments:
-            first_seg = line_buffer[0].segments[0]
-        else:
-            first_seg = line_buffer[1].segments[0]
+        # NOTE: We should be able to rely on the first elements of the line having
+        # a non-zero number of segments. If this isn't the case we may need to add
+        # a clause to handle that scenario here.
+        assert line_buffer[0].segments
+        first_seg = line_buffer[0].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s <= %s. OK.",
                 line_no,
                 line_len,
                 line_length_limit,
             )
         else:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s > %s. PROBLEM.",
                 line_no,
                 line_len,
