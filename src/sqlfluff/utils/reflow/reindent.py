@@ -830,7 +830,6 @@ def _lint_line_untaken_positive_indents(
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
     last_ip = indent_line.indent_points[-1]
-
     # Check whether it closes the opening indent.
     if last_ip.initial_indent_balance + last_ip.indent_trough <= starting_balance:
         return [], []
@@ -1445,10 +1444,11 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
-        if line_buffer[0].segments:
-            first_seg = line_buffer[0].segments[0]
-        else:
-            first_seg = line_buffer[1].segments[0]
+        # NOTE: We should be able to rely on the first elements of the line having
+        # a non-zero number of segments. If this isn't the case we may need to add
+        # a clause to handle that scenario here.
+        assert line_buffer[0].segments
+        first_seg = line_buffer[0].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
             reflow_logger.info(

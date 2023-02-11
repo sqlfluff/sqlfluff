@@ -1623,3 +1623,33 @@ test_pass_join_comment_indents_2:
     select * from a
     left join b -- comment
         on (a.x = b.x)
+
+test_comment_effect_indents_default:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE
+        TRUE -- comment
+        AND TRUE
+
+test_comment_effect_indents_implicit:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+        AND TRUE
+  configs:
+    indentation:
+      allow_implicit_indents: true
