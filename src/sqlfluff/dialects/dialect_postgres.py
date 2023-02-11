@@ -3122,57 +3122,86 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                             OptionallyBracketed(Ref("FunctionSegment")),
                             Bracketed(Ref("ExpressionSegment")),
                         ),
-                        AnyNumberOf(
-                            Sequence(
-                                "COLLATE",
-                                OneOf(
-                                    Ref("LiteralGrammar"),
-                                    Ref("QuotedIdentifierSegment"),
-                                ),
-                            ),
-                            Sequence(
-                                Ref("ParameterNameSegment"),
-                                Bracketed(
-                                    Delimited(
-                                        Sequence(
-                                            Ref("ParameterNameSegment"),
-                                            Ref("EqualsSegment"),
-                                            OneOf(
-                                                Ref("LiteralGrammar"),
-                                                Ref("QuotedIdentifierSegment"),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            OneOf("ASC", "DESC"),
+                        Sequence(
+                            "COLLATE",
                             OneOf(
-                                Sequence("NULLS", "FIRST"), Sequence("NULLS", "LAST")
+                                Ref("LiteralGrammar"),
+                                Ref("QuotedIdentifierSegment"),
                             ),
+                            optional=True,
+                        ),
+                        Ref("CreateIndexOpClassSegment", optional=True),
+                        OneOf("ASC", "DESC", optional=True),
+                        OneOf(
+                            Sequence("NULLS", "FIRST"),
+                            Sequence("NULLS", "LAST"),
+                            optional=True,
                         ),
                     ),
                 )
             ),
         ),
-        AnyNumberOf(
-            Sequence(
-                "INCLUDE",
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        Sequence(
+            "INCLUDE",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "NULLS",
+            Ref.keyword("NOT", optional=True),
+            "DISTINCT",
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),
+                    ),
+                )
             ),
-            Sequence(
-                "WITH",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("EqualsSegment"),
-                            Ref("LiteralGrammar"),
-                        ),
-                    )
+            optional=True,
+        ),
+        Sequence("TABLESPACE", Ref("TableReferenceSegment"), optional=True),
+        Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class CreateIndexOpClassSegment(BaseSegment):
+    """The Operator class segment in CREATE INDEX.
+
+    The NULLS keyword downstream is non-reserved and can be caught
+    by the parameter name in this clause.
+    Consequently we're excluding the NULLS keyword from matching.
+    Technically Postgres allows a operator class named NULLS, but this would require
+    us to implement lookahead for NULLS, so this is currently excluded.
+    """
+
+    type = "create_index_op_class_segment"
+
+    # Technically Postgres can have a NULLS Opclass name, however this is less realistic
+    # and working around it can allow us not to look ahead.
+    exclude_nulls_from_parameter_name = RegexParser(
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"',
+        CodeSegment,
+        type="parameter",
+        anti_template="^(NULLS)$",
+    )
+
+    match_grammar = Sequence(
+        exclude_nulls_from_parameter_name,
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("LiteralGrammar"),
                 ),
             ),
-            Sequence("TABLESPACE", Ref("TableReferenceSegment")),
-            Sequence("WHERE", Ref("ExpressionSegment")),
+            optional=True,
         ),
     )
 

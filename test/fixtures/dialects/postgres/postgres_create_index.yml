@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8118dce1bf51d3010c7f0c0f853fc85a25e6dee0c5833eaaecea62a61efba029
+_hash: c85828c0b64827f7ac8137a78f854ee2c0dfdd6ffb1ea8ceb401bcf76a1981d9
 file:
 - statement:
     create_index_statement:
@@ -124,6 +124,23 @@ file:
           naked_identifier: title
       - keyword: NULLS
       - keyword: FIRST
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx_nulls_high
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: title
+      - keyword: NULLS
+      - keyword: LAST
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -255,11 +272,163 @@ file:
     - keyword: USING
     - function:
         function_name:
-          function_name_identifier: BTREE
+          function_name_identifier: btree
         bracketed:
           start_bracket: (
           index_column_definition:
             naked_identifier: super_column
             keyword: DESC
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: opclass_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        create_index_op_class_segment:
+          parameter: varchar_pattern_ops
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: opclass_index_with_parameters
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        create_index_op_class_segment:
+          parameter: varchar_pattern_ops
+          bracketed:
+          - start_bracket: (
+          - parameter: p1
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'3'"
+          - comma: ','
+          - parameter: p2
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'4'"
+          - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: tests_success_constraint
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tests
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: subject
+      - comma: ','
+      - column_reference:
+          naked_identifier: target
+      - end_bracket: )
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: success
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: nulls_distinct_index
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: documents_table
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: GIN
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: locations
+          end_bracket: )
+    - keyword: NULLS
+    - keyword: DISTINCT
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        parameter: fastupdate
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'off'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: nulls_not_distinct_index
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: documents_table
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: GIN
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: locations
+          end_bracket: )
+    - keyword: NULLS
+    - keyword: NOT
+    - keyword: DISTINCT
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        parameter: fastupdate
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'off'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: code_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: code
+        end_bracket: )
+    - keyword: TABLESPACE
+    - table_reference:
+        naked_identifier: indexspace
 - statement_terminator: ;
