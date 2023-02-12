@@ -5,6 +5,7 @@ from sqlfluff.core.rules.base import (
     BaseRule,
     LintResult,
     LintFix,
+    RuleManifest,
     RuleGhost,
     EvalResultType,
 )
@@ -43,6 +44,7 @@ __all__ = (
     "BaseRule",
     "LintResult",
     "LintFix",
+    "RuleManifest",
     "RuleContext",
     "RuleGhost",
     "EvalResultType",

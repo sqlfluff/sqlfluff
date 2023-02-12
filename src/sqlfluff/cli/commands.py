@@ -421,7 +421,17 @@ def rules(**kwargs) -> None:
     """Show the current rules in use."""
     c = get_config(**kwargs, dialect="ansi")
     lnt, formatter = get_linter_and_formatter(c)
-    click.echo(formatter.format_rules(lnt), color=c.get("color"))
+    try:
+        click.echo(formatter.format_rules(lnt), color=c.get("color"))
+    except SQLFluffUserError as err:
+            click.echo(
+                OutputStreamFormatter.colorize_helper(
+                    c.get("color"),
+                    f"Error loading rules: {str(err)}",
+                    color=Color.red,
+                )
+            )
+            sys.exit(EXIT_ERROR)
 
 
 @cli.command()

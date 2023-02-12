@@ -16,6 +16,7 @@ missing.
 
 import bdb
 import copy
+from dataclasses import dataclass, field
 import fnmatch
 from itertools import chain
 import logging
@@ -30,6 +31,7 @@ from typing import (
     Tuple,
     Union,
     Any,
+    Dict,
 )
 from collections import namedtuple
 
@@ -38,7 +40,7 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
-from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
@@ -59,6 +61,17 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
     def process(self, msg, kwargs):
         """Add the code element to the logging message before emit."""
         return "[{}] {}".format(self.extra["code"], msg), kwargs
+
+
+@dataclass(frozen=True)
+class RuleManifest:
+    """A class to hold the declaration of a selectable rule."""
+    code: str
+    name: str
+    namespace: str
+    description: str = None
+    aliases: Tuple[str] = field(default_factory=tuple)
+    groups: Tuple[str] = field(default_factory=tuple)
 
 
 class LintResult:
@@ -503,6 +516,8 @@ class BaseRule:
     # - On the first pass of the main phase
     # - In a second linter pass after the main phase
     lint_phase = "main"
+    # Groups attribute to be overwritten.
+    groups = ()
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -956,7 +971,7 @@ class RuleSet:
     def __init__(self, name, config_info):
         self.name = name
         self.config_info = config_info
-        self._register = {}
+        self._register: Dict[str, RuleManifest] = {}
 
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
@@ -1021,48 +1036,74 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
-        # Validate the name
-        if not rule_name_match:  # pragma: no cover
-            raise ValueError(
-                (
-                    "Tried to register rule on set {!r} with unexpected "
-                    "format: {}, format should be: Rule_PluginName_L123 (for plugins) "
-                    "or Rule_L123 (for core rules)."
-                ).format(self.name, cls.__name__)
-            )
-
-        plugin_name, code = rule_name_match.groups()
-        # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.replace("``", "'").split("\n")[0]
-
-        if plugin_name:
-            code = f"{plugin_name}_{code}"
-
-        # Keep track of the *class* in the register. Don't instantiate yet.
-        if code in self._register:  # pragma: no cover
-            raise ValueError(
-                "Rule {!r} has already been registered on RuleSet {!r}!".format(
-                    code, self.name
-                )
-            )
-
+        # Try and access `declared_rules` (v2 rule spec)
         try:
-            assert (
-                "all" in cls.groups
-            ), "Rule {!r} must belong to the 'all' group".format(code)
-            groups = cls.groups
-        except AttributeError as attr_err:
-            raise AttributeError(
-                (
-                    "Rule {!r} doesn't belong to any rule groups. "
-                    "All rules must belong to at least one group"
-                ).format(code)
-            ) from attr_err
+            declared_rules = cls.declared_rules
+            if cls.groups:
+                raise SQLFluffUserError(
+                    f"Rule crawler {cls.__name__} declares rules, but also defines "
+                    "a `groups` attribute. V2 spec rules should use the `groups` "
+                    "attribute of `RuleManifest` in the declared rules."
+                )
+        # If it doesn't define it, then assume it's a v1 rule.
+        except AttributeError:   
+            rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
+            # Validate the name
+            if not rule_name_match:  # pragma: no cover
+                raise SQLFluffUserError(
+                    f"Tried to register v1 spec rule on set {self.name!r} with unexpected "
+                    f"format: {cls.__name__}. Either rule plugin should implement "
+                    "`declared_rules` or format should be as expected for v1 spec: "
+                    "'Rule_PluginName_L123' (for plugins) or `Rule_L123` "
+                    "(for core rules)."
+                )
 
-        self._register[code] = dict(
-            code=code, description=description, groups=groups, cls=cls
-        )
+            plugin_name, code = rule_name_match.groups()
+            if plugin_name:
+                code = f"{plugin_name}_{code}"
+            
+            # Construct a Manifest for the V1 rule.
+            declared_rules = (RuleManifest(code, plugin_name, "plugin", groups=cls.groups),)
+        
+        # Iterate through the declared rules, registering each.
+        for r in declared_rules:
+            # Check for code collisions.
+            if r.code in self._register:  # pragma: no cover
+                raise ValueError(
+                    "Rule {!r} has already been registered on RuleSet {!r}!".format(
+                        r.code, self.name
+                    )
+                )
+
+            # Set description to the docstring summary if unset directly.
+            if not r.description:
+                # If the docstring is multiline, then we extract just summary.
+                # NOTE: It's a frozen object so we have to create a new one.
+                r = RuleManifest(
+                    code=r.code,
+                    name=r.name,
+                    namespace=r.namespace,
+                    description=cls.__doc__.replace("``", "'").split("\n")[0],
+                    aliases=r.aliases,
+                    groups=r.groups
+                )
+
+            try:
+                assert (
+                    "all" in r.groups
+                ), "Rule {!r} must belong to the 'all' group".format(r.code)
+            except AttributeError as attr_err:
+                raise AttributeError(
+                    (
+                        "Rule {!r} doesn't belong to any rule groups. "
+                        "All rules must belong to at least one group"
+                    ).format(code)
+                ) from attr_err
+
+            self._register[r.code] = dict(
+                # Keep track of the *class* in the register. Don't instantiate yet.
+                manifest=r, cls=cls
+            )
 
         # Make sure we actually return the original class
         return cls
@@ -1075,8 +1116,8 @@ class RuleSet:
             if r in valid_groups:
                 rules_in_group = [
                     rule
-                    for rule, rule_dict in self._register.items()
-                    if r in rule_dict["groups"]
+                    for rule, d in self._register.items()
+                    if r in d['manifest'].groups
                 ]
                 expanded_rule_list.extend(rules_in_group)
             else:
@@ -1117,7 +1158,7 @@ class RuleSet:
         self._validate_config_options(config)
         # Find all valid groups for ruleset
         valid_groups: Set[str] = set(
-            [group for attrs in self._register.values() for group in attrs["groups"]]
+            [groups for d in self._register.values() for groups in d['manifest'].groups]
         )
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
@@ -1169,18 +1210,19 @@ class RuleSet:
         for k in keylist:
             kwargs = {}
             generic_rule_config = config.get_section("rules")
+            manifest = self._register[k]["manifest"]
             specific_rule_config = config.get_section(
-                ("rules", self._register[k]["code"])
+                ("rules", manifest.code)
             )
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, self._register[k]["code"])
+                self._validate_config_options(config, manifest.code)
                 kwargs.update(specific_rule_config)
-            kwargs["code"] = self._register[k]["code"]
+            kwargs["code"] = manifest.code
             # Allow variable substitution in making the description
-            kwargs["description"] = self._register[k]["description"].format(**kwargs)
+            kwargs["description"] = manifest.description.format(**kwargs)
             rule_kwargs[k] = kwargs
 
         # Instantiate in the final step
