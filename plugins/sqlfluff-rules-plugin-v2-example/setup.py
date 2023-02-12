@@ -12,9 +12,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires="sqlfluff>=2.0.0a4",
-    entry_points={
-        "sqlfluff": [
-            f"{PLUGIN_LOGICAL_NAME} = {PLUGIN_ROOT_MODULE}.rules"
-        ]
-    },
+    entry_points={"sqlfluff": [f"{PLUGIN_LOGICAL_NAME} = {PLUGIN_ROOT_MODULE}.rules"]},
 )

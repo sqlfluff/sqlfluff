@@ -32,6 +32,7 @@ from typing import (
     Union,
     Any,
     Dict,
+    Type,
 )
 from collections import namedtuple
 
@@ -66,12 +67,13 @@ class RuleLoggingAdapter(logging.LoggerAdapter):
 @dataclass(frozen=True)
 class RuleManifest:
     """A class to hold the declaration of a selectable rule."""
+
     code: str
     name: str
     namespace: str
-    description: str = None
-    aliases: Tuple[str] = field(default_factory=tuple)
-    groups: Tuple[str] = field(default_factory=tuple)
+    description: str = ""
+    aliases: Tuple[str, ...] = field(default_factory=tuple)
+    groups: Tuple[str, ...] = field(default_factory=tuple)
 
 
 class LintResult:
@@ -517,7 +519,7 @@ class BaseRule:
     # - In a second linter pass after the main phase
     lint_phase = "main"
     # Groups attribute to be overwritten.
-    groups = ()
+    groups: Tuple[str, ...] = ()
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -968,10 +970,10 @@ class RuleSet:
 
     """
 
-    def __init__(self, name, config_info):
+    def __init__(self, name, config_info) -> None:
         self.name = name
         self.config_info = config_info
-        self._register: Dict[str, RuleManifest] = {}
+        self._register: Dict[str, Dict[str, Union[RuleManifest, Type[BaseRule]]]] = {}
 
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
@@ -1046,25 +1048,27 @@ class RuleSet:
                     "attribute of `RuleManifest` in the declared rules."
                 )
         # If it doesn't define it, then assume it's a v1 rule.
-        except AttributeError:   
+        except AttributeError:
             rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
             # Validate the name
             if not rule_name_match:  # pragma: no cover
                 raise SQLFluffUserError(
-                    f"Tried to register v1 spec rule on set {self.name!r} with unexpected "
-                    f"format: {cls.__name__}. Either rule plugin should implement "
-                    "`declared_rules` or format should be as expected for v1 spec: "
-                    "'Rule_PluginName_L123' (for plugins) or `Rule_L123` "
-                    "(for core rules)."
+                    f"Tried to register v1 spec rule on set {self.name!r} with "
+                    "unexpected format: {cls.__name__}. Either rule plugin should "
+                    "implement `declared_rules` or format should be as expected "
+                    "for v1 spec: 'Rule_PluginName_L123' (for plugins) or "
+                    "`Rule_L123` (for core rules)."
                 )
 
             plugin_name, code = rule_name_match.groups()
             if plugin_name:
                 code = f"{plugin_name}_{code}"
-            
+
             # Construct a Manifest for the V1 rule.
-            declared_rules = (RuleManifest(code, plugin_name, "plugin", groups=cls.groups),)
-        
+            declared_rules = (
+                RuleManifest(code, plugin_name, "plugin", groups=cls.groups),
+            )
+
         # Iterate through the declared rules, registering each.
         for r in declared_rules:
             # Check for code collisions.
@@ -1085,7 +1089,7 @@ class RuleSet:
                     namespace=r.namespace,
                     description=cls.__doc__.replace("``", "'").split("\n")[0],
                     aliases=r.aliases,
-                    groups=r.groups
+                    groups=r.groups,
                 )
 
             try:
@@ -1102,7 +1106,8 @@ class RuleSet:
 
             self._register[r.code] = dict(
                 # Keep track of the *class* in the register. Don't instantiate yet.
-                manifest=r, cls=cls
+                manifest=r,
+                cls=cls,
             )
 
         # Make sure we actually return the original class
@@ -1117,7 +1122,7 @@ class RuleSet:
                 rules_in_group = [
                     rule
                     for rule, d in self._register.items()
-                    if r in d['manifest'].groups
+                    if r in d["manifest"].groups
                 ]
                 expanded_rule_list.extend(rules_in_group)
             else:
@@ -1158,7 +1163,7 @@ class RuleSet:
         self._validate_config_options(config)
         # Find all valid groups for ruleset
         valid_groups: Set[str] = set(
-            [groups for d in self._register.values() for groups in d['manifest'].groups]
+            [groups for d in self._register.values() for groups in d["manifest"].groups]
         )
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
@@ -1181,7 +1186,7 @@ class RuleSet:
         denylisted_unknown_rule_codes = [
             r
             for r in denylist
-            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
+            if not fnmatch.filter(set(self._register.keys()) | valid_groups, r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
@@ -1210,10 +1215,9 @@ class RuleSet:
         for k in keylist:
             kwargs = {}
             generic_rule_config = config.get_section("rules")
-            manifest = self._register[k]["manifest"]
-            specific_rule_config = config.get_section(
-                ("rules", manifest.code)
-            )
+            manifest = cast(RuleManifest, self._register[k]["manifest"])
+            rule_class = cast(Type[BaseRule], self._register[k]["cls"])
+            specific_rule_config = config.get_section(("rules", manifest.code))
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
@@ -1226,7 +1230,7 @@ class RuleSet:
             rule_kwargs[k] = kwargs
 
         # Instantiate in the final step
-        return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]
+        return [rule_class(**rule_kwargs[k]) for k in keylist]
 
     def copy(self):
         """Return a copy of self with a separate register."""

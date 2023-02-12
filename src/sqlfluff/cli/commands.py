@@ -424,14 +424,14 @@ def rules(**kwargs) -> None:
     try:
         click.echo(formatter.format_rules(lnt), color=c.get("color"))
     except SQLFluffUserError as err:
-            click.echo(
-                OutputStreamFormatter.colorize_helper(
-                    c.get("color"),
-                    f"Error loading rules: {str(err)}",
-                    color=Color.red,
-                )
+        click.echo(
+            OutputStreamFormatter.colorize_helper(
+                c.get("color"),
+                f"Error loading rules: {str(err)}",
+                color=Color.red,
             )
-            sys.exit(EXIT_ERROR)
+        )
+        sys.exit(EXIT_ERROR)
 
 
 @cli.command()
