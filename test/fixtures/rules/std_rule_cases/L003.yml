@@ -1609,3 +1609,47 @@ test_indented_comment_tsql:
   configs:
     core:
       dialect: tsql
+
+test_pass_join_comment_indents_1:
+  # https://github.com/sqlfluff/sqlfluff/issues/4291
+  pass_str: |
+    select * from a
+    left join b
+        -- comment
+        on (a.x = b.x)
+test_pass_join_comment_indents_2:
+  # https://github.com/sqlfluff/sqlfluff/issues/4291
+  pass_str: |
+    select * from a
+    left join b -- comment
+        on (a.x = b.x)
+
+test_comment_effect_indents_default:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE
+        TRUE -- comment
+        AND TRUE
+
+test_comment_effect_indents_implicit:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+        AND TRUE
+  configs:
+    indentation:
+      allow_implicit_indents: true

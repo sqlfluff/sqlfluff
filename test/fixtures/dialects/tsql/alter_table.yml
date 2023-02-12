@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbbad5fb91e122e0f46727338e622d1b17156cc1f6123ecbfa43d4b7ff1067c6
+_hash: 35e3531dd187cbfb6d8d0781923e3625d94649975c274aacdbf0f8cd1a94a56c
 file:
 - batch:
     statement:
@@ -365,5 +365,24 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
           quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - keyword: ADD
+      - column_definition:
+          naked_identifier: my_col_1
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: my_col_2
+          data_type:
+            data_type_identifier: INT
 - go_statement:
     keyword: GO
