@@ -536,6 +536,7 @@ class BaseRule:
         try:
             for keyword in self.config_keywords:
                 if keyword not in kwargs.keys():
+                    self.logger.error("PASSED: %s", kwargs.keys())
                     raise ValueError(
                         (
                             "Unrecognized config '{}' for Rule {}. If this "
@@ -1210,12 +1211,17 @@ class RuleSet:
             r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
 
-        # Construct the kwargs for instantiation before we actually do it.
-        rule_kwargs = {}
+        # Construct the kwargs for each rule and instantiate in turn.
         instantiated_rules = []
+        # Fetch general config first:
+        generic_rule_config = config.get_section("rules")
+        # Keep only config which isn't a section (for specific rule) (i.e. isn't a dict)
+        # We'll handle those directly in the specific rule config section below.
+        generic_rule_config = {
+            k: v for k, v in generic_rule_config.items() if not isinstance(v, dict)
+        }
         for k in keylist:
             kwargs = {}
-            generic_rule_config = config.get_section("rules")
             manifest = cast(RuleManifest, self._register[k]["manifest"])
             rule_class = cast(Type[BaseRule], self._register[k]["cls"])
             specific_rule_config = config.get_section(("rules", manifest.code))
@@ -1228,9 +1234,8 @@ class RuleSet:
             kwargs["code"] = manifest.code
             # Allow variable substitution in making the description
             kwargs["description"] = manifest.description.format(**kwargs)
-            rule_kwargs[k] = kwargs
             # Instantiate when ready
-            instantiated_rules.append(rule_class(**rule_kwargs[k]))
+            instantiated_rules.append(rule_class(**kwargs))
 
         return instantiated_rules
 

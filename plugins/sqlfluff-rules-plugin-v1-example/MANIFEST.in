@@ -1,1 +1,1 @@
-include src/example/plugin_default_config.cfg
+include src/example_v1/plugin_default_config.cfg
