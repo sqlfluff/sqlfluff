@@ -26,7 +26,7 @@ from sqlfluff.core.config import ConfigLoader
 @hookimpl
 def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules."""
-    return [Rule_Plugin_Example]
+    return [Rule_Plugin_v2_Example]
 
 
 @hookimpl
@@ -51,7 +51,7 @@ def get_configs_info() -> dict:
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_Plugin_Example(BaseRule):
+class Rule_Plugin_v2_Example(BaseRule):
     """ORDER BY on these columns is forbidden!
 
     **Anti-pattern**

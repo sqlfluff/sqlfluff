@@ -178,7 +178,7 @@ def test_rule_must_belong_to_all_group():
     """Assert correct 'groups' config for rule."""
     std_rule_set = get_ruleset()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AssertionError):
 
         @std_rule_set.register
         class Rule_T000(BaseRule):
