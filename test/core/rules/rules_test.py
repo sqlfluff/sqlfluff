@@ -4,7 +4,7 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
-from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules import get_ruleset, RuleManifest
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -12,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_groups,
 )
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.testing.rules import get_rule_from_set
@@ -184,7 +185,7 @@ def test_rule_must_belong_to_all_group():
         class Rule_T000(BaseRule):
             """Badly configured rule, no groups attribute."""
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
     with pytest.raises(AssertionError):
@@ -195,7 +196,33 @@ def test_rule_must_belong_to_all_group():
 
             groups = ()
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
+                pass
+
+    with pytest.raises(AssertionError):
+
+        @std_rule_set.register
+        class Rule_T002(BaseRule):
+            """Badly v2 configured rule, no 'all' group."""
+
+            declared_rules = (RuleManifest("T002", "testrule", "plugin", groups=()),)
+
+            def _eval(self, **kwargs):
+                pass
+
+    with pytest.raises(SQLFluffUserError):
+
+        @std_rule_set.register
+        class Rule_T003(BaseRule):
+            """Badly v2 configured rule, defines groups twice."""
+
+            groups = ("bar",)
+
+            declared_rules = (
+                RuleManifest("T003", "testrule", "plugin", groups=("foo",)),
+            )
+
+            def _eval(self, **kwargs):
                 pass
 
 

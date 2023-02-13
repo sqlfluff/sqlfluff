@@ -423,7 +423,10 @@ def rules(**kwargs) -> None:
     lnt, formatter = get_linter_and_formatter(c)
     try:
         click.echo(formatter.format_rules(lnt), color=c.get("color"))
-    except SQLFluffUserError as err:
+    # No cover for clause covering poorly formatted rules.
+    # Without creating a poorly formed plugin, these are hard to
+    # test.
+    except (SQLFluffUserError, AssertionError) as err:  # pragma: no cover
         click.echo(
             OutputStreamFormatter.colorize_helper(
                 c.get("color"),

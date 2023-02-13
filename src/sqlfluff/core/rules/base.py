@@ -1093,17 +1093,9 @@ class RuleSet:
                     groups=r.groups,
                 )
 
-            try:
-                assert (
-                    "all" in r.groups
-                ), "Rule {!r} must belong to the 'all' group".format(r.code)
-            except AttributeError as attr_err:
-                raise AttributeError(
-                    (
-                        "Rule {!r} doesn't belong to any rule groups. "
-                        "All rules must belong to at least one group"
-                    ).format(code)
-                ) from attr_err
+            assert "all" in r.groups, "Rule {!r} must belong to the 'all' group".format(
+                r.code
+            )
 
             self._register[r.code] = dict(
                 # Keep track of the *class* in the register. Don't instantiate yet.
