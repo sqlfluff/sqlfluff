@@ -349,7 +349,7 @@ ansi_dialect.add(
     VersionIdentifierSegment=RegexParser(r"[A-Z0-9_.]*", IdentifierSegment),
     ParameterNameSegment=RegexParser(r"[A-Z][A-Z0-9_]*", CodeSegment, type="parameter"),
     FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*",
+        r"[A-Z_][A-Z0-9_]*",
         CodeSegment,
         type="function_name_identifier",
     ),
@@ -2681,10 +2681,8 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(
-                    OneOf(
-                        Ref("ShorthandCastSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
+                    Ref("ShorthandCastSegment"),
+                    Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
                 ),
