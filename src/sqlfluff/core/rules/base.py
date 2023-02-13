@@ -1212,6 +1212,7 @@ class RuleSet:
 
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
+        instantiated_rules = []
         for k in keylist:
             kwargs = {}
             generic_rule_config = config.get_section("rules")
@@ -1228,9 +1229,10 @@ class RuleSet:
             # Allow variable substitution in making the description
             kwargs["description"] = manifest.description.format(**kwargs)
             rule_kwargs[k] = kwargs
+            # Instantiate when ready
+            instantiated_rules.append(rule_class(**rule_kwargs[k]))
 
-        # Instantiate in the final step
-        return [rule_class(**rule_kwargs[k]) for k in keylist]
+        return instantiated_rules
 
     def copy(self):
         """Return a copy of self with a separate register."""
