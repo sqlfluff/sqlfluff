@@ -755,9 +755,13 @@ class FluffConfig:
             ("exclude_rules", "rule_denylist"),
         ]:
             if self._configs["core"].get(in_key, None):
-                self._configs["core"][out_key] = _split_comma_separated_string(
-                    self._configs["core"][in_key]
-                )
+                # Checking if key is string as can potentially be a list to
+                if isinstance(self._configs["core"][in_key], str):
+                    self._configs["core"][out_key] = _split_comma_separated_string(
+                        self._configs["core"][in_key]
+                    )
+                else:
+                    self._configs["core"][out_key] = self._configs["core"][in_key]
             else:
                 self._configs["core"][out_key] = []
         # Configure Recursion

@@ -130,6 +130,7 @@ def test__config__load_toml():
             "testing_bar": 7.698,
             "testing_bool": False,
             "testing_arr": ["a", "b", "c"],
+            "rules": ["L010", "L035"],
             "testing_inline_table": {"x": 1},
         },
         "bar": {"foo": "foobar"},
@@ -439,3 +440,18 @@ def test__config__validate_configs_precedence_same_file():
     assert len(res) == 1
     # Check that the old key isn't there.
     assert not any(k == old_key for k, _ in res)
+
+
+def test__config__toml_list_config():
+    """Test Parsing TOML list of values."""
+    c = ConfigLoader()
+    loaded_config = c.load_config_file(
+        os.path.join("test", "fixtures", "config", "toml"),
+        "pyproject.toml",
+    )
+    loaded_config["core"]["dialect"] = "ansi"
+    cfg = FluffConfig(loaded_config)
+
+    # Verify we can later retrieve the config values.
+    assert cfg.get("dialect") == "ansi"
+    assert cfg.get("rules") == ["L010", "L035"]
