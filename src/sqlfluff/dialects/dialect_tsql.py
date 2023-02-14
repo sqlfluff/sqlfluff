@@ -727,63 +727,33 @@ class BulkInsertStatementWithSegment(BaseSegment):
             Delimited(
                 AnyNumberOf(
                     Sequence(
-                        "BATCHSIZE",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    "CHECK_CONSTRAINTS",
-                    Sequence(
-                        "CODEPAGE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "DATAFILETYPE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "DATA_SOURCE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "ERRORFILE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "ERRORFILE_DATA_SOURCE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "FIRSTROW",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    "FIRE_TRIGGERS",
-                    Sequence(
-                        "FORMATFILE_DATA_SOURCE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    "KEEPIDENTITY",
-                    "KEEPNULLS",
-                    Sequence(
-                        "KILOBYTES_PER_BATCH",
+                        OneOf(
+                            "BATCHSIZE",
+                            "FIRSTROW",
+                            "KILOBYTES_PER_BATCH",
+                            "LASTROW",
+                            "MAXERRORS",
+                            "ROWS_PER_BATCH",
+                        ),
                         Ref("EqualsSegment"),
                         Ref("NumericLiteralSegment"),
                     ),
                     Sequence(
-                        "LASTROW",
+                        OneOf(
+                            "CODEPAGE",
+                            "DATAFILETYPE",
+                            "DATA_SOURCE",
+                            "ERRORFILE",
+                            "ERRORFILE_DATA_SOURCE",
+                            "FORMATFILE_DATA_SOURCE",
+                            "ROWTERMINATOR",
+                            "FORMAT",
+                            "FIELDQUOTE",
+                            "FORMATFILE",
+                            "FIELDTERMINATOR",
+                        ),
                         Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "MAXERRORS",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
+                        Ref("QuotedLiteralSegment"),
                     ),
                     Sequence(
                         "ORDER",
@@ -796,37 +766,11 @@ class BulkInsertStatementWithSegment(BaseSegment):
                             ),
                         ),
                     ),
-                    Sequence(
-                        "ROWS_PER_BATCH",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "ROWTERMINATOR",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
+                    "CHECK_CONSTRAINTS",
+                    "FIRE_TRIGGERS",
+                    "KEEPIDENTITY",
+                    "KEEPNULLS",
                     "TABLOCK",
-                    Sequence(
-                        "FORMAT",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "FIELDQUOTE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "FORMATFILE",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "FIELDTERMINATOR",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
                 )
             )
         ),
