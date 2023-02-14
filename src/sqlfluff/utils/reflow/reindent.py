@@ -530,67 +530,108 @@ def _crawl_indent_points(
     indent_balance = 0
     untaken_indents: Tuple[int, ...] = ()
     cached_indent_stats: Optional[IndentStats] = None
+    cached_point: Optional[_IndentPoint] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
             )
+
+            # Was there a cache?
+            if cached_indent_stats:
+                # If there was we can safely assume there is a cached point.
+                assert cached_point
+                # If there was, this is a signal that we need to yield two points.
+                # The content of those points depends on the newlines that surround the
+                # last segments (which will be comment block).
+                # _leading_ comments (i.e. those preceded by a newline): Yield _before_
+                # _trailing_ comments (or rare "mid" comments): Yield _after_
+                # TODO: We might want to reconsider the treatment of comments in the
+                # middle of lines eventually, but they're fairly unusual so not well
+                # covered in tests as of writing.
+
+                # We yield the first of those points here, and then manipulate the
+                # indent_stats object to allow the following code to yield the other.
+
+                # We can refer back to the cached point as a framework. In both
+                # cases we use the combined impulse and trough, but we use the
+                # current indent balance and untaken indents.
+                if cached_point.is_line_break:
+                    # It's a leading comment. Yield all the info in that point.
+                    yield _IndentPoint(
+                        cached_point.idx,
+                        indent_stats.impulse,
+                        indent_stats.trough,
+                        indent_balance,
+                        cached_point.last_line_break_idx,
+                        True,
+                        untaken_indents,
+                    )
+                    # Before zeroing, crystallise any effect on overall balances.
+                    indent_balance, untaken_indents = _update_crawl_balances(
+                        untaken_indents, indent_balance, indent_stats, True
+                    )
+                    # Set indent stats to zero because we've already yielded.
+                    indent_stats = IndentStats(0, 0, indent_stats.implicit_indents)
+                else:
+                    # It's a trailing (or mid) comment. Yield it in the next.
+                    yield _IndentPoint(
+                        cached_point.idx,
+                        0,
+                        0,
+                        indent_balance,
+                        cached_point.last_line_break_idx,
+                        False,
+                        untaken_indents,
+                    )
+                    # No need to reset indent stats. It's already good.
+
+            # Reset caches.
             cached_indent_stats = None
             has_newline = False
+            cached_point = None
 
-            # Is it a line break? AND not a templated one.
-            if has_untemplated_newline(elem) and idx != last_line_break_idx:
-                yield _IndentPoint(
-                    idx,
-                    indent_stats.impulse,
-                    indent_stats.trough,
-                    indent_balance,
-                    last_line_break_idx,
-                    True,
-                    untaken_indents,
-                )
+            # Do we have a newline?
+            has_newline = has_untemplated_newline(elem) and idx != last_line_break_idx
+
+            # Construct the point we may yield
+            indent_point = _IndentPoint(
+                idx,
+                indent_stats.impulse,
+                indent_stats.trough,
+                indent_balance,
+                last_line_break_idx,
+                has_newline,
+                untaken_indents,
+            )
+
+            # Update the last newline index if this is a newline.
+            # NOTE: We used the previous value in the construction of the
+            # _IndentPoint above and we only reset after that construction.
+            if has_newline:
                 last_line_break_idx = idx
-                has_newline = True
-            # Is it otherwise meaningful as an indent point?
+
+            # Is the next element a comment? If so - delay the decision until we've
+            # got any indents from after the comment too.
+            if "comment" in elements[idx + 1].class_types:
+                cached_indent_stats = indent_stats
+                # Create parts of a point to use later.
+                cached_point = indent_point
+                # We loop around so that we don't do the untaken indent calcs yet.
+                continue
+            # Is it meaningful as an indent point?
+            # i.e. Is it a line break? AND not a templated one.
             # NOTE: a point at idx zero is meaningful because it's like an indent.
             # NOTE: Last edge case. If we haven't yielded yet, but the
             # next element is the end of the file. Yield.
             elif (
-                indent_stats.impulse
+                has_newline
+                or indent_stats.impulse
                 or indent_stats.trough
                 or idx == 0
                 or elements[idx + 1].segments[0].is_type("end_of_file")
             ):
-                # If the next block contains comments, then don't yield the
-                # impulses here. Yield them afterwards. Instead generate a
-                # point here with no balance change instead. It's a point
-                # we might later add a line break - but not very interesting
-                # otherwise.
-                if "comment" in elements[idx + 1].class_types:
-                    cached_indent_stats = indent_stats
-                    yield _IndentPoint(
-                        idx,
-                        0,
-                        0,
-                        indent_balance,
-                        last_line_break_idx,
-                        False,
-                        untaken_indents,
-                    )
-                    # Stop here and continue onward. Because we're treating
-                    # this point as though it has no impulse, we don't want
-                    # to update any balance values.
-                    continue
-
-                yield _IndentPoint(
-                    idx,
-                    indent_stats.impulse,
-                    indent_stats.trough,
-                    indent_balance,
-                    last_line_break_idx,
-                    False,
-                    untaken_indents,
-                )
+                yield indent_point
 
             # Update balances
             indent_balance, untaken_indents = _update_crawl_balances(
@@ -728,7 +769,6 @@ def _lint_line_starting_indent(
         and "block_comment" in elements[initial_point_idx - 1].class_types
         and "block_comment" in elements[initial_point_idx + 1].class_types
     ):
-        reflow_logger.debug("    Indent inside block comment.")
         if len(current_indent) > len(desired_starting_indent):
             reflow_logger.debug("    Indent is bigger than required. OK.")
             return []
@@ -789,30 +829,21 @@ def _lint_line_untaken_positive_indents(
     """Check for positive indents which should have been taken."""
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
-    # Work back through points until we're past any comments.
-    for ip in reversed(indent_line.indent_points):
-        # Check whether it closes the opening indent.
-        if ip.initial_indent_balance + ip.indent_trough <= starting_balance:
-            return [], []
-        # Is it preceded by comments?
-        if "comment" in elements[ip.idx - 1].class_types:
-            # It is, keep searching
-            continue
-        else:
-            # It's not, we don't close out an opened indent.
-            break
+    last_ip = indent_line.indent_points[-1]
+    # Check whether it closes the opening indent.
+    if last_ip.initial_indent_balance + last_ip.indent_trough <= starting_balance:
+        return [], []
+    # It's not, we don't close out an opened indent.
+    # NOTE: Because trailing comments should always shift their any
+    # surrounding indentation effects to _after_ their position, we
+    # should just be able to evaluate them safely from the end of the line.
 
     indent_points = indent_line.indent_points
 
     # Account for the closing trough.
-    if indent_points[-1].indent_trough:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_trough
-        )
-    else:
-        closing_trough = (
-            indent_points[-1].initial_indent_balance + indent_points[-1].indent_impulse
-        )
+    closing_trough = last_ip.initial_indent_balance + (
+        last_ip.indent_trough or last_ip.indent_impulse
+    )
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -978,7 +1009,7 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "  Evaluate Line #%s [source line #%s]. idx=%s:%s. FI %s",
+        "    Line #%s [source line #%s]. idx=%s:%s. FI %s",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1092,9 +1123,15 @@ def lint_indent_points(
     forced_indents: List[int] = []
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
-        results += _lint_line_buffer_indents(
+        line_results = _lint_line_buffer_indents(
             elem_buffer, line, single_indent, forced_indents
         )
+        if line_results:
+            reflow_logger.info("      PROBLEMS:")
+            for res in line_results:
+                reflow_logger.info("        %s @ %s", res.source, res.anchor)
+                reflow_logger.info("          %s", res.description)
+        results += line_results
 
     return elem_buffer, results
 
@@ -1407,20 +1444,21 @@ def lint_line_length(
 
         # Is the line over the limit length?
         line_len = len(current_indent) + char_len
-        if line_buffer[0].segments:
-            first_seg = line_buffer[0].segments[0]
-        else:
-            first_seg = line_buffer[1].segments[0]
+        # NOTE: We should be able to rely on the first elements of the line having
+        # a non-zero number of segments. If this isn't the case we may need to add
+        # a clause to handle that scenario here.
+        assert line_buffer[0].segments
+        first_seg = line_buffer[0].segments[0]
         line_no = first_seg.pos_marker.working_line_no
         if line_len <= line_length_limit:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s <= %s. OK.",
                 line_no,
                 line_len,
                 line_length_limit,
             )
         else:
-            reflow_logger.debug(
+            reflow_logger.info(
                 "    Line #%s. Length %s > %s. PROBLEM.",
                 line_no,
                 line_len,

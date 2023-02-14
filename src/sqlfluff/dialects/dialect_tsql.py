@@ -523,6 +523,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("BulkInsertStatementSegment"),
+            Ref("AlterIndexStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -885,6 +886,302 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
         Dedent,
+    )
+
+
+class AlterIndexStatementSegment(BaseSegment):
+    """An ALTER INDEX statement.
+
+    As per.
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "alter_index_statement"
+
+    _low_priority_lock_wait = Sequence(
+        "WAIT_AT_LOW_PRIORITY",
+        Bracketed(
+            Sequence(
+                "MAX_DURATION",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                Ref.keyword("MINUTES", optional=True),
+            ),
+            Ref("CommaSegment"),
+            Sequence(
+                "ABORT_AFTER_WAIT",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "NONE",
+                    "SELF",
+                    "BLOCKERS",
+                ),
+            ),
+        ),
+    )
+
+    _on_partitions = Sequence(
+        Sequence(
+            "ON",
+            "PARTITIONS",
+        ),
+        Bracketed(
+            Delimited(
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "TO",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+    _rebuild_index_option = AnyNumberOf(
+        Sequence(
+            OneOf(
+                "PAD_INDEX",
+                "SORT_IN_TEMPDB",
+                "IGNORE_DUP_KEY",
+                "STATISTICS_NORECOMPUTE",
+                "STATISTICS_INCREMENTAL",
+                "RESUMABLE",
+                "ALLOW_ROW_LOCKS",
+                "ALLOW_PAGE_LOCKS",
+            ),
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+        ),
+        Sequence(
+            OneOf(
+                "MAXDOP",
+                "FILLFACTOR",
+                "MAX_DURATION",
+            ),
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref.keyword("MINUTES", optional=True),
+        ),
+        Sequence(
+            "ONLINE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Sequence(
+                    "ON",
+                    Bracketed(
+                        _low_priority_lock_wait,
+                        optional=True,
+                    ),
+                ),
+                "OFF",
+            ),
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+            _on_partitions,
+        ),
+        Sequence(
+            "XML_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            _on_partitions,
+        ),
+    )
+
+    _single_partition_rebuild_index_option = AnyNumberOf(
+        Sequence(
+            OneOf(
+                "XML_COMPRESSION",
+                "SORT_IN_TEMPDB",
+                "RESUMABLE",
+            ),
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+        ),
+        Sequence(
+            OneOf(
+                "MAXDOP",
+                "MAX_DURATION",
+            ),
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref.keyword("MINUTES", optional=True),
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+        ),
+        Sequence(
+            "ONLINE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Sequence(
+                    "ON",
+                    Bracketed(
+                        _low_priority_lock_wait,
+                        optional=True,
+                    ),
+                ),
+                "OFF",
+            ),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "ALTER",
+        "INDEX",
+        OneOf(
+            Ref("ObjectReferenceSegment"),
+            "ALL",
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "REBUILD",
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "PARTITION",
+                            Ref("EqualsSegment"),
+                            "ALL",
+                            optional=True,
+                        ),
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                Delimited(
+                                    _rebuild_index_option,
+                                )
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        Sequence(
+                            "PARTITION",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "WITH",
+                            Bracketed(
+                                Delimited(
+                                    _single_partition_rebuild_index_option,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            "DISABLE",
+            Sequence(
+                "REORGANIZE",
+                Sequence(
+                    "PARTITION",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Sequence(
+                            OneOf(
+                                "LOB_COMPACTION",
+                                "COMPRESS_ALL_ROW_GROUPS",
+                            ),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "ON",
+                                "OFF",
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                Bracketed(
+                    Delimited(
+                        AnyNumberOf(
+                            Sequence(
+                                OneOf(
+                                    "ALLOW_ROW_LOCKS",
+                                    "ALLOW_PAGE_LOCKS",
+                                    "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+                                    "IGNORE_DUP_KEY",
+                                    "STATISTICS_NORECOMPUTE",
+                                ),
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    "ON",
+                                    "OFF",
+                                ),
+                            ),
+                            Sequence(
+                                "COMPRESSION_DELAY",
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref.keyword("MINUTES", optional=True),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "RESUME",
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                OneOf(
+                                    "MAX_DURATION",
+                                    "MAXDOP",
+                                ),
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref.keyword("MINUTES", optional=True),
+                            ),
+                            _low_priority_lock_wait,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            "PAUSE",
+            "ABORT",
+        ),
     )
 
 
