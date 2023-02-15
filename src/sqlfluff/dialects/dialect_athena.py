@@ -262,7 +262,6 @@ class PrimitiveTypeSegment(BaseSegment):
         "INT", # used in DDL queries
         "BIGINT",
         "DOUBLE",
-        # Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
         "FLOAT", # used in DDL
         "REAL", # used "in SQL functions like SELECT CAST"
         Sequence(
@@ -294,17 +293,12 @@ class PrimitiveTypeSegment(BaseSegment):
         "BINARY",
         "DATE",
         "TIMESTAMP",
-
-        "NUMERIC",
-        "CHAR",
         "VARBINARY",
         "JSON",
-        "INTERVAL",
         "TIME",
         "IPADDRESS",
         "HyperLogLog",
         "P4HyperLogLog",
-        "QDigest",
     )
 
 
