@@ -17,8 +17,8 @@ from dbt.compilation import Compiler as DbtCompiler
 
 try:
     from dbt.exceptions import (
-        CompilationException as DbtCompilationException,
-        FailedToConnectException as DbtFailedToConnectException,
+        CompilationError as DbtCompilationException,
+        CompilationError as DbtFailedToConnectException,
     )
 except ImportError:
     from dbt.exceptions import (
