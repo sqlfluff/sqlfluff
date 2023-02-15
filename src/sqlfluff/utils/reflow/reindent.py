@@ -1067,7 +1067,7 @@ def _lint_line_buffer_indents(
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
-    skip_indentation_in: Set[str] = set(),
+    skip_indentation_in: Optional[Set[str]] = None,
     allow_implicit_indents: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
@@ -1079,17 +1079,20 @@ def lint_indent_points(
 
     Specifically we're addressing two things:
 
-    1. Any untaken indents. An untaken indent is only valid if it's
+    1. Any untaken indents. An untaken indent is only valid if its
     corresponding dedent is on the same line. If that is not the case,
     there should be a line break at the location of the indent and dedent.
 
     2. The indentation of lines. Given the line breaks are in the right
-    place, is the line indented correctly.
+    place, is the line indented correctly?
 
     We do these at the same time, because we can't do the second without
     having line breaks in the right place, but if we're inserting a line
     break, we need to also know how much to indent by.
     """
+    if skip_indentation_in is None:
+        skip_indentation_in = set()
+    assert skip_indentation_in is not None
     # First map the line buffers.
     lines: List[_IndentLine] = _map_line_buffers(
         elements, allow_implicit_indents=allow_implicit_indents

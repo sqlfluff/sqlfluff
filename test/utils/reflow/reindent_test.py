@@ -9,7 +9,7 @@ Specifically:
 import logging
 import pytest
 
-from sqlfluff.core import Linter
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.utils.reflow.helpers import fixes_from_results
@@ -129,10 +129,11 @@ def test_reflow__deduce_line_indent(
 
 
 @pytest.mark.parametrize(
-    "raw_sql_in,points_out",
+    "dialect, raw_sql_in,points_out",
     [
         # Trivial
         (
+            "ansi",
             "select 1",
             [
                 # No point at the start.
@@ -159,6 +160,7 @@ def test_reflow__deduce_line_indent(
             ],
         ),
         (
+            "ansi",
             "\nselect 1\n",
             [
                 # Start point
@@ -194,6 +196,7 @@ def test_reflow__deduce_line_indent(
             ],
         ),
         (
+            "ansi",
             "select\n1",
             [
                 # No point at the start.
@@ -221,6 +224,7 @@ def test_reflow__deduce_line_indent(
         ),
         # More stretching cases.
         (
+            "ansi",
             "SELECT\n    r.a,\n    s.b\nFROM r\nJOIN s\n    "
             "ON\n        r.a = s.a\n        AND true",
             [
@@ -335,6 +339,7 @@ def test_reflow__deduce_line_indent(
             ],
         ),
         (
+            "ansi",
             "SELECT *\nFROM t1\nJOIN t2 ON true\nAND true",
             [
                 # No point at the start.
@@ -368,6 +373,7 @@ def test_reflow__deduce_line_indent(
         ),
         # Templated case
         (
+            "ansi",
             "SELECT\n"
             "    {{ 'a' }}\n"
             "    {% for c in ['d', 'e'] %}\n"
@@ -392,6 +398,7 @@ def test_reflow__deduce_line_indent(
         ),
         # Templated case (with consuming whitespace)
         (
+            "ansi",
             "{% for item in [1, 2] -%}\n"
             "SELECT *\n"
             "FROM some_table\n"
@@ -433,6 +440,7 @@ def test_reflow__deduce_line_indent(
         ),
         # Templated case (with templated newline and indent)
         (
+            "ansi",
             "SELECT\n  {{'1 \n, 2'}}\nFROM foo",
             [
                 # After SELECT
@@ -446,13 +454,77 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(11, -1, -1, 1, 7, False, (1,)),
             ],
         ),
+        # Issue #4328
+        pytest.param(
+            "tsql",
+            """DECLARE @SqlTruncate nvarchar(400) = FN(TRUE
+)""",
+            [
+                _IndentPoint(
+                    idx=1,
+                    indent_impulse=1,
+                    indent_trough=0,
+                    initial_indent_balance=0,
+                    last_line_break_idx=None,
+                    is_line_break=False,
+                    untaken_indents=(),
+                ),
+                _IndentPoint(
+                    idx=7,
+                    indent_impulse=1,
+                    indent_trough=0,
+                    initial_indent_balance=1,
+                    last_line_break_idx=None,
+                    is_line_break=False,
+                    untaken_indents=(1,),
+                ),
+                _IndentPoint(
+                    idx=9,
+                    indent_impulse=-1,
+                    indent_trough=-1,
+                    initial_indent_balance=2,
+                    last_line_break_idx=None,
+                    is_line_break=False,
+                    untaken_indents=(1, 2),
+                ),
+                _IndentPoint(
+                    idx=17,
+                    indent_impulse=1,
+                    indent_trough=0,
+                    initial_indent_balance=1,
+                    last_line_break_idx=None,
+                    is_line_break=False,
+                    untaken_indents=(1,),
+                ),
+                _IndentPoint(
+                    idx=19,
+                    indent_impulse=-1,
+                    indent_trough=-1,
+                    initial_indent_balance=2,
+                    last_line_break_idx=None,
+                    is_line_break=True,
+                    untaken_indents=(1, 2),
+                ),
+                _IndentPoint(
+                    idx=21,
+                    indent_impulse=-1,
+                    indent_trough=-1,
+                    initial_indent_balance=1,
+                    last_line_break_idx=19,
+                    is_line_break=False,
+                    untaken_indents=(1,),
+                ),
+            ],
+            id="issue_4328",
+        ),
     ],
 )
-def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):
+def test_reflow__crawl_indent_points(dialect, raw_sql_in, points_out, caplog):
     """Test _crawl_indent_points directly."""
-    root = parse_ansi_string(raw_sql_in, default_config)
+    config = FluffConfig(overrides={"dialect": dialect})
+    root = parse_ansi_string(raw_sql_in, config)
     print(root.stringify())
-    seq = ReflowSequence.from_root(root, config=default_config)
+    seq = ReflowSequence.from_root(root, config=config)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         points = list(_crawl_indent_points(seq.elements))
     assert points == points_out
