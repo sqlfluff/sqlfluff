@@ -41,8 +41,9 @@ class Rule_L030(Rule_L010):
 
     """
 
-    groups = ("all", "core")
-    lint_phase = "post"
+    name = "capitalisation.functions"
+    aliases = ("CP03",)
+
     crawl_behaviour = SegmentSeekerCrawler(
         {"function_name_identifier", "bare_function"}
     )

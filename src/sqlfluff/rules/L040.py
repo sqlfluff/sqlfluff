@@ -56,8 +56,9 @@ class Rule_L040(Rule_L010):
 
     """
 
-    groups = ("all", "core")
-    lint_phase = "post"
+    name = "capitalisation.literals"
+    aliases = ("CP04",)
+
     crawl_behaviour = SegmentSeekerCrawler({"null_literal", "boolean_literal"})
     _exclude_elements: List[Tuple[str, str]] = []
     _description_elem = "Boolean/null literals"

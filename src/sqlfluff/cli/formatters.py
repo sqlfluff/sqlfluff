@@ -501,8 +501,16 @@ class OutputStreamFormatter:
         text_buffer.write("==== sqlfluff - rules ====\n")
         text_buffer.write(
             self.cli_table(
-                linter.rule_tuples(),
-                col_width=80,
+                [
+                    (
+                        t.code,
+                        f"[{self.colorize(t.name, Color.lightgrey)}] {t.description}"
+                        if t.name
+                        else t.description,
+                    )
+                    for t in linter.rule_tuples()
+                ],
+                col_width=120,
                 cols=1,
                 label_color=Color.blue,
                 val_align="left",

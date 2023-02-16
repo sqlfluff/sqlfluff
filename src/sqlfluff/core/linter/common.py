@@ -18,6 +18,7 @@ class RuleTuple(NamedTuple):
     """Rule Tuple object for describing rules."""
 
     code: str
+    name: str
     description: str
 
 
