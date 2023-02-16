@@ -16,7 +16,7 @@ missing.
 
 import bdb
 import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import fnmatch
 from itertools import chain
 import logging
@@ -33,8 +33,9 @@ from typing import (
     Any,
     Dict,
     Type,
+    DefaultDict,
 )
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from sqlfluff.core.config import FluffConfig
 
@@ -508,6 +509,13 @@ class BaseRule:
     lint_phase = "main"
     # Groups attribute to be overwritten.
     groups: Tuple[str, ...] = ()
+    # Name attribute to be overwritten.
+    # NOTE: for backward compatibility we should handle the case
+    # where no name is set gracefully.
+    name: str = ""
+    # Optional set of aliases for the rule. Most often used for old codes which
+    # referred to this rule.
+    aliases: Tuple[str, ...] = ()
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -935,6 +943,18 @@ class BaseRule:
         return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
+@dataclass(frozen=True)
+class RuleManifest:
+    """Element in the rule register."""
+
+    code: str
+    name: str
+    description: str
+    groups: Tuple[str]
+    aliases: Tuple[str]
+    rule_class: Type[BaseRule]
+
+
 class RuleSet:
     """Class to define a ruleset.
 
@@ -961,7 +981,7 @@ class RuleSet:
     def __init__(self, name, config_info) -> None:
         self.name = name
         self.config_info = config_info
-        self._register: Dict[str, Dict[str, Type[BaseRule]]] = {}
+        self._register: Dict[str, RuleManifest] = {}
 
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
@@ -1026,7 +1046,6 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-
         rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
         if not rule_name_match:  # pragma: no cover
@@ -1051,53 +1070,41 @@ class RuleSet:
                 )
             )
 
-
         assert "all" in cls.groups, "Rule {!r} must belong to the 'all' group".format(
             code
         )
 
-        self._register[code] = dict(
-            code=code, description=description, groups=cls.groups, cls=cls
+        self._register[code] = RuleManifest(
+            code=code,
+            name=cls.name,
+            description=description,
+            groups=cls.groups,
+            aliases=cls.aliases,
+            rule_class=cls,
         )
 
         # Make sure we actually return the original class
         return cls
 
-    def _expand_config_rule_group_list(
-        self, rule_list: List[str], valid_groups: Set[str]
-    ) -> List[str]:
-        expanded_rule_list: List[str] = []
-        for r in rule_list:
-            if r in valid_groups:
-                rules_in_group = [
-                    rule
-                    for rule, rule_dict in self._register.items()
-                    if r in rule_dict["groups"]
-                ]
-                expanded_rule_list.extend(rules_in_group)
-            else:
-                expanded_rule_list.extend(r)
-
-        return expanded_rule_list
-
-    def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
-        """Expand a list of rule globs into a list of rule codes.
+    def _expand_rule_refs(
+        self, glob_list: List[str], reference_map: Dict[str, List[str]]
+    ) -> Set[str]:
+        """Expand a list of rule references into a list of rule codes.
 
         Returns:
-            :obj:`list` of :obj:`str` rule codes.
+            :obj:`set` of :obj:`str` rule codes.
 
         """
-        expanded_glob_list = []
+        expanded_rule_set: Set[str] = set()
         for r in glob_list:
-            expanded_glob_list.extend(
-                [
-                    x
-                    for x in fnmatch.filter(self._register, r)
-                    if x not in expanded_glob_list
-                ]
-            )
+            # Is it a direct reference?
+            if r in reference_map:
+                expanded_rule_set.update(reference_map[r])
+            # Otherwise treat as a glob expression on codes.
+            else:
+                expanded_rule_set.update(fnmatch.filter(self._register.keys(), r))
 
-        return expanded_glob_list
+        return expanded_rule_set
 
     def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
@@ -1111,36 +1118,93 @@ class RuleSet:
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
-        # Find all valid groups for ruleset
-        valid_groups: Set[str] = set(
-            [group for attrs in self._register.values() for group in attrs["groups"]]
-        )
-        # default the allowlist to all the rules if not set
-        allowlist = config.get("rule_allowlist") or list(self._register.keys())
+
+        # Generate the master reference map. The priority order is:
+        # codes > names > groups > aliases
+        # (i.e. if there's a collision between a name and an
+        # alias - we assume the alias is wrong.)
+        valid_codes: Set[str] = set(self._register.keys())
+        reference_map: Dict[str, List[str]] = {code: [code] for code in valid_codes}
+
+        # Generate name map.
+        name_map: Dict[str, List[str]] = {
+            manifest.name: [manifest.code]
+            for manifest in self._register.values()
+            if manifest.name
+        }
+        # Check collisions.
+        name_collisions = set(name_map.keys()) & valid_codes
+        if name_collisions:
+            rules_logger.warning(
+                "The following defined rule names were found which collide "
+                "with codes. Those names will not be available for selection: %s",
+                name_collisions,
+            )
+        # Incorporate (with existing references taking precedence).
+        reference_map = {**name_map, **reference_map}
+
+        # Generate the group map.
+        group_map: DefaultDict[str, List[str]] = defaultdict(list)
+        for manifest in self._register.values():
+            for group in manifest.groups:
+                if group in reference_map:
+                    rules_logger.warning(
+                        "Rule %s defines group %r which is already defined as a "
+                        "name or code of %s. This group will not be available "
+                        "for use as a result of this collision.",
+                        manifest.code,
+                        group,
+                        reference_map[group],
+                    )
+                else:
+                    group_map[group].append(manifest.code)
+        # Incorporate after all checks are done.
+        reference_map = {**group_map, **reference_map}
+
+        # Generate the alias map.
+        alias_map: DefaultDict[str, List[str]] = defaultdict(list)
+        for manifest in self._register.values():
+            for alias in manifest.aliases:
+                if alias in reference_map:
+                    rules_logger.warning(
+                        "Rule %s defines alias %r which is already defined as a "
+                        "name, code or group of %s. This alias will "
+                        "not be available for use as a result of this collision.",
+                        manifest.code,
+                        alias,
+                        reference_map[alias],
+                    )
+                else:
+                    alias_map[alias].append(manifest.code)
+        # Incorporate after all checks are done.
+        reference_map = {**alias_map, **reference_map}
+
+        # The lists here are lists of references, which might be codes,
+        # names, aliases or groups.
+        # We default the allowlist to all the rules if not set (i.e. not specifying
+        # any rules, just means "all the rules").
+        allowlist = config.get("rule_allowlist") or list(valid_codes)
         denylist = config.get("rule_denylist") or []
-        valid_rules_and_groups = list(self._register) + list(valid_groups)
 
         allowlisted_unknown_rule_codes = [
             r
             for r in allowlist
             # Add valid groups to the register when searching for invalid rules _only_
-            if not fnmatch.filter(valid_rules_and_groups, r)
+            if not fnmatch.filter(reference_map.keys(), r)
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to allowlist unknown rules: {!r}".format(
+                "Tried to allowlist unknown rule references: {!r}".format(
                     allowlisted_unknown_rule_codes
                 )
             )
 
         denylisted_unknown_rule_codes = [
-            r
-            for r in denylist
-            if not fnmatch.filter(set(self._register.keys()) | valid_groups, r)
+            r for r in denylist if not fnmatch.filter(reference_map.keys(), r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
-                "Tried to denylist unknown rules: {!r}".format(
+                "Tried to denylist unknown rules references: {!r}".format(
                     denylisted_unknown_rule_codes
                 )
             )
@@ -1148,12 +1212,8 @@ class RuleSet:
         keylist = sorted(self._register.keys())
 
         # First we expand the allowlist and denylist globs
-        expanded_allowlist = self._expand_config_rule_glob_list(
-            allowlist
-        ) + self._expand_config_rule_group_list(allowlist, valid_groups)
-        expanded_denylist = self._expand_config_rule_glob_list(
-            denylist
-        ) + self._expand_config_rule_group_list(denylist, valid_groups)
+        expanded_allowlist = self._expand_rule_refs(allowlist, reference_map)
+        expanded_denylist = self._expand_rule_refs(denylist, reference_map)
 
         # Then we filter the rules
         keylist = [
@@ -1169,22 +1229,19 @@ class RuleSet:
         generic_rule_config = {
             k: v for k, v in generic_rule_config.items() if not isinstance(v, dict)
         }
-        for k in keylist:
+        for code in keylist:
             kwargs = {}
-            rule_code = self._register[k]["code"]
-            rule_class = cast(Type[BaseRule], self._register[k]["cls"])
-            specific_rule_config = config.get_section(
-                ("rules", rule_code)
-            )
+            rule_class = cast(Type[BaseRule], self._register[code].rule_class)
+            specific_rule_config = config.get_section(("rules", code))
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, rule_code)
+                self._validate_config_options(config, code)
                 kwargs.update(specific_rule_config)
-            kwargs["code"] = rule_code
+            kwargs["code"] = code
             # Allow variable substitution in making the description
-            kwargs["description"] = self._register[k]["description"].format(**kwargs)
+            kwargs["description"] = self._register[code].description.format(**kwargs)
             # Instantiate when ready
             instantiated_rules.append(rule_class(**kwargs))
 
