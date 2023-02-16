@@ -181,11 +181,64 @@ For an overview of the most common rule configurations that you may want to
 tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
 available alternatives).
 
+.. _ruleselection:
+
 Enabling and Disabling Rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To disable individual rules, set :code:`exclude_rules` in the top level section
-of sqlfluff configuration. The value is a comma separated list of rule ids.
+The decision as to which rules are applied to a given file is applied on a file
+by file basis, by the effective configuration for that file. There are two
+configuration values which you can use to set this:
+
+* :code:`rules`, which explicitly *enables* the specified rules. If this
+  parameter is unset or empty for a file, this implies "no selection" and
+  so "all rules" is taken to be the meaning.
+* :code:`exclude_rules`, which explicitly *disables* the specified rules.
+  This parameter is applied *after* the :code:`rules` parameter so can be
+  used to *subtract* from the otherwise enabled set.
+
+Each of these two configuration values accept a comma separated list of
+*references*. Each of those references can be:
+
+* a rule *code* e.g. :code:`LN01`
+* a rule *name* e.g. :code:`layout.indent`
+* a rule *alias*, which is often a deprecated *code* e.g. :code:`L003`
+* a rule *group* e.g. :code:`layout` or :code:`capitalisation`
+
+These different references can be mixed within a given expression, which
+results in a very powerful syntax for selecting exactly which rules are
+active for a given file.
+
+.. note::
+
+    It's worth mentioning here that the application of :code:`rules` and
+    :code:`exclude_rules`, with *groups*, *aliases* and *names*, in projects
+    with potentially multiple nested configuration files defining different
+    rules for different areas of a project can get very confusing very fast.
+    While this flexibility is intended for users to take advantage of, we do
+    have some recommendations about how to do this is a way that remains
+    manageable.
+
+    When considering configuration inheritance, each of :code:`rules` and
+    :code:`exclude_rules` will totally overwrite any values in parent config
+    files if they are set in a child file. While the subtraction operation
+    between both of them is calculated *"per file"*, there is no combination
+    operation between two definitions of :code:`rules` (just one overwrites
+    the other).
+
+    The effect of this is that we recommend one of two approaches:
+
+    #. Simply only use :code:`rules`. This has the upshot of each area of
+       your project being very explicit in which rules are enabled. When
+       that changes for part of your project you just reset the whole list
+       of applicable rules for that part of the project.
+    #. Set a single :code:`rules` value in your master project config file
+       and then only use :code:`exclude_rules` in sub-configuration files
+       to *turn off* specific rules for parts of the project where those
+       rules are inappropriate. This keeps the simplicity of only having
+       one value which is inherited, but allows slightly easier and simpler
+       rollout of new rules because we manage by exception.
+
 
 For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
 and :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
@@ -203,10 +256,6 @@ For example, to enable :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
 
     [sqlfluff]
     rules = L027
-
-If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
-excluded rules are removed from the rules list. This allows for example
-enabling common rules on top level but excluding some on subdirectory level.
 
 Rules can also be enabled/disabled by their grouping. Right now, the only
 rule grouping is :code:`core`. This will enable (or disable) a select group
