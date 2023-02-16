@@ -503,7 +503,7 @@ class Linter:
 
         # Dispatch the output for the lint header
         if formatter:
-            formatter.dispatch_lint_header(fname)
+            formatter.dispatch_lint_header(fname, sorted(r.code for r in rule_set))
 
         # Look for comment segments which might indicate lines to ignore.
         if not config.get("disable_noqa"):

@@ -185,10 +185,14 @@ class OutputStreamFormatter:
         if self._verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="PARSING"))
 
-    def dispatch_lint_header(self, fname: str) -> None:
+    def dispatch_lint_header(self, fname: str, rules: List[str]) -> None:
         """Dispatch the header displayed before linting."""
         if self._verbosity > 1:
-            self._dispatch(self.format_filename(filename=fname, success="LINTING"))
+            self._dispatch(
+                self.format_filename(
+                    filename=fname, success=f"LINTING ({', '.join(rules)})"
+                )
+            )
 
     def dispatch_compilation_header(self, templater, message):
         """Dispatch the header displayed before linting."""
