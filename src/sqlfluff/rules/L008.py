@@ -37,7 +37,9 @@ class Rule_L008(BaseRule):
         WHERE a IN ('plop',•'zoo')
     """
 
-    groups = ("all", "core")
+    name = "spacing.commas"
+    aliases = ("LS04",)
+    groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:

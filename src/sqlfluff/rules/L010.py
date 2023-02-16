@@ -53,7 +53,10 @@ class Rule_L010(BaseRule):
         from foo
     """
 
-    groups: Tuple[str, ...] = ("all", "core")
+    name = "capitalisation.keywords"
+    aliases = ("CP01",)
+    groups = ("all", "core", "capitalisation", "capitalization")
+
     lint_phase = "post"
     # Binary operators behave like keywords too.
     crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})

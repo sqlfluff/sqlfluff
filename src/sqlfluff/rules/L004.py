@@ -49,7 +49,10 @@ class Rule_L004(BaseRule):
         from foo
     """
 
-    groups = ("all", "core")
+    # TODO: combine with other LN01 rules
+    name = "layout.indent.c"
+    aliases = ("LN01c",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     # TODO fix indents after text:
