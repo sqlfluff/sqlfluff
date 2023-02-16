@@ -87,6 +87,68 @@ def test__rules__user_rules():
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
 
 
+@pytest.mark.parametrize(
+    "rules, exclude_rules, resulting_codes",
+    [
+        # NB: We don't check the "select nothing" case, because not setting
+        # the rules setting just means "select everything".
+        # ("", "", set()),
+        # 1: Select by code
+        ("T010", "", {"T010"}),
+        ("T010,T011", "", {"T010", "T011"}),
+        ("T010,T011", "T011", {"T010"}),
+        # 2: Select by group
+        ("test", "", {"T010", "T011"}),
+        ("foo", "", {"T011", "T012"}),
+        ("test,foo", "", {"T010", "T011", "T012"}),
+        ("test", "foo", {"T010"}),
+    ],
+)
+def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
+    """Test that rule selection works by various means."""
+
+    class Rule_T010(BaseRule):
+        """Fake Basic Rule."""
+
+        groups = ("all", "test")
+        name = "fake_basic"
+        aliases = ("fb1",)
+        crawl_behaviour = RootOnlyCrawler()
+
+        def _eval(self, **kwargs):
+            pass
+    
+    class Rule_T011(Rule_T010):
+        """Fake Basic Rule.
+        
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        groups = ("all", "test", "foo")
+        name = "fake_other"
+        aliases = ("fb2",)
+    
+    class Rule_T012(Rule_T010):
+        """Fake Basic Rule.
+        
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        groups = ("all", "foo")
+        # No names, no aliases
+        name = ""
+        aliases = ()
+
+    cfg = FluffConfig(
+        overrides={"rules": rules, "exclude_rules": exclude_rules, "dialect": "ansi"}
+    )
+    linter = Linter(config=cfg, user_rules=[Rule_T010, Rule_T011, Rule_T012])
+    # Get the set of selected codes:
+    selected_codes = set(tpl[0] for tpl in linter.rule_tuples())
+    # Check selected rules
+    assert selected_codes == resulting_codes
+
+
 def test__rules__filter_uparsable():
     """Test that rules that handle their own crawling respect unparsable."""
     # Set up a linter with the user rule
