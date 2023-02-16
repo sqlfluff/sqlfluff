@@ -16,6 +16,7 @@ missing.
 
 import bdb
 import copy
+from dataclasses import dataclass, field
 import fnmatch
 from itertools import chain
 import logging
@@ -30,6 +31,8 @@ from typing import (
     Tuple,
     Union,
     Any,
+    Dict,
+    Type,
 )
 from collections import namedtuple
 
@@ -38,7 +41,7 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
-from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
@@ -503,6 +506,8 @@ class BaseRule:
     # - On the first pass of the main phase
     # - In a second linter pass after the main phase
     lint_phase = "main"
+    # Groups attribute to be overwritten.
+    groups: Tuple[str, ...] = ()
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -953,10 +958,10 @@ class RuleSet:
 
     """
 
-    def __init__(self, name, config_info):
+    def __init__(self, name, config_info) -> None:
         self.name = name
         self.config_info = config_info
-        self._register = {}
+        self._register: Dict[str, Dict[str, Type[BaseRule]]] = {}
 
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
@@ -1021,25 +1026,24 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
+
         rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
         if not rule_name_match:  # pragma: no cover
-            raise ValueError(
-                (
-                    "Tried to register rule on set {!r} with unexpected "
-                    "format: {}, format should be: Rule_PluginName_L123 (for plugins) "
-                    "or Rule_L123 (for core rules)."
-                ).format(self.name, cls.__name__)
+            raise SQLFluffUserError(
+                f"Tried to register rule on set {self.name!r} with "
+                "unexpected format: {cls.__name__}. Format should be: "
+                "'Rule_PluginName_L123' (for plugins) or "
+                "`Rule_L123` (for core rules)."
             )
 
         plugin_name, code = rule_name_match.groups()
         # If the docstring is multiline, then we extract just summary.
         description = cls.__doc__.replace("``", "'").split("\n")[0]
-
         if plugin_name:
             code = f"{plugin_name}_{code}"
 
-        # Keep track of the *class* in the register. Don't instantiate yet.
+        # Check for code collisions.
         if code in self._register:  # pragma: no cover
             raise ValueError(
                 "Rule {!r} has already been registered on RuleSet {!r}!".format(
@@ -1047,21 +1051,13 @@ class RuleSet:
                 )
             )
 
-        try:
-            assert (
-                "all" in cls.groups
-            ), "Rule {!r} must belong to the 'all' group".format(code)
-            groups = cls.groups
-        except AttributeError as attr_err:
-            raise AttributeError(
-                (
-                    "Rule {!r} doesn't belong to any rule groups. "
-                    "All rules must belong to at least one group"
-                ).format(code)
-            ) from attr_err
+
+        assert "all" in cls.groups, "Rule {!r} must belong to the 'all' group".format(
+            code
+        )
 
         self._register[code] = dict(
-            code=code, description=description, groups=groups, cls=cls
+            code=code, description=description, groups=cls.groups, cls=cls
         )
 
         # Make sure we actually return the original class
@@ -1140,7 +1136,7 @@ class RuleSet:
         denylisted_unknown_rule_codes = [
             r
             for r in denylist
-            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
+            if not fnmatch.filter(set(self._register.keys()) | valid_groups, r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
@@ -1164,27 +1160,35 @@ class RuleSet:
             r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
 
-        # Construct the kwargs for instantiation before we actually do it.
-        rule_kwargs = {}
+        # Construct the kwargs for each rule and instantiate in turn.
+        instantiated_rules = []
+        # Fetch general config first:
+        generic_rule_config = config.get_section("rules")
+        # Keep only config which isn't a section (for specific rule) (i.e. isn't a dict)
+        # We'll handle those directly in the specific rule config section below.
+        generic_rule_config = {
+            k: v for k, v in generic_rule_config.items() if not isinstance(v, dict)
+        }
         for k in keylist:
             kwargs = {}
-            generic_rule_config = config.get_section("rules")
+            rule_code = self._register[k]["code"]
+            rule_class = cast(Type[BaseRule], self._register[k]["cls"])
             specific_rule_config = config.get_section(
-                ("rules", self._register[k]["code"])
+                ("rules", rule_code)
             )
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, self._register[k]["code"])
+                self._validate_config_options(config, rule_code)
                 kwargs.update(specific_rule_config)
-            kwargs["code"] = self._register[k]["code"]
+            kwargs["code"] = rule_code
             # Allow variable substitution in making the description
             kwargs["description"] = self._register[k]["description"].format(**kwargs)
-            rule_kwargs[k] = kwargs
+            # Instantiate when ready
+            instantiated_rules.append(rule_class(**kwargs))
 
-        # Instantiate in the final step
-        return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]
+        return instantiated_rules
 
     def copy(self):
         """Return a copy of self with a separate register."""

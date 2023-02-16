@@ -178,13 +178,13 @@ def test_rule_must_belong_to_all_group():
     """Assert correct 'groups' config for rule."""
     std_rule_set = get_ruleset()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AssertionError):
 
         @std_rule_set.register
         class Rule_T000(BaseRule):
             """Badly configured rule, no groups attribute."""
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
     with pytest.raises(AssertionError):
@@ -195,7 +195,7 @@ def test_rule_must_belong_to_all_group():
 
             groups = ()
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
 
