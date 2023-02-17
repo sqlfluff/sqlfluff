@@ -105,7 +105,10 @@ class Linter:
     def rule_tuples(self) -> List[RuleTuple]:
         """A simple pass through to access the rule tuples of the rule set."""
         rs = self.get_ruleset()
-        return [RuleTuple(rule.code, rule.name, rule.description) for rule in rs]
+        return [
+            RuleTuple(rule.code, rule.name, rule.description, rule.groups, rule.aliases)
+            for rule in rs
+        ]
 
     # #### Static methods
     # These are the building blocks of the linting process.

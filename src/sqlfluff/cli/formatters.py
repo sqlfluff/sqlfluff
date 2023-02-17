@@ -495,6 +495,25 @@ class OutputStreamFormatter:
             )
         return text_buffer.getvalue()
 
+    def _format_rule_description(self, rule) -> str:
+        """Format individual rule.
+
+        This is a helper function in .format_rules().
+        """
+        if rule.name:
+            name = self.colorize(rule.name, Color.blue)
+            description = f"[{name}] {rule.description}"
+        else:
+            description = rule.description
+
+        if rule.groups:
+            groups = self.colorize(", ".join(rule.groups), Color.lightgrey)
+            description += f"\ngroups: {groups}"
+        if rule.aliases:
+            aliases = self.colorize(", ".join(rule.aliases), Color.lightgrey)
+            description += f" aliases: {aliases}"
+        return description
+
     def format_rules(self, linter: Linter, verbose: int = 0) -> str:
         """Format the a set of rules given a `Linter`."""
         text_buffer = StringIO()
@@ -504,13 +523,11 @@ class OutputStreamFormatter:
                 [
                     (
                         t.code,
-                        f"[{self.colorize(t.name, Color.lightgrey)}] {t.description}"
-                        if t.name
-                        else t.description,
+                        self._format_rule_description(t),
                     )
                     for t in linter.rule_tuples()
                 ],
-                col_width=120,
+                col_width=80,
                 cols=1,
                 label_color=Color.blue,
                 val_align="left",

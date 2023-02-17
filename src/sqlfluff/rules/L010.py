@@ -55,7 +55,7 @@ class Rule_L010(BaseRule):
 
     name = "capitalisation.keywords"
     aliases = ("CP01",)
-    groups = ("all", "core", "capitalisation", "capitalization")
+    groups: Tuple[str, ...] = ("all", "core", "capitalisation")
 
     lint_phase = "post"
     # Binary operators behave like keywords too.

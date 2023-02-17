@@ -20,6 +20,8 @@ class RuleTuple(NamedTuple):
     code: str
     name: str
     description: str
+    groups: Tuple[str, ...]
+    aliases: Tuple[str, ...]
 
 
 class NoQaDirective(NamedTuple):

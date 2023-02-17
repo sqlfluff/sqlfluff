@@ -47,7 +47,7 @@ class Rule_L063(Rule_L010):
 
     name = "capitalisation.types"
     aliases = ("CP05",)
-    groups = ("all",)
+    groups = ("all", "capitalisation")
 
     crawl_behaviour = SegmentSeekerCrawler(
         {
