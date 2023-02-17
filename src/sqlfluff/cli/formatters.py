@@ -414,6 +414,12 @@ class OutputStreamFormatter:
         elif violation.warning:
             desc = "WARNING: " + desc  # pragma: no cover
 
+        # If the rule has a name, add that the description.
+        if hasattr(violation, "rule"):
+            rule = getattr(violation, "rule", None)
+            if rule and rule.name:
+                desc += f" [{self.colorize(rule.name, Color.lightgrey)}]"
+
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
         out_buff = ""
