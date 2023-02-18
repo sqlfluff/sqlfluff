@@ -103,10 +103,10 @@ this an empowering experience that everyone can get involved with
 rather than *another piece of admin they need to do*.
 
 At this stage, you might also want to consider other tools in the
-SQLFluff ecosystem such as the `SQLFluff pre-commit hook`_ and
-the `SQLFluff VSCode plugin`_ or `SQLFluff online formatter`_.
+SQLFluff ecosystem such as the :ref:`SQLFluff pre-commit hook
+<using-pre-commit>` and the `SQLFluff VSCode plugin`_ or `SQLFluff
+online formatter`_.
 
-.. _`SQLFluff pre-commit hook`: https://github.com/sqlfluff/sqlfluff-github-actions
 .. _`SQLFluff VSCode plugin`: https://github.com/sqlfluff/vscode-sqlfluff
 .. _`SQLFluff online formatter`: https://online.sqlfluff.com/
 
