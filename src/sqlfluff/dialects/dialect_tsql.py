@@ -64,6 +64,7 @@ tsql_dialect.sets("datetime_units").update(
         "MINUTE",
         "MM",
         "MONTH",
+        "MONTHS",
         "MS",
         "N",
         "NANOSECOND",
@@ -2810,7 +2811,79 @@ class AlterTableStatementSegment(BaseSegment):
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
                 ),
-            ),
+                Sequence(
+                    "SET",
+                    OneOf(
+                        Bracketed(
+                            Sequence(
+                                "FILESTREAM_ON",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("FilegroupNameSegment"),
+                                    Ref("PartitionSchemeNameSegment"),
+                                    OneOf(
+                                        "NULL",
+                                        Ref("LiteralGrammar"),  # for "default" value
+                                    ),
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "SYSTEM_VERSIONING",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "DATA_CONSISTENCY_CHECK",
+                                            Ref("EqualsSegment"),
+                                            OneOf("ON", "OFF"),
+                                            optional=True,
+                                        ),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "HISTORY_RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "DATA_DELETION",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "FILTER_COLUMN",
+                                        Ref("EqualsSegment"),
+                                        Ref("ColumnReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
         ),
     )
 
