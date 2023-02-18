@@ -2937,7 +2937,7 @@ class AlterRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "ROLE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
         OneOf(
             Sequence(
