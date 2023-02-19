@@ -86,6 +86,8 @@ such as:
 * Configuring `diff-quality` to return an error code if the quality is too low
 * Troubleshooting
 
+.. _using-pre-commit:
+
 Using `pre-commit`_
 ^^^^^^^^^^^^^^^^^^^
 
