@@ -20,7 +20,10 @@ from sqlfluff.core.parser import (
     StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects.dialect_sqlite_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_sqlite_keywords import (
+    RESERVED_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -41,7 +44,9 @@ sqlite_dialect.replace(
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME"),
-        TypedParser("single_quote", ansi.LiteralSegment, type="date_constructor_literal"),
+        TypedParser(
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+        ),
     ),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
@@ -248,18 +253,14 @@ class DatatypeSegment(ansi.DatatypeSegment):
             "DOUBLE",
             "PRECISION",
         ),
-        Sequence(
-            "UNSIGNED",
-            "BIG",
-            "INT"
-        ),
+        Sequence("UNSIGNED", "BIG", "INT"),
         Sequence(
             OneOf(
                 Sequence(
                     OneOf("VARYING", "NATIVE"),
                     OneOf("CHARACTER"),
                 ),
-                Ref("DatatypeIdentifierSegment")
+                Ref("DatatypeIdentifierSegment"),
             ),
             Bracketed(
                 OneOf(
@@ -272,7 +273,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
             ),
         ),
     )
-
 
 
 class TableEndClauseSegment(BaseSegment):
@@ -391,7 +391,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
-
 
 
 class TableConstraintSegment(ansi.TableConstraintSegment):
