@@ -1009,6 +1009,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
             Ref("CreateDatabaseFromShareStatementSegment"),
+            Ref("AlterRoleStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2923,6 +2924,48 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
         Sequence("WITH", "MANAGED", "ACCESS", optional=True),
         Ref("SchemaObjectParamsSegment", optional=True),
         Ref("TagBracketedEqualsSegment", optional=True),
+    )
+
+
+class AlterRoleStatementSegment(BaseSegment):
+    """An `ALTER ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-role.html
+    """
+
+    type = "alter_role_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Ref("TagEqualsSegment"),
+                    Sequence(
+                        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Sequence("COMMENT"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
     )
 
 
