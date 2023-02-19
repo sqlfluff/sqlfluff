@@ -2311,6 +2311,7 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("RECURSIVE", optional=True),
         "VIEW",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),

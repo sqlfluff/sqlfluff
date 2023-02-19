@@ -20,7 +20,7 @@ CREATE VIEW pg_comedies AS
 CREATE VIEW pg_comedies AS
     SELECT *
     FROM comedies
-    WHERE classification = 'PG' 
+    WHERE classification = 'PG'
     WITH CASCADED CHECK OPTION;
 create view foo with (security_invoker) as select 1;
 create view foo with (security_barrier) as select 1;
@@ -33,3 +33,29 @@ create view foo with (check_option=cascaded) as select * from OTHER_VIEW;
 
 create view foo as select * from OTHER_VIEW with local check option;
 create view foo as select * from OTHER_VIEW with cascaded check option;
+
+CREATE OR REPLACE RECURSIVE VIEW "grouping_node" (
+  "node_id",
+  "ancestors",
+  "category_id",
+  "path",
+  "path_nodes"
+) AS
+
+SELECT "group_id" AS "node_id",
+       ARRAY[]::INTEGER[] AS "ancestors",
+       "category_id",
+       ARRAY["name"]::text[] AS "path",
+       ARRAY["group_id"]::INTEGER[] AS "path_nodes"
+  FROM "grouping_managementgroup"
+ WHERE "parent_id" IS NULL
+
+ UNION ALL
+
+SELECT "group_id",
+       "ancestors" || "parent_id",
+       "grouping_node"."category_id",
+       "path" || "name"::text,
+       "path_nodes" || "group_id"
+FROM "grouping_managementgroup", "grouping_node"
+WHERE "parent_id" = "node_id";
