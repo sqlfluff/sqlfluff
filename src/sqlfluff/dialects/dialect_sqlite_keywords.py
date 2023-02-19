@@ -1,3 +1,10 @@
+"""A List of SQLite keywords.
+
+https://www.sqlite.org/lang_keywords.html
+
+Augmented with data types, and a couple of omitted keywords.
+"""
+
 RESERVED_KEYWORDS = [
     "ABORT",
     "ACTION",
