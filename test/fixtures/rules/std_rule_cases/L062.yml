@@ -209,3 +209,39 @@ test_pass_comment_regex3:
     rules:
       L062:
         blocked_regex: (TABLESAMPLE)
+
+test_pass_match_source1:
+  pass_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: true
+    rules:
+      L062:
+        blocked_regex: ref\('deprecated_
+        match_source: true
+
+test_pass_match_source2:
+  pass_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: false
+    rules:
+      L062:
+        blocked_regex: ref\('deprecated_
+        match_source: false
+
+test_fail_match_source1:
+  fail_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: false
+    rules:
+      L062:
+        blocked_regex: ref\('deprecated_
+        match_source: true
