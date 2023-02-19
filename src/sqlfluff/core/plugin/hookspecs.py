@@ -15,6 +15,7 @@ class PluginSpec:
     def get_rules(self):
         """Get plugin rules."""
 
+    @hookspec
     @abstractmethod
     def load_default_config(self) -> dict:
         """Loads the default configuration for the plugin."""

@@ -1,4 +1,4 @@
-"""Setup file for example plugin."""
+"""Setup file for an example rules plugin."""
 from setuptools import find_packages, setup
 
 # Change these names in your plugin, e.g. company name or plugin purpose.
@@ -6,19 +6,11 @@ PLUGIN_LOGICAL_NAME = "example"
 PLUGIN_ROOT_MODULE = "example"
 
 setup(
-    name="sqlfluff-plugin-{plugin_logical_name}".format(
-        plugin_logical_name=PLUGIN_LOGICAL_NAME
-    ),
+    name=f"sqlfluff-plugin-{PLUGIN_LOGICAL_NAME}",
+    version="1.0.0",
     include_package_data=True,
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires="sqlfluff>=0.4.0",
-    entry_points={
-        "sqlfluff": [
-            "{plugin_logical_name} = {plugin_root_module}.rules".format(
-                plugin_logical_name=PLUGIN_LOGICAL_NAME,
-                plugin_root_module=PLUGIN_ROOT_MODULE,
-            )
-        ]
-    },
+    entry_points={"sqlfluff": [f"{PLUGIN_LOGICAL_NAME} = {PLUGIN_ROOT_MODULE}.rules"]},
 )
