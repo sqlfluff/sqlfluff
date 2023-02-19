@@ -302,6 +302,7 @@ UNRESERVED_KEYWORDS = [
     "HEAP",  # Azure Synapse Analytics specific
     "HIDDEN",
     "HINT",
+    "HISTORY_RETENTION_PERIOD",
     "HISTORY_TABLE",
     "IGNORE",
     "IGNORE_CONSTRAINTS",
