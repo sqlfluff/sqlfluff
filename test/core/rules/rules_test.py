@@ -87,6 +87,82 @@ def test__rules__user_rules():
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
 
 
+@pytest.mark.parametrize(
+    "rules, exclude_rules, resulting_codes",
+    [
+        # NB: We don't check the "select nothing" case, because not setting
+        # the rules setting just means "select everything".
+        # ("", "", set()),
+        # 1: Select by code.
+        # NOTE: T012 uses T011 as it's name but that should be ignored
+        # because of the conflict.
+        ("T010", "", {"T010"}),
+        ("T010,T011", "", {"T010", "T011"}),
+        ("T010,T011", "T011", {"T010"}),
+        # 2: Select by name
+        # NOTE: T012 uses "fake_other" as it's group but that should be ignored
+        # because of the conflict.
+        ("fake_basic", "", {"T010"}),
+        ("fake_other", "", {"T011"}),
+        ("fake_basic,fake_other", "", {"T010", "T011"}),
+        # 3: Select by group
+        # NOTE: T010 uses "foo" as it's alias but that should be ignored
+        # because of the conflict.
+        ("test", "", {"T010", "T011"}),
+        ("foo", "", {"T011", "T012"}),
+        ("test,foo", "", {"T010", "T011", "T012"}),
+        ("test", "foo", {"T010"}),
+        # 3: Select by alias
+        ("fb1", "", {"T010"}),
+        ("fb2", "", {"T011"}),
+    ],
+)
+def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
+    """Test that rule selection works by various means."""
+
+    class Rule_T010(BaseRule):
+        """Fake Basic Rule."""
+
+        groups = ("all", "test")
+        name = "fake_basic"
+        aliases = ("fb1", "foo")  # NB: Foo is a group on another rule.
+        crawl_behaviour = RootOnlyCrawler()
+
+        def _eval(self, **kwargs):
+            pass
+
+    class Rule_T011(Rule_T010):
+        """Fake Basic Rule.
+
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        groups = ("all", "test", "foo")
+        name = "fake_other"
+        aliases = ("fb2",)
+
+    class Rule_T012(Rule_T010):
+        """Fake Basic Rule.
+
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        # NB: "fake_other" is the name of another rule.
+        groups = ("all", "foo", "fake_other")
+        # No aliases, Name collides with the code of another rule.
+        name = "T011"
+        aliases = ()
+
+    cfg = FluffConfig(
+        overrides={"rules": rules, "exclude_rules": exclude_rules, "dialect": "ansi"}
+    )
+    linter = Linter(config=cfg, user_rules=[Rule_T010, Rule_T011, Rule_T012])
+    # Get the set of selected codes:
+    selected_codes = set(tpl[0] for tpl in linter.rule_tuples())
+    # Check selected rules
+    assert selected_codes == resulting_codes
+
+
 def test__rules__filter_uparsable():
     """Test that rules that handle their own crawling respect unparsable."""
     # Set up a linter with the user rule
@@ -178,13 +254,13 @@ def test_rule_must_belong_to_all_group():
     """Assert correct 'groups' config for rule."""
     std_rule_set = get_ruleset()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AssertionError):
 
         @std_rule_set.register
         class Rule_T000(BaseRule):
             """Badly configured rule, no groups attribute."""
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
     with pytest.raises(AssertionError):
@@ -195,7 +271,7 @@ def test_rule_must_belong_to_all_group():
 
             groups = ()
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
 
