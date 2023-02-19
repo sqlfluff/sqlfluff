@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Nothing,
     AnyNumberOf,
     Anything,
+    StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
@@ -371,6 +372,26 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             ),
         ],
     )
+
+
+class SelectClauseSegment(ansi.SelectClauseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar: Matchable = StartsWith(
+        "SELECT",
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
+
 
 
 class TableConstraintSegment(ansi.TableConstraintSegment):

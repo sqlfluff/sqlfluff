@@ -1559,7 +1559,12 @@ class SelectClauseSegment(BaseSegment):
     match_grammar: Matchable = StartsWith(
         "SELECT",
         terminator=OneOf(
-            Ref("SelectClauseElementTerminatorGrammar")
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
