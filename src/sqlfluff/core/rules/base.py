@@ -986,7 +986,7 @@ class RuleSet:
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
 
-        Config options can also be checked for a specific rule e.g L010.
+        Config options can also be checked for a specific rule e.g CP01.
         """
         rule_config = config.get_section("rules")
         for config_name, info_dict in self.config_info.items():

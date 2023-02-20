@@ -117,11 +117,11 @@ def test__rules__std_file(rule, path, violations):
         {"allow_scalar": "blah"},
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},
-        {"L010": {"capitalisation_policy": "blah"}},
+        {"CP01": {"capitalisation_policy": "blah"}},
         {"L011": {"aliasing": "blah"}},
         {"L012": {"aliasing": "blah"}},
-        {"L014": {"extended_capitalisation_policy": "blah"}},
-        {"L030": {"capitalisation_policy": "blah"}},
+        {"CP02": {"extended_capitalisation_policy": "blah"}},
+        {"CP03": {"capitalisation_policy": "blah"}},
     ],
 )
 def test_improper_configs_are_rejected(rule_config_dict):

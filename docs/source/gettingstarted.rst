@@ -91,7 +91,7 @@ file.
     L:   1 | P:   9 | L006 | Missing whitespace after +
     L:   1 | P:  11 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
 
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
@@ -122,7 +122,7 @@ error (violation of *L006*) no longer shows up.
                            | only one select target.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -132,15 +132,15 @@ and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
 it's a good place to start.
 
-For now, we only want to fix the following rules: *L003*, *L009*, *L010*
+For now, we only want to fix the following rules: *L003*, *L009*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010 --dialect ansi
+    $ sqlfluff fix test.sql --rules L003,L009,CP01 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
     ==== fixing violations ====
     2 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
@@ -234,14 +234,14 @@ put the following content:
     [sqlfluff:indentation]
     tab_space_size = 2
 
-    [sqlfluff:rules:L010]
+    [sqlfluff:rules:CP01]
     capitalisation_policy = lower
 
 Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
+    $ sqlfluff fix test.sql --rules L003,L009,CP01,L034,L036,L039
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.

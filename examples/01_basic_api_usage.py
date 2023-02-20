@@ -12,7 +12,7 @@ lint_result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 # lint_result =
 # [
 #     {
-#         "code": "L010",
+#         "code": "CP01",
 #         "line_no": 1,
 #         "line_pos": 1,
 #         "description": "Keywords must be consistently upper case.",
@@ -27,11 +27,11 @@ fix_result_1 = sqlfluff.fix(my_bad_query, dialect="bigquery")
 # fix_result_1 = 'SELECT  *, 1, blah AS  foo  FROM myschema.mytable\n'
 
 # We can also fix just specific rules.
-fix_result_2 = sqlfluff.fix(my_bad_query, rules=["L010"])
+fix_result_2 = sqlfluff.fix(my_bad_query, rules=["CP01"])
 # fix_result_2 = 'SELECT  *, 1, blah AS  fOO  FROM mySchema.myTable'
 
 # Or a subset of rules...
-fix_result_3 = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
+fix_result_3 = sqlfluff.fix(my_bad_query, rules=["CP01", "CP02"])
 # fix_result_3 = 'SELECT  *, 1, blah AS  fOO  FROM myschema.mytable'
 
 #  -------- PARSING ----------
