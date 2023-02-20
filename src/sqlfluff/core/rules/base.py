@@ -509,7 +509,7 @@ class RuleMetaclass(type):
         assert (
             "__doc__" in class_dict
         ), f"Tried to define rule {name!r} without docstring."
-        print(f"NEW: {name!r}, DICT: {class_dict}")
+
         # Build up a buffer of entries to add to the docstring.
         fix_docs = (
             "    This rule is ``sqlfluff fix`` compatible.\n\n"
