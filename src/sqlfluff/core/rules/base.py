@@ -505,7 +505,12 @@ class RuleMetaclass(type):
         and uses them to populate documentation in the final class
         docstring so that it can be displayed in the sphinx docs.
         """
-        # First, build up a buffer of entries to add to the docstring.
+        # Ensure that there _is_ a docstring.
+        assert (
+            "__doc__" in class_dict
+        ), f"Tried to define rule {name!r} without docstring."
+        print(f"NEW: {name!r}, DICT: {class_dict}")
+        # Build up a buffer of entries to add to the docstring.
         fix_docs = (
             "    This rule is ``sqlfluff fix`` compatible.\n\n"
             if class_dict.get("is_fix_compatible", False)
@@ -559,6 +564,11 @@ class RuleMetaclass(type):
         class_dict["__doc__"] = mcs._pattern.sub(
             f"\n\n{all_docs}\n\n\\1", class_dict["__doc__"], count=1
         )
+        # If the inserted string is not now in the docstring - append it on
+        # the end. This just means the regex didn't find a better place to
+        # put it.
+        if all_docs not in class_dict["__doc__"]:
+            class_dict["__doc__"] += f"\n\n{all_docs}"
         # Use the stock __new__ method now we've adjusted the docstring.
         return super().__new__(mcs, name, bases, class_dict)
 
@@ -756,8 +766,15 @@ class BaseRule(metaclass=RuleMetaclass):
 
             for lerr in new_lerrs:
                 self.logger.info("!! Violation Found: %r", lerr.description)
-            for lfix in new_fixes:
-                self.logger.info("!! Fix Proposed: %r", lfix)
+            if new_fixes:
+                if not self.is_fix_compatible:  # pragma: no cover
+                    rules_logger.error(
+                        f"Rule {self.code} returned a fix but is not documented as "
+                        "`is_fix_compatible`, you may encounter unusual fixing "
+                        "behaviour. Report this a bug to the developer of this rule."
+                    )
+                for lfix in new_fixes:
+                    self.logger.info("!! Fix Proposed: %r", lfix)
 
             # Consume the new results
             vs += new_lerrs

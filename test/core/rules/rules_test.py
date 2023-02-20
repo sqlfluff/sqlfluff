@@ -36,6 +36,7 @@ class Rule_T001(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"})
+    is_fix_compatible = True
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -192,11 +193,13 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
     class NewRule(BaseRule):
-        config_keywords = ["comma_style"]
+        """Testing Rule."""
 
-    new_rule = NewRule(code="L000", description="", comma_style="trailing")
-    assert new_rule.comma_style == "trailing"
-    # Error is thrown since "comma_style" is defined in class,
+        config_keywords = ["tab_space_size"]
+
+    new_rule = NewRule(code="L000", description="", tab_space_size=6)
+    assert new_rule.tab_space_size == 6
+    # Error is thrown since "tab_space_size" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
         new_rule = NewRule(code="L000", description="")
@@ -210,6 +213,7 @@ def test_rules_configs_are_dynamically_documented():
 
         config_keywords = ["unquoted_identifiers_policy"]
 
+    print(f"RuleWithConfig.__doc__: {RuleWithConfig.__doc__!r}")
     assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
 
     class RuleWithoutConfig(BaseRule):
@@ -217,6 +221,7 @@ def test_rules_configs_are_dynamically_documented():
 
         pass
 
+    print(f"RuleWithoutConfig.__doc__: {RuleWithoutConfig.__doc__!r}")
     assert "Configuration" not in RuleWithoutConfig.__doc__
 
 
