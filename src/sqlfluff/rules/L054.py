@@ -3,12 +3,9 @@ from typing import Optional, List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-@document_groups
-@document_configuration
 class Rule_L054(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 

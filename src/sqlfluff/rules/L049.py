@@ -4,7 +4,6 @@ from typing import List, Optional, Union
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import LintResult, RuleContext, BaseRule
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import sp, Segments
 from sqlfluff.utils.reflow import ReflowSequence
 
@@ -12,8 +11,6 @@ from sqlfluff.utils.reflow import ReflowSequence
 CorrectionListType = List[Union[WhitespaceSegment, KeywordSegment]]
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L049(BaseRule):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
@@ -43,6 +40,7 @@ class Rule_L049(BaseRule):
 
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"comparison_operator"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Relational operators should not be used to check for NULL values."""

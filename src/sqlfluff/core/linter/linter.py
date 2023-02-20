@@ -33,7 +33,6 @@ from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.doc_decorators import is_fix_compatible
 from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
@@ -567,7 +566,7 @@ class Linter:
                     if (
                         fix
                         and not is_first_linter_pass()
-                        and not is_fix_compatible(crawler)
+                        and not crawler.is_fix_compatible
                     ):
                         continue
 

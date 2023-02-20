@@ -6,17 +6,9 @@ from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.rules.L010 import Rule_L010
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L063(Rule_L010):
     """Inconsistent capitalisation of datatypes.
 
@@ -48,6 +40,7 @@ class Rule_L063(Rule_L010):
     name = "capitalisation.types"
     aliases = ("CP05",)
     groups = ("all", "capitalisation")
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler(
         {

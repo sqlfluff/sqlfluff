@@ -6,10 +6,8 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L033(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 

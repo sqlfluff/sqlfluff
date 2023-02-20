@@ -4,16 +4,8 @@ from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L051(BaseRule):
     """Join clauses should be fully qualified.
 
@@ -49,6 +41,7 @@ class Rule_L051(BaseRule):
     groups = ("all",)
     config_keywords = ["fully_qualify_join_types"]
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Fully qualify JOINs."""

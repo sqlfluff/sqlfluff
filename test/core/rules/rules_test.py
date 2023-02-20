@@ -7,11 +7,6 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -31,8 +26,6 @@ class Rule_T042(BaseRule):
         pass
 
 
-@document_groups
-@document_fix_compatible
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
 
@@ -212,7 +205,6 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    @document_configuration
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
@@ -220,7 +212,6 @@ def test_rules_configs_are_dynamically_documented():
 
     assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
 
-    @document_configuration
     class RuleWithoutConfig(BaseRule):
         """A new rule without configuration."""
 
