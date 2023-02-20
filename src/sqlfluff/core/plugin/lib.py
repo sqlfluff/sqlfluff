@@ -15,7 +15,7 @@ from sqlfluff.core.templaters import core_templaters, RawTemplater
 @hookimpl
 def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules.
-    
+
     NOTE: All standard rules will eventually be loaded as
     plugins and so before 2.0.0, once all legacy plugin definitions
     are migrated, this function will be amended to return no rules.
