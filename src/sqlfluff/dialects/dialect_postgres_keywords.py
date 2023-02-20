@@ -926,6 +926,7 @@ postgres_nondocs_keywords = [
     ("DEPTH", "non-reserved"),
     ("DESCRIBE", "non-reserved"),
     ("DETERMINISTIC", "non-reserved"),
+    ("EXECUTION", "not-keyword"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
     ("FORCE_NOT_NULL", "non-reserved"),
