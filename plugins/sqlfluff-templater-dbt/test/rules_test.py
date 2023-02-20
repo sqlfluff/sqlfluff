@@ -1,6 +1,7 @@
 """Tests for the standard set of rules."""
 import pytest
 import os
+import os.path
 from pathlib import Path
 
 from sqlfluff.core import Linter
@@ -46,7 +47,7 @@ def test__rules__fix_utf8(project_dir):  # noqa
     # a problem with the rule - or a problem with the file.
     violations_dict = lnt.violation_dict()
     print("Violations Dict: ", violations_dict)
-    qual_path = Path(project_dir) / path
+    qual_path = os.path.normpath(Path(project_dir) / path)
     assert qual_path in violations_dict, f"{path} not in violations dict."
     assert violations_dict[qual_path], f"No issues found for {qual_path}."
     lnt.persist_changes(fixed_file_suffix="FIXED")
