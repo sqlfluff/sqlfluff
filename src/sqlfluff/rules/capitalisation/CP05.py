@@ -1,4 +1,4 @@
-"""Implementation of Rule L063."""
+"""Implementation of Rule CP05."""
 
 from typing import Tuple, List, Optional
 from sqlfluff.core.parser import BaseSegment
@@ -11,13 +11,13 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.rules.L010 import Rule_L010
+from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_L063(Rule_L010):
+class Rule_CP05(Rule_CP01):
     """Inconsistent capitalisation of datatypes.
 
     **Anti-pattern**
@@ -46,7 +46,7 @@ class Rule_L063(Rule_L010):
     """
 
     name = "capitalisation.types"
-    aliases = ("CP05",)
+    aliases = ("L063",)
     groups = ("all", "capitalisation")
 
     crawl_behaviour = SegmentSeekerCrawler(

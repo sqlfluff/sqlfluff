@@ -1,4 +1,4 @@
-"""Implementation of Rule L010."""
+"""Implementation of Rule CP01."""
 
 import regex
 from typing import Tuple, List, Optional
@@ -23,7 +23,7 @@ def is_capitalizable(character: str) -> bool:
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_L010(BaseRule):
+class Rule_CP01(BaseRule):
     """Inconsistent capitalisation of keywords.
 
     **Anti-pattern**
@@ -54,7 +54,7 @@ class Rule_L010(BaseRule):
     """
 
     name = "capitalisation.keywords"
-    aliases = ("CP01",)
+    aliases = ("L010",)
     groups: Tuple[str, ...] = ("all", "core", "capitalisation")
 
     lint_phase = "post"

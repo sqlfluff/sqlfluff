@@ -1,4 +1,4 @@
-"""Implementation of Rule L014."""
+"""Implementation of Rule CP02."""
 
 from typing import Tuple, Optional, List
 
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.rules.L010 import Rule_L010
+from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
 def identifiers_policy_applicable(
@@ -35,7 +35,7 @@ def identifiers_policy_applicable(
 @document_groups
 @document_fix_compatible
 @document_configuration
-class Rule_L014(Rule_L010):
+class Rule_CP02(Rule_CP01):
     """Inconsistent capitalisation of unquoted identifiers.
 
     **Anti-pattern**
@@ -71,7 +71,7 @@ class Rule_L014(Rule_L010):
     """
 
     name = "capitalisation.identifiers"
-    aliases = ("CP02",)
+    aliases = ("L014",)
 
     crawl_behaviour = SegmentSeekerCrawler(
         {"naked_identifier", "properties_naked_identifier"}

@@ -5,7 +5,8 @@ from typing import Optional
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-from sqlfluff.rules.L014 import identifiers_policy_applicable
+
+from sqlfluff.rules.capitalisation.CP02 import identifiers_policy_applicable
 
 
 @document_groups
