@@ -36,7 +36,9 @@ class Rule_L001(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "trailing-whitespace"
+    aliases = ("LS01",)
+    groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = RootOnlyCrawler()
 
     def _eval(self, context: RuleContext) -> List[LintResult]:

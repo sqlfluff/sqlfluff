@@ -70,8 +70,9 @@ class Rule_L014(Rule_L010):
 
     """
 
-    groups = ("all", "core")
-    lint_phase = "post"
+    name = "capitalisation.identifiers"
+    aliases = ("CP02",)
+
     crawl_behaviour = SegmentSeekerCrawler(
         {"naked_identifier", "properties_naked_identifier"}
     )

@@ -73,8 +73,9 @@ def contains_ansi_escape(s: str) -> bool:
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
+L:   2 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+                       | [capitalisation.keywords]
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
 
@@ -1314,7 +1315,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 25 if write_file else 32
+        assert payload_length == 31 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1818,7 +1819,7 @@ class TestProgressBars:
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected indent of 4 spaces.
+L:  12 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...

@@ -49,7 +49,7 @@ from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
-RuleGhost = namedtuple("RuleGhost", ["code", "description"])
+RuleGhost = namedtuple("RuleGhost", ["code", "name", "description"])
 
 # Instantiate the rules logger
 rules_logger = logging.getLogger("sqlfluff.rules")

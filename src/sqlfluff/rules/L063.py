@@ -45,8 +45,10 @@ class Rule_L063(Rule_L010):
 
     """
 
-    groups = ("all",)
-    lint_phase = "post"
+    name = "capitalisation.types"
+    aliases = ("CP05",)
+    groups = ("all", "capitalisation")
+
     crawl_behaviour = SegmentSeekerCrawler(
         {
             "data_type_identifier",

@@ -105,7 +105,9 @@ class Rule_L009(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "line-break.end-of-file"
+    aliases = ("LB04",)
+    groups = ("all", "core", "layout", "line-break")
 
     targets_templated = True
     # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.

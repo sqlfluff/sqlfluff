@@ -54,7 +54,9 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
-    groups = ("all",)
+    name = "line-break.operators"
+    aliases = ("LB03",)
+    groups = ("all", "layout", "line-break")
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:

@@ -40,7 +40,9 @@ class Rule_L005(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "spacing.commas"
+    aliases = ("LS02",)
+    groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:

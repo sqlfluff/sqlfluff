@@ -45,7 +45,10 @@ class Rule_L003(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    # TODO: combine with other LN01 rules
+    name = "layout.indent.b"
+    aliases = ("LN01b",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
     template_safe_fixes = True

@@ -2,6 +2,7 @@
 import pytest
 
 from sqlfluff.core import Linter
+from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
@@ -80,7 +81,7 @@ def test__rules__user_rules():
     # Set up a linter with the user rule
     linter = Linter(user_rules=[Rule_T042], dialect="ansi")
     # Make sure the new one is in there.
-    assert ("T042", "A dummy rule.") in linter.rule_tuples()
+    assert RuleTuple("T042", "", "A dummy rule.", ("all",), ()) in linter.rule_tuples()
     # Instantiate a second linter and check it's NOT in there.
     # This tests that copying and isolation works.
     linter = Linter(dialect="ansi")

@@ -40,7 +40,9 @@ class Rule_L006(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "spacing.operators"
+    aliases = ("LS03",)
+    groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = SegmentSeekerCrawler(
         {"binary_operator", "comparison_operator", "assignment_operator"}
     )
