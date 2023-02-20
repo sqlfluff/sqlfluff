@@ -511,7 +511,6 @@ dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
             NoQaDirective(
                 0,
                 (
-                    "CP04",
                     "L041",
                     "L042",
                     "L043",
