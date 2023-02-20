@@ -6,6 +6,11 @@ from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_groups,
+    document_configuration,
+)
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
@@ -203,6 +208,25 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
     # but not upon instantiation
     with pytest.raises(ValueError):
         new_rule = NewRule(code="L000", description="")
+
+
+def test_rules_legacy_doc_decorators(caplog):
+    """Ensure that the deprecated decorators can still be imported but do nothing."""
+
+    @document_fix_compatible
+    @document_groups
+    @document_configuration
+    class NewRule(BaseRule):
+        """Untouched Text."""
+
+        pass
+
+    # Check they didn't do anything to the docstring.
+    assert NewRule.__doc__ == """Untouched Text."""
+    # Check there are warnings.
+    assert "uses the @document_fix_compatible decorator" in caplog.text
+    assert "uses the @document_groups decorator" in caplog.text
+    assert "uses the @document_configuration decorator" in caplog.text
 
 
 def test_rules_configs_are_dynamically_documented():
