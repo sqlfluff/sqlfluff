@@ -262,7 +262,7 @@ class Linter:
     def parse_noqa(
         comment: str,
         line_no: int,
-        reference_map: Dict[str, List[str]],
+        reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
@@ -310,7 +310,7 @@ class Linter:
                         unexpanded_rules = tuple(
                             r.strip() for r in rule_part.split(",")
                         )
-                        expanded_rules = []
+                        expanded_rules: List[str] = []
                         for r in unexpanded_rules:
                             matched = False
                             for expanded in (
@@ -423,7 +423,7 @@ class Linter:
     def extract_ignore_from_comment(
         cls,
         comment: RawSegment,
-        reference_map: Dict[str, List[str]],
+        reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
@@ -438,7 +438,7 @@ class Linter:
     def extract_ignore_mask_tree(
         cls,
         tree: BaseSegment,
-        reference_map: Dict[str, List[str]],
+        reference_map: Dict[str, Set[str]],
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
@@ -459,7 +459,7 @@ class Linter:
         cls,
         source: str,
         inline_comment_regex: RegexLexer,
-        reference_map: Dict[str, List[str]],
+        reference_map: Dict[str, Set[str]],
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives.
 
