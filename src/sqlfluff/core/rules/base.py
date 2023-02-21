@@ -34,6 +34,7 @@ from typing import (
     Dict,
     Type,
     DefaultDict,
+    Iterator,
 )
 from collections import namedtuple, defaultdict
 
@@ -955,6 +956,38 @@ class RuleManifest:
     rule_class: Type[BaseRule]
 
 
+@dataclass
+class RulePack:
+    """A bundle of rules to be applied.
+
+    This contains a set of rules, post filtering but also contains the mapping
+    required to interpret any noqa messages found in files.
+
+    The reason for this object is that rules are filtered and instantiated
+    into this pack in the main process when running in multi-processing mode so
+    that user defined rules can be used without reference issues.
+
+    Attributes:
+        rules (:obj:`list` of :obj:`BaseRule`): A filtered list of instantiated
+            rules to be applied to a given file.
+        reference_map (:obj:`dict`): A mapping of rule references to the codes
+            they refer to, e.g. `{"my_ref": {"L001", "L002"}}`. The references
+            (i.e. the keys) may be codes, groups, aliases or names. The values
+            of the mapping are sets of rule codes *only*. This object acts as
+            a lookup to be able to translate selectors (which may contain
+            diverse references) into a consolidated list of rule codes. This
+            mapping contains the full set of rules, rather than just the filtered
+            set present in the `rules` attribute.
+    """
+
+    rules: List[BaseRule]
+    reference_map: Dict[str, Set[str]]
+
+    def codes(self) -> Iterator[str]:
+        """Returns an iterator through the codes contained in the pack."""
+        return (r.code for r in self.rules)
+
+
 class RuleSet:
     """Class to define a ruleset.
 
@@ -1087,7 +1120,7 @@ class RuleSet:
         return cls
 
     def _expand_rule_refs(
-        self, glob_list: List[str], reference_map: Dict[str, List[str]]
+        self, glob_list: List[str], reference_map: Dict[str, Set[str]]
     ) -> Set[str]:
         """Expand a list of rule references into a list of rule codes.
 
@@ -1106,29 +1139,20 @@ class RuleSet:
 
         return expanded_rule_set
 
-    def get_rulelist(self, config) -> List[BaseRule]:
-        """Use the config to return the appropriate rules.
+    def rule_reference_map(self) -> Dict[str, Set[str]]:
+        """Generate a rule reference map for looking up rules.
 
-        We use the config both for allowlisting and denylisting, but also
-        for configuring the rules given the given config.
-
-        Returns:
-            :obj:`list` of instantiated :obj:`BaseRule`.
-
+        Generate the master reference map. The priority order is:
+        codes > names > groups > aliases
+        (i.e. if there's a collision between a name and an alias - we assume
+        the alias is wrong)
         """
-        # Validate all generic rule configs
-        self._validate_config_options(config)
-
-        # Generate the master reference map. The priority order is:
-        # codes > names > groups > aliases
-        # (i.e. if there's a collision between a name and an
-        # alias - we assume the alias is wrong.)
         valid_codes: Set[str] = set(self._register.keys())
-        reference_map: Dict[str, List[str]] = {code: [code] for code in valid_codes}
+        reference_map: Dict[str, Set[str]] = {code: {code} for code in valid_codes}
 
         # Generate name map.
-        name_map: Dict[str, List[str]] = {
-            manifest.name: [manifest.code]
+        name_map: Dict[str, Set[str]] = {
+            manifest.name: {manifest.code}
             for manifest in self._register.values()
             if manifest.name
         }
@@ -1144,7 +1168,7 @@ class RuleSet:
         reference_map = {**name_map, **reference_map}
 
         # Generate the group map.
-        group_map: DefaultDict[str, List[str]] = defaultdict(list)
+        group_map: DefaultDict[str, Set[str]] = defaultdict(set)
         for manifest in self._register.values():
             for group in manifest.groups:
                 if group in reference_map:
@@ -1157,12 +1181,12 @@ class RuleSet:
                         reference_map[group],
                     )
                 else:
-                    group_map[group].append(manifest.code)
+                    group_map[group].add(manifest.code)
         # Incorporate after all checks are done.
         reference_map = {**group_map, **reference_map}
 
         # Generate the alias map.
-        alias_map: DefaultDict[str, List[str]] = defaultdict(list)
+        alias_map: DefaultDict[str, Set[str]] = defaultdict(set)
         for manifest in self._register.values():
             for alias in manifest.aliases:
                 if alias in reference_map:
@@ -1175,9 +1199,25 @@ class RuleSet:
                         reference_map[alias],
                     )
                 else:
-                    alias_map[alias].append(manifest.code)
+                    alias_map[alias].add(manifest.code)
         # Incorporate after all checks are done.
-        reference_map = {**alias_map, **reference_map}
+        return {**alias_map, **reference_map}
+
+    def get_rulepack(self, config) -> RulePack:
+        """Use the config to return the appropriate rules.
+
+        We use the config both for allowlisting and denylisting, but also
+        for configuring the rules given the given config.
+        """
+        # Validate all generic rule configs
+        self._validate_config_options(config)
+
+        # Generate the master reference map. The priority order is:
+        # codes > names > groups > aliases
+        # (i.e. if there's a collision between a name and an
+        # alias - we assume the alias is wrong.)
+        valid_codes: Set[str] = set(self._register.keys())
+        reference_map = self.rule_reference_map()
 
         # The lists here are lists of references, which might be codes,
         # names, aliases or groups.
@@ -1245,7 +1285,7 @@ class RuleSet:
             # Instantiate when ready
             instantiated_rules.append(rule_class(**kwargs))
 
-        return instantiated_rules
+        return RulePack(instantiated_rules, reference_map)
 
     def copy(self):
         """Return a copy of self with a separate register."""

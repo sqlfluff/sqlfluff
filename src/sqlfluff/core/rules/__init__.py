@@ -2,6 +2,7 @@
 
 from sqlfluff.core.rules.base import (
     RuleSet,
+    RulePack,
     BaseRule,
     LintResult,
     LintFix,
@@ -40,6 +41,7 @@ def get_ruleset(name: str = "standard") -> RuleSet:
 __all__ = (
     "get_ruleset",
     "RuleSet",
+    "RulePack",
     "BaseRule",
     "LintResult",
     "LintFix",

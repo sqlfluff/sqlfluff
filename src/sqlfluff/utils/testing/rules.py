@@ -52,7 +52,7 @@ def load_test_cases(
 
 def get_rule_from_set(code, config):
     """Fetch a rule from the rule set."""
-    for r in get_ruleset().get_rulelist(config=config):
+    for r in get_ruleset().get_rulepack(config=config).rules:
         if r.code == code:  # pragma: no cover
             return r
     raise ValueError(f"{code!r} not in {get_ruleset()!r}")
