@@ -213,16 +213,30 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 
 def test_rules_legacy_doc_decorators(caplog):
     """Ensure that the deprecated decorators can still be imported but do nothing."""
+    # NOTE: There is something strange with cross platform logging.
+    # To get around that, we briefly patch the logging propogation.
+    # As at 2023-02-21. This test passes on windows without stashing
+    # but is otherwise failing on linux.
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Stash the current propogation.
+    propogate = fluff_logger.propagate
+    # Set to true
+    fluff_logger.propagate = True
 
-    with caplog.at_level(logging.WARNING):
+    try:
+        with caplog.at_level(logging.WARNING):
 
-        @document_fix_compatible
-        @document_groups
-        @document_configuration
-        class NewRule(BaseRule):
-            """Untouched Text."""
+            @document_fix_compatible
+            @document_groups
+            @document_configuration
+            class NewRule(BaseRule):
+                """Untouched Text."""
 
-            pass
+                pass
+
+    # Regardless of success - restore the propogate setting.
+    finally:
+        fluff_logger.propagate = propogate
 
     # Check they didn't do anything to the docstring.
     assert NewRule.__doc__ == """Untouched Text."""
