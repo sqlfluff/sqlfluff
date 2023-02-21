@@ -213,20 +213,20 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 
 def test_rules_legacy_doc_decorators(caplog):
     """Ensure that the deprecated decorators can still be imported but do nothing."""
-
-    with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
-
+    with caplog.at_level(logging.INFO, logger="sqlfluff.rules"):
         @document_fix_compatible
         @document_groups
         @document_configuration
         class NewRule(BaseRule):
             """Untouched Text."""
-
             pass
 
     # Check they didn't do anything to the docstring.
     assert NewRule.__doc__ == """Untouched Text."""
     # Check there are warnings.
+    print("Records:")
+    for record in caplog.records:
+        print(record)
     assert "uses the @document_fix_compatible decorator" in caplog.text
     assert "uses the @document_groups decorator" in caplog.text
     assert "uses the @document_configuration decorator" in caplog.text
