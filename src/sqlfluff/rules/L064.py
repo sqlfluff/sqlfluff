@@ -6,19 +6,11 @@ import regex
 
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.functional import rsp, FunctionalContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.dialects.dialect_ansi import LiteralSegment
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L064(BaseRule):
     r"""Consistent usage of preferred quotes for quoted literals.
 
@@ -70,6 +62,7 @@ class Rule_L064(BaseRule):
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
     crawl_behaviour = SegmentSeekerCrawler({"literal"})
     targets_templated = True
+    is_fix_compatible = True
     _dialects_with_double_quoted_strings = [
         "bigquery",
         "hive",

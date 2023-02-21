@@ -4,11 +4,8 @@ from typing import Optional
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp, rsp
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L050(BaseRule):
     """Files must not begin with newlines or whitespace.
 
@@ -71,6 +68,7 @@ class Rule_L050(BaseRule):
     # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.
     crawl_behaviour = RootOnlyCrawler()
     lint_phase = "post"
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must not begin with newlines or whitespace."""

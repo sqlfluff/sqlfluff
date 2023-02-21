@@ -4,10 +4,8 @@ from typing import Optional
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L068(BaseRule):
     """Queries within set query produce different numbers of columns.
 

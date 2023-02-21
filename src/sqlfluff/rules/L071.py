@@ -5,13 +5,10 @@ from typing import List, Optional
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L071(BaseRule):
     """Parenthesis blocks should be surrounded by whitespaces.
 
@@ -38,6 +35,7 @@ class Rule_L071(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler(
         {"start_bracket", "end_bracket"}, provide_raw_stack=True
     )
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Parenthesis blocks should be surrounded by whitespaces."""

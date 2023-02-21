@@ -3,17 +3,9 @@ from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 
@@ -50,6 +42,7 @@ class Rule_L003(BaseRule):
     aliases = ("LN01b",)
     groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
     targets_templated = True
     template_safe_fixes = True
     _adjust_anchors = True

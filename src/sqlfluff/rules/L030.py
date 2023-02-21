@@ -3,17 +3,9 @@
 from typing import List, Tuple
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.rules.L010 import Rule_L010
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 
@@ -54,6 +46,7 @@ class Rule_L030(Rule_L010):
         "ignore_words_regex",
     ]
     _description_elem = "Function names"
+    is_fix_compatible = True
 
     def _get_fix(self, segment, fixed_raw):
         return super()._get_fix(segment, fixed_raw)

@@ -8,10 +8,8 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, EvalResultType
 from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 

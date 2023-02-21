@@ -7,17 +7,9 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L011(BaseRule):
     """Implicit/explicit aliasing of table.
 
@@ -49,6 +41,7 @@ class Rule_L011(BaseRule):
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
     crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
+    is_fix_compatible = True
 
     _target_elems: List[Tuple[str, str]] = [
         ("type", "from_expression_element"),
