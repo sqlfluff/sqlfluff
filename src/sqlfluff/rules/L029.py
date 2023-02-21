@@ -7,6 +7,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.rules.capitalisation.CP02 import identifiers_policy_applicable
 
+
 class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
 
