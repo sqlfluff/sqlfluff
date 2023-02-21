@@ -512,6 +512,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             NoQaDirective(
                 0,
                 (
+                    "CP04",  # L040 is an alias of CP04 (which matches the glob)
                     "L041",
                     "L042",
                     "L043",
@@ -546,12 +547,12 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         # Test selection with names.
         (
             "noqa:capitalisation.keywords",
-            NoQaDirective(0, ("L010",), None),
+            NoQaDirective(0, ("CP01",), None),
         ),
         # Test selection with groups.
         (
             "noqa:capitalisation",
-            NoQaDirective(0, ("L010", "L014", "L030", "L040", "L063"), None),
+            NoQaDirective(0, ("CP01", "CP02", "CP03", "CP04", "CP05"), None),
         ),
     ],
 )
