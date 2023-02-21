@@ -213,12 +213,15 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 
 def test_rules_legacy_doc_decorators(caplog):
     """Ensure that the deprecated decorators can still be imported but do nothing."""
-    with caplog.at_level(logging.INFO, logger="sqlfluff.rules"):
+
+    with caplog.at_level(logging.WARNING):
+
         @document_fix_compatible
         @document_groups
         @document_configuration
         class NewRule(BaseRule):
             """Untouched Text."""
+
             pass
 
     # Check they didn't do anything to the docstring.
