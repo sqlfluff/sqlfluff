@@ -6,11 +6,6 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
 def is_capitalizable(character: str) -> bool:
@@ -20,9 +15,6 @@ def is_capitalizable(character: str) -> bool:
     return True
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_CP01(BaseRule):
     """Inconsistent capitalisation of keywords.
 
@@ -56,6 +48,7 @@ class Rule_CP01(BaseRule):
     name = "capitalisation.keywords"
     aliases = ("L010",)
     groups: Tuple[str, ...] = ("all", "core", "capitalisation")
+    is_fix_compatible = True
 
     lint_phase = "post"
     # Binary operators behave like keywords too.

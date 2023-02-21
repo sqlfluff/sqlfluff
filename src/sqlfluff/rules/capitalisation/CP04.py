@@ -3,17 +3,9 @@
 from typing import Tuple, List
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_CP04(Rule_CP01):
     """Inconsistent capitalisation of boolean/null literal.
 
@@ -58,6 +50,7 @@ class Rule_CP04(Rule_CP01):
 
     name = "capitalisation.literals"
     aliases = ("L040",)
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler({"null_literal", "boolean_literal"})
     _exclude_elements: List[Tuple[str, str]] = []

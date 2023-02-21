@@ -3,17 +3,9 @@
 from typing import List, Tuple
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_CP03(Rule_CP01):
     """Inconsistent capitalisation of function names.
 
@@ -43,6 +35,7 @@ class Rule_CP03(Rule_CP01):
 
     name = "capitalisation.functions"
     aliases = ("L030",)
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler(
         {"function_name_identifier", "bare_function"}
