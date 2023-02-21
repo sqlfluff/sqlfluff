@@ -8,11 +8,6 @@ from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
@@ -29,9 +24,6 @@ class SelectTargetsInfo(NamedTuple):
     pre_from_whitespace: List[BaseSegment]
 
 
-@document_groups
-@document_configuration
-@document_fix_compatible
 class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
@@ -80,6 +72,7 @@ class Rule_L036(BaseRule):
     groups = ("all",)
     config_keywords = ["wildcard_policy"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext):
         self.wildcard_policy: str

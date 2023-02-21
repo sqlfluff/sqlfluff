@@ -5,11 +5,6 @@ from typing import Tuple, Optional, List
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.rules.L010 import Rule_L010
 
 
@@ -32,9 +27,6 @@ def identifiers_policy_applicable(
     return False
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 
@@ -83,6 +75,7 @@ class Rule_L014(Rule_L010):
         "ignore_words_regex",
     ]
     _description_elem = "Unquoted identifiers"
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         # Return None if identifier is case-sensitive property to enable Change

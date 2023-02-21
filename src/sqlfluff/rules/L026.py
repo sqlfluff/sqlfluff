@@ -15,7 +15,6 @@ from sqlfluff.core.rules import (
     EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.reference import object_ref_matches_table
 
@@ -36,8 +35,6 @@ class L026Query(SelectCrawlerQuery):
     standalone_aliases: List[str] = field(default_factory=list)
 
 
-@document_groups
-@document_configuration
 class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 

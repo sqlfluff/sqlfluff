@@ -6,11 +6,6 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
 def is_capitalizable(character: str) -> bool:
@@ -20,9 +15,6 @@ def is_capitalizable(character: str) -> bool:
     return True
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L010(BaseRule):
     """Inconsistent capitalisation of keywords.
 
@@ -72,6 +64,7 @@ class Rule_L010(BaseRule):
     config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Inconsistent capitalisation of keywords.

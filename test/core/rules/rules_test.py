@@ -1,17 +1,18 @@
 """Tests for the standard set of rules."""
 import pytest
+import logging
 
 from sqlfluff.core import Linter
 from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
     document_fix_compatible,
     document_groups,
+    document_configuration,
 )
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -31,8 +32,6 @@ class Rule_T042(BaseRule):
         pass
 
 
-@document_groups
-@document_fix_compatible
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
 
@@ -43,6 +42,7 @@ class Rule_T001(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"})
+    is_fix_compatible = True
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -199,33 +199,73 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
     class NewRule(BaseRule):
-        config_keywords = ["comma_style"]
+        """Testing Rule."""
 
-    new_rule = NewRule(code="L000", description="", comma_style="trailing")
-    assert new_rule.comma_style == "trailing"
-    # Error is thrown since "comma_style" is defined in class,
+        config_keywords = ["tab_space_size"]
+
+    new_rule = NewRule(code="L000", description="", tab_space_size=6)
+    assert new_rule.tab_space_size == 6
+    # Error is thrown since "tab_space_size" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
         new_rule = NewRule(code="L000", description="")
 
 
+def test_rules_legacy_doc_decorators(caplog):
+    """Ensure that the deprecated decorators can still be imported but do nothing."""
+    # NOTE: There is something strange with cross platform logging.
+    # To get around that, we briefly patch the logging propogation.
+    # As at 2023-02-21. This test passes on windows without stashing
+    # but is otherwise failing on linux.
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Stash the current propogation.
+    propogate = fluff_logger.propagate
+    # Set to true
+    fluff_logger.propagate = True
+
+    try:
+        with caplog.at_level(logging.WARNING):
+
+            @document_fix_compatible
+            @document_groups
+            @document_configuration
+            class NewRule(BaseRule):
+                """Untouched Text."""
+
+                pass
+
+    # Regardless of success - restore the propogate setting.
+    finally:
+        fluff_logger.propagate = propogate
+
+    # Check they didn't do anything to the docstring.
+    assert NewRule.__doc__ == """Untouched Text."""
+    # Check there are warnings.
+    print("Records:")
+    for record in caplog.records:
+        print(record)
+    assert "uses the @document_fix_compatible decorator" in caplog.text
+    assert "uses the @document_groups decorator" in caplog.text
+    assert "uses the @document_configuration decorator" in caplog.text
+
+
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    @document_configuration
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
         config_keywords = ["unquoted_identifiers_policy"]
 
+    print(f"RuleWithConfig.__doc__: {RuleWithConfig.__doc__!r}")
     assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
 
-    @document_configuration
     class RuleWithoutConfig(BaseRule):
         """A new rule without configuration."""
 
         pass
 
+    print(f"RuleWithoutConfig.__doc__: {RuleWithoutConfig.__doc__!r}")
     assert "Configuration" not in RuleWithoutConfig.__doc__
 
 

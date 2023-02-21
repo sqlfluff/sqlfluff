@@ -5,11 +5,8 @@ from typing import Optional
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L060(BaseRule):
     """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.
 
@@ -43,6 +40,7 @@ class Rule_L060(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"function_name_identifier"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""

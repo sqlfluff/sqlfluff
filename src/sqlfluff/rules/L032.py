@@ -8,14 +8,11 @@ from sqlfluff.core.parser.segments.raw import (
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment, IdentifierSegment
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 
@@ -61,6 +58,7 @@ class Rule_L032(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Look for USING in a join clause."""

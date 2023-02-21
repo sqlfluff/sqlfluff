@@ -5,16 +5,8 @@ from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L022(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 
@@ -46,6 +38,7 @@ class Rule_L022(BaseRule):
 
     groups = ("all", "core")
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Blank line expected but not found after CTE definition."""

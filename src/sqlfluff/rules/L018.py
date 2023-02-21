@@ -10,17 +10,9 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L018(BaseRule):
     """``WITH`` clause closing bracket should be on a new line.
 
@@ -54,6 +46,7 @@ class Rule_L018(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler(
         {"with_compound_statement"}, provide_raw_stack=True
     )
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext):
         """WITH clause closing bracket should be aligned with WITH keyword.

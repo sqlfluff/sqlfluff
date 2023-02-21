@@ -4,10 +4,8 @@ from typing import Optional
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L021(BaseRule):
     """Ambiguous use of ``DISTINCT`` in a ``SELECT`` statement with ``GROUP BY``.
 
