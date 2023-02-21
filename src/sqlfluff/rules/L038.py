@@ -6,16 +6,8 @@ from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L038(BaseRule):
     """Trailing commas within select clause.
 
@@ -48,6 +40,7 @@ class Rule_L038(BaseRule):
     groups = ("all", "core")
     config_keywords = ["select_clause_trailing_comma"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Trailing commas within select clause."""

@@ -5,12 +5,9 @@ from typing import Optional
 from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L061(BaseRule):
     """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
 
@@ -35,6 +32,7 @@ class Rule_L061(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"comparison_operator"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""

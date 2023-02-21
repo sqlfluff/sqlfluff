@@ -7,11 +7,6 @@ from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.functional import Segments, sp
 
 
@@ -24,9 +19,6 @@ class SegmentMoveContext(NamedTuple):
     whitespace_deletions: Segments
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 
@@ -63,6 +55,7 @@ class Rule_L052(BaseRule):
     groups = ("all",)
     config_keywords = ["multiline_newline", "require_final_semicolon"]
     crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
 
     @staticmethod
     def _handle_preceding_inline_comments(

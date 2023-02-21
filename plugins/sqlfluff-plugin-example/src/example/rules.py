@@ -10,11 +10,6 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from typing import List, Type
 import os.path
 from sqlfluff.core.config import ConfigLoader
@@ -45,9 +40,6 @@ def get_configs_info() -> dict:
 
 # These two decorators allow plugins
 # to be displayed in the sqlfluff docs
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_Example_L001(BaseRule):
     """ORDER BY on these columns is forbidden!
 
@@ -77,6 +69,7 @@ class Rule_Example_L001(BaseRule):
     groups = ("all",)
     config_keywords = ["forbidden_columns"]
     crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
+    is_fix_compatible = True
 
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""

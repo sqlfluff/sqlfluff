@@ -16,20 +16,12 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment
 
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L028(BaseRule):
     """References should be consistent in statements with a single table.
 
@@ -82,6 +74,7 @@ class Rule_L028(BaseRule):
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Override base class for dialects that use structs, or SELECT aliases."""

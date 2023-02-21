@@ -2,15 +2,9 @@
 from typing import List
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L001(BaseRule):
     """Unnecessary trailing whitespace.
 
@@ -40,6 +34,7 @@ class Rule_L001(BaseRule):
     aliases = ("LS01",)
     groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Unnecessary trailing whitespace.

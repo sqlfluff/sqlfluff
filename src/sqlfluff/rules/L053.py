@@ -5,11 +5,8 @@ from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L053(BaseRule):
     """Top-level statements should not be wrapped in brackets.
 
@@ -50,6 +47,7 @@ class Rule_L053(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = RootOnlyCrawler()
+    is_fix_compatible = True
 
     @staticmethod
     def _iter_statements(file_segment):

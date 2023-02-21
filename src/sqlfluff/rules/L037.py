@@ -7,7 +7,6 @@ from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 class OrderByColumnInfo(NamedTuple):
@@ -17,8 +16,6 @@ class OrderByColumnInfo(NamedTuple):
     order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L037(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 
@@ -46,6 +43,7 @@ class Rule_L037(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
+    is_fix_compatible = True
 
     @staticmethod
     def _get_orderby_info(segment: BaseSegment) -> List[OrderByColumnInfo]:

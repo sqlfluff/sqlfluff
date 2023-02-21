@@ -2,13 +2,10 @@
 from typing import Optional
 
 from sqlfluff.rules.L011 import Rule_L011
-from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.utils.functional import FunctionalContext
 
 
-@document_groups
-@document_configuration
 class Rule_L012(Rule_L011):
     """Implicit/explicit aliasing of columns.
 
