@@ -130,4 +130,4 @@ def test_improper_configs_are_rejected(rule_config_dict):
         configs={"rules": rule_config_dict}, overrides={"dialect": "ansi"}
     )
     with pytest.raises(ValueError):
-        get_ruleset().get_rulelist(config)
+        get_ruleset().get_rulepack(config)
