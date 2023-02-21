@@ -1653,3 +1653,45 @@ test_comment_effect_indents_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_untaken_negative_1:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+    )
+    ;
+
+test_untaken_negative_2:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    WITH m AS (SELECT
+      firstCol
+      , secondCol
+    FROM dbo.myTable
+    )
+
+    SELECT * FROM m
+  fix_str: |
+    WITH m AS (
+        SELECT
+            firstCol
+            , secondCol
+        FROM dbo.myTable
+    )
+
+    SELECT * FROM m
