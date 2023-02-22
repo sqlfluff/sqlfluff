@@ -455,16 +455,20 @@ test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the
   # default approach and indent by 1 step.
+  # NOTE: That because the indent opened before "coalesce"
+  # isn't closed before the end of the line, we force an
+  # additional indent before it.
   fail_str: |
     SELECT coalesce(
     foo,
                     bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT 
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
