@@ -674,7 +674,12 @@ def _map_line_buffers(
         # We should also evaluate whether this point inserts a newline at the close
         # of an indent which was untaken on the way up.
         # https://github.com/sqlfluff/sqlfluff/issues/4234
-        if indent_point.indent_trough:
+        # If we're at the end of the file we shouldn't interpret it as a line break
+        # for problem indents, they're a bit of a special case.
+        if (
+            indent_point.indent_trough
+            and "end_of_file" not in elements[indent_point.idx + 1].class_types
+        ):
             passing_indents = list(
                 range(
                     indent_point.initial_indent_balance,
