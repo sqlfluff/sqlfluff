@@ -379,17 +379,16 @@ test_jinja_with_disbalanced_pairs:
 
 test_fail_attempted_hanger_fix:
   # Check messy hanger correction.
-  # TODO: Check we agree with this fix.
-  # I think while unconventional, it is technically correct.
   fail_str: |
     SELECT coalesce(foo,
                   bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 test_fail_possible_hanger_fix:
@@ -399,10 +398,11 @@ test_fail_possible_hanger_fix:
      bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 test_fail_consecutive_hangers:
@@ -464,7 +464,7 @@ test_fail_clean_reindent_fix:
                     bar)
        FROM tbl
   fix_str: |
-    SELECT 
+    SELECT
         coalesce(
             foo,
             bar
