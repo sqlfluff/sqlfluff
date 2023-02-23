@@ -564,3 +564,15 @@ test_fix_window_function:
     core:
       max_line_length: 50
       dialect: snowflake
+
+test_fail_do_not_fix_noqa:
+  # https://github.com/sqlfluff/sqlfluff/issues/4248
+  # NOTE: No fix_str, because this should be unfixable.
+  fail_str: |
+    SELECT
+        col1,
+        col2,
+        col3
+    FROM
+        really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
+  
