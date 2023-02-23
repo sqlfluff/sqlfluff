@@ -4300,7 +4300,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         Ref("SingleIdentifierGrammar"),
         Ref("CTEColumnList", optional=True),
         "AS",
-        Sequence("NOT", "MATERIALIZED", optional=True),
+        Sequence(Ref.keyword("NOT", optional=True), "MATERIALIZED", optional=True),
         Bracketed(
             # Ephemeral here to subdivide the query.
             Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
