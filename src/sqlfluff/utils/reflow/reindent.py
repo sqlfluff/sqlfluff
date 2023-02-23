@@ -674,11 +674,29 @@ def _map_line_buffers(
         # We should also evaluate whether this point inserts a newline at the close
         # of an indent which was untaken on the way up.
         # https://github.com/sqlfluff/sqlfluff/issues/4234
+        # Special case 1:
         # If we're at the end of the file we shouldn't interpret it as a line break
         # for problem indents, they're a bit of a special case.
+        # Special case 2:
+        # Bracketed expressions are a bit odd here.
+        # e.g.
+        #   WHERE (
+        #       foo = bar 
+        #   )
+        #   LIMIT 1
+        #
+        # Technically there's an untaken indent before the opening bracket
+        # but this layout is common practice so we're not going to force
+        # one there even though there _is_ a line break after the closing
+        # bracket.
+        following_class_types = elements[indent_point.idx + 1].class_types
+        preceding_class_types = elements[indent_point.idx - 1].class_types
         if (
             indent_point.indent_trough
-            and "end_of_file" not in elements[indent_point.idx + 1].class_types
+            # End of file ends case
+            and "end_of_file" not in following_class_types
+            # Bracket special case.
+            and "end_bracket" not in preceding_class_types
         ):
             passing_indents = list(
                 range(
