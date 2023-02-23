@@ -652,7 +652,7 @@ def _map_line_buffers(
             and is designed to be used in assessing indents and
             their effect through a SQL file. The latter is a list of
             "imbalanced" indent locations, where the positive indent
-            is untaken, but it's corresponding negative indent *is*
+            is untaken, but its corresponding negative indent *is*
             taken.
 
     """
