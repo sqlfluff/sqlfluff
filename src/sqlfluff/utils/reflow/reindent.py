@@ -1448,9 +1448,7 @@ def _match_indents(
         # it's positive or negative.
         # NOTE: Here we don't actually pass in the forward types because
         # we don't need them for the output. It doesn't make a difference.
-        indent_stats = e.get_indent_impulse(
-            allow_implicit_indents, set()
-        )
+        indent_stats = e.get_indent_impulse(allow_implicit_indents, set())
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
