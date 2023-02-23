@@ -533,6 +533,10 @@ def _crawl_indent_points(
     cached_point: Optional[_IndentPoint] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
+            # NOTE: The following line should never lead to an index error
+            # because files should always have a trailing IndentBlock containing
+            # an "end_of_file" marker, and so the final IndentPoint should always
+            # have _something_ after it.
             following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
@@ -662,7 +666,15 @@ def _map_line_buffers(
     # Buffers to keep track of indents which are untaken on the way
     # up but taken on the way down. We track them explicitly so we
     # can force them later.
+
+    #: dict of ints: maps indentation balance values to the last
+    #: index location where they were seen. This is a working buffer
+    #: and not directly returned by the function.
     untaken_indent_locs = {}
+    #: list of ints: a list of element indices which contain untaken
+    #: positive indents, that should be forced later because their
+    #: corresponding negative indent _was_ taken. Several edge cases
+    #: are excluded from this list and so not included. See code below.
     imbalanced_locs = []
 
     for indent_point in _crawl_indent_points(
@@ -730,7 +742,10 @@ def _map_line_buffers(
                     # First check for bracket special case. It's less about whether
                     # the section _ends_ with a lone bracket, and more about whether
                     # the _starting point_ is a bracket which closes a line. If it
-                    # is, then skip this location. (Special case 2)
+                    # is, then skip this location. (Special case 2).
+                    # NOTE: We can safely "look ahead" here because we know all files
+                    # end with an IndentBlock, and we know here that `loc` refers to
+                    # an IndentPoint.
                     if "start_bracket" in elements[loc + 1].class_types:
                         continue
 
