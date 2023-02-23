@@ -575,4 +575,3 @@ test_fail_do_not_fix_noqa:
         col3
     FROM
         really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
-  
