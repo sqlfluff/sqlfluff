@@ -533,8 +533,10 @@ def _crawl_indent_points(
     cached_point: Optional[_IndentPoint] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
+            following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
-                cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
+                cached_indent_stats,
+                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
             )
 
             # Was there a cache?
@@ -1428,7 +1430,10 @@ def _match_indents(
         # As usual, indents are referred to by their "uphill" side
         # so what number we store the point against depends on whether
         # it's positive or negative.
-        indent_stats = e.get_indent_impulse(allow_implicit_indents)
+        following_class_types = line_elements[idx + 1].class_types
+        indent_stats = e.get_indent_impulse(
+            allow_implicit_indents, following_class_types
+        )
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
@@ -1720,7 +1725,10 @@ def lint_line_length(
                     # We need to check for negative sections so they get the right
                     # indent (otherwise they'll be over indented).
                     # The `desired_indent` above is for the "uphill" side.
-                    indent_stats = e.get_indent_impulse(allow_implicit_indents)
+                    following_class_types = elements[e_idx + 1].class_types
+                    indent_stats = e.get_indent_impulse(
+                        allow_implicit_indents, following_class_types
+                    )
                     if indent_stats.trough < 0:
                         new_indent = current_indent
                     else:

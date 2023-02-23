@@ -1699,3 +1699,17 @@ test_untaken_negative_2:
     )
 
     SELECT * FROM m
+
+test_untaken_negative_implicit:
+  # NOTE: Check that implicit indents don't
+  # apply before single brackets.
+  pass_str: |
+    SELECT *
+    FROM foo
+    WHERE (
+        a = b
+    )
+    GROUP BY a
+  configs:
+    indentation:
+      allow_implicit_indents: true
