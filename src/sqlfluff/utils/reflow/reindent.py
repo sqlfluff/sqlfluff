@@ -681,7 +681,7 @@ def _map_line_buffers(
         # Bracketed expressions are a bit odd here.
         # e.g.
         #   WHERE (
-        #       foo = bar 
+        #       foo = bar
         #   )
         #   LIMIT 1
         #
@@ -690,13 +690,10 @@ def _map_line_buffers(
         # one there even though there _is_ a line break after the closing
         # bracket.
         following_class_types = elements[indent_point.idx + 1].class_types
-        preceding_class_types = elements[indent_point.idx - 1].class_types
         if (
             indent_point.indent_trough
-            # End of file ends case
+            # End of file ends case. (Special case 1)
             and "end_of_file" not in following_class_types
-            # Bracket special case.
-            and "end_bracket" not in preceding_class_types
         ):
             passing_indents = list(
                 range(
@@ -711,6 +708,14 @@ def _map_line_buffers(
                 for i in passing_indents:
                     assert i in untaken_indent_locs_d
                     loc = untaken_indent_locs_d[i]
+
+                    # First check for bracket special case. It's less about whether
+                    # the section _ends_ with a lone bracket, and more about whether
+                    # the _starting point_ is a bracket which closes a line. If it
+                    # is, then skip this location. (Special case 2)
+                    if "start_bracket" in elements[loc + 1].class_types:
+                        continue
+
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
                     # on the same line. Otherwise it is - append it to the buffer
