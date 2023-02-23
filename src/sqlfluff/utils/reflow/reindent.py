@@ -1435,7 +1435,10 @@ def _match_indents(
         # As usual, indents are referred to by their "uphill" side
         # so what number we store the point against depends on whether
         # it's positive or negative.
-        following_class_types = line_elements[idx + 1].class_types
+        if idx > len(line_elements):
+            following_class_types = line_elements[idx + 1].class_types
+        else:
+            following_class_types = set()
         indent_stats = e.get_indent_impulse(
             allow_implicit_indents, following_class_types
         )
