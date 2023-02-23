@@ -1525,8 +1525,8 @@ def lint_line_length(
                     comment_seg = line_buffer[-1].segments[-1]
                     # It is! Move the comment to the line before.
                     fixes = [
-                        # Remove the comment from it's current position, and any whitespace
-                        # in the previous point.
+                        # Remove the comment from it's current position, and any
+                        # whitespace in the previous point.
                         LintFix.delete(comment_seg),
                         *[
                             LintFix.delete(ws)
@@ -1534,13 +1534,14 @@ def lint_line_length(
                             if ws.is_type("whitespace")
                         ],
                     ]
-                    # Reinsert it at the start of the current line, with a newline after it.
+                    # Reinsert it at the start of the current line, with a newline
+                    # after it.
                     if last_indent_idx:
                         fixes.append(
-                            # NOTE: This looks a little convoluted, but we create *before*
-                            # a block here rather than *after* a point, because the point
-                            # may have been modified already by reflow code and may not be
-                            # a reliable anchor.
+                            # NOTE: This looks a little convoluted, but we create
+                            # *before* a block here rather than *after* a point,
+                            # because the point may have been modified already by
+                            # reflow code and may not be a reliable anchor.
                             LintFix.create_before(
                                 elements[last_indent_idx + 1].segments[0],
                                 [
