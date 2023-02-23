@@ -644,15 +644,26 @@ def _crawl_indent_points(
 def _map_line_buffers(
     elements: ReflowSequenceType, allow_implicit_indents: bool = False
 ) -> Tuple[List[_IndentLine], List[int]]:
-    """Map the existing elements, building up a list of _IndentLine."""
+    """Map the existing elements, building up a list of _IndentLine.
+
+    Returns:
+        :obj:`tuple` of a :obj:`list` of :obj:`_IndentLine` and a
+            :obj:`list` of :obj:`int`. The first is the main output
+            and is designed to be used in assessing indents and
+            their effect through a SQL file. The latter is a list of
+            "imbalanced" indent locations, where the positive indent
+            is untaken, but it's corresponding negative indent *is*
+            taken.
+
+    """
     # First build up the buffer of lines.
     lines = []
     point_buffer = []
     # Buffers to keep track of indents which are untaken on the way
     # up but taken on the way down. We track them explicitly so we
     # can force them later.
-    untaken_indent_locs_d = {}
-    untaken_imbalance_locs = []
+    untaken_indent_locs = {}
+    imbalanced_locs = []
 
     for indent_point in _crawl_indent_points(
         elements, allow_implicit_indents=allow_implicit_indents
@@ -665,7 +676,7 @@ def _map_line_buffers(
             # If it's not a line break, we should still check whether it's
             # untaken to keep track of them.
             if indent_point.indent_impulse:
-                untaken_indent_locs_d[
+                untaken_indent_locs[
                     indent_point.initial_indent_balance + indent_point.indent_impulse
                 ] = indent_point.idx
             continue
@@ -711,10 +722,10 @@ def _map_line_buffers(
                     # If we don't have the location of the untaken indent, then
                     # skip it for now. TODO: Check this isn't a bug when this happens.
                     # It seems very rare for now.
-                    if i not in untaken_indent_locs_d:
+                    if i not in untaken_indent_locs:
                         continue
 
-                    loc = untaken_indent_locs_d[i]
+                    loc = untaken_indent_locs[i]
 
                     # First check for bracket special case. It's less about whether
                     # the section _ends_ with a lone bracket, and more about whether
@@ -728,12 +739,12 @@ def _map_line_buffers(
                     # on the same line. Otherwise it is - append it to the buffer
                     # to sort later.
                     if not any(ip.idx == loc for ip in point_buffer):
-                        untaken_imbalance_locs.append(loc)
+                        imbalanced_locs.append(loc)
 
         # Remove any which are now no longer relevant from the working buffer.
-        for k in list(untaken_indent_locs_d.keys()):
+        for k in list(untaken_indent_locs.keys()):
             if k > indent_point.initial_indent_balance + indent_point.indent_trough:
-                del untaken_indent_locs_d[k]
+                del untaken_indent_locs[k]
 
         # Reset the buffer
         point_buffer = [indent_point]
@@ -742,7 +753,7 @@ def _map_line_buffers(
     if len(point_buffer) > 1:
         lines.append(_IndentLine.from_points(point_buffer))
 
-    return lines, untaken_imbalance_locs
+    return lines, imbalanced_locs
 
 
 def _deduce_line_current_indent(
@@ -904,18 +915,18 @@ def _lint_line_untaken_positive_indents(
     elements: ReflowSequenceType,
     indent_line: _IndentLine,
     single_indent: str,
-    untaken_problem_indents: List[int],
+    imbalanced_indent_locs: List[int],
 ) -> Tuple[List[LintResult], List[int]]:
     """Check for positive indents which should have been taken."""
     # First check whether this line contains any of the untaken problem points.
     for ip in indent_line.indent_points:
-        if ip.idx in untaken_problem_indents:
+        if ip.idx in imbalanced_indent_locs:
             # Force it at the relevant position.
             desired_indent = single_indent * (
                 ip.closing_indent_balance - len(ip.untaken_indents)
             )
             reflow_logger.debug(
-                "    Detected missing +ve problem break @ line %s. Indenting to %r",
+                "    Detected imbalanced +ve break @ line %s. Indenting to %r",
                 elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
                 desired_indent,
             )
@@ -923,7 +934,7 @@ def _lint_line_untaken_positive_indents(
             results, new_point = target_point.indent_to(
                 desired_indent,
                 before=elements[ip.idx + 1].segments[0],
-                source="reflow.indent.problem",
+                source="reflow.indent.imbalance",
             )
             elements[ip.idx] = new_point
             # Keep track of the indent we forced, by returning it.
@@ -1087,7 +1098,7 @@ def _lint_line_buffer_indents(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
-    untaken_problem_indents: List[int],
+    imbalanced_indent_locs: List[int],
 ) -> List[LintResult]:
     """Evaluate a single set of indent points on one line.
 
@@ -1122,7 +1133,7 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
         forced_indents,
-        untaken_problem_indents,
+        imbalanced_indent_locs,
     )
     reflow_logger.debug(
         "   Line Segments: %s",
@@ -1143,7 +1154,7 @@ def _lint_line_buffer_indents(
 
     # Second, handle potential missing positive indents.
     new_results, new_indents = _lint_line_untaken_positive_indents(
-        elements, indent_line, single_indent, untaken_problem_indents
+        elements, indent_line, single_indent, imbalanced_indent_locs
     )
     # If we have any, bank them and return. We don't need to check for
     # negatives because we know we're on the way up.
@@ -1196,8 +1207,8 @@ def lint_indent_points(
     """
     # First map the line buffers.
     lines: List[_IndentLine]
-    untaken_problem_indents: List[int]
-    lines, untaken_problem_indents = _map_line_buffers(
+    imbalanced_indent_locs: List[int]
+    lines, imbalanced_indent_locs = _map_line_buffers(
         elements, allow_implicit_indents=allow_implicit_indents
     )
 
@@ -1230,7 +1241,7 @@ def lint_indent_points(
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         line_results = _lint_line_buffer_indents(
-            elem_buffer, line, single_indent, forced_indents, untaken_problem_indents
+            elem_buffer, line, single_indent, forced_indents, imbalanced_indent_locs
         )
         if line_results:
             reflow_logger.info("      PROBLEMS:")
