@@ -2,18 +2,9 @@
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
-
 from sqlfluff.utils.reflow.reindent import construct_single_indent
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L004(BaseRule):
     """Incorrect indentation type.
 
@@ -54,6 +45,7 @@ class Rule_L004(BaseRule):
     aliases = ("LN01c",)
     groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
+    is_fix_compatible = True
 
     # TODO fix indents after text:
     # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190

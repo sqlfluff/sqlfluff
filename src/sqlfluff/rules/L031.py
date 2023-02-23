@@ -6,11 +6,6 @@ from typing import Generator, NamedTuple, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 from sqlfluff.utils.functional import sp, FunctionalContext
 
@@ -24,9 +19,6 @@ class TableAliasInfo(NamedTuple):
     alias_identifier_ref: BaseSegment
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
@@ -88,6 +80,7 @@ class Rule_L031(BaseRule):
     config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_disabled_by_default = ["bigquery"]
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.

@@ -22,6 +22,7 @@ from itertools import chain
 import logging
 import pathlib
 import regex
+import re
 from typing import (
     cast,
     Iterable,
@@ -47,6 +48,7 @@ from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -478,7 +480,101 @@ class LintFix:
 EvalResultType = Union[LintResult, List[LintResult], None]
 
 
-class BaseRule:
+class RuleMetaclass(type):
+    """The metaclass for rules.
+
+    This metaclass provides provides auto-enrichment of the
+    rule docstring so that examples, groups, aliases and
+    names are added.
+
+    The reason we enrich the docstring is so that it can be
+    picked up by autodoc and all be displayed in the sqlfluff
+    docs.
+    """
+
+    # Precompile the search regex
+    _pattern = re.compile(
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s\\s{4}\\*\\*Configuration\\*\\*)",
+        flags=re.MULTILINE,
+    )
+
+    def __new__(mcs, name, bases, class_dict):
+        """Generate a new class.
+
+        This takes the various defined values in the BaseRule class
+        and uses them to populate documentation in the final class
+        docstring so that it can be displayed in the sphinx docs.
+        """
+        # Ensure that there _is_ a docstring.
+        assert (
+            "__doc__" in class_dict
+        ), f"Tried to define rule {name!r} without docstring."
+
+        # Build up a buffer of entries to add to the docstring.
+        fix_docs = (
+            "    This rule is ``sqlfluff fix`` compatible.\n\n"
+            if class_dict.get("is_fix_compatible", False)
+            else ""
+        )
+        name_docs = (
+            f"    **Name**: ``{class_dict['name']}``\n\n"
+            if class_dict.get("name", "")
+            else ""
+        )
+        alias_docs = (
+            ("    **Aliases**: ``" + "``, ``".join(class_dict["aliases"]) + "``\n\n")
+            if class_dict.get("aliases", [])
+            else ""
+        )
+        groups_docs = (
+            ("    **Groups**: ``" + "``, ``".join(class_dict["groups"]) + "``\n\n")
+            if class_dict.get("groups", [])
+            else ""
+        )
+
+        config_docs = ""
+        if class_dict.get("config_keywords", []):
+            config_docs = "\n    **Configuration**\n"
+            config_info = get_config_info()
+            for keyword in sorted(class_dict["config_keywords"]):
+                try:
+                    info_dict = config_info[keyword]
+                except KeyError:  # pragma: no cover
+                    raise KeyError(
+                        "Config value {!r} for rule {} is not configured in "
+                        "`config_info`.".format(keyword, name)
+                    )
+                config_docs += "\n    * ``{}``: {}".format(
+                    keyword, info_dict["definition"]
+                )
+                if (
+                    config_docs[-1] != "."
+                    and config_docs[-1] != "?"
+                    and config_docs[-1] != "\n"
+                ):
+                    config_docs += "."
+                if "validation" in info_dict:
+                    config_docs += " Must be one of ``{}``.".format(
+                        info_dict["validation"]
+                    )
+            config_docs += "\n"
+
+        all_docs = fix_docs + name_docs + alias_docs + groups_docs + config_docs
+        # Modify the docstring using the search regex.
+        class_dict["__doc__"] = mcs._pattern.sub(
+            f"\n\n{all_docs}\n\n\\1", class_dict["__doc__"], count=1
+        )
+        # If the inserted string is not now in the docstring - append it on
+        # the end. This just means the regex didn't find a better place to
+        # put it.
+        if all_docs not in class_dict["__doc__"]:
+            class_dict["__doc__"] += f"\n\n{all_docs}"
+        # Use the stock __new__ method now we've adjusted the docstring.
+        return super().__new__(mcs, name, bases, class_dict)
+
+
+class BaseRule(metaclass=RuleMetaclass):
     """The base class for a rule.
 
     Args:
@@ -517,6 +613,10 @@ class BaseRule:
     # Optional set of aliases for the rule. Most often used for old codes which
     # referred to this rule.
     aliases: Tuple[str, ...] = ()
+
+    # Should we document this rule as fixable? Used by the metaclass to add
+    # a line to the docstring.
+    is_fix_compatible = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -667,8 +767,15 @@ class BaseRule:
 
             for lerr in new_lerrs:
                 self.logger.info("!! Violation Found: %r", lerr.description)
-            for lfix in new_fixes:
-                self.logger.info("!! Fix Proposed: %r", lfix)
+            if new_fixes:
+                if not self.is_fix_compatible:  # pragma: no cover
+                    rules_logger.error(
+                        f"Rule {self.code} returned a fix but is not documented as "
+                        "`is_fix_compatible`, you may encounter unusual fixing "
+                        "behaviour. Report this a bug to the developer of this rule."
+                    )
+                for lfix in new_fixes:
+                    self.logger.info("!! Fix Proposed: %r", lfix)
 
             # Consume the new results
             vs += new_lerrs

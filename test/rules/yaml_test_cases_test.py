@@ -7,7 +7,6 @@ from sqlfluff.utils.testing.rules import (
     rules__test_helper,
     get_rule_from_set,
 )
-from sqlfluff.core.rules.doc_decorators import is_fix_compatible
 from sqlfluff.core.config import FluffConfig
 
 ids, test_cases = load_test_cases(
@@ -24,10 +23,8 @@ def test__rule_test_case(test_case, caplog):
             if res is not None and res != test_case.fail_str:
                 cfg = FluffConfig(configs=test_case.configs)
                 rule = get_rule_from_set(test_case.rule, config=cfg)
-                assert is_fix_compatible(
-                    rule
-                ), f"Rule {test_case.rule} returned fixes but does not specify "
-                '"@document_fix_compatible".'
+                assert rule.is_fix_compatible, f"Rule {test_case.rule} returned "
+                'fixes but does not specify "is_fix_compatible = True".'
 
 
 def test__rule_test_global_config():

@@ -3,12 +3,9 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
-@document_groups
-@document_configuration
 class Rule_L013(BaseRule):
     """Column expression without alias. Use explicit `AS` clause.
 

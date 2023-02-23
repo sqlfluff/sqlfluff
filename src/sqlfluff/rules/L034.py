@@ -10,11 +10,8 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L034(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
@@ -47,6 +44,7 @@ class Rule_L034(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+    is_fix_compatible = True
 
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already

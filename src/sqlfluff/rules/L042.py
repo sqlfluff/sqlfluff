@@ -32,11 +32,6 @@ from sqlfluff.core.rules import (
 from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
     is_type,
@@ -66,9 +61,6 @@ class _NestedSubQuerySummary(NamedTuple):
     select_source_names: Set[str]
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L042(BaseRule):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 
@@ -115,6 +107,7 @@ class Rule_L042(BaseRule):
         "from": ["from_expression_element"],
         "both": ["join_clause", "from_expression_element"],
     }
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Join/From clauses should not contain subqueries. Use CTEs instead."""
