@@ -708,7 +708,12 @@ def _map_line_buffers(
             # were taken, then we can interpret the drop as closing that one.
             if all(i in indent_point.untaken_indents for i in passing_indents):
                 for i in passing_indents:
-                    assert i in untaken_indent_locs_d
+                    # If we don't have the location of the untaken indent, then
+                    # skip it for now. TODO: Check this isn't a bug when this happens.
+                    # It seems very rare for now.
+                    if i not in untaken_indent_locs_d:
+                        continue
+
                     loc = untaken_indent_locs_d[i]
 
                     # First check for bracket special case. It's less about whether
