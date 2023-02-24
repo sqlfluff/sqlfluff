@@ -464,6 +464,14 @@ class AssertStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ASSERT",
         Ref("ExpressionSegment"),
+        Sequence(
+            "AS",
+            OneOf(
+                Ref("SingleQuotedLiteralSegment"),
+                Ref("DoubleQuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 
