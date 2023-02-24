@@ -247,3 +247,17 @@ passes_operator_alone_on_line:
       'asdf'
       ||
       'jklm'
+
+fixes_tuple_error_issue:
+  # https://github.com/sqlfluff/sqlfluff/issues/4184
+  # NB: This one isn't fixable.
+  fail_str: |
+    select * from foo
+    where c is not null and -- comment
+        {% if true -%}a >= b and
+        -- comment.
+        {% endif %}
+        true
+  configs:
+    indentation:
+      template_blocks_indent: false

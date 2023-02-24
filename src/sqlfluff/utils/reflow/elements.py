@@ -299,8 +299,18 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
-    def get_indent_impulse(self, allow_implicit_indents: bool = False) -> IndentStats:
+    def get_indent_impulse(
+        self,
+        allow_implicit_indents: bool = False,
+        following_class_types: Set[str] = set(),
+    ) -> IndentStats:
         """Get the change in intended indent balance from this point.
+
+        NOTE: The reason we check `following_class_types` is because
+        bracketed expressions behave a little differently and are an
+        exception to the normal implicit indent rules. For implicit
+        indents which precede bracketed expressions, the implicit indent
+        is treated as a normal indent.
 
         Returns:
             :obj:`tuple` of :obj:`int`: The first value is the raw
@@ -315,7 +325,11 @@ class ReflowPoint(ReflowElement):
                 indent_seg = cast(Indent, seg)
                 running_sum += indent_seg.indent_val
                 # Do we need to add a new implicit indent?
-                if allow_implicit_indents and indent_seg.is_implicit:
+                if (
+                    allow_implicit_indents
+                    and indent_seg.is_implicit
+                    and "start_bracket" not in following_class_types
+                ):
                     implicit_indents.append(running_sum)
                 # NOTE: We don't check for removal of implicit indents
                 # because it's unlikely that one would be opened, and then

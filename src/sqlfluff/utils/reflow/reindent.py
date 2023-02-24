@@ -533,8 +533,14 @@ def _crawl_indent_points(
     cached_point: Optional[_IndentPoint] = None
     for idx, elem in enumerate(elements):
         if isinstance(elem, ReflowPoint):
+            # NOTE: The following line should never lead to an index error
+            # because files should always have a trailing IndentBlock containing
+            # an "end_of_file" marker, and so the final IndentPoint should always
+            # have _something_ after it.
+            following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
-                cached_indent_stats, elem.get_indent_impulse(allow_implicit_indents)
+                cached_indent_stats,
+                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
             )
 
             # Was there a cache?
@@ -641,11 +647,36 @@ def _crawl_indent_points(
 
 def _map_line_buffers(
     elements: ReflowSequenceType, allow_implicit_indents: bool = False
-) -> List[_IndentLine]:
-    """Map the existing elements, building up a list of _IndentLine."""
+) -> Tuple[List[_IndentLine], List[int]]:
+    """Map the existing elements, building up a list of _IndentLine.
+
+    Returns:
+        :obj:`tuple` of a :obj:`list` of :obj:`_IndentLine` and a
+            :obj:`list` of :obj:`int`. The first is the main output
+            and is designed to be used in assessing indents and
+            their effect through a SQL file. The latter is a list of
+            "imbalanced" indent locations, where the positive indent
+            is untaken, but its corresponding negative indent *is*
+            taken.
+
+    """
     # First build up the buffer of lines.
     lines = []
     point_buffer = []
+    # Buffers to keep track of indents which are untaken on the way
+    # up but taken on the way down. We track them explicitly so we
+    # can force them later.
+
+    #: dict of ints: maps indentation balance values to the last
+    #: index location where they were seen. This is a working buffer
+    #: and not directly returned by the function.
+    untaken_indent_locs = {}
+    #: list of ints: a list of element indices which contain untaken
+    #: positive indents, that should be forced later because their
+    #: corresponding negative indent _was_ taken. Several edge cases
+    #: are excluded from this list and so not included. See code below.
+    imbalanced_locs = []
+
     for indent_point in _crawl_indent_points(
         elements, allow_implicit_indents=allow_implicit_indents
     ):
@@ -654,10 +685,82 @@ def _map_line_buffers(
         point_buffer.append(indent_point)
 
         if not indent_point.is_line_break:
+            # If it's not a line break, we should still check whether it's
+            # untaken to keep track of them.
+            if indent_point.indent_impulse:
+                untaken_indent_locs[
+                    indent_point.initial_indent_balance + indent_point.indent_impulse
+                ] = indent_point.idx
             continue
 
         # If it *is* a line break, then store it.
         lines.append(_IndentLine.from_points(point_buffer))
+
+        # We should also evaluate whether this point inserts a newline at the close
+        # of an indent which was untaken on the way up.
+        # https://github.com/sqlfluff/sqlfluff/issues/4234
+        # Special case 1:
+        # If we're at the end of the file we shouldn't interpret it as a line break
+        # for problem indents, they're a bit of a special case.
+        # Special case 2:
+        # Bracketed expressions are a bit odd here.
+        # e.g.
+        #   WHERE (
+        #       foo = bar
+        #   )
+        #   LIMIT 1
+        #
+        # Technically there's an untaken indent before the opening bracket
+        # but this layout is common practice so we're not going to force
+        # one there even though there _is_ a line break after the closing
+        # bracket.
+        following_class_types = elements[indent_point.idx + 1].class_types
+        if (
+            indent_point.indent_trough
+            # End of file ends case. (Special case 1)
+            and "end_of_file" not in following_class_types
+        ):
+            passing_indents = list(
+                range(
+                    indent_point.initial_indent_balance,
+                    indent_point.initial_indent_balance + indent_point.indent_trough,
+                    -1,
+                )
+            )
+            # For it to be a problem - all passing indents must be untaken. If any
+            # were taken, then we can interpret the drop as closing that one.
+            if all(i in indent_point.untaken_indents for i in passing_indents):
+                for i in passing_indents:
+                    # If we don't have the location of the untaken indent, then
+                    # skip it for now. TODO: Check this isn't a bug when this happens.
+                    # It seems very rare for now.
+                    if i not in untaken_indent_locs:
+                        continue
+
+                    loc = untaken_indent_locs[i]
+
+                    # First check for bracket special case. It's less about whether
+                    # the section _ends_ with a lone bracket, and more about whether
+                    # the _starting point_ is a bracket which closes a line. If it
+                    # is, then skip this location. (Special case 2).
+                    # NOTE: We can safely "look ahead" here because we know all files
+                    # end with an IndentBlock, and we know here that `loc` refers to
+                    # an IndentPoint.
+                    if "start_bracket" in elements[loc + 1].class_types:
+                        continue
+
+                    # If the location was in the line we're just closing. That's
+                    # not a problem because it's an untaken indent which is closed
+                    # on the same line. Otherwise it is - append it to the buffer
+                    # to sort later.
+                    if not any(ip.idx == loc for ip in point_buffer):
+                        imbalanced_locs.append(loc)
+
+        # Remove any which are now no longer relevant from the working buffer.
+        for k in list(untaken_indent_locs.keys()):
+            if k > indent_point.initial_indent_balance + indent_point.indent_trough:
+                del untaken_indent_locs[k]
+
         # Reset the buffer
         point_buffer = [indent_point]
 
@@ -665,7 +768,7 @@ def _map_line_buffers(
     if len(point_buffer) > 1:
         lines.append(_IndentLine.from_points(point_buffer))
 
-    return lines
+    return lines, imbalanced_locs
 
 
 def _deduce_line_current_indent(
@@ -824,9 +927,34 @@ def _lint_line_starting_indent(
 
 
 def _lint_line_untaken_positive_indents(
-    elements: ReflowSequenceType, indent_line: _IndentLine, single_indent: str
+    elements: ReflowSequenceType,
+    indent_line: _IndentLine,
+    single_indent: str,
+    imbalanced_indent_locs: List[int],
 ) -> Tuple[List[LintResult], List[int]]:
     """Check for positive indents which should have been taken."""
+    # First check whether this line contains any of the untaken problem points.
+    for ip in indent_line.indent_points:
+        if ip.idx in imbalanced_indent_locs:
+            # Force it at the relevant position.
+            desired_indent = single_indent * (
+                ip.closing_indent_balance - len(ip.untaken_indents)
+            )
+            reflow_logger.debug(
+                "    Detected imbalanced +ve break @ line %s. Indenting to %r",
+                elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
+                desired_indent,
+            )
+            target_point = cast(ReflowPoint, elements[ip.idx])
+            results, new_point = target_point.indent_to(
+                desired_indent,
+                before=elements[ip.idx + 1].segments[0],
+                source="reflow.indent.imbalance",
+            )
+            elements[ip.idx] = new_point
+            # Keep track of the indent we forced, by returning it.
+            return results, [ip.closing_indent_balance]
+
     # If we don't close the line higher there won't be any.
     starting_balance = indent_line.opening_balance()
     last_ip = indent_line.indent_points[-1]
@@ -985,6 +1113,7 @@ def _lint_line_buffer_indents(
     indent_line: _IndentLine,
     single_indent: str,
     forced_indents: List[int],
+    imbalanced_indent_locs: List[int],
 ) -> List[LintResult]:
     """Evaluate a single set of indent points on one line.
 
@@ -1009,7 +1138,7 @@ def _lint_line_buffer_indents(
     allow generation of LintResult objects directly from them.
     """
     reflow_logger.info(
-        "    Line #%s [source line #%s]. idx=%s:%s. FI %s",
+        "    Line #%s [source line #%s]. idx=%s:%s. FI %s. UPI: %s.",
         elements[indent_line.indent_points[0].idx + 1]
         .segments[0]
         .pos_marker.working_line_no,
@@ -1019,6 +1148,7 @@ def _lint_line_buffer_indents(
         indent_line.indent_points[0].idx,
         indent_line.indent_points[-1].idx,
         forced_indents,
+        imbalanced_indent_locs,
     )
     reflow_logger.debug(
         "   Line Segments: %s",
@@ -1039,7 +1169,7 @@ def _lint_line_buffer_indents(
 
     # Second, handle potential missing positive indents.
     new_results, new_indents = _lint_line_untaken_positive_indents(
-        elements, indent_line, single_indent
+        elements, indent_line, single_indent, imbalanced_indent_locs
     )
     # If we have any, bank them and return. We don't need to check for
     # negatives because we know we're on the way up.
@@ -1091,7 +1221,9 @@ def lint_indent_points(
     break, we need to also know how much to indent by.
     """
     # First map the line buffers.
-    lines: List[_IndentLine] = _map_line_buffers(
+    lines: List[_IndentLine]
+    imbalanced_indent_locs: List[int]
+    lines, imbalanced_indent_locs = _map_line_buffers(
         elements, allow_implicit_indents=allow_implicit_indents
     )
 
@@ -1124,7 +1256,7 @@ def lint_indent_points(
     elem_buffer = elements.copy()  # Make a working copy to mutate.
     for line in lines:
         line_results = _lint_line_buffer_indents(
-            elem_buffer, line, single_indent, forced_indents
+            elem_buffer, line, single_indent, forced_indents, imbalanced_indent_locs
         )
         if line_results:
             reflow_logger.info("      PROBLEMS:")
@@ -1329,7 +1461,9 @@ def _match_indents(
         # As usual, indents are referred to by their "uphill" side
         # so what number we store the point against depends on whether
         # it's positive or negative.
-        indent_stats = e.get_indent_impulse(allow_implicit_indents)
+        # NOTE: Here we don't actually pass in the forward types because
+        # we don't need them for the output. It doesn't make a difference.
+        indent_stats = e.get_indent_impulse(allow_implicit_indents, set())
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
@@ -1419,9 +1553,23 @@ def lint_line_length(
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
-        if not isinstance(elem, ReflowPoint) or not has_untemplated_newline(
-            cast(ReflowPoint, elem)
+
+        if isinstance(elem, ReflowPoint) and (
+            # Is it the end of the file?
+            # NOTE: Here, we're actually looking to see whether we're
+            # currently on the _point before the end of the file_ rather
+            # than actually on the final block. This is important because
+            # the following code assumes we're on a point and not a block.
+            # We're safe from indexing errors if we're on a point, because
+            # we know there's always a trailing block.
+            "end_of_file" in elements[i + 1].class_types
+            # Or is there a newline?
+            or has_untemplated_newline(cast(ReflowPoint, elem))
         ):
+            # In either case we want to process this, so carry on.
+            pass
+        else:
+            # Otherwise build up the buffer and loop around again.
             line_buffer.append(elem)
             continue
 
@@ -1637,7 +1785,10 @@ def lint_line_length(
                     # We need to check for negative sections so they get the right
                     # indent (otherwise they'll be over indented).
                     # The `desired_indent` above is for the "uphill" side.
-                    indent_stats = e.get_indent_impulse(allow_implicit_indents)
+                    following_class_types = elements[e_idx + 1].class_types
+                    indent_stats = e.get_indent_impulse(
+                        allow_implicit_indents, following_class_types
+                    )
                     if indent_stats.trough < 0:
                         new_indent = current_indent
                     else:
