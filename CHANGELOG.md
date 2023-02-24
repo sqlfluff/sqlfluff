@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.0a5] - 2023-02-21
+## [2.0.0a5] - 2023-02-24
 
 > NOTE: This is an alpha release for testing purposes. There are several new features
 > here, and breaking changes to configuration. We welcome testing feedback from the
@@ -29,6 +29,12 @@ so anticipate that configuration files may change slightly again in future alpha
 
 ## What’s Changed
 
+* Handle long lines without trailing newlines gracefully (#4386) [#4423](https://github.com/sqlfluff/sqlfluff/pull/4423) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve #4184 (index error in L007) [#4422](https://github.com/sqlfluff/sqlfluff/pull/4422) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Handle untaken positive indents with taken negative pair. [#4420](https://github.com/sqlfluff/sqlfluff/pull/4420) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres: AS MATERIALIZED support [#4417](https://github.com/sqlfluff/sqlfluff/pull/4417) [@saintamh](https://github.com/saintamh)
+* Align warnings config with example shown [#4421](https://github.com/sqlfluff/sqlfluff/pull/4421) [@briankravec](https://github.com/briankravec)
+* BigQuery: parse "AS description" part of assert expressions [#4418](https://github.com/sqlfluff/sqlfluff/pull/4418) [@yoichi](https://github.com/yoichi)
 * Deprecate doc decorators (replace with metaclass) [#4415](https://github.com/sqlfluff/sqlfluff/pull/4415) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Enable noqa using aliases and groups [#4414](https://github.com/sqlfluff/sqlfluff/pull/4414) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add rule names to CLI outputs [#4400](https://github.com/sqlfluff/sqlfluff/pull/4400) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -71,12 +77,13 @@ so anticipate that configuration files may change slightly again in future alpha
 * Bracket complex expressions before applying :: operator in Rule L067 [#4326](https://github.com/sqlfluff/sqlfluff/pull/4326) [@pdebelak](https://github.com/pdebelak)
 
 ## New Contributors
-
 * [@AidanHarveyNelson](https://github.com/AidanHarveyNelson) made their first contribution in [#4344](https://github.com/sqlfluff/sqlfluff/pull/4344)
 * [@joar](https://github.com/joar) made their first contribution in [#4341](https://github.com/sqlfluff/sqlfluff/pull/4341)
 * [@jmpfar](https://github.com/jmpfar) made their first contribution in [#4356](https://github.com/sqlfluff/sqlfluff/pull/4356)
 * [@jared-rimmer](https://github.com/jared-rimmer) made their first contribution in [#4403](https://github.com/sqlfluff/sqlfluff/pull/4403)
 * [@vesatoivonen](https://github.com/vesatoivonen) made their first contribution in [#4335](https://github.com/sqlfluff/sqlfluff/pull/4335)
+* [@briankravec](https://github.com/briankravec) made their first contribution in [#4421](https://github.com/sqlfluff/sqlfluff/pull/4421)
+* [@saintamh](https://github.com/saintamh) made their first contribution in [#4417](https://github.com/sqlfluff/sqlfluff/pull/4417)
 
 ## [2.0.0a4] - 2023-01-26
 
