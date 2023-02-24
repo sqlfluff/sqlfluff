@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22c4c59aa20ff6975daccb6e8dd8da9b0c33c1bb97c7426f9ac80f4e94f33fbc
+file:
+- statement:
+    assert_statement:
+    - keyword: ASSERT
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: COUNT
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          function:
+                            function_name:
+                              function_name_identifier: UNNEST
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                array_literal:
+                                - start_square_bracket: '['
+                                - numeric_literal: '1'
+                                - comma: ','
+                                - numeric_literal: '2'
+                                - comma: ','
+                                - numeric_literal: '3'
+                                - comma: ','
+                                - numeric_literal: '4'
+                                - comma: ','
+                                - numeric_literal: '5'
+                                - comma: ','
+                                - numeric_literal: '6'
+                                - end_square_bracket: ']'
+                              end_bracket: )
+              end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '5'
+          end_bracket: )
+    - keyword: AS
+    - quoted_literal: "'Table must contain more than 5 rows.'"
+- statement_terminator: ;
+- statement:
+    assert_statement:
+    - keyword: ASSERT
+    - expression:
+        keyword: EXISTS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: X
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: UNNEST
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          array_literal:
+                          - start_square_bracket: '['
+                          - numeric_literal: '7877'
+                          - comma: ','
+                          - numeric_literal: '7879'
+                          - comma: ','
+                          - numeric_literal: '7883'
+                          - comma: ','
+                          - numeric_literal: '7901'
+                          - comma: ','
+                          - numeric_literal: '7907'
+                          - end_square_bracket: ']'
+                        end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: X
+            where_clause:
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: X
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '7919'
+          end_bracket: )
+    - keyword: AS
+    - quoted_literal: "'Column X must contain the value 7919'"
+- statement_terminator: ;
