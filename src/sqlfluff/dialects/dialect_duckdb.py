@@ -27,7 +27,7 @@ duckdb_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
     ),
 )
 
