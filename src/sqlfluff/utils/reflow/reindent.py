@@ -1623,6 +1623,9 @@ def lint_line_length(
             # the end of the line.
             line_elements = line_buffer + [elem]
 
+            # Type hints
+            fixes: List[LintFix]
+
             # Identify rebreak spans first so we can work out their indentation
             # in the next section.
             spans = identify_rebreak_spans(line_elements, root_segment)
