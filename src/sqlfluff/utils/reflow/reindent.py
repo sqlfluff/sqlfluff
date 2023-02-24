@@ -1553,9 +1553,23 @@ def lint_line_length(
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
-        if not isinstance(elem, ReflowPoint) or not has_untemplated_newline(
-            cast(ReflowPoint, elem)
+
+        if isinstance(elem, ReflowPoint) and (
+            # Is it the end of the file?
+            # NOTE: Here, we're actually looking to see whether we're
+            # currently on the _point before the end of the file_ rather
+            # than actually on the final block. This is important because
+            # the following code assumes we're on a point and not a block.
+            # We're safe from indexing errors if we're on a point, because
+            # we know there's always a trailing block.
+            "end_of_file" in elements[i + 1].class_types
+            # Or is there a newline?
+            or has_untemplated_newline(cast(ReflowPoint, elem))
         ):
+            # In either case we want to process this, so carry on.
+            pass
+        else:
+            # Otherwise build up the buffer and loop around again.
             line_buffer.append(elem)
             continue
 

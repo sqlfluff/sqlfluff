@@ -16,6 +16,16 @@ test_fail_line_too_long_with_comments_1:
     core:
       max_line_length: 18
 
+test_fail_line_too_long_with_comments_1_no_newline:
+  # Check we move comments correctly, and that it
+  # still works when there isn't a trailing newline.
+  # https://github.com/sqlfluff/sqlfluff/issues/4386
+  fail_str: "SELECT 1 -- Some Comment"
+  fix_str: "-- Some Comment\nSELECT 1"
+  configs:
+    core:
+      max_line_length: 18
+
 test_fail_line_too_long_with_comments_2:
   # Check we can add newlines after dedents (with an indent).
   # NOTE: That for L016, we don't repair the initial indent
