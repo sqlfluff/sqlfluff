@@ -286,16 +286,20 @@ class ColumnDefinitionSegment(BaseSegment):
                     optional=True,
                 ),
                 Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
-                Sequence("DEFAULT", optional=True),
-                OneOf(
-                    Sequence(
-                        OneOf("CURRENT_TIMESTAMP", "NOW"),
-                        Bracketed(
-                            Ref("NumericLiteralSegment", optional=True), optional=True
+                Sequence(
+                    "DEFAULT",
+                    OneOf(
+                        Sequence(
+                            OneOf("CURRENT_TIMESTAMP", "NOW"),
+                            Bracketed(
+                                Ref("NumericLiteralSegment", optional=True),
+                                optional=True,
+                            ),
                         ),
+                        Ref("NumericLiteralSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
                     ),
-                    Ref("NumericLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
                     optional=True,
                 ),
                 Sequence(
