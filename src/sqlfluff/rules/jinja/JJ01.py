@@ -1,4 +1,4 @@
-"""Implementation of Rule L046."""
+"""Implementation of Rule JJ01."""
 from typing import Tuple
 from sqlfluff.core.parser.segments import SourceFix
 
@@ -13,7 +13,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import rsp, FunctionalContext
 
 
-class Rule_L046(BaseRule):
+class Rule_JJ01(BaseRule):
     """Jinja tags should have a single whitespace on either side.
 
     **Anti-pattern**
@@ -40,7 +40,9 @@ class Rule_L046(BaseRule):
         }};
     """
 
-    groups = ("all", "core")
+    name = "jinja.padding"
+    aliases = ("L046",)
+    groups = ("all", "core", "jinja")
     # Crawling for "raw" isn't a great way of filtering but it will
     # do for now. TODO: Make a more efficient crawler for templated
     # sections.
@@ -53,19 +55,19 @@ class Rule_L046(BaseRule):
 
         This function assumes that we've already trimmed the string
         to just the tag, and will raise an AssertionError if not.
-        >>> Rule_L046._get_whitespace_ends('  {{not_trimmed}}   ')
+        >>> Rule_JJ01._get_whitespace_ends('  {{not_trimmed}}   ')
         Traceback (most recent call last):
             ...
         AssertionError
 
         In essence it divides up a tag into the end tokens, any
         leading or trailing whitespace and the inner content
-        >>> Rule_L046._get_whitespace_ends('{{ my_content }}')
+        >>> Rule_JJ01._get_whitespace_ends('{{ my_content }}')
         ('{{', ' ', 'my_content', ' ', '}}')
 
         It also works with block tags and more complicated content
         and end markers.
-        >>> Rule_L046._get_whitespace_ends('{%+if a + b is True     -%}')
+        >>> Rule_JJ01._get_whitespace_ends('{%+if a + b is True     -%}')
         ('{%+', '', 'if a + b is True', '     ', '-%}')
         """
         assert s[0] == "{" and s[-1] == "}"
