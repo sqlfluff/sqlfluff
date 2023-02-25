@@ -5,7 +5,7 @@ Rules group with exclude rules test
 If some monster wants to run the core rules, but at the same
 time allow trailing and leading commas, then they can do that now
 
-This query should only trigger L010
+This query should only trigger CP01
 */
 
 SELECT

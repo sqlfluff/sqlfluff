@@ -1126,7 +1126,7 @@ class RuleSet:
     def _validate_config_options(self, config, rule=None):
         """Ensure that all config options are valid.
 
-        Config options can also be checked for a specific rule e.g L010.
+        Config options can also be checked for a specific rule e.g CP01.
         """
         rule_config = config.get_section("rules")
         for config_name, info_dict in self.config_info.items():
@@ -1163,8 +1163,9 @@ class RuleSet:
 
         * Rule_PluginName_L001
         * Rule_L001
+        * Rule_PG16
         """
-        return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
+        return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
 
     def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
@@ -1191,7 +1192,7 @@ class RuleSet:
         if not rule_name_match:  # pragma: no cover
             raise SQLFluffUserError(
                 f"Tried to register rule on set {self.name!r} with "
-                "unexpected format: {cls.__name__}. Format should be: "
+                f"unexpected format: {cls.__name__}. Format should be: "
                 "'Rule_PluginName_L123' (for plugins) or "
                 "`Rule_L123` (for core rules)."
             )

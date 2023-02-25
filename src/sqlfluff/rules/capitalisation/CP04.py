@@ -1,12 +1,12 @@
-"""Implementation of Rule L040."""
+"""Implementation of Rule CP04."""
 
 from typing import Tuple, List
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.rules.L010 import Rule_L010
+from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
-class Rule_L040(Rule_L010):
+class Rule_CP04(Rule_CP01):
     """Inconsistent capitalisation of boolean/null literal.
 
     **Anti-pattern**
@@ -49,9 +49,9 @@ class Rule_L040(Rule_L010):
     """
 
     name = "capitalisation.literals"
-    aliases = ("CP04",)
+    aliases = ("L040",)
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler({"null_literal", "boolean_literal"})
     _exclude_elements: List[Tuple[str, str]] = []
     _description_elem = "Boolean/null literals"
-    is_fix_compatible = True

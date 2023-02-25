@@ -1,5 +1,5 @@
 test-config:
   rules:
-    - L010
+    - CP01
     - L012
     - L034

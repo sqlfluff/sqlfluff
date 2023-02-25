@@ -1,4 +1,4 @@
-rule: L063
+rule: CP05
 
 test_pass_default_consistent_lower:
   # Test that we don't have the "inconsistent" bug
@@ -42,7 +42,7 @@ test_fail_data_type_inconsistent_capitalisation_1:
   fix_str: CREATE TABLE table1 (account_id BIGINT);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_fail_data_type_inconsistent_capitalisation_2:
@@ -50,7 +50,7 @@ test_fail_data_type_inconsistent_capitalisation_2:
   fix_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: lower
 
 test_fail_data_type_inconsistent_capitalisation_3:
@@ -58,7 +58,7 @@ test_fail_data_type_inconsistent_capitalisation_3:
   fix_str: CREATE TABLE table1 (account_id Bigint);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: capitalise
 
 test_fail_data_type_capitalisation_policy_lower:
@@ -66,7 +66,7 @@ test_fail_data_type_capitalisation_policy_lower:
   fix_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: lower
 
 test_fail_data_type_capitalisation_policy_lower_2:
@@ -74,7 +74,7 @@ test_fail_data_type_capitalisation_policy_lower_2:
   fix_str: CREATE TABLE table1 (account_id bigint, column_two varchar(255));
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: lower
 
 test_fail_data_type_capitalisation_policy_upper:
@@ -82,7 +82,7 @@ test_fail_data_type_capitalisation_policy_upper:
   fix_str: CREATE TABLE table1 (account_id BIGINT);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_fail_data_type_capitalisation_policy_upper_2:
@@ -90,7 +90,7 @@ test_fail_data_type_capitalisation_policy_upper_2:
   fix_str: CREATE TABLE table1 (account_id BIGINT, column_two VARCHAR(255));
   configs:
     rules:
-      L010:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_fail_data_type_capitalisation_policy_capitalise:
@@ -99,7 +99,7 @@ test_fail_data_type_capitalisation_policy_capitalise:
   fix_str: CREATE TABLE table1 (account_id Bigint);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: capitalise
 
 test_fail_data_type_capitalisation_policy_keywords_1:
@@ -109,7 +109,7 @@ test_fail_data_type_capitalisation_policy_keywords_1:
   fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_fail_data_type_capitalisation_policy_keywords_2:
@@ -117,7 +117,7 @@ test_fail_data_type_capitalisation_policy_keywords_2:
   fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP WITH TIME ZONE);
   configs:
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_pass_sparksql_complex_data_types:
@@ -131,7 +131,7 @@ test_pass_sparksql_complex_data_types:
     core:
       dialect: sparksql
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 test_pass_bigquery_struct_params:
@@ -144,7 +144,7 @@ test_pass_bigquery_struct_params:
     core:
       dialect: bigquery
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper
 
 # See https://github.com/sqlfluff/sqlfluff/issues/3277
@@ -160,5 +160,5 @@ test_pass_typless_structs_dont_trigger_rule:
     core:
       dialect: bigquery
     rules:
-      L063:
+      CP05:
         extended_capitalisation_policy: upper

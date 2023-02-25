@@ -135,7 +135,7 @@ A few common examples are shown below:
     -- sqlfluff:indentation:tab_space_size:2
 
     -- Set keywords to be capitalised
-    -- sqlfluff:rules:L010:capitalisation_policy:upper
+    -- sqlfluff:rules:CP01:capitalisation_policy:upper
 
     SELECT *
     FROM a
@@ -167,11 +167,11 @@ For example:
 Rule specific configurations are set in rule specific subsections.
 
 For example, enforce that keywords are upper case by configuring the rule
-:class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+:class:`CP01 <sqlfluff.core.rules.Rule_CP01>`:
 
 .. code-block:: cfg
 
-    [sqlfluff:rules:L010]
+    [sqlfluff:rules:CP01]
     # Keywords
     capitalisation_policy = upper
 
@@ -302,7 +302,7 @@ the file will still fail, but will show both warnings and failures.
     == [test.sql] PASS
     L:   2 | P:   9 | L006 | WARNING: Missing whitespace before +
     == [test2.sql] FAIL
-    L:   2 | P:   8 | L014 | Unquoted identifiers must be consistently upper case.
+    L:   2 | P:   8 | CP02 | Unquoted identifiers must be consistently upper case.
     L:   2 | P:  11 | L006 | WARNING: Missing whitespace before +
 
 This is particularly useful as a transitional tool when considering
@@ -925,8 +925,8 @@ be ignored by quoting their code or the category.
     -- Ignore all errors
     SeLeCt  1 from tBl ;    -- noqa
 
-    -- Ignore rule L014 & rule L030
-    SeLeCt  1 from tBl ;    -- noqa: L014,L030
+    -- Ignore rule CP02 & rule CP03
+    SeLeCt  1 from tBl ;    -- noqa: CP02,CP03
 
     -- Ignore all parsing errors
     SeLeCt from tBl ;       -- noqa: PRS
