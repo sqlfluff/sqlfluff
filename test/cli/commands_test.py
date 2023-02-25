@@ -541,7 +541,7 @@ def test__cli__command_lint_ignore_local_config():
     """Test that --ignore-local_config ignores .sqlfluff file as expected."""
     runner = CliRunner()
     # First we test that not including the --ignore-local-config includes
-    # .sqlfluff file, and therefore the lint doesn't raise L012
+    # .sqlfluff file, and therefore the lint doesn't raise AL02
     result = runner.invoke(
         lint,
         [
@@ -549,9 +549,9 @@ def test__cli__command_lint_ignore_local_config():
         ],
     )
     assert result.exit_code == 0
-    assert "L012" not in result.output.strip()
+    assert "AL02" not in result.output.strip()
     # Then repeat the same lint but this time ignoring the .sqlfluff file.
-    # We should see L012 raised.
+    # We should see AL02 raised.
     result = runner.invoke(
         lint,
         [
@@ -561,7 +561,7 @@ def test__cli__command_lint_ignore_local_config():
         ],
     )
     assert result.exit_code == 1
-    assert "L012" in result.output.strip()
+    assert "AL02" in result.output.strip()
 
 
 def test__cli__command_lint_warning():
@@ -1400,7 +1400,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L012: Implicit/explicit aliasing of columns.",
+            "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -1476,7 +1476,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "CP02: Unquoted identifiers must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "L012: Implicit/explicit aliasing of columns.",
+            "AL02: Implicit/explicit aliasing of columns.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
             "CP01: Keywords must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"

@@ -1,12 +1,12 @@
-"""Implementation of Rule L012."""
+"""Implementation of Rule AL02."""
 from typing import Optional
 
-from sqlfluff.rules.L011 import Rule_L011
+from sqlfluff.rules.aliasing.AL01 import Rule_AL01
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.utils.functional import FunctionalContext
 
 
-class Rule_L012(Rule_L011):
+class Rule_AL02(Rule_AL01):
     """Implicit/explicit aliasing of columns.
 
     Aliasing of columns to follow preference
@@ -34,16 +34,18 @@ class Rule_L012(Rule_L011):
 
     """
 
-    groups = ("all", "core")
+    name = "aliasing.column"
+    aliases = ("L012",)
+    groups = ("all", "core", "aliasing")
     config_keywords = ["aliasing"]
-    # NB: crawl_behaviour is the same as Rule L011
+    # NB: crawl_behaviour is the same as Rule AL01
 
     _target_elems = [
         ("type", "select_clause_element"),
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        # T-SQL supports alternative alias expressions for L012
+        # T-SQL supports alternative alias expressions for AL02
         # select alias = value
         # instead of
         # select value as alias
