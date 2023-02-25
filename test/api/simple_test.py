@@ -11,7 +11,7 @@ my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 lint_result = [
     {
-        "code": "L010",
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 1,
         "description": "Keywords must be consistently upper case.",
@@ -42,7 +42,7 @@ lint_result = [
         "description": "Column expression without alias. Use explicit `AS` clause.",
     },
     {
-        "code": "L010",
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 20,
         "description": "Keywords must be consistently upper case.",
@@ -56,7 +56,7 @@ lint_result = [
         "line_pos": 22,
     },
     {
-        "code": "L014",
+        "code": "CP02",
         "line_no": 1,
         "line_pos": 24,
         "description": "Unquoted identifiers must be consistently lower case.",
@@ -68,13 +68,13 @@ lint_result = [
         "line_pos": 27,
     },
     {
-        "code": "L010",
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 29,
         "description": "Keywords must be consistently upper case.",
     },
     {
-        "code": "L014",
+        "code": "CP02",
         "line_no": 1,
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
@@ -106,7 +106,7 @@ def test__api__lint_string():
 
 def test__api__lint_string_specific():
     """Basic checking of lint functionality."""
-    rules = ["L014", "L009"]
+    rules = ["CP02", "L009"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -114,7 +114,7 @@ def test__api__lint_string_specific():
 
 def test__api__lint_string_specific_single():
     """Basic checking of lint functionality."""
-    rules = ["L014"]
+    rules = ["CP02"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -122,7 +122,7 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039"]
+    exclude_rules = ["L009", "CP01", "L013", "CP02", "L036", "L039"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 1
@@ -135,14 +135,14 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 9
-    set(["L009", "L010", "L013", "L014", "L036", "L044"]) == set(
+    set(["L009", "CP01", "L013", "CP02", "L036", "L044"]) == set(
         [r["code"] for r in result]
     )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L044"]
+    exclude_rules = ["L009", "CP01", "L013", "CP02", "L036", "L039", "L044"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []
@@ -167,7 +167,7 @@ FROM mytable
 
 def test__api__fix_string_specific():
     """Basic checking of lint functionality with a specific rule."""
-    result = sqlfluff.fix(my_bad_query, rules=["L010"])
+    result = sqlfluff.fix(my_bad_query, rules=["CP01"])
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"
 
@@ -184,7 +184,7 @@ def test__api__fix_string_unparsable():
     bad_query = """SELECT my_col
 FROM my_schema.my_table
 where processdate ! 3"""
-    result = sqlfluff.fix(bad_query, rules=["L010"])
+    result = sqlfluff.fix(bad_query, rules=["CP01"])
     # Check fix result: should be unchanged because of the parse error.
     assert result == bad_query
 
@@ -194,7 +194,7 @@ def test__api__fix_string_unparsable_fix_even_unparsable():
     bad_query = """SELECT my_col
 FROM my_schema.my_table
 where processdate ! 3"""
-    result = sqlfluff.fix(bad_query, rules=["L010"], fix_even_unparsable=True)
+    result = sqlfluff.fix(bad_query, rules=["CP01"], fix_even_unparsable=True)
     # Check fix result: should be fixed because we overrode fix_even_unparsable.
     assert (
         result

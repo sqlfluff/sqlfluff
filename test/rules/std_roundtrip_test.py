@@ -116,7 +116,7 @@ def jinja_roundtrip_test(
         ("L001", "test/fixtures/linter/indentation_errors.sql"),
         ("L008", "test/fixtures/linter/whitespace_errors.sql"),
         ("L008", "test/fixtures/linter/indentation_errors.sql"),
-        ("L010", "test/fixtures/linter/whitespace_errors.sql"),
+        ("CP01", "test/fixtures/linter/whitespace_errors.sql"),
         ("L011", "test/fixtures/dialects/ansi/select_simple_i.sql"),
         ("L012", "test/fixtures/dialects/ansi/select_simple_i.sql"),
     ],
@@ -126,7 +126,7 @@ def test__cli__command__fix(rule, path):
     generic_roundtrip_test(path, rule)
 
 
-@pytest.mark.parametrize("rule", ["L010", "L001"])
+@pytest.mark.parametrize("rule", ["CP01", "L001"])
 def test__cli__command__fix_templated(rule):
     """Roundtrip test, making sure that we don't drop tags while templating."""
     jinja_roundtrip_test("test/fixtures/templater/jinja_d_roundtrip", rule)

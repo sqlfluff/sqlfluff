@@ -1,4 +1,4 @@
-rule: L040
+rule: CP04
 
 test_fail_inconsistent_boolean_capitalisation:
   fail_str: SeLeCt true, FALSE, NULL
@@ -8,5 +8,5 @@ test_pass_ignore_word:
   pass_str: SELECT true, FALSE, NULL
   configs:
     rules:
-      L040:
+      CP04:
         ignore_words: true
