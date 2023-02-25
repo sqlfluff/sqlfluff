@@ -10,6 +10,7 @@ from sqlfluff.core.plugin import hookimpl
 
 from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
 
+
 @hookimpl
 def get_rules():
     """Get plugin rules."""
