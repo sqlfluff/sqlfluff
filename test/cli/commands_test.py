@@ -1315,7 +1315,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 31 if write_file else 32
+        assert payload_length == 35 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1388,7 +1388,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "CP02: Unquoted identifiers must be consistently lower case.",
+            "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -1400,7 +1400,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "AL02: Implicit/explicit aliasing of columns.",
+            "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -1474,9 +1474,9 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "L027: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view.",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "AL02: Implicit/explicit aliasing of columns.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            "CP02: Unquoted identifiers must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
             "CP01: Keywords must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
