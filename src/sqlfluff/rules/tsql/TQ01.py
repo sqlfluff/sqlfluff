@@ -1,11 +1,11 @@
-"""Implementation of Rule L056."""
+"""Implementation of Rule TQ01."""
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L056(BaseRule):
+class Rule_TQ01(BaseRule):
     r"""``SP_`` prefix should not be used for user-defined stored procedures in T-SQL.
 
     **Anti-pattern**
@@ -52,7 +52,9 @@ class Rule_L056(BaseRule):
         FROM table1
     """
 
-    groups = ("all",)
+    name = "tsql.sp_prefix"
+    aliases = ("L056",)
+    groups = ("all", "tsql")
     crawl_behaviour = SegmentSeekerCrawler({"create_procedure_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

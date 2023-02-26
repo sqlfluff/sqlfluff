@@ -146,7 +146,7 @@ def test__linted_file__build_up_fixed_source_string(
             "a {# b #} c",
             [slice(0, 2), slice(2, 9), slice(9, 11)],
         ),
-        # Illustrate potential templating bug (case from L046).
+        # Illustrate potential templating bug (case from JJ01).
         # In this case we have fixes for all our tempolated sections
         # and they are all close to each other and so may be either
         # skipped or duplicated if the logic is not precise.
