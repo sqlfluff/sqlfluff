@@ -1,4 +1,4 @@
-"""Implementation of Rule L025."""
+"""Implementation of Rule AL05."""
 
 from dataclasses import dataclass, field
 from typing import cast, List, Set
@@ -23,14 +23,14 @@ from sqlfluff.core.dialects.common import AliasInfo
 
 
 @dataclass
-class L025Query(SelectCrawlerQuery):
-    """SelectCrawler Query with custom L025 info."""
+class AL05Query(SelectCrawlerQuery):
+    """SelectCrawler Query with custom AL05 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
     tbl_refs: Set[str] = field(default_factory=set)
 
 
-class Rule_L025(BaseRule):
+class Rule_AL05(BaseRule):
     """Tables should not be aliased if that alias is not used.
 
     **Anti-pattern**
@@ -60,7 +60,9 @@ class Rule_L025(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "aliasing.unused"
+    aliases = ("L025",)
+    groups = ("all", "core", "aliasing")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_requiring_alias_for_values_clause = [
         "snowflake",
@@ -77,8 +79,8 @@ class Rule_L025(BaseRule):
             return None
 
         # Analyze the SELECT.
-        crawler = SelectCrawler(context.segment, context.dialect, query_class=L025Query)
-        query: L025Query = cast(L025Query, crawler.query_tree)
+        crawler = SelectCrawler(context.segment, context.dialect, query_class=AL05Query)
+        query: AL05Query = cast(AL05Query, crawler.query_tree)
         self._analyze_table_aliases(query, context.dialect)
 
         alias: AliasInfo
@@ -137,7 +139,7 @@ class Rule_L025(BaseRule):
         return False  # pragma: no cover
 
     @classmethod
-    def _analyze_table_aliases(cls, query: L025Query, dialect: Dialect):
+    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect):
         # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -157,17 +159,17 @@ class Rule_L025(BaseRule):
 
         # Visit children.
         for child in query.children:
-            cls._analyze_table_aliases(cast(L025Query, child), dialect)
+            cls._analyze_table_aliases(cast(AL05Query, child), dialect)
 
     @classmethod
-    def _resolve_and_mark_reference(cls, query: L025Query, ref: str):
+    def _resolve_and_mark_reference(cls, query: AL05Query, ref: str):
         # Does this query define the referenced alias?
         if any(ref == a.ref_str for a in query.aliases):
             # Yes. Record the reference.
             query.tbl_refs.add(ref)
         elif query.parent:
             # No. Recursively check the query's parent hierarchy.
-            cls._resolve_and_mark_reference(cast(L025Query, query.parent), ref)
+            cls._resolve_and_mark_reference(cast(AL05Query, query.parent), ref)
 
     @classmethod
     def _report_unused_alias(cls, alias: AliasInfo) -> LintResult:

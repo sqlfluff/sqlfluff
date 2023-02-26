@@ -84,7 +84,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("L027", "column_references.sql", [(1, 8)]),
         ("L027", "column_references_bare_function.sql", []),
         ("L026", "column_references.sql", [(1, 11)]),
-        ("L025", "column_references.sql", [(2, 11)]),
+        ("AL05", "column_references.sql", [(2, 11)]),
         # Distinct and Group by
         ("L021", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
@@ -118,8 +118,8 @@ def test__rules__std_file(rule, path, violations):
         {"single_table_references": "blah"},
         {"unquoted_identifiers_policy": "blah"},
         {"CP01": {"capitalisation_policy": "blah"}},
-        {"L011": {"aliasing": "blah"}},
-        {"L012": {"aliasing": "blah"}},
+        {"AL01": {"aliasing": "blah"}},
+        {"AL02": {"aliasing": "blah"}},
         {"CP02": {"extended_capitalisation_policy": "blah"}},
         {"CP03": {"capitalisation_policy": "blah"}},
     ],

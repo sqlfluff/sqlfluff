@@ -1,10 +1,10 @@
-rule: L013
+rule: AL03
 
 test_pass_column_exp_without_alias_1:
   pass_str: SELECT *, foo from blah
 
 test_pass_column_exp_without_alias_2:
-  # L013 fix with https://github.com/sqlfluff/sqlfluff/issues/449
+  # AL03 fix with https://github.com/sqlfluff/sqlfluff/issues/449
   pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
 
 test_pass_column_exp_without_alias_allow_scalar_true:
@@ -15,7 +15,7 @@ test_fail_column_exp_without_alias:
   fail_str: SELECT upper(foo), bar from blah
 
 # Casting (via "::TYPE" syntax) has no effect on column output naming
-# and L013 therefore shouldnt be applied
+# and AL03 therefore shouldnt be applied
 test_pass_column_exp_without_alias_if_only_cast:
   pass_str: SELECT foo_col::VARCHAR(28) , bar from blah
 

@@ -168,7 +168,7 @@ faster while working on an issue, before running full tests at the end.
 For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-tox -e py38 -- -k L012 test
+tox -e py38 -- -k AL02 test
 ```
 
 Alternatively, you can also run tests from a specific directory or file only:

@@ -3639,7 +3639,7 @@ class FileSegment(BaseFileSegment):
 class EmitsSegment(BaseSegment):
     """EMITS Segment for JSON_EXTRACT for example.
 
-    In it's own segment to give it a type to allow L013 to find it easily.
+    In it's own segment to give it a type to allow AL03 to find it easily.
     """
 
     type = "emits_segment"
