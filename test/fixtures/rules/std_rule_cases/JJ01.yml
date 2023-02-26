@@ -1,4 +1,4 @@
-rule: L046
+rule: JJ01
 
 test_simple:
   pass_str: SELECT 1 from {{ ref('foo') }}

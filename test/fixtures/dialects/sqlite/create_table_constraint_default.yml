@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 149db629af0164d27dc37ef59df84f570101734b0f14157185888321791fddb1
+_hash: b465661bdd47b953b078b1bbeed25eaceeb4bbc4751d064066e83f9b4561876f
 file:
 - statement:
     transaction_statement:
@@ -24,7 +24,7 @@ file:
         column_definition:
         - quoted_identifier: '"col"'
         - data_type:
-            keyword: TIMESTAMP
+            data_type_identifier: TIMESTAMP
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

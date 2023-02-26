@@ -95,7 +95,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             [(6, 15), (7, 19), (8, 16)],
         ),
         (
-            "L046",
+            "JJ01",
             "heavy_templating.sql",
             [(12, 13), (12, 25)],
         ),
