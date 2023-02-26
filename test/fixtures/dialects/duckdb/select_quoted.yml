@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d31a91beb7f15732487b79d0c335f859b2839d8457e8e6e9da4c63bc4006b963
+_hash: 41a79f9b8c4f36ac63b71783587e096a124c2d673dbc6a62081db7f6e06589a1
 file:
   statement:
     select_statement:
@@ -23,5 +23,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                quoted_literal: "'https://shell.duckdb.org/data/tpch/0_01/parquet/lineitem.parquet'"
+                quoted_identifier: "'https://shell.duckdb.org/data/tpch/0_01/parquet/lineitem.parquet'"
   statement_terminator: ;
