@@ -943,8 +943,8 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. code-block:: sql
 
-    -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo -- noqa: disable=L012
+    -- Ignore rule AL02 from this line forward
+    SELECT col_a a FROM foo -- noqa: disable=AL02
 
     -- Ignore all rules from this line forward
     SELECT col_a a FROM foo -- noqa: disable=all

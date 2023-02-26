@@ -1,4 +1,4 @@
-"""Implementation of Rule L020."""
+"""Implementation of Rule AL04."""
 
 import itertools
 from typing import List, Optional, Tuple
@@ -10,7 +10,7 @@ from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L020(BaseRule):
+class Rule_AL04(BaseRule):
     """Table aliases should be unique within each clause.
 
     Reusing table aliases is very likely a coding error.
@@ -59,7 +59,9 @@ class Rule_L020(BaseRule):
 
     """
 
-    groups: Tuple[str, ...] = ("all", "core")
+    name = "aliasing.unique.table"
+    aliases = ("L020",)
+    groups: Tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _lint_references_and_aliases(

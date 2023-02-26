@@ -1,4 +1,4 @@
-"""Implementation of Rule L011."""
+"""Implementation of Rule AL01."""
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-class Rule_L011(BaseRule):
+class Rule_AL01(BaseRule):
     """Implicit/explicit aliasing of table.
 
     Aliasing of table to follow preference
@@ -38,7 +38,9 @@ class Rule_L011(BaseRule):
 
     """
 
-    groups: Tuple[str, ...] = ("all",)
+    name = "aliasing.table"
+    aliases = ("L011",)
+    groups: Tuple[str, ...] = ("all", "aliasing")
     config_keywords = ["aliasing"]
     crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
     is_fix_compatible = True
@@ -52,7 +54,7 @@ class Rule_L011(BaseRule):
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
 
         We look for the alias segment, and then evaluate its parent and whether
-        it contains an AS keyword. This is the _eval function for both L011 and L012.
+        it contains an AS keyword. This is the _eval function for both AL01 and AL02.
         """
         # Config type hints
         self.aliasing: str

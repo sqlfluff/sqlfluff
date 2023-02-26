@@ -1,4 +1,4 @@
-rule: L011
+rule: AL01
 
 test_fail_default_explicit:
   # Add whitespace when fixing implicit aliasing
@@ -11,7 +11,7 @@ test_fail_explicit:
   fix_str: select foo.bar from table1 AS foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: explicit
 
 test_fail_implicit:
@@ -20,7 +20,7 @@ test_fail_implicit:
   fix_str: select foo.bar from table1 foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: implicit
 
 test_fail_implicit_alias:
@@ -39,7 +39,7 @@ test_fail_implicit_alias_explicit:
   fix_str: select foo.bar from (select 1 as bar) AS foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: explicit
 
 test_fail_implicit_alias_implicit:
@@ -48,7 +48,7 @@ test_fail_implicit_alias_implicit:
   fix_str: select foo.bar from (select 1 as bar) foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_multiple:
@@ -57,7 +57,7 @@ test_fail_implicit_alias_implicit_multiple:
   fix_str: select foo.bar from (select 1 as bar) bar, (select 1 as foo) foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_newline:
@@ -70,7 +70,7 @@ test_fail_implicit_alias_implicit_newline:
       foo
   configs:
     rules:
-      L011:
+      AL01:
         aliasing: implicit
 
 test_fail_default_explicit_alias_merge:
@@ -109,7 +109,7 @@ test_fail_explicit_alias_merge:
     core:
       dialect: bigquery
     rules:
-      L011:
+      AL01:
         aliasing: explicit
 
 test_pass_implicit_alias_merge:
@@ -124,5 +124,5 @@ test_pass_implicit_alias_merge:
     core:
       dialect: bigquery
     rules:
-      L011:
+      AL01:
         aliasing: implicit

@@ -36,7 +36,7 @@ lint_result = [
         "line_pos": 7,
     },
     {
-        "code": "L013",
+        "code": "AL03",
         "line_no": 1,
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
@@ -122,7 +122,7 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "L013", "CP02", "L036", "L039"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 1
@@ -135,14 +135,14 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 9
-    set(["L009", "CP01", "L013", "CP02", "L036", "L044"]) == set(
+    set(["L009", "CP01", "AL03", "CP02", "L036", "L044"]) == set(
         [r["code"] for r in result]
     )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "L013", "CP02", "L036", "L039", "L044"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039", "L044"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []

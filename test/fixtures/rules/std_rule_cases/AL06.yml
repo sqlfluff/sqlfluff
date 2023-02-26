@@ -1,4 +1,4 @@
-rule: L066
+rule: AL06
 
 test_pass_no_config:
   pass_str: |
@@ -20,7 +20,7 @@ test_fail_alias_too_short:
     JOIN orders as o on u.id = o.user_id;
   configs:
     rules:
-      L066:
+      AL06:
         min_alias_length: 4
 
 test_fail_alias_too_long:
@@ -35,7 +35,7 @@ test_fail_alias_too_long:
     JOIN orders as o on u.id = o.user_id;
   configs:
     rules:
-      L066:
+      AL06:
         max_alias_length: 10
 
 test_fail_alias_min_and_max:
@@ -50,7 +50,7 @@ test_fail_alias_min_and_max:
     JOIN orders as o on u.id = o.user_id;
   configs:
     rules:
-      L066:
+      AL06:
         min_alias_length: 4
         max_alias_length: 10
 
@@ -66,6 +66,6 @@ test_pass_with_config:
     JOIN orders as latest_orders on users.id = latest_orders.user_id;
   configs:
     rules:
-      L066:
+      AL06:
         min_alias_length: 10
         max_alias_length: 30

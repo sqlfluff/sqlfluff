@@ -786,37 +786,37 @@ def test_linter_noqa():
         config=FluffConfig(
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
-                "rules": "L012, L019",
+                "rules": "AL02, L019",
             }
         )
     )
     sql = """
     SELECT
         col_a a,
-        col_b b, --noqa: disable=L012
+        col_b b, --noqa: disable=AL02
         col_c c,
-        col_d d, --noqa: enable=L012
+        col_d d, --noqa: enable=AL02
         col_e e,
         col_f f,
         col_g g,  --noqa
         col_h h,
-        col_i i, --noqa:L012
+        col_i i, --noqa:AL02
         col_j j,
-        col_k k, --noqa:L013
+        col_k k, --noqa:AL03
         col_l l,
         col_m m,
         col_n n, --noqa: disable=all
         col_o o,
         col_p p, --noqa: enable=all
-        col_q q, --Inline comment --noqa: L012
-        col_r r, /* Block comment */ --noqa: L012
-        col_s s # hash comment --noqa: L012
-        -- We trigger both L012 (implicit aliasing)
+        col_q q, --Inline comment --noqa: AL02
+        col_r r, /* Block comment */ --noqa: AL02
+        col_s s # hash comment --noqa: AL02
+        -- We trigger both AL02 (implicit aliasing)
         -- and L019 (leading commas) here to
         -- test glob ignoring of multiple rules.
         , col_t t --noqa: L01*
         , col_u u -- Some comment --noqa: L01*
-        , col_v v -- We can ignore both L012 and L019 -- noqa: L01[29]
+        , col_v v -- We can ignore both AL02 and L019 -- noqa: L01[29]
     FROM foo
         """
     result = lntr.lint_string(sql)
@@ -840,9 +840,9 @@ def test_linter_noqa_with_templating():
     "SELECT\n"
     "  this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_"
     "templated_sql_files, --noqa: L016\n"
-    "  this_is_not_so_big a, --Inline comment --noqa: L012\n"
-    "  this_is_not_so_big b, /* Block comment */ --noqa: L012\n"
-    "  this_is_not_so_big c, # hash comment --noqa: L012\n"
+    "  this_is_not_so_big a, --Inline comment --noqa: AL02\n"
+    "  this_is_not_so_big b, /* Block comment */ --noqa: AL02\n"
+    "  this_is_not_so_big c, # hash comment --noqa: AL02\n"
     "  this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_"
     "templated_sql_files, --noqa: L01*\n"
     "FROM\n"
@@ -905,7 +905,7 @@ def test_linter_noqa_disable():
     lntr_noqa_enabled = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L012",
+                "rules": "AL02",
                 "dialect": "ansi",
             }
         )
@@ -914,16 +914,16 @@ def test_linter_noqa_disable():
         config=FluffConfig(
             overrides={
                 "disable_noqa": True,
-                "rules": "L012",
+                "rules": "AL02",
                 "dialect": "ansi",
             }
         )
     )
-    # This query raises L012, but it is being suppressed by the inline noqa comment.
+    # This query raises AL02, but it is being suppressed by the inline noqa comment.
     # We can ignore this comment by setting disable_noqa = True in the config
     # or by using the --disable-noqa flag in the CLI.
     sql = """
-    SELECT col_a a --noqa: L012
+    SELECT col_a a --noqa: AL02
     FROM foo
     """
 
@@ -936,7 +936,7 @@ def test_linter_noqa_disable():
     result_noqa_disabled = lntr_noqa_disabled.lint_string(sql)
     violations_noqa_disabled = result_noqa_disabled.get_violations()
     assert len(violations_noqa_disabled) == 1
-    assert violations_noqa_disabled[0].rule.code == "L012"
+    assert violations_noqa_disabled[0].rule.code == "AL02"
 
 
 def test_delayed_exception():
