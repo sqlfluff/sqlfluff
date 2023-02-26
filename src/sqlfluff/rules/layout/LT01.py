@@ -1,4 +1,4 @@
-"""Implementation of Rule L039."""
+"""Implementation of Rule LT01."""
 from typing import List, Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -6,21 +6,24 @@ from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-class Rule_L039(BaseRule):
-    """Unnecessary whitespace found.
+class Rule_LT01(BaseRule):
+    """Unnecessary whitespace.
+
+    The ``•`` character represents a space.
 
     **Anti-pattern**
 
     .. code-block:: sql
 
         SELECT
-            a,        b
-        FROM foo
+            a,        b••
+        FROM foo••••
 
     **Best practice**
 
     Unless an indent or preceding a comment, whitespace should
-    be a single space.
+    be a single space. There should also be no trailing whitespace
+    at the ends of lines.
 
     .. code-block:: sql
 
@@ -29,14 +32,20 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "layout.spacing"
+    # NOTE: This rule combines the following legacy rules:
+    # - L001: Trailing Whitespace
+    # - L039: Unnecessary Whitespace
+    # TODO: Potentially more
+    aliases = ("L039", "L001")
+    groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         sequence = ReflowSequence.from_root(context.segment, config=context.config)
-        results = sequence.respace(filter="inline").get_results()
+        results = sequence.respace().get_results()
 
         # For now, respace rules are separate for creation and reduction.
         # That shouldn't be true in future.
