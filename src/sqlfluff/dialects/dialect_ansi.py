@@ -282,7 +282,7 @@ ansi_dialect.sets("bracket_pairs").update(
 # an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
-# - It impacts core linter rules (see L020 and several other rules that subclass
+# - It impacts core linter rules (see AL04 and several other rules that subclass
 #   from it) and how they interpret the contents of table_expressions
 # - At least one other database (DB2) has the same value table function,
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
@@ -568,6 +568,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    AutoIncrementGrammar=Sequence("AUTO_INCREMENT"),
     # Base Expression element is the right thing to reference for everything
     # which functions as an expression, but could include literals.
     BaseExpressionElementGrammar=OneOf(
@@ -1916,7 +1917,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
     ),
@@ -2689,7 +2690,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            Ref("AutoIncrementGrammar"),
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),

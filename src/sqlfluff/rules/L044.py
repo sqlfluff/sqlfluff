@@ -5,7 +5,6 @@ from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_groups
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
@@ -19,7 +18,6 @@ class RuleFailure(Exception):
         self.anchor: BaseSegment = anchor
 
 
-@document_groups
 class Rule_L044(BaseRule):
     """Query produces an unknown number of result columns.
 

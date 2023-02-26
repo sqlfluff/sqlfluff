@@ -348,9 +348,24 @@ def rebreak_sequence(
                     lint_results=[],
                     anchor_on="after",
                 )
+
+                # Handle the potential case of an empty point.
+                # https://github.com/sqlfluff/sqlfluff/issues/4184
+                for i in range(loc.next.pre_code_pt_idx):
+                    if elem_buff[loc.next.pre_code_pt_idx - i].segments:
+                        create_anchor = elem_buff[
+                            loc.next.pre_code_pt_idx - i
+                        ].segments[-1]
+                        break
+                else:  # pragma: no cover
+                    # NOTE: We don't test this because we *should* always find
+                    # _something_ to anchor the creation on, even if we're
+                    # unlucky enough not to find it on the first pass.
+                    raise NotImplementedError("Could not find anchor for creation.")
+
                 fixes.append(
                     LintFix.create_after(
-                        elem_buff[loc.next.pre_code_pt_idx].segments[-1],
+                        create_anchor,
                         [loc.target],
                     )
                 )

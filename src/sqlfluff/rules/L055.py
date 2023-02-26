@@ -3,10 +3,8 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L055(BaseRule):
     """Use ``LEFT JOIN`` instead of ``RIGHT JOIN``.
 

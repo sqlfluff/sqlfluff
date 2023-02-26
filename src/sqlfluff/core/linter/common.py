@@ -18,7 +18,10 @@ class RuleTuple(NamedTuple):
     """Rule Tuple object for describing rules."""
 
     code: str
+    name: str
     description: str
+    groups: Tuple[str, ...]
+    aliases: Tuple[str, ...]
 
 
 class NoQaDirective(NamedTuple):

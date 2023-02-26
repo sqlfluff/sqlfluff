@@ -45,7 +45,7 @@ def test__cli__formatters__violation(tmpdir):
             TemplatedFile.from_string("      \n\n  foobarbar"),
         ),
     )
-    r = RuleGhost("A", "DESC")
+    r = RuleGhost("A", "some-name", "DESC")
     v = SQLLintError(segment=s, rule=r)
     formatter = OutputStreamFormatter(
         FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
@@ -56,7 +56,7 @@ def test__cli__formatters__violation(tmpdir):
     # it's at the third position in that line (i.e. there
     # are two characters between it and the preceding
     # newline).
-    assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC"
+    assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC [some-name]"
 
 
 def test__cli__helpers__colorize(tmpdir):

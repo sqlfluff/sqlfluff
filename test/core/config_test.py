@@ -250,8 +250,8 @@ def test__config__load_user_appdir_config(
 @pytest.mark.parametrize(
     "raw_str, expected",
     [
-        ("L011,L022,L031", ["L011", "L022", "L031"]),
-        ("\nL011,\nL022,\nL031,", ["L011", "L022", "L031"]),
+        ("AL01,L022,L031", ["AL01", "L022", "L031"]),
+        ("\nAL01,\nL022,\nL031,", ["AL01", "L022", "L031"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
@@ -319,7 +319,7 @@ def test__config__rules_set_to_none():
     for k in violations:
         assert ("L050", 1, 1) in violations[k]
         assert ("L044", 12, 1) in violations[k]
-        assert ("L010", 12, 10) in violations[k]
+        assert ("CP01", 12, 10) in violations[k]
 
 
 def test__config__rules_group_with_exclude():
@@ -330,7 +330,7 @@ def test__config__rules_group_with_exclude():
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L010", 15, 1) in violations[k]
+        assert ("CP01", 15, 1) in violations[k]
         assert "L019" not in [c[0] for c in violations[k]]
 
 
@@ -369,13 +369,13 @@ def test__config__from_kwargs():
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
         rules=["L001", "L002"],
-        exclude_rules=["L010", "L011"],
+        exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
     assert cfg.get("rules") == "L001,L002"
-    assert cfg.get("exclude_rules") == "L010,L011"
+    assert cfg.get("exclude_rules") == "CP01,AL01"
 
 
 def test__config_missing_dialect():

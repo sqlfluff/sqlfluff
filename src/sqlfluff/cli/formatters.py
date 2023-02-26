@@ -185,10 +185,14 @@ class OutputStreamFormatter:
         if self._verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="PARSING"))
 
-    def dispatch_lint_header(self, fname: str) -> None:
+    def dispatch_lint_header(self, fname: str, rules: List[str]) -> None:
         """Dispatch the header displayed before linting."""
         if self._verbosity > 1:
-            self._dispatch(self.format_filename(filename=fname, success="LINTING"))
+            self._dispatch(
+                self.format_filename(
+                    filename=fname, success=f"LINTING ({', '.join(rules)})"
+                )
+            )
 
     def dispatch_compilation_header(self, templater, message):
         """Dispatch the header displayed before linting."""
@@ -410,6 +414,12 @@ class OutputStreamFormatter:
         elif violation.warning:
             desc = "WARNING: " + desc  # pragma: no cover
 
+        # If the rule has a name, add that the description.
+        if hasattr(violation, "rule"):
+            rule = getattr(violation, "rule", None)
+            if rule and rule.name:
+                desc += f" [{self.colorize(rule.name, Color.lightgrey)}]"
+
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
         out_buff = ""
@@ -491,13 +501,38 @@ class OutputStreamFormatter:
             )
         return text_buffer.getvalue()
 
+    def _format_rule_description(self, rule) -> str:
+        """Format individual rule.
+
+        This is a helper function in .format_rules().
+        """
+        if rule.name:
+            name = self.colorize(rule.name, Color.blue)
+            description = f"[{name}] {rule.description}"
+        else:
+            description = rule.description
+
+        if rule.groups:
+            groups = self.colorize(", ".join(rule.groups), Color.lightgrey)
+            description += f"\ngroups: {groups}"
+        if rule.aliases:
+            aliases = self.colorize(", ".join(rule.aliases), Color.lightgrey)
+            description += f" aliases: {aliases}"
+        return description
+
     def format_rules(self, linter: Linter, verbose: int = 0) -> str:
         """Format the a set of rules given a `Linter`."""
         text_buffer = StringIO()
         text_buffer.write("==== sqlfluff - rules ====\n")
         text_buffer.write(
             self.cli_table(
-                linter.rule_tuples(),
+                [
+                    (
+                        t.code,
+                        self._format_rule_description(t),
+                    )
+                    for t in linter.rule_tuples()
+                ],
                 col_width=80,
                 cols=1,
                 label_color=Color.blue,

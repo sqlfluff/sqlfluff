@@ -73,8 +73,9 @@ def contains_ansi_escape(s: str) -> bool:
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
-L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
+L:   2 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
+L:   5 | P:  10 | CP01 | Keywords must be consistently upper case.
+                       | [capitalisation.keywords]
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
 
@@ -540,7 +541,7 @@ def test__cli__command_lint_ignore_local_config():
     """Test that --ignore-local_config ignores .sqlfluff file as expected."""
     runner = CliRunner()
     # First we test that not including the --ignore-local-config includes
-    # .sqlfluff file, and therefore the lint doesn't raise L012
+    # .sqlfluff file, and therefore the lint doesn't raise AL02
     result = runner.invoke(
         lint,
         [
@@ -548,9 +549,9 @@ def test__cli__command_lint_ignore_local_config():
         ],
     )
     assert result.exit_code == 0
-    assert "L012" not in result.output.strip()
+    assert "AL02" not in result.output.strip()
     # Then repeat the same lint but this time ignoring the .sqlfluff file.
-    # We should see L012 raised.
+    # We should see AL02 raised.
     result = runner.invoke(
         lint,
         [
@@ -560,7 +561,7 @@ def test__cli__command_lint_ignore_local_config():
         ],
     )
     assert result.exit_code == 1
-    assert "L012" in result.output.strip()
+    assert "AL02" in result.output.strip()
 
 
 def test__cli__command_lint_warning():
@@ -716,7 +717,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -729,7 +730,7 @@ def test__cli__command__fix(rule, fname):
             where processdate {{ condition }}
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "L010"],
+            ["--force", "-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -743,7 +744,7 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3  -- noqa: PRS
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "L010"],
+            ["--force", "-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -755,7 +756,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -767,7 +768,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3  --noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             0,
         ),
@@ -785,7 +786,7 @@ def test__cli__command__fix(rule, fname):
                 "--fixed-suffix",
                 "FIXED",
                 "--rules",
-                "L010",
+                "CP01",
                 "--FIX-EVEN-UNPARSABLE",
             ],
             """
@@ -815,7 +816,7 @@ def test__cli__command__fix(rule, fname):
                 FROM my_schema.my_table
                 where processdate != 3""",
             ],
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
             [
                 None,
                 """SELECT my_col
@@ -1174,13 +1175,13 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                     "filepath": "stdin",
                     "violations": [
                         {
-                            "code": "L010",
+                            "code": "CP01",
                             "line_no": 1,
                             "line_pos": 1,
                             "description": "Keywords must be consistently upper case.",
                         },
                         {
-                            "code": "L010",
+                            "code": "CP01",
                             "line_no": 1,
                             "line_pos": 10,
                             "description": "Keywords must be consistently upper case.",
@@ -1200,7 +1201,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
             (
                 "-",
                 "--rules",
-                "L010",
+                "CP01",
                 "--format",
                 serialize,
                 "--disable-progress-bar",
@@ -1314,7 +1315,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 25 if write_file else 32
+        assert payload_length == 35 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1387,7 +1388,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L012: Implicit/explicit aliasing of columns.",
+            "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -1399,7 +1400,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L014: Unquoted identifiers must be consistently lower case.",
+            "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -1411,7 +1412,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L010: Keywords must be consistently lower case.",
+            "message": "CP01: Keywords must be consistently lower case.",
             "start_column": 1,
             "end_column": 1,
             "title": "SQLFluff",
@@ -1423,7 +1424,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Unquoted identifiers must be consistently lower case.",
+            "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
             "end_column": 12,
             "title": "SQLFluff",
@@ -1435,7 +1436,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Unquoted identifiers must be consistently lower case.",
+            "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
             "end_column": 18,
             "title": "SQLFluff",
@@ -1473,15 +1474,15 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "L027: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view.",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "L012: Implicit/explicit aliasing of columns.",
+            "AL02: Implicit/explicit aliasing of columns.",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "L014: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
-            "L010: Keywords must be consistently lower case.",
+            "CP01: Keywords must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
-            "L014: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case.",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
-            "L014: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case.",
             "",  # SQLFluff produces trailing newline
         ]
     )
@@ -1615,7 +1616,7 @@ def test_cli_disable_noqa_flag():
     raw_output = repr(result.output)
 
     # Linting error is raised even though it is inline ignored.
-    assert r"L:   5 | P:  11 | L010 |" in raw_output
+    assert r"L:   5 | P:  11 | CP01 |" in raw_output
 
 
 def test_cli_get_default_config():
@@ -1818,7 +1819,7 @@ class TestProgressBars:
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected indent of 4 spaces.
+L:  12 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...

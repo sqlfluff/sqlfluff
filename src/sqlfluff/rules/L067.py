@@ -6,11 +6,6 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.utils.functional import sp, FunctionalContext, Segments
 
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.core.parser import (
     WhitespaceSegment,
     SymbolSegment,
@@ -19,9 +14,6 @@ from sqlfluff.core.parser import (
 )
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L067(BaseRule):
     """Enforce consistent type casting style.
 
@@ -63,6 +55,7 @@ class Rule_L067(BaseRule):
     groups = ("all",)
     config_keywords = ["preferred_type_casting_style"]
     crawl_behaviour = SegmentSeekerCrawler({"function", "cast_expression"})
+    is_fix_compatible = True
 
     @staticmethod
     def _get_children(segments: Segments) -> Segments:

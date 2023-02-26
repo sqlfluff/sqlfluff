@@ -109,9 +109,10 @@ choose one of the dbt environments.)
 
 Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
 
-This virtual environment will already have the package installed in editable mode for you, as well as
-`requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
-was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
+This virtual environment will already have the package installed in editable
+mode for you, as well as `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`.
+Additionally if a dbt virtual environment was specified, you will also have
+`dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 
 ### Wiki
 
@@ -167,7 +168,7 @@ faster while working on an issue, before running full tests at the end.
 For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-tox -e py38 -- -k L012 test
+tox -e py38 -- -k AL02 test
 ```
 
 Alternatively, you can also run tests from a specific directory or file only:
