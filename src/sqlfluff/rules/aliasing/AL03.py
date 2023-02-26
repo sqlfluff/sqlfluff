@@ -1,4 +1,4 @@
-"""Implementation of Rule L013."""
+"""Implementation of Rule AL03."""
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
-class Rule_L013(BaseRule):
+class Rule_AL03(BaseRule):
     """Column expression without alias. Use explicit `AS` clause.
 
     **Anti-pattern**
@@ -33,7 +33,9 @@ class Rule_L013(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "aliasing.expression"
+    aliases = ("L013",)
+    groups = ("all", "core", "aliasing")
     config_keywords = ["allow_scalar"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause_element"})
 

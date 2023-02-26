@@ -1,7 +1,7 @@
 [sqlfluff]
 dialect = snowflake
 templater = jinja
-exclude_rules = L011,L016,L031,L034,L035
+exclude_rules = AL01,L016,L031,L034,L035
 output_line_length = 120
 max_line_length = 120
 
@@ -17,7 +17,7 @@ tab_space_size = 2
 [sqlfluff:rules:CP01]  # Keywords
 capitalisation_policy = upper
 
-[sqlfluff:rules:L013]  # Column expressions
+[sqlfluff:rules:AL03]  # Column expressions
 allow_scalar = False
 
 [sqlfluff:rules:CP02]  # Unquoted identifiers

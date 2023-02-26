@@ -3,10 +3,10 @@ import regex
 from typing import List, Optional
 
 from sqlfluff.core.rules import LintResult
-from sqlfluff.rules.L020 import Rule_L020
+from sqlfluff.rules.aliasing.AL04 import Rule_AL04
 
 
-class Rule_L027(Rule_L020):
+class Rule_L027(Rule_AL04):
     """References should be qualified if select has more than one referenced table/view.
 
     .. note::
@@ -35,7 +35,7 @@ class Rule_L027(Rule_L020):
     """
 
     groups = ("all",)
-    # Crawl behaviour is defined in L020
+    # Crawl behaviour is defined in AL04
 
     def _lint_references_and_aliases(
         self,
