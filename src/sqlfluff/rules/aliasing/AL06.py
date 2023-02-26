@@ -1,4 +1,4 @@
-"""Implementation of Rule L066."""
+"""Implementation of Rule AL06."""
 
 from typing import Optional
 
@@ -7,7 +7,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext
 
 
-class Rule_L066(BaseRule):
+class Rule_AL06(BaseRule):
     """Enforce table alias lengths in from clauses and join conditions.
 
     **Anti-pattern**
@@ -43,7 +43,9 @@ class Rule_L066(BaseRule):
             ON replacement_orders.id = previous_orders.replacement_id
     """
 
-    groups = ("all",)
+    name = "aliasing.length"
+    aliases = ("L066",)
+    groups = ("all", "core", "aliasing")
     config_keywords = ["min_alias_length", "max_alias_length"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 

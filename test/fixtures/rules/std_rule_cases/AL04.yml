@@ -1,4 +1,4 @@
-rule: L020
+rule: AL04
 
 test_fail_exactly_once_duplicated_aliases:
   # duplicate aliases

@@ -1,9 +1,9 @@
-"""Tests the python routines within L020."""
+"""Tests the python routines within AL04."""
 
 import sqlfluff
 
 
-def test__rules__std_L020_one_aliases_one_duplicate():
+def test__rules__std_AL04_one_aliases_one_duplicate():
     """Verify correct error message for one duplicate table aliases occur one times."""
     sql = """
         SELECT
@@ -12,11 +12,11 @@ def test__rules__std_L020_one_aliases_one_duplicate():
         JOIN table_2 AS a ON a.pk = a.pk
     """
     result = sqlfluff.lint(sql)
-    assert "L020" in [r["code"] for r in result]
-    assert [r["code"] for r in result].count("L020") == 1
+    assert "AL04" in [r["code"] for r in result]
+    assert [r["code"] for r in result].count("AL04") == 1
 
 
-def test__rules__std_L020_one_aliases_two_duplicate():
+def test__rules__std_AL04_one_aliases_two_duplicate():
     """Verify correct error message for one duplicate table aliases occur two times."""
     sql = """
         SELECT
@@ -26,7 +26,7 @@ def test__rules__std_L020_one_aliases_two_duplicate():
         JOIN table_3 AS a ON a.pk = a.pk
     """
     result = sqlfluff.lint(sql)
-    result_filter = [r for r in result if r["code"] == "L020"]
+    result_filter = [r for r in result if r["code"] == "AL04"]
     # Error message only show two times, not three
     assert len(result_filter) == 2
     assert (
@@ -44,8 +44,8 @@ def test__rules__std_L020_one_aliases_two_duplicate():
     assert result_filter[1]["line_no"] == 6
 
 
-def test__rules__std_L020_complex():
-    """Verify that L020 returns the correct error message for complex example."""
+def test__rules__std_AL04_complex():
+    """Verify that AL04 returns the correct error message for complex example."""
     sql = """
         SELECT
             a.pk,
@@ -57,7 +57,7 @@ def test__rules__std_L020_complex():
         JOIN table_5 AS a ON b.pk = a.pk
     """
     result = sqlfluff.lint(sql)
-    result_filter = [r for r in result if r["code"] == "L020"]
+    result_filter = [r for r in result if r["code"] == "AL04"]
     # Error message only show two times, not three
     assert len(result_filter) == 3
     assert (
