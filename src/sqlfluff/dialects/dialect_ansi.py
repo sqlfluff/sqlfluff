@@ -568,6 +568,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    AutoIncrementGrammar=Sequence("AUTO_INCREMENT"),
     # Base Expression element is the right thing to reference for everything
     # which functions as an expression, but could include literals.
     BaseExpressionElementGrammar=OneOf(
@@ -1916,7 +1917,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
     ),
@@ -2689,7 +2690,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            Ref("AutoIncrementGrammar"),
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
