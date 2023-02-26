@@ -513,12 +513,12 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                 0,
                 (
                     "CP04",  # L040 is an alias of CP04 (which matches the glob)
+                    "JJ01",
                     "L041",
                     "L042",
                     "L043",
                     "L044",
                     "L045",
-                    "JJ01",
                     "L047",
                     "L048",
                     "L049",
