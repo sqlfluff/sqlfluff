@@ -198,5 +198,5 @@ UNRESERVED_KEYWORDS = [
     "FILE",
     "PASSIVE",
     "RESTART",
-    "RESET"
+    "RESET",
 ]

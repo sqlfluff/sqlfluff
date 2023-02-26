@@ -484,7 +484,7 @@ class PragmaStatementSegment(BaseSegment):
         "FILE",
         "PASSIVE",
         "RESTART",
-        "RESET"
+        "RESET",
     )
 
     match_grammar = Sequence(
@@ -492,10 +492,8 @@ class PragmaStatementSegment(BaseSegment):
         Ref("PragmaReferenceSegment"),
         Bracketed(_pragma_value, optional=True),
         Sequence(
-            Ref("EqualsSegment"),
-            OptionallyBracketed(_pragma_value),
-            optional=True
-        )
+            Ref("EqualsSegment"), OptionallyBracketed(_pragma_value), optional=True
+        ),
     )
 
 
