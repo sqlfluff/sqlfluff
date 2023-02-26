@@ -447,6 +447,58 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     )
 
 
+class PragmaReferenceSegment(ansi.ObjectReferenceSegment):
+    """A Pragma object."""
+
+    type = "pragma_reference"
+
+
+class PragmaStatementSegment(BaseSegment):
+    """A Pragma Statement.
+
+    As per https://www.sqlite.org/pragma.html
+    """
+
+    type = "pragma_statement"
+
+    _pragma_value = OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BooleanLiteralGrammar"),
+        "YES",
+        "NO",
+        "ON",
+        "OFF",
+        "NONE",
+        "FULL",
+        "INCREMENTAL",
+        "DELETE",
+        "TRUNCATE",
+        "PERSIST",
+        "MEMORY",
+        "WAL",
+        "NORMAL",
+        "EXCLUSIVE",
+        "FAST",
+        "EXTRA",
+        "DEFAULT",
+        "FILE",
+        "PASSIVE",
+        "RESTART",
+        "RESET"
+    )
+
+    match_grammar = Sequence(
+        "PRAGMA",
+        Ref("PragmaReferenceSegment"),
+        Bracketed(_pragma_value, optional=True),
+        Sequence(
+            Ref("EqualsSegment"),
+            OptionallyBracketed(_pragma_value),
+            optional=True
+        )
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -465,6 +517,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("DropViewStatementSegment"),
         Ref("ExplainStatementSegment"),
         Ref("InsertStatementSegment"),
+        Ref("PragmaStatementSegment"),
         Ref("SelectableGrammar"),
         Ref("TransactionStatementSegment"),
         Ref("UpdateStatementSegment"),
