@@ -5,11 +5,8 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 
 
-@document_groups
-@document_configuration
 class Rule_L062(BaseRule):
     """Block a list of configurable words from being used.
 
@@ -54,12 +51,14 @@ class Rule_L062(BaseRule):
     config_keywords = [
         "blocked_words",
         "blocked_regex",
+        "match_source",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
         self.blocked_words: Optional[str]
         self.blocked_regex: Optional[str]
+        self.match_source: Optional[bool]
 
         # Exit early if no block list set
         if not self.blocked_words and not self.blocked_regex:
@@ -82,11 +81,21 @@ class Rule_L062(BaseRule):
                 description=f"Use of blocked word '{context.segment.raw}'.",
             )
 
-        if self.blocked_regex and regex.search(self.blocked_regex, context.segment.raw):
-            return LintResult(
-                anchor=context.segment,
-                description=f"Use of blocked regex '{context.segment.raw}'.",
-            )
+        if self.blocked_regex:
+            if regex.search(self.blocked_regex, context.segment.raw):
+                return LintResult(
+                    anchor=context.segment,
+                    description=f"Use of blocked regex '{context.segment.raw}'.",
+                )
+
+            if self.match_source:
+                for segment in context.segment.raw_segments:
+                    source_str = segment.pos_marker.source_str()
+                    if regex.search(self.blocked_regex, source_str):
+                        return LintResult(
+                            anchor=context.segment,
+                            description=f"Use of blocked regex '{source_str}'.",
+                        )
 
         return None
 

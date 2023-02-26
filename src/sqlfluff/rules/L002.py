@@ -3,16 +3,8 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L002(BaseRule):
     """Mixed Tabs and Spaces in single whitespace.
 
@@ -44,8 +36,12 @@ class Rule_L002(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    # TODO: combine with other LN01 rules
+    name = "layout.indent.a"
+    aliases = ("LN01a",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Mixed Tabs and Spaces in single whitespace.

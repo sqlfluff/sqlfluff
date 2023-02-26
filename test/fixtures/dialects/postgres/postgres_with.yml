@@ -3,8 +3,82 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54e36cd157ed51f1b6e1d291ba93aa5eaa2c2a18744dd35bb06ee2cbbd7fce20
+_hash: a90e3937826e06152bd3b304e9fdb8584d462c1ef71ea388d62ba57cc5fd3ce7
 file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+      - naked_identifier: w
+      - keyword: AS
+      - keyword: MATERIALIZED
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: other_table
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: w
+              alias_expression:
+                keyword: AS
+                naked_identifier: w1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: w
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: w2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: w1
+                  - dot: .
+                  - naked_identifier: key
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: w2
+                  - dot: .
+                  - naked_identifier: ref
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: w2
+            - dot: .
+            - naked_identifier: key
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '123'
+- statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH

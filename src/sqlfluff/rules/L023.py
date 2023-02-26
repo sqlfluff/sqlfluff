@@ -4,14 +4,11 @@ from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 from sqlfluff.utils.functional import FunctionalContext, sp
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L023(BaseRule):
     """Single whitespace expected after ``AS`` in ``WITH`` clause.
 
@@ -45,6 +42,7 @@ class Rule_L023(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"common_table_expression"})
     target_keyword = "AS"
     strip_newlines = True
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Single whitespace expected in mother middle segment."""

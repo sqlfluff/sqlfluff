@@ -211,7 +211,7 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "rules,num_violations", [(None, 7), ("L010", 2), (("L001", "L009", "L031"), 2)]
+    "rules,num_violations", [(None, 7), ("CP01", 2), (("L001", "L009", "L031"), 2)]
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
@@ -487,7 +487,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
 
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
-dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
+dummy_rule_map = Linter().get_rulepack().reference_map
 
 
 @pytest.mark.parametrize(
@@ -499,19 +499,20 @@ dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
         ("noqa:", NoQaDirective(0, None, None)),
         ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
         ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
-        ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
+        ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
         (
             "Inline comment before inline ignore -- noqa:L001,L002",
             NoQaDirective(0, ("L001", "L002"), None),
         ),
+        # Test selection with rule globs
         (
-            "Inline comment before inline ignore -- noqa:L04*",
+            "noqa:L04*",
             NoQaDirective(
                 0,
                 (
-                    "L040",
+                    "CP04",  # L040 is an alias of CP04 (which matches the glob)
                     "L041",
                     "L042",
                     "L043",
@@ -525,11 +526,39 @@ dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
                 None,
             ),
         ),
+        # Test selection with aliases.
+        (
+            "noqa:LN01a",
+            NoQaDirective(0, ("L002",), None),
+        ),
+        # Test selection with alias globs.
+        (
+            "noqa:LN01*",
+            NoQaDirective(
+                0,
+                (
+                    "L002",
+                    "L003",
+                    "L004",
+                ),
+                None,
+            ),
+        ),
+        # Test selection with names.
+        (
+            "noqa:capitalisation.keywords",
+            NoQaDirective(0, ("CP01",), None),
+        ),
+        # Test selection with groups.
+        (
+            "noqa:capitalisation",
+            NoQaDirective(0, ("CP01", "CP02", "CP03", "CP04", "CP05"), None),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = Linter.parse_noqa(input, 0, rule_codes=dummy_rule_codes)
+    result = Linter.parse_noqa(input, 0, reference_map=dummy_rule_map)
     if not isinstance(expected, type):
         assert result == expected
     else:
@@ -540,7 +569,7 @@ def test_parse_noqa(input, expected):
 def test_parse_noqa_no_dups():
     """Test overlapping glob expansions don't return duplicate rules in noqa."""
     result = Linter.parse_noqa(
-        comment="noqa:L0*5,L01*", line_no=0, rule_codes=dummy_rule_codes
+        comment="noqa:L0*5,L01*", line_no=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
 
@@ -736,7 +765,7 @@ def test_linted_file_ignore_masked_violations(
     noqa: dict, violations: List[SQLBaseError], expected
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
-    ignore_mask = [Linter.parse_noqa(rule_codes=dummy_rule_codes, **c) for c in noqa]
+    ignore_mask = [Linter.parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa]
     lf = linter.LintedFile(
         path="",
         violations=violations,

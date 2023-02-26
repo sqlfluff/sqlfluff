@@ -11,10 +11,8 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import rsp, FunctionalContext
-from sqlfluff.core.rules.doc_decorators import document_groups
 
 
-@document_groups
 class Rule_L046(BaseRule):
     """Jinja tags should have a single whitespace on either side.
 

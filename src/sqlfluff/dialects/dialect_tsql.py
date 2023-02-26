@@ -64,6 +64,7 @@ tsql_dialect.sets("datetime_units").update(
         "MINUTE",
         "MM",
         "MONTH",
+        "MONTHS",
         "MS",
         "N",
         "NANOSECOND",
@@ -522,6 +523,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
         ],
         remove=[
@@ -693,6 +695,86 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
             Ref("ExecuteScriptSegment"),
             Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
+class BulkInsertStatementSegment(BaseSegment):
+    """A `BULK INSERT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_statement"
+    match_grammar = Sequence(
+        "BULK",
+        "INSERT",
+        Ref("TableReferenceSegment"),
+        "FROM",
+        Ref("QuotedLiteralSegment"),
+        Ref("BulkInsertStatementWithSegment", optional=True),
+    )
+
+
+class BulkInsertStatementWithSegment(BaseSegment):
+    """A `WITH` segment in the BULK INSERT statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_with_segment"
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            "BATCHSIZE",
+                            "FIRSTROW",
+                            "KILOBYTES_PER_BATCH",
+                            "LASTROW",
+                            "MAXERRORS",
+                            "ROWS_PER_BATCH",
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "CODEPAGE",
+                            "DATAFILETYPE",
+                            "DATA_SOURCE",
+                            "ERRORFILE",
+                            "ERRORFILE_DATA_SOURCE",
+                            "FORMATFILE_DATA_SOURCE",
+                            "ROWTERMINATOR",
+                            "FORMAT",
+                            "FIELDQUOTE",
+                            "FORMATFILE",
+                            "FIELDTERMINATOR",
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ORDER",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    OneOf("ASC", "DESC", optional=True),
+                                ),
+                            ),
+                        ),
+                    ),
+                    "CHECK_CONSTRAINTS",
+                    "FIRE_TRIGGERS",
+                    "KEEPIDENTITY",
+                    "KEEPNULLS",
+                    "TABLOCK",
+                )
+            )
         ),
     )
 
@@ -2810,7 +2892,79 @@ class AlterTableStatementSegment(BaseSegment):
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
                 ),
-            ),
+                Sequence(
+                    "SET",
+                    OneOf(
+                        Bracketed(
+                            Sequence(
+                                "FILESTREAM_ON",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("FilegroupNameSegment"),
+                                    Ref("PartitionSchemeNameSegment"),
+                                    OneOf(
+                                        "NULL",
+                                        Ref("LiteralGrammar"),  # for "default" value
+                                    ),
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "SYSTEM_VERSIONING",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "DATA_CONSISTENCY_CHECK",
+                                            Ref("EqualsSegment"),
+                                            OneOf("ON", "OFF"),
+                                            optional=True,
+                                        ),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "HISTORY_RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "DATA_DELETION",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "FILTER_COLUMN",
+                                        Ref("EqualsSegment"),
+                                        Ref("ColumnReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
         ),
     )
 

@@ -1,4 +1,4 @@
-rule: L010
+rule: CP01
 
 test_fail_inconsistent_capitalisation_1:
   # Test that we don't have the "inconsistent" bug
@@ -15,7 +15,7 @@ test_fail_capitalisation_policy_lower:
   fix_str: select * from MOO order by dt desc
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: lower
 
 test_fail_capitalisation_policy_upper:
@@ -24,7 +24,7 @@ test_fail_capitalisation_policy_upper:
   fix_str: SELECT * FROM MOO ORDER BY dt DESC
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_fail_capitalisation_policy_capitalise:
@@ -33,7 +33,7 @@ test_fail_capitalisation_policy_capitalise:
   fix_str: Select * From MOO Order By dt Desc
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: capitalise
 
 test_fail_date_part_inconsistent_capitalisation:
@@ -47,7 +47,7 @@ test_fail_date_part_capitalisation_policy_lower:
   fix_str: select dt + interval 2 day, interval 3 hour
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: lower
 
 test_fail_date_part_capitalisation_policy_upper:
@@ -56,7 +56,7 @@ test_fail_date_part_capitalisation_policy_upper:
   fix_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_pass_date_part_consistent_capitalisation:
@@ -69,7 +69,7 @@ test_pass_data_type_inconsistent_capitalisation:
   pass_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_pass_bigquery_date:
@@ -78,14 +78,14 @@ test_pass_bigquery_date:
     core:
       dialect: bigquery
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_pass_ignore_word:
   pass_str: SeleCT 1
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
         ignore_words: select
 
@@ -93,7 +93,7 @@ test_pass_ignore_words:
   pass_str: SeleCT 1
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
         ignore_words: select,from
 
@@ -101,7 +101,7 @@ test_pass_ignore_words_regex_simple:
   pass_str: SeleCT 1
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
         ignore_words_regex: ^Se
 
@@ -110,7 +110,7 @@ test_fail_ignore_words_regex_simple:
   fix_str: SeleCT 1 FROM t_table
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
         ignore_words_regex: ^Se
 
@@ -118,7 +118,7 @@ test_pass_ignore_words_complex:
   pass_str: SeleCT 1 FrOM t_table
   configs:
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
         ignore_words_regex: (^Se|^Fr)
 
@@ -147,7 +147,7 @@ test_fail_snowflake_group_by_cube:
     core:
       dialect: snowflake
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_pass_ignore_null:
@@ -175,7 +175,7 @@ test_fail_bigquery_week:
     core:
       dialect: bigquery
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_fail_select_lower:
@@ -193,7 +193,7 @@ test_fail_select_lower:
     core:
       dialect: tsql
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper
 
 test_fail_select_lower_keyword_functions:
@@ -210,5 +210,5 @@ test_fail_select_lower_keyword_functions:
     core:
       dialect: tsql
     rules:
-      L010:
+      CP01:
         capitalisation_policy: upper

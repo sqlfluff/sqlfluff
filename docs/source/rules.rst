@@ -7,7 +7,8 @@ Rules Reference
 which work their way through the parsed structure of a query to evaluate
 a particular rule or set of rules. The intent is that the definition of
 each specific rule should be really streamlined and only contain the logic
-for the rule itself, with all the other mechanics abstracted away.
+for the rule itself, with all the other mechanics abstracted away. To
+understand how rules are enabled and disabled see :ref:`ruleselection`.
 
 Core Rules
 ----------
@@ -36,7 +37,7 @@ only :code:`core` rules by default.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.rules
+.. automodule:: sqlfluff.rules.sphinx
    :members:
    :member-order: alphabetical
 

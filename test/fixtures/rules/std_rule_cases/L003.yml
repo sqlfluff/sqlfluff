@@ -379,17 +379,16 @@ test_jinja_with_disbalanced_pairs:
 
 test_fail_attempted_hanger_fix:
   # Check messy hanger correction.
-  # TODO: Check we agree with this fix.
-  # I think while unconventional, it is technically correct.
   fail_str: |
     SELECT coalesce(foo,
                   bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 test_fail_possible_hanger_fix:
@@ -399,10 +398,11 @@ test_fail_possible_hanger_fix:
      bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 test_fail_consecutive_hangers:
@@ -455,16 +455,20 @@ test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the
   # default approach and indent by 1 step.
+  # NOTE: That because the indent opened before "coalesce"
+  # isn't closed before the end of the line, we force an
+  # additional indent before it.
   fail_str: |
     SELECT coalesce(
     foo,
                     bar)
        FROM tbl
   fix_str: |
-    SELECT coalesce(
-        foo,
-        bar
-    )
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
     FROM tbl
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
@@ -1650,6 +1654,62 @@ test_comment_effect_indents_implicit:
     FROM table
     WHERE TRUE -- comment
         AND TRUE
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_untaken_negative_1:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+    )
+    ;
+
+test_untaken_negative_2:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    WITH m AS (SELECT
+      firstCol
+      , secondCol
+    FROM dbo.myTable
+    )
+
+    SELECT * FROM m
+  fix_str: |
+    WITH m AS (
+        SELECT
+            firstCol
+            , secondCol
+        FROM dbo.myTable
+    )
+
+    SELECT * FROM m
+
+test_untaken_negative_implicit:
+  # NOTE: Check that implicit indents don't
+  # apply before single brackets.
+  pass_str: |
+    SELECT *
+    FROM foo
+    WHERE (
+        a = b
+    )
+    GROUP BY a
   configs:
     indentation:
       allow_implicit_indents: true

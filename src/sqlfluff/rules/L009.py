@@ -4,7 +4,6 @@ from typing import List, Optional, Tuple
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.functional import Segments, sp, tsp, FunctionalContext
 
 
@@ -31,8 +30,6 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             return parent_stack, segment
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L009(BaseRule):
     """Files must end with a single trailing newline.
 
@@ -105,12 +102,15 @@ class Rule_L009(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "line-break.end-of-file"
+    aliases = ("LB04",)
+    groups = ("all", "core", "layout", "line-break")
 
     targets_templated = True
     # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.
     crawl_behaviour = RootOnlyCrawler()
     lint_phase = "post"
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.

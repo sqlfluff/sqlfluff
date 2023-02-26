@@ -3,12 +3,9 @@ from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L065(BaseRule):
     """Set operators should be surrounded by newlines.
 
@@ -32,7 +29,7 @@ class Rule_L065(BaseRule):
     """
 
     groups = ("all",)
-
+    is_fix_compatible = True
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
