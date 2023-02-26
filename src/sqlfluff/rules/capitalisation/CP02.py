@@ -1,11 +1,11 @@
-"""Implementation of Rule L014."""
+"""Implementation of Rule CP02."""
 
 from typing import Tuple, Optional, List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.rules.L010 import Rule_L010
+from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
 def identifiers_policy_applicable(
@@ -27,7 +27,7 @@ def identifiers_policy_applicable(
     return False
 
 
-class Rule_L014(Rule_L010):
+class Rule_CP02(Rule_CP01):
     """Inconsistent capitalisation of unquoted identifiers.
 
     **Anti-pattern**
@@ -63,7 +63,8 @@ class Rule_L014(Rule_L010):
     """
 
     name = "capitalisation.identifiers"
-    aliases = ("CP02",)
+    aliases = ("L014",)
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler(
         {"naked_identifier", "properties_naked_identifier"}
@@ -75,7 +76,6 @@ class Rule_L014(Rule_L010):
         "ignore_words_regex",
     ]
     _description_elem = "Unquoted identifiers"
-    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         # Return None if identifier is case-sensitive property to enable Change

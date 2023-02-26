@@ -1,12 +1,12 @@
-"""Implementation of Rule L030."""
+"""Implementation of Rule CP03."""
 
 from typing import List, Tuple
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
-from sqlfluff.rules.L010 import Rule_L010
+from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 
-class Rule_L030(Rule_L010):
+class Rule_CP03(Rule_CP01):
     """Inconsistent capitalisation of function names.
 
     **Anti-pattern**
@@ -34,7 +34,8 @@ class Rule_L030(Rule_L010):
     """
 
     name = "capitalisation.functions"
-    aliases = ("CP03",)
+    aliases = ("L030",)
+    is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler(
         {"function_name_identifier", "bare_function"}
@@ -46,7 +47,6 @@ class Rule_L030(Rule_L010):
         "ignore_words_regex",
     ]
     _description_elem = "Function names"
-    is_fix_compatible = True
 
     def _get_fix(self, segment, fixed_raw):
         return super()._get_fix(segment, fixed_raw)

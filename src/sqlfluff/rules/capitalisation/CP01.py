@@ -1,4 +1,4 @@
-"""Implementation of Rule L010."""
+"""Implementation of Rule CP01."""
 
 import regex
 from typing import Tuple, List, Optional
@@ -15,7 +15,7 @@ def is_capitalizable(character: str) -> bool:
     return True
 
 
-class Rule_L010(BaseRule):
+class Rule_CP01(BaseRule):
     """Inconsistent capitalisation of keywords.
 
     **Anti-pattern**
@@ -46,14 +46,15 @@ class Rule_L010(BaseRule):
     """
 
     name = "capitalisation.keywords"
-    aliases = ("CP01",)
+    aliases = ("L010",)
     groups: Tuple[str, ...] = ("all", "core", "capitalisation")
+    is_fix_compatible = True
 
     lint_phase = "post"
     # Binary operators behave like keywords too.
     crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
     # Skip boolean and null literals (which are also keywords)
-    # as they have their own rule (L040)
+    # as they have their own rule (CP04)
     _exclude_elements: List[Tuple[str, str]] = [
         ("type", "null_literal"),
         ("type", "boolean_literal"),
@@ -64,7 +65,6 @@ class Rule_L010(BaseRule):
     config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
-    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Inconsistent capitalisation of keywords.
@@ -81,7 +81,7 @@ class Rule_L010(BaseRule):
         if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
             return [LintResult(memory=context.memory)]
 
-        # Used by L030 (that inherits from this rule)
+        # Used by CP03 (that inherits from this rule)
         # If it's a qualified function_name (i.e with more than one part to
         # function_name). Then it is likely an existing user defined function (UDF)
         # which are case sensitive so ignore for this.
@@ -266,7 +266,7 @@ class Rule_L010(BaseRule):
             for opt in get_config_info()[cap_policy_name]["validation"]
             if opt != "consistent"
         ]
-        # Use str() as L040 uses bools which might otherwise be read as bool
+        # Use str() as CP04 uses bools which might otherwise be read as bool
         ignore_words_config = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
             self.ignore_words_list = self.split_comma_separated_string(

@@ -61,7 +61,7 @@ version number.
 .. code-block:: text
 
     $ sqlfluff version
-    2.0.0a4
+    2.0.0a5
 
 Basic Usage
 -----------
@@ -87,11 +87,20 @@ file.
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   9 | L006 | Missing whitespace before +
-    L:   1 | P:   9 | L006 | Missing whitespace after +
-    L:   1 | P:  11 | L039 | Unnecessary whitespace found.
-    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   1 | P:   7 | L003 | Expected line break and indent of 4 spaces before 'a'.
+                           | [layout.indent.b]
+    L:   1 | P:   9 | L006 | Expected single whitespace between naked identifier and
+                           | binary operator '+'. [spacing.operators]
+    L:   1 | P:  10 | L006 | Expected single whitespace between binary operator '+'
+                           | and naked identifier. [spacing.operators]
+    L:   1 | P:  11 | L039 | Expected only single space before 'AS' keyword. Found '  '.
+    L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
+                           | [layout.indent.b]
+    L:   2 | P:   9 | L003 | Expected line break and no indent before 'from'.
+                           | [layout.indent.b]
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
+                           | [capitalisation.keywords]
+    All Finished 📜 🎉!
 
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
@@ -122,7 +131,7 @@ error (violation of *L006*) no longer shows up.
                            | only one select target.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -132,15 +141,15 @@ and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
 it's a good place to start.
 
-For now, we only want to fix the following rules: *L003*, *L009*, *L010*
+For now, we only want to fix the following rules: *L003*, *L009*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010 --dialect ansi
+    $ sqlfluff fix test.sql --rules L003,L009,CP01 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
-    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
+    L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
     ==== fixing violations ====
     2 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
@@ -234,14 +243,14 @@ put the following content:
     [sqlfluff:indentation]
     tab_space_size = 2
 
-    [sqlfluff:rules:L010]
+    [sqlfluff:rules:CP01]
     capitalisation_policy = lower
 
 Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
+    $ sqlfluff fix test.sql --rules L003,L009,CP01,L034,L036,L039
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.
