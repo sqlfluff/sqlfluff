@@ -39,7 +39,7 @@ class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
-       This rule is disabled by default for BigQuery, Hive, Redshift, SOQL, and SparkSQL
+       This rule is disabled by default for BigQuery, Databricks, Hive, Redshift, SOQL, and SparkSQL
        due to the support of things like structs and lateral views which trigger false
        positives. It can be enabled with the ``force_enable = True`` flag.
 
@@ -68,7 +68,7 @@ class Rule_L026(BaseRule):
     groups = ("all", "core")
     config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
-    _dialects_disabled_by_default = ["bigquery", "hive", "redshift", "soql", "sparksql"]
+    _dialects_disabled_by_default = ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         # Config type hints
