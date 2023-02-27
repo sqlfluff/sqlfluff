@@ -68,7 +68,14 @@ class Rule_L026(BaseRule):
     groups = ("all", "core")
     config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
-    _dialects_disabled_by_default = ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"]
+    _dialects_disabled_by_default = [
+        "bigquery",
+        "databricks",
+        "hive",
+        "redshift",
+        "soql",
+        "sparksql",
+    ]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         # Config type hints

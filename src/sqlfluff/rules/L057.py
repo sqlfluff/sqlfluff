@@ -140,7 +140,10 @@ class Rule_L057(BaseRule):
             # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
             #
 
-            if context.dialect.name in ["databricks", "sparksql"] and context.parent_stack:
+            if (
+                context.dialect.name in ["databricks", "sparksql"]
+                and context.parent_stack
+            ):
                 # Databricks & SparkSQL file references for direct file query
                 # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing

@@ -14,5 +14,5 @@ RESERVED_KEYWORDS = [
     "RIGHT",
     "SEMI",
     "UNION",
-    "USING"
+    "USING",
 ]
