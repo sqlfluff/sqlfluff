@@ -131,7 +131,7 @@ class Rule_L057(BaseRule):
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 
-            # SparkSQL file references for direct file query
+            # Databricks & SparkSQL file references for direct file query
             # are quoted in back ticks to allow for identifiers common
             # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
@@ -140,8 +140,11 @@ class Rule_L057(BaseRule):
             # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
             #
 
-            if context.dialect.name in ["sparksql"] and context.parent_stack:
-                # SparkSQL file references for direct file query
+            if (
+                context.dialect.name in ["databricks", "sparksql"]
+                and context.parent_stack
+            ):
+                # Databricks & SparkSQL file references for direct file query
                 # are quoted in back ticks to allow for identifiers common
                 # in file paths and regex patterns for path globbing
                 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
@@ -152,7 +155,8 @@ class Rule_L057(BaseRule):
                 if context.parent_stack[-1].is_type("file_reference"):
                     return None
 
-                # SparkSQL properties keys used for setting table and runtime
+                # Databricks & SparkSQL properties keys
+                # used for setting table and runtime
                 # configurations denote namespace using dots, so these are
                 # removed before testing L057 to not trigger false positives
                 # Runtime configurations:

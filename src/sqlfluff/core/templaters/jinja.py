@@ -2,6 +2,8 @@
 import logging
 import os.path
 import pkgutil
+import importlib
+import sys
 from functools import reduce
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
@@ -146,12 +148,18 @@ class JinjaTemplater(PythonTemplater):
             os.path.join(library_path, "..") if is_library_module else library_path
         )
 
-        for loader, module_name, is_pkg in pkgutil.walk_packages([walk_path]):
+        for module_finder, module_name, _ in pkgutil.walk_packages([walk_path]):
             # skip other modules that can be near module_dir
             if is_library_module and not module_name.startswith(library_module_name):
                 continue
 
-            module = loader.find_module(module_name).load_module(module_name)
+            # import_module is deprecated as of python 3.4. This follows roughly
+            # the guidance of the python docs:
+            # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
+            spec = module_finder.find_spec(module_name)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module
+            spec.loader.exec_module(module)
 
             if "." in module_name:  # nested modules have `.` in module_name
                 *module_path, last_module_name = module_name.split(".")
