@@ -82,7 +82,7 @@ class Rule_CP02(Rule_CP01):
         # Data Feed
         # https://docs.delta.io/2.0.0/delta-change-data-feed.html#enable-change-data-feed
         if (
-            context.dialect.name in ["sparksql"]
+            context.dialect.name in ["databricks", "sparksql"]
             and context.parent_stack
             and context.parent_stack[-1].type == "property_name_identifier"
             and context.segment.raw == "enableChangeDataFeed"
