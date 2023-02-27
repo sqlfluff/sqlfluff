@@ -155,7 +155,8 @@ class Rule_L057(BaseRule):
                 if context.parent_stack[-1].is_type("file_reference"):
                     return None
 
-                # Databricks & SparkSQL properties keys used for setting table and runtime
+                # Databricks & SparkSQL properties keys
+                # used for setting table and runtime
                 # configurations denote namespace using dots, so these are
                 # removed before testing L057 to not trigger false positives
                 # Runtime configurations:

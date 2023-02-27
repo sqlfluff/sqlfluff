@@ -26,7 +26,8 @@ class Rule_L064(BaseRule):
        cannot interchange single and double quotes
 
        This rule is only enabled for dialects that allow single *and* double quotes for
-       quoted literals (currently ``bigquery``, ``databricks``, ``hive``, ``mysql``, ``sparksql``).
+       quoted literals
+       (currently ``bigquery``, ``databricks``, ``hive``, ``mysql``, ``sparksql``).
        It can be enabled for other dialects with the ``force_enable = True`` flag.
 
     **Anti-pattern**
