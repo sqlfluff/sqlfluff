@@ -39,10 +39,11 @@ class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
-       This rule is disabled by default for:
-        BigQuery, Databricks, Hive, Redshift, SOQL, and SparkSQL
-       due to the support of things like structs and lateral views which trigger false
-       positives. It can be enabled with the ``force_enable = True`` flag.
+
+       This rule is disabled by default for BigQuery, Databricks, Hive,
+       Redshift, SOQL and SparkSQL due to the support of things like
+       structs and lateral views which trigger false positives. It can be
+       enabled with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
