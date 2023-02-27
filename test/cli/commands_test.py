@@ -964,7 +964,7 @@ def _mock_eval(rule, context):
         ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
     ],
 )
-@patch("sqlfluff.rules.LT01.Rule_LT01._eval", _mock_eval)
+@patch("sqlfluff.rules.layout.LT01.Rule_LT01._eval", _mock_eval)
 def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
     fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "LT01"]

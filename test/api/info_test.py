@@ -18,10 +18,10 @@ def test__api__info_rules():
     assert (
         RuleTuple(
             code="LT01",
-            name="trailing-whitespace",
-            description="Unnecessary trailing whitespace.",
-            groups=("all", "core", "layout", "spacing"),
-            aliases=("L001",),
+            name="layout.spacing",
+            description="Unnecessary whitespace.",
+            groups=("all", "core", "layout"),
+            aliases=("L001", "L039"),
         )
         in rules
     )

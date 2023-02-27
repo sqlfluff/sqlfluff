@@ -497,14 +497,14 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         ("noqa", NoQaDirective(0, None, None)),
         ("noqa?", SQLParseError),
         ("noqa:", NoQaDirective(0, None, None)),
-        ("noqa:LT01,L002", NoQaDirective(0, ("LT01", "L002"), None)),
+        ("noqa:LT01,L002", NoQaDirective(0, ("L002", "LT01"), None)),
         ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
         ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
         (
             "Inline comment before inline ignore -- noqa:LT01,L002",
-            NoQaDirective(0, ("LT01", "L002"), None),
+            NoQaDirective(0, ("L002", "LT01"), None),
         ),
         # Test selection with rule globs
         (

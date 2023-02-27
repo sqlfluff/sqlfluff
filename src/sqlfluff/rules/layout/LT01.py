@@ -37,7 +37,7 @@ class Rule_LT01(BaseRule):
     # - L001: Trailing Whitespace
     # - L039: Unnecessary Whitespace
     # TODO: Potentially more
-    aliases = ("L039", "L001")
+    aliases = ("L001", "L039")
     groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
