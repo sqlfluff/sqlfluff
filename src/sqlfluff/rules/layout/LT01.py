@@ -14,6 +14,7 @@ class Rule_LT01(BaseRule):
     **Anti-pattern**
 
     .. code-block:: sql
+        :force:
 
         SELECT
             a,        b••
