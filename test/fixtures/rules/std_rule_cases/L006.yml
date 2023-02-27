@@ -55,7 +55,7 @@ fail_simple:
   fix_str: "SELECT 1 + 2"
 
 dont_fail_on_too_much_whitespace:
-  # Too much whitespace should be caught by L039
+  # Too much whitespace should be caught by LT01
   pass_str: "SELECT 1   +   2"
 
 

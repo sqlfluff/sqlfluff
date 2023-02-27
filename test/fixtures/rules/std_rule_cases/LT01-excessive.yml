@@ -1,4 +1,4 @@
-rule: L039
+rule: LT01
 
 test_basic:
   pass_str: SELECT 1

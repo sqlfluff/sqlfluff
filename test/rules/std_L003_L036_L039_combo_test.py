@@ -1,14 +1,14 @@
 """Tests issue #1373 doesn't reoccur.
 
 The combination of L003 (incorrect indentation), L036 (select targets),
-and L039 (unnecessary white space) can result in incorrect indentation.
+and LT01 (unnecessary white space) can result in incorrect indentation.
 """
 
 import sqlfluff
 
 
-def test__rules__std_L003_L036_L039():
-    """Verify that double indents don't flag L039."""
+def test__rules__std_L003_L036_LT01():
+    """Verify that double indents don't flag LT01."""
     sql = """
 WITH example AS (
     SELECT my_id,

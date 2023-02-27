@@ -105,7 +105,7 @@ class SQLBaseError(ValueError):
     def warning_if_in(self, warning_iterable: List[str]):
         """Warning only for this violation if it matches the iterable.
 
-        Designed for rule codes so works with L001, L00X but also TMP or PRS
+        Designed for rule codes so works with L001, LL0X but also TMP or PRS
         for templating and parsing errors.
         """
         if self.rule_code() in warning_iterable:

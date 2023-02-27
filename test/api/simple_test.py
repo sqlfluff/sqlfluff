@@ -30,7 +30,7 @@ lint_result = [
         "line_pos": 1,
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before star '*'. Found '  '.",
         "line_no": 1,
         "line_pos": 7,
@@ -48,7 +48,7 @@ lint_result = [
         "description": "Keywords must be consistently upper case.",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": (
             "Expected only single space before naked identifier. Found '  '."
         ),
@@ -62,7 +62,7 @@ lint_result = [
         "description": "Unquoted identifiers must be consistently lower case.",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before 'from' keyword. Found '  '.",
         "line_no": 1,
         "line_pos": 27,
@@ -122,7 +122,7 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 1
@@ -131,7 +131,7 @@ def test__api__lint_string_specific_exclude():
 
 def test__api__lint_string_specific_exclude_single():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L039"]
+    exclude_rules = ["LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 9
@@ -142,7 +142,7 @@ def test__api__lint_string_specific_exclude_single():
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039", "L044"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "LT01", "L044"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []

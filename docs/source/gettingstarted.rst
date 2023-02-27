@@ -93,7 +93,7 @@ file.
                            | binary operator '+'. [spacing.operators]
     L:   1 | P:  10 | L006 | Expected single whitespace between binary operator '+'
                            | and naked identifier. [spacing.operators]
-    L:   1 | P:  11 | L039 | Expected only single space before 'AS' keyword. Found '  '.
+    L:   1 | P:  11 | LT01 | Expected only single space before 'AS' keyword. Found '  '.
     L:   2 | P:   1 | L003 | Expected indent of 4 spaces.
                            | [layout.indent.b]
     L:   2 | P:   9 | L003 | Expected line break and no indent before 'from'.
@@ -129,7 +129,7 @@ error (violation of *L006*) no longer shows up.
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
+    L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
 
@@ -194,7 +194,7 @@ specifying :code:`--rules`.
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:  13 | L039 | Unnecessary whitespace found.
+    L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     ==== fixing violations ====
     3 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n] ...
@@ -250,7 +250,7 @@ Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,CP01,L034,L036,L039
+    $ sqlfluff fix test.sql --rules L003,L009,CP01,L034,L036,LT01
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.

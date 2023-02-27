@@ -30,7 +30,7 @@ from sqlfluff.core.templaters import TemplatedFile
 class DummyLintError(SQLBaseError):
     """Fake lint error used by tests, similar to SQLLintError."""
 
-    def __init__(self, line_no: int, code: str = "L001"):
+    def __init__(self, line_no: int, code: str = "LT01"):
         self._code = code
         super().__init__(line_no=line_no)
 
@@ -211,7 +211,7 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "rules,num_violations", [(None, 7), ("CP01", 2), (("L001", "L009", "L031"), 2)]
+    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "L009", "L031"), 2)]
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
@@ -476,7 +476,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L001",
+                "rules": "LT01",
                 "encoding": config_encoding,
                 "dialect": "ansi",
             }
@@ -497,14 +497,14 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         ("noqa", NoQaDirective(0, None, None)),
         ("noqa?", SQLParseError),
         ("noqa:", NoQaDirective(0, None, None)),
-        ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
+        ("noqa:LT01,L002", NoQaDirective(0, ("LT01", "L002"), None)),
         ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
         ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
         (
-            "Inline comment before inline ignore -- noqa:L001,L002",
-            NoQaDirective(0, ("L001", "L002"), None),
+            "Inline comment before inline ignore -- noqa:LT01,L002",
+            NoQaDirective(0, ("LT01", "L002"), None),
         ),
         # Test selection with rule globs
         (
@@ -585,12 +585,12 @@ def test_parse_noqa_no_dups():
             ],
         ],
         [
-            [dict(comment="noqa: L001", line_no=1)],
+            [dict(comment="noqa: LT01", line_no=1)],
             [DummyLintError(1)],
             [],
         ],
         [
-            [dict(comment="noqa: L001", line_no=2)],
+            [dict(comment="noqa: LT01", line_no=2)],
             [DummyLintError(1)],
             [0],
         ],
@@ -600,43 +600,43 @@ def test_parse_noqa_no_dups():
             [0],
         ],
         [
-            [dict(comment="noqa: enable=L001", line_no=1)],
+            [dict(comment="noqa: enable=LT01", line_no=1)],
             [DummyLintError(1)],
             [0],
         ],
         [
-            [dict(comment="noqa: disable=L001", line_no=1)],
+            [dict(comment="noqa: disable=LT01", line_no=1)],
             [DummyLintError(1)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2),
-                dict(comment="noqa: enable=L001", line_no=4),
+                dict(comment="noqa: disable=LT01", line_no=2),
+                dict(comment="noqa: enable=LT01", line_no=4),
             ],
             [DummyLintError(1)],
             [0],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2),
-                dict(comment="noqa: enable=L001", line_no=4),
+                dict(comment="noqa: disable=LT01", line_no=2),
+                dict(comment="noqa: enable=LT01", line_no=4),
             ],
             [DummyLintError(2)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2),
-                dict(comment="noqa: enable=L001", line_no=4),
+                dict(comment="noqa: disable=LT01", line_no=2),
+                dict(comment="noqa: enable=LT01", line_no=4),
             ],
             [DummyLintError(3)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2),
-                dict(comment="noqa: enable=L001", line_no=4),
+                dict(comment="noqa: disable=LT01", line_no=2),
+                dict(comment="noqa: enable=LT01", line_no=4),
             ],
             [DummyLintError(4)],
             [0],
@@ -675,13 +675,13 @@ def test_parse_noqa_no_dups():
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: disable=LT01", line_no=2),
                 dict(comment="noqa: enable=all", line_no=4),
             ],
             [
-                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="LT01"),
                 DummyLintError(2, code="L002"),
-                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="LT01"),
                 DummyLintError(4, code="L002"),
             ],
             [1, 2, 3],
@@ -689,12 +689,12 @@ def test_parse_noqa_no_dups():
         [
             [
                 dict(comment="noqa: disable=all", line_no=2),
-                dict(comment="noqa: enable=L001", line_no=4),
+                dict(comment="noqa: enable=LT01", line_no=4),
             ],
             [
-                DummyLintError(2, code="L001"),
+                DummyLintError(2, code="LT01"),
                 DummyLintError(2, code="L002"),
-                DummyLintError(4, code="L001"),
+                DummyLintError(4, code="LT01"),
                 DummyLintError(4, code="L002"),
             ],
             [2],

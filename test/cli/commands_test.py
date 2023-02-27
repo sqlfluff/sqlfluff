@@ -365,7 +365,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001",
+                "LT01",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -375,7 +375,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001,L002",
+                "LT01,L002",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -385,7 +385,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001,L006",
+                "LT01,L006",
                 "--exclude-rules",
                 "L006,L031",
                 "test/fixtures/linter/operator_errors.sql",
@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,L039,L071",
+                "L006,L007,L031,LT01,L071",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -451,7 +451,7 @@ def test__cli__command_lint_parse(command):
                 fix,
                 [
                     "--rules",
-                    "L001",
+                    "LT01",
                     "test/fixtures/cli/fail_many.sql",
                     "-vvvvvvv",
                 ],
@@ -465,7 +465,7 @@ def test__cli__command_lint_parse(command):
                 fix,
                 [
                     "--rules",
-                    "L001",
+                    "LT01",
                     "--fixed-suffix",
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
@@ -693,7 +693,7 @@ def generic_roundtrip_test(
 @pytest.mark.parametrize(
     "rule,fname",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
         ("L008", "test/fixtures/linter/whitespace_errors.sql"),
         ("L008", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
@@ -964,10 +964,10 @@ def _mock_eval(rule, context):
         ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
     ],
 )
-@patch("sqlfluff.rules.L001.Rule_L001._eval", _mock_eval)
+@patch("sqlfluff.rules.LT01.Rule_LT01._eval", _mock_eval)
 def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
-    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
+    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "LT01"]
     tmp_path = pathlib.Path(str(tmpdir))
     filepath = tmp_path / "testing.sql"
     filepath.write_text(textwrap.dedent(sql))
@@ -1110,8 +1110,8 @@ def test__cli__command_fix_stdin_error_exit_code(
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code,fix_exit_code",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
 def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
@@ -1548,7 +1548,7 @@ def test_encoding(encoding_in, encoding_out):
     with open("test/fixtures/linter/indentation_errors.sql", "r") as testfile:
         generic_roundtrip_test(
             testfile,
-            "L001",
+            "LT01",
             input_file_encoding=encoding_in,
             output_file_encoding=encoding_out,
         )
@@ -1704,7 +1704,7 @@ class TestProgressBars:
         raw_output = repr(result.output)
 
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
@@ -1734,7 +1734,7 @@ class TestProgressBars:
             in raw_output
         )
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
@@ -1773,7 +1773,7 @@ class TestProgressBars:
             in raw_output
         )
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule L049:" in raw_output
 
     def test_cli_fix_disabled_progress_bar(

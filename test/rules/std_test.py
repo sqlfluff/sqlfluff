@@ -9,7 +9,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 @pytest.mark.parametrize(
     "rule,path,violations",
     [
-        ("L001", "indentation_errors.sql", [(4, 24)]),
+        ("LT01", "indentation_errors.sql", [(4, 24)]),
         ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
         (
             "L003",
@@ -35,19 +35,19 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             [(7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
         (
-            "L039",
+            "LT01",
             "operator_errors.sql",
             [(3, 8), (4, 10)],
         ),
         ("L007", "operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & LT01)
         (
             "L006",
             "operator_errors_negative.sql",
             [(5, 6), (5, 7)],
         ),
         (
-            "L039",
+            "LT01",
             "operator_errors_negative.sql",
             [(2, 6), (2, 9)],
         ),

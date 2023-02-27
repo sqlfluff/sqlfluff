@@ -368,13 +368,13 @@ def test__config__from_kwargs():
     # Instantiate config object.
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
-        rules=["L001", "L002"],
+        rules=["LT01", "L002"],
         exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
-    assert cfg.get("rules") == "L001,L002"
+    assert cfg.get("rules") == "LT01,L002"
     assert cfg.get("exclude_rules") == "CP01,AL01"
 
 

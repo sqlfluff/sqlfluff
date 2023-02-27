@@ -20,14 +20,14 @@ def test_assert_rule_fail_in_sql_handle_parse_error():
 def test_assert_rule_fail_in_sql_should_fail_queries_that_unexpectedly_pass():
     """Util assert_rule_fail_in_sql should fail if no failure."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_fail_in_sql(code="L001", sql="select 1")
-    failed_test.match("No L001 failures found in query which should fail")
+        assert_rule_fail_in_sql(code="LT01", sql="select 1")
+    failed_test.match("No LT01 failures found in query which should fail")
 
 
 def test_assert_rule_pass_in_sql_should_handle_parse_error():
     """Util assert_rule_pass_in_sql should handle parse errors."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_pass_in_sql(code="L001", sql="select from")
+        assert_rule_pass_in_sql(code="LT01", sql="select from")
     failed_test.match("Found unparsable section:")
 
 

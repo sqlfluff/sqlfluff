@@ -1,4 +1,4 @@
-rule: L001
+rule: LT01
 
 test_fail_trailing_whitespace:
   fail_str: "SELECT 1     \n"

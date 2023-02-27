@@ -15,10 +15,10 @@ dialect_names = [dialect.label for dialect in dialects]
 rules = sqlfluff.list_rules()
 # rules = [
 #     RuleTuple(
-#         code='Example_L001',
+#         code='Example_LT01',
 #         description='ORDER BY on these columns is forbidden!'
 #     ),
 #     ...
 # ]
 rule_codes = [rule.code for rule in rules]
-# rule_codes = ["L001", "L002", ...]
+# rule_codes = ["LT01", "L002", ...]
