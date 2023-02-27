@@ -2557,11 +2557,23 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar = OneOf(
         "COALESCE",
-        "CURRENT_TIMESTAMP",
-        "CURRENT_USER",
         "LEFT",
         "NULLIF",
         "RIGHT",
+    )
+
+
+class ReservedKeywordUnbracketedFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are also functions.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
         "SESSION_USER",
         "SYSTEM_USER",
     )
@@ -2687,6 +2699,7 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = OneOf(
+        Ref("ReservedKeywordUnbracketedFunctionNameSegment"),
         Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
