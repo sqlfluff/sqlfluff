@@ -365,7 +365,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "LT01",
+                "CP01",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -375,7 +375,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "LT01,L002",
+                "CP01,L002",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -385,7 +385,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "LT01,L006",
+                "CP01,L006",
                 "--exclude-rules",
                 "L006,L031",
                 "test/fixtures/linter/operator_errors.sql",
