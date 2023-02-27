@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84ad68814dc75428d66b3e277bd642231d89b372e61d43fb0b6840d46e86443c
+_hash: 58b14f77a31e4a4c43259e4d42b5e0a77a87be1b619e857fac329c4747b8c8e6
 file:
   batch:
     statement:
@@ -860,14 +860,10 @@ file:
             bare_function: CURRENT_TIMESTAMP
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                keyword: CURRENT_USER
+            bare_function: CURRENT_USER
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                keyword: SESSION_USER
+            bare_function: SESSION_USER
         - comma: ','
         - select_clause_element:
             bare_function: SYSTEM_USER

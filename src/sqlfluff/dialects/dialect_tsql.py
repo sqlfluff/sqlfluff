@@ -94,7 +94,7 @@ tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
 
-tsql_dialect.sets("bare_functions").update(["system_user"])
+tsql_dialect.sets("bare_functions").update(["system_user", "session_user", "current_user"])
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -2564,7 +2564,7 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
 
 
 class ReservedKeywordUnbracketedFunctionNameSegment(BaseSegment):
-    """Reserved keywords that are also functions.
+    """Reserved keywords that are functions without parentheses.
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
