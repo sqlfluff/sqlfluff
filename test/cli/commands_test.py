@@ -73,7 +73,7 @@ def contains_ansi_escape(s: str) -> bool:
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
+L:   2 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 L:   5 | P:  10 | CP01 | Keywords must be consistently upper case.
                        | [capitalisation.keywords]
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
@@ -93,7 +93,7 @@ def test__cli__command_directed():
         ],
     )
     # We should get a readout of what the error was
-    check_a = "L:   2 | P:   1 | L003"
+    check_a = "L:   2 | P:   1 | LT02"
     # NB: Skip the number at the end because it's configurable
     check_b = "ndentation"
     assert check_a in result.output
@@ -375,7 +375,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "CP01,L002",
+                "CP01,LT02",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -407,7 +407,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L003,L009,L031",
+                "LT02,L009,L031",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
@@ -697,7 +697,7 @@ def generic_roundtrip_test(
         ("L008", "test/fixtures/linter/whitespace_errors.sql"),
         ("L008", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
-        ("L003", "test/fixtures/linter/indentation_error_hard.sql"),
+        ("LT02", "test/fixtures/linter/indentation_error_hard.sql"),
     ],
 )
 def test__cli__command__fix(rule, fname):
@@ -1005,10 +1005,10 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
 @pytest.mark.parametrize(
     "stdin,rules,stdout",
     [
-        ("select * from t", "L003", "select * from t"),  # no change
+        ("select * from t", "LT02", "select * from t"),  # no change
         (
             " select * from t",
-            "L003",
+            "LT02",
             "select * from t",
         ),  # fix preceding whitespace
         # L031 fix aliases in joins
@@ -1048,7 +1048,7 @@ def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
 
     monkeypatch.setattr(sqlfluff.cli.commands, "Linter", MockLinter)
     result = invoke_assert_code(
-        args=[fix, ("-", "--rules=L003", "--dialect=ansi")],
+        args=[fix, ("-", "--rules=LT02", "--dialect=ansi")],
         cli_input=perfect_sql,
         mix_stderr=False,
     )
@@ -1819,7 +1819,7 @@ class TestProgressBars:
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
+L:  12 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
@@ -1867,7 +1867,7 @@ def test__cli__fix_multiple_errors_show_errors():
     assert check_a in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.
-    assert "L:  12 | P:   1 | L003 | Expected indent of 4 spaces." in result.output
+    assert "L:  12 | P:   1 | LT02 | Expected indent of 4 spaces." in result.output
     assert (
         "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in "
         "select with more than" in result.output

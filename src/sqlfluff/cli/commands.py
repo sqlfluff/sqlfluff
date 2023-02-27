@@ -228,8 +228,8 @@ def core_options(f: Callable) -> Callable:
             "Narrow the search to only specific rules. For example "
             "specifying `--rules LT01` will only search for rule `LT01` (Unnecessary "
             "trailing whitespace). Multiple rules can be specified with commas e.g. "
-            "`--rules LT01,L002` will specify only looking for violations of rule "
-            "`LT01` and rule `L002`."
+            "`--rules LT01,LT02` will specify only looking for violations of rule "
+            "`LT01` and rule `LT02`."
         ),
     )(f)
     f = click.option(
@@ -242,8 +242,8 @@ def core_options(f: Callable) -> Callable:
             "trailing whitespace) from the set of considered rules. This could either "
             "be the allowlist, or the general set if there is no specific allowlist. "
             "Multiple rules can be specified with commas e.g. "
-            "`--exclude-rules LT01,L002` will exclude violations of rule "
-            "`LT01` and rule `L002`."
+            "`--exclude-rules LT01,LT02` will exclude violations of rule "
+            "`LT01` and rule `LT02`."
         ),
     )(f)
     f = click.option(

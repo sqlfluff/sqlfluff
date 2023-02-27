@@ -21,4 +21,4 @@ rules = sqlfluff.list_rules()
 #     ...
 # ]
 rule_codes = [rule.code for rule in rules]
-# rule_codes = ["LT01", "L002", ...]
+# rule_codes = ["LT01", "LT02", ...]

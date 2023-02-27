@@ -49,7 +49,7 @@ def test_rules__test_helper_skipped_when_test_case_skipped():
 def test_rules__test_helper_has_variable_introspection(test_verbosity_level):
     """Make sure the helper gives variable introspection information on failure."""
     rule_test_case = RuleTestCase(
-        rule="L003",
+        rule="LT02",
         fail_str="""
             select
                 a,

@@ -10,9 +10,9 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
     "rule,path,violations",
     [
         ("LT01", "indentation_errors.sql", [(4, 24)]),
-        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
+        ("LT02", "indentation_errors.sql", [(3, 1), (4, 1)]),
         (
-            "L003",
+            "LT02",
             "indentation_errors.sql",
             [(2, 1), (3, 1), (4, 1), (5, 1)],
         ),
@@ -53,7 +53,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ),
         # Hard indentation errors
         (
-            "L003",
+            "LT02",
             "indentation_error_hard.sql",
             [
                 (2, 1),
@@ -71,7 +71,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             ],
         ),
         # Check bracket handling with closing brackets and contained indents works.
-        ("L003", "indentation_error_contained.sql", []),
+        ("LT02", "indentation_error_contained.sql", []),
         # Check we handle block comments as expect. Github #236
         (
             "L016",

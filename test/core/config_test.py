@@ -198,18 +198,18 @@ def test__config__nested_config_tests():
     test.
     """
     lntr = Linter(
-        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+        config=FluffConfig(overrides=dict(exclude_rules="LT02", dialect="ansi"))
     )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith("nested\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
+            assert ("LT02", 1, 1) in violations[k]
             assert ("L009", 1, 12) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
+            assert "LT02" not in [c[0] for c in violations[k]]
         elif k.endswith("inheritance_b\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
+            assert ("LT02", 1, 1) in violations[k]
+            assert "LT02" not in [c[0] for c in violations[k]]
             assert "L009" not in [c[0] for c in violations[k]]
 
 
@@ -368,13 +368,13 @@ def test__config__from_kwargs():
     # Instantiate config object.
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
-        rules=["LT01", "L002"],
+        rules=["LT01", "LT02"],
         exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
-    assert cfg.get("rules") == "LT01,L002"
+    assert cfg.get("rules") == "LT01,LT02"
     assert cfg.get("exclude_rules") == "CP01,AL01"
 
 
@@ -415,7 +415,7 @@ def test__config__validate_configs_indirect():
             configs={
                 "core": {"dialect": "ansi"},
                 # This is a known removed value.
-                "rules": {"L003": {"lint_templated_tokens": True}},
+                "rules": {"LT02": {"lint_templated_tokens": True}},
             }
         )
 

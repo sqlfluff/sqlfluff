@@ -139,7 +139,7 @@ like this:
         # additional_dependencies: ['<dbt-adapter>', 'sqlfluff-templater-dbt']
       - id: sqlfluff-fix
         # Arbitrary arguments to show an example
-        # args: [--rules, "L003,CP02"]
+        # args: [--rules, "LT02,CP02"]
         # additional_dependencies: ['<dbt-adapter>', 'sqlfluff-templater-dbt']
 
 When trying to use the `dbt templater`_, uncomment the

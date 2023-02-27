@@ -12,5 +12,5 @@ def test_sphinx_import():
     import sqlfluff.rules.sphinx as sphinx_module
 
     # Verify that the rules we're expecting are imported
-    assert "Rule_L003" in sphinx_module.__all__
+    assert "Rule_LT02" in sphinx_module.__all__
     assert "Rule_CP01" in sphinx_module.__all__

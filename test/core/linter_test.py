@@ -497,14 +497,14 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         ("noqa", NoQaDirective(0, None, None)),
         ("noqa?", SQLParseError),
         ("noqa:", NoQaDirective(0, None, None)),
-        ("noqa:LT01,L002", NoQaDirective(0, ("L002", "LT01"), None)),
+        ("noqa:LT01,LT02", NoQaDirective(0, ("LT01", "LT02"), None)),
         ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
         ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
         (
-            "Inline comment before inline ignore -- noqa:LT01,L002",
-            NoQaDirective(0, ("L002", "LT01"), None),
+            "Inline comment before inline ignore -- noqa:LT01,LT02",
+            NoQaDirective(0, ("LT01", "LT02"), None),
         ),
         # Test selection with rule globs
         (
@@ -529,7 +529,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         # Test selection with aliases.
         (
             "noqa:LN01a",
-            NoQaDirective(0, ("L002",), None),
+            NoQaDirective(0, ("LT02",), None),
         ),
         # Test selection with alias globs.
         (
@@ -537,8 +537,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             NoQaDirective(
                 0,
                 (
-                    "L002",
-                    "L003",
+                    "LT02",
                     "L004",
                 ),
                 None,
@@ -595,7 +594,7 @@ def test_parse_noqa_no_dups():
             [0],
         ],
         [
-            [dict(comment="noqa: L002", line_no=1)],
+            [dict(comment="noqa: LT02", line_no=1)],
             [DummyLintError(1)],
             [0],
         ],
@@ -680,9 +679,9 @@ def test_parse_noqa_no_dups():
             ],
             [
                 DummyLintError(2, code="LT01"),
-                DummyLintError(2, code="L002"),
+                DummyLintError(2, code="LT02"),
                 DummyLintError(4, code="LT01"),
-                DummyLintError(4, code="L002"),
+                DummyLintError(4, code="LT02"),
             ],
             [1, 2, 3],
         ],
@@ -693,16 +692,16 @@ def test_parse_noqa_no_dups():
             ],
             [
                 DummyLintError(2, code="LT01"),
-                DummyLintError(2, code="L002"),
+                DummyLintError(2, code="LT02"),
                 DummyLintError(4, code="LT01"),
-                DummyLintError(4, code="L002"),
+                DummyLintError(4, code="LT02"),
             ],
             [2],
         ],
         [
             [
                 dict(
-                    comment="Inline comment before inline ignore -- noqa: L002",
+                    comment="Inline comment before inline ignore -- noqa: LT02",
                     line_no=1,
                 )
             ],
@@ -712,11 +711,11 @@ def test_parse_noqa_no_dups():
         [
             [
                 dict(
-                    comment="Inline comment before inline ignore -- noqa: L002",
+                    comment="Inline comment before inline ignore -- noqa: LT02",
                     line_no=1,
                 ),
                 dict(
-                    comment="Inline comment before inline ignore -- noqa: L002",
+                    comment="Inline comment before inline ignore -- noqa: LT02",
                     line_no=2,
                 ),
             ],
