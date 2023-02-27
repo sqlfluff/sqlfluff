@@ -1,3 +1,5 @@
+"""A list of databricks reserved keywords."""
+
 RESERVED_KEYWORDS = [
     "ANTI",
     "CROSS",

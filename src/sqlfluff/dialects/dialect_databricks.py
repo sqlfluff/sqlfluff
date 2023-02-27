@@ -1,7 +1,8 @@
-""" The Databricks Dialect.
+"""The Databricks Dialect.
 
-Functionally, it is quite similar to SparkSQL, however it's much less strict on keywords.
-It also has some extensions
+Functionally, it is quite similar to SparkSQL,
+however it's much less strict on keywords.
+It also has some extensions.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
