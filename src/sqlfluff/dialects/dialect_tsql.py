@@ -2563,7 +2563,7 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     )
 
 
-class ReservedKeywordUnbracketedFunctionNameSegment(BaseSegment):
+class ReservedKeywordBareFunctionNameSegment(BaseSegment):
     """Reserved keywords that are functions without parentheses.
 
     Need to be able to specify this as type function_name
@@ -2699,7 +2699,7 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = OneOf(
-        Ref("ReservedKeywordUnbracketedFunctionNameSegment"),
+        Ref("ReservedKeywordBareFunctionNameSegment"),
         Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
