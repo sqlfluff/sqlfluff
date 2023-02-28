@@ -11,6 +11,12 @@ my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 lint_result = [
     {
+        "code": "AB04",
+        "description": "Query produces an unknown number of result columns.",
+        "line_no": 1,
+        "line_pos": 1,
+    },
+    {
         "code": "CP01",
         "line_no": 1,
         "line_pos": 1,
@@ -20,12 +26,6 @@ lint_result = [
         "code": "L036",
         "description": "Select targets should be on a new line unless there is only "
         "one select target.",
-        "line_no": 1,
-        "line_pos": 1,
-    },
-    {
-        "code": "AB04",
-        "description": "Query produces an unknown number of result columns.",
         "line_no": 1,
         "line_pos": 1,
     },
