@@ -7,7 +7,7 @@ from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 class Rule_LT02(BaseRule):
-    """Indentation not consistent.
+    """Incorrect Indentation.
 
     **Anti-pattern**
 
@@ -26,7 +26,9 @@ class Rule_LT02(BaseRule):
 
     **Best practice**
 
-    Change the indentation to use a multiple of four spaces.
+    Change the indentation to use a multiple of four spaces. This example also
+    assumes that the ``indent_unit`` config value is set to ``space``. If it
+    had instead been set to ``tab``, then the indents would be tabs instead.
 
     .. code-block:: sql
        :force:
@@ -39,7 +41,8 @@ class Rule_LT02(BaseRule):
     """
 
     name = "layout.indent"
-    aliases = ("L002", "L003")
+    # NOTE: We're combining three legacy rules here into one.
+    aliases = ("L002", "L003", "L004")
     groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
@@ -51,7 +54,8 @@ class Rule_LT02(BaseRule):
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
-        in the appropriate configuration.
+        in the appropriate configuration. To correct indents to tabs
+        use the `indent_unit` value set to `tab`.
 
         """
         return (

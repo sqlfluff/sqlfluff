@@ -1,4 +1,4 @@
-rule: L004
+rule: LT02
 
 spaces_pass_default:
   pass_str: "    \nSELECT 1"
@@ -123,7 +123,7 @@ indented_comments_tab_config:
   # That is left unfixable for now, as explained in:
   # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
   violations_after_fix:
-  - code: L004
+  - code: LT02
     description: Incorrect indentation type found in file. The indent occurs after other
       text, so a manual fix is needed.
     line_no: 2

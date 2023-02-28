@@ -538,7 +538,6 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                 0,
                 (
                     "LT02",
-                    "L004",
                 ),
                 None,
             ),

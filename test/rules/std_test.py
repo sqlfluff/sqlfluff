@@ -17,7 +17,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             [(2, 1), (3, 1), (4, 1), (5, 1)],
         ),
         (
-            "L004",
+            "LT02",
             "indentation_errors.sql",
             [(3, 1), (4, 1), (5, 1)],
         ),

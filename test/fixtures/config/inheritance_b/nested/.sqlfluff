@@ -1,3 +1,3 @@
 [sqlfluff]
 rules=LT02,L009
-exclude_rules=L004
+exclude_rules=LT02
