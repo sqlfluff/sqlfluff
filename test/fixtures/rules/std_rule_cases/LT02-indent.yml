@@ -1716,5 +1716,5 @@ test_untaken_negative_implicit:
 
 test_fail_mixed_tabs_and_spaces:
   # NOTE: This used to be L002 (rather than L003)
-  fail_str: "    \t    \t    SELECT 1"
-  fix_str: "                    SELECT 1"
+  fail_str: "SELECT\n \t 1"
+  fix_str: "SELECT\n    1"

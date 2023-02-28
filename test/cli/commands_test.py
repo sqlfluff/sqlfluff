@@ -1166,12 +1166,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             "line_no": 1,
                             "line_pos": 1,
                             "description": "Keywords must be consistently upper case.",
+                            "name": "capitalisation.keywords",
                         },
                         {
                             "code": "CP01",
                             "line_no": 1,
                             "line_pos": 10,
                             "description": "Keywords must be consistently upper case.",
+                            "name": "capitalisation.keywords",
                         },
                     ],
                 }
@@ -1302,7 +1304,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 35 if write_file else 32
+        assert payload_length == 25 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1318,7 +1320,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 18
+        assert len(result) == 13
     else:
         raise Exception
 
@@ -1459,17 +1461,23 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "select target.",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "L027: Unqualified reference 'foo' found in select with more than one "
-            "referenced table/view.",
+            "referenced table/view. "
+            "[aliasing.unique.table]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "AL02: Implicit/explicit aliasing of columns.",
+            "AL02: Implicit/explicit aliasing of columns. "
+            "[aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
-            "CP01: Keywords must be consistently lower case.",
+            "CP01: Keywords must be consistently lower case. "
+            "[capitalisation.keywords]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             "",  # SQLFluff produces trailing newline
         ]
     )

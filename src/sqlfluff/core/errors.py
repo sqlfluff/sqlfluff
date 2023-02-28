@@ -83,6 +83,7 @@ class SQLBaseError(ValueError):
             "line_pos": self.line_pos,
             "code": self.rule_code(),
             "description": self.desc(),
+            "name": getattr(self, "rule").name if hasattr(self, "rule") else "",
         }
 
     def check_tuple(self) -> CheckTuple:

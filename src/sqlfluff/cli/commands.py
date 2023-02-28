@@ -648,6 +648,8 @@ def lint(
                 line += f"col={violation['line_pos']}"
                 line += "::"
                 line += f"{violation['code']}: {violation['description']}"
+                if violation["name"]:
+                    line += f" [{violation['name']}]"
 
                 github_result_native.append(line)
 

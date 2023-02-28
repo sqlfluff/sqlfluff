@@ -1,20 +1,20 @@
 rule: LT02
 
 spaces_pass_default:
-  pass_str: "    \nSELECT 1"
+  pass_str: "SELECT\n    1"
 
 
 spaces_fail:
-  fail_str: "    \nSELECT 1"
-  fix_str: "\t\nSELECT 1"
+  fail_str: "SELECT\n    1"
+  fix_str: "SELECT\n\t1"
   configs:
     rules:
       indent_unit: tab
 
 
 spaces_fail_custom_tab_space_size:
-  fail_str: "    \nSELECT 1"
-  fix_str: "\t\t\nSELECT 1"
+  fail_str: "SELECT\n  MAX(\n    a\n  )"
+  fix_str: "SELECT\n\tMAX(\n\t\ta\n\t)"
   configs:
     rules:
       indent_unit: tab
@@ -35,20 +35,20 @@ spaces_fail_custom_tab_space_size_not_multiple:
 
 
 tabs_fail_default:
-  fail_str: "\t\tSELECT 1\n"
-  fix_str: "        SELECT 1\n"
+  fail_str: "SELECT\n\t\t1\n"
+  fix_str: "SELECT\n    1\n"
 
 
 tabs_fail_default_set_tab_space_size:
-  fail_str: "\t\tSELECT 1\n"
-  fix_str: "    SELECT 1\n"
+  fail_str: "SELECT\n\t\t1\n"
+  fix_str: "SELECT\n  1\n"
   configs:
     rules:
       tab_space_size: 2
 
 
 tabs_pass:
-  pass_str: "\tSELECT 1"
+  pass_str: "SELECT\n\t1"
   configs:
     rules:
       indent_unit: tab
