@@ -1,12 +1,12 @@
-"""Implementation of Rule L054."""
-from typing import Optional, List
+"""Implementation of Rule AB06."""
+from typing import Optional, List, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L054(BaseRule):
+class Rule_AB06(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
     .. note::
@@ -80,7 +80,9 @@ class Rule_L054(BaseRule):
             1, 2;
     """
 
-    groups = ("all", "core")
+    name = "ambiguous.column_references"
+    aliases = ("L054",)
+    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
     config_keywords = ["group_by_and_order_by_style"]
     crawl_behaviour = SegmentSeekerCrawler({"groupby_clause", "orderby_clause"})
     _ignore_types: List[str] = ["withingroup_clause", "window_specification"]

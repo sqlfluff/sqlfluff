@@ -1,6 +1,6 @@
-"""Implementation of Rule L037."""
+"""Implementation of Rule AB03."""
 
-from typing import NamedTuple, Optional, List
+from typing import NamedTuple, Optional, List, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
@@ -10,13 +10,13 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class OrderByColumnInfo(NamedTuple):
-    """For L037, segment that ends an ORDER BY column and any order provided."""
+    """For AB03, segment that ends an ORDER BY column and any order provided."""
 
     column_reference: BaseSegment
     order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
-class Rule_L037(BaseRule):
+class Rule_AB03(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 
     **Anti-pattern**
@@ -41,7 +41,9 @@ class Rule_L037(BaseRule):
         ORDER BY a ASC, b DESC
     """
 
-    groups = ("all",)
+    name = "ambiguous.order_by"
+    aliases = ("L037",)
+    groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"orderby_clause"})
     is_fix_compatible = True
 

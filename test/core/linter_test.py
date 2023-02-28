@@ -517,7 +517,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                     "L041",
                     "L042",
                     "L043",
-                    "L044",
+                    "AB04",
                     "L045",
                     "L047",
                     "L048",

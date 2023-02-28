@@ -1,4 +1,4 @@
-rule: L033
+rule: AB02
 
 test_pass_union_all:
   pass_str: |

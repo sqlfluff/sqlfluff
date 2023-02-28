@@ -1,12 +1,12 @@
-"""Implementation of Rule L068."""
-from typing import Optional
+"""Implementation of Rule AB07."""
+from typing import Optional, Tuple
 
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L068(BaseRule):
+class Rule_AB07(BaseRule):
     """Queries within set query produce different numbers of columns.
 
     **Anti-pattern**
@@ -50,7 +50,9 @@ class Rule_L068(BaseRule):
         FROM t
     """
 
-    groups = ("all",)
+    name = "ambiguous.set_columns"
+    aliases = ("L068",)
+    groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
     def __handle_alias_case(

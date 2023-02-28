@@ -1,12 +1,12 @@
-"""Implementation of Rule L051."""
-from typing import Optional
+"""Implementation of Rule AB05."""
+from typing import Optional, Tuple
 from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L051(BaseRule):
+class Rule_AB05(BaseRule):
     """Join clauses should be fully qualified.
 
     By default this rule is configured to enforce fully qualified ``INNER JOIN``
@@ -15,7 +15,7 @@ class Rule_L051(BaseRule):
 
     **Anti-pattern**
 
-    A join is specified without expliciting the **kind** of join.
+    A join is used without specifying the **kind** of join.
 
     .. code-block:: sql
        :force:
@@ -38,7 +38,9 @@ class Rule_L051(BaseRule):
         INNER JOIN baz;
     """
 
-    groups = ("all",)
+    name = "ambiguous.join"
+    aliases = ("L051",)
+    groups: Tuple[str, ...] = ("all", "ambiguous")
     config_keywords = ["fully_qualify_join_types"]
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True

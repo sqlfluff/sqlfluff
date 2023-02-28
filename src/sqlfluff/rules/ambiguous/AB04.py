@@ -1,5 +1,5 @@
-"""Implementation of Rule L044."""
-from typing import Optional
+"""Implementation of Rule AB04."""
+from typing import Optional, Tuple
 
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
@@ -18,7 +18,7 @@ class RuleFailure(Exception):
         self.anchor: BaseSegment = anchor
 
 
-class Rule_L044(BaseRule):
+class Rule_AB04(BaseRule):
     """Query produces an unknown number of result columns.
 
     **Anti-pattern**
@@ -66,7 +66,9 @@ class Rule_L044(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "ambiguous.column_count"
+    aliases = ("L044",)
+    groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
 
     def _handle_alias(self, selectable, alias_info, query):

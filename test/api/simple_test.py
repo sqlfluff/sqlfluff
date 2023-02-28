@@ -24,7 +24,7 @@ lint_result = [
         "line_pos": 1,
     },
     {
-        "code": "L044",
+        "code": "AB04",
         "description": "Query produces an unknown number of result columns.",
         "line_no": 1,
         "line_pos": 1,
@@ -124,25 +124,25 @@ def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
     exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
-    # Check only L044 is found
+    # Check only AB04 is found
     assert len(result) == 1
-    assert "L044" == result[0]["code"]
+    assert "AB04" == result[0]["code"]
 
 
 def test__api__lint_string_specific_exclude_single():
     """Basic checking of lint functionality."""
     exclude_rules = ["L039"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
-    # Check only L044 is found
+    # Check only AB04 is found
     assert len(result) == 9
-    set(["L009", "CP01", "AL03", "CP02", "L036", "L044"]) == set(
+    set(["L009", "CP01", "AL03", "CP02", "L036", "AB04"]) == set(
         [r["code"] for r in result]
     )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039", "L044"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039", "AB04"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []

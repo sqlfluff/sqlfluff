@@ -19,7 +19,7 @@ from test.fixtures.dbt.templater import (  # noqa
     "rule,path,violations",
     [
         # Group By
-        ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
+        ("AB01", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
         # Multiple trailing newline
         ("L009", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
@@ -65,9 +65,9 @@ def test__rules__fix_utf8(project_dir):  # noqa
 
 
 def test__rules__order_by(project_dir):  # noqa
-    """Verify that rule L037 works with dbt."""
-    rule = "L037"
-    path = "models/my_new_project/L037_test.sql"
+    """Verify that rule AB03 works with dbt."""
+    rule = "AB03"
+    path = "models/my_new_project/AB03_test.sql"
     lntr = Linter(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
     )

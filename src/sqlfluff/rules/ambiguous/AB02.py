@@ -1,4 +1,5 @@
-"""Implementation of Rule L033."""
+"""Implementation of Rule AB02."""
+from typing import Tuple
 from sqlfluff.core.parser import (
     WhitespaceSegment,
     KeywordSegment,
@@ -8,7 +9,7 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L033(BaseRule):
+class Rule_AB02(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 
     .. note::
@@ -39,7 +40,9 @@ class Rule_L033(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "ambiguous.union"
+    aliases = ("L033",)
+    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 
     def _eval(self, context: RuleContext) -> LintResult:

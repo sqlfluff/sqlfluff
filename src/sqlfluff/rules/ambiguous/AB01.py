@@ -1,12 +1,12 @@
-"""Implementation of Rule L021."""
-from typing import Optional
+"""Implementation of Rule AB01."""
+from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L021(BaseRule):
+class Rule_AB01(BaseRule):
     """Ambiguous use of ``DISTINCT`` in a ``SELECT`` statement with ``GROUP BY``.
 
     When using ``GROUP BY`` a `DISTINCT`` clause should not be necessary as every
@@ -34,7 +34,9 @@ class Rule_L021(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "ambiguous.distinct"
+    aliases = ("L021",)
+    groups: Tuple[str, ...] = ("all", "core", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
