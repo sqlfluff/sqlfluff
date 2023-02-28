@@ -1,4 +1,4 @@
-rule: L032
+rule: ST07
 
 test_pass_specify_join_keys:
   pass_str: select x.a from x inner join y on x.id = y.id

@@ -1,7 +1,7 @@
 [sqlfluff]
 dialect = snowflake
 templater = jinja
-exclude_rules = AL01,L016,L031,L034,L035
+exclude_rules = AL01,L016,L031,ST06,ST01
 output_line_length = 120
 max_line_length = 120
 

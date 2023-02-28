@@ -1,4 +1,4 @@
-rule: L034
+rule: ST06
 
 test_pass_select_statement_order:
   pass_str: |

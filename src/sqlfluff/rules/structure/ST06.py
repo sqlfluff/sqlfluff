@@ -1,4 +1,4 @@
-"""Implementation of Rule L034."""
+"""Implementation of Rule ST06."""
 from typing import Iterator, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
@@ -12,7 +12,7 @@ from sqlfluff.core.rules import (
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L034(BaseRule):
+class Rule_ST06(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
     **Anti-pattern**
@@ -42,7 +42,9 @@ class Rule_L034(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "structure.column_order"
+    aliases = ("L034",)
+    groups = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 
@@ -216,7 +218,7 @@ class Rule_L034(BaseRule):
     def _implicit_column_references(cls, segment: BaseSegment) -> Iterator[BaseSegment]:
         """Yield any implicit ORDER BY or GROUP BY column references.
 
-        This function was adapted from similar code in L054.
+        This function was adapted from similar code in AB06.
         """
         _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
         if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses

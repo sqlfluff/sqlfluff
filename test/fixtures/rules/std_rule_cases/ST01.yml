@@ -1,4 +1,4 @@
-rule: L035
+rule: ST01
 
 no_redundant_else_null:
   pass_str: |

@@ -1,4 +1,4 @@
-rule: L042
+rule: ST05
 
 select_fail:
   fail_str: |
@@ -96,7 +96,7 @@ double_nested_fail:
     join b on (a.x = b.x)
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 double_nested_fail_2:
@@ -125,7 +125,7 @@ double_nested_fail_2:
       line_pos: 20
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 unfixable_cte_clash:
@@ -160,7 +160,7 @@ unfixable_cte_clash:
       line_pos: 20
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 with_recursive_fail_no_fix:
@@ -196,7 +196,7 @@ select_multijoin_fail:
     join b using (x)
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 with_fail:
@@ -262,7 +262,7 @@ from_clause_pass:
     ) as a
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: join
 
 from_clause_fail:
@@ -281,7 +281,7 @@ from_clause_fail:
     from a
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: from
 
 both_clause_fail:
@@ -300,7 +300,7 @@ both_clause_fail:
     from a
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 no_inner_from_pass:
@@ -412,7 +412,7 @@ issue_3623_internal_error_multiple_templated_files:
     core:
       dialect: tsql
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 issue_3622_no_space_after_from:
@@ -435,7 +435,7 @@ issue_3622_no_space_after_from:
     FROM x
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 issue_3617_parentheses_around_ctas_select:
@@ -451,7 +451,7 @@ issue_3617_parentheses_around_ctas_select:
     )
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 issue_3572_correlated_subquery_1:
@@ -502,7 +502,7 @@ issue_3598_avoid_looping_1:
     SELECT a FROM cte1
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 issue_3598_avoid_looping_2:
@@ -521,7 +521,7 @@ issue_3598_avoid_looping_2:
     SELECT * FROM cte1
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 test_fail_subquery_in_cte:
@@ -544,7 +544,7 @@ test_fail_subquery_in_cte:
     from b
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 test_fail_subquery_in_cte_2:
@@ -593,7 +593,7 @@ test_fail_subquery_in_cte_2:
     from b
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both
 
 test_fail_subquery_in_cte_3:
@@ -632,5 +632,5 @@ test_fail_subquery_in_cte_3:
     from b
   configs:
     rules:
-      L042:
+      ST05:
         forbid_subquery_in: both

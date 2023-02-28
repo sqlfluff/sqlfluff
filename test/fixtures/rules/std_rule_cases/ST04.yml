@@ -1,4 +1,4 @@
-rule: L058
+rule: ST04
 
 test_pass_1:
   # The nested CASE is under a "WHEN", not an "ELSE".

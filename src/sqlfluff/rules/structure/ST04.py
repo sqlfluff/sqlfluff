@@ -1,4 +1,4 @@
-"""Implementation of Rule L058."""
+"""Implementation of Rule ST04."""
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -8,7 +8,7 @@ from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.utils.reflow.reindent import construct_single_indent
 
 
-class Rule_L058(BaseRule):
+class Rule_ST04(BaseRule):
     """Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 
     **Anti-pattern**
@@ -42,7 +42,9 @@ class Rule_L058(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "structure.nested_case"
+    aliases = ("L058",)
+    groups = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
     is_fix_compatible = True
 

@@ -1,12 +1,12 @@
-"""Implementation of Rule L035."""
-from typing import Optional
+"""Implementation of Rule ST01."""
+from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L035(BaseRule):
+class Rule_ST01(BaseRule):
     """Do not specify ``else null`` in a case when statement (redundant).
 
     **Anti-pattern**
@@ -35,7 +35,9 @@ class Rule_L035(BaseRule):
         from x
     """
 
-    groups = ("all",)
+    name = "structure.else_null"
+    aliases = ("L035",)
+    groups: Tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
     is_fix_compatible = True
 

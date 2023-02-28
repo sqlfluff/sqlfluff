@@ -1,4 +1,4 @@
-"""Implementation of Rule L045."""
+"""Implementation of Rule ST03."""
 from typing import Iterator
 
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L045(BaseRule):
+class Rule_ST03(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 
     **Anti-pattern**
@@ -43,7 +43,9 @@ class Rule_L045(BaseRule):
         FROM cte1
     """
 
-    groups = ("all", "core")
+    name = "structure.unused_cte"
+    aliases = ("L045",)
+    groups = ("all", "core", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"statement"})
 
     @classmethod

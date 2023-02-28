@@ -1,4 +1,4 @@
-"""Implementation of Rule L042."""
+"""Implementation of Rule ST05."""
 from functools import partial
 from typing import (
     Iterator,
@@ -61,7 +61,7 @@ class _NestedSubQuerySummary(NamedTuple):
     select_source_names: Set[str]
 
 
-class Rule_L042(BaseRule):
+class Rule_ST05(BaseRule):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 
     By default this rule is configured to allow subqueries within ``FROM``
@@ -98,7 +98,9 @@ class Rule_L042(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "structure.subquery"
+    aliases = ("L042",)
+    groups = ("all", "structure")
     config_keywords = ["forbid_subquery_in"]
     crawl_behaviour = SegmentSeekerCrawler(set(_SELECT_TYPES))
 

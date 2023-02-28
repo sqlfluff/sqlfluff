@@ -1,4 +1,4 @@
 test-config:
   rules:
     - L019
-    - L034
+    - ST06

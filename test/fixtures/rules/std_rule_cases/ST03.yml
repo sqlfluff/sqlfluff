@@ -1,4 +1,4 @@
-rule: L045
+rule: ST03
 
 test_pass_no_cte_defined_1:
   pass_str: select * from t

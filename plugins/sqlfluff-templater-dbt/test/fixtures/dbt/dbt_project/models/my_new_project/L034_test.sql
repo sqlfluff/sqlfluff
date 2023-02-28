@@ -1,4 +1,4 @@
--- L034 should ignore this as one of the select targets uses a macro
+-- ST06 should ignore this as one of the select targets uses a macro
 
 select
     {{ dbt_utils.surrogate_key(['spots', 'moos']) }} as spot_moo_id,

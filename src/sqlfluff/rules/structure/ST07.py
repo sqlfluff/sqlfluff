@@ -1,4 +1,4 @@
-"""Implementation of Rule L032."""
+"""Implementation of Rule ST07."""
 from typing import List, Optional, Tuple
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -13,7 +13,7 @@ from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment, IdentifierSegment
 
 
-class Rule_L032(BaseRule):
+class Rule_ST07(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 
     .. note::
@@ -56,7 +56,9 @@ class Rule_L032(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "structure.using"
+    aliases = ("L032",)
+    groups: Tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True
 

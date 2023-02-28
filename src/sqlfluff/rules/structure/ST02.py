@@ -1,5 +1,5 @@
-"""Implementation of Rule L043."""
-from typing import List, Optional
+"""Implementation of Rule ST02."""
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
     WhitespaceSegment,
@@ -13,7 +13,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
-class Rule_L043(BaseRule):
+class Rule_ST02(BaseRule):
     """Unnecessary ``CASE`` statement.
 
     **Anti-pattern**
@@ -75,7 +75,9 @@ class Rule_L043(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "structure.simple_case"
+    aliases = ("L043",)
+    groups: Tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"case_expression"})
     is_fix_compatible = True
 

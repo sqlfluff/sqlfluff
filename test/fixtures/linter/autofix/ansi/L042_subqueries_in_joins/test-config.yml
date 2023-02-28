@@ -1,4 +1,4 @@
 test-config:
   rules:
-    - L042
+    - ST05
     - JJ01
