@@ -528,15 +528,15 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         ),
         # Test selection with aliases.
         (
-            "noqa:LN01a",
+            "noqa:L002",
             NoQaDirective(0, ("LT02",), None),
         ),
         # Test selection with alias globs.
         (
-            "noqa:LN01*",
+            "noqa:L00*",
             NoQaDirective(
                 0,
-                ("LT02",),
+                ("LT01", "LT02", "L005", "L006", "L007", "L008", "L009"),
                 None,
             ),
         ),

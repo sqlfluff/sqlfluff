@@ -15,6 +15,7 @@ lint_result = [
         "description": "Query produces an unknown number of result columns.",
         "line_no": 1,
         "line_pos": 1,
+        "name": "ambiguous.column_count",
     },
     {
         "code": "CP01",

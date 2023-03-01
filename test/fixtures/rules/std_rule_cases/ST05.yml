@@ -123,6 +123,7 @@ double_nested_fail_2:
     - description: select_statement clauses should not contain subqueries. Use CTEs instead
       line_no: 2
       line_pos: 20
+      name: structure.subquery
   configs:
     rules:
       ST05:
@@ -158,6 +159,7 @@ unfixable_cte_clash:
     - description: select_statement clauses should not contain subqueries. Use CTEs instead
       line_no: 5
       line_pos: 20
+      name: structure.subquery
   configs:
     rules:
       ST05:
