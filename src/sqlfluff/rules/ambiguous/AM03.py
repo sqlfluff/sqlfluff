@@ -1,4 +1,4 @@
-"""Implementation of Rule AB03."""
+"""Implementation of Rule AM03."""
 
 from typing import NamedTuple, Optional, List, Tuple
 
@@ -10,13 +10,13 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class OrderByColumnInfo(NamedTuple):
-    """For AB03, segment that ends an ORDER BY column and any order provided."""
+    """For AM03, segment that ends an ORDER BY column and any order provided."""
 
     column_reference: BaseSegment
     order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
-class Rule_AB03(BaseRule):
+class Rule_AM03(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 
     **Anti-pattern**

@@ -1,4 +1,4 @@
-"""Implementation of Rule AB06."""
+"""Implementation of Rule AM06."""
 from typing import Optional, List, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_AB06(BaseRule):
+class Rule_AM06(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
     .. note::

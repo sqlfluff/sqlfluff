@@ -1,4 +1,4 @@
-rule: AB03
+rule: AM03
 
 test_unspecified:
   pass_str: SELECT * FROM t ORDER BY a

@@ -1,4 +1,4 @@
-"""Implementation of Rule AB01."""
+"""Implementation of Rule AM01."""
 from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_AB01(BaseRule):
+class Rule_AM01(BaseRule):
     """Ambiguous use of ``DISTINCT`` in a ``SELECT`` statement with ``GROUP BY``.
 
     When using ``GROUP BY`` a `DISTINCT`` clause should not be necessary as every

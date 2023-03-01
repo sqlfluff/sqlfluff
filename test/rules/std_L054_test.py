@@ -1,9 +1,9 @@
-"""Tests the python routines within AB06."""
+"""Tests the python routines within AM06."""
 import sqlfluff
 
 
-def test__rules__std_AB06_raised() -> None:
-    """Test case for multiple AB06 errors raised with 'consistent' setting."""
+def test__rules__std_AM06_raised() -> None:
+    """Test case for multiple AM06 errors raised with 'consistent' setting."""
     sql = """
     SELECT
         foo,
@@ -25,16 +25,16 @@ def test__rules__std_AB06_raised() -> None:
     """
     result = sqlfluff.lint(sql)
 
-    results_AB06 = [r for r in result if r["code"] == "AB06"]
-    assert len(results_AB06) == 2
+    results_AM06 = [r for r in result if r["code"] == "AM06"]
+    assert len(results_AM06) == 2
     assert (
-        results_AB06[0]["description"]
+        results_AM06[0]["description"]
         == "Inconsistent column references in 'GROUP BY/ORDER BY' clauses."
     )
 
 
-def test__rules__std_AB06_unparsable() -> None:
-    """Test unparsable group by doesn't result in bad rule AB06 error."""
+def test__rules__std_AM06_unparsable() -> None:
+    """Test unparsable group by doesn't result in bad rule AM06 error."""
     sql = """
     SELECT foo.set.barr
     FROM foo
@@ -43,14 +43,14 @@ def test__rules__std_AB06_unparsable() -> None:
     """
     result = sqlfluff.lint(sql)
 
-    results_AB06 = [r for r in result if r["code"] == "AB06"]
+    results_AM06 = [r for r in result if r["code"] == "AM06"]
     results_prs = [r for r in result if r["code"] == "PRS"]
-    assert len(results_AB06) == 0
+    assert len(results_AM06) == 0
     assert len(results_prs) > 0
 
 
-def test__rules__std_AB06_noqa() -> None:
-    """Test unparsable group by with no qa doesn't result in bad rule AB06 error."""
+def test__rules__std_AM06_noqa() -> None:
+    """Test unparsable group by with no qa doesn't result in bad rule AM06 error."""
     sql = """
     SELECT foo.set.barr  --noqa: PRS
     FROM foo
@@ -59,7 +59,7 @@ def test__rules__std_AB06_noqa() -> None:
     """
     result = sqlfluff.lint(sql)
 
-    results_AB06 = [r for r in result if r["code"] == "AB06"]
+    results_AM06 = [r for r in result if r["code"] == "AM06"]
     results_prs = [r for r in result if r["code"] == "PRS"]
-    assert len(results_AB06) == 0
+    assert len(results_AM06) == 0
     assert len(results_prs) == 0

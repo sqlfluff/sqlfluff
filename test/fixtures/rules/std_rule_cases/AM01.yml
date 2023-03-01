@@ -1,4 +1,4 @@
-rule: AB01
+rule: AM01
 
 test_pass_only_group_by:
   # check if using select distinct and group by

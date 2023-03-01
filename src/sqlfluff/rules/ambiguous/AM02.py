@@ -1,4 +1,4 @@
-"""Implementation of Rule AB02."""
+"""Implementation of Rule AM02."""
 from typing import Tuple
 from sqlfluff.core.parser import (
     WhitespaceSegment,
@@ -9,7 +9,7 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_AB02(BaseRule):
+class Rule_AM02(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 
     .. note::

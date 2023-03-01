@@ -1,4 +1,4 @@
-rule: AB02
+rule: AM02
 
 test_pass_union_all:
   pass_str: |

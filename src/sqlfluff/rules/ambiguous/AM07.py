@@ -1,4 +1,4 @@
-"""Implementation of Rule AB07."""
+"""Implementation of Rule AM07."""
 from typing import Optional, Tuple
 
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
@@ -6,7 +6,7 @@ from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_AB07(BaseRule):
+class Rule_AM07(BaseRule):
     """Queries within set query produce different numbers of columns.
 
     **Anti-pattern**

@@ -1,4 +1,4 @@
-"""Implementation of Rule AB04."""
+"""Implementation of Rule AM04."""
 from typing import Optional, Tuple
 
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
@@ -18,7 +18,7 @@ class RuleFailure(Exception):
         self.anchor: BaseSegment = anchor
 
 
-class Rule_AB04(BaseRule):
+class Rule_AM04(BaseRule):
     """Query produces an unknown number of result columns.
 
     **Anti-pattern**

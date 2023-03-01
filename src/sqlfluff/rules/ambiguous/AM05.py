@@ -1,4 +1,4 @@
-"""Implementation of Rule AB05."""
+"""Implementation of Rule AM05."""
 from typing import Optional, Tuple
 from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
@@ -6,7 +6,7 @@ from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_AB05(BaseRule):
+class Rule_AM05(BaseRule):
     """Join clauses should be fully qualified.
 
     By default this rule is configured to enforce fully qualified ``INNER JOIN``

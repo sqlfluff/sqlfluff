@@ -5,16 +5,16 @@ NOTE: Yes the title of this bundle is ...ambiguous. 😁
 
 from sqlfluff.core.plugin import hookimpl
 
-from sqlfluff.rules.ambiguous.AB01 import Rule_AB01
-from sqlfluff.rules.ambiguous.AB02 import Rule_AB02
-from sqlfluff.rules.ambiguous.AB03 import Rule_AB03
-from sqlfluff.rules.ambiguous.AB04 import Rule_AB04
-from sqlfluff.rules.ambiguous.AB05 import Rule_AB05
-from sqlfluff.rules.ambiguous.AB06 import Rule_AB06
-from sqlfluff.rules.ambiguous.AB07 import Rule_AB07
+from sqlfluff.rules.ambiguous.AM01 import Rule_AM01
+from sqlfluff.rules.ambiguous.AM02 import Rule_AM02
+from sqlfluff.rules.ambiguous.AM03 import Rule_AM03
+from sqlfluff.rules.ambiguous.AM04 import Rule_AM04
+from sqlfluff.rules.ambiguous.AM05 import Rule_AM05
+from sqlfluff.rules.ambiguous.AM06 import Rule_AM06
+from sqlfluff.rules.ambiguous.AM07 import Rule_AM07
 
 
 @hookimpl
 def get_rules():
     """Get plugin rules."""
-    return [Rule_AB01, Rule_AB02, Rule_AB03, Rule_AB04, Rule_AB05, Rule_AB06, Rule_AB07]
+    return [Rule_AM01, Rule_AM02, Rule_AM03, Rule_AM04, Rule_AM05, Rule_AM06, Rule_AM07]

@@ -1,4 +1,4 @@
-rule: AB04
+rule: AM04
 
 test_pass_known_number_of_result_columns_1:
   pass_str: select a, b from t

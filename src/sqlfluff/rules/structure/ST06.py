@@ -218,7 +218,7 @@ class Rule_ST06(BaseRule):
     def _implicit_column_references(cls, segment: BaseSegment) -> Iterator[BaseSegment]:
         """Yield any implicit ORDER BY or GROUP BY column references.
 
-        This function was adapted from similar code in AB06.
+        This function was adapted from similar code in AM06.
         """
         _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
         if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses

@@ -86,7 +86,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("L026", "column_references.sql", [(1, 11)]),
         ("AL05", "column_references.sql", [(2, 11)]),
         # Distinct and Group by
-        ("AB01", "select_distinct_group_by.sql", [(1, 8)]),
+        ("AM01", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
         ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (

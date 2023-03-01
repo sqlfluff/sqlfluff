@@ -1,4 +1,4 @@
-rule: AB06
+rule: AM06
 
 test_pass_explicit_group_by_default:
   pass_str: |
@@ -127,7 +127,7 @@ test_pass_explicit_group_by_custom_explicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_implicit_group_by_custom_explicit:
@@ -141,7 +141,7 @@ test_fail_implicit_group_by_custom_explicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_mix_group_by_custom_explicit:
@@ -155,7 +155,7 @@ test_fail_mix_group_by_custom_explicit:
         1, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_pass_explicit_order_by_custom_explicit:
@@ -168,7 +168,7 @@ test_pass_explicit_order_by_custom_explicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_implicit_order_by_custom_explicit:
@@ -181,7 +181,7 @@ test_fail_implicit_order_by_custom_explicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_pass_explicit_group_by_and_order_by_custom_explicit:
@@ -197,7 +197,7 @@ test_pass_explicit_group_by_and_order_by_custom_explicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_implicit_group_by_and_order_by_custom_explicit:
@@ -213,7 +213,7 @@ test_fail_implicit_group_by_and_order_by_custom_explicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_within_line_mix_group_by_and_order_by_custom_explicit:
@@ -229,7 +229,7 @@ test_fail_within_line_mix_group_by_and_order_by_custom_explicit:
         foo, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_across_line_mix_group_by_and_order_by_custom_explicit:
@@ -245,7 +245,7 @@ test_fail_across_line_mix_group_by_and_order_by_custom_explicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_pass_explicit_expression_order_by_custom_explicit:
@@ -259,7 +259,7 @@ test_pass_explicit_expression_order_by_custom_explicit:
         foo, power(bar, 2)
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_fail_implicit_expression_order_by_custom_explicit:
@@ -273,7 +273,7 @@ test_fail_implicit_expression_order_by_custom_explicit:
         1, power(bar, 2)
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: explicit
 
 test_pass_explicit_group_by_custom_implicit:
@@ -287,7 +287,7 @@ test_pass_explicit_group_by_custom_implicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_implicit_group_by_custom_implicit:
@@ -301,7 +301,7 @@ test_fail_implicit_group_by_custom_implicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_pass_explicit_order_by_custom_implicit:
@@ -314,7 +314,7 @@ test_pass_explicit_order_by_custom_implicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_implicit_order_by_custom_implicit:
@@ -327,7 +327,7 @@ test_fail_implicit_order_by_custom_implicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_mix_group_by_custom_implicit:
@@ -341,7 +341,7 @@ test_fail_mix_group_by_custom_implicit:
         1, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_pass_implicit_group_by_and_order_by_custom_implicit:
@@ -357,7 +357,7 @@ test_pass_implicit_group_by_and_order_by_custom_implicit:
         1, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_explicit_group_by_and_order_by_custom_implicit:
@@ -373,7 +373,7 @@ test_fail_explicit_group_by_and_order_by_custom_implicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_within_line_mix_group_by_and_order_by_custom_implicit:
@@ -389,7 +389,7 @@ test_fail_within_line_mix_group_by_and_order_by_custom_implicit:
         foo, 2;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_across_line_mix_group_by_and_order_by_custom_implicit:
@@ -405,7 +405,7 @@ test_fail_across_line_mix_group_by_and_order_by_custom_implicit:
         foo, bar;
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_explicit_expression_order_by_custom_implicit:
@@ -419,7 +419,7 @@ test_fail_explicit_expression_order_by_custom_implicit:
         foo, power(bar, 2)
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_implicit_expression_order_by_custom_implicit:
@@ -433,7 +433,7 @@ test_fail_implicit_expression_order_by_custom_implicit:
         1, power(bar, 2)
   configs:
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: implicit
 
 test_fail_consistent_snowflake:
@@ -449,7 +449,7 @@ test_fail_consistent_snowflake:
     core:
       dialect: snowflake
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: consistent
 
 test_fail_consistent_exasol:
@@ -465,7 +465,7 @@ test_fail_consistent_exasol:
     core:
       dialect: exasol
     rules:
-      AB06:
+      AM06:
         group_by_and_order_by_style: consistent
 
 test_pass_window:
