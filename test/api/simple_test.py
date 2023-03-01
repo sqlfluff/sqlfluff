@@ -280,8 +280,8 @@ def test__api__config_path():
         ),
         (
             # API overrides, so it uses that
-            dict(exclude_rules=["L027"]),
-            {"L029"},
+            dict(exclude_rules=["RF02"]),
+            {"RF04"},
         ),
     ],
 )
@@ -290,7 +290,7 @@ def test__api__config_override(kwargs, expected, tmpdir):
     config_path = "test/fixtures/api/config_override/.sqlfluff"
     sql = "SELECT TRIM(name) AS name FROM some_table"
     lint_results = sqlfluff.lint(sql, config_path=config_path, **kwargs)
-    assert expected == {"L027", "L029"}.intersection(
+    assert expected == {"RF02", "RF04"}.intersection(
         {lr["code"] for lr in lint_results}
     )
 
