@@ -270,7 +270,7 @@ def test__cli__command_render_stdin():
                 "-n",
                 "test/fixtures/cli/passing_b.sql",
                 "--exclude-rules",
-                "L051",
+                "AM05",
             ],
         ),
         # Basic render
@@ -293,7 +293,7 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
                 "--exclude-rules",
-                "L051",
+                "AM05",
             ],
         ),
         # Test basic linting with specific logger.
@@ -307,7 +307,7 @@ def test__cli__command_render_stdin():
                 "--logger",
                 "parser",
                 "-e",
-                "L051",
+                "AM05",
             ],
         ),
         # Check basic parsing
@@ -317,7 +317,7 @@ def test__cli__command_render_stdin():
                 "-n",
                 "test/fixtures/cli/passing_b.sql",
                 "--exclude-rules",
-                "L051",
+                "AM05",
             ],
         ),
         # Test basic parsing with very high verbosity
@@ -328,7 +328,7 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
                 "-e",
-                "L051",
+                "AM05",
             ],
         ),
         # Check basic parsing, with the code only option
@@ -346,7 +346,7 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
                 "--bench",
                 "--exclude-rules",
-                "L051",
+                "AM05",
             ],
         ),
         (
@@ -356,7 +356,7 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
                 "--bench",
                 "--exclude-rules",
-                "L051",
+                "AM05",
             ],
         ),
         # Check linting works in specifying rules
