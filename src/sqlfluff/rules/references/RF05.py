@@ -1,14 +1,14 @@
-"""Implementation of Rule L057."""
+"""Implementation of Rule RF05."""
 from typing import Optional, Set, List
 
 import regex
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.rules.capitalisation.CP02 import identifiers_policy_applicable
+from sqlfluff.utils.identifers import identifiers_policy_applicable
 
 
-class Rule_L057(BaseRule):
+class Rule_RF05(BaseRule):
     """Do not use special characters in identifiers.
 
     **Anti-pattern**
@@ -41,7 +41,9 @@ class Rule_L057(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "references.special_chars"
+    aliases = ("L057",)
+    groups = ("all", "references")
     config_keywords = [
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",

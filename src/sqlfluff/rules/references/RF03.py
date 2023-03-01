@@ -1,4 +1,4 @@
-"""Implementation of Rule L028."""
+"""Implementation of Rule RF03."""
 
 from typing import Iterator, List, Optional, Set
 
@@ -22,7 +22,7 @@ from sqlfluff.dialects.dialect_ansi import IdentifierSegment
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
-class Rule_L028(BaseRule):
+class Rule_RF03(BaseRule):
     """References should be consistent in statements with a single table.
 
     .. note::
@@ -64,7 +64,9 @@ class Rule_L028(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "references.consistent"
+    aliases = ("L028",)
+    groups = ("all", "references")
     config_keywords = [
         "single_table_references",
         "force_enable",
