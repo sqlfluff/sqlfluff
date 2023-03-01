@@ -1237,14 +1237,19 @@ class RuleSet:
 
         """
         expanded_rule_set: Set[str] = set()
+        rules_logger.warning("GLOB: %s", glob_list)
         for r in glob_list:
             # Is it a direct reference?
             if r in reference_map:
                 expanded_rule_set.update(reference_map[r])
-            # Otherwise treat as a glob expression on codes.
+            # Otherwise treat as a glob expression on all references.
+            # NOTE: We expand _all_ references (i.e. groups, aliases, names
+            # AND codes) so that we preserve the most backward compatibility
+            # with existing references to legacy codes in config files.
             else:
-                expanded_rule_set.update(fnmatch.filter(self._register.keys(), r))
-
+                matched_refs = fnmatch.filter(reference_map.keys(), r)
+                for matched in matched_refs:
+                    expanded_rule_set.update(reference_map[matched])
         return expanded_rule_set
 
     def rule_reference_map(self) -> Dict[str, Set[str]]:
