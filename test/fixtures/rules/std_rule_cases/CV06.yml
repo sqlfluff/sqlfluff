@@ -1,4 +1,4 @@
-rule: L052
+rule: CV06
 
 test_pass_semi_colon_same_line_default:
   pass_str: |
@@ -9,7 +9,7 @@ test_pass_semi_colon_custom_newline:
     SELECT a FROM foo;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_semi_colon_same_line_custom_newline:
@@ -22,7 +22,7 @@ test_fail_semi_colon_same_line_custom_newline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_pass_no_semi_colon_default:
@@ -34,7 +34,7 @@ test_pass_no_semi_colon_custom_newline:
     SELECT a FROM foo
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_no_semi_colon_custom_require:
@@ -44,7 +44,7 @@ test_fail_no_semi_colon_custom_require:
     SELECT a FROM foo;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
 
 test_fail_no_semi_colon_custom_require_oneline:
@@ -54,7 +54,7 @@ test_fail_no_semi_colon_custom_require_oneline:
     SELECT a FROM foo;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -68,7 +68,7 @@ test_fail_no_semi_colon_custom_require_multiline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -97,7 +97,7 @@ test_fail_multi_statement_semi_colon_custom_multiline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_pass_multi_statement_no_trailing_semi_colon_default:
@@ -114,7 +114,7 @@ test_pass_multi_statement_no_trailing_semi_colon_custom_require:
     SELECT b FROM bar;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
 
 test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline:
@@ -126,7 +126,7 @@ test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline:
     SELECT b FROM bar;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -145,7 +145,7 @@ test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -169,7 +169,7 @@ test_pass_newline_semi_colon_custom_newline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_multi_statement_semi_colon_default:
@@ -199,7 +199,7 @@ test_fail_multi_statement_semi_colon_custom_require_multiline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -215,7 +215,7 @@ test_fail_multiple_newlines_semi_colon_custom_require_newline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -226,7 +226,7 @@ test_fail_final_semi_colon_same_line_inline_comment:
     SELECT a FROM foo; -- inline comment
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
 
 test_fail_final_semi_colon_same_line_inline_comment_custom_oneline:
@@ -236,7 +236,7 @@ test_fail_final_semi_colon_same_line_inline_comment_custom_oneline:
     SELECT a FROM foo; -- inline comment
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -250,7 +250,7 @@ test_fail_final_semi_colon_newline_inline_comment_custom_multiline:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true
         multiline_newline: true
 
@@ -279,7 +279,7 @@ test_pass_newline_inline_comment:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_inline_comment:
@@ -294,7 +294,7 @@ test_fail_newline_inline_comment:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_multiple_inline_comments_custom_oneline:
@@ -310,7 +310,7 @@ test_fail_newline_multiple_inline_comments_custom_oneline:
     -- inline comment #2
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_multiple_inline_comments_custom_multiline:
@@ -329,7 +329,7 @@ test_fail_newline_multiple_inline_comments_custom_multiline:
     -- inline comment #2
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_trailing_inline_comment:
@@ -342,7 +342,7 @@ test_fail_newline_trailing_inline_comment:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_preceding_block_comment_custom_oneline:
@@ -357,7 +357,7 @@ test_fail_newline_preceding_block_comment_custom_oneline:
     */
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_preceding_block_comment_custom_multiline:
@@ -375,7 +375,7 @@ test_fail_newline_preceding_block_comment_custom_multiline:
     */
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_trailing_block_comment:
@@ -392,7 +392,7 @@ test_fail_newline_trailing_block_comment:
     */
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_block_comment_semi_colon_before:
@@ -411,7 +411,7 @@ test_fail_newline_block_comment_semi_colon_before:
     */
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_block_comment_semi_colon_after:
@@ -431,7 +431,7 @@ test_fail_newline_block_comment_semi_colon_after:
     */
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_create_table:
@@ -447,7 +447,7 @@ test_fail_newline_create_table:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_newline_create_table_inline_comment:
@@ -462,7 +462,7 @@ test_fail_newline_create_table_inline_comment:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         multiline_newline: true
 
 test_fail_whitespace_after_simple_select:
@@ -492,5 +492,5 @@ test_fail_templated_fix_crosses_block_boundary:
     ;
   configs:
     rules:
-      L052:
+      CV06:
         require_final_semicolon: true

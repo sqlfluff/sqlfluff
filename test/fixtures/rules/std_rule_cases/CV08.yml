@@ -1,4 +1,4 @@
-rule: L055
+rule: CV08
 
 test_fail_right_join:
   fail_str: |

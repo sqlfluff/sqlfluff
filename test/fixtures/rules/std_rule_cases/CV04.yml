@@ -1,4 +1,4 @@
-rule: L047
+rule: CV04
 
 passes_on_count_star:
   pass_str: |
@@ -20,7 +20,7 @@ passes_on_count_1:
 
   configs: &prefer_count_1
     rules:
-      L047:
+      CV04:
         prefer_count_1: true
 
 changes_count_0_to_count_star:
@@ -51,7 +51,7 @@ passes_on_count_0:
 
   configs: &prefer_count_0
     rules:
-      L047:
+      CV04:
         prefer_count_0: true
 
 passes_on_count_1_if_both_present:
@@ -65,7 +65,7 @@ passes_on_count_1_if_both_present:
 
   configs: &prefer_both
     rules:
-      L047:
+      CV04:
         prefer_count_0: true
         prefer_count_1: true
 

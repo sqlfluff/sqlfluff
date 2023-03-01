@@ -1,4 +1,4 @@
-rule: L060
+rule: CV02
 
 test_pass_coalesce:
   pass_str: |

@@ -1705,7 +1705,7 @@ class TestProgressBars:
 
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
         self, mock_disable_progress_bar: MagicMock
@@ -1735,7 +1735,7 @@ class TestProgressBars:
         )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
         self, mock_disable_progress_bar: MagicMock
@@ -1774,7 +1774,7 @@ class TestProgressBars:
         )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_fix_disabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock

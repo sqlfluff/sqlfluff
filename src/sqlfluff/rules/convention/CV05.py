@@ -1,4 +1,4 @@
-"""Implementation of Rule L049."""
+"""Implementation of Rule CV05."""
 from typing import List, Optional, Union
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
@@ -11,7 +11,7 @@ from sqlfluff.utils.reflow import ReflowSequence
 CorrectionListType = List[Union[WhitespaceSegment, KeywordSegment]]
 
 
-class Rule_L049(BaseRule):
+class Rule_CV05(BaseRule):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
     **Anti-pattern**
@@ -38,7 +38,9 @@ class Rule_L049(BaseRule):
         WHERE a IS NULL
     """
 
-    groups = ("all", "core")
+    name = "convention.is_null"
+    aliases = ("L049",)
+    groups = ("all", "core", "convention")
     crawl_behaviour = SegmentSeekerCrawler({"comparison_operator"})
     is_fix_compatible = True
 

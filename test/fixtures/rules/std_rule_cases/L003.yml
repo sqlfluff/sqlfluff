@@ -1374,7 +1374,7 @@ test_pass_trailing_inline_noqa:
         col1,
         col2
     FROM
-        table1 -- noqa: L062
+        table1 -- noqa: CV09
 
 test_pass_implicit_indent:
   # Test for ImplicitIndent.
