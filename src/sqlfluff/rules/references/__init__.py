@@ -10,10 +10,7 @@ from sqlfluff.rules.references.RF05 import Rule_RF05
 from sqlfluff.rules.references.RF06 import Rule_RF06
 
 
-# NOTE: The references bundle depends on imports from capitalisation
-# so we hint to load "last" as a hint to load this plugin later in the
-# process and avoid a circular import
-@hookimpl(trylast=True)
+@hookimpl
 def get_rules():
     """Get plugin rules."""
     return [Rule_RF01, Rule_RF02, Rule_RF03, Rule_RF04, Rule_RF05, Rule_RF06]

@@ -305,6 +305,7 @@ def test__config__glob_include_config_tests():
         assert ("RF02", 10, 8) in violations[k]
         assert "AM04" not in [c[0] for c in violations[k]]
 
+
 def test__config__rules_set_to_none():
     """Test linting when rules are set to 'None'.
 
