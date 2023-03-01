@@ -10,16 +10,10 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
     "rule,path,violations",
     [
         ("LT01", "indentation_errors.sql", [(4, 24)]),
-        ("LT02", "indentation_errors.sql", [(3, 1), (4, 1)]),
         (
             "LT02",
             "indentation_errors.sql",
             [(2, 1), (3, 1), (4, 1), (5, 1)],
-        ),
-        (
-            "LT02",
-            "indentation_errors.sql",
-            [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
         # NB The newline before the comma, should report on the comma, not the newline
