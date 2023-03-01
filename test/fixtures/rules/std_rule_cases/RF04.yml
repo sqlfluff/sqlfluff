@@ -1,4 +1,4 @@
-rule: L029
+rule: RF04
 
 test_pass_valid_identifier:
   pass_str: CREATE TABLE artist(artist_name TEXT)
@@ -20,28 +20,28 @@ test_fail_keyword_as_identifier_not_alias_all:
   fail_str: SELECT parameter
   configs:
     rules:
-      L029:
+      RF04:
         unquoted_identifiers_policy: all
 
 test_pass_valid_identifier_table_alias_column_alias_config:
   pass_str: SELECT x FROM tbl AS parameter
   configs:
     rules:
-      L029:
+      RF04:
         unquoted_identifiers_policy: column_aliases
 
 test_fail_keyword_as_identifier_column_alias_config:
   fail_str: SELECT x AS date FROM tbl AS parameter
   configs:
     rules:
-      L029:
+      RF04:
         unquoted_identifiers_policy: column_aliases
 
 test_pass_valid_quoted_identifier:
   pass_str: CREATE TABLE [artist]([artist_name] TEXT)
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -50,21 +50,21 @@ test_fail_keyword_as_quoted_identifier_column:
   fail_str: CREATE TABLE "artist"("create" TEXT)
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: aliases
 
 test_pass_keyword_as_quoted_identifier_column_none_policy:
   pass_str: CREATE TABLE "artist"("create" TEXT)
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: none
 
 test_fail_keyword_as_quoted_identifier_column_alias:
   fail_str: SELECT 1 as [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -73,7 +73,7 @@ test_fail_keyword_as_quoted_identifier_table_alias:
   fail_str: SELECT [x] FROM [tbl] AS [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -83,7 +83,7 @@ test_pass_valid_quoted_identifier_not_alias:
   pass_str: SELECT [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -92,7 +92,7 @@ test_fail_keyword_as_quoted_identifier_not_alias_all:
   fail_str: SELECT [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: all
     core:
       dialect: tsql
@@ -101,7 +101,7 @@ test_pass_valid_quoted_identifier_table_alias_column_alias_config:
   pass_str: SELECT [x] FROM [tbl] AS [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
@@ -110,7 +110,7 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
   fail_str: SELECT [x] AS [date] FROM [tbl] AS [parameter]
   configs:
     rules:
-      L029:
+      RF04:
         quoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
@@ -119,7 +119,7 @@ test_pass_ignore_word1:
   pass_str: CREATE TABLE artist(create TEXT)
   configs:
     rules:
-      L029:
+      RF04:
         ignore_words: create
 
 
@@ -127,14 +127,14 @@ test_pass_ignore_word2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
     rules:
-      L029:
+      RF04:
         ignore_words: date
 
 test_pass_ignore_words_regex1:
   pass_str: CREATE TABLE artist(create TEXT)
   configs:
     rules:
-      L029:
+      RF04:
         ignore_words_regex: ^cr
 
 
@@ -142,7 +142,7 @@ test_pass_ignore_words_regex2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
     rules:
-      L029:
+      RF04:
         ignore_words_regex: ^da
 
 test_pass_one_character_identifier:

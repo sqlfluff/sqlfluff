@@ -1,4 +1,4 @@
-"""Implementation of Rule L029."""
+"""Implementation of Rule RF04."""
 import regex
 from typing import Optional
 
@@ -8,7 +8,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.rules.capitalisation.CP02 import identifiers_policy_applicable
 
 
-class Rule_L029(BaseRule):
+class Rule_RF04(BaseRule):
     """Keywords should not be used as identifiers.
 
     Although `unreserved` keywords `can` be used as identifiers,
@@ -42,7 +42,9 @@ class Rule_L029(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "references.keywords"
+    aliases = ("L029",)
+    groups = ("all", "references")
     crawl_behaviour = SegmentSeekerCrawler({"naked_identifier", "quoted_identifier"})
     config_keywords = [
         "unquoted_identifiers_policy",

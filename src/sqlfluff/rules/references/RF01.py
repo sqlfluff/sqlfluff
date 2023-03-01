@@ -1,4 +1,4 @@
-"""Implementation of Rule L026."""
+"""Implementation of Rule RF01."""
 from dataclasses import dataclass, field
 from typing import cast, List, Optional, Tuple
 
@@ -28,14 +28,14 @@ _START_TYPES = [
 
 
 @dataclass
-class L026Query(SelectCrawlerQuery):
-    """SelectCrawler Query with custom L026 info."""
+class RF01Query(SelectCrawlerQuery):
+    """SelectCrawler Query with custom RF01 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
     standalone_aliases: List[str] = field(default_factory=list)
 
 
-class Rule_L026(BaseRule):
+class Rule_RF01(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
@@ -67,7 +67,9 @@ class Rule_L026(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "references.from"
+    aliases = ("L026",)
+    groups = ("all", "core", "references")
     config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
     _dialects_disabled_by_default = [
@@ -106,9 +108,9 @@ class Rule_L026(BaseRule):
             # Verify table references in any SELECT statements found in or
             # below context.segment in the parser tree.
             crawler = SelectCrawler(
-                context.segment, context.dialect, query_class=L026Query
+                context.segment, context.dialect, query_class=RF01Query
             )
-            query: L026Query = cast(L026Query, crawler.query_tree)
+            query: RF01Query = cast(RF01Query, crawler.query_tree)
             if query:
                 self._analyze_table_references(
                     query, dml_target_table, context.dialect, violations
@@ -130,7 +132,7 @@ class Rule_L026(BaseRule):
 
     def _analyze_table_references(
         self,
-        query: L026Query,
+        query: RF01Query,
         dml_target_table: Optional[Tuple[str, ...]],
         dialect: Dialect,
         violations: List[LintResult],
@@ -166,7 +168,7 @@ class Rule_L026(BaseRule):
         # Visit children.
         for child in query.children:
             self._analyze_table_references(
-                cast(L026Query, child), dml_target_table, dialect, violations
+                cast(RF01Query, child), dml_target_table, dialect, violations
             )
 
     @staticmethod
@@ -213,7 +215,7 @@ class Rule_L026(BaseRule):
         return tbl_refs
 
     def _resolve_reference(
-        self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: L026Query
+        self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: RF01Query
     ):
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
@@ -226,7 +228,7 @@ class Rule_L026(BaseRule):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
-                    r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
+                    r, tbl_refs, dml_target_table, cast(RF01Query, query.parent)
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table or alias.

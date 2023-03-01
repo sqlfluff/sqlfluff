@@ -1,4 +1,4 @@
-"""Implementation of Rule L027."""
+"""Implementation of Rule RF02."""
 import regex
 from typing import List, Optional
 
@@ -6,7 +6,7 @@ from sqlfluff.core.rules import LintResult
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
 
 
-class Rule_L027(Rule_AL04):
+class Rule_RF02(Rule_AL04):
     """References should be qualified if select has more than one referenced table/view.
 
     .. note::
@@ -34,7 +34,9 @@ class Rule_L027(Rule_AL04):
         LEFT JOIN vee ON vee.a = foo.a
     """
 
-    groups = ("all",)
+    name = "references.qualification"
+    aliases = ("L027",)
+    groups = ("all", "references")
     # Crawl behaviour is defined in AL04
 
     def _lint_references_and_aliases(

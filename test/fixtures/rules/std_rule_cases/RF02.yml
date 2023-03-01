@@ -1,4 +1,4 @@
-rule: L027
+rule: RF02
 
 test_pass_qualified_references_multi_table_statements:
   pass_str: |
@@ -326,7 +326,7 @@ test_pass_ignore_words_column_name:
         ON TRUE
   configs:
     rules:
-      L027:
+      RF02:
         ignore_words: test1,test2
 
 test_pass_ignore_words_regex_column_name:
@@ -337,7 +337,7 @@ test_pass_ignore_words_regex_column_name:
         ON TRUE
   configs:
     rules:
-      L027:
+      RF02:
         ignore_words_regex: ^_
 
 test_pass_ignore_words_regex_bigquery_declare_example:
@@ -351,7 +351,7 @@ test_pass_ignore_words_regex_bigquery_declare_example:
     core:
       dialect: bigquery
     rules:
-      L027:
+      RF02:
         ignore_words_regex: ^_
 
 test_pass_redshift:

@@ -1,4 +1,4 @@
-"""Implementation of Rule L059."""
+"""Implementation of Rule RF06."""
 
 from typing import List, Optional, cast, Type
 
@@ -10,7 +10,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L059(BaseRule):
+class Rule_RF06(BaseRule):
     """Unnecessary quoted identifier.
 
     This rule will fail if the quotes used to quote an identifier are (un)necessary
@@ -72,7 +72,9 @@ class Rule_L059(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "references.quoting"
+    aliases = ("L059",)
+    groups = ("all", "references")
     config_keywords = [
         "prefer_quoted_identifiers",
         "ignore_words",
