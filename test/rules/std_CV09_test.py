@@ -1,14 +1,14 @@
-"""Tests the python routines within L062."""
+"""Tests the python routines within CV09."""
 from sqlfluff.core import FluffConfig
 from sqlfluff.core import Linter
 
 
-def test__rules__std_L062_raised() -> None:
-    """L062 is raised for use of blocked words with correct error message."""
+def test__rules__std_CV09_raised() -> None:
+    """CV09 is raised for use of blocked words with correct error message."""
     sql = "SELECT MYOLDFUNCTION(col1) FROM deprecated_table;\n"
     cfg = FluffConfig(overrides={"dialect": "ansi"})
     cfg.set_value(
-        config_path=["rules", "L062", "blocked_words"],
+        config_path=["rules", "CV09", "blocked_words"],
         val="myoldfunction,deprecated_table",
     )
     linter = Linter(config=cfg)

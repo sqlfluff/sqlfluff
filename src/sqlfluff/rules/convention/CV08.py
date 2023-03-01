@@ -1,11 +1,11 @@
-"""Implementation of Rule L055."""
+"""Implementation of Rule CV08."""
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L055(BaseRule):
+class Rule_CV08(BaseRule):
     """Use ``LEFT JOIN`` instead of ``RIGHT JOIN``.
 
     **Anti-pattern**
@@ -37,7 +37,9 @@ class Rule_L055(BaseRule):
             ON foo.bar_id = bar.id;
     """
 
-    groups = ("all",)
+    name = "convention.left_join"
+    aliases = ("L055",)
+    groups = ("all", "convention")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

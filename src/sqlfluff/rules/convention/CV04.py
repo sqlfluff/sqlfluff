@@ -1,4 +1,4 @@
-"""Implementation of Rule L047."""
+"""Implementation of Rule CV04."""
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L047(BaseRule):
+class Rule_CV04(BaseRule):
     """Use consistent syntax to express "count number of rows".
 
     Note:
@@ -52,7 +52,9 @@ class Rule_L047(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "convention.count_rows"
+    aliases = ("L047",)
+    groups = ("all", "core", "convention")
     config_keywords = ["prefer_count_1", "prefer_count_0"]
     crawl_behaviour = SegmentSeekerCrawler({"function"})
     is_fix_compatible = True

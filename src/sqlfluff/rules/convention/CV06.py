@@ -1,4 +1,4 @@
-"""Implementation of Rule L052."""
+"""Implementation of Rule CV06."""
 from typing import List, NamedTuple, Optional, Sequence, cast
 
 from sqlfluff.core.parser import SymbolSegment
@@ -19,7 +19,7 @@ class SegmentMoveContext(NamedTuple):
     whitespace_deletions: Segments
 
 
-class Rule_L052(BaseRule):
+class Rule_CV06(BaseRule):
     """Statements must end with a semi-colon.
 
     **Anti-pattern**
@@ -52,7 +52,9 @@ class Rule_L052(BaseRule):
         FROM foo;
     """
 
-    groups = ("all",)
+    name = "convention.terminator"
+    aliases = ("L052",)
+    groups = ("all", "convention")
     config_keywords = ["multiline_newline", "require_final_semicolon"]
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True

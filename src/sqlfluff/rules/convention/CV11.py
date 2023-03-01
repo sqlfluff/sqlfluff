@@ -1,4 +1,4 @@
-"""Implementation of Rule L067."""
+"""Implementation of Rule CV11."""
 
 from typing import Optional, List
 
@@ -14,7 +14,7 @@ from sqlfluff.core.parser import (
 )
 
 
-class Rule_L067(BaseRule):
+class Rule_CV11(BaseRule):
     """Enforce consistent type casting style.
 
     .. note::
@@ -52,7 +52,9 @@ class Rule_L067(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "convention.casting_style"
+    aliases = ("L067",)
+    groups = ("all", "convention")
     config_keywords = ["preferred_type_casting_style"]
     crawl_behaviour = SegmentSeekerCrawler({"function", "cast_expression"})
     is_fix_compatible = True
