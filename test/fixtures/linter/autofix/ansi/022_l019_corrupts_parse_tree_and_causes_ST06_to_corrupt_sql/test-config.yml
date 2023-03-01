@@ -1,6 +1,4 @@
 test-config:
   rules:
-    - L003
-    - CP01
     - L019
     - ST06
