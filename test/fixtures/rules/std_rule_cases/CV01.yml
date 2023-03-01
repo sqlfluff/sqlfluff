@@ -1,4 +1,4 @@
-rule: L061
+rule: CV01
 
 test_pass_not_equal_to:
   pass_str: |

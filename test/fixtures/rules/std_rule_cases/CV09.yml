@@ -1,4 +1,4 @@
-rule: L062
+rule: CV09
 
 test_pass_default_none:
   pass_str: |
@@ -9,7 +9,7 @@ test_fail_deny_word:
     SELECT col1 FROM deprecated_table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table
 
 test_fail_deny_word_case_difference1:
@@ -17,7 +17,7 @@ test_fail_deny_word_case_difference1:
     SELECT col1 FROM deprecated_table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: Deprecated_Table
 
 test_fail_deny_word_case_difference2:
@@ -25,7 +25,7 @@ test_fail_deny_word_case_difference2:
     SELECT col1 FROM Deprecated_Table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table
 
 test_fail_multiple_deny_words1:
@@ -33,7 +33,7 @@ test_fail_multiple_deny_words1:
     SELECT myOldFunction(col1) FROM table1
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table,myoldFunction
 
 test_fail_multiple_deny_words2:
@@ -41,7 +41,7 @@ test_fail_multiple_deny_words2:
     SELECT col1 FROM deprecated_table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table,myoldFunction
 
 test_pass_not_complete_match:
@@ -49,7 +49,7 @@ test_pass_not_complete_match:
     SELECT col1 FROM deprecated_table1
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table
 
 test_pass_is_comment:
@@ -58,7 +58,7 @@ test_pass_is_comment:
     SELECT col1 FROM new_table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table
 
 test_pass_in_comment:
@@ -67,7 +67,7 @@ test_pass_in_comment:
     SELECT col1 FROM new_table
   configs:
     rules:
-      L062:
+      CV09:
         blocked_words: deprecated_table
 
 test_fail_bool:
@@ -77,7 +77,7 @@ test_fail_bool:
     core:
       dialect: exasol
     rules:
-      L062:
+      CV09:
         blocked_words: bool
 
 test_pass_bool:
@@ -87,7 +87,7 @@ test_pass_bool:
     core:
       dialect: exasol
     rules:
-      L062:
+      CV09:
         blocked_words: bool
 
 test_pass_bigquery:
@@ -98,7 +98,7 @@ test_pass_bigquery:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: ^.*(2022_06_01|2022_05_01).*$
 
 test_fail_bigquery:
@@ -109,7 +109,7 @@ test_fail_bigquery:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: ^.*(2022_06_01|2022_05_01).*$
 
 test_fail_bigquery2:
@@ -120,7 +120,7 @@ test_fail_bigquery2:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: .*(2022_06_01|2022_05_01).*
 
 test_fail_bigquery3:
@@ -131,7 +131,7 @@ test_fail_bigquery3:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: (2022_06_01|2022_05_01)
 
 test_pass_comment_word1:
@@ -143,7 +143,7 @@ test_pass_comment_word1:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_words: TABLESAMPLE
 
 test_pass_comment_word2:
@@ -155,7 +155,7 @@ test_pass_comment_word2:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_words: TABLESAMPLE
 
 test_pass_comment_word3:
@@ -169,7 +169,7 @@ test_pass_comment_word3:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_words: TABLESAMPLE
 
 test_pass_comment_regex1:
@@ -181,7 +181,7 @@ test_pass_comment_regex1:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: (TABLESAMPLE)
 
 test_pass_comment_regex2:
@@ -193,7 +193,7 @@ test_pass_comment_regex2:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: (TABLESAMPLE)
 
 test_pass_comment_regex3:
@@ -207,7 +207,7 @@ test_pass_comment_regex3:
     core:
       dialect: bigquery
     rules:
-      L062:
+      CV09:
         blocked_regex: (TABLESAMPLE)
 
 test_pass_match_source1:
@@ -218,7 +218,7 @@ test_pass_match_source1:
       templater: jinja
       ignore_templated_areas: true
     rules:
-      L062:
+      CV09:
         blocked_regex: ref\('deprecated_
         match_source: true
 
@@ -230,7 +230,7 @@ test_pass_match_source2:
       templater: jinja
       ignore_templated_areas: false
     rules:
-      L062:
+      CV09:
         blocked_regex: ref\('deprecated_
         match_source: false
 
@@ -242,6 +242,6 @@ test_fail_match_source1:
       templater: jinja
       ignore_templated_areas: false
     rules:
-      L062:
+      CV09:
         blocked_regex: ref\('deprecated_
         match_source: true

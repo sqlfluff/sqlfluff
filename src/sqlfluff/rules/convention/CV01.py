@@ -1,4 +1,4 @@
-"""Implementation of Rule L061."""
+"""Implementation of Rule CV01."""
 
 from typing import Optional
 
@@ -8,7 +8,7 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L061(BaseRule):
+class Rule_CV01(BaseRule):
     """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
 
     **Anti-pattern**
@@ -30,7 +30,9 @@ class Rule_L061(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "convention.not_equal"
+    aliases = ("L061",)
+    groups = ("all", "convention")
     crawl_behaviour = SegmentSeekerCrawler({"comparison_operator"})
     is_fix_compatible = True
 

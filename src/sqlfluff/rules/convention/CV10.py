@@ -1,4 +1,4 @@
-"""Implementation of Rule L064."""
+"""Implementation of Rule CV10."""
 
 from typing import Optional
 
@@ -11,7 +11,7 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.dialects.dialect_ansi import LiteralSegment
 
 
-class Rule_L064(BaseRule):
+class Rule_CV10(BaseRule):
     r"""Consistent usage of preferred quotes for quoted literals.
 
     Some databases allow quoted literals to use either single or double quotes.
@@ -59,7 +59,9 @@ class Rule_L064(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "convention.quoted_literals"
+    aliases = ("L064",)
+    groups = ("all", "convention")
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
     crawl_behaviour = SegmentSeekerCrawler({"literal"})
     targets_templated = True

@@ -1,4 +1,4 @@
-rule: L049
+rule: CV05
 
 test_is_null:
   pass_str: |

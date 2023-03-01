@@ -436,7 +436,7 @@ ansi_dialect.add(
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
     # Give it a different type as needs to be single quotes and
-    # should not be changed by rules (e.g. rule L064)
+    # should not be changed by rules (e.g. rule CV10)
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),

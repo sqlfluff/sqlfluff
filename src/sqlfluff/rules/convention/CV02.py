@@ -1,4 +1,4 @@
-"""Implementation of Rule L060."""
+"""Implementation of Rule CV02."""
 
 from typing import Optional
 
@@ -7,7 +7,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 
 
-class Rule_L060(BaseRule):
+class Rule_CV02(BaseRule):
     """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.
 
     **Anti-pattern**
@@ -38,7 +38,9 @@ class Rule_L060(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "convention.coalesce"
+    aliases = ("L060",)
+    groups = ("all", "convention")
     crawl_behaviour = SegmentSeekerCrawler({"function_name_identifier"})
     is_fix_compatible = True
 

@@ -1,4 +1,4 @@
-"""Implementation of Rule L038."""
+"""Implementation of Rule CV03."""
 from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
@@ -8,7 +8,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L038(BaseRule):
+class Rule_CV03(BaseRule):
     """Trailing commas within select clause.
 
     .. note::
@@ -37,7 +37,9 @@ class Rule_L038(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "convention.select_trailing_comma"
+    aliases = ("L038",)
+    groups = ("all", "core", "convention")
     config_keywords = ["select_clause_trailing_comma"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True

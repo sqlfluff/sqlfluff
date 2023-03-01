@@ -1,4 +1,4 @@
-"""Implementation of Rule L053."""
+"""Implementation of Rule CV07."""
 from typing import List
 
 from sqlfluff.core.parser.segments.base import IdentitySet
@@ -7,7 +7,7 @@ from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
 
 
-class Rule_L053(BaseRule):
+class Rule_CV07(BaseRule):
     """Top-level statements should not be wrapped in brackets.
 
     **Anti-pattern**
@@ -45,7 +45,9 @@ class Rule_L053(BaseRule):
         FROM (SELECT * FROM bar)
     """
 
-    groups = ("all",)
+    name = "convention.statement_brackets"
+    aliases = ("L053",)
+    groups = ("all", "convention")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
 

@@ -1,4 +1,4 @@
-"""Implementation of Rule L062."""
+"""Implementation of Rule CV09."""
 
 import regex
 from typing import Optional
@@ -7,7 +7,7 @@ from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L062(BaseRule):
+class Rule_CV09(BaseRule):
     """Block a list of configurable words from being used.
 
     This generic rule can be useful to prevent certain keywords, functions, or objects
@@ -21,7 +21,7 @@ class Rule_L062(BaseRule):
       this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
       to cause a linting error to flag this.
     * We have deprecated a schema/table/function and want to prevent it being used
-      in future. We can add that to the denylist and then add a ``-- noqa: L062`` for
+      in future. We can add that to the denylist and then add a ``-- noqa: CV09`` for
       the few exceptions that still need to be in the code base for now.
 
     **Anti-pattern**
@@ -45,7 +45,9 @@ class Rule_L062(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "convention.blocked_words"
+    aliases = ("L062",)
+    groups = ("all", "convention")
     # It's a broad selector, but only trigger on raw segments.
     crawl_behaviour = SegmentSeekerCrawler({"raw"})
     config_keywords = [
