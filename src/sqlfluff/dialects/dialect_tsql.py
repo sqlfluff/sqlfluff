@@ -94,7 +94,9 @@ tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
 
-tsql_dialect.sets("bare_functions").update(["system_user"])
+tsql_dialect.sets("bare_functions").update(
+    ["system_user", "session_user", "current_user"]
+)
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -2557,11 +2559,23 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar = OneOf(
         "COALESCE",
-        "CURRENT_TIMESTAMP",
-        "CURRENT_USER",
         "LEFT",
         "NULLIF",
         "RIGHT",
+    )
+
+
+class ReservedKeywordBareFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are functions without parentheses.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
         "SESSION_USER",
         "SYSTEM_USER",
     )
@@ -2687,6 +2701,7 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = OneOf(
+        Ref("ReservedKeywordBareFunctionNameSegment"),
         Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment

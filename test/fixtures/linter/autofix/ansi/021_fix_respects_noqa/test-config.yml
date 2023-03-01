@@ -2,4 +2,4 @@ test-config:
   rules:
     - CP01
     - AL02
-    - L034
+    - ST06

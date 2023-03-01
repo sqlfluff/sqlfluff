@@ -86,6 +86,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "SEL",
         "SS",
         "STAT",
+        "STATS",
         "SUMMARY",
         "THRESHOLD",
         "UC",
@@ -574,6 +575,13 @@ class TdTableConstraints(BaseSegment):
         ),
         # WITH DATA
         Sequence("WITH", Sequence("NO", optional=True), "DATA"),
+        # AND STATISITCS
+        Sequence(
+            "AND",
+            Sequence("NO", optional=True),
+            OneOf("STATS", "STATISTICS"),
+            optional=True,
+        ),
         # ON COMMIT PRESERVE ROWS
         Sequence("ON", "COMMIT", OneOf("PRESERVE", "DELETE"), "ROWS"),
     )

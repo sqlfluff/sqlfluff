@@ -277,7 +277,7 @@ def test__templater_dbt_skips_file(
         "use_var.sql",
         "incremental.sql",
         "single_trailing_newline.sql",
-        "L034_test.sql",
+        "ST06_test.sql",
     ],
 )
 def test__dbt_templated_models_do_not_raise_lint_error(

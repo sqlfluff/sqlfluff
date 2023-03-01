@@ -83,7 +83,7 @@ file.
 
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -125,7 +125,7 @@ error (violation of *L006*) no longer shows up.
 
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -190,7 +190,7 @@ specifying :code:`--rules`.
     $ sqlfluff fix test.sql --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
-    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -250,7 +250,7 @@ Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01,L034,L036,LT01
+    $ sqlfluff fix test.sql --rules LT02,L009,CP01,ST06,L036,LT01
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.

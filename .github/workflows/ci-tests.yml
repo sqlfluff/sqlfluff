@@ -150,7 +150,7 @@ jobs:
     strategy:
       matrix:
         # We don't enforce coverage on older dbt versions.
-        dbt-version: [ 'dbt100' ]
+        dbt-version: [ 'dbt110' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -188,7 +188,7 @@ jobs:
     strategy:
       matrix:
         # We enforce coverage on this, the latest dbt version.
-        dbt-version: [ 'dbt130' ]
+        dbt-version: [ 'dbt140' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v3
@@ -280,7 +280,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt130-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt140-winpy -- plugins/sqlfluff-templater-dbt
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
