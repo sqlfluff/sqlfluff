@@ -1237,7 +1237,6 @@ class RuleSet:
 
         """
         expanded_rule_set: Set[str] = set()
-        rules_logger.warning("GLOB: %s", glob_list)
         for r in glob_list:
             # Is it a direct reference?
             if r in reference_map:
