@@ -1461,11 +1461,9 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "select target.",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
-            "referenced table/view. "
-            "[aliasing.unique.table]",
+            "referenced table/view. [references.qualification]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "AL02: Implicit/explicit aliasing of columns. "
-            "[aliasing.column]",
+            "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
