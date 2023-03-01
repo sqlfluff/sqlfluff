@@ -415,7 +415,7 @@ def test__config__validate_configs_indirect():
             configs={
                 "core": {"dialect": "ansi"},
                 # This is a known removed value.
-                "rules": {"LT02": {"lint_templated_tokens": True}},
+                "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )
 

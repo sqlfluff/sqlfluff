@@ -21,19 +21,6 @@ spaces_fail_custom_tab_space_size:
       tab_space_size: 2
 
 
-spaces_fail_custom_tab_space_size_not_multiple:
-  fail_str: "     \nSELECT 1"
-  violations:
-  - description: 'Incorrect indentation type found in file. The number of spaces is
-    not a multiple of '
-    line_no: 1
-    line_pos: 1
-  configs:
-    rules:
-      indent_unit: tab
-      tab_space_size: 2
-
-
 tabs_fail_default:
   fail_str: "SELECT\n\t\t1\n"
   fix_str: "SELECT\n    1\n"
@@ -52,23 +39,6 @@ tabs_pass:
   configs:
     rules:
       indent_unit: tab
-
-
-mixed_indent_fail_default_tab_space_size:
-  fail_str: |2
-      	 select 1
-  fix_str: |2
-           select 1
-
-
-mixed_indent_fail_custom_tab_space_size:
-  fail_str: |2
-      	 select 1
-  fix_str: |2
-         select 1
-  configs:
-    rules:
-      tab_space_size: 2
 
 
 indented_comments:
@@ -92,18 +62,6 @@ indented_comments_default_config:
         a,			-- Some comment
         longer_col	-- A lined up comment
     FROM spam
-  # Lint fails after fixing due to the spaces that come before the comments.
-  # That is left unfixable for now, as explained in:
-  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
-  violations_after_fix:
-    - description: Incorrect indentation type found in file. The indent occurs after other
-        text, so a manual fix is needed.
-      line_no: 2
-      line_pos: 7
-    - description: Incorrect indentation type found in file. The indent occurs after other
-        text, so a manual fix is needed.
-      line_no: 3
-      line_pos: 15
 
 
 indented_comments_tab_config:
@@ -119,15 +77,6 @@ indented_comments_tab_config:
     	a,         -- Some comment
     	longer_col -- A lined up comment
     FROM spam
-  # Lint fails after fixing due to the spaces that come before the comments.
-  # That is left unfixable for now, as explained in:
-  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
-  violations_after_fix:
-  - code: LT02
-    description: Incorrect indentation type found in file. The indent occurs after other
-      text, so a manual fix is needed.
-    line_no: 2
-    line_pos: 4
   configs:
     rules:
       indent_unit: tab
