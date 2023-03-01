@@ -1,0 +1,404 @@
+rule: ST03
+
+test_pass_no_cte_defined_1:
+  pass_str: select * from t
+
+test_pass_cte_defined_and_used_1:
+  pass_str: |
+    with cte as (
+        select
+            a, b
+        from
+            t
+    )
+    select * from cte
+
+test_pass_cte_defined_and_used_2:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+    JOIN cte2
+
+test_pass_cte_defined_and_used_case_insensitive:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+    JOIN Cte2
+
+test_fail_cte_defined_but_unused_1:
+  desc: Two CTEs defined but only one used in final query.
+  fail_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+
+test_fail_cte_defined_but_unused_2:
+  desc: CTE defined but unused in final query even though table alias mimics CTE's name.
+  fail_str: |
+    WITH cte_orders AS (
+      SELECT customer_id, total
+      FROM orders
+    )
+    SELECT *
+    FROM
+      orders AS cte_orders
+
+test_pass_cte_defined_and_used_3:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM cte1
+    )
+    SELECT *
+    FROM cte2
+
+test_fail_cte_defined_but_unused_3:
+  desc: Two CTEs are defined. CTE2 references CTE1 but in final query only CTE1 is used.
+  fail_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM cte1
+    )
+    SELECT *
+    FROM cte1
+
+test_pass_no_cte_defined_2:
+  # Issue 915: Crash on statements that don't have a SELECT
+  pass_str: CREATE TABLE my_table (id INTEGER)
+
+test_pass_cte_defined_and_used_4:
+  # Issue 944: Detecting use of CTE in nested SELECT
+  pass_str: |
+    WITH max_date_cte AS (
+        SELECT MAX(row_updated_date) AS max_date
+        FROM warehouse.loaded_monthly
+    )
+    SELECT stuff
+    FROM warehouse.updated_weekly
+    WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+
+test_pass_cte_defined_and_used_5:
+  # Variant on test_9, the WHERE with a nested SELECT is in a CTE
+  pass_str: |
+    WITH max_date_cte AS (
+      SELECT MAX(row_updated_date) AS max_date
+      FROM warehouse.loaded_monthly
+    ),
+    uses_max_date_cte AS (
+      SELECT stuff
+          FROM warehouse.updated_weekly
+          WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
+    )
+    SELECT stuff
+    FROM uses_max_date_cte
+
+test_pass_cte_defined_and_used_6:
+  # Issue 963: Infinite recursion when a CTE references itself
+  pass_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from pages_xf )
+    ),
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    )
+    select * from final
+
+test_fail_cte_defined_but_unused_4:
+  # Variant on test_11 where there *is* an unused CTE
+  fail_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from pages_xf )
+    ),
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    ),
+    unused as (
+      select pages.received_at from pages
+    )
+    select * from final
+
+test_pass_cte_defined_and_used_7:
+  # Variant on test_11 where the CTE references itself indirectly
+  pass_str: |
+    with pages_xf as (
+      select pages.received_at
+      from pages
+      where pages.received_at > (select max(received_at) from final )
+    ),
+    final as (
+      select pages_xf.received_at
+      from pages_xf
+    )
+    select * from final
+
+test_snowflake_delete_cte:
+  fail_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_exasol_values_clause_cte_1:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_sparksql_values_clause_cte_1:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sparksql_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_query_uses_templating:
+  fail_str: |
+    WITH
+    random_gibberish AS (
+        SELECT 1
+    )
+    SELECT var_bar
+    FROM {{ ref('issue_2235') }}
+
+test_pass_update_cte:
+  pass_str: |
+    WITH cte AS (
+        SELECT
+            id,
+            name,
+            description
+        FROM table1
+    )
+    UPDATE table2
+    SET
+        name = cte.name,
+        description = cte.description
+    FROM cte
+    WHERE table2.id = cte.id;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_update_cte:
+  fail_str: |
+    WITH cte AS (
+        SELECT
+            id,
+            name,
+            description
+        FROM table1
+    )
+    UPDATE table2
+    SET
+        name = 1,
+        description = 2
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_nested_cte:
+  fail_str: |
+    with a as (
+        with b as (
+            select 1 from foo
+        )
+        select 1
+    )
+    select * from a
+
+test_pass_nested_query:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            bar)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            foo)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_pass_nested_query_in_from_clause:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query_in_from_clause:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foofoo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage

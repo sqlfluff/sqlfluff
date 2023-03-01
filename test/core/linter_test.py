@@ -512,15 +512,15 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             NoQaDirective(
                 0,
                 (
+                    "AM04",
                     "CP04",  # L040 is an alias of CP04 (which matches the glob)
                     "JJ01",
                     "L041",
-                    "L042",
-                    "L043",
-                    "L044",
-                    "L045",
                     "CV04",
                     "L048",
+                    "ST02",
+                    "ST03",
+                    "ST05",
                     "CV05",
                 ),
                 None,

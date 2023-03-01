@@ -81,12 +81,12 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ),
         ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references
-        ("L027", "column_references.sql", [(1, 8)]),
-        ("L027", "column_references_bare_function.sql", []),
-        ("L026", "column_references.sql", [(1, 11)]),
+        ("RF02", "column_references.sql", [(1, 8)]),
+        ("RF02", "column_references_bare_function.sql", []),
+        ("RF01", "column_references.sql", [(1, 11)]),
         ("AL05", "column_references.sql", [(2, 11)]),
         # Distinct and Group by
-        ("L021", "select_distinct_group_by.sql", [(1, 8)]),
+        ("AM01", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
         ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (

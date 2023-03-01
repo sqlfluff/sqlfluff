@@ -1,30 +1,11 @@
 """Implementation of Rule CP02."""
 
-from typing import Tuple, Optional, List
+from typing import Optional, List
 
-from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.identifers import identifiers_policy_applicable
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
-
-
-def identifiers_policy_applicable(
-    policy: str, parent_stack: Tuple[BaseSegment, ...]
-) -> bool:
-    """Does `(un)quoted_identifiers_policy` apply to this segment?"""
-    if policy == "all":
-        return True
-    if policy == "none":
-        return False
-    is_alias = parent_stack and parent_stack[-1].is_type(
-        "alias_expression", "column_definition", "with_compound_statement"
-    )
-    if policy == "aliases" and is_alias:
-        return True
-    is_inside_from = any(p.is_type("from_clause") for p in parent_stack)
-    if policy == "column_aliases" and is_alias and not is_inside_from:
-        return True
-    return False
 
 
 class Rule_CP02(Rule_CP01):

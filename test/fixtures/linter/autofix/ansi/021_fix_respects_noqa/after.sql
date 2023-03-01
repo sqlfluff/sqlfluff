@@ -1,4 +1,4 @@
---noqa: disable=L034
+--noqa: disable=ST06
 SELECT DISTINCT
     TO_CHAR(a, 'YYYY-MM-dd HH:MM:ss') AS the_date,
     a AS b

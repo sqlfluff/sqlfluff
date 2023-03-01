@@ -32,7 +32,7 @@ from sqlfluff.utils.analysis import select_crawler
             },
         ),
         (
-            # Nested CTEs (from L044 test suite)
+            # Nested CTEs (from AM04 test suite)
             """
         with a as (
             with b as (select 1 from c)
@@ -53,7 +53,7 @@ from sqlfluff.utils.analysis import select_crawler
             },
         ),
         (
-            # Nested CTEs (from L044 test suite)
+            # Nested CTEs (from AM04 test suite)
             """
         with b as (select 1 from c)
         select * from (

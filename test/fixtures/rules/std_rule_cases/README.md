@@ -42,7 +42,7 @@ test_keyword_as_identifier:
 
   configs:
     rules:
-      L029:
+      RF04:
         only_aliases: false
 ```
 
