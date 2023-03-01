@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("LT01", "LT02", "L005", "L006", "L007", "L008", "L009"),
+                ("L005", "L006", "L007", "L008", "L009", "LT01", "LT02"),
                 None,
             ),
         ),

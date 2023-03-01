@@ -309,15 +309,15 @@ class Linter:
                         unexpanded_rules = tuple(
                             r.strip() for r in rule_part.split(",")
                         )
-                        expanded_rules: List[str] = []
+                        # We use a set to do natural deduplication.
+                        expanded_rules: Set[str] = set()
                         for r in unexpanded_rules:
                             matched = False
                             for expanded in (
                                 reference_map[x]
                                 for x in fnmatch.filter(reference_map.keys(), r)
-                                if x not in expanded_rules
                             ):
-                                expanded_rules.extend(expanded)
+                                expanded_rules |= expanded
                                 matched = True
 
                             if not matched:
@@ -325,7 +325,7 @@ class Linter:
                                 # Therefore assume the user is referencing
                                 # a special error type (e.g. PRS, LXR, or TMP)
                                 # and add this to the list of rules to ignore.
-                                expanded_rules.append(r)
+                                expanded_rules.add(r)
                         # Sort for consistency
                         rules = tuple(sorted(expanded_rules))
                     else:
