@@ -248,7 +248,7 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
                  casting style.
     line_no: 2
     line_pos: 5
-    name: ""
+    name: "convention.casting_style"
   configs:
     rules:
       CV11:
@@ -309,7 +309,7 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
                  casting style.
     line_no: 2
     line_pos: 5
-    name: ""
+    name: "convention.casting_style"
   configs:
     rules:
       CV11:
