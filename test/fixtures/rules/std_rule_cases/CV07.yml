@@ -1,0 +1,80 @@
+rule: CV07
+
+test_pass_no_outer_brackets:
+  pass_str: |
+    SELECT foo
+    FROM bar
+
+test_fail_outer_brackets:
+  fail_str: |
+    (SELECT foo
+    FROM bar)
+  fix_str: |
+    SELECT foo
+    FROM bar
+
+test_fail_outer_brackets_inner_subquery:
+  fail_str: |
+    (SELECT foo
+    FROM (select * from bar))
+  fix_str: |
+    SELECT foo
+    FROM (select * from bar)
+
+test_pass_set_statement_brackets:
+  pass_str: |
+    (SELECT 1)
+    UNION
+    (SELECT 1)
+
+test_pass_no_outer_brackets_tsql:
+  pass_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_outer_brackets_tsql:
+  fail_str: |
+    (SELECT foo
+    FROM bar)
+  fix_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_outer_brackets_inner_subquery_tsql:
+  fail_str: |
+    (SELECT foo
+    FROM (select * from bar))
+  fix_str: |
+    SELECT foo
+    FROM (select * from bar)
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_begin_end_statement_brackets_tsql:
+  pass_str: |
+    BEGIN
+      (SELECT 1)
+    END
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_leading_trailing_whitespace:
+  # This previously caused the post-fix parse check to fail.
+  fail_str: "(\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n);\n"
+  # Yes, the formatting looks bad, but that's because we're only running CV07
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: "\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n;\n"
+
+test_fail_leading_whitespace_and_comment:
+  fail_str: "( -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n)\n"
+  # Yes, the formatting looks bad, but that's because we're only running CV07
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: " -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n\n"

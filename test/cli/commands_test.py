@@ -1375,7 +1375,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 2,
-            "message": "L027: Unqualified reference 'foo' found in select with more "
+            "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
             "start_column": 5,
             "end_column": 5,
@@ -1471,7 +1471,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "L036: Select targets should be on a new line unless there is only one "
             "select target.",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
-            "L027: Unqualified reference 'foo' found in select with more than one "
+            "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view.",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "AL02: Implicit/explicit aliasing of columns.",
@@ -1705,7 +1705,7 @@ class TestProgressBars:
 
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
         self, mock_disable_progress_bar: MagicMock
@@ -1735,7 +1735,7 @@ class TestProgressBars:
         )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
         self, mock_disable_progress_bar: MagicMock
@@ -1774,7 +1774,7 @@ class TestProgressBars:
         )
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
-        assert r"\rrule L049:" in raw_output
+        assert r"\rrule CV05:" in raw_output
 
     def test_cli_fix_disabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock
@@ -1869,19 +1869,19 @@ def test__cli__fix_multiple_errors_show_errors():
     # added. The replace command just accounts for cross platform testing.
     assert "L:  12 | P:   1 | L003 | Expected indent of 4 spaces." in result.output
     assert (
-        "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in "
+        "L:  36 | P:   9 | RF02 | Unqualified reference 'package_id' found in "
         "select with more than" in result.output
     )
     assert (
-        "L:  45 | P:  17 | L027 | Unqualified reference 'owner_type' found in "
+        "L:  45 | P:  17 | RF02 | Unqualified reference 'owner_type' found in "
         "select with more than" in result.output
     )
     assert (
-        "L:  45 | P:  50 | L027 | Unqualified reference 'app_key' found in "
+        "L:  45 | P:  50 | RF02 | Unqualified reference 'app_key' found in "
         "select with more than one" in result.output
     )
     assert (
-        "L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in "
+        "L:  42 | P:  45 | RF02 | Unqualified reference 'owner_id' found in "
         "select with more than" in result.output
     )
 
