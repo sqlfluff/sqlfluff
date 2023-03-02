@@ -3,6 +3,12 @@ rule: LT02
 test_fail_reindent_first_line_1:
   fail_str: "     SELECT 1"
   fix_str: SELECT 1
+  violations:
+    - code: LT02
+      description: First line should not be indented.
+      line_no: 1
+      line_pos: 1
+      name: layout.indent
 
 test_fail_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing LT02
@@ -50,6 +56,12 @@ test_fail_tab_indentation:
   configs:
     indentation:
       indent_unit: tab
+  violations:
+    - code: LT02
+      description: Expected indent of 1 tabs.
+      line_no: 3
+      line_pos: 1
+      name: layout.indent
 
 test_pass_indented_joins_default:
   # Configurable indents work.
@@ -93,6 +105,12 @@ test_fail_indented_joins_true_fix:
   configs:
     indentation:
       indented_joins: true
+  violations:
+    - code: LT02
+      description: Expected indent of 4 spaces.
+      line_no: 3
+      line_pos: 1
+      name: layout.indent
 
 test_fail_indented_joins_false_fix:
   # e) specific False, and failing
