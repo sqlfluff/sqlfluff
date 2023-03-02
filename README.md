@@ -56,6 +56,18 @@ SQL itself does not lend itself well to [modularity](https://docs.getdbt.com/doc
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 
+## Extensions & Plugins
+
+We also have a VS Code extension:
+
+- [Github Repository](https://github.com/sqlfluff/vscode-sqlfluff)
+- [Extension in VS Code marketplace](https://marketplace.visualstudio.com/items?itemName=dorzey.vscode-sqlfluff)
+
+And an IntelliJ Plugin:
+
+- [Github Repository](https://github.com/anboralabs/sqlfluff-intellij-community)
+- [Plugin in JetBrains marketplace](https://plugins.jetbrains.com/plugin/20494-sqlfluff-linter-community-edition-)
+
 # Getting Started
 
 To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
