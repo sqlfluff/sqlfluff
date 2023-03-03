@@ -805,8 +805,8 @@ class SelectClauseModifierSegment(BaseSegment):
             "TOP",
             Ref("ExpressionSegment"),
             Sequence("PERCENT", optional=True),
-            Sequence("WITH TIES", optional=True),
-        ),  
+            Sequence("WITH", "TIES", optional=True),
+        ),
         Sequence(
             "NORMALIZE",
             OneOf(
