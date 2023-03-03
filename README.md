@@ -56,6 +56,13 @@ SQL itself does not lend itself well to [modularity](https://docs.getdbt.com/doc
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 
+## VS Code Extension
+
+We also have a VS Code extension:
+
+- [Github Repository](https://github.com/sqlfluff/vscode-sqlfluff)
+- [Extension in VS Code marketplace](https://marketplace.visualstudio.com/items?itemName=dorzey.vscode-sqlfluff)
+
 # Getting Started
 
 To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
