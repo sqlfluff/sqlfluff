@@ -766,6 +766,11 @@ class SelectClauseModifierSegment(BaseSegment):
         "DISTINCT",
         "ALL",
         Sequence(
+            "TOP",
+            Ref("ExpressionSegment"),
+            Sequence("PERCENT", optional=True),
+        ),  
+        Sequence(
             "NORMALIZE",
             OneOf(
                 Sequence(
