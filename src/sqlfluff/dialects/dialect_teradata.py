@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     Sequence,
     StartsWith,
+    StringParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -97,6 +98,41 @@ teradata_dialect.sets("unreserved_keywords").update(
 teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP"])
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
+
+teradata_dialect.replace(
+    # ANSI standard comparison operators plus Teradata extensions
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("EqualsSegment_a"),
+        Ref("GreaterThanSegment"),
+        Ref("GreaterThanSegment_a"),
+        Ref("LessThanSegment"),
+        Ref("LessThanSegment_a"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("GreaterThanOrEqualToSegment_a"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment_a"),
+        Ref("NotEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment_c"),
+        Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
+    )
+)
+
+teradata_dialect.add(
+    # Add Teradata comparison operator extensions
+    EqualsSegment_a=StringParser("EQ", ansi.ComparisonOperatorSegment),
+    GreaterThanSegment_a=StringParser("GT", ansi.ComparisonOperatorSegment),
+    LessThanSegment_a=StringParser("LT", ansi.ComparisonOperatorSegment),
+    GreaterThanOrEqualToSegment_a=StringParser("GE", ansi.ComparisonOperatorSegment),
+    LessThanOrEqualToSegment_a=StringParser("LE", ansi.ComparisonOperatorSegment),
+    NotEqualToSegment_a=StringParser("NE", ansi.ComparisonOperatorSegment),
+    NotEqualToSegment_b=StringParser("NOT=", ansi.ComparisonOperatorSegment),
+    NotEqualToSegment_c=StringParser("^=", ansi.ComparisonOperatorSegment),
+)
 
 
 # BTEQ statement
@@ -845,4 +881,26 @@ class SetSessionStatementSegment(BaseSegment):
             "SS",
         ),
         Ref("DatabaseStatementSegment"),
+    )
+
+
+class NotEqualToSegment_b(ansi.CompositeComparisonOperatorSegment):
+    """The comparison operator extension NOT=.
+
+    https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators
+    """
+
+    match_grammar = Sequence(
+        Ref("NotOperatorGrammar"), Ref("RawEqualsSegment"), allow_gaps=False
+    )
+
+
+class NotEqualToSegment_c(ansi.CompositeComparisonOperatorSegment):
+    """The comparison operator extension ^=.
+
+    https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators
+    """
+
+    match_grammar = Sequence(
+        Ref("BitwiseXorSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
