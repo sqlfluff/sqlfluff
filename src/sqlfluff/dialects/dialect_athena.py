@@ -20,9 +20,8 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    AnySetOf,
 )
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment, RawSegment
+from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_athena_keywords import (
     athena_reserved_keywords,
@@ -246,11 +245,11 @@ athena_dialect.replace(
 
 
 class PrimitiveTypeSegment(BaseSegment):
-    """Athena supports a subset of the Hive data types, so this segment defines
-    only the supported types listed in the Athena documentation.
+    """Support Athena subset of Hive types.
 
     Primary Source: https://docs.aws.amazon.com/athena/latest/ug/data-types.html
-    Additional Details: https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types
+    Additional Details:
+        https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types
     """
 
     type = "primitive_type"
@@ -258,12 +257,12 @@ class PrimitiveTypeSegment(BaseSegment):
         "BOOLEAN",
         "TINYINT",
         "SMALLINT",
-        "INTEGER", # used in DML queries
-        "INT", # used in DDL queries
+        "INTEGER",  # used in DML queries
+        "INT",  # used in DDL queries
         "BIGINT",
         "DOUBLE",
-        "FLOAT", # used in DDL
-        "REAL", # used "in SQL functions like SELECT CAST"
+        "FLOAT",  # used in DDL
+        "REAL",  # used "in SQL functions like SELECT CAST"
         Sequence(
             "DECIMAL",
             Bracketed(
@@ -303,8 +302,9 @@ class PrimitiveTypeSegment(BaseSegment):
 
 
 class DatatypeSegment(BaseSegment):
-    """
-    Complex data types, typically used in either DDL statements or as
+    """Support complex Athena data types.
+
+    Complex data types are typically used in either DDL statements or as
     the target type in casts.
     """
 
@@ -460,11 +460,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("CommentGrammar", optional=True),
             ),
             Sequence(
-                Sequence(
-                    "WITH",
-                    Ref("BracketedCTASPropertyGrammar"),
-                    optional=True
-                ),
+                Sequence("WITH", Ref("BracketedCTASPropertyGrammar"), optional=True),
                 "AS",
                 OptionallyBracketed(
                     Ref("SelectableGrammar"),
