@@ -78,9 +78,11 @@ teradata_dialect.sets("unreserved_keywords").update(
         "MAXVALUELENGTH",
         "MEETS",
         "MERGEBLOCKRATIO",
+        "NONE",
         "PERCENT",
         "PROFILE",
         "PROTECTION",
+        "QUERY_BAND",
         "QUIT",
         "RUN",
         "SAMPLE",
@@ -717,6 +719,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TdCommentStatementSegment"),
             Ref("DatabaseStatementSegment"),
             Ref("SetSessionStatementSegment"),
+            Ref("SetQueryBandStatementSegment"),
         ],
     )
 
@@ -882,6 +885,27 @@ class SetSessionStatementSegment(BaseSegment):
             "SS",
         ),
         Ref("DatabaseStatementSegment"),
+    )
+
+
+class SetQueryBandStatementSegment(BaseSegment):
+    """A `SET QUERY_BAND` statement.
+
+    SET QUERY_BAND = { 'band_specification [...]' | NONE } [ UPDATE ]
+    FOR { SESSION [VOLATILE] | TRANSACTION } [;]
+
+    https://docs.teradata.com/r/Teradata-VantageTM-SQL-Data-Definition-Language-Syntax-and-Examples/July-2021/Session-Statements/SET-QUERY_BAND
+    """
+
+    type = "set_query_band_statement"
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "QUERY_BAND",
+        Ref("EqualsSegment"),
+        OneOf(Ref("QuotedLiteralSegment"), "NONE"),
+        Sequence("UPDATE", optional=True),
+        "FOR",
+        OneOf(Sequence("SESSION", Sequence("VOLATILE", optional=True)), "TRANSACTION"),
     )
 
 
