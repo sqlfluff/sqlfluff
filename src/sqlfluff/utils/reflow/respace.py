@@ -21,6 +21,27 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
+def _unpack_constraint(constraint: str, strip_newlines: bool):
+    """Unpack a spacing constraint.
+
+    Used as a helper function in `determine_constraints`.
+    """
+    # Unless align, split.
+    if constraint.startswith("align"):
+        modifier = ""
+    else:
+        constraint, _, modifier = constraint.partition(":")
+    if not modifier:
+        pass
+    elif modifier == "inline":
+        strip_newlines = True
+    else:  # pragma: no cover
+        raise NotImplementedError(
+            f"Unexpected constraint modifier: {constraint}"
+        )
+    return constraint, strip_newlines
+
+
 def determine_constraints(
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
@@ -28,38 +49,15 @@ def determine_constraints(
 ) -> Tuple[str, str, bool]:
     """Given the surrounding blocks, determine appropriate constraints."""
     # Start with the defaults.
-    pre_constraint = prev_block.spacing_after if prev_block else "single"
-    # Unless align, split.
-    if pre_constraint.startswith("align"):
-        modifier = ""
-    else:
-        pre_constraint, _, modifier = pre_constraint.partition(":")
-    if not modifier:
-        pass
-    elif modifier == "inline":
-        strip_newlines = True
-    else:  # pragma: no cover
-        raise NotImplementedError(
-            f"Unexpected within constraint modifier: {pre_constraint}"
-        )
-
-    post_constraint = next_block.spacing_before if next_block else "single"
-    # Unless align, split.
-    if post_constraint.startswith("align"):
-        modifier = ""
-    else:
-        post_constraint, _, modifier = post_constraint.partition(":")
-    if not modifier:
-        pass
-    elif modifier == "inline":
-        strip_newlines = True
-    else:  # pragma: no cover
-        raise NotImplementedError(
-            f"Unexpected within constraint modifier: {post_constraint}"
-        )
+    pre_constraint, strip_newlines = _unpack_constraint(
+        prev_block.spacing_after if prev_block else "single", strip_newlines
+    )
+    post_constraint, strip_newlines = _unpack_constraint(
+        next_block.spacing_before if next_block else "single", strip_newlines
+    )
 
     # Work out the common parent segment and depth
-    spacing, modifier = "", ""
+    within_spacing = ""
     if prev_block and next_block:
         common = prev_block.depth_info.common_with(next_block.depth_info)
         # Just check the most immediate parent for now for speed.
@@ -70,34 +68,24 @@ def determine_constraints(
 
         within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
         if within_constraint:
-            spacing, _, modifier = within_constraint.partition(":")
+            within_spacing, strip_newlines = _unpack_constraint(
+                within_constraint, strip_newlines
+            )
 
     # If segments are expected to be touch within. Then modify
     # constraints accordingly.
-    if spacing == "touch":
+    if within_spacing == "touch":
         # NOTE: We don't override if it's already "any"
         if pre_constraint != "any":
             pre_constraint = "touch"
         if post_constraint != "any":
             post_constraint = "touch"
-    elif spacing == "single":
+    elif within_spacing == "single":
         pass
-    elif spacing:  # pragma: no cover
+    elif within_spacing:  # pragma: no cover
         assert prev_block
         raise NotImplementedError(
             f"Unexpected within constraint: {within_constraint} for "
-            f"{prev_block.depth_info.stack_class_types[idx]}"
-        )
-
-    # If there's a modifier, respond accordingly
-    if not modifier:
-        pass
-    elif modifier == "inline":
-        strip_newlines = True
-    else:  # pragma: no cover
-        assert prev_block
-        raise NotImplementedError(
-            f"Unexpected within constraint modifier: {within_constraint} for "
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
 
