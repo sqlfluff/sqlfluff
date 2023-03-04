@@ -29,47 +29,77 @@ def determine_constraints(
     """Given the surrounding blocks, determine appropriate constraints."""
     # Start with the defaults.
     pre_constraint = prev_block.spacing_after if prev_block else "single"
+    # Unless align, split.
+    if pre_constraint.startswith("align"):
+        modifier = ""
+    else:
+        pre_constraint, _, modifier = pre_constraint.partition(":")
+    if not modifier:
+        pass
+    elif modifier == "inline":
+        strip_newlines = True
+    else:  # pragma: no cover
+        raise NotImplementedError(
+            f"Unexpected within constraint modifier: {pre_constraint}"
+        )
+
     post_constraint = next_block.spacing_before if next_block else "single"
+    # Unless align, split.
+    if post_constraint.startswith("align"):
+        modifier = ""
+    else:
+        post_constraint, _, modifier = post_constraint.partition(":")
+    if not modifier:
+        pass
+    elif modifier == "inline":
+        strip_newlines = True
+    else:  # pragma: no cover
+        raise NotImplementedError(
+            f"Unexpected within constraint modifier: {post_constraint}"
+        )
 
     # Work out the common parent segment and depth
+    spacing, modifier = "", ""
     if prev_block and next_block:
         common = prev_block.depth_info.common_with(next_block.depth_info)
         # Just check the most immediate parent for now for speed.
         # TODO: Review whether just checking the parent is enough.
         # NOTE: spacing configs will be available on both sides if they're common
         # so it doesn't matter whether we get it from prev_block or next_block.
+        idx = prev_block.depth_info.stack_hashes.index(common[-1])
+
         within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
-        if not within_constraint:
-            pass
-        elif within_constraint in ("touch", "inline"):
-            # NOTE: inline is actually a more extreme version of "touch".
-            # Examples:
-            # - "inline" would be used with an object reference, where the
-            #   parts have to all be together on one line like `a.b.c`.
-            # - "touch" would allow the above layout, _but also_ allow an
-            #   an optional line break between, much like between an opening
-            #   bracket and the following element: `(a)` or:
-            #   ```
-            #   (
-            #       a
-            #   )
-            #   ```
-            if within_constraint == "inline":
-                # If they are then strip newlines.
-                strip_newlines = True
-            # If segments are expected to be touch within. Then modify
-            # constraints accordingly.
-            # NOTE: We don't override if it's already "any"
-            if pre_constraint != "any":
-                pre_constraint = "touch"
-            if post_constraint != "any":
-                post_constraint = "touch"
-        else:  # pragma: no cover
-            idx = prev_block.depth_info.stack_hashes.index(common[-1])
-            raise NotImplementedError(
-                f"Unexpected within constraint: {within_constraint} for "
-                f"{prev_block.depth_info.stack_class_types[idx]}"
-            )
+        if within_constraint:
+            spacing, _, modifier = within_constraint.partition(":")
+
+    # If segments are expected to be touch within. Then modify
+    # constraints accordingly.
+    if spacing == "touch":
+        # NOTE: We don't override if it's already "any"
+        if pre_constraint != "any":
+            pre_constraint = "touch"
+        if post_constraint != "any":
+            post_constraint = "touch"
+    elif spacing == "single":
+        pass
+    elif spacing:  # pragma: no cover
+        assert prev_block
+        raise NotImplementedError(
+            f"Unexpected within constraint: {within_constraint} for "
+            f"{prev_block.depth_info.stack_class_types[idx]}"
+        )
+
+    # If there's a modifier, respond accordingly
+    if not modifier:
+        pass
+    elif modifier == "inline":
+        strip_newlines = True
+    else:  # pragma: no cover
+        assert prev_block
+        raise NotImplementedError(
+            f"Unexpected within constraint modifier: {within_constraint} for "
+            f"{prev_block.depth_info.stack_class_types[idx]}"
+        )
 
     return pre_constraint, post_constraint, strip_newlines
 

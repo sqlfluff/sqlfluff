@@ -83,17 +83,18 @@ file.
 
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
-                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
+    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
+                           | and aggregates. [structure.column_order]
     L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
                            | [layout.indent]
-    L:   1 | P:   9 | L006 | Expected single whitespace between naked identifier and
-                           | binary operator '+'. [spacing.operators]
-    L:   1 | P:  10 | L006 | Expected single whitespace between binary operator '+'
-                           | and naked identifier. [spacing.operators]
-    L:   1 | P:  11 | LT01 | Expected only single space before 'AS' keyword. Found '  '.
+    L:   1 | P:   9 | LT01 | Expected single whitespace between naked identifier and
+                           | binary operator '+'. [layout.spacing]
+    L:   1 | P:  10 | LT01 | Expected single whitespace between binary operator '+'
+                           | and naked identifier. [layout.spacing]
+    L:   1 | P:  11 | LT01 | Expected only single space before 'AS' keyword. Found '
+                           | '. [layout.spacing]
     L:   2 | P:   1 | LT02 | Expected indent of 4 spaces.
                            | [layout.indent]
     L:   2 | P:   9 | LT02 | Expected line break and no indent before 'from'.
@@ -107,7 +108,7 @@ On each of the following lines you can see each of the problems it has
 found, with some information about the location and what kind of
 problem there is. One of the errors has been found on *line 1*, *position *
 (as shown by :code:`L:   1 | P:   9`) and it's a problem with rule
-*L006* (for a full list of rules, see :ref:`ruleref`). From this
+*LT01* (for a full list of rules, see :ref:`ruleref`). From this
 (and the following error) we can see that the problem is that there
 is no space either side of the :code:`+` symbol in :code:`a+b`.
 Head into the file, and correct this issue so that the file now
@@ -119,7 +120,7 @@ looks like this:
     c AS bar from my_table
 
 Rerun the same command as before, and you'll see that the original
-error (violation of *L006*) no longer shows up.
+error (violation of *LT01*) no longer shows up.
 
 .. code-block:: text
 

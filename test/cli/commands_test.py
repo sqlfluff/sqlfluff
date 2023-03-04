@@ -385,9 +385,9 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "CP01,L006",
+                "CP01,LT01",
                 "--exclude-rules",
-                "L006,L031",
+                "LT01,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,LT01,L071",
+                "LT01,L007,L031,LT01,L071",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -586,7 +586,7 @@ def test__cli__command_lint_warning():
     # But should also contain the warnings.
     # NOTE: Not including the whole description because it's too long.
     assert (
-        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
+        "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
         in result.output.strip()
     )
 

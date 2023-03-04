@@ -402,17 +402,17 @@ def test__linter__empty_file():
 @pytest.mark.parametrize(
     "ignore_templated_areas,check_tuples",
     [
-        (True, [("L006", 3, 39), ("L006", 3, 40)]),
+        (True, [("LT01", 3, 39), ("LT01", 3, 40)]),
         (
             False,
             [
-                # there are still two of each because L006 checks
+                # there are still two of each because LT01 checks
                 # for both *before* and *after* the operator.
                 # The deduplication filter makes sure there aren't 4.
-                ("L006", 3, 16),
-                ("L006", 3, 16),
-                ("L006", 3, 39),
-                ("L006", 3, 40),
+                ("LT01", 3, 16),
+                ("LT01", 3, 16),
+                ("LT01", 3, 39),
+                ("LT01", 3, 40),
             ],
         ),
     ],
@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("L005", "L006", "L007", "L008", "L009", "LT01", "LT02"),
+                ("L005", "L007", "L008", "L009", "LT01", "LT02"),
                 None,
             ),
         ),

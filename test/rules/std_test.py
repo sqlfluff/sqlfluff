@@ -24,26 +24,15 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("L008", "whitespace_errors.sql", [(3, 12)]),
         # Check we get operator whitespace errors and it works with brackets
         (
-            "L006",
-            "operator_errors.sql",
-            [(7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
-        ),
-        (
             "LT01",
             "operator_errors.sql",
-            [(3, 8), (4, 10)],
+            [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
         ("L007", "operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & LT01)
-        (
-            "L006",
-            "operator_errors_negative.sql",
-            [(5, 6), (5, 7)],
-        ),
         (
             "LT01",
             "operator_errors_negative.sql",
-            [(2, 6), (2, 9)],
+            [(2, 6), (2, 9), (5, 6), (5, 7)],
         ),
         # Hard indentation errors
         (
@@ -82,7 +71,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         # Distinct and Group by
         ("AM01", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
+        ("LT01", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (
             "L031",
             "aliases_in_join_error.sql",

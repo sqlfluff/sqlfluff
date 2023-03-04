@@ -7,9 +7,19 @@ from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 class Rule_LT01(BaseRule):
-    """Unnecessary whitespace.
+    """Inappropriate Spacing.
 
-    The ``•`` character represents a space.
+    This rule checks for an enforces the spacing as configured in
+    :ref:`layoutconfig`. This includes excessive whitespace,
+    trailing whitespace at the end of a line and also the wrong
+    spacing between elements on the line. Because of this wide reach
+    you may find that you wish to add specific configuration in your
+    project to tweek how specific elements are treated. Rather than
+    configuration on this specific rule, use the `sqlfluff.layout`
+    section of your configuration file to customise how this rule
+    operates.
+
+    The ``•`` character represents a space in the examples below.
 
     **Anti-pattern**
 
@@ -17,28 +27,37 @@ class Rule_LT01(BaseRule):
         :force:
 
         SELECT
-            a,        b••
+            a,        b(c) as d••
         FROM foo••••
+        JOIN bar USING(a)
 
     **Best practice**
 
-    Unless an indent or preceding a comment, whitespace should
-    be a single space. There should also be no trailing whitespace
-    at the ends of lines.
+    * Unless an indent or preceding a comment, whitespace should
+      be a single space.
+
+    * There should also be no trailing whitespace at the ends of lines.
+
+    * There should be a space after :code:`USING` so that it's not confused
+      for a function.
 
     .. code-block:: sql
 
         SELECT
-            a, b
+            a, b(c) as d
         FROM foo
+        JOIN bar USING (a)
     """
 
     name = "layout.spacing"
     # NOTE: This rule combines the following legacy rules:
     # - L001: Trailing Whitespace
+    # - L006: Space around operators
+    # - L023: Space after AS in WITH clause
+    # - L024: Space immediately after USING
     # - L039: Unnecessary Whitespace
     # TODO: Potentially more
-    aliases = ("L001", "L039")
+    aliases = ("L001", "L006", "L023", "L024", "L039")
     groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True
@@ -46,18 +65,4 @@ class Rule_LT01(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         sequence = ReflowSequence.from_root(context.segment, config=context.config)
-        results = sequence.respace().get_results()
-
-        # For now, respace rules are separate for creation and reduction.
-        # That shouldn't be true in future.
-
-        # But, until then - "not enough whitespace" is handled in other
-        # rules and this one should just handle "too much" (or "wrong amount").
-
-        # That means we take the returned results, and only keep the ones
-        # that modify or remove whitespace.
-        return [
-            result
-            for result in results
-            if any(fix.edit_type in ("replace", "delete") for fix in result.fixes)
-        ]
+        return sequence.respace().get_results()

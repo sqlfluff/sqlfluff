@@ -188,6 +188,8 @@ test_skip_alias_with_align_alias:
 
 test_excess_space_with_align_alias_wider:
   # NOTE: The config here SHOULD move the table alias
+  # NOTE: The combined LT01 also fixes the missing space
+  # between `USING` and `(a)`.
   fail_str: |
     SELECT
         a    AS first_column,
@@ -201,7 +203,7 @@ test_excess_space_with_align_alias_wider:
         b           AS second_column,
         (a + b) / 2 AS third_column
     FROM foo        AS first_table
-    JOIN my_tbl     AS second_table USING(a)
+    JOIN my_tbl     AS second_table USING (a)
   configs: &align_alias_wider
     layout:
       type:
