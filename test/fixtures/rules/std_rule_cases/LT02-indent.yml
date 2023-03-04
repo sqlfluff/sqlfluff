@@ -1,11 +1,17 @@
-rule: L003
+rule: LT02
 
 test_fail_reindent_first_line_1:
   fail_str: "     SELECT 1"
   fix_str: SELECT 1
+  violations:
+    - code: LT02
+      description: First line should not be indented.
+      line_no: 1
+      line_pos: 1
+      name: layout.indent
 
 test_fail_reindent_first_line_2:
-  # Github Bug #99. Python2 Issues with fixing L003
+  # Github Bug #99. Python2 Issues with fixing LT02
   fail_str: "  select 1 from tbl;"
   fix_str: select 1 from tbl;
 
@@ -50,6 +56,12 @@ test_fail_tab_indentation:
   configs:
     indentation:
       indent_unit: tab
+  violations:
+    - code: LT02
+      description: Expected indent of 1 tabs.
+      line_no: 3
+      line_pos: 1
+      name: layout.indent
 
 test_pass_indented_joins_default:
   # Configurable indents work.
@@ -93,6 +105,12 @@ test_fail_indented_joins_true_fix:
   configs:
     indentation:
       indented_joins: true
+  violations:
+    - code: LT02
+      description: Expected indent of 4 spaces.
+      line_no: 3
+      line_pos: 1
+      name: layout.indent
 
 test_fail_indented_joins_false_fix:
   # e) specific False, and failing
@@ -366,7 +384,7 @@ test_fail_indented_multi_line_comment:
 
 test_jinja_with_disbalanced_pairs:
   # The range(3) -%} results in swallowing the \n
-  # N.B. The way L003 handles this is questionable,
+  # N.B. The way LT02 handles this is questionable,
   # and this test seals in that behaviour.
   pass_str: |
     SELECT
@@ -856,7 +874,7 @@ test_fail_ignore_templated_whitespace_3:
 
 test_pass_ignore_templated_whitespace_4:
   # Note the newline after c2. This causes "AS other_id" to be on a different
-  # line in templated space, but not raw space. L003 should ignore lines like
+  # line in templated space, but not raw space. LT02 should ignore lines like
   # this.
   pass_str: |
     SELECT
@@ -1146,7 +1164,7 @@ test_fail_unindented_procedure_parameters:
       dialect: tsql
 
 test_tsql_bubble_up_newline_after_fix:
-  # Tests issue 3303, where an L003 fix leaves a newline as the final child
+  # Tests issue 3303, where an LT02 fix leaves a newline as the final child
   # segment that has to be "bubbled up" two levels to avoid violating the
   # _is_code_or_meta() check in core/parser/segments/base.py.
   fail_str: |
@@ -1713,3 +1731,8 @@ test_untaken_negative_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_fail_mixed_tabs_and_spaces:
+  # NOTE: This used to be L002 (rather than L003)
+  fail_str: "SELECT\n \t 1"
+  fix_str: "SELECT\n    1"

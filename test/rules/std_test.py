@@ -9,17 +9,11 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 @pytest.mark.parametrize(
     "rule,path,violations",
     [
-        ("L001", "indentation_errors.sql", [(4, 24)]),
-        ("L002", "indentation_errors.sql", [(3, 1), (4, 1)]),
+        ("LT01", "indentation_errors.sql", [(4, 24)]),
         (
-            "L003",
+            "LT02",
             "indentation_errors.sql",
             [(2, 1), (3, 1), (4, 1), (5, 1)],
-        ),
-        (
-            "L004",
-            "indentation_errors.sql",
-            [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
         # NB The newline before the comma, should report on the comma, not the newline
@@ -35,25 +29,25 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             [(7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
         (
-            "L039",
+            "LT01",
             "operator_errors.sql",
             [(3, 8), (4, 10)],
         ),
         ("L007", "operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & L039)
+        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & LT01)
         (
             "L006",
             "operator_errors_negative.sql",
             [(5, 6), (5, 7)],
         ),
         (
-            "L039",
+            "LT01",
             "operator_errors_negative.sql",
             [(2, 6), (2, 9)],
         ),
         # Hard indentation errors
         (
-            "L003",
+            "LT02",
             "indentation_error_hard.sql",
             [
                 (2, 1),
@@ -71,7 +65,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             ],
         ),
         # Check bracket handling with closing brackets and contained indents works.
-        ("L003", "indentation_error_contained.sql", []),
+        ("LT02", "indentation_error_contained.sql", []),
         # Check we handle block comments as expect. Github #236
         (
             "L016",

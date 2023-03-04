@@ -52,7 +52,7 @@ class Rule_L006(BaseRule):
         whitespace insertion more sensible.
 
         We only need to handle *missing* whitespace because excess
-        whitespace is handled by L039.
+        whitespace is handled by LT01.
 
         NOTE: We also allow bracket characters either side.
         """

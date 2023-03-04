@@ -198,19 +198,33 @@ def test__config__nested_config_tests():
     test.
     """
     lntr = Linter(
-        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+        # Exclude CP02 in overrides (similar to cli --exclude-rules)
+        config=FluffConfig(overrides=dict(exclude_rules="CP02", dialect="ansi"))
     )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith("nested\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert ("L009", 1, 12) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
+            # CP01 is enabled in the .sqlfluff file and not excluded.
+            assert ("CP01", 1, 4) in violations[k]
+            # LT02 is enabled in the .sqlfluff file and not excluded.
+            assert ("LT02", 1, 1) in violations[k]
+            # CP02 is enabled in the .sqlfluff file but excluded by the
+            # override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
         elif k.endswith("inheritance_b\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
-            assert "L009" not in [c[0] for c in violations[k]]
+            # CP01 is enabled because while disabled in the tox.ini file,
+            # the exclude-rules option is overridden by the override above
+            # which effectively sets the exclude to CP02 and in effect
+            # re-enables CP01.
+            # This may seem counter-intuitive but is in line with current
+            # documentation on how to use `rules` and `exclude-rules`.
+            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            assert ("CP01", 1, 4) in violations[k]
+            # CP02 is disabled because of the override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
+            # LT02 is disabled because it is not in the `rules` of tox.ini
+            assert "LT02" not in [c[0] for c in violations[k]]
 
 
 @patch("os.path.exists")
@@ -368,13 +382,13 @@ def test__config__from_kwargs():
     # Instantiate config object.
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
-        rules=["L001", "L002"],
+        rules=["LT01", "LT02"],
         exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
-    assert cfg.get("rules") == "L001,L002"
+    assert cfg.get("rules") == "LT01,LT02"
     assert cfg.get("exclude_rules") == "CP01,AL01"
 
 

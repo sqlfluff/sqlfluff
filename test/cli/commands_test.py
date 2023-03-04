@@ -73,7 +73,7 @@ def contains_ansi_escape(s: str) -> bool:
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
+L:   2 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 L:   5 | P:  10 | CP01 | Keywords must be consistently upper case.
                        | [capitalisation.keywords]
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
@@ -93,7 +93,7 @@ def test__cli__command_directed():
         ],
     )
     # We should get a readout of what the error was
-    check_a = "L:   2 | P:   1 | L003"
+    check_a = "L:   2 | P:   1 | LT02"
     # NB: Skip the number at the end because it's configurable
     check_b = "ndentation"
     assert check_a in result.output
@@ -365,7 +365,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001",
+                "CP01",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -375,7 +375,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001,L002",
+                "CP01,LT02",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -385,7 +385,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "L001,L006",
+                "CP01,L006",
                 "--exclude-rules",
                 "L006,L031",
                 "test/fixtures/linter/operator_errors.sql",
@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,L039,L071",
+                "L006,L007,L031,LT01,L071",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -407,7 +407,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L003,L009,L031",
+                "LT02,L009,L031",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
@@ -451,7 +451,7 @@ def test__cli__command_lint_parse(command):
                 fix,
                 [
                     "--rules",
-                    "L001",
+                    "LT01",
                     "test/fixtures/cli/fail_many.sql",
                     "-vvvvvvv",
                 ],
@@ -465,7 +465,7 @@ def test__cli__command_lint_parse(command):
                 fix,
                 [
                     "--rules",
-                    "L001",
+                    "LT01",
                     "--fixed-suffix",
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
@@ -693,11 +693,11 @@ def generic_roundtrip_test(
 @pytest.mark.parametrize(
     "rule,fname",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
         ("L008", "test/fixtures/linter/whitespace_errors.sql"),
         ("L008", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
-        ("L003", "test/fixtures/linter/indentation_error_hard.sql"),
+        ("LT02", "test/fixtures/linter/indentation_error_hard.sql"),
     ],
 )
 def test__cli__command__fix(rule, fname):
@@ -964,10 +964,10 @@ def _mock_eval(rule, context):
         ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
     ],
 )
-@patch("sqlfluff.rules.L001.Rule_L001._eval", _mock_eval)
+@patch("sqlfluff.rules.layout.LT01.Rule_LT01._eval", _mock_eval)
 def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
-    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
+    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "LT01"]
     tmp_path = pathlib.Path(str(tmpdir))
     filepath = tmp_path / "testing.sql"
     filepath.write_text(textwrap.dedent(sql))
@@ -989,26 +989,13 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     assert not fixed_path.is_file()
 
 
-# Test case disabled because there isn't a good example of where to test this.
-# This *should* test the case where a rule DOES have a proposed fix, but for
-# some reason when we try to apply it, there's a failure.
-# @pytest.mark.parametrize('rule,fname', [
-#     # NB: L004 currently has no fix routine.
-#     ('L004', 'test/fixtures/linter/indentation_errors.sql')
-# ])
-# def test__cli__command__fix_fail(rule, fname):
-#     """Test the round trip of detecting, fixing and then still detecting the rule."""
-#     with open(fname, mode='r') as test_file:
-#         generic_roundtrip_test(test_file, rule, fix_exit_code=1, final_exit_code=65)
-
-
 @pytest.mark.parametrize(
     "stdin,rules,stdout",
     [
-        ("select * from t", "L003", "select * from t"),  # no change
+        ("select * from t", "LT02", "select * from t"),  # no change
         (
             " select * from t",
-            "L003",
+            "LT02",
             "select * from t",
         ),  # fix preceding whitespace
         # L031 fix aliases in joins
@@ -1048,7 +1035,7 @@ def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
 
     monkeypatch.setattr(sqlfluff.cli.commands, "Linter", MockLinter)
     result = invoke_assert_code(
-        args=[fix, ("-", "--rules=L003", "--dialect=ansi")],
+        args=[fix, ("-", "--rules=LT02", "--dialect=ansi")],
         cli_input=perfect_sql,
         mix_stderr=False,
     )
@@ -1110,8 +1097,8 @@ def test__cli__command_fix_stdin_error_exit_code(
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code,fix_exit_code",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
 def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
@@ -1179,12 +1166,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             "line_no": 1,
                             "line_pos": 1,
                             "description": "Keywords must be consistently upper case.",
+                            "name": "capitalisation.keywords",
                         },
                         {
                             "code": "CP01",
                             "line_no": 1,
                             "line_pos": 10,
                             "description": "Keywords must be consistently upper case.",
+                            "name": "capitalisation.keywords",
                         },
                     ],
                 }
@@ -1315,7 +1304,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 35 if write_file else 32
+        assert payload_length == 25 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1331,7 +1320,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 18
+        assert len(result) == 13
     else:
         raise Exception
 
@@ -1472,17 +1461,21 @@ def test__cli__command_lint_serialize_github_annotation_native():
             "select target.",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
-            "referenced table/view.",
+            "referenced table/view. [references.qualification]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "AL02: Implicit/explicit aliasing of columns.",
+            "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
-            "CP01: Keywords must be consistently lower case.",
+            "CP01: Keywords must be consistently lower case. "
+            "[capitalisation.keywords]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
-            "CP02: Unquoted identifiers must be consistently lower case.",
+            "CP02: Unquoted identifiers must be consistently lower case. "
+            "[capitalisation.identifiers]",
             "",  # SQLFluff produces trailing newline
         ]
     )
@@ -1548,7 +1541,7 @@ def test_encoding(encoding_in, encoding_out):
     with open("test/fixtures/linter/indentation_errors.sql", "r") as testfile:
         generic_roundtrip_test(
             testfile,
-            "L001",
+            "LT01",
             input_file_encoding=encoding_in,
             output_file_encoding=encoding_out,
         )
@@ -1704,7 +1697,7 @@ class TestProgressBars:
         raw_output = repr(result.output)
 
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
@@ -1734,7 +1727,7 @@ class TestProgressBars:
             in raw_output
         )
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule CV05:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
@@ -1773,7 +1766,7 @@ class TestProgressBars:
             in raw_output
         )
         assert r"\rlint by rules:" in raw_output
-        assert r"\rrule L001:" in raw_output
+        assert r"\rrule LT01:" in raw_output
         assert r"\rrule CV05:" in raw_output
 
     def test_cli_fix_disabled_progress_bar(
@@ -1819,7 +1812,7 @@ class TestProgressBars:
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
-L:  12 | P:   1 | L003 | Expected indent of 4 spaces. [layout.indent.b]
+L:  12 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 ==== fixing violations ====
 1 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
@@ -1867,7 +1860,7 @@ def test__cli__fix_multiple_errors_show_errors():
     assert check_a in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.
-    assert "L:  12 | P:   1 | L003 | Expected indent of 4 spaces." in result.output
+    assert "L:  12 | P:   1 | LT02 | Expected indent of 4 spaces." in result.output
     assert (
         "L:  36 | P:   9 | RF02 | Unqualified reference 'package_id' found in "
         "select with more than" in result.output

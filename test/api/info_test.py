@@ -17,11 +17,11 @@ def test__api__info_rules():
     assert isinstance(rules, list)
     assert (
         RuleTuple(
-            code="L001",
-            name="trailing-whitespace",
-            description="Unnecessary trailing whitespace.",
-            groups=("all", "core", "layout", "spacing"),
-            aliases=("LS01",),
+            code="LT01",
+            name="layout.spacing",
+            description="Unnecessary whitespace.",
+            groups=("all", "core", "layout"),
+            aliases=("L001", "L039"),
         )
         in rules
     )

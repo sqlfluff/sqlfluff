@@ -30,17 +30,20 @@ def test__rules__std_ST03_multiple_unused_ctes():
             "description": 'Query defines CTE "cte_1" but does not use it.',
             "line_no": 3,
             "line_pos": 5,
+            "name": "structure.unused_cte",
         },
         {
             "code": "ST03",
             "description": 'Query defines CTE "cte_2" but does not use it.',
             "line_no": 6,
             "line_pos": 5,
+            "name": "structure.unused_cte",
         },
         {
             "code": "ST03",
             "description": 'Query defines CTE "cte_4" but does not use it.',
             "line_no": 12,
             "line_pos": 5,
+            "name": "structure.unused_cte",
         },
     ]

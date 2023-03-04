@@ -956,11 +956,11 @@ class BaseRule(metaclass=RuleMetaclass):
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
-        are most often rules like L003 and L016 that make whitespace changes
+        are most often rules like LT02 and L016 that make whitespace changes
         without a "deep" understanding of the parse structure. This function
         attempts to correct those issues automatically. It may not be perfect,
-        but it should be an improvement over the old behavior, where rules like
-        L003 often corrupted the parse tree, placing spaces in weird places that
+        but it should be an improvement over the old behaviour, where rules like
+        LT02 often corrupted the parse tree, placing spaces in weird places that
         caused issues with other rules. For more context, see issue #1304.
         """
         if not cls._adjust_anchors:
@@ -1078,7 +1078,7 @@ class RulePack:
         rules (:obj:`list` of :obj:`BaseRule`): A filtered list of instantiated
             rules to be applied to a given file.
         reference_map (:obj:`dict`): A mapping of rule references to the codes
-            they refer to, e.g. `{"my_ref": {"L001", "L002"}}`. The references
+            they refer to, e.g. `{"my_ref": {"LT01", "LT02"}}`. The references
             (i.e. the keys) may be codes, groups, aliases or names. The values
             of the mapping are sets of rule codes *only*. This object acts as
             a lookup to be able to translate selectors (which may contain
@@ -1161,8 +1161,8 @@ class RuleSet:
 
         Examples of valid rule names:
 
-        * Rule_PluginName_L001
-        * Rule_L001
+        * Rule_PluginName_LT01
+        * Rule_LT01
         * Rule_PG16
         """
         return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
@@ -1173,7 +1173,7 @@ class RuleSet:
         .. code-block:: python
 
            @myruleset.register
-           class Rule_L001(BaseRule):
+           class Rule_LT01(BaseRule):
                "Description of rule."
 
                def eval(self, **kwargs):

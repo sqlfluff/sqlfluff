@@ -9,7 +9,7 @@ test_pass_expression:
 
 test_fail_as:
   # NOTE: we should fix the _missing_ whitespace but not the excess.
-  # That's covered in L039.
+  # That's covered in LT01.
   fail_str: |
     SELECT
         'foo'AS   bar

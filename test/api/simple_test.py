@@ -15,12 +15,14 @@ lint_result = [
         "description": "Query produces an unknown number of result columns.",
         "line_no": 1,
         "line_pos": 1,
+        "name": "ambiguous.column_count",
     },
     {
         "code": "CP01",
         "line_no": 1,
         "line_pos": 1,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
         "code": "L036",
@@ -28,62 +30,72 @@ lint_result = [
         "one select target.",
         "line_no": 1,
         "line_pos": 1,
+        "name": "",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before star '*'. Found '  '.",
         "line_no": 1,
         "line_pos": 7,
+        "name": "layout.spacing",
     },
     {
         "code": "AL03",
         "line_no": 1,
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
+        "name": "aliasing.expression",
     },
     {
         "code": "CP01",
         "line_no": 1,
         "line_pos": 20,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": (
             "Expected only single space before naked identifier. Found '  '."
         ),
         "line_no": 1,
         "line_pos": 22,
+        "name": "layout.spacing",
     },
     {
         "code": "CP02",
         "line_no": 1,
         "line_pos": 24,
         "description": "Unquoted identifiers must be consistently lower case.",
+        "name": "capitalisation.identifiers",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before 'from' keyword. Found '  '.",
         "line_no": 1,
         "line_pos": 27,
+        "name": "layout.spacing",
     },
     {
         "code": "CP01",
         "line_no": 1,
         "line_pos": 29,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
         "code": "CP02",
         "line_no": 1,
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
+        "name": "capitalisation.identifiers",
     },
     {
         "code": "L009",
         "line_no": 1,
         "line_pos": 41,
         "description": "Files must end with a single trailing newline.",
+        "name": "line-break.end-of-file",
     },
 ]
 
@@ -122,7 +134,7 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 1
@@ -131,7 +143,7 @@ def test__api__lint_string_specific_exclude():
 
 def test__api__lint_string_specific_exclude_single():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L039"]
+    exclude_rules = ["LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 9
@@ -142,7 +154,7 @@ def test__api__lint_string_specific_exclude_single():
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "L039", "AM04"]
+    exclude_rules = ["L009", "CP01", "AL03", "CP02", "L036", "LT01", "AM04"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []
