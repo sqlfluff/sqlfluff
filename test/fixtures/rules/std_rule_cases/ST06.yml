@@ -1,0 +1,218 @@
+rule: ST06
+
+test_pass_select_statement_order:
+  pass_str: |
+    select
+      a,
+      cast(b as int) as b,
+      c
+    from x
+
+test_fail_select_statement_order_1:
+  fail_str: |
+    select
+      a,
+      row_number() over (partition by id order by date) as y,
+      b
+    from x
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      a,
+      b,
+      row_number() over (partition by id order by date) as y
+    from x
+
+test_fail_select_statement_order_2:
+  fail_str: |
+    select
+      row_number() over (partition by id order by date) as y,
+      *,
+      cast(b as int) as b_int
+    from x
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      *,
+      cast(b as int) as b_int,
+      row_number() over (partition by id order by date) as y
+    from x
+
+test_fail_select_statement_order_3:
+  fail_str: |
+    select
+      row_number() over (partition by id order by date) as y,
+      cast(b as int) as b_int,
+      *
+    from x
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      *,
+      cast(b as int) as b_int,
+      row_number() over (partition by id order by date) as y
+    from x
+
+test_fail_select_statement_order_4:
+  fail_str: |
+    select
+      row_number() over (partition by id order by date) as y,
+      b::int,
+      *
+    from x
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      *,
+      b::int,
+      row_number() over (partition by id order by date) as y
+    from x
+
+test_fail_select_statement_order_5:
+  fail_str: |
+    select
+      row_number() over (partition by id order by date) as y,
+      *,
+      2::int + 4 as sum,
+      cast(b) as c
+    from x
+  line_numbers: [1]
+
+  fix_str: |
+    select
+      *,
+      cast(b) as c,
+      row_number() over (partition by id order by date) as y,
+      2::int + 4 as sum
+    from x
+
+test_union_statements_ignored:
+  pass_str: |
+    select
+      a + b as c,
+      d
+    from table_a
+    union all
+    select
+      c,
+      d
+    from table_b
+
+test_insert_statements_ignored:
+  pass_str: |
+    INSERT INTO example_schema.example_table
+    (id,
+        example_column,
+        rank_asc,
+        rank_desc)
+    SELECT
+        id,
+        CASE
+            WHEN col_a IN('a',
+                                  'b',
+                    'c') THEN col_a
+        END AS example_column,
+        rank_asc,
+        rank_desc
+    FROM
+      another_schema.another_table
+
+test_insert_statement_with_cte_ignored:
+  pass_str: |
+    INSERT INTO my_table
+    WITH my_cte AS (SELECT * FROM t1)
+    SELECT MAX(field1), field2
+    FROM t1
+
+test_merge_statements_ignored:
+  pass_str: |
+    MERGE INTO t
+    USING
+    (
+        SELECT
+            DATE_TRUNC('DAY', end_time) AS time_day,
+            b
+        FROM u
+    ) AS u ON (a = b)
+    WHEN MATCHED THEN
+    UPDATE SET a = b
+    WHEN NOT MATCHED THEN
+    INSERT (b) VALUES (c)
+
+test_merge_statement_with_cte_ignored:
+  pass_str: |
+    MERGE INTO t
+    USING
+    (
+        WITH my_cte AS (SELECT * FROM t1)
+        SELECT MAX(field1), field2
+        FROM t1
+    ) AS u ON (a = b)
+    WHEN MATCHED THEN
+    UPDATE SET a = b
+    WHEN NOT MATCHED THEN
+    INSERT (b) VALUES (c)
+
+test_create_table_as_select_statements_ignored:
+  pass_str: |
+    CREATE TABLE new_table AS (
+      SELECT
+          id,
+          CASE
+              WHEN col_a IN('a',
+                                    'b',
+                      'c') THEN col_a
+          END AS example_column,
+          rank_asc,
+          rank_desc
+      FROM
+        another_schema.another_table
+    )
+
+test_create_table_as_select_with_cte_ignored:
+  pass_str: |
+    CREATE TABLE new_table AS (
+      WITH my_cte AS (SELECT * FROM t1)
+      SELECT MAX(field1), field2
+      FROM t1
+    )
+
+test_fail_fix_explicit_column_references_1:
+  fail_str: |
+    SELECT
+        DATE_TRUNC('DAY', end_time) AS time_day,
+        b_field
+    FROM table_name
+    GROUP BY time_day, b_field
+  fix_str: |
+    SELECT
+        b_field,
+        DATE_TRUNC('DAY', end_time) AS time_day
+    FROM table_name
+    GROUP BY time_day, b_field
+
+test_fail_fix_explicit_column_references_2:
+  fail_str: |
+    SELECT
+        SUM(a_field) OVER (ORDER BY 1) AS a_field_window_sum,
+        b_field
+    FROM table_name
+    GROUP BY a_field_window_sum, b_field
+  fix_str: |
+    SELECT
+        b_field,
+        SUM(a_field) OVER (ORDER BY 1) AS a_field_window_sum
+    FROM table_name
+    GROUP BY a_field_window_sum, b_field
+
+test_fail_no_fix_implicit_column_references:
+  fail_str: |
+    SELECT
+        DATE_TRUNC('DAY', end_time) AS time_day,
+        b_field
+    FROM table_name
+    GROUP BY 1, 2

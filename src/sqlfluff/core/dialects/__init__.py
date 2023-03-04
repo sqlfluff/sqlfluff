@@ -24,7 +24,7 @@ _dialect_lookup = {
     "athena": ("dialect_athena", "athena_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
     "clickhouse": ("dialect_clickhouse", "clickhouse_dialect"),
-    "databricks": ("dialect_sparksql", "sparksql_dialect"),
+    "databricks": ("dialect_databricks", "databricks_dialect"),
     "db2": ("dialect_db2", "db2_dialect"),
     "duckdb": ("dialect_duckdb", "duckdb_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),

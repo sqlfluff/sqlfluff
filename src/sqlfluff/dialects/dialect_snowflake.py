@@ -1009,6 +1009,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
             Ref("CreateDatabaseFromShareStatementSegment"),
+            Ref("AlterRoleStatementSegment"),
+            Ref("AlterStorageIntegrationSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1963,6 +1965,104 @@ class AlterShareStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("UNSET", "COMMENT"),
+        ),
+    )
+
+
+class AlterStorageIntegrationSegment(BaseSegment):
+    """An `ALTER STORAGE INTEGRATION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-storage-integration
+    """
+
+    type = "alter_storage_integration_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        Ref.keyword("STORAGE", optional=True),
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("TagEqualsSegment", optional=True),
+                    AnySetOf(
+                        Sequence(
+                            "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                        ),
+                        Sequence(
+                            "ENABLED",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        OneOf(
+                            AnySetOf(
+                                Sequence(
+                                    "STORAGE_AWS_ROLE_ARN",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                Sequence(
+                                    "STORAGE_AWS_OBJECT_ACL",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                            AnySetOf(
+                                Sequence(
+                                    "AZURE_TENANT_ID",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            "STORAGE_ALLOWED_LOCATIONS",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("S3Path"),
+                                            Ref("GCSPath"),
+                                            Ref("AzureBlobStoragePath"),
+                                        )
+                                    )
+                                ),
+                                Bracketed(
+                                    Ref("QuotedStarSegment"),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            "STORAGE_BLOCKED_LOCATIONS",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("S3Path"),
+                                        Ref("GCSPath"),
+                                        Ref("AzureBlobStoragePath"),
+                                    )
+                                )
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence(
+                        "TAG", Delimited(Ref("TagReferenceSegment")), optional=True
+                    ),
+                    "COMMENT",
+                    "ENABLED",
+                    "STORAGE_BLOCKED_LOCATIONS",
+                ),
+            ),
         ),
     )
 
@@ -2923,6 +3023,48 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
         Sequence("WITH", "MANAGED", "ACCESS", optional=True),
         Ref("SchemaObjectParamsSegment", optional=True),
         Ref("TagBracketedEqualsSegment", optional=True),
+    )
+
+
+class AlterRoleStatementSegment(BaseSegment):
+    """An `ALTER ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-role.html
+    """
+
+    type = "alter_role_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Ref("TagEqualsSegment"),
+                    Sequence(
+                        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Sequence("COMMENT"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
     )
 
 

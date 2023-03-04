@@ -135,7 +135,7 @@ A few common examples are shown below:
     -- sqlfluff:indentation:tab_space_size:2
 
     -- Set keywords to be capitalised
-    -- sqlfluff:rules:L010:capitalisation_policy:upper
+    -- sqlfluff:rules:CP01:capitalisation_policy:upper
 
     SELECT *
     FROM a
@@ -167,11 +167,11 @@ For example:
 Rule specific configurations are set in rule specific subsections.
 
 For example, enforce that keywords are upper case by configuring the rule
-:class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+:class:`CP01 <sqlfluff.core.rules.Rule_CP01>`:
 
 .. code-block:: cfg
 
-    [sqlfluff:rules:L010]
+    [sqlfluff:rules:CP01]
     # Keywords
     capitalisation_policy = upper
 
@@ -181,32 +181,81 @@ For an overview of the most common rule configurations that you may want to
 tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
 available alternatives).
 
+.. _ruleselection:
+
 Enabling and Disabling Rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To disable individual rules, set :code:`exclude_rules` in the top level section
-of sqlfluff configuration. The value is a comma separated list of rule ids.
+The decision as to which rules are applied to a given file is applied on a file
+by file basis, by the effective configuration for that file. There are two
+configuration values which you can use to set this:
+
+* :code:`rules`, which explicitly *enables* the specified rules. If this
+  parameter is unset or empty for a file, this implies "no selection" and
+  so "all rules" is taken to be the meaning.
+* :code:`exclude_rules`, which explicitly *disables* the specified rules.
+  This parameter is applied *after* the :code:`rules` parameter so can be
+  used to *subtract* from the otherwise enabled set.
+
+Each of these two configuration values accept a comma separated list of
+*references*. Each of those references can be:
+
+* a rule *code* e.g. :code:`LN01`
+* a rule *name* e.g. :code:`layout.indent`
+* a rule *alias*, which is often a deprecated *code* e.g. :code:`L003`
+* a rule *group* e.g. :code:`layout` or :code:`capitalisation`
+
+These different references can be mixed within a given expression, which
+results in a very powerful syntax for selecting exactly which rules are
+active for a given file.
+
+.. note::
+
+    It's worth mentioning here that the application of :code:`rules` and
+    :code:`exclude_rules`, with *groups*, *aliases* and *names*, in projects
+    with potentially multiple nested configuration files defining different
+    rules for different areas of a project can get very confusing very fast.
+    While this flexibility is intended for users to take advantage of, we do
+    have some recommendations about how to do this is a way that remains
+    manageable.
+
+    When considering configuration inheritance, each of :code:`rules` and
+    :code:`exclude_rules` will totally overwrite any values in parent config
+    files if they are set in a child file. While the subtraction operation
+    between both of them is calculated *"per file"*, there is no combination
+    operation between two definitions of :code:`rules` (just one overwrites
+    the other).
+
+    The effect of this is that we recommend one of two approaches:
+
+    #. Simply only use :code:`rules`. This has the upshot of each area of
+       your project being very explicit in which rules are enabled. When
+       that changes for part of your project you just reset the whole list
+       of applicable rules for that part of the project.
+    #. Set a single :code:`rules` value in your master project config file
+       and then only use :code:`exclude_rules` in sub-configuration files
+       to *turn off* specific rules for parts of the project where those
+       rules are inappropriate. This keeps the simplicity of only having
+       one value which is inherited, but allows slightly easier and simpler
+       rollout of new rules because we manage by exception.
+
 
 For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
-and :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+and :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
 
 .. code-block:: cfg
 
     [sqlfluff]
-    exclude_rules = L022, L027
+    exclude_rules = L022, RF02
 
 To enable individual rules, configure :code:`rules`, respectively.
 
-For example, to enable :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+For example, to enable :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
 
 .. code-block:: cfg
 
     [sqlfluff]
-    rules = L027
-
-If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
-excluded rules are removed from the rules list. This allows for example
-enabling common rules on top level but excluding some on subdirectory level.
+    rules = RF02
 
 Rules can also be enabled/disabled by their grouping. Right now, the only
 rule grouping is :code:`core`. This will enable (or disable) a select group
@@ -242,7 +291,7 @@ above:
 .. code-block:: cfg
 
     [sqlfluff]
-    warnings = L019, L007
+    warnings = L019, L006
 
 With this configuration, files with no other issues (other than
 those set to warn) will pass. If there are still other issues, then
@@ -253,7 +302,7 @@ the file will still fail, but will show both warnings and failures.
     == [test.sql] PASS
     L:   2 | P:   9 | L006 | WARNING: Missing whitespace before +
     == [test2.sql] FAIL
-    L:   2 | P:   8 | L014 | Unquoted identifiers must be consistently upper case.
+    L:   2 | P:   8 | CP02 | Unquoted identifiers must be consistently upper case.
     L:   2 | P:  11 | L006 | WARNING: Missing whitespace before +
 
 This is particularly useful as a transitional tool when considering
@@ -843,7 +892,7 @@ You already know you can pass arguments (:code:`--verbose`,
 
 .. code-block:: text
 
-    $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
+    $ sqlfluff lint my_code.sql -v --exclude-rules L022,RF02
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:
@@ -852,7 +901,7 @@ You might have arguments that you pass through every time, e.g rules you
 
     [sqlfluff]
     verbose = 1
-    exclude_rules = L022,L027
+    exclude_rules = L022,RF02
 
 Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
@@ -876,8 +925,8 @@ be ignored by quoting their code or the category.
     -- Ignore all errors
     SeLeCt  1 from tBl ;    -- noqa
 
-    -- Ignore rule L014 & rule L030
-    SeLeCt  1 from tBl ;    -- noqa: L014,L030
+    -- Ignore rule CP02 & rule CP03
+    SeLeCt  1 from tBl ;    -- noqa: CP02,CP03
 
     -- Ignore all parsing errors
     SeLeCt from tBl ;       -- noqa: PRS
@@ -894,8 +943,8 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. code-block:: sql
 
-    -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo -- noqa: disable=L012
+    -- Ignore rule AL02 from this line forward
+    SELECT col_a a FROM foo -- noqa: disable=AL02
 
     -- Ignore all rules from this line forward
     SELECT col_a a FROM foo -- noqa: disable=all

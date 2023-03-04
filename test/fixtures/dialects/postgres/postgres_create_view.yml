@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0963d4ffff19ddb4d4cdb5805f6c90dcf16a320cd7fea287f62d9fd0d1ba52a6
+_hash: 3122a61beb5e03eed4b5f1e764c205bc6c02f0d9e546c241aafcfb72fd7e7ec5
 file:
 - statement:
     create_view_statement:
@@ -389,4 +389,183 @@ file:
       - keyword: cascaded
       - keyword: check
       - keyword: option
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: RECURSIVE
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"grouping_node"'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          quoted_identifier: '"node_id"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"ancestors"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"category_id"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"path"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"path_nodes"'
+      - end_bracket: )
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"group_id"'
+              alias_expression:
+                keyword: AS
+                quoted_identifier: '"node_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  array_literal:
+                    keyword: ARRAY
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: INTEGER
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                keyword: AS
+                quoted_identifier: '"ancestors"'
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"category_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  array_literal:
+                    keyword: ARRAY
+                    start_square_bracket: '['
+                    column_reference:
+                      quoted_identifier: '"name"'
+                    end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: text
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                keyword: AS
+                quoted_identifier: '"path"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  array_literal:
+                    keyword: ARRAY
+                    start_square_bracket: '['
+                    column_reference:
+                      quoted_identifier: '"group_id"'
+                    end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: INTEGER
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                keyword: AS
+                quoted_identifier: '"path_nodes"'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_managementgroup"'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                quoted_identifier: '"parent_id"'
+            - keyword: IS
+            - keyword: 'NULL'
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"group_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+              - column_reference:
+                  quoted_identifier: '"ancestors"'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  quoted_identifier: '"parent_id"'
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - quoted_identifier: '"grouping_node"'
+              - dot: .
+              - quoted_identifier: '"category_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                column_reference:
+                  quoted_identifier: '"path"'
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                cast_expression:
+                  column_reference:
+                    quoted_identifier: '"name"'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: text
+          - comma: ','
+          - select_clause_element:
+              expression:
+              - column_reference:
+                  quoted_identifier: '"path_nodes"'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  quoted_identifier: '"group_id"'
+          from_clause:
+          - keyword: FROM
+          - from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_managementgroup"'
+          - comma: ','
+          - from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_node"'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                quoted_identifier: '"parent_id"'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                quoted_identifier: '"node_id"'
 - statement_terminator: ;

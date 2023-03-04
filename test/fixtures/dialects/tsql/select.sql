@@ -100,6 +100,13 @@ SELECT
     EqualsAlias = ColumnName,
     OtherColumnName AS AsAlias,
 	cast(1 as character varying(1)),
-	cast([central] as int)
+	cast([central] as int),
+
+    --unbracketed functions
+    CURRENT_TIMESTAMP,
+    CURRENT_USER,
+    SESSION_USER,
+    SYSTEM_USER
+
 
 FROM dbo . all_pop

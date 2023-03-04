@@ -23,6 +23,14 @@ postgres_dialect = load_raw_dialect("postgres")
 
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
 
+duckdb_dialect.replace(
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+    ),
+)
+
 
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""

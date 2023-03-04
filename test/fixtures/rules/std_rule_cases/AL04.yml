@@ -1,0 +1,53 @@
+rule: AL04
+
+test_fail_exactly_once_duplicated_aliases:
+  # duplicate aliases
+  fail_str: select 1 from table_1 as a join table_2 as a using(pk)
+
+test_fail_two_duplicated_aliases:
+  fail_str: |
+    select 1
+    from table_1 as a
+    join table_2 as a on a.pk = b.pk
+    join table_3 as b on a.pk = b.pk
+    join table_4 as b on b.pk = b.pk
+
+test_fail_subquery:
+  fail_str: |
+    SELECT 1
+    FROM (
+        select 1
+        from table_1 as a
+        join table_2 as a on a.pk = b.pk
+        join table_3 as b on a.pk = b.pk
+        join table_4 as b on b.pk = b.pk
+    )
+
+test_pass_subquery:
+  # This query should pass as the different 'a'
+  # aliases are in different subquery levels.
+  pass_str: |
+    SELECT 1
+    FROM (
+        select 1
+        from table_1 as a
+        join table_2 as b on a.pk = b.pk
+    ) AS a
+
+test_pass_bigquery_function:
+  pass_str: |
+    SELECT
+        gcpproject.functions.timestamp_parsing(log_tbl.orderdate) AS orderdate
+    FROM
+        `gcp-project.data.year_2021` AS log_tbl
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_tsql_table_variable:
+  pass_str: |
+    select @someVar = someColumn
+    from @someTableVar
+  configs:
+    core:
+      dialect: tsql

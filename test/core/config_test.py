@@ -198,19 +198,33 @@ def test__config__nested_config_tests():
     test.
     """
     lntr = Linter(
-        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+        # Exclude CP02 in overrides (similar to cli --exclude-rules)
+        config=FluffConfig(overrides=dict(exclude_rules="CP02", dialect="ansi"))
     )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith("nested\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert ("L009", 1, 12) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
+            # CP01 is enabled in the .sqlfluff file and not excluded.
+            assert ("CP01", 1, 4) in violations[k]
+            # LT02 is enabled in the .sqlfluff file and not excluded.
+            assert ("LT02", 1, 1) in violations[k]
+            # CP02 is enabled in the .sqlfluff file but excluded by the
+            # override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
         elif k.endswith("inheritance_b\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
-            assert "L009" not in [c[0] for c in violations[k]]
+            # CP01 is enabled because while disabled in the tox.ini file,
+            # the exclude-rules option is overridden by the override above
+            # which effectively sets the exclude to CP02 and in effect
+            # re-enables CP01.
+            # This may seem counter-intuitive but is in line with current
+            # documentation on how to use `rules` and `exclude-rules`.
+            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            assert ("CP01", 1, 4) in violations[k]
+            # CP02 is disabled because of the override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
+            # LT02 is disabled because it is not in the `rules` of tox.ini
+            assert "LT02" not in [c[0] for c in violations[k]]
 
 
 @patch("os.path.exists")
@@ -250,8 +264,8 @@ def test__config__load_user_appdir_config(
 @pytest.mark.parametrize(
     "raw_str, expected",
     [
-        ("L011,L022,L031", ["L011", "L022", "L031"]),
-        ("\nL011,\nL022,\nL031,", ["L011", "L022", "L031"]),
+        ("AL01,L022,L031", ["AL01", "L022", "L031"]),
+        ("\nAL01,\nL022,\nL031,", ["AL01", "L022", "L031"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
@@ -282,11 +296,11 @@ def test__config__glob_exclude_config_tests():
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L044", 10, 1) in violations[k]
-        assert "L027" not in [c[0] for c in violations[k]]
+        assert ("AM04", 12, 1) in violations[k]
+        assert "RF02" not in [c[0] for c in violations[k]]
         assert "L050" not in [c[0] for c in violations[k]]
-        assert "L051" not in [c[0] for c in violations[k]]
-        assert "L052" not in [c[0] for c in violations[k]]
+        assert "AM05" not in [c[0] for c in violations[k]]
+        assert "CV06" not in [c[0] for c in violations[k]]
 
 
 def test__config__glob_include_config_tests():
@@ -300,10 +314,10 @@ def test__config__glob_include_config_tests():
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         assert ("L050", 1, 1) in violations[k]
-        assert ("L051", 12, 1) in violations[k]
-        assert ("L052", 12, 9) in violations[k]
-        assert ("L027", 10, 8) in violations[k]
-        assert "L044" not in [c[0] for c in violations[k]]
+        assert ("AM05", 14, 1) in violations[k]
+        assert ("CV06", 14, 9) in violations[k]
+        assert ("RF02", 12, 8) in violations[k]
+        assert "AM04" not in [c[0] for c in violations[k]]
 
 
 def test__config__rules_set_to_none():
@@ -318,8 +332,8 @@ def test__config__rules_set_to_none():
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         assert ("L050", 1, 1) in violations[k]
-        assert ("L044", 12, 1) in violations[k]
-        assert ("L010", 12, 10) in violations[k]
+        assert ("AM04", 12, 1) in violations[k]
+        assert ("CP01", 12, 10) in violations[k]
 
 
 def test__config__rules_group_with_exclude():
@@ -330,7 +344,7 @@ def test__config__rules_group_with_exclude():
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L010", 15, 1) in violations[k]
+        assert ("CP01", 15, 1) in violations[k]
         assert "L019" not in [c[0] for c in violations[k]]
 
 
@@ -368,14 +382,14 @@ def test__config__from_kwargs():
     # Instantiate config object.
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
-        rules=["L001", "L002"],
-        exclude_rules=["L010", "L011"],
+        rules=["LT01", "LT02"],
+        exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
-    assert cfg.get("rules") == "L001,L002"
-    assert cfg.get("exclude_rules") == "L010,L011"
+    assert cfg.get("rules") == "LT01,LT02"
+    assert cfg.get("exclude_rules") == "CP01,AL01"
 
 
 def test__config_missing_dialect():

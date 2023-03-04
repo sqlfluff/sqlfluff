@@ -16,11 +16,21 @@ test_fail_line_too_long_with_comments_1:
     core:
       max_line_length: 18
 
+test_fail_line_too_long_with_comments_1_no_newline:
+  # Check we move comments correctly, and that it
+  # still works when there isn't a trailing newline.
+  # https://github.com/sqlfluff/sqlfluff/issues/4386
+  fail_str: "SELECT 1 -- Some Comment"
+  fix_str: "-- Some Comment\nSELECT 1"
+  configs:
+    core:
+      max_line_length: 18
+
 test_fail_line_too_long_with_comments_2:
   # Check we can add newlines after dedents (with an indent).
   # NOTE: That for L016, we don't repair the initial indent
   # but that the following lines will be fixed as though it
-  # has been corrected. Ideally L003 would have been run _first_
+  # has been corrected. Ideally LT02 would have been run _first_
   # on this file.
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
   fix_str: "    SELECT\n    COUNT(*)\nFROM tbl\n"
@@ -564,3 +574,14 @@ test_fix_window_function:
     core:
       max_line_length: 50
       dialect: snowflake
+
+test_fail_do_not_fix_noqa:
+  # https://github.com/sqlfluff/sqlfluff/issues/4248
+  # NOTE: No fix_str, because this should be unfixable.
+  fail_str: |
+    SELECT
+        col1,
+        col2,
+        col3
+    FROM
+        really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014

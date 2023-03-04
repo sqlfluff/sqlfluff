@@ -1,1 +1,1 @@
-  	SELECT 1    
+   SELeCT  fOo

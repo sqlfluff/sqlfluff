@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 553a622220bf6d28a299ea98be359e711753afc5a911a494ec15d8b49db728d4
+_hash: cf4430aab8cf836129293bbc70a61d2c282e592dc39fb2cb61bbde2e2c3136b3
 file:
   batch:
   - statement:
@@ -222,3 +222,12 @@ file:
           object_reference:
             parameter: '@statement'
           end_bracket: )
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'DROP TABLE BoardInventory.BoardInventoryFact_Stage;'"
+          end_bracket: )
+        statement_terminator: ;

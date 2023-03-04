@@ -1,16 +1,18 @@
 """Tests for the standard set of rules."""
 import pytest
+import logging
 
 from sqlfluff.core import Linter
+from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
     document_fix_compatible,
     document_groups,
+    document_configuration,
 )
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -30,8 +32,6 @@ class Rule_T042(BaseRule):
         pass
 
 
-@document_groups
-@document_fix_compatible
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
 
@@ -42,6 +42,7 @@ class Rule_T001(BaseRule):
 
     groups = ("all",)
     crawl_behaviour = SegmentSeekerCrawler({"whitespace"})
+    is_fix_compatible = True
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -80,11 +81,87 @@ def test__rules__user_rules():
     # Set up a linter with the user rule
     linter = Linter(user_rules=[Rule_T042], dialect="ansi")
     # Make sure the new one is in there.
-    assert ("T042", "A dummy rule.") in linter.rule_tuples()
+    assert RuleTuple("T042", "", "A dummy rule.", ("all",), ()) in linter.rule_tuples()
     # Instantiate a second linter and check it's NOT in there.
     # This tests that copying and isolation works.
     linter = Linter(dialect="ansi")
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
+
+
+@pytest.mark.parametrize(
+    "rules, exclude_rules, resulting_codes",
+    [
+        # NB: We don't check the "select nothing" case, because not setting
+        # the rules setting just means "select everything".
+        # ("", "", set()),
+        # 1: Select by code.
+        # NOTE: T012 uses T011 as it's name but that should be ignored
+        # because of the conflict.
+        ("T010", "", {"T010"}),
+        ("T010,T011", "", {"T010", "T011"}),
+        ("T010,T011", "T011", {"T010"}),
+        # 2: Select by name
+        # NOTE: T012 uses "fake_other" as it's group but that should be ignored
+        # because of the conflict.
+        ("fake_basic", "", {"T010"}),
+        ("fake_other", "", {"T011"}),
+        ("fake_basic,fake_other", "", {"T010", "T011"}),
+        # 3: Select by group
+        # NOTE: T010 uses "foo" as it's alias but that should be ignored
+        # because of the conflict.
+        ("test", "", {"T010", "T011"}),
+        ("foo", "", {"T011", "T012"}),
+        ("test,foo", "", {"T010", "T011", "T012"}),
+        ("test", "foo", {"T010"}),
+        # 3: Select by alias
+        ("fb1", "", {"T010"}),
+        ("fb2", "", {"T011"}),
+    ],
+)
+def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
+    """Test that rule selection works by various means."""
+
+    class Rule_T010(BaseRule):
+        """Fake Basic Rule."""
+
+        groups = ("all", "test")
+        name = "fake_basic"
+        aliases = ("fb1", "foo")  # NB: Foo is a group on another rule.
+        crawl_behaviour = RootOnlyCrawler()
+
+        def _eval(self, **kwargs):
+            pass
+
+    class Rule_T011(Rule_T010):
+        """Fake Basic Rule.
+
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        groups = ("all", "test", "foo")
+        name = "fake_other"
+        aliases = ("fb2",)
+
+    class Rule_T012(Rule_T010):
+        """Fake Basic Rule.
+
+        NOTE: We inherit crawl behaviour and _eval from above.
+        """
+
+        # NB: "fake_other" is the name of another rule.
+        groups = ("all", "foo", "fake_other")
+        # No aliases, Name collides with the code of another rule.
+        name = "T011"
+        aliases = ()
+
+    cfg = FluffConfig(
+        overrides={"rules": rules, "exclude_rules": exclude_rules, "dialect": "ansi"}
+    )
+    linter = Linter(config=cfg, user_rules=[Rule_T010, Rule_T011, Rule_T012])
+    # Get the set of selected codes:
+    selected_codes = set(tpl[0] for tpl in linter.rule_tuples())
+    # Check selected rules
+    assert selected_codes == resulting_codes
 
 
 def test__rules__filter_uparsable():
@@ -122,33 +199,73 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
     class NewRule(BaseRule):
-        config_keywords = ["comma_style"]
+        """Testing Rule."""
 
-    new_rule = NewRule(code="L000", description="", comma_style="trailing")
-    assert new_rule.comma_style == "trailing"
-    # Error is thrown since "comma_style" is defined in class,
+        config_keywords = ["tab_space_size"]
+
+    new_rule = NewRule(code="L000", description="", tab_space_size=6)
+    assert new_rule.tab_space_size == 6
+    # Error is thrown since "tab_space_size" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
         new_rule = NewRule(code="L000", description="")
 
 
+def test_rules_legacy_doc_decorators(caplog):
+    """Ensure that the deprecated decorators can still be imported but do nothing."""
+    # NOTE: There is something strange with cross platform logging.
+    # To get around that, we briefly patch the logging propogation.
+    # As at 2023-02-21. This test passes on windows without stashing
+    # but is otherwise failing on linux.
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Stash the current propogation.
+    propogate = fluff_logger.propagate
+    # Set to true
+    fluff_logger.propagate = True
+
+    try:
+        with caplog.at_level(logging.WARNING):
+
+            @document_fix_compatible
+            @document_groups
+            @document_configuration
+            class NewRule(BaseRule):
+                """Untouched Text."""
+
+                pass
+
+    # Regardless of success - restore the propogate setting.
+    finally:
+        fluff_logger.propagate = propogate
+
+    # Check they didn't do anything to the docstring.
+    assert NewRule.__doc__ == """Untouched Text."""
+    # Check there are warnings.
+    print("Records:")
+    for record in caplog.records:
+        print(record)
+    assert "uses the @document_fix_compatible decorator" in caplog.text
+    assert "uses the @document_groups decorator" in caplog.text
+    assert "uses the @document_configuration decorator" in caplog.text
+
+
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    @document_configuration
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
         config_keywords = ["unquoted_identifiers_policy"]
 
+    print(f"RuleWithConfig.__doc__: {RuleWithConfig.__doc__!r}")
     assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
 
-    @document_configuration
     class RuleWithoutConfig(BaseRule):
         """A new rule without configuration."""
 
         pass
 
+    print(f"RuleWithoutConfig.__doc__: {RuleWithoutConfig.__doc__!r}")
     assert "Configuration" not in RuleWithoutConfig.__doc__
 
 
@@ -178,13 +295,13 @@ def test_rule_must_belong_to_all_group():
     """Assert correct 'groups' config for rule."""
     std_rule_set = get_ruleset()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AssertionError):
 
         @std_rule_set.register
         class Rule_T000(BaseRule):
             """Badly configured rule, no groups attribute."""
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
     with pytest.raises(AssertionError):
@@ -195,7 +312,7 @@ def test_rule_must_belong_to_all_group():
 
             groups = ()
 
-            def _eval(self, segment, parent_stack, **kwargs):
+            def _eval(self, **kwargs):
                 pass
 
 

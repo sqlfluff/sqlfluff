@@ -4,18 +4,9 @@ from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-    document_fix_compatible,
-    document_groups,
-)
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
-@document_configuration
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 
@@ -54,8 +45,11 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
-    groups = ("all",)
+    name = "line-break.operators"
+    aliases = ("LB03",)
+    groups = ("all", "layout", "line-break")
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.

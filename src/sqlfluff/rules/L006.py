@@ -9,12 +9,9 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-@document_groups
-@document_fix_compatible
 class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 
@@ -40,10 +37,13 @@ class Rule_L006(BaseRule):
         FROM foo
     """
 
-    groups = ("all", "core")
+    name = "spacing.operators"
+    aliases = ("LS03",)
+    groups = ("all", "core", "layout", "spacing")
     crawl_behaviour = SegmentSeekerCrawler(
         {"binary_operator", "comparison_operator", "assignment_operator"}
     )
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should be surrounded by a single whitespace.
@@ -52,7 +52,7 @@ class Rule_L006(BaseRule):
         whitespace insertion more sensible.
 
         We only need to handle *missing* whitespace because excess
-        whitespace is handled by L039.
+        whitespace is handled by LT01.
 
         NOTE: We also allow bracket characters either side.
         """

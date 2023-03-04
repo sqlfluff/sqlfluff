@@ -226,10 +226,10 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help=(
             "Narrow the search to only specific rules. For example "
-            "specifying `--rules L001` will only search for rule `L001` (Unnecessary "
+            "specifying `--rules LT01` will only search for rule `LT01` (Unnecessary "
             "trailing whitespace). Multiple rules can be specified with commas e.g. "
-            "`--rules L001,L002` will specify only looking for violations of rule "
-            "`L001` and rule `L002`."
+            "`--rules LT01,LT02` will specify only looking for violations of rule "
+            "`LT01` and rule `LT02`."
         ),
     )(f)
     f = click.option(
@@ -238,12 +238,12 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help=(
             "Exclude specific rules. For example "
-            "specifying `--exclude-rules L001` will remove rule `L001` (Unnecessary "
+            "specifying `--exclude-rules LT01` will remove rule `LT01` (Unnecessary "
             "trailing whitespace) from the set of considered rules. This could either "
             "be the allowlist, or the general set if there is no specific allowlist. "
             "Multiple rules can be specified with commas e.g. "
-            "`--exclude-rules L001,L002` will exclude violations of rule "
-            "`L001` and rule `L002`."
+            "`--exclude-rules LT01,LT02` will exclude violations of rule "
+            "`LT01` and rule `LT02`."
         ),
     )(f)
     f = click.option(
@@ -390,8 +390,8 @@ def get_linter_and_formatter(
     context_settings={"help_option_names": ["-h", "--help"]},
     epilog="""\b\bExamples:\n
   sqlfluff lint --dialect postgres .\n
-  sqlfluff lint --dialect postgres --rules L042 .\n
-  sqlfluff fix --dialect sqlite --rules L041,L042 src/queries\n
+  sqlfluff lint --dialect postgres --rules ST05 .\n
+  sqlfluff fix --dialect sqlite --rules L041,ST05 src/queries\n
   sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
 """,
 )
@@ -421,7 +421,20 @@ def rules(**kwargs) -> None:
     """Show the current rules in use."""
     c = get_config(**kwargs, dialect="ansi")
     lnt, formatter = get_linter_and_formatter(c)
-    click.echo(formatter.format_rules(lnt), color=c.get("color"))
+    try:
+        click.echo(formatter.format_rules(lnt), color=c.get("color"))
+    # No cover for clause covering poorly formatted rules.
+    # Without creating a poorly formed plugin, these are hard to
+    # test.
+    except (SQLFluffUserError, AssertionError) as err:  # pragma: no cover
+        click.echo(
+            OutputStreamFormatter.colorize_helper(
+                c.get("color"),
+                f"Error loading rules: {str(err)}",
+                color=Color.red,
+            )
+        )
+        sys.exit(EXIT_ERROR)
 
 
 @cli.command()
@@ -635,6 +648,8 @@ def lint(
                 line += f"col={violation['line_pos']}"
                 line += "::"
                 line += f"{violation['code']}: {violation['description']}"
+                if violation["name"]:
+                    line += f" [{violation['name']}]"
 
                 github_result_native.append(line)
 
