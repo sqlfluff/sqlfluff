@@ -21,8 +21,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment, RawSegment
+from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_athena_keywords import (
     athena_reserved_keywords,
@@ -73,8 +72,7 @@ athena_dialect.add(
         Ref("EqualsSegment"),
         Ref("QuotedLiteralSegment"),
     ),
-    LocationGrammar=Sequence("LOCATION", Ref("S3UrlGrammar")),
-    S3UrlGrammar=RegexParser(r"^'s3://.*", RawSegment),
+    LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
     CTASPropertyGrammar=Sequence(
         OneOf(
@@ -87,11 +85,42 @@ athena_dialect.add(
             "orc_compression",
             "parquet_compression",
             "field_delimiter",
+            "location",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
-    BracketedCTASPropertyGrammar=Bracketed(Delimited(Ref("CTASPropertyGrammar"))),
+    CTASIcebergPropertyGrammar=Sequence(
+        OneOf(
+            "external_location",
+            "format",
+            "partitioned_by",
+            "bucketed_by",
+            "bucket_count",
+            "write_compression",
+            "orc_compression",
+            "parquet_compression",
+            "field_delimiter",
+            "location",
+            "is_external",
+            "table_type",
+            "partitioning",
+            "vacuum_max_snapshot_age_ms",
+            "vacuum_min_snapshots_to_keep",
+        ),
+        Ref("EqualsSegment"),
+        Ref("LiteralGrammar"),
+    ),
+    BracketedCTASPropertyGrammar=Bracketed(
+        OneOf(
+            Delimited(
+                Ref("CTASPropertyGrammar"),
+            ),
+            Delimited(
+                Ref("CTASIcebergPropertyGrammar"),
+            ),
+        ),
+    ),
     UnloadPropertyGrammar=Sequence(
         OneOf(
             "format",
@@ -165,6 +194,24 @@ athena_dialect.add(
 )
 
 athena_dialect.replace(
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterSegment"),
+        ]
+    ),
+    Accessor_Grammar=Sequence(
+        AnyNumberOf(
+            Ref("ArrayAccessorSegment"),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    ),
     QuotedLiteralSegment=OneOf(
         TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
         TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
@@ -198,12 +245,11 @@ athena_dialect.replace(
 
 
 class PrimitiveTypeSegment(BaseSegment):
-    """Primitive data types.
+    """Support Athena subset of Hive types.
 
-    Since DDL is based on Hive and DML based on Prestodb this class has
-    primitives that may not work on specific situations
-    - Hive: https://cwiki.apache.org/confluence/display/hive/languagemanual+types
-    - PrestoDb: https://prestodb.io/docs/0.217/language/types.html
+    Primary Source: https://docs.aws.amazon.com/athena/latest/ug/data-types.html
+    Additional Details:
+        https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types
     """
 
     type = "primitive_type"
@@ -211,64 +257,60 @@ class PrimitiveTypeSegment(BaseSegment):
         "BOOLEAN",
         "TINYINT",
         "SMALLINT",
-        "INTEGER",
-        "INT",
+        "INTEGER",  # used in DML queries
+        "INT",  # used in DDL queries
         "BIGINT",
-        "REAL",
-        "FLOAT",
-        Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
+        "DOUBLE",
+        "FLOAT",  # used in DDL
+        "REAL",  # used "in SQL functions like SELECT CAST"
         Sequence(
             "DECIMAL",
             Bracketed(
                 Ref("NumericLiteralSegment"),
-                Ref("CommaSegment"),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "CHAR",
+            Bracketed(
                 Ref("NumericLiteralSegment"),
                 optional=True,
             ),
         ),
-        "NUMERIC",
+        Sequence(
+            "VARCHAR",
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
         "STRING",
-        "VARCHAR",
-        "CHAR",
-        "VARBINARY",
-        "JSON",
+        "BINARY",
         "DATE",
         "TIMESTAMP",
-        "INTERVAL",
+        "VARBINARY",
+        "JSON",
         "TIME",
         "IPADDRESS",
         "HyperLogLog",
         "P4HyperLogLog",
-        "QDigest",
     )
 
 
 class DatatypeSegment(BaseSegment):
-    """Data types."""
+    """Support complex Athena data types.
+
+    Complex data types are typically used in either DDL statements or as
+    the target type in casts.
+    """
 
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
-        Sequence(
-            "MAP",
-            Bracketed(
-                Sequence(
-                    Ref("PrimitiveTypeSegment"),
-                    Ref("CommaSegment"),
-                    Ref("DatatypeSegment"),
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
         Sequence(
             "STRUCT",
             Bracketed(
@@ -285,39 +327,49 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
-        # Only hive
         Sequence(
-            "UNIONTYPE",
+            "ARRAY",
             Bracketed(
                 Delimited(
-                    Ref("DatatypeSegment"), bracket_pairs_set="angle_bracket_pairs"
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
                 ),
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
         ),
-        # Only PrestoDb
+        Sequence(
+            "MAP",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("CommaSegment"),
+                        Ref("DatatypeSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                    bracket_pairs_set="angle_bracket_pairs",
+                ),
+                bracket_pairs_set="angle_bracket_pairs",
+                bracket_type="angle",
+            ),
+        ),
         Sequence(
             "ROW",
             Bracketed(
                 Delimited(
-                    AnySetOf(
-                        Sequence(Ref("NakedIdentifierSegment"), Ref("DatatypeSegment")),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
                         Ref("LiteralGrammar"),
                     )
                 )
             ),
-        ),
-        # array types
-        OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
-            Ref("SimpleArrayTypeGrammar"),
-            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
-            optional=True,
         ),
         Ref("DatetimeWithTZSegment"),
     )
@@ -327,7 +379,12 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
-        insert=[Ref("MsckRepairTableStatementSegment"), Ref("UnloadStatementSegment")],
+        insert=[
+            Ref("MsckRepairTableStatementSegment"),
+            Ref("UnloadStatementSegment"),
+            Ref("PrepareStatementSegment"),
+            Ref("ExecuteStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
@@ -405,7 +462,9 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence(
                 Sequence("WITH", Ref("BracketedCTASPropertyGrammar"), optional=True),
                 "AS",
-                OptionallyBracketed(Ref("SelectableGrammar")),
+                OptionallyBracketed(
+                    Ref("SelectableGrammar"),
+                ),
                 Sequence("WITH NO DATA", optional=True),
             ),
         ),
@@ -507,6 +566,49 @@ class UnloadStatementSegment(BaseSegment):
         "TO",
         Ref("QuotedLiteralSegment"),
         Sequence("WITH", Ref("BracketedUnloadPropertyGrammar"), optional=True),
+    )
+
+
+class PrepareStatementSegment(BaseSegment):
+    """A `prepare` statement.
+
+    https://docs.aws.amazon.com/athena/latest/ug/querying-with-prepared-statements.html
+    """
+
+    type = "prepare_statement"
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("TableReferenceSegment"),
+        "FROM",
+        OptionallyBracketed(
+            OneOf(
+                Ref("SelectableGrammar"),
+                Ref("UnloadStatementSegment"),
+                Ref("InsertStatementSegment"),
+            ),
+        ),
+    )
+
+
+class ExecuteStatementSegment(BaseSegment):
+    """An `execute` statement.
+
+    https://docs.aws.amazon.com/athena/latest/ug/querying-with-prepared-statements.html
+    """
+
+    type = "execute_statement"
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "USING",
+                Delimited(
+                    Ref("LiteralGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
