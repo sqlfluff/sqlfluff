@@ -133,7 +133,7 @@ test_fail_old_python_test:
       line_pos: 11
       name: layout.spacing
     - code: LT01
-      description: Expected single whitespace between quoted literal and binary operator '+''.
+      description: Expected single whitespace between quoted literal and binary operator '+'.
       line_no: 1
       line_pos: 14
       name: layout.spacing
