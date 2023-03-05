@@ -267,7 +267,7 @@ class Linter:
         # Also trim any whitespace afterward
 
         # Comment lines can also have noqa e.g.
-        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: L016
+        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: LT05
         # Therefore extract last possible inline ignore.
         comment = [c.strip() for c in comment.split("--")][-1]
 

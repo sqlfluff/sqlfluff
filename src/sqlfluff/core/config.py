@@ -115,7 +115,7 @@ REMOVED_CONFIGS = [
         (lambda x: x),
     ),
     _RemovedConfig(
-        ("rules", "L007", "operator_new_lines"),
+        ("rules", "LT03", "operator_new_lines"),
         (
             "Use the line_position config in the appropriate "
             "sqlfluff:layout section (e.g. sqlfluff:layout:type"
@@ -134,9 +134,9 @@ REMOVED_CONFIGS = [
         ("layout", "type", "comma", "line_position"),
         (lambda x: x),
     ),
-    # L019 used to have a more specific version of the same /config itself.
+    # LT04 used to have a more specific version of the same /config itself.
     _RemovedConfig(
-        ("rules", "L019", "comma_style"),
+        ("rules", "LT04", "comma_style"),
         (
             "Use the line_position config in the appropriate "
             "sqlfluff:layout section (e.g. sqlfluff:layout:type"

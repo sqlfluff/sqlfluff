@@ -83,7 +83,7 @@ file.
 
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates. [structure.column_order]
@@ -128,7 +128,7 @@ error (violation of *LT01*) no longer shows up.
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
@@ -142,11 +142,11 @@ and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
 it's a good place to start.
 
-For now, we only want to fix the following rules: *LT02*, *L009*, *CP01*
+For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01 --dialect ansi
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
     L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
@@ -193,7 +193,7 @@ specifying :code:`--rules`.
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     ==== fixing violations ====
@@ -251,7 +251,7 @@ Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01,ST06,L036,LT01
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01,ST06,LT09,LT01
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.
