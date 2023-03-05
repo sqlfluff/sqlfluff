@@ -1,4 +1,4 @@
-"""Implementation of Rule L015."""
+"""Implementation of Rule ST08."""
 from typing import Optional
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
@@ -8,7 +8,7 @@ from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-class Rule_L015(BaseRule):
+class Rule_ST08(BaseRule):
     """``DISTINCT`` used with parentheses.
 
     **Anti-pattern**
@@ -32,7 +32,9 @@ class Rule_L015(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "structure.distinct"
+    aliases = ("L015",)
+    groups=  ("all", "structure", "core")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause", "function"})
     is_fix_compatible = True
 
