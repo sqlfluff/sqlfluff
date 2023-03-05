@@ -198,17 +198,17 @@ def test__rules__runaway_fail_catch():
 def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
-    class NewRule_ZZ99(BaseRule):
+    class Rule_NewRule_ZZ99(BaseRule):
         """Testing Rule."""
 
         config_keywords = ["tab_space_size"]
 
-    new_rule = NewRule_ZZ99(code="L000", description="", tab_space_size=6)
+    new_rule = Rule_NewRule_ZZ99(code="L000", description="", tab_space_size=6)
     assert new_rule.tab_space_size == 6
     # Error is thrown since "tab_space_size" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
-        new_rule = NewRule_ZZ99(code="L000", description="")
+        new_rule = Rule_NewRule_ZZ99(code="L000", description="")
 
 
 def test_rules_legacy_doc_decorators(caplog):
@@ -229,7 +229,7 @@ def test_rules_legacy_doc_decorators(caplog):
             @document_fix_compatible
             @document_groups
             @document_configuration
-            class NewRule_ZZ99(BaseRule):
+            class Rule_NewRule_ZZ99(BaseRule):
                 """Untouched Text."""
 
                 pass
@@ -239,7 +239,7 @@ def test_rules_legacy_doc_decorators(caplog):
         fluff_logger.propagate = propogate
 
     # Check they didn't do anything to the docstring.
-    assert NewRule_ZZ99.__doc__ == """Untouched Text."""
+    assert Rule_NewRule_ZZ99.__doc__ == """Untouched Text."""
     # Check there are warnings.
     print("Records:")
     for record in caplog.records:
