@@ -1,4 +1,4 @@
-"""Implementation of Rule L065."""
+"""Implementation of Rule LT11."""
 from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-class Rule_L065(BaseRule):
+class Rule_LT11(BaseRule):
     """Set operators should be surrounded by newlines.
 
     **Anti-pattern**
@@ -28,7 +28,9 @@ class Rule_L065(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "layout.set_operators"
+    aliases = ("L065",)
+    groups = ("all", "core", "layout")
     is_fix_compatible = True
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
 

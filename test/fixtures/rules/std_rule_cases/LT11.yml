@@ -1,4 +1,4 @@
-rule: L065
+rule: LT11
 
 test_fail_simple_fix_union_all_before:
   fail_str: |
@@ -36,8 +36,8 @@ test_pass_multiple_newlines_are_allowed:
 
       SELECT 'b'
 
-# The autofix of L065 doesn't respect indentation of the surrounding query.
-# Hence, the fix result of only L065 looks ugly. But LT02 will fix the indentation
+# The autofix of LT11 doesn't respect indentation of the surrounding query.
+# Hence, the fix result of only LT11 looks ugly. But LT02 will fix the indentation
 # in a second step.
 # See the test blow.
 test_fail_fix_works_in_subqueries:
@@ -56,7 +56,7 @@ test_fail_fix_works_in_subqueries:
           SELECT 'j'
       )
 
-# Test autofix after LT02 passes L065
+# Test autofix after LT02 passes LT11
 test_pass_fix_works_in_subqueries_after_LT02_fix:
   pass_str: |
       SELECT * FROM (
