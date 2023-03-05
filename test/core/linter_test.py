@@ -498,7 +498,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
         ("noqa?", SQLParseError),
         ("noqa:", NoQaDirective(0, None, None)),
         ("noqa:LT01,LT02", NoQaDirective(0, ("LT01", "LT02"), None)),
-        ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
+        ("noqa: enable=LT01", NoQaDirective(0, ("LT01",), "enable")),
         ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
@@ -518,7 +518,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                     "CV05",  # L049 is an alias of CV05
                     "JJ01",  # L046 is an alias of JJ01
                     "L041",
-                    "L048",
+                    "LT01",  # L048 is an alias of LT01
                     "ST02",  # L043 is an alias of ST02
                     "ST03",  # L045 is an alias of ST03
                     "ST05",  # L042 is an alias of ST05
@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("L005", "L007", "L008", "L009", "LT01", "LT02"),
+                ("L007", "L009", "LT01", "LT02"),
                 None,
             ),
         ),

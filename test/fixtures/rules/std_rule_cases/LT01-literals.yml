@@ -1,4 +1,4 @@
-rule: L048
+rule: LT01
 
 test_pass_simple_select:
   pass_str: "SELECT 'foo'"
@@ -8,15 +8,13 @@ test_pass_expression:
   pass_str: "SELECT ('foo' || 'bar') as buzz"
 
 test_fail_as:
-  # NOTE: we should fix the _missing_ whitespace but not the excess.
-  # That's covered in LT01.
   fail_str: |
     SELECT
         'foo'AS   bar
     FROM foo
   fix_str: |
     SELECT
-        'foo' AS   bar
+        'foo' AS bar
     FROM foo
 
 test_fail_expression:
@@ -125,3 +123,23 @@ test_pass_sparksql_multi_units_interval_minus:
   configs:
     core:
       dialect: sparksql
+
+test_fail_old_python_test:
+  fail_str: SELECT a +'b'+'c' FROM tbl;
+  violations:
+    - code: LT01
+      description: Expected single whitespace between binary operator '+' and quoted literal.
+      line_no: 1
+      line_pos: 11
+      name: layout.spacing
+    - code: LT01
+      description: Expected single whitespace between quoted literal and binary operator '+''.
+      line_no: 1
+      line_pos: 14
+      name: layout.spacing
+    - code: LT01
+      description: Expected single whitespace between binary operator '+' and quoted literal.
+      line_no: 1
+      line_pos: 15
+      name: layout.spacing
+   

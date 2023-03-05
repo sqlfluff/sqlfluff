@@ -14,7 +14,7 @@ class Rule_LT01(BaseRule):
     trailing whitespace at the end of a line and also the wrong
     spacing between elements on the line. Because of this wide reach
     you may find that you wish to add specific configuration in your
-    project to tweek how specific elements are treated. Rather than
+    project to tweak how specific elements are treated. Rather than
     configuration on this specific rule, use the `sqlfluff.layout`
     section of your configuration file to customise how this rule
     operates.
@@ -52,12 +52,14 @@ class Rule_LT01(BaseRule):
     name = "layout.spacing"
     # NOTE: This rule combines the following legacy rules:
     # - L001: Trailing Whitespace
+    # - L005 & L008: Space around commas
     # - L006: Space around operators
     # - L023: Space after AS in WITH clause
     # - L024: Space immediately after USING
     # - L039: Unnecessary Whitespace
-    # TODO: Potentially more
-    aliases = ("L001", "L006", "L023", "L024", "L039")
+    # - L048: Spacing around quoted literals
+    # - L071: Spacing around brackets
+    aliases = ("L001", "L005", "L006", "L008", "L023", "L024", "L039", "L048", "L071")
     groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     is_fix_compatible = True

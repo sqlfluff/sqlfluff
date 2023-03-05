@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT01,L007,L031,LT01,L071",
+                "LT01,L007,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -694,8 +694,8 @@ def generic_roundtrip_test(
     "rule,fname",
     [
         ("LT01", "test/fixtures/linter/indentation_errors.sql"),
-        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
-        ("L008", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/whitespace_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
         ("LT02", "test/fixtures/linter/indentation_error_hard.sql"),
     ],

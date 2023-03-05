@@ -114,8 +114,8 @@ def jinja_roundtrip_test(
     "rule,path",
     [
         ("LT01", "test/fixtures/linter/indentation_errors.sql"),
-        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
-        ("L008", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/whitespace_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
         ("CP01", "test/fixtures/linter/whitespace_errors.sql"),
         ("AL01", "test/fixtures/dialects/ansi/select_simple_i.sql"),
         ("AL02", "test/fixtures/dialects/ansi/select_simple_i.sql"),
