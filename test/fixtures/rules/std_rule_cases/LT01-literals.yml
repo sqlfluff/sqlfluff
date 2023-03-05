@@ -143,4 +143,3 @@ test_fail_old_python_test:
       line_no: 1
       line_pos: 15
       name: layout.spacing
-   
