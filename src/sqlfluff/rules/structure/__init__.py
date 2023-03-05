@@ -15,4 +15,13 @@ from sqlfluff.rules.structure.ST08 import Rule_ST08
 @hookimpl
 def get_rules():
     """Get plugin rules."""
-    return [Rule_ST01, Rule_ST02, Rule_ST03, Rule_ST04, Rule_ST05, Rule_ST06, Rule_ST07, Rule_ST08]
+    return [
+        Rule_ST01,
+        Rule_ST02,
+        Rule_ST03,
+        Rule_ST04,
+        Rule_ST05,
+        Rule_ST06,
+        Rule_ST07,
+        Rule_ST08,
+    ]

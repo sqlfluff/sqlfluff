@@ -34,7 +34,7 @@ class Rule_ST08(BaseRule):
 
     name = "structure.distinct"
     aliases = ("L015",)
-    groups=  ("all", "structure", "core")
+    groups = ("all", "structure", "core")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause", "function"})
     is_fix_compatible = True
 
