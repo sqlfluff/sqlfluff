@@ -15,13 +15,8 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             "indentation_errors.sql",
             [(2, 1), (3, 1), (4, 1), (5, 1)],
         ),
-        # Check we get comma (with leading space/newline) whitespace errors
-        # NB The newline before the comma, should report on the comma, not the newline
-        # for clarity.
-        ("LT01", "whitespace_errors.sql", [(2, 9)]),
-        # Check we get comma (with incorrect trailing space) whitespace errors,
-        # but also no false positives on line 4 or 5.
-        ("LT01", "whitespace_errors.sql", [(3, 12)]),
+        # Check we get comma whitespace errors
+        ("LT01", "whitespace_errors.sql", [(2, 9), (3, 12)]),
         # Check we get operator whitespace errors and it works with brackets
         (
             "LT01",
