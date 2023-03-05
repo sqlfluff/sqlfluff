@@ -24,7 +24,7 @@ Typical reasons include:
 These rules can override ``BaseRule``'s ``recurse_into`` field, setting it to
 ``False``. For these rules ``False``, ``_eval()`` is only called *once*, with
 the root segment of the tree. This can be much more efficient, especially on
-large files. For example, see rules ``L050`` and ``L009`` , which only look at
+large files. For example, see rules ``L050`` and ``LT12`` , which only look at
 the beginning or end of the file, respectively.
 
 ``_works_on_unparsable``

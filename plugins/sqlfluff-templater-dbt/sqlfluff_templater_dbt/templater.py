@@ -540,7 +540,7 @@ class DbtTemplater(JinjaTemplater):
             # compiling. Unless fixed (like below), this will cause:
             #    1. Assertion errors in TemplatedFile, when it sanity checks the
             #       contents of the sliced_file array.
-            #    2. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+            #    2. LT12 linting errors when running "sqlfluff lint foo_bar.sql"
             #       since the linter will use the compiled code with the newlines
             #       removed.
             #    3. "No newline at end of file" warnings in Git/GitHub since

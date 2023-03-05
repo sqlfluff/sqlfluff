@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT01,L007,L031",
+                "LT01,LT03,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -407,7 +407,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT02,L009,L031",
+                "LT02,LT12,L031",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
@@ -534,7 +534,7 @@ def test__cli__command_lint_skip_ignore_files():
         ],
     )
     assert result.exit_code == 1
-    assert "L009" in result.output.strip()
+    assert "LT12" in result.output.strip()
 
 
 def test__cli__command_lint_ignore_local_config():
@@ -1351,7 +1351,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 1,
-            "message": "L036: Select targets should be on a new line unless there is "
+            "message": "LT09: Select targets should be on a new line unless there is "
             "only one select target.",
             "start_column": 1,
             "end_column": 1,
@@ -1457,8 +1457,8 @@ def test__cli__command_lint_serialize_github_annotation_native():
     assert result.output == "\n".join(
         [
             f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
-            "L036: Select targets should be on a new line unless there is only one "
-            "select target.",
+            "LT09: Select targets should be on a new line unless there is only one "
+            "select target. [layout.select_targets]",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",

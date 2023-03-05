@@ -391,7 +391,7 @@ def get_linter_and_formatter(
     epilog="""\b\bExamples:\n
   sqlfluff lint --dialect postgres .\n
   sqlfluff lint --dialect postgres --rules ST05 .\n
-  sqlfluff fix --dialect sqlite --rules L041,ST05 src/queries\n
+  sqlfluff fix --dialect sqlite --rules LT10,ST05 src/queries\n
   sqlfluff parse --dialect sqlite --templater jinja src/queries/common.sql
 """,
 )
