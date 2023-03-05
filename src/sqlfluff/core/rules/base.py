@@ -492,15 +492,51 @@ class RuleMetaclass(type):
     docs.
     """
 
-    # Precompile the search regex
-    _pattern = re.compile(
+    # Precompile the regular expressions
+    _doc_search_regex = re.compile(
         "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
         "\\s\\s{4}\\*\\*Configuration\\*\\*)",
         flags=re.MULTILINE,
     )
+    _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
 
-    def __new__(mcs, name, bases, class_dict):
-        """Generate a new class.
+    def _populate_code_and_description(mcs, name, class_dict):
+        """Extract and validate the rule code & description.
+
+        We expect that rules are defined as classes with the name `Rule_XXXX`
+        where `XXXX` is of the form `LLNN`, where L is a letter and N is a
+        two digit number. For backward compatibility we also still support
+        the legacy format of LNNN i.e. a single letter and three digit number.
+
+        The two letters should be indicative of the grouping and focus of
+        the rule. e.g. capitalisation rules have the code CP for CaPitalisation.
+
+        If this receives classes by any other name, then it will raise a
+        :exc:`ValueError`.
+        """
+        rule_name_match = mcs._valid_classname_regex.match(name)
+        # Validate the name
+        if not rule_name_match:  # pragma: no cover
+            raise SQLFluffUserError(
+                f"Tried to define rule name with "
+                f"unexpected format: {name}. Format should be: "
+                "'Rule_PluginName_LL23' (for plugins) or "
+                "`Rule_LL23` (for core rules)."
+            )
+
+        plugin_name, code = rule_name_match.groups()
+        # If the docstring is multiline, then we extract just summary.
+        description = class_dict["__doc__"].replace("``", "'").split("\n")[0]
+        if plugin_name:
+            code = f"{plugin_name}_{code}"
+
+        class_dict["code"] = code
+        class_dict["description"] = description
+
+        return class_dict
+
+    def _populate_docstring(mcs, name, class_dict):
+        """Enrich the docstring in the class_dict.
 
         This takes the various defined values in the BaseRule class
         and uses them to populate documentation in the final class
@@ -562,7 +598,7 @@ class RuleMetaclass(type):
 
         all_docs = fix_docs + name_docs + alias_docs + groups_docs + config_docs
         # Modify the docstring using the search regex.
-        class_dict["__doc__"] = mcs._pattern.sub(
+        class_dict["__doc__"] = mcs._doc_search_regex.sub(
             f"\n\n{all_docs}\n\n\\1", class_dict["__doc__"], count=1
         )
         # If the inserted string is not now in the docstring - append it on
@@ -570,6 +606,16 @@ class RuleMetaclass(type):
         # put it.
         if all_docs not in class_dict["__doc__"]:
             class_dict["__doc__"] += f"\n\n{all_docs}"
+
+        # Return the modified class_dict
+        return class_dict
+
+    def __new__(mcs, name, bases, class_dict):
+        """Generate a new class."""
+        class_dict = mcs._populate_docstring(mcs, name, class_dict)
+        # Don't try and infer code and description for the base class
+        if bases:
+            class_dict = mcs._populate_code_and_description(mcs, name, class_dict)
         # Use the stock __new__ method now we've adjusted the docstring.
         return super().__new__(mcs, name, bases, class_dict)
 
@@ -614,6 +660,12 @@ class BaseRule(metaclass=RuleMetaclass):
     # referred to this rule.
     aliases: Tuple[str, ...] = ()
 
+    # NOTE: code and description are provided here as hints, but should not
+    # be set directly. They are set automatically by the metaclass based on
+    # the class _name_ when defined.
+    code: str = ""
+    description: str = ""
+
     # Should we document this rule as fixable? Used by the metaclass to add
     # a line to the docstring.
     is_fix_compatible = False
@@ -642,6 +694,19 @@ class BaseRule(metaclass=RuleMetaclass):
                     )
         except AttributeError:
             self.logger.info(f"No config_keywords defined for {code}")
+
+    @classmethod
+    def get_config_ref(cls):
+        """Return the config lookup ref for this rule.
+
+        If a `name` is defined, it's the name - otherwise the code.
+
+        The name is a much more understandable reference and so makes config
+        files more readable. For backward compatibility however we also support
+        the rule code for those without names.
+        """
+        # return cls.name if cls.name else cls.code
+        return cls.code
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Evaluate this rule against the current context.
@@ -1123,7 +1188,7 @@ class RuleSet:
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule=None):
+    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
         """Ensure that all config options are valid.
 
         Config options can also be checked for a specific rule e.g CP01.
@@ -1132,8 +1197,8 @@ class RuleSet:
         for config_name, info_dict in self.config_info.items():
             config_option = (
                 rule_config.get(config_name)
-                if not rule
-                else rule_config.get(rule).get(config_name)
+                if not rule_ref
+                else rule_config.get(rule_ref).get(config_name)
             )
             valid_options = info_dict.get("validation")
             if (
@@ -1150,22 +1215,6 @@ class RuleSet:
                         valid_options,
                     )
                 )
-
-    @property
-    def valid_rule_name_regex(self):
-        """Defines the accepted pattern for rule names.
-
-        The first group captures the plugin name (optional), which
-        must be capitalized.
-        The second group captures the rule code.
-
-        Examples of valid rule names:
-
-        * Rule_PluginName_LT01
-        * Rule_LT01
-        * Rule_PG16
-        """
-        return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
 
     def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
@@ -1187,21 +1236,7 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
-        # Validate the name
-        if not rule_name_match:  # pragma: no cover
-            raise SQLFluffUserError(
-                f"Tried to register rule on set {self.name!r} with "
-                f"unexpected format: {cls.__name__}. Format should be: "
-                "'Rule_PluginName_L123' (for plugins) or "
-                "`Rule_L123` (for core rules)."
-            )
-
-        plugin_name, code = rule_name_match.groups()
-        # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.replace("``", "'").split("\n")[0]
-        if plugin_name:
-            code = f"{plugin_name}_{code}"
+        code = cls.code
 
         # Check for code collisions.
         if code in self._register:  # pragma: no cover
@@ -1218,7 +1253,7 @@ class RuleSet:
         self._register[code] = RuleManifest(
             code=code,
             name=cls.name,
-            description=description,
+            description=cls.description,
             groups=cls.groups,
             aliases=cls.aliases,
             rule_class=cls,
@@ -1384,12 +1419,14 @@ class RuleSet:
         for code in keylist:
             kwargs = {}
             rule_class = cast(Type[BaseRule], self._register[code].rule_class)
-            specific_rule_config = config.get_section(("rules", code))
+            # Fetch the lookup code for the rule.
+            rule_config_ref = rule_class.get_config_ref()
+            specific_rule_config = config.get_section(("rules", rule_config_ref))
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, code)
+                self._validate_config_options(config, rule_config_ref)
                 kwargs.update(specific_rule_config)
             kwargs["code"] = code
             # Allow variable substitution in making the description
