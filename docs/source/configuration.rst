@@ -291,7 +291,7 @@ above:
 .. code-block:: cfg
 
     [sqlfluff]
-    warnings = L019, L006
+    warnings = L019, LT01
 
 With this configuration, files with no other issues (other than
 those set to warn) will pass. If there are still other issues, then
@@ -300,10 +300,10 @@ the file will still fail, but will show both warnings and failures.
 .. code-block::
 
     == [test.sql] PASS
-    L:   2 | P:   9 | L006 | WARNING: Missing whitespace before +
+    L:   2 | P:   9 | LT01 | WARNING: Missing whitespace before +
     == [test2.sql] FAIL
     L:   2 | P:   8 | CP02 | Unquoted identifiers must be consistently upper case.
-    L:   2 | P:  11 | L006 | WARNING: Missing whitespace before +
+    L:   2 | P:  11 | LT01 | WARNING: Missing whitespace before +
 
 This is particularly useful as a transitional tool when considering
 the introduction on new rules on a project where you might want to

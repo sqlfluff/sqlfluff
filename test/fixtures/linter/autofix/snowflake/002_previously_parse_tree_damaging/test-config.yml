@@ -3,7 +3,6 @@ test-config:
     - LT01
     - LT02
     - L007
-    - L008
     - CP01
     - L036
     - CV06

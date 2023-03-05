@@ -670,10 +670,11 @@ available:
       the spacing before commas (as shown in the config above), where line
       breaks may be allowed, but if not they should *touch* the element before.
 
-   *  The value of :code:`inline` is effectively the same as :code:`touch`
-      but in addition, no line breaks are allowed. This is best illustrated
+   *  Both of the above can be qualified with the :code:`:inline` modifier -
+      which prevents newlines within the segment. This is best illustrated
       by the spacing found in a qualified identifier like
-      :code:`my_schema.my_table`.
+      :code:`my_schema.my_table` which uses `touch:inline` or other clauses
+      where we want to force some elements to be on the same line.
 
 *  **Line Position**: set using the :code:`line_position` option. By default
    this is unset, which implies no particular line position requirements. The

@@ -34,8 +34,8 @@ def test_assert_rule_pass_in_sql_should_handle_parse_error():
 def test_assert_rule_pass_in_sql_should_fail_when_there_are_violations():
     """Util assert_rule_pass_in_sql should fail when there are violations."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_pass_in_sql(code="L005", sql="select a , b from t")
-    failed_test.match("Found L005 failures in query which should pass")
+        assert_rule_pass_in_sql(code="LT01", sql="select a , b from t")
+    failed_test.match("Found LT01 failures in query which should pass")
 
 
 def test_rules__test_helper_skipped_when_test_case_skipped():

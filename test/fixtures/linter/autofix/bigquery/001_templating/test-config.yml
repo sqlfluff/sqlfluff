@@ -1,5 +1,5 @@
 test-config:
   rules:
     - LT02
-    - L006
+    - LT01
     - L009

@@ -385,9 +385,9 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--rules",
-                "CP01,L006",
+                "CP01,LT01",
                 "--exclude-rules",
-                "L006,L031",
+                "LT01,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,LT01,L071",
+                "LT01,L007,L031",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -586,7 +586,7 @@ def test__cli__command_lint_warning():
     # But should also contain the warnings.
     # NOTE: Not including the whole description because it's too long.
     assert (
-        "L:   4 | P:   9 | L006 | WARNING: Expected single whitespace"
+        "L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace"
         in result.output.strip()
     )
 
@@ -694,8 +694,8 @@ def generic_roundtrip_test(
     "rule,fname",
     [
         ("LT01", "test/fixtures/linter/indentation_errors.sql"),
-        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
-        ("L008", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/whitespace_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
         ("LT02", "test/fixtures/linter/indentation_error_hard.sql"),
     ],
@@ -1304,7 +1304,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 25 if write_file else 32
+        assert payload_length == 24 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1320,7 +1320,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 13
+        assert len(result) == 12
     else:
         raise Exception
 

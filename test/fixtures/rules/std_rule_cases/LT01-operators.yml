@@ -1,4 +1,4 @@
-rule: L006
+rule: LT01
 
 test_pass_brackets:
   # Test that we don't fail * operators in brackets
@@ -53,11 +53,6 @@ test_pass_sign_indicators:
 fail_simple:
   fail_str: "SELECT 1+2"
   fix_str: "SELECT 1 + 2"
-
-dont_fail_on_too_much_whitespace:
-  # Too much whitespace should be caught by LT01
-  pass_str: "SELECT 1   +   2"
-
 
 pass_bigquery_hyphen:
   # hyphenated table reference should not fail
