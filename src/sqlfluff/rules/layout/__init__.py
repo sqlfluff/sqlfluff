@@ -13,6 +13,7 @@ from sqlfluff.rules.layout.LT08 import Rule_LT08
 from sqlfluff.rules.layout.LT09 import Rule_LT09
 from sqlfluff.rules.layout.LT10 import Rule_LT10
 from sqlfluff.rules.layout.LT11 import Rule_LT11
+from sqlfluff.rules.layout.LT12 import Rule_LT12
 
 
 @hookimpl
@@ -30,4 +31,5 @@ def get_rules():
         Rule_LT09,
         Rule_LT10,
         Rule_LT11,
+        Rule_LT12,
     ]
