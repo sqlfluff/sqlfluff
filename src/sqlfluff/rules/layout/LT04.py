@@ -1,4 +1,4 @@
-"""Implementation of Rule L019."""
+"""Implementation of Rule LT04."""
 
 from typing import List
 
@@ -7,7 +7,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-class Rule_L019(BaseRule):
+class Rule_LT04(BaseRule):
     """Leading/Trailing comma enforcement.
 
     **Anti-pattern**
@@ -46,7 +46,9 @@ class Rule_L019(BaseRule):
         FROM foo
     """
 
-    groups = ("all",)
+    name = "layout.commas"
+    aliases = ("L019",)
+    groups = ("all", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"comma"})
     _adjust_anchors = True
     is_fix_compatible = True

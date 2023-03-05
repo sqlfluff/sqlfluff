@@ -30,7 +30,7 @@ config_a = {
 }
 
 config_b = {
-    "core": {"rules": "L007", "dialect": "ansi"},
+    "core": {"rules": "LT03", "dialect": "ansi"},
     "layout": {
         "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
     },
@@ -345,14 +345,14 @@ def test__config__rules_group_with_exclude():
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         assert ("CP01", 15, 1) in violations[k]
-        assert "L019" not in [c[0] for c in violations[k]]
+        assert "LT04" not in [c[0] for c in violations[k]]
 
 
 def test__config__get_section():
     """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
 
-    assert cfg.get_section("core").get("rules", None) == "L007"
+    assert cfg.get_section("core").get("rules", None) == "LT03"
     assert cfg.get_section(["layout", "type", "comma"]) == {
         "line_position": "trailing",
         "spacing_before": "touch",
@@ -364,7 +364,7 @@ def test__config__get():
     """Test FluffConfig.get method."""
     cfg = FluffConfig(config_b)
 
-    assert cfg.get("rules") == "L007"
+    assert cfg.get("rules") == "LT03"
     assert cfg.get("rulez") is None
     assert cfg.get("rulez", section="core", default=123) == 123
     assert (
@@ -437,7 +437,7 @@ def test__config__validate_configs_indirect():
 def test__config__validate_configs_precedence_same_file():
     """Test _validate_configs method of FluffConfig where there's a conflict."""
     # Check with a known conflicted value
-    old_key = ("rules", "L007", "operator_new_lines")
+    old_key = ("rules", "LT03", "operator_new_lines")
     new_key = ("layout", "type", "binary_operator", "line_position")
     # Check it's still conflicted.
     assert any(

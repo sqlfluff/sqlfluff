@@ -1,4 +1,4 @@
-rule: L007
+rule: LT03
 
 passes_on_before_default:
   pass_str: |

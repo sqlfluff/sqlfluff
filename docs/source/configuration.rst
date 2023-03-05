@@ -291,7 +291,7 @@ above:
 .. code-block:: cfg
 
     [sqlfluff]
-    warnings = L019, L006
+    warnings = LT04, L006
 
 With this configuration, files with no other issues (other than
 those set to warn) will pass. If there are still other issues, then

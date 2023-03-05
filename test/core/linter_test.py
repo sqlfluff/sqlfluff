@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("L005", "L006", "L007", "L008", "L009", "LT01", "LT02"),
+                ("L005", "L006", "LT03", "L008", "L009", "LT01", "LT02"),
                 None,
             ),
         ),
@@ -782,7 +782,7 @@ def test_linter_noqa():
         config=FluffConfig(
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
-                "rules": "AL02, L019",
+                "rules": "AL02, LT04",
             }
         )
     )
@@ -808,11 +808,11 @@ def test_linter_noqa():
         col_r r, /* Block comment */ --noqa: AL02
         col_s s # hash comment --noqa: AL02
         -- We trigger both AL02 (implicit aliasing)
-        -- and L019 (leading commas) here to
+        -- and LT04 (leading commas) here to
         -- test glob ignoring of multiple rules.
         , col_t t --noqa: L01*
         , col_u u -- Some comment --noqa: L01*
-        , col_v v -- We can ignore both AL02 and L019 -- noqa: L01[29]
+        , col_v v -- We can ignore both AL02 and LT04 -- noqa: L01[29]
     FROM foo
         """
     result = lntr.lint_string(sql)

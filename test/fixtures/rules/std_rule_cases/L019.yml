@@ -1,4 +1,4 @@
-rule: L019
+rule: LT04
 
 leading_comma_violations:
   fail_str: |

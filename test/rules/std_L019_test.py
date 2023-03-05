@@ -1,10 +1,10 @@
-"""Tests the python routines within L019."""
+"""Tests the python routines within LT04."""
 
 import sqlfluff
 
 
-def test__rules__std_L019_unparseable():
-    """Verify that L019 doesn't try to fix queries with parse errors.
+def test__rules__std_LT04_unparseable():
+    """Verify that LT04 doesn't try to fix queries with parse errors.
 
     This has been observed to frequently cause syntax errors, especially in
     combination with Jinja templating, e.g. undefined template variables.
@@ -35,4 +35,4 @@ def test__rules__std_L019_unparseable():
           t
     """
     result = sqlfluff.lint(sql)
-    assert "L019" not in [r["code"] for r in result]
+    assert "LT04" not in [r["code"] for r in result]

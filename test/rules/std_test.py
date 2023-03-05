@@ -33,7 +33,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             "operator_errors.sql",
             [(3, 8), (4, 10)],
         ),
-        ("L007", "operator_errors.sql", [(5, 9)]),
+        ("LT03", "operator_errors.sql", [(5, 9)]),
         # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & LT01)
         (
             "L006",

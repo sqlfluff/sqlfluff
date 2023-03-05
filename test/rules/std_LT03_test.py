@@ -1,4 +1,4 @@
-"""Tests the python routines within L007."""
+"""Tests the python routines within LT03."""
 
 import sqlfluff
 from sqlfluff.core.config import FluffConfig
@@ -12,8 +12,8 @@ EXPECTED_TRAILING_MESSAGE = (
 )
 
 
-def test__rules__std_L007_default():
-    """Verify that L007 returns the correct error message for default (trailing)."""
+def test__rules__std_LT03_default():
+    """Verify that LT03 returns the correct error message for default (trailing)."""
     sql = """
         SELECT
             a,
@@ -24,11 +24,11 @@ def test__rules__std_L007_default():
             b = 2
     """
     result = sqlfluff.lint(sql)
-    assert "L007" in [r["code"] for r in result]
+    assert "LT03" in [r["code"] for r in result]
     assert EXPECTED_LEADING_MESSAGE in [r["description"] for r in result]
 
 
-def test__rules__std_L007_leading():
+def test__rules__std_LT03_leading():
     """Verify correct error message when leading is used."""
     sql = """
         SELECT
@@ -47,11 +47,11 @@ def test__rules__std_L007_leading():
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
-    assert "L007" in [r["code"] for r in result]
+    assert "LT03" in [r["code"] for r in result]
     assert EXPECTED_LEADING_MESSAGE in [r["description"] for r in result]
 
 
-def test__rules__std_L007_trailing():
+def test__rules__std_LT03_trailing():
     """Verify correct error message when trailing is used."""
     sql = """
         SELECT
@@ -72,5 +72,5 @@ def test__rules__std_L007_trailing():
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
-    assert "L007" in [r["code"] for r in result]
+    assert "LT03" in [r["code"] for r in result]
     assert EXPECTED_TRAILING_MESSAGE in [r["description"] for r in result]

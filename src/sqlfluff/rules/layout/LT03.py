@@ -1,4 +1,4 @@
-"""Implementation of Rule L007."""
+"""Implementation of Rule LT03."""
 
 from typing import List
 
@@ -7,7 +7,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
 
 
-class Rule_L007(BaseRule):
+class Rule_LT03(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 
     **Anti-pattern**
@@ -45,9 +45,9 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
-    name = "line-break.operators"
-    aliases = ("LB03",)
-    groups = ("all", "layout", "line-break")
+    name = "layout.operators"
+    aliases = ("L007",)
+    groups = ("all", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
     is_fix_compatible = True
 

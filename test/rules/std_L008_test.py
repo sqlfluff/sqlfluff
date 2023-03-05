@@ -12,9 +12,9 @@ def test__rules__std_L008_single_raise() -> None:
         ,col_b AS b
     FROM foo;
     """
-    result = sqlfluff.lint(sql, rules=["L008", "L019"])
+    result = sqlfluff.lint(sql, rules=["L008", "LT04"])
 
     results_L008 = [r for r in result if r["code"] == "L008"]
-    results_L019 = [r for r in result if r["code"] == "L019"]
+    results_LT04 = [r for r in result if r["code"] == "LT04"]
     assert len(results_L008) == 1
-    assert len(results_L019) == 1
+    assert len(results_LT04) == 1

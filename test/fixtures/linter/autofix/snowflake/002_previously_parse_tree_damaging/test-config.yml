@@ -2,7 +2,7 @@ test-config:
   rules:
     - LT01
     - LT02
-    - L007
+    - LT03
     - L008
     - CP01
     - L036
