@@ -126,6 +126,7 @@ test_pass_sparksql_multi_units_interval_minus:
 
 test_fail_old_python_test:
   fail_str: SELECT a +'b'+'c' FROM tbl;
+  fix_str: SELECT a + 'b' + 'c' FROM tbl;
   violations:
     - code: LT01
       description: Expected single whitespace between binary operator '+' and quoted literal.
