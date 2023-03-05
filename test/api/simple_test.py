@@ -30,7 +30,7 @@ lint_result = [
         "one select target.",
         "line_no": 1,
         "line_pos": 1,
-        "name": "",
+        "name": "layout.select_targets",
     },
     {
         "code": "LT01",

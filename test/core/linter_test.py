@@ -517,8 +517,8 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                     "CV04",  # L047 is an alias of CV04
                     "CV05",  # L049 is an alias of CV05
                     "JJ01",  # L046 is an alias of JJ01
-                    "LT10",
                     "L048",
+                    "LT10",
                     "ST02",  # L043 is an alias of ST02
                     "ST03",  # L045 is an alias of ST03
                     "ST05",  # L042 is an alias of ST05

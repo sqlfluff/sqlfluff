@@ -1458,7 +1458,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
         [
             f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
             "LT09: Select targets should be on a new line unless there is only one "
-            "select target.",
+            "select target. [layout.select_targets]",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",
