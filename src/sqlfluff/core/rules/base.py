@@ -1359,12 +1359,59 @@ class RuleSet:
         # Validate all generic rule configs
         self._validate_config_options(config)
 
+        # Fetch config section:
+        rules_config = config.get_section("rules")
+
         # Generate the master reference map. The priority order is:
         # codes > names > groups > aliases
         # (i.e. if there's a collision between a name and an
         # alias - we assume the alias is wrong.)
         valid_codes: Set[str] = set(self._register.keys())
         reference_map = self.rule_reference_map()
+        valid_config_lookups = set(
+            manifest.rule_class.get_config_ref() for manifest in self._register.values()
+        )
+
+        # Validate config doesn't try to specify values for unknown rules.
+        # NOTE: We _warn_ here rather than error.
+        for unexpected_ref in [
+            # Filtering to dicts gives us the sections.
+            k
+            for k, v in rules_config.items()
+            if isinstance(v, dict)
+            # Only keeping ones we don't expect
+            if k not in valid_config_lookups
+        ]:
+            rules_logger.warning(
+                "Rule configuration contain a section for unexpected "
+                f"rule {unexpected_ref!r}. These values will be ignored."
+            )
+            # For convenience (and migration), if we do find a potential match
+            # for the reference - add that as a warning.
+            # NOTE: We don't actually accept config in these cases, even though
+            # we could potentially match - because how to resolve _multiple_
+            # matching config sections is ambiguous.
+            if unexpected_ref in reference_map:
+                referenced_codes = reference_map[unexpected_ref]
+                if len(referenced_codes) == 1:
+                    referenced_code = list(referenced_codes)[0]
+                    referenced_name = self._register[referenced_code].name
+                    config_ref = self._register[
+                        referenced_code
+                    ].rule_class.get_config_ref()
+                    rules_logger.warning(
+                        "The reference was however found as a match for rule "
+                        f"{referenced_code} with name {referenced_name!r}. "
+                        "SQLFluff assumes configuration for this rule will "
+                        f"be specified in 'sqlfluff:rules:{config_ref}'."
+                    )
+                elif referenced_codes:
+                    rules_logger.warning(
+                        "The reference was found as a match for multiple rules: "
+                        f"{referenced_codes}. Config should be specified by the "
+                        "name of the relevant rule e.g. "
+                        "'sqlfluff:rules:capitalisation.keywords'."
+                    )
 
         # The lists here are lists of references, which might be codes,
         # names, aliases or groups.
@@ -1409,12 +1456,10 @@ class RuleSet:
 
         # Construct the kwargs for each rule and instantiate in turn.
         instantiated_rules = []
-        # Fetch general config first:
-        generic_rule_config = config.get_section("rules")
         # Keep only config which isn't a section (for specific rule) (i.e. isn't a dict)
         # We'll handle those directly in the specific rule config section below.
         generic_rule_config = {
-            k: v for k, v in generic_rule_config.items() if not isinstance(v, dict)
+            k: v for k, v in rules_config.items() if not isinstance(v, dict)
         }
         for code in keylist:
             kwargs = {}
