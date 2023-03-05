@@ -56,7 +56,7 @@ Multiple rules can be ignored by placing them in a comma-delimited list.
 
 .. code-block:: sql
 
-   a.a *  a.b AS bad_2,  -- noqa: L007, LT01
+   a.a *  a.b AS bad_2,  -- noqa: LT01, LT03
 
 It is also possible to ignore non-rule based errors, and instead opt to
 ignore templating (``TMP``) & parsing (``PRS``) errors.

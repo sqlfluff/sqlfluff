@@ -211,7 +211,7 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "L009", "L031"), 2)]
+    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "LT12", "L031"), 2)]
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
@@ -517,8 +517,8 @@ dummy_rule_map = Linter().get_rulepack().reference_map
                     "CV04",  # L047 is an alias of CV04
                     "CV05",  # L049 is an alias of CV05
                     "JJ01",  # L046 is an alias of JJ01
-                    "L041",
                     "LT01",  # L048 is an alias of LT01
+                    "LT10",  # L041 is an alias of LT10
                     "ST02",  # L043 is an alias of ST02
                     "ST03",  # L045 is an alias of ST03
                     "ST05",  # L042 is an alias of ST05
@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("L007", "L009", "LT01", "LT02"),
+                ("LT01", "LT02", "LT03", "LT12"),
                 None,
             ),
         ),
@@ -782,7 +782,7 @@ def test_linter_noqa():
         config=FluffConfig(
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
-                "rules": "AL02, L019",
+                "rules": "AL02, LT04",
             }
         )
     )
@@ -808,11 +808,11 @@ def test_linter_noqa():
         col_r r, /* Block comment */ --noqa: AL02
         col_s s # hash comment --noqa: AL02
         -- We trigger both AL02 (implicit aliasing)
-        -- and L019 (leading commas) here to
+        -- and LT04 (leading commas) here to
         -- test glob ignoring of multiple rules.
         , col_t t --noqa: L01*
         , col_u u -- Some comment --noqa: L01*
-        , col_v v -- We can ignore both AL02 and L019 -- noqa: L01[29]
+        , col_v v -- We can ignore both AL02 and LT04 -- noqa: L01[29]
     FROM foo
         """
     result = lntr.lint_string(sql)
@@ -827,7 +827,7 @@ def test_linter_noqa_with_templating():
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
                 "templater": "jinja",
-                "rules": "L016",
+                "rules": "LT05",
             }
         )
     )
@@ -835,7 +835,7 @@ def test_linter_noqa_with_templating():
     '"{%- set a_var = ["1", "2"] -%}\n'
     "SELECT\n"
     "  this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_"
-    "templated_sql_files, --noqa: L016\n"
+    "templated_sql_files, --noqa: LT05\n"
     "  this_is_not_so_big a, --Inline comment --noqa: AL02\n"
     "  this_is_not_so_big b, /* Block comment */ --noqa: AL02\n"
     "  this_is_not_so_big c, # hash comment --noqa: AL02\n"

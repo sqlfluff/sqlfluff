@@ -49,8 +49,8 @@ def test_backtick_replace():
         b
     FROM foo
     """
-    result = lint(sql, rules=["L015"])
-    # L015 docstring looks like:
+    result = lint(sql, rules=["ST08"])
+    # ST08 docstring looks like:
     # ``DISTINCT`` used with parentheses.
     # Check the double bacticks (``) get replaced by a single quote (').
     assert result[0]["description"] == "'DISTINCT' used with parentheses."

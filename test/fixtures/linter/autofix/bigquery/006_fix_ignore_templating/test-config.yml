@@ -4,5 +4,5 @@ test-config:
     - LT01
     - CP01
     - AL02
-    - L016
-    - L036
+    - LT05
+    - LT09

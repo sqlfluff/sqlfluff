@@ -1,0 +1,58 @@
+rule: ST08
+
+test_fail_distinct_with_parenthesis_1:
+  # Check we get fails for using DISTINCT apparently incorrectly
+  fail_str: SELECT DISTINCT(a)
+  fix_str: SELECT DISTINCT a
+
+test_fail_distinct_with_parenthesis_2:
+  fail_str: SELECT DISTINCT(a + b) * c
+  fix_str: SELECT DISTINCT (a + b) * c
+
+test_fail_distinct_with_parenthesis_3:
+  fail_str: SELECT DISTINCT (a)
+  fix_str: SELECT DISTINCT a
+
+test_fail_distinct_with_parenthesis_4:
+  pass_str: SELECT DISTINCT (a + b) * c
+
+test_fail_distinct_with_parenthesis_5:
+  fail_str: |
+    SELECT DISTINCT(field_1)
+    FROM my_table
+  fix_str: |
+    SELECT DISTINCT field_1
+    FROM my_table
+
+test_fail_distinct_with_parenthesis_6:
+  fail_str: |
+    SELECT DISTINCT(a), b
+  fix_str: |
+    SELECT DISTINCT a, b
+
+test_fail_distinct_with_parenthesis_7:
+  pass_str: |
+    SELECT
+        DISTINCT ON(bcolor) bcolor,
+        fcolor
+    FROM
+        distinct_demo
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_no_distinct:
+  pass_str: |
+    SELECT a, b
+
+test_fail_distinct_column_inside_count:
+  fail_str: |
+    SELECT COUNT(DISTINCT(unique_key))
+  fix_str: |
+    SELECT COUNT(DISTINCT unique_key)
+
+test_fail_distinct_concat_inside_count:
+  fail_str: |
+    SELECT COUNT(DISTINCT(CONCAT(col1, '-', col2, '-', col3)))
+  fix_str: |
+    SELECT COUNT(DISTINCT CONCAT(col1, '-', col2, '-', col3))

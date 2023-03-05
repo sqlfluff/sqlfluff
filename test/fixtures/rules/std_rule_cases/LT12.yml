@@ -1,0 +1,41 @@
+rule: LT12
+
+test_pass_single_final_newline:
+  pass_str: "SELECT foo FROM bar\n"
+
+test_fail_no_final_newline:
+  fail_str: "SELECT foo FROM bar"
+  fix_str: "SELECT foo FROM bar\n"
+
+test_fail_multiple_final_newlines:
+  fail_str: "SELECT foo FROM bar\n\n"
+  fix_str: "SELECT foo FROM bar\n"
+
+test_pass_templated_plus_raw_newlines:
+  pass_str: "{{ '\n\n' }}\n"
+
+test_fail_templated_plus_raw_newlines:
+  fail_str: "{{ '\n\n' }}"
+  fix_str: "{{ '\n\n' }}\n"
+
+test_fail_templated_plus_raw_newlines_extra_newline:
+  fail_str: "{{ '\n\n' }}\n\n"
+  fix_str: "{{ '\n\n' }}\n"
+
+test_pass_templated_macro_newlines:
+  # Tricky because the rendered code ends with two newlines:
+  # - Literal newline inserted by the macro
+  # - Literal newline at the end of the file
+  # The slicing algorithm should treat the first newline as "templated" because
+  # it was inserted when *expanding* the templated macro call.
+  pass_str: |
+    {% macro get_keyed_nulls(columns) %}
+      {{ columns }}
+    {% endmacro %}
+    SELECT {{ get_keyed_nulls("other_id") }}
+
+test_fail_templated_no_newline:
+  # Tricky because there's no newline at the end of the file (following the
+  # templated code).
+  fail_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}"
+  fix_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n"
