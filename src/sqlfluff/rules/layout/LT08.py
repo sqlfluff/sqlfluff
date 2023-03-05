@@ -1,4 +1,4 @@
-"""Implementation of Rule L022."""
+"""Implementation of Rule LT08."""
 
 from typing import Optional, List
 from sqlfluff.core.parser import NewlineSegment
@@ -7,7 +7,7 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
-class Rule_L022(BaseRule):
+class Rule_LT08(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 
     **Anti-pattern**
@@ -36,7 +36,9 @@ class Rule_L022(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "layout.cte_newline"
+    aliases = ("L022",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
     is_fix_compatible = True
 

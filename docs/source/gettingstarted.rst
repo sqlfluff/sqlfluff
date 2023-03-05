@@ -85,7 +85,7 @@ file.
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
                            | [layout.indent]
@@ -127,7 +127,7 @@ error (violation of *L006*) no longer shows up.
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
@@ -192,7 +192,7 @@ specifying :code:`--rules`.
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates.
-    L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
+    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
     L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
     ==== fixing violations ====
@@ -250,7 +250,7 @@ Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01,ST06,L036,LT01
+    $ sqlfluff fix test.sql --rules LT02,L009,CP01,ST06,LT09,LT01
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.

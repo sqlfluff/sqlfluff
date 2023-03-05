@@ -240,13 +240,13 @@ active for a given file.
        rollout of new rules because we manage by exception.
 
 
-For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
+For example, to disable the rules :class:`LT08 <sqlfluff.core.rules.Rule_LT08>`
 and :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
 
 .. code-block:: cfg
 
     [sqlfluff]
-    exclude_rules = L022, RF02
+    exclude_rules = LT08, RF02
 
 To enable individual rules, configure :code:`rules`, respectively.
 
@@ -892,7 +892,7 @@ You already know you can pass arguments (:code:`--verbose`,
 
 .. code-block:: text
 
-    $ sqlfluff lint my_code.sql -v --exclude-rules L022,RF02
+    $ sqlfluff lint my_code.sql -v --exclude-rules LT08,RF02
 
 You might have arguments that you pass through every time, e.g rules you
 *always* want to ignore. These can also be configured:
@@ -901,7 +901,7 @@ You might have arguments that you pass through every time, e.g rules you
 
     [sqlfluff]
     verbose = 1
-    exclude_rules = L022,RF02
+    exclude_rules = LT08,RF02
 
 Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is

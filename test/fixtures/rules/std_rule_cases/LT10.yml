@@ -1,4 +1,4 @@
-rule: L041
+rule: LT10
 
 test_fail_distinct_on_next_line_1:
   fail_str: |

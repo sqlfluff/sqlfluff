@@ -1351,7 +1351,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 1,
-            "message": "L036: Select targets should be on a new line unless there is "
+            "message": "LT09: Select targets should be on a new line unless there is "
             "only one select target.",
             "start_column": 1,
             "end_column": 1,
@@ -1457,7 +1457,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
     assert result.output == "\n".join(
         [
             f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
-            "L036: Select targets should be on a new line unless there is only one "
+            "LT09: Select targets should be on a new line unless there is only one "
             "select target.",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "

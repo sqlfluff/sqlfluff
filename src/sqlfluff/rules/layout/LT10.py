@@ -1,4 +1,4 @@
-"""Implementation of Rule L041."""
+"""Implementation of Rule LT10."""
 from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
@@ -8,7 +8,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L041(BaseRule):
+class Rule_LT10(BaseRule):
     """``SELECT`` modifiers (e.g. ``DISTINCT``) must be on the same line as ``SELECT``.
 
     **Anti-pattern**
@@ -32,7 +32,9 @@ class Rule_L041(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "layout.select_modifiers"
+    aliases = ("L041",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 

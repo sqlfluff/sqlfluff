@@ -1,4 +1,4 @@
-"""Implementation of Rule L036."""
+"""Implementation of Rule LT09."""
 
 from typing import List, NamedTuple, Optional, Sequence
 
@@ -24,7 +24,7 @@ class SelectTargetsInfo(NamedTuple):
     pre_from_whitespace: List[BaseSegment]
 
 
-class Rule_L036(BaseRule):
+class Rule_LT09(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     .. note::
@@ -69,7 +69,9 @@ class Rule_L036(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "layout.select_targets"
+    aliases = ("L036",)
+    groups = ("all", "layout")
     config_keywords = ["wildcard_policy"]
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True

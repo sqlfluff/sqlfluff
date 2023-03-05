@@ -1,11 +1,11 @@
-"""Implementation of Rule L017."""
+"""Implementation of Rule LT06."""
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L017(BaseRule):
+class Rule_LT06(BaseRule):
     """Function name not immediately followed by parenthesis.
 
     **Anti-pattern**
@@ -30,7 +30,9 @@ class Rule_L017(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "layout.functions"
+    aliases = ("L017",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler({"function"})
     is_fix_compatible = True
 
@@ -39,6 +41,11 @@ class Rule_L017(BaseRule):
 
         Look for Function Segment with anything other than the
         function name before brackets
+
+        NOTE: This hasn't been combined with LT01 because it has
+        some special treatment for comments. That might be something
+        we revisit at a later point if duplicate errors become
+        problematic.
         """
         segment = FunctionalContext(context).segment
         # We only trigger on start_bracket (open parenthesis)

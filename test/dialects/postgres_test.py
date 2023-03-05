@@ -64,7 +64,7 @@ def test_epoch_datetime_unit(raw: str) -> None:
     """Test the EPOCH keyword for postgres dialect."""
     # Don't test for new lines or capitalisation
     cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009,LT05,L036", "dialect": "postgres"}}
+        configs={"core": {"exclude_rules": "L009,LT05,LT09", "dialect": "postgres"}}
     )
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)

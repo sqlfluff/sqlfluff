@@ -1,7 +1,7 @@
-rule: L022
+rule: LT08
 
 test_pass_blank_line_after_cte_trailing_comma:
-  # Test cases for L022, both leading and trailing commas.
+  # Test cases for LT08, both leading and trailing commas.
   pass_str: |
     with my_cte as (
         select 1

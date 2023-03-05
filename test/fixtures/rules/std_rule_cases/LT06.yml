@@ -1,4 +1,4 @@
-rule: L017
+rule: LT06
 
 passing_example:
   pass_str: SELECT SUM(1)

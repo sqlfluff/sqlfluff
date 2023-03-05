@@ -1,4 +1,4 @@
-"""Implementation of Rule L018."""
+"""Implementation of Rule LT07."""
 
 from typing import cast
 
@@ -13,7 +13,7 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
 
-class Rule_L018(BaseRule):
+class Rule_LT07(BaseRule):
     """``WITH`` clause closing bracket should be on a new line.
 
     **Anti-pattern**
@@ -42,7 +42,9 @@ class Rule_L018(BaseRule):
 
     """
 
-    groups = ("all", "core")
+    name = "layout.functions"
+    aliases = ("L018",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler(
         {"with_compound_statement"}, provide_raw_stack=True
     )

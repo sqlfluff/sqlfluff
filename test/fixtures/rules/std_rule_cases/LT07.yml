@@ -1,4 +1,4 @@
-rule: L018
+rule: LT07
 
 test_pass_with_clause_closing_aligned:
   # with statement indentation
