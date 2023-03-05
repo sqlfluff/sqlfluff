@@ -36,9 +36,7 @@ def _unpack_constraint(constraint: str, strip_newlines: bool):
     elif modifier == "inline":
         strip_newlines = True
     else:  # pragma: no cover
-        raise NotImplementedError(
-            f"Unexpected constraint modifier: {constraint}"
-        )
+        raise NotImplementedError(f"Unexpected constraint modifier: {constraint}")
     return constraint, strip_newlines
 
 
