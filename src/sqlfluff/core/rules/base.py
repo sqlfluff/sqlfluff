@@ -956,7 +956,7 @@ class BaseRule(metaclass=RuleMetaclass):
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
-        are most often rules like LT02 and L016 that make whitespace changes
+        are most often rules like LT02 and LT05 that make whitespace changes
         without a "deep" understanding of the parse structure. This function
         attempts to correct those issues automatically. It may not be perfect,
         but it should be an improvement over the old behaviour, where rules like

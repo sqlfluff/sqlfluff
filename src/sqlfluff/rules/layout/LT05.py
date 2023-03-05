@@ -1,4 +1,4 @@
-"""Implementation of Rule L016."""
+"""Implementation of Rule LT05."""
 
 from typing import List, cast
 
@@ -11,10 +11,12 @@ from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
-class Rule_L016(BaseRule):
+class Rule_LT05(BaseRule):
     """Line is too long."""
 
-    groups = ("all", "core")
+    name = "layout.long_lines"
+    aliases = ("L016",)
+    groups = ("all", "core", "layout")
     crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
     template_safe_fixes = True

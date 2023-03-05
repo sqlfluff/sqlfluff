@@ -68,12 +68,12 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         ("LT02", "indentation_error_contained.sql", []),
         # Check we handle block comments as expect. Github #236
         (
-            "L016",
+            "LT05",
             "block_comment_errors.sql",
             # Errors should flag on the first element of the line.
             [(1, 1), (2, 5), (4, 5)],
         ),
-        ("L016", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
+        ("LT05", "block_comment_errors_2.sql", [(1, 1), (2, 1)]),
         # Column references
         ("RF02", "column_references.sql", [(1, 8)]),
         ("RF02", "column_references_bare_function.sql", []),

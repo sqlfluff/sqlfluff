@@ -827,7 +827,7 @@ def test_linter_noqa_with_templating():
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
                 "templater": "jinja",
-                "rules": "L016",
+                "rules": "LT05",
             }
         )
     )
@@ -835,7 +835,7 @@ def test_linter_noqa_with_templating():
     '"{%- set a_var = ["1", "2"] -%}\n'
     "SELECT\n"
     "  this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_"
-    "templated_sql_files, --noqa: L016\n"
+    "templated_sql_files, --noqa: LT05\n"
     "  this_is_not_so_big a, --Inline comment --noqa: AL02\n"
     "  this_is_not_so_big b, /* Block comment */ --noqa: AL02\n"
     "  this_is_not_so_big c, # hash comment --noqa: AL02\n"

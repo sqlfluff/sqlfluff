@@ -1,7 +1,7 @@
 {
     "violations":{
         "linting":{
-            "L016": [
+            "LT05": [
                 [3, 9]
             ]
         }
