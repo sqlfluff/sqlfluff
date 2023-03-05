@@ -142,11 +142,11 @@ and there may be some situations where a fix may not be able to be
 applied because of the context of the query, but in many simple cases
 it's a good place to start.
 
-For now, we only want to fix the following rules: *LT02*, *L009*, *CP01*
+For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01 --dialect ansi
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
     L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
@@ -251,7 +251,7 @@ Then rerun the same command as before.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,L009,CP01,ST06,LT09,LT01
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01,ST06,LT09,LT01
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.

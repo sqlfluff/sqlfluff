@@ -1,4 +1,4 @@
-rule: L009
+rule: LT12
 
 test_pass_single_final_newline:
   pass_str: "SELECT foo FROM bar\n"

@@ -1,4 +1,4 @@
-"""Implementation of Rule L009."""
+"""Implementation of Rule LT12."""
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
@@ -30,7 +30,7 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             return parent_stack, segment
 
 
-class Rule_L009(BaseRule):
+class Rule_LT12(BaseRule):
     """Files must end with a single trailing newline.
 
     **Anti-pattern**
@@ -102,9 +102,9 @@ class Rule_L009(BaseRule):
 
     """
 
-    name = "line-break.end-of-file"
-    aliases = ("LB04",)
-    groups = ("all", "core", "layout", "line-break")
+    name = "layout.end-of-file"
+    aliases = ("L009",)
+    groups = ("all", "core", "layout")
 
     targets_templated = True
     # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.

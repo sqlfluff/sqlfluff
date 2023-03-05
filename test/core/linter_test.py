@@ -211,7 +211,7 @@ def test__linter__lint_string_vs_file(path):
 
 
 @pytest.mark.parametrize(
-    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "L009", "L031"), 2)]
+    "rules,num_violations", [(None, 7), ("CP01", 2), (("LT01", "LT12", "L031"), 2)]
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
@@ -536,7 +536,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
             "noqa:L00*",
             NoQaDirective(
                 0,
-                ("L009", "LT01", "LT02", "LT03"),
+                ("LT12", "LT01", "LT02", "LT03"),
                 None,
             ),
         ),

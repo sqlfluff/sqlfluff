@@ -91,7 +91,7 @@ lint_result = [
         "name": "capitalisation.identifiers",
     },
     {
-        "code": "L009",
+        "code": "LT12",
         "line_no": 1,
         "line_pos": 41,
         "description": "Files must end with a single trailing newline.",
@@ -118,7 +118,7 @@ def test__api__lint_string():
 
 def test__api__lint_string_specific():
     """Basic checking of lint functionality."""
-    rules = ["CP02", "L009"]
+    rules = ["CP02", "LT12"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -134,7 +134,7 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "LT09", "LT01"]
+    exclude_rules = ["LT12", "CP01", "AL03", "CP02", "LT09", "LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 1
@@ -147,14 +147,14 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 9
-    set(["L009", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
+    set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
         [r["code"] for r in result]
     )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "CP01", "AL03", "CP02", "LT09", "LT01", "AM04"]
+    exclude_rules = ["LT12", "CP01", "AL03", "CP02", "LT09", "LT01", "AM04"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []

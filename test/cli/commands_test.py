@@ -407,7 +407,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT02,L009,L031",
+                "LT02,LT12,L031",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
@@ -534,7 +534,7 @@ def test__cli__command_lint_skip_ignore_files():
         ],
     )
     assert result.exit_code == 1
-    assert "L009" in result.output.strip()
+    assert "LT12" in result.output.strip()
 
 
 def test__cli__command_lint_ignore_local_config():
