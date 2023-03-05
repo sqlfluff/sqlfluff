@@ -15,35 +15,19 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
             "indentation_errors.sql",
             [(2, 1), (3, 1), (4, 1), (5, 1)],
         ),
-        # Check we get comma (with leading space/newline) whitespace errors
-        # NB The newline before the comma, should report on the comma, not the newline
-        # for clarity.
-        ("L005", "whitespace_errors.sql", [(2, 9)]),
-        # Check we get comma (with incorrect trailing space) whitespace errors,
-        # but also no false positives on line 4 or 5.
-        ("L008", "whitespace_errors.sql", [(3, 12)]),
+        # Check we get comma whitespace errors
+        ("LT01", "whitespace_errors.sql", [(2, 9), (3, 12)]),
         # Check we get operator whitespace errors and it works with brackets
         (
-            "L006",
-            "operator_errors.sql",
-            [(7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
-        ),
-        (
             "LT01",
             "operator_errors.sql",
-            [(3, 8), (4, 10)],
+            [(3, 8), (4, 10), (7, 6), (7, 7), (7, 9), (7, 10), (7, 12), (7, 13)],
         ),
         ("LT03", "operator_errors.sql", [(5, 9)]),
-        # Check we DO get a violation on line 2 but NOT on line 3 (between L006 & LT01)
-        (
-            "L006",
-            "operator_errors_negative.sql",
-            [(5, 6), (5, 7)],
-        ),
         (
             "LT01",
             "operator_errors_negative.sql",
-            [(2, 6), (2, 9)],
+            [(2, 6), (2, 9), (5, 6), (5, 7)],
         ),
         # Hard indentation errors
         (
@@ -82,7 +66,7 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         # Distinct and Group by
         ("AM01", "select_distinct_group_by.sql", [(1, 8)]),
         # Make sure that ignoring works as expected
-        ("L006", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
+        ("LT01", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (
             "L031",
             "aliases_in_join_error.sql",

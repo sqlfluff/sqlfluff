@@ -1,4 +1,4 @@
-rule: L071
+rule: LT01
 
 test_pass_parenthesis_block_isolated:
   pass_str: |

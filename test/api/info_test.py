@@ -19,9 +19,19 @@ def test__api__info_rules():
         RuleTuple(
             code="LT01",
             name="layout.spacing",
-            description="Unnecessary whitespace.",
+            description="Inappropriate Spacing.",
             groups=("all", "core", "layout"),
-            aliases=("L001", "L039"),
+            aliases=(
+                "L001",
+                "L005",
+                "L006",
+                "L008",
+                "L023",
+                "L024",
+                "L039",
+                "L048",
+                "L071",
+            ),
         )
         in rules
     )

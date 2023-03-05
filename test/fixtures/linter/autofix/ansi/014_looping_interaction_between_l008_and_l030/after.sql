@@ -1,1 +1,1 @@
-SELECT FLOOR(dt) , COUNT(*) FROM test
+SELECT FLOOR(dt), COUNT(*) FROM test

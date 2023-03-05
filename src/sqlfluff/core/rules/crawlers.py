@@ -70,7 +70,7 @@ class SegmentSeekerCrawler(BaseCrawler):
         # Check whether we should consider this segment _or it's children_
         # at all.
         if not self.passes_filter(context.segment):
-            if self.provide_raw_stack:
+            if self.provide_raw_stack:  # pragma: no cover
                 context.raw_stack += tuple(context.segment.raw_segments)
             return
 

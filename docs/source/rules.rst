@@ -50,13 +50,13 @@ ignore the lack of whitespace surrounding the ``*`` operator.
 
 .. code-block:: sql
 
-   a.a*a.b AS bad_1  -- noqa: L006
+   a.a*a.b AS bad_1  -- noqa: LT01
 
 Multiple rules can be ignored by placing them in a comma-delimited list.
 
 .. code-block:: sql
 
-   a.a *  a.b AS bad_2,  -- noqa: LT03, L006
+   a.a *  a.b AS bad_2,  -- noqa: LT01, LT03
 
 It is also possible to ignore non-rule based errors, and instead opt to
 ignore templating (``TMP``) & parsing (``PRS``) errors.
