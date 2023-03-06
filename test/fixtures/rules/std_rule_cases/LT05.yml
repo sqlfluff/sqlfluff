@@ -71,7 +71,7 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     core:
       max_line_length: 80
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: true
 
 test_fail_line_too_long_only_comments:
@@ -96,7 +96,7 @@ test_pass_line_too_long_ignore_comments_true:
     core:
       max_line_length: 10
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: true
 
 test_pass_line_too_long_ignore_comments_false:
@@ -106,7 +106,7 @@ test_pass_line_too_long_ignore_comments_false:
     core:
       max_line_length: 10
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: false
 
 test_compute_line_length_before_template_expansion_1:
@@ -153,7 +153,7 @@ test_long_jinja_comment:
     core:
       max_line_length: 80
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: false
 
 
@@ -168,7 +168,7 @@ test_long_jinja_comment_ignore:
     core:
       max_line_length: 80
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: true
 
 
@@ -272,7 +272,7 @@ test_fail_ignore_comment_clauses_2:
     )
   configs:
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses:
@@ -284,7 +284,7 @@ test_pass_ignore_comment_clauses:
     )
   configs:
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_teradata:
@@ -294,7 +294,7 @@ test_pass_ignore_comment_clauses_teradata:
     core:
       dialect: teradata
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_exasol:
@@ -306,7 +306,7 @@ test_pass_ignore_comment_clauses_exasol:
     core:
       dialect: exasol
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_snowflake:
@@ -316,7 +316,7 @@ test_pass_ignore_comment_clauses_snowflake:
     core:
       dialect: snowflake
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_pass_ignore_comment_clauses_postgres:
@@ -331,7 +331,7 @@ test_pass_ignore_comment_clauses_postgres:
     core:
       dialect: postgres
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_clauses: true
 
 test_fail_templated_comment_line:
@@ -354,7 +354,7 @@ test_pass_ignore_templated_comment_lines:
     FROM table
   configs:
     rules:
-      LT05:
+      layout.long_lines:
         ignore_comment_lines: true
     templater:
       jinja:
