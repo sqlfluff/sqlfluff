@@ -729,7 +729,7 @@ class BaseRule(metaclass=RuleMetaclass):
         files more readable. For backward compatibility however we also support
         the rule code for those without names.
         """
-        return cls.code
+        return cls.name if cls.name else cls.code
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Evaluate this rule against the current context.
