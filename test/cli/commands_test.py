@@ -1038,6 +1038,28 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     assert result.output == stdout
 
 
+@pytest.mark.parametrize(
+    "stdin,stdout",
+    [
+        ("select * from t\n", "select * from t\n"),  # no change
+        (
+            "   select    *    FRoM     t    ",
+            "select * from t\n",
+        ),
+    ],
+)
+def test__cli__command_format_stdin(stdin, stdout):
+    """Check stdin input for fix works."""
+    result = invoke_assert_code(
+        args=[
+            cli_format,
+            ("-", "--disable-progress-bar", "--dialect=ansi"),
+        ],
+        cli_input=stdin,
+    )
+    assert result.output == stdout
+
+
 def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
     """Check that logging goes to stderr when stdin is passed to fix."""
     perfect_sql = "select col from table"
