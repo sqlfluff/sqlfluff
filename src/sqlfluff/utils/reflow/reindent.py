@@ -483,10 +483,12 @@ def _prune_untaken_indents(
     )
 
     # After stripping, we may have to add them back in.
+    # NOTE: all the values in the indent_stats are relative to the incoming
+    # indent, so we correct both of them here by using the incoming_balance.
     if indent_stats.impulse > indent_stats.trough and not has_newline:
         for i in range(indent_stats.trough, indent_stats.impulse):
             indent_val = incoming_balance + i + 1
-            if indent_val not in indent_stats.implicit_indents:
+            if indent_val - incoming_balance not in indent_stats.implicit_indents:
                 ui += (indent_val,)
 
     return ui
@@ -537,11 +539,15 @@ def _crawl_indent_points(
             # because files should always have a trailing IndentBlock containing
             # an "end_of_file" marker, and so the final IndentPoint should always
             # have _something_ after it.
+            reflow_logger.warning("Bal: %s", (indent_balance, untaken_indents))
             following_class_types = elements[idx + 1].class_types
+            ids = elem.get_indent_impulse(allow_implicit_indents, following_class_types)
+            reflow_logger.warning("Foo: %s", ids)
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
-                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
+                ids,
             )
+            reflow_logger.warning("Baz: %s", indent_stats)
 
             # Was there a cache?
             if cached_indent_stats:
@@ -1151,9 +1157,9 @@ def _lint_line_buffer_indents(
         imbalanced_indent_locs,
     )
     reflow_logger.debug(
-        "   Line Segments: %s",
+        "   Line Content: %s",
         [
-            elem.segments
+            repr(elem.raw)
             for elem in elements[
                 indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
             ]
