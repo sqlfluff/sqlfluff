@@ -539,15 +539,11 @@ def _crawl_indent_points(
             # because files should always have a trailing IndentBlock containing
             # an "end_of_file" marker, and so the final IndentPoint should always
             # have _something_ after it.
-            reflow_logger.warning("Bal: %s", (indent_balance, untaken_indents))
             following_class_types = elements[idx + 1].class_types
-            ids = elem.get_indent_impulse(allow_implicit_indents, following_class_types)
-            reflow_logger.warning("Foo: %s", ids)
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
-                ids,
+                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
             )
-            reflow_logger.warning("Baz: %s", indent_stats)
 
             # Was there a cache?
             if cached_indent_stats:
