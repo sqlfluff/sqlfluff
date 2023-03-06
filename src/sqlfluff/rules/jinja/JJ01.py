@@ -48,6 +48,7 @@ class Rule_JJ01(BaseRule):
     # sections.
     crawl_behaviour = SegmentSeekerCrawler({"raw"})
     targets_templated = True
+    is_fix_compatible = True
 
     @staticmethod
     def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:

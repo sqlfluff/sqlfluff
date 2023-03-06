@@ -28,6 +28,7 @@ from sqlfluff.cli.commands import (
     version,
     rules,
     fix,
+    cli_format,
     parse,
     dialects,
     get_config,
@@ -486,6 +487,32 @@ def test__cli__command_lint_parse(command):
                 "y",
             ),
             1,
+        ),
+        # Format
+        (
+            (
+                cli_format,
+                [
+                    "--fixed-suffix",
+                    "_fix",
+                    "test/fixtures/linter/whitespace_errors.sql",
+                ],
+            ),
+            0,
+        ),
+        # Format (specifying rules)
+        (
+            (
+                cli_format,
+                [
+                    "--rules",
+                    "LT01",
+                    "--fixed-suffix",
+                    "_fix",
+                    "test/fixtures/linter/whitespace_errors.sql",
+                ],
+            ),
+            2,
         ),
         # Template syntax error in macro file
         (
