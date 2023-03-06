@@ -44,14 +44,14 @@ test_pass_consistent_capitalisation_policy_pascal_1:
   pass_str: SELECT PascalCase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_2:
   pass_str: SELECT Pascalcase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_3:
@@ -59,21 +59,21 @@ test_pass_consistent_capitalisation_policy_pascal_3:
   fix_str: SELECT PascalCase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_4:
   pass_str: SELECT PasCalCaSe
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_5:
   pass_str: SELECT PAscalcase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_6:
@@ -84,7 +84,7 @@ test_pass_consistent_capitalisation_policy_pascal_6:
   pass_str: SELECT PASCALCASE
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_fail_inconsistent_capitalisation_policy_pascal_1:
@@ -92,7 +92,7 @@ test_fail_inconsistent_capitalisation_policy_pascal_1:
   fix_str: SELECT Pascalcase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_fail_inconsistent_capitalisation_policy_pascal_2:
@@ -100,7 +100,7 @@ test_fail_inconsistent_capitalisation_policy_pascal_2:
   fix_str: SELECT Pascal_Case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_fail_inconsistent_capitalisation_policy_pascal_3:
@@ -110,7 +110,7 @@ test_fail_inconsistent_capitalisation_policy_pascal_3:
   fix_str: SELECT PASCAL_CASE
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
 
 test_fail_inconsistent_capitalisation_policy_pascal_4:
@@ -118,7 +118,7 @@ test_fail_inconsistent_capitalisation_policy_pascal_4:
   fix_str: SELECT pascalcase
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: lower
 
 test_fail_consistent_capitalisation_policy_pascal_5:
@@ -126,7 +126,7 @@ test_fail_consistent_capitalisation_policy_pascal_5:
   fix_str: SELECT PASCALCASENAME
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: upper
 
 test_fail_inconsistent_capitalisation_pascal_v_capitalise:
@@ -138,14 +138,14 @@ test_pass_policy_unquoted_identifiers_aliases_1:
   pass_str: SELECT a,   B
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_pass_policy_unquoted_identifiers_aliases_2:
   pass_str: SELECT B,   a
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_pass_policy_unquoted_identifiers_aliases_3:
@@ -154,7 +154,7 @@ test_pass_policy_unquoted_identifiers_aliases_3:
   pass_str: SELECT PASCAL_CASE
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: pascal
         unquoted_identifiers_policy: aliases
 
@@ -162,7 +162,7 @@ test_pass_policy_unquoted_identifiers_aliases_4:
   pass_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_policy_unquoted_identifiers_aliases_5:
@@ -170,7 +170,7 @@ test_policy_unquoted_identifiers_aliases_5:
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_policy_unquoted_identifiers_aliases_6:
@@ -178,7 +178,7 @@ test_policy_unquoted_identifiers_aliases_6:
   fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         extended_capitalisation_policy: upper
         unquoted_identifiers_policy: aliases
 
@@ -187,7 +187,7 @@ test_policy_unquoted_identifiers_aliases_7:
   fix_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case FROM UPPER_CASE AS upper_case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_policy_unquoted_identifiers_aliases_8:
@@ -195,14 +195,14 @@ test_policy_unquoted_identifiers_aliases_8:
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case FROM lower_case AS Lower_Case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: aliases
 
 test_policy_unquoted_identifiers_column_aliases_1:
   pass_str: SELECT UPPER_CASE AS low_case, PascalCase AS low_case FROM UPPER_CASE AS UPPER_CASE
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: column_aliases
 
 test_policy_unquoted_identifiers_aliases_2:
@@ -210,14 +210,14 @@ test_policy_unquoted_identifiers_aliases_2:
   fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case FROM lower_case AS lower_case
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         unquoted_identifiers_policy: column_aliases
 
 test_pass_ignore_word:
   pass_str: SELECT A, b
   configs:
     rules:
-      CP02:
+      capitalisation.identifiers:
         capitalisation_policy: upper
         ignore_words: b
 

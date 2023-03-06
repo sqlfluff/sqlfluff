@@ -14,14 +14,14 @@ line_position = leading
 [sqlfluff:indentation]
 tab_space_size = 2
 
-[sqlfluff:rules:CP01]  # Keywords
+[sqlfluff:rules:capitalisation.keywords]  # Keywords
 capitalisation_policy = upper
 
 [sqlfluff:rules:AL03]  # Column expressions
 allow_scalar = False
 
-[sqlfluff:rules:CP02]  # Unquoted identifiers
+[sqlfluff:rules:capitalisation.identifiers]  # Unquoted identifiers
 extended_capitalisation_policy = lower
 
-[sqlfluff:rules:CP03]  # Function names
+[sqlfluff:rules:capitalisation.functions]  # Function names
 extended_capitalisation_policy = lower

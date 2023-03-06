@@ -8,5 +8,5 @@ test_pass_ignore_word:
   pass_str: SELECT true, FALSE, NULL
   configs:
     rules:
-      CP04:
+      capitalisation.literals:
         ignore_words: true
