@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
@@ -34,6 +35,12 @@ config_b = {
     "layout": {
         "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
     },
+}
+
+config_c = {
+    "core": {"rules": "LT03", "dialect": "ansi"},
+    # NOTE: L001 is an alias, but no longer a rule.
+    "rules": {"NOT_A_RULE": {"foo": "bar"}, "L001": {"foo": "bar"}},
 }
 
 
@@ -453,3 +460,22 @@ def test__config__validate_configs_precedence_same_file():
     assert len(res) == 1
     # Check that the old key isn't there.
     assert not any(k == old_key for k, _ in res)
+
+
+def test__config__warn_unknown_rule(caplog):
+    """Test warnings when rules are unknown."""
+    lntr = Linter(config=FluffConfig(config_c))
+    # Fetch rules to trigger checks:
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
+        lntr.get_rulepack()
+
+    # Check we get a warning on the unrecognised rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'NOT_A_RULE'."
+    ) in caplog.text
+    # Check we get a warning for the deprecated rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'L001'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule.
+    assert "match for rule LT01 with name 'layout.spacing'" in caplog.text
