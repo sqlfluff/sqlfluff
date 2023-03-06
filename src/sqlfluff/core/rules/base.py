@@ -687,8 +687,8 @@ class BaseRule(metaclass=RuleMetaclass):
     # NOTE: code and description are provided here as hints, but should not
     # be set directly. They are set automatically by the metaclass based on
     # the class _name_ when defined.
-    code: str = ""
-    description: str = ""
+    code: str
+    description: str
 
     # Should we document this rule as fixable? Used by the metaclass to add
     # a line to the docstring.
@@ -1328,7 +1328,10 @@ class RuleSet:
         }
         # Check collisions.
         name_collisions = set(name_map.keys()) & valid_codes
-        if name_collisions:
+        if name_collisions:  # pragma: no cover
+            # NOTE: This clause is untested, because it's quite hard to actually
+            # have a valid name which replicates a valid code. The name validation
+            # will probably catch it first.
             rules_logger.warning(
                 "The following defined rule names were found which collide "
                 "with codes. Those names will not be available for selection: %s",
