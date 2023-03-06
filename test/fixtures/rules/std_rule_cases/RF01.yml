@@ -8,7 +8,7 @@ test_pass_object_referenced_1:
     core:
       dialect: bigquery
     rules:
-      RF01:
+      references.from:
         force_enable: true
 
 test_fail_object_not_referenced_1:
@@ -19,7 +19,7 @@ test_fail_object_not_referenced_1:
     core:
       dialect: bigquery
     rules:
-      RF01:
+      references.from:
         force_enable: true
 
 test_fail_object_not_referenced_2:
@@ -47,7 +47,7 @@ test_pass_object_referenced_4:
     core:
       dialect: bigquery
     rules:
-      RF01:
+      references.from:
         force_enable: true
 
 test_pass_object_referenced_5a:
@@ -78,7 +78,7 @@ test_pass_object_referenced_5c:
     core:
       dialect: bigquery
     rules:
-      RF01:
+      references.from:
         force_enable: true
 
 test_pass_object_referenced_5d:
@@ -179,7 +179,7 @@ test_pass_bigquery_dash:
     core:
       dialect: bigquery
     rules:
-      RF01:
+      references.from:
         force_enable: true
 
 test_pass_exasol_select_into:

@@ -85,7 +85,7 @@ test_pass_special_chars_create_table_space_allowed:
     )
   configs:
     rules:
-      RF05:
+      references.special_chars:
         allow_space_in_identifier: true
 
 test_fail_special_chars_quoted_policy_alias:
@@ -94,7 +94,7 @@ test_fail_special_chars_quoted_policy_alias:
     FROM DBO.ColumnNames as "alias with space"
   configs:
     rules:
-      RF05:
+      references.special_chars:
         quoted_identifiers_policy: aliases
 
 test_fail_special_chars_quoted_policy_column_alias:
@@ -103,7 +103,7 @@ test_fail_special_chars_quoted_policy_column_alias:
     FROM DBO.ColumnNames
   configs:
     rules:
-      RF05:
+      references.special_chars:
         quoted_identifiers_policy: column_aliases
 
 test_fail_special_chars_unquoted_policy_aliases:
@@ -112,7 +112,7 @@ test_fail_special_chars_unquoted_policy_aliases:
     FROM DBO.ColumnNames as aliashash#
   configs:
     rules:
-      RF05:
+      references.special_chars:
         unquoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -123,7 +123,7 @@ test_fail_special_chars_unquoted_policy_column_aliases:
     FROM DBO.ColumnNames
   configs:
     rules:
-      RF05:
+      references.special_chars:
         unquoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
@@ -134,7 +134,7 @@ test_pass_special_chars_quoted_policy_aliases:
     FROM DBO.ColumnNames
   configs:
     rules:
-      RF05:
+      references.special_chars:
         quoted_identifiers_policy: aliases
 
 test_pass_special_chars_quoted_policy_none:
@@ -143,7 +143,7 @@ test_pass_special_chars_quoted_policy_none:
     FROM DBO.ColumnNames
   configs:
     rules:
-      RF05:
+      references.special_chars:
         quoted_identifiers_policy: none
 
 test_pass_special_chars_unquoted_policy_aliases:
@@ -152,7 +152,7 @@ test_pass_special_chars_unquoted_policy_aliases:
     FROM DBO.ColumnNames
   configs:
     rules:
-      RF05:
+      references.special_chars:
         unquoted_identifiers_policy: aliases
     core:
       dialect: tsql
@@ -163,7 +163,7 @@ test_pass_special_chars_unquoted_policy_column_aliases:
     FROM DBO.ColumnNames as AliasHash#
   configs:
     rules:
-      RF05:
+      references.special_chars:
         unquoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
@@ -174,7 +174,7 @@ test_pass_special_chars_quoted_policy_column_aliases:
     FROM DBO.ColumnNames as "alias with space"
   configs:
     rules:
-      RF05:
+      references.special_chars:
         quoted_identifiers_policy: column_aliases
 
 test_pass_dots_bigquery:
@@ -221,7 +221,7 @@ test_pass_hyphen_bigquery_quotes_2:
     core:
       dialect: bigquery
     rules:
-      RF05:
+      references.special_chars:
         additional_allowed_characters: '+'
 
 test_pass_hyphen_bigquery_no_quotes:
@@ -241,7 +241,7 @@ test_pass_dot_bigquery:
     core:
       dialect: bigquery
     rules:
-      RF05:
+      references.special_chars:
         additional_allowed_characters: '-.'
 
 test_fail_single_quote_bigquery:
@@ -252,7 +252,7 @@ test_fail_single_quote_bigquery:
     core:
       dialect: bigquery
     rules:
-      RF05:
+      references.special_chars:
         additional_allowed_characters: '-.'
 
 test_pass_single_quote_bigquery:
@@ -263,7 +263,7 @@ test_pass_single_quote_bigquery:
     core:
       dialect: bigquery
     rules:
-      RF05:
+      references.special_chars:
         additional_allowed_characters: '-''.'
 
 test_pass_single_quote2_bigquery:
@@ -274,7 +274,7 @@ test_pass_single_quote2_bigquery:
     core:
       dialect: bigquery
     rules:
-      RF05:
+      references.special_chars:
         additional_allowed_characters: "-'."
 
 test_pass_dot_slash_identifier_in_file_reference_sparksql:
@@ -346,7 +346,7 @@ test_pass_ignore_lists_quoted:
     SELECT a as 'aliashash#'
   configs:
     rules:
-      RF05:
+      references.special_chars:
         ignore_words: aliashash#
 
 test_pass_ignore_lists_quoted_fail:
@@ -358,7 +358,7 @@ test_pass_ignore_lists_quoted_mixed_case:
     SELECT a as 'aliasHash#'
   configs:
     rules:
-      RF05:
+      references.special_chars:
         ignore_words: aliashash#
 
 test_pass_ignore_lists_unquoted:
@@ -368,7 +368,7 @@ test_pass_ignore_lists_unquoted:
     core:
       dialect: postgres
     rules:
-      RF05:
+      references.special_chars:
         ignore_words: alias$
 
 test_pass_ignore_lists_unquoted_fail:
@@ -385,7 +385,7 @@ test_pass_ignore_lists_unquoted_mixed_case:
     core:
       dialect: postgres
     rules:
-      RF05:
+      references.special_chars:
         ignore_words: alias$
 
 test_pass_ignore_words_regex_unquoted:
@@ -395,7 +395,7 @@ test_pass_ignore_words_regex_unquoted:
     core:
       dialect: postgres
     rules:
-      RF05:
+      references.special_chars:
         ignore_words_regex: lias\$$
 
 test_pass_ignore_words_regex_quoted:
@@ -403,7 +403,7 @@ test_pass_ignore_words_regex_quoted:
     SELECT a as 'aliashash#'
   configs:
     rules:
-      RF05:
+      references.special_chars:
         ignore_words_regex: hash#$
 
 test_fail_ignore_words_regex_quoted_mixed_case:
@@ -411,7 +411,7 @@ test_fail_ignore_words_regex_quoted_mixed_case:
     SELECT a as 'aliasHash#'
   configs:
     rules:
-      RF05:
+      references.special_chars:
         ignore_words_regex: hash#$
 
 test_pass_special_chars_show_tblproperties:

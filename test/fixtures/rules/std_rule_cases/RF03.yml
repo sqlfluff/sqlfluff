@@ -39,7 +39,7 @@ test_fail_single_table_reference_when_unqualified_config:
   fix_str: SELECT bar FROM my_tbl
   configs:
     rules:
-      RF03:
+      references.consistent:
         single_table_references: unqualified
 
 test_fail_single_table_reference_when_qualified_config:
@@ -47,7 +47,7 @@ test_fail_single_table_reference_when_qualified_config:
   fix_str: SELECT my_tbl.bar FROM my_tbl WHERE my_tbl.foo
   configs:
     rules:
-      RF03:
+      references.consistent:
         single_table_references: qualified
 
 test_pass_single_table_reference_in_subquery:
@@ -69,7 +69,7 @@ test_value_table_functions_do_not_require_qualification:
     core:
       dialect: bigquery
     rules:
-      RF03:
+      references.consistent:
         force_enable: true
 
 test_object_references_1a:
@@ -94,7 +94,7 @@ test_object_references_1c:
     core:
       dialect: bigquery
     rules:
-      RF03:
+      references.consistent:
         force_enable: true
         single_table_references: qualified
 
@@ -105,7 +105,7 @@ test_object_references_1d:
     core:
       dialect: bigquery
     rules:
-      RF03:
+      references.consistent:
         force_enable: true
 
 test_object_references_1e:
@@ -114,7 +114,7 @@ test_object_references_1e:
     core:
       dialect: bigquery
     rules:
-      RF03:
+      references.consistent:
         force_enable: true
 
 test_object_references_struct_inconsistent_fix_a:
@@ -124,7 +124,7 @@ test_object_references_struct_inconsistent_fix_a:
     core:
       dialect: bigquery
     rules:
-      RF03:
+      references.consistent:
         force_enable: true
 
 test_object_references_1f:
@@ -236,7 +236,7 @@ test_fail_select_alias_in_where_clause_5:
     where alias_col1 > 5
   configs:
     rules:
-      RF03:
+      references.consistent:
         single_table_references: unqualified
 
 test_pass_tsql_parameter:
@@ -300,7 +300,7 @@ passes_tql_table_variable:
     core:
       dialect: tsql
     rules:
-      RF03:
+      references.consistent:
         single_table_references: qualified
 
 fail_but_dont_fix_templated_table_name_consistent:
@@ -318,5 +318,5 @@ fail_but_dont_fix_templated_table_name_qualified:
     FROM {{ "foo" }}
   configs:
     rules:
-      RF03:
+      references.consistent:
         single_table_references: qualified
