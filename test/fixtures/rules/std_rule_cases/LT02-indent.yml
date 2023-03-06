@@ -1736,3 +1736,34 @@ test_fail_mixed_tabs_and_spaces:
   # NOTE: This used to be L002 (rather than L003)
   fail_str: "SELECT\n \t 1"
   fix_str: "SELECT\n    1"
+
+test_fix_implicit_indents_4467_a:
+  # https://github.com/sqlfluff/sqlfluff/issues/4467
+  fail_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+      ON d.a = l.a
+        AND d.b = l.b
+  fix_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+        ON d.a = l.a
+            AND d.b = l.b
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_fix_implicit_indents_4467_b:
+  # https://github.com/sqlfluff/sqlfluff/issues/4467
+  pass_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+      ON d.a = l.a
+        AND d.b = l.b
+  configs:
+    indentation:
+      allow_implicit_indents: true
+      tab_space_size: 2

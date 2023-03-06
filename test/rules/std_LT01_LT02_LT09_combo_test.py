@@ -32,5 +32,5 @@ WITH example AS (
 
 SELECT my_id
 FROM example\n"""
-    result = sqlfluff.fix(sql, exclude_rules=["L050"])
+    result = sqlfluff.fix(sql, exclude_rules=["LT13"])
     assert result == fixed_sql

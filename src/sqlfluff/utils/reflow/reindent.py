@@ -483,10 +483,12 @@ def _prune_untaken_indents(
     )
 
     # After stripping, we may have to add them back in.
+    # NOTE: all the values in the indent_stats are relative to the incoming
+    # indent, so we correct both of them here by using the incoming_balance.
     if indent_stats.impulse > indent_stats.trough and not has_newline:
         for i in range(indent_stats.trough, indent_stats.impulse):
             indent_val = incoming_balance + i + 1
-            if indent_val not in indent_stats.implicit_indents:
+            if indent_val - incoming_balance not in indent_stats.implicit_indents:
                 ui += (indent_val,)
 
     return ui
@@ -1151,9 +1153,9 @@ def _lint_line_buffer_indents(
         imbalanced_indent_locs,
     )
     reflow_logger.debug(
-        "   Line Segments: %s",
+        "   Line Content: %s",
         [
-            elem.segments
+            repr(elem.raw)
             for elem in elements[
                 indent_line.indent_points[0].idx : indent_line.indent_points[-1].idx
             ]

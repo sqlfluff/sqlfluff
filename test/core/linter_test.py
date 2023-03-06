@@ -881,7 +881,7 @@ def test_linter_noqa_tmp():
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "exclude_rules": "L050",
+                "exclude_rules": "LT13",
                 "dialect": "ansi",
             }
         )
