@@ -320,3 +320,18 @@ test_violation_locations:
       line_no: 8
       line_pos: 16
       name: aliasing.forbid
+
+test_fail_avoid_aliases_2:
+  # Test originally from commands_test.py
+  fail_str: |
+    SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id)
+    FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o
+    on u.id = o.user_id;
+  fix_str: |
+    SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id)
+    FROM users JOIN customers on users.id = customers.user_id JOIN orders on
+    users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
