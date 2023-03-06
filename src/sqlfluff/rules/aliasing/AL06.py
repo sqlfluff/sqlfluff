@@ -25,7 +25,7 @@ class Rule_AL06(BaseRule):
 
     Avoid aliases. Avoid short aliases when aliases are necessary.
 
-    See also: AL07.
+    See also: :class:`Rule_AL07`.
 
     .. code-block:: sql
 

@@ -27,18 +27,18 @@ class Rule_AL07(BaseRule):
        <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_
        which notes that:
 
-       > Avoid table aliases in join conditions (especially initialisms) - it's
-       > harder to understand what the table called "c" is compared to "customers".
+        Avoid table aliases in join conditions (especially initialisms) - it's
+        harder to understand what the table called "c" is compared to "customers".
 
        This rule is controversial and for many larger databases avoiding alias is
        neither realistic nor desirable. In particular for BigQuery due to the
        complexity of backtick requirements and determining whether a name refers
-       to a project or dataset, and automated fixes can potentially break working
-       SQL code. For most users :ref:`Rule_AL06` is likely a more appropriate
+       to a project or dataset so automated fixes can potentially break working
+       SQL code. For most users :class:`Rule_AL06` is likely a more appropriate
        linting rule to drive a sensible behaviour around aliasing.
 
        The stricter treatment of aliases in this rule may be useful for more
-       focussed projects, or temporarily as a refactoring tool as the
+       focussed projects, or temporarily as a refactoring tool because the
        :code:`fix` routine of the rule can remove aliases.
 
        This rule is disabled by default for all dialects it can be enabled with
