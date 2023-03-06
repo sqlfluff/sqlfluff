@@ -499,7 +499,7 @@ class RuleMetaclass(type):
         flags=re.MULTILINE,
     )
     _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
-    _valid_rule_name_regex = regex.compile(r"[a-z\.\_]+")
+    _valid_rule_name_regex = regex.compile(r"[a-z][a-z\.\_]+")
 
     def _populate_code_and_description(mcs, name, class_dict):
         """Extract and validate the rule code & description.
