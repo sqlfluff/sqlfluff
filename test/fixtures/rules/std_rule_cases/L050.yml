@@ -1,4 +1,4 @@
-rule: L050
+rule: LT13
 
 test_pass_leading_whitespace_statement:
   pass_str: "SELECT foo FROM bar\n"

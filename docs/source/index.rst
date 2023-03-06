@@ -53,7 +53,7 @@ have python or pip already installed see :ref:`gettingstartedref`.
     $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | L050 | Files must not begin with newlines or whitespace.
+    L:   1 | P:   1 | LT13 | Files must not begin with newlines or whitespace.
     L:   1 | P:   3 | LT02 | First line has unexpected indent
     L:   1 | P:  11 | LT01 | Unnecessary whitespace found.
     L:   1 | P:  14 | LT01 | Unnecessary whitespace found.

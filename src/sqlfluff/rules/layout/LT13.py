@@ -1,4 +1,4 @@
-"""Implementation of Rule L050."""
+"""Implementation of Rule LT13."""
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -6,7 +6,7 @@ from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp, rsp
 
 
-class Rule_L050(BaseRule):
+class Rule_LT13(BaseRule):
     """Files must not begin with newlines or whitespace.
 
     **Anti-pattern**
@@ -63,7 +63,9 @@ class Rule_L050(BaseRule):
             foo
     """
 
-    groups = ("all",)
+    name = "layout.start-of-file"
+    aliases = ("L050",)
+    groups = ("all", "layout")
     targets_templated = True
     # Use the RootOnlyCrawler to only call _eval() ONCE, with the root segment.
     crawl_behaviour = RootOnlyCrawler()
