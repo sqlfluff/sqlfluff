@@ -612,6 +612,18 @@ class RuleMetaclass(type):
 
     def __new__(mcs, name, bases, class_dict):
         """Generate a new class."""
+        # Optionally, groups may be inherited. At this stage of initialisation
+        # they won't have been. Check parent classes if they exist.
+        # names, aliases and description are less appropriate to inherit.
+        # NOTE: This applies in particular to CP02, which inherits all groups
+        # from CP01. If we don't do this, those groups don't show in the docs.
+        for base in reversed(bases):
+            if "groups" in class_dict:
+                break
+            elif base.groups:
+                class_dict["groups"] = base.groups
+                break
+
         class_dict = mcs._populate_docstring(mcs, name, class_dict)
         # Don't try and infer code and description for the base class
         if bases:
