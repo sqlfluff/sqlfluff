@@ -5,6 +5,7 @@ import logging
 from sqlfluff.core import Linter
 from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
@@ -150,8 +151,8 @@ def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
 
         # NB: "fake_other" is the name of another rule.
         groups = ("all", "foo", "fake_other")
-        # No aliases, Name collides with the code of another rule.
-        name = "T011"
+        # No aliases, Name collides with the alias of another rule.
+        name = "fake_again"
         aliases = ()
 
     cfg = FluffConfig(
@@ -198,17 +199,17 @@ def test__rules__runaway_fail_catch():
 def test_rules_cannot_be_instantiated_without_declared_configs():
     """Ensure that new rules must be instantiated with config values."""
 
-    class NewRule(BaseRule):
+    class Rule_NewRule_ZZ99(BaseRule):
         """Testing Rule."""
 
         config_keywords = ["tab_space_size"]
 
-    new_rule = NewRule(code="L000", description="", tab_space_size=6)
+    new_rule = Rule_NewRule_ZZ99(code="L000", description="", tab_space_size=6)
     assert new_rule.tab_space_size == 6
     # Error is thrown since "tab_space_size" is defined in class,
     # but not upon instantiation
     with pytest.raises(ValueError):
-        new_rule = NewRule(code="L000", description="")
+        new_rule = Rule_NewRule_ZZ99(code="L000", description="")
 
 
 def test_rules_legacy_doc_decorators(caplog):
@@ -218,8 +219,8 @@ def test_rules_legacy_doc_decorators(caplog):
     # As at 2023-02-21. This test passes on windows without stashing
     # but is otherwise failing on linux.
     fluff_logger = logging.getLogger("sqlfluff")
-    # Stash the current propogation.
-    propogate = fluff_logger.propagate
+    # Stash the current propagation.
+    propagate = fluff_logger.propagate
     # Set to true
     fluff_logger.propagate = True
 
@@ -229,17 +230,17 @@ def test_rules_legacy_doc_decorators(caplog):
             @document_fix_compatible
             @document_groups
             @document_configuration
-            class NewRule(BaseRule):
+            class Rule_NewRule_ZZ99(BaseRule):
                 """Untouched Text."""
 
                 pass
 
-    # Regardless of success - restore the propogate setting.
+    # Regardless of success - restore the propagate setting.
     finally:
-        fluff_logger.propagate = propogate
+        fluff_logger.propagate = propagate
 
     # Check they didn't do anything to the docstring.
-    assert NewRule.__doc__ == """Untouched Text."""
+    assert Rule_NewRule_ZZ99.__doc__ == """Untouched Text."""
     # Check there are warnings.
     print("Records:")
     for record in caplog.records:
@@ -252,21 +253,34 @@ def test_rules_legacy_doc_decorators(caplog):
 def test_rules_configs_are_dynamically_documented():
     """Ensure that rule configurations are added to the class docstring."""
 
-    class RuleWithConfig(BaseRule):
+    class RuleWithConfig_ZZ99(BaseRule):
         """A new rule with configuration."""
 
         config_keywords = ["unquoted_identifiers_policy"]
 
-    print(f"RuleWithConfig.__doc__: {RuleWithConfig.__doc__!r}")
-    assert "unquoted_identifiers_policy" in RuleWithConfig.__doc__
+    print(f"RuleWithConfig_ZZ99.__doc__: {RuleWithConfig_ZZ99.__doc__!r}")
+    assert "unquoted_identifiers_policy" in RuleWithConfig_ZZ99.__doc__
 
-    class RuleWithoutConfig(BaseRule):
+    class RuleWithoutConfig_ZZ99(BaseRule):
         """A new rule without configuration."""
 
         pass
 
-    print(f"RuleWithoutConfig.__doc__: {RuleWithoutConfig.__doc__!r}")
-    assert "Configuration" not in RuleWithoutConfig.__doc__
+    print(f"RuleWithoutConfig_ZZ99.__doc__: {RuleWithoutConfig_ZZ99.__doc__!r}")
+    assert "Configuration" not in RuleWithoutConfig_ZZ99.__doc__
+
+
+def test_rules_name_validation():
+    """Ensure that rule names are validated."""
+    with pytest.raises(SQLFluffUserError) as exc_info:
+
+        class RuleWithoutBadName_ZZ99(BaseRule):
+            """A new rule without configuration."""
+
+            name = "MY-KEBAB-CASE-NAME"
+
+    assert "Tried to define rule with unexpected name" in exc_info.value.args[0]
+    assert "MY-KEBAB-CASE-NAME" in exc_info.value.args[0]
 
 
 def test_rule_exception_is_caught_to_validation():

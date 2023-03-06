@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
@@ -33,6 +34,19 @@ config_b = {
     "core": {"rules": "LT03", "dialect": "ansi"},
     "layout": {
         "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
+    },
+}
+
+config_c = {
+    "core": {"rules": "LT03", "dialect": "ansi"},
+    # NOTE:
+    # - NOT_A_RULE doesn't match anything.
+    # - L001 is an alias, but no longer a rule.
+    # - layout is a group and but doesn't match any individual rule.
+    "rules": {
+        "NOT_A_RULE": {"foo": "bar"},
+        "L001": {"foo": "bar"},
+        "layout": {"foo": "bar"},
     },
 }
 
@@ -453,3 +467,45 @@ def test__config__validate_configs_precedence_same_file():
     assert len(res) == 1
     # Check that the old key isn't there.
     assert not any(k == old_key for k, _ in res)
+
+
+def test__config__warn_unknown_rule(caplog):
+    """Test warnings when rules are unknown."""
+    lntr = Linter(config=FluffConfig(config_c))
+    # NOTE: There is something strange with cross platform logging.
+    # To get around that, we briefly patch the logging propagation.
+    # As at 2023-02-21. This test passes on windows without stashing
+    # but is otherwise failing on linux.
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Stash the current propagation.
+    propagate = fluff_logger.propagate
+    # Set to true
+    fluff_logger.propagate = True
+
+    try:
+        # Fetch rules to trigger checks:
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
+            lntr.get_rulepack()
+    # Regardless of success - restore the propagate setting.
+    finally:
+        fluff_logger.propagate = propagate
+
+    # Check we get a warning on the unrecognised rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'NOT_A_RULE'."
+    ) in caplog.text
+    # Check we get a warning for the deprecated rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'L001'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule.
+    assert "match for rule LT01 with name 'layout.spacing'" in caplog.text
+    # Check we get a warning for the group name.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'layout'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule group.
+    # NOTE: We don't check the set explicitly because we can't assume ordering.
+    assert ("The reference was found as a match for multiple rules: {") in caplog.text
+    assert ("LT01") in caplog.text
+    assert ("LT02") in caplog.text
