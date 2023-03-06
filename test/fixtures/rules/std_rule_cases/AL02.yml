@@ -23,7 +23,7 @@ test_fail_explicit_column_explicit:
   fix_str: select 1 AS bar from table1 b
   configs:
     rules:
-      AL02:
+      aliasing.column:
         aliasing: explicit
 
 test_fail_explicit_column_implicit:
@@ -32,7 +32,7 @@ test_fail_explicit_column_implicit:
   fix_str: select 1 bar from table1 b
   configs:
     rules:
-      AL02:
+      aliasing.column:
         aliasing: implicit
 
 test_pass_tsql_alternative_alias:
