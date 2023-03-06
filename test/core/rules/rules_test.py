@@ -218,8 +218,8 @@ def test_rules_legacy_doc_decorators(caplog):
     # As at 2023-02-21. This test passes on windows without stashing
     # but is otherwise failing on linux.
     fluff_logger = logging.getLogger("sqlfluff")
-    # Stash the current propogation.
-    propogate = fluff_logger.propagate
+    # Stash the current propagation.
+    propagate = fluff_logger.propagate
     # Set to true
     fluff_logger.propagate = True
 
@@ -234,9 +234,9 @@ def test_rules_legacy_doc_decorators(caplog):
 
                 pass
 
-    # Regardless of success - restore the propogate setting.
+    # Regardless of success - restore the propagate setting.
     finally:
-        fluff_logger.propagate = propogate
+        fluff_logger.propagate = propagate
 
     # Check they didn't do anything to the docstring.
     assert Rule_NewRule_ZZ99.__doc__ == """Untouched Text."""
