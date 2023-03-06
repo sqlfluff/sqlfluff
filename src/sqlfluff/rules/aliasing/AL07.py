@@ -38,7 +38,7 @@ class Rule_AL07(BaseRule):
        linting rule to drive a sensible behaviour around aliasing.
 
        The stricter treatment of aliases in this rule may be useful for more
-       focussed projects, or temporarily as a refactoring tool because the
+       focused projects, or temporarily as a refactoring tool because the
        :code:`fix` routine of the rule can remove aliases.
 
        This rule is disabled by default for all dialects it can be enabled with
