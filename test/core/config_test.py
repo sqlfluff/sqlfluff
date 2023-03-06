@@ -506,12 +506,6 @@ def test__config__warn_unknown_rule(caplog):
     ) in caplog.text
     # Check we get a hint for the matched rule group.
     # NOTE: We don't check the set explicitly because we can't assume ordering.
-    assert (
-        "The reference was found as a match for multiple rules: {"
-    ) in caplog.text
-    assert (
-        "LT01"
-    ) in caplog.text 
-    assert (
-        "LT02"
-    ) in caplog.text 
+    assert ("The reference was found as a match for multiple rules: {") in caplog.text
+    assert ("LT01") in caplog.text
+    assert ("LT02") in caplog.text
