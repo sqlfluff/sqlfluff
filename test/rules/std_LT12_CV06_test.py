@@ -10,7 +10,10 @@ def test__rules__std_LT12_and_CV06_interaction() -> None:
 
     # Ensure final semicolon requirement is active.
     cfg = FluffConfig(overrides={"dialect": "ansi"})
-    cfg.set_value(config_path=["rules", "CV06", "require_final_semicolon"], val=True)
+    cfg.set_value(
+        config_path=["rules", "convention.terminator", "require_final_semicolon"],
+        val=True,
+    )
     linter = Linter(config=cfg)
 
     # Return linted/fixed file.

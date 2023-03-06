@@ -53,7 +53,7 @@ test_pass_column_reference_prefer_quoted_ansi:
     SELECT 123 AS "foo";
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_column_reference_prefer_quoted_ansi:
@@ -61,7 +61,7 @@ test_fail_column_reference_prefer_quoted_ansi:
     SELECT 123 AS foo;
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_table_reference_prefer_quoted_ansi:
@@ -70,7 +70,7 @@ test_pass_table_reference_prefer_quoted_ansi:
     FROM "bar";
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_table_reference_prefer_quoted_ansi:
@@ -79,7 +79,7 @@ test_fail_table_reference_prefer_quoted_ansi:
     FROM bar;
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_multiple_references_prefer_quoted_ansi:
@@ -88,7 +88,7 @@ test_pass_multiple_references_prefer_quoted_ansi:
     FROM "bar"."baz";
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_multiple_references_prefer_quoted_ansi:
@@ -97,7 +97,7 @@ test_fail_multiple_references_prefer_quoted_ansi:
     FROM bar.baz;
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_whitespace_prefer_quoted_ansi:
@@ -105,7 +105,7 @@ test_pass_whitespace_prefer_quoted_ansi:
     SELECT 123 AS "I cannot be unquoted"
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_special_symbols_prefer_quoted_ansi:
@@ -113,7 +113,7 @@ test_pass_special_symbols_prefer_quoted_ansi:
     SELECT 123 AS "I-c@nn0t-be~un-quoted"
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_reserved_keyword_prefer_quoted_ansi:
@@ -121,7 +121,7 @@ test_pass_reserved_keyword_prefer_quoted_ansi:
     SELECT 123 AS "SELECT"
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_column_reference_prefer_quoted_backticks:
@@ -131,7 +131,7 @@ test_pass_column_reference_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_column_reference_prefer_quoted_backticks:
@@ -141,7 +141,7 @@ test_fail_column_reference_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_table_reference_prefer_quoted_backticks:
@@ -152,7 +152,7 @@ test_pass_table_reference_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_table_reference_prefer_quoted_backticks:
@@ -163,7 +163,7 @@ test_fail_table_reference_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_multiple_references_prefer_quoted_backticks:
@@ -174,7 +174,7 @@ test_pass_multiple_references_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_multiple_references_prefer_quoted_backticks:
@@ -185,7 +185,7 @@ test_fail_multiple_references_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_whitespace_prefer_quoted_backticks:
@@ -195,7 +195,7 @@ test_pass_whitespace_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_special_symbols_prefer_quoted_backticks:
@@ -205,7 +205,7 @@ test_pass_special_symbols_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_reserved_keyword_prefer_quoted_backticks:
@@ -215,7 +215,7 @@ test_pass_reserved_keyword_prefer_quoted_backticks:
     core:
       dialect: bigquery
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_pass_datetime_redshift:
@@ -267,7 +267,7 @@ test_pass_ignore_lists:
     SELECT 123 AS "foo";
   configs:
     rules:
-      RF06:
+      references.quoting:
         ignore_words: foo
 
 test_pass_ignore_lists_mixed_case:
@@ -275,7 +275,7 @@ test_pass_ignore_lists_mixed_case:
     SELECT 123 AS "Foo";
   configs:
     rules:
-      RF06:
+      references.quoting:
         ignore_words: foo
 
 test_pass_ignore_words_regex:
@@ -283,7 +283,7 @@ test_pass_ignore_words_regex:
     SELECT 123 AS "foo";
   configs:
     rules:
-      RF06:
+      references.quoting:
         ignore_words_regex: ^fo
 
 test_pass_ignore_words_regex_mixed_case:
@@ -291,7 +291,7 @@ test_pass_ignore_words_regex_mixed_case:
     SELECT 123 AS "Foo";
   configs:
     rules:
-      RF06:
+      references.quoting:
         ignore_words_regex: ^Fo
 
 test_pass_ignore_if:
@@ -299,7 +299,7 @@ test_pass_ignore_if:
     DROP TABLE IF EXISTS "example";
   configs:
     rules:
-      RF06:
+      references.quoting:
         prefer_quoted_identifiers: true
 
 test_fail_insert_overwrite_directory:
@@ -355,7 +355,7 @@ test_fail_quoted_column_snowflake_force_enable:
     core:
       dialect: snowflake
     rules:
-      RF06:
+      references.quoting:
         force_enable: true
 
 test_pass_quoted_column_postgres:
@@ -378,5 +378,5 @@ test_fail_quoted_column_postgres_force_enable:
     core:
       dialect: postgres
     rules:
-      RF06:
+      references.quoting:
         force_enable: true

@@ -135,7 +135,7 @@ A few common examples are shown below:
     -- sqlfluff:indentation:tab_space_size:2
 
     -- Set keywords to be capitalised
-    -- sqlfluff:rules:CP01:capitalisation_policy:upper
+    -- sqlfluff:rules:capitalisation.keywords:capitalisation_policy:upper
 
     SELECT *
     FROM a
@@ -171,7 +171,7 @@ For example, enforce that keywords are upper case by configuring the rule
 
 .. code-block:: cfg
 
-    [sqlfluff:rules:CP01]
+    [sqlfluff:rules:capitalisation.keywords]
     # Keywords
     capitalisation_policy = upper
 

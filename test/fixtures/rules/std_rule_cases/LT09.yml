@@ -12,7 +12,7 @@ test_single_wildcard_select_target_and_no_newline_between_select_and_select_targ
     from x
   configs:
     rules:
-      LT09:
+      layout.select_targets:
         wildcard_policy: multiple
 
 test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_2:
@@ -34,7 +34,7 @@ test_single_select_target_and_newline_after_select_target_2:
     from x
   configs:
     rules:
-      LT09:
+      layout.select_targets:
         wildcard_policy: multiple
 
 test_single_select_target_and_newline_before_select_target:
@@ -66,7 +66,7 @@ test_single_wildcard_select_target_and_newline_before_select_target_2:
     from x
   configs:
     rules:
-      LT09:
+      layout.select_targets:
         wildcard_policy: multiple
 
 test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_1:
@@ -79,7 +79,7 @@ test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on
     from x
   configs:
     rules:
-      LT09:
+      layout.select_targets:
         wildcard_policy: multiple
 
 test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_2:
