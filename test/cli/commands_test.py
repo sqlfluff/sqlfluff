@@ -76,7 +76,6 @@ expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
 L:   2 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 L:   5 | P:  10 | CP01 | Keywords must be consistently upper case.
                        | [capitalisation.keywords]
-L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
 
 
@@ -998,17 +997,6 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
             "LT02",
             "select * from t",
         ),  # fix preceding whitespace
-        # L031 fix aliases in joins
-        (
-            "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) "
-            "FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o "
-            "on u.id = o.user_id;",
-            "L031",
-            "SELECT users.id, customers.first_name, customers.last_name, "
-            "COUNT(orders.user_id) "
-            "FROM users JOIN customers on users.id = customers.user_id JOIN orders on "
-            "users.id = orders.user_id;",
-        ),
     ],
 )
 def test__cli__command_fix_stdin(stdin, rules, stdout):
@@ -1304,7 +1292,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 24 if write_file else 32
+        assert payload_length == 23 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1320,7 +1308,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 12
+        assert len(result) == 11
     else:
         raise Exception
 
