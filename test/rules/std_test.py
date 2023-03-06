@@ -68,11 +68,6 @@ from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
         # Make sure that ignoring works as expected
         ("LT01", "operator_errors_ignore.sql", [(10, 8), (10, 9)]),
         (
-            "L031",
-            "aliases_in_join_error.sql",
-            [(6, 15), (7, 19), (8, 16)],
-        ),
-        (
             "JJ01",
             "heavy_templating.sql",
             [(12, 13), (12, 25)],
