@@ -48,7 +48,9 @@ class Rule_JJ01(BaseRule):
     # sections.
     crawl_behaviour = SegmentSeekerCrawler({"raw"})
     targets_templated = True
-    is_fix_compatible = True
+    # NOTE: This rule does return fixes, but when is_fix_compatible
+    # is set, it spirals.
+    # is_fix_compatible = True
 
     @staticmethod
     def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:
@@ -118,7 +120,7 @@ class Rule_JJ01(BaseRule):
                     "Tag found @ %s: %r ", context.segment.pos_marker, stripped
                 )
 
-                # Dedupe using a memory of source indexes.
+                # Deduplicate using a memory of source indexes.
                 # This is important because several positions in the
                 # templated file may refer to the same position in the
                 # source file and we only want to get one violation.
