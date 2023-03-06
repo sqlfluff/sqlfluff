@@ -8,7 +8,7 @@ def test__rules__std_CV09_raised() -> None:
     sql = "SELECT MYOLDFUNCTION(col1) FROM deprecated_table;\n"
     cfg = FluffConfig(overrides={"dialect": "ansi"})
     cfg.set_value(
-        config_path=["rules", "CV09", "blocked_words"],
+        config_path=["rules", "convention.blocked_words", "blocked_words"],
         val="myoldfunction,deprecated_table",
     )
     linter = Linter(config=cfg)
