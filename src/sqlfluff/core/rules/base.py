@@ -499,6 +499,7 @@ class RuleMetaclass(type):
         flags=re.MULTILINE,
     )
     _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
+    _valid_rule_name_regex = regex.compile(r"[a-z\.\_]+")
 
     def _populate_code_and_description(mcs, name, class_dict):
         """Extract and validate the rule code & description.
@@ -518,7 +519,7 @@ class RuleMetaclass(type):
         # Validate the name
         if not rule_name_match:  # pragma: no cover
             raise SQLFluffUserError(
-                f"Tried to define rule name with "
+                f"Tried to define rule class with "
                 f"unexpected format: {name}. Format should be: "
                 "'Rule_PluginName_LL23' (for plugins) or "
                 "`Rule_LL23` (for core rules)."
@@ -628,6 +629,17 @@ class RuleMetaclass(type):
         # Don't try and infer code and description for the base class
         if bases:
             class_dict = mcs._populate_code_and_description(mcs, name, class_dict)
+        # Validate rule names
+        rule_name = class_dict.get("name", "")
+        if rule_name:
+            if not mcs._valid_rule_name_regex.match(rule_name):
+                raise SQLFluffUserError(
+                    f"Tried to define rule with unexpected "
+                    f"name format: {rule_name}. Rule names should be lowercase "
+                    "and snake_case with optional `.` characters to indicate "
+                    "a namespace or grouping. e.g. `layout.spacing`."
+                )
+
         # Use the stock __new__ method now we've adjusted the docstring.
         return super().__new__(mcs, name, bases, class_dict)
 

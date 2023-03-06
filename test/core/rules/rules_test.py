@@ -5,6 +5,7 @@ import logging
 from sqlfluff.core import Linter
 from sqlfluff.core.linter import RuleTuple
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
@@ -150,8 +151,8 @@ def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
 
         # NB: "fake_other" is the name of another rule.
         groups = ("all", "foo", "fake_other")
-        # No aliases, Name collides with the code of another rule.
-        name = "T011"
+        # No aliases, Name collides with the alias of another rule.
+        name = "fake_again"
         aliases = ()
 
     cfg = FluffConfig(
@@ -267,6 +268,19 @@ def test_rules_configs_are_dynamically_documented():
 
     print(f"RuleWithoutConfig_ZZ99.__doc__: {RuleWithoutConfig_ZZ99.__doc__!r}")
     assert "Configuration" not in RuleWithoutConfig_ZZ99.__doc__
+
+
+def test_rules_name_validation():
+    """Ensure that rule names are validated."""
+    with pytest.raises(SQLFluffUserError) as exc_info:
+
+        class RuleWithoutBadName_ZZ99(BaseRule):
+            """A new rule without configuration."""
+
+            name = "MY-KEBAB-CASE-NAME"
+
+    assert "Tried to define rule with unexpected name" in exc_info.value.args[0]
+    assert "MY-KEBAB-CASE-NAME" in exc_info.value.args[0]
 
 
 def test_rule_exception_is_caught_to_validation():
