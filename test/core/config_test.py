@@ -298,7 +298,7 @@ def test__config__glob_exclude_config_tests():
     for k in violations:
         assert ("AM04", 12, 1) in violations[k]
         assert "RF02" not in [c[0] for c in violations[k]]
-        assert "L050" not in [c[0] for c in violations[k]]
+        assert "LT13" not in [c[0] for c in violations[k]]
         assert "AM05" not in [c[0] for c in violations[k]]
         assert "CV06" not in [c[0] for c in violations[k]]
 
@@ -313,7 +313,7 @@ def test__config__glob_include_config_tests():
     lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L050", 1, 1) in violations[k]
+        assert ("LT13", 1, 1) in violations[k]
         assert ("AM05", 14, 1) in violations[k]
         assert ("CV06", 14, 9) in violations[k]
         assert ("RF02", 12, 8) in violations[k]
@@ -331,7 +331,7 @@ def test__config__rules_set_to_none():
     lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L050", 1, 1) in violations[k]
+        assert ("LT13", 1, 1) in violations[k]
         assert ("AM04", 12, 1) in violations[k]
         assert ("CP01", 12, 10) in violations[k]
 
