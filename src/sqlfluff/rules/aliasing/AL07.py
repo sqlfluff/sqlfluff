@@ -1,4 +1,4 @@
-"""Implementation of Rule L031."""
+"""Implementation of Rule AL07."""
 
 from collections import Counter, defaultdict
 from typing import Generator, NamedTuple, Optional
@@ -19,7 +19,7 @@ class TableAliasInfo(NamedTuple):
     alias_identifier_ref: BaseSegment
 
 
-class Rule_L031(BaseRule):
+class Rule_AL07(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     .. note::
@@ -27,16 +27,22 @@ class Rule_L031(BaseRule):
        <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_
        which notes that:
 
-        Avoid table aliases in join conditions (especially initialisms) - it's
-        harder to understand what the table called "c" is compared to "customers".
+       > Avoid table aliases in join conditions (especially initialisms) - it's
+       > harder to understand what the table called "c" is compared to "customers".
 
        This rule is controversial and for many larger databases avoiding alias is
-       neither realistic nor desirable. In this case this rule should be disabled.
+       neither realistic nor desirable. In particular for BigQuery due to the
+       complexity of backtick requirements and determining whether a name refers
+       to a project or dataset, and automated fixes can potentially break working
+       SQL code. For most users :ref:`Rule_AL06` is likely a more appropriate
+       linting rule to drive a sensible behaviour around aliasing.
 
-       This rule is disabled by default for BigQuery due to the complexity of
-       backtick requirements and determining whether a name refers to a project
-       or dataset, and automated fixes can potentially break working SQL code..
-       It can be enabled with the ``force_enable = True`` flag.
+       The stricter treatment of aliases in this rule may be useful for more
+       focussed projects, or temporarily as a refactoring tool as the
+       :code:`fix` routine of the rule can remove aliases.
+
+       This rule is disabled by default for all dialects it can be enabled with
+       the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -76,10 +82,11 @@ class Rule_L031(BaseRule):
 
     """
 
-    groups = ("all",)
+    name = "aliasing.forbid"
+    aliases = ("L031",)
+    groups = ("all", "aliasing")
     config_keywords = ["force_enable"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
-    _dialects_disabled_by_default = ["bigquery"]
     is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -100,10 +107,7 @@ class Rule_L031(BaseRule):
         # to BigQuery when it is looking at the query, it would be complex for
         # this rule to do the right thing. For now, the rule simply disables
         # itself.
-        if (
-            context.dialect.name in self._dialects_disabled_by_default
-            and not self.force_enable
-        ):
+        if not self.force_enable:
             return LintResult()
 
         assert context.segment.is_type("select_statement")

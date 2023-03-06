@@ -1,13 +1,17 @@
-rule: L031
+rule: AL07
 
 test_pass_allow_self_join_alias:
-  # L031 Allow self-joins
+  # AL07 Allow self-joins
   pass_str: |
     select
       x.a,
       x_2.b
     from x
     left join x as x_2 on x.foreign_key = x.foreign_key
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 test_fail_avoid_aliases_1:
   fail_str: |
@@ -29,9 +33,13 @@ test_fail_avoid_aliases_1:
     FROM users
     JOIN customers on users.id = customers.user_id
     JOIN orders on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 test_fail_avoid_aliases_2:
-  # L031 order by
+  # AL07 order by
   fail_str: |
     SELECT
       u.id,
@@ -53,9 +61,13 @@ test_fail_avoid_aliases_2:
     JOIN customers on users.id = customers.user_id
     JOIN orders on users.id = orders.user_id
     order by orders.user_id desc
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 test_fail_avoid_aliases_3:
-  # L031 order by identifier which is the same raw as an alias but refers to a column
+  # AL07 order by identifier which is the same raw as an alias but refers to a column
   fail_str: |
     SELECT
       u.id,
@@ -77,19 +89,35 @@ test_fail_avoid_aliases_3:
     JOIN customers on users.id = customers.user_id
     JOIN orders on users.id = orders.user_id
     order by o desc
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 alias_single_char_identifiers:
   fail_str: "select b from tbl as a"
   fix_str: "select b from tbl"
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 alias_with_wildcard_identifier:
   fail_str: "select * from tbl as a"
   fix_str: "select * from tbl"
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 select_from_values:
   pass_str: |
     select *
     from values(1, 2, 3)
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 select_from_table_generator:
   pass_str: |
@@ -103,6 +131,9 @@ select_from_table_generator:
   configs:
     core:
       dialect: snowflake
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 issue_635:
   pass_str: |
@@ -118,6 +149,9 @@ issue_635:
   configs:
     core:
       dialect: snowflake
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 # This query was causing a runtime error in the rule.
 issue_239:
@@ -157,6 +191,10 @@ issue_610:
     FROM aaaaaa
     JOIN bbbbbb AS b ON b.a = aaaaaa.id
     JOIN bbbbbb AS b2 ON b2.other = b.id
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 issue_1589:
   pass_str: |
@@ -168,6 +206,10 @@ issue_1589:
               rnd>=t.v
          order by rnd
          limit 1)
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 issue_1639:
   fail_str: |
@@ -193,6 +235,9 @@ issue_1639:
   configs:
     core:
       dialect: tsql
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 test_fail_no_copy_code_out_of_template:
   # The rule wants to replace "t" with "foobar", but
@@ -206,6 +251,9 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           source_table: foobar
+    rules:
+      aliasing.forbid:
+        force_enable: true
 
 test_bigquery_skip_multipart_names:
   pass_str: |
@@ -230,5 +278,45 @@ test_bigquery_force_enable:
     core:
       dialect: bigquery
     rules:
-      L031:
+      aliasing.forbid:
         force_enable: true
+
+test_violation_locations:
+  fail_str: |
+    SELECT
+        u.id,
+        c.first_name,
+        c.last_name,
+        COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+  fix_str: |
+    SELECT
+        users.id,
+        customers.first_name,
+        customers.last_name,
+        COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+  violations:
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      line_no: 6
+      line_pos: 15
+      name: aliasing.forbid
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      line_no: 7
+      line_pos: 19
+      name: aliasing.forbid
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      line_no: 8
+      line_pos: 16
+      name: aliasing.forbid
