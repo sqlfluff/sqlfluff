@@ -311,6 +311,33 @@ def core_options(f: Callable) -> Callable:
     return f
 
 
+def lint_options(f: Callable) -> Callable:
+    """Add lint operation options to commands via a decorator.
+
+    These are cli commands that do linting, i.e. `lint` and `fix`.
+    """
+    f = click.option(
+        "-p",
+        "--processes",
+        type=int,
+        default=None,
+        help=(
+            "The number of parallel processes to run. Positive numbers work as "
+            "expected. Zero and negative numbers will work as number_of_cpus - "
+            "number. e.g  -1 means all cpus except one. 0 means all cpus."
+        ),
+    )(f)
+    f = click.option(
+        "--disable_progress_bar",
+        "--disable-progress-bar",
+        is_flag=True,
+        help="Disables progress bars.",
+        cls=DeprecatedOption,
+        deprecated=["--disable_progress_bar"],
+    )(f)
+    return f
+
+
 def get_config(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
@@ -460,6 +487,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
 @cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
+@lint_options
 @click.option(
     "-f",
     "--format",
@@ -497,25 +525,6 @@ def dump_file_payload(filename: Optional[str], payload: str):
     "--disregard-sqlfluffignores",
     is_flag=True,
     help="Perform the operation regardless of .sqlfluffignore configurations",
-)
-@click.option(
-    "-p",
-    "--processes",
-    type=int,
-    default=None,
-    help=(
-        "The number of parallel processes to run. Positive numbers work as "
-        "expected. Zero and negative numbers will work as number_of_cpus - "
-        "number. e.g  -1 means all cpus except one. 0 means all cpus."
-    ),
-)
-@click.option(
-    "--disable_progress_bar",
-    "--disable-progress-bar",
-    is_flag=True,
-    help="Disables progress bars.",
-    cls=DeprecatedOption,
-    deprecated=["--disable_progress_bar"],
 )
 @click.option(
     "--persist-timing",
@@ -698,6 +707,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
+@lint_options
 @click.option(
     "-f",
     "--force",
@@ -712,25 +722,6 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix",
     default=None,
     help="An optional suffix to add to fixed files.",
-)
-@click.option(
-    "-p",
-    "--processes",
-    type=int,
-    default=None,
-    help=(
-        "The number of parallel processes to run. Positive numbers work as "
-        "expected. Zero and negative numbers will work as number_of_cpus - "
-        "number. e.g  -1 means all cpus except one. 0 means all cpus."
-    ),
-)
-@click.option(
-    "--disable_progress_bar",
-    "--disable-progress-bar",
-    is_flag=True,
-    help="Disables progress bars.",
-    cls=DeprecatedOption,
-    deprecated=["--disable_progress_bar"],
 )
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
