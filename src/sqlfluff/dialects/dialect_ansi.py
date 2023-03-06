@@ -3867,7 +3867,10 @@ class DropTriggerStatementSegment(BaseSegment):
     type = "drop_trigger"
 
     match_grammar: Matchable = Sequence(
-        "DROP", "TRIGGER", Ref("TriggerReferenceSegment")
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
     )
 
 
