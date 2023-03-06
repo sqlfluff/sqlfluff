@@ -687,8 +687,8 @@ class BaseRule(metaclass=RuleMetaclass):
     # NOTE: code and description are provided here as hints, but should not
     # be set directly. They are set automatically by the metaclass based on
     # the class _name_ when defined.
-    code: str = ""
-    description: str = ""
+    code: str
+    description: str
 
     # Should we document this rule as fixable? Used by the metaclass to add
     # a line to the docstring.
