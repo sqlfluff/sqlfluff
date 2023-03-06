@@ -63,7 +63,7 @@ class Rule_LT13(BaseRule):
             foo
     """
 
-    name = "layout.start-of-file"
+    name = "layout.start_of_file"
     aliases = ("L050",)
     groups = ("all", "layout")
     targets_templated = True
