@@ -39,8 +39,15 @@ config_b = {
 
 config_c = {
     "core": {"rules": "LT03", "dialect": "ansi"},
-    # NOTE: L001 is an alias, but no longer a rule.
-    "rules": {"NOT_A_RULE": {"foo": "bar"}, "L001": {"foo": "bar"}},
+    # NOTE:
+    # - NOT_A_RULE doesn't match anything.
+    # - L001 is an alias, but no longer a rule.
+    # - layout is a group and but doesn't match any individual rule.
+    "rules": {
+        "NOT_A_RULE": {"foo": "bar"},
+        "L001": {"foo": "bar"},
+        "layout": {"foo": "bar"},
+    },
 }
 
 
@@ -493,3 +500,18 @@ def test__config__warn_unknown_rule(caplog):
     ) in caplog.text
     # Check we get a hint for the matched rule.
     assert "match for rule LT01 with name 'layout.spacing'" in caplog.text
+    # Check we get a warning for the group name.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'layout'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule group.
+    # NOTE: We don't check the set explicitly because we can't assume ordering.
+    assert (
+        "The reference was found as a match for multiple rules: {"
+    ) in caplog.text
+    assert (
+        "LT01"
+    ) in caplog.text 
+    assert (
+        "LT02"
+    ) in caplog.text 
