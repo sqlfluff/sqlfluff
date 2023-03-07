@@ -10,6 +10,82 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.0a6] - 2023-03-06
+
+> NOTE: This is effectively a release candidate for testing purposes.
+> There are several new features here, and breaking changes to
+> configuration. We welcome testing feedback from the community, and
+> the intent is that following this release there will be no more
+> major breaking changes in the before the 2.0.0 release.
+
+## Highlights
+
+This is the sixth alpha release for 2.0.0, and effectively the first release
+candidate for 2.0.0. All the intended breaking changes for the upcoming
+release have now been made and only bugfixes and non breaking feature
+changes should happen between this release and the full release.
+
+It contains:
+* A reorganisation of rules. All rules have been recoded, and can now be
+  referred to by their name, code, alias or group. The legacy code for the
+  rule is included as an alias for each rule to support some backward
+  compatibility.
+* Configuration files (and inline configuration flags), should now use the
+  **name** of the rule rather than the **code**. Any configuration files
+  which reference using legacy rules (or reference unknown rules) should
+  now display warnings.
+* Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
+  to auto-format sql files using a known set of _fairly safe_ set of rules.
+* Databricks as a distinct new dialect (rather than as previously an alias
+  for `sparksql`).
+
+There are also numerous dialect improvements to ANSI, Athena, TSQL, Teradata,
+SQLite & MySQL.
+
+## What’s Changed
+
+* Fix #4367 [#4479](https://github.com/sqlfluff/sqlfluff/pull/4479) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Teradata: Improve COLLECT STATS parsing [#4478](https://github.com/sqlfluff/sqlfluff/pull/4478) [@dflem97](https://github.com/dflem97)
+* Add a sqlfluff format CLI command [#4473](https://github.com/sqlfluff/sqlfluff/pull/4473) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Recode and disable L031 -> AL07 [#4471](https://github.com/sqlfluff/sqlfluff/pull/4471) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Named Config (part 2) [#4470](https://github.com/sqlfluff/sqlfluff/pull/4470) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Rule config lookup improvements & config warnings [#4465](https://github.com/sqlfluff/sqlfluff/pull/4465) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Recode L050 [#4468](https://github.com/sqlfluff/sqlfluff/pull/4468) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Implicit indent fixes #4467 [#4469](https://github.com/sqlfluff/sqlfluff/pull/4469) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* ANSI: Add IfExistsGrammar to DropTrigger [#4466](https://github.com/sqlfluff/sqlfluff/pull/4466) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Rules Reorg Mopup [#4462](https://github.com/sqlfluff/sqlfluff/pull/4462) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Layout Rules Recode (part 2) [#4456](https://github.com/sqlfluff/sqlfluff/pull/4456) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(athena): resolve errors parsing around maps, structs, and arrays [#4391](https://github.com/sqlfluff/sqlfluff/pull/4391) [@timcosta](https://github.com/timcosta)
+* Layout Rules Recode (part 1) [#4432](https://github.com/sqlfluff/sqlfluff/pull/4432) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: EXEC string literal [#4458](https://github.com/sqlfluff/sqlfluff/pull/4458) [@jpers36](https://github.com/jpers36)
+* Teradata: Added SET QUERY_BAND statement  [#4459](https://github.com/sqlfluff/sqlfluff/pull/4459) [@dflem97](https://github.com/dflem97)
+* Teradata: Added TOP select clause modifier [#4461](https://github.com/sqlfluff/sqlfluff/pull/4461) [@dflem97](https://github.com/dflem97)
+* Teradata: Addition of comparison operator extensions [#4451](https://github.com/sqlfluff/sqlfluff/pull/4451) [@dflem97](https://github.com/dflem97)
+* Add extensions and plugin section to the README.md [#4454](https://github.com/sqlfluff/sqlfluff/pull/4454) [@jared-rimmer](https://github.com/jared-rimmer)
+* Convention rules bundle [#4448](https://github.com/sqlfluff/sqlfluff/pull/4448) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* References rule bundle [#4446](https://github.com/sqlfluff/sqlfluff/pull/4446) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Structure and Ambiguous rule bundles [#4444](https://github.com/sqlfluff/sqlfluff/pull/4444) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Bare functions [#4439](https://github.com/sqlfluff/sqlfluff/pull/4439) [@jpers36](https://github.com/jpers36)
+* Pull dbt CI tests forward to 1.1 and 1.4 [#4442](https://github.com/sqlfluff/sqlfluff/pull/4442) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Teradata: Added "AND STATS" options when creating table [#4440](https://github.com/sqlfluff/sqlfluff/pull/4440) [@dflem97](https://github.com/dflem97)
+* Add Databricks as a distinct dialect [#4438](https://github.com/sqlfluff/sqlfluff/pull/4438) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Remove importlib deprecated methods [#4437](https://github.com/sqlfluff/sqlfluff/pull/4437) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SQLite: Support PRAGMA statements [#4431](https://github.com/sqlfluff/sqlfluff/pull/4431) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Proposed graceful handling of noqa by L016 (#4248) [#4424](https://github.com/sqlfluff/sqlfluff/pull/4424) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* DuckDb: Allow quoted literals as identifiers [#4410](https://github.com/sqlfluff/sqlfluff/pull/4410) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SQLite Refactor to reduce statement and keyword scope [#4409](https://github.com/sqlfluff/sqlfluff/pull/4409) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* L046 and L056 recode [#4430](https://github.com/sqlfluff/sqlfluff/pull/4430) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Recode Aliasing Rules [#4427](https://github.com/sqlfluff/sqlfluff/pull/4427) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Adjust MySQL dialect to support combination of not-null, default and … [#4426](https://github.com/sqlfluff/sqlfluff/pull/4426) [@FabianScheidt](https://github.com/FabianScheidt)
+* Revert some changes to tox [#4428](https://github.com/sqlfluff/sqlfluff/pull/4428) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Migrate capitalisation rules to plugin and recode [#4413](https://github.com/sqlfluff/sqlfluff/pull/4413) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@FabianScheidt](https://github.com/FabianScheidt) made their first contribution in [#4426](https://github.com/sqlfluff/sqlfluff/pull/4426)
+* [@dflem97](https://github.com/dflem97) made their first contribution in [#4440](https://github.com/sqlfluff/sqlfluff/pull/4440)
+* [@timcosta](https://github.com/timcosta) made their first contribution in [#4391](https://github.com/sqlfluff/sqlfluff/pull/4391)
+
 ## [2.0.0a5] - 2023-02-24
 
 > NOTE: This is an alpha release for testing purposes. There are several new features
