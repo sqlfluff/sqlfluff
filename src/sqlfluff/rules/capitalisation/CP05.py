@@ -39,7 +39,7 @@ class Rule_CP05(Rule_CP01):
 
     name = "capitalisation.types"
     aliases = ("L063",)
-    groups = ("all", "capitalisation")
+    groups = ("all", "core", "capitalisation")
     is_fix_compatible = True
 
     crawl_behaviour = SegmentSeekerCrawler(
