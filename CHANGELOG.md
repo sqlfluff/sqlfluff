@@ -34,6 +34,8 @@ It contains:
   **name** of the rule rather than the **code**. Any configuration files
   which reference using legacy rules (or reference unknown rules) should
   now display warnings.
+* Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
+  to auto-format sql files using a known set of _fairly safe_ set of rules.
 * Databricks as a distinct new dialect (rather than as previously an alias
   for `sparksql`).
 
@@ -42,6 +44,7 @@ SQLite & MySQL.
 
 ## What’s Changed
 
+* Add a sqlfluff format CLI command [#4473](https://github.com/sqlfluff/sqlfluff/pull/4473) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Recode and disable L031 -> AL07 [#4471](https://github.com/sqlfluff/sqlfluff/pull/4471) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Named Config (part 2) [#4470](https://github.com/sqlfluff/sqlfluff/pull/4470) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Rule config lookup improvements & config warnings [#4465](https://github.com/sqlfluff/sqlfluff/pull/4465) [@alanmcruickshank](https://github.com/alanmcruickshank)
