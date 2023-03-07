@@ -455,8 +455,12 @@ class ReflowPoint(ReflowElement):
                     return [], self
 
                 for idx in range(len(self.segments) - 1, -1, -1):
+                    # NOTE: Must be a _literal_ newline, not a templated one.
+                    # https://github.com/sqlfluff/sqlfluff/issues/4367
                     if self.segments[idx].is_type("newline"):
-                        break
+                        if self.segments[idx].pos_marker.is_literal():
+                            break
+
                 new_indent = WhitespaceSegment(desired_indent)
                 return [
                     LintResult(
