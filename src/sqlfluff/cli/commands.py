@@ -971,24 +971,6 @@ def fix(
     default=None,
     help="An optional suffix to add to fixed files.",
 )
-@click.option(
-    "--FIX-EVEN-UNPARSABLE",
-    is_flag=True,
-    default=None,
-    help=(
-        "Enables fixing of files that have templating or parse errors. "
-        "Note that the similar-sounding '--ignore' or 'noqa' features merely "
-        "prevent errors from being *displayed*. For safety reasons, the 'fix'"
-        "command will not make any fixes in files that have templating or parse "
-        "errors unless '--FIX-EVEN-UNPARSABLE' is enabled on the command line"
-        "or in the .sqlfluff config file."
-    ),
-)
-@click.option(
-    "--show-lint-violations",
-    is_flag=True,
-    help="Show lint violations",
-)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def cli_format(
     paths: Tuple[str],
@@ -999,7 +981,6 @@ def cli_format(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
-    show_lint_violations: bool = False,
     **kwargs,
 ) -> None:
     """Autoformat SQL files.
@@ -1041,7 +1022,6 @@ def cli_format(
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
-    fix_even_unparsable = config.get("fix_even_unparsable")
     output_stream = make_output_stream(
         config, None, os.devnull if fixing_stdin else None
     )
@@ -1062,18 +1042,18 @@ def cli_format(
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
-        _stdin_fix(lnt, formatter, fix_even_unparsable)
+        _stdin_fix(lnt, formatter, fix_even_unparsable=False)
     else:
         _paths_fix(
             lnt,
             formatter,
             paths,
             processes,
-            fix_even_unparsable,
-            True,  # Always force in format mode.
-            fixed_suffix,
-            bench,
-            show_lint_violations,
+            fix_even_unparsable=False,
+            force=True,  # Always force in format mode.
+            fixed_suffix=fixed_suffix,
+            bench=bench,
+            show_lint_violations=False,
             warn_force=False,  # don't warn about being in force mode.
         )
 
