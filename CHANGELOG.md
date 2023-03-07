@@ -44,6 +44,7 @@ SQLite & MySQL.
 
 ## What’s Changed
 
+* Teradata: Improve COLLECT STATS parsing [#4478](https://github.com/sqlfluff/sqlfluff/pull/4478) [@dflem97](https://github.com/dflem97)
 * Add a sqlfluff format CLI command [#4473](https://github.com/sqlfluff/sqlfluff/pull/4473) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Recode and disable L031 -> AL07 [#4471](https://github.com/sqlfluff/sqlfluff/pull/4471) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Named Config (part 2) [#4470](https://github.com/sqlfluff/sqlfluff/pull/4470) [@alanmcruickshank](https://github.com/alanmcruickshank)
