@@ -90,6 +90,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "SS",
         "STAT",
         "STATS",
+        "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
         "UC",
@@ -252,7 +253,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "COLLECT",
         Ref.keyword("SUMMARY", optional=True),
-        OneOf("STATISTICS", "STAT"),
+        OneOf("STAT", "STATS", "STATISTICS"),
         Sequence(
             "USING",
             Delimited(
@@ -282,7 +283,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                 # COLUMN ...
                 Sequence(
                     "COLUMN",
-                    Bracketed(
+                    OptionallyBracketed(
                         Delimited(
                             OneOf(
                                 Ref("ColumnReferenceSegment"),
@@ -617,7 +618,7 @@ class TdTableConstraints(BaseSegment):
         Sequence(
             "AND",
             Sequence("NO", optional=True),
-            OneOf("STATS", "STATISTICS"),
+            OneOf("STAT", "STATS", "STATISTICS"),
             optional=True,
         ),
         # ON COMMIT PRESERVE ROWS
