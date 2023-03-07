@@ -1767,3 +1767,24 @@ test_fix_implicit_indents_4467_b:
     indentation:
       allow_implicit_indents: true
       tab_space_size: 2
+
+test_fix_macro_indents_4367:
+  # https://github.com/sqlfluff/sqlfluff/issues/4367
+  fail_str: |
+    {% macro my_macro(col) %}
+        {{ col }}
+    {% endmacro %}
+    SELECT
+        something,
+    {{ my_macro("mycol") }},
+        something_else
+    FROM mytable
+  fix_str: |
+    {% macro my_macro(col) %}
+        {{ col }}
+    {% endmacro %}
+    SELECT
+        something,
+        {{ my_macro("mycol") }},
+        something_else
+    FROM mytable
