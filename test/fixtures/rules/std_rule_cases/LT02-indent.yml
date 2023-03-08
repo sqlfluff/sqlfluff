@@ -1788,3 +1788,29 @@ test_fix_macro_indents_4367:
         {{ my_macro("mycol") }},
         something_else
     FROM mytable
+
+test_fix_untaken_positive_4433:
+  # https://github.com/sqlfluff/sqlfluff/issues/4433
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    WHERE 
+        TRUE
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+        WHERE 
+            TRUE
+    )
+    ;

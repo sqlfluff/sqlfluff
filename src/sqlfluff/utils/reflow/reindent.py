@@ -729,9 +729,10 @@ def _map_line_buffers(
                     -1,
                 )
             )
-            # For it to be a problem - all passing indents must be untaken. If any
-            # were taken, then we can interpret the drop as closing that one.
-            if all(i in indent_point.untaken_indents for i in passing_indents):
+            # There might be many indents at this point, but if any match, then
+            # we should still force an indent
+            reflow_logger.warning("FOO: %s %s", [i in indent_point.untaken_indents for i in passing_indents], passing_indents)
+            if any(i in indent_point.untaken_indents for i in passing_indents):
                 for i in passing_indents:
                     # If we don't have the location of the untaken indent, then
                     # skip it for now. TODO: Check this isn't a bug when this happens.
