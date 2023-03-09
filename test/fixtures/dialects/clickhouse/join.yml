@@ -3,8 +3,115 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 139dd56d437c4073ef23da82768f9604cf44ca6d41e3d2469c562a7ebb85cc7f
+_hash: 9352ebb9eaf7ee550822c86ff44a96f1908e4b446afa8a3f26aa5c41463b2340
 file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: ALL
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: ANY
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
@@ -44,65 +151,206 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
+        keyword: SELECT
         select_clause_element:
-          column_reference:
-          - naked_identifier: tbl1
-          - dot: .
-          - naked_identifier: id
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
-        keyword: from
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: tbl1
-            alias_expression:
-              keyword: as
-              naked_identifier: t1
+                naked_identifier: test1
           join_clause:
-          - keyword: inner
-          - keyword: join
+          - keyword: INNER
+          - keyword: ALL
+          - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: tbl2
-              alias_expression:
-                keyword: as
-                naked_identifier: t2
+                  naked_identifier: test2
           - join_on_condition:
-              keyword: 'on'
+              keyword: 'ON'
               expression:
               - column_reference:
-                - naked_identifier: t1
+                - naked_identifier: test2
                 - dot: .
-                - naked_identifier: id
+                - naked_identifier: ty1
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - naked_identifier: t2
+                - naked_identifier: test1
                 - dot: .
-                - naked_identifier: id
+                - naked_identifier: ty1
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
-        keyword: select
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: INNER
+          - keyword: ANY
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: ALL
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: ANY
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
         select_clause_element:
           column_reference:
           - naked_identifier: tbl1
           - dot: .
           - naked_identifier: id
       from_clause:
-        keyword: from
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
                 naked_identifier: tbl1
           join_clause:
-          - keyword: INNER
-          - keyword: ANY
+          - keyword: LEFT
+          - keyword: ANTI
           - keyword: join
           - from_expression_element:
               table_expression:
@@ -137,13 +385,114 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
           join_clause:
-          - keyword: CROSS
+          - keyword: LEFT
+          - keyword: SEMI
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
                   naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ANY
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ALL
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ASOF
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -162,8 +511,8 @@ file:
               table_reference:
                 naked_identifier: tbl1
           join_clause:
-          - keyword: LEFT
           - keyword: ANTI
+          - keyword: LEFT
           - keyword: join
           - from_expression_element:
               table_expression:
@@ -186,14 +535,407 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: SEMI
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: ANY
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: ALL
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: ASOF
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: ty1
+            - comma: ','
+            - naked_identifier: ty2
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ASOF
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
         select_clause_element:
           column_reference:
           - naked_identifier: tbl1
           - dot: .
           - naked_identifier: id
       from_clause:
-        keyword: from
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ANTI
+          - keyword: OUTER
+          - keyword: join
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl2
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: tbl2
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: SEMI
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ANY
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ALL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: ASOF
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: test2
+                - dot: .
+                - naked_identifier: ty1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: test1
+                - dot: .
+                - naked_identifier: ty1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: id
+      from_clause:
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
@@ -224,6 +966,99 @@ file:
 - statement:
     select_statement:
       select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: ANY
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: ALL
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
         keyword: select
         select_clause_element:
           column_reference:
@@ -238,8 +1073,8 @@ file:
               table_reference:
                 naked_identifier: tbl1
           join_clause:
-          - keyword: LEFT
-          - keyword: ANY
+          - keyword: ANTI
+          - keyword: RIGHT
           - keyword: join
           - from_expression_element:
               table_expression:
@@ -262,40 +1097,254 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
+        keyword: SELECT
         select_clause_element:
-          column_reference:
-          - naked_identifier: tbl1
-          - dot: .
-          - naked_identifier: id
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
-        keyword: from
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: tbl1
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
           join_clause:
+          - keyword: SEMI
           - keyword: RIGHT
-          - keyword: ANY
-          - keyword: join
+          - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: tbl2
-          - join_on_condition:
-              keyword: 'on'
-              expression:
-              - column_reference:
-                - naked_identifier: tbl1
-                - dot: .
-                - naked_identifier: id
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: tbl2
-                - dot: .
-                - naked_identifier: id
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: ANY
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: ALL
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: ANTI
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: SEMI
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: ANY
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
+          join_clause:
+          - keyword: RIGHT
+          - keyword: ALL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test2
+          - keyword: USING
+          - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -338,77 +1387,25 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
+        keyword: SELECT
         select_clause_element:
-          column_reference:
-          - naked_identifier: tbl1
-          - dot: .
-          - naked_identifier: id
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
-        keyword: from
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: tbl1
+                naked_identifier: test1
           join_clause:
-          - keyword: LEFT
-          - keyword: ASOF
+          - keyword: CROSS
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: tbl2
-          - join_on_condition:
-              keyword: 'on'
-              expression:
-              - column_reference:
-                - naked_identifier: tbl1
-                - dot: .
-                - naked_identifier: id
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: tbl2
-                - dot: .
-                - naked_identifier: id
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-          - naked_identifier: tbl1
-          - dot: .
-          - naked_identifier: id
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: tbl1
-          join_clause:
-          - keyword: FULL
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: tbl2
-          - join_on_condition:
-              keyword: 'on'
-              expression:
-              - column_reference:
-                - naked_identifier: tbl1
-                - dot: .
-                - naked_identifier: id
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: tbl2
-                - dot: .
-                - naked_identifier: id
+                  naked_identifier: test2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -425,8 +1422,12 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
           join_clause:
-          - keyword: LEFT
+          - keyword: FULL
+          - keyword: ALL
           - keyword: JOIN
           - from_expression_element:
               table_expression:
@@ -434,6 +1435,8 @@ file:
                   naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -450,9 +1453,11 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
           join_clause:
-          - keyword: ALL
-          - keyword: LEFT
+          - keyword: FULL
           - keyword: JOIN
           - from_expression_element:
               table_expression:
@@ -460,6 +1465,8 @@ file:
                   naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -476,43 +1483,12 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test1
+            alias_expression:
+              keyword: as
+              naked_identifier: t1
           join_clause:
-          - keyword: ALL
-          - keyword: INNER
-          - keyword: ANY
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: test2
-          - keyword: USING
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: ty1
-            - comma: ','
-            - column_reference:
-                naked_identifier: ty2
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: test1
-          join_clause:
-          - keyword: ALL
           - keyword: FULL
+          - keyword: ALL
           - keyword: OUTER
           - keyword: JOIN
           - from_expression_element:
@@ -521,4 +1497,6 @@ file:
                   naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
+          - comma: ','
+          - naked_identifier: ty2
 - statement_terminator: ;

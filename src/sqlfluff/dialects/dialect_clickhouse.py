@@ -29,44 +29,74 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-
 clickhouse_dialect.add(
     JoinTypeKeywords=OneOf(
+        # This case INNER [ANY,ALL] JOIN
+        Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
+        # This case [ANY,ALL] INNER JOIN
+        Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
+        # This case FULL ALL OUTER JOIN
+        Sequence(
+            "FULL",
+            Ref.keyword("ALL", optional=True),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case ALL FULL OUTER JOIN
         Sequence(
             Ref.keyword("ALL", optional=True),
+            "FULL",
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+        Sequence(
+            "LEFT",
             OneOf(
-                Sequence("INNER", Ref.keyword("ANY", optional=True)),
-                Sequence(
-                    OneOf(
-                        "FULL",
-                    ),
-                    Ref.keyword("OUTER", optional=True),
-                ),
-                Sequence(
-                    "LEFT",
-                    OneOf(
-                        "OUTER",
-                        "ANTI",
-                        "SEMI",
-                        "ANY",
-                        "ASOF",
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("RIGHT"),
-                    OneOf(
-                        "OUTER",
-                        "ANTI",
-                        "SEMI",
-                        "ANY",
-                        optional=True,
-                    ),
-                ),
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                "ASOF",
                 optional=True,
             ),
+            Ref.keyword("OUTER", optional=True),
         ),
+        # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
+        Sequence(
+            OneOf(
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                "ASOF",
+            ),
+            "LEFT",
+        ),
+        # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+        Sequence(
+            "RIGHT",
+            OneOf(
+                "OUTER",
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                optional=True,
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
+        Sequence(
+            OneOf(
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                optional=True,
+            ),
+            "RIGHT",
+        ),
+        # This case CROSS JOIN
         "CROSS",
+        # This case ANY JOIN
+        "ANY",
+        # This case ALL JOIN
+        "ALL",
     )
 )
 
@@ -98,10 +128,12 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                             # Here I use BracketedColumnReferenceListGrammar because
                             # the spellings (c1,c2) or c1,c2 are possible and both
                             # options will be executed by Clickhouse
-                            Ref("BracketedColumnReferenceListGrammar"),
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+                            Bracketed(
+                                Delimited(Ref("SingleIdentifierGrammar")),
+                                ephemeral_name="UsingClauseContents",
+                            ),
+                            Delimited(Ref("SingleIdentifierGrammar")),
+                        ),
                     ),
                     Conditional(Dedent, indented_using_on=False),
                 ),
