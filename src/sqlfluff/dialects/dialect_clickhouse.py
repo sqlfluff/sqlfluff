@@ -212,7 +212,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             exclude=OneOf(
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
-                FINAL,
+                "FINAL",
                 Ref("JoinClauseSegment"),
             ),
             optional=True,
