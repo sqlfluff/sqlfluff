@@ -124,9 +124,6 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                     Conditional(Indent, indented_using_on=False),
                     Delimited(
                         OneOf(
-                            # Here I use BracketedColumnReferenceListGrammar because
-                            # the spellings (c1,c2) or c1,c2 are possible and both
-                            # options will be executed by Clickhouse
                             Bracketed(
                                 Delimited(Ref("SingleIdentifierGrammar")),
                                 ephemeral_name="UsingClauseContents",
