@@ -71,7 +71,6 @@ class Rule_ST07(BaseRule):
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-
         if context.dialect.name in self._dialects_disabled_by_default:
             return LintResult()
 
