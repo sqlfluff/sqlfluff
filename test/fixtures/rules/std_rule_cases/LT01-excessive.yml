@@ -234,3 +234,39 @@ test_align_alias_inline_fail:
   fail_str: SELECT a   AS   b  ,   c   AS   d    FROM tbl
   fix_str: SELECT a AS b, c AS d FROM tbl
   configs: *align_alias
+
+test_pass_snowflake_semi_structured:
+  pass_str: "SELECT to_array(a.b:c) FROM d"
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semi_structured_single:
+  fail_str: |
+    SELECT
+      to_array(a.b : c) as d,
+      e : f : g::string as h
+    FROM j
+  fix_str: |
+    SELECT
+      to_array(a.b:c) as d,
+      e:f:g::string as h
+    FROM j
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semi_structured_multi:
+  fail_str: |
+    SELECT
+      to_array(a.b    :    c) as d,
+      e    :    f    :    g::string as h
+    FROM j
+  fix_str: |
+    SELECT
+      to_array(a.b:c) as d,
+      e:f:g::string as h
+    FROM j
+  configs:
+    core:
+      dialect: snowflake
