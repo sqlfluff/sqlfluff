@@ -115,7 +115,6 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             Ref("FromExpressionElementSegment"),
             Dedent,
             Conditional(Indent, indented_using_on=True),
-            # NB: this is optional
             OneOf(
                 # ON clause
                 Ref("JoinOnConditionSegment"),
