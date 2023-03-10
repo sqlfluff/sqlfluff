@@ -66,3 +66,9 @@ fail_but_dont_fix_templated_table_names:
     FROM
         {{ "table_a" }}
     INNER JOIN table_b USING (id)
+
+test_pass_clickhouse:
+  pass_str: SELECT * FROM test1 as t1 LEFT SEMI JOIN test2 USING ty1,ty2;
+  configs:
+    core:
+      dialect: clickhouse
