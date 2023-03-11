@@ -126,3 +126,18 @@ test_pass_implicit_alias_merge:
     rules:
       aliasing.table:
         aliasing: implicit
+
+test_alias_expression_4492:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/4492
+  pass_str:
+    SELECT
+        voo.a
+    FROM foo voo
+  configs:
+    core:
+      dialect: snowflake
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
