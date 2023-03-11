@@ -130,10 +130,14 @@ test_pass_implicit_alias_merge:
 test_alias_expression_4492:
   # Test failing alias expressions
   # https://github.com/sqlfluff/sqlfluff/issues/4492
-  pass_str:
+  fail_str:
     SELECT
         voo.a
     FROM foo voo
+  fix_str:
+    SELECT
+        voo.a
+    FROM foo AS voo
   configs:
     core:
       dialect: snowflake

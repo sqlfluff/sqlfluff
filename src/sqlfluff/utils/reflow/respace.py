@@ -182,7 +182,12 @@ def _determine_aligned_inline_spacing(
     # Find the level of segment that we're aligning.
     # NOTE: Reverse slice
     parent_segment = None
-    for ps in root_segment.path_to(next_seg)[::-1]:
+
+    # Edge case: if next_seg has no position, we should use the position
+    # of the whitespace for searching.
+    for ps in root_segment.path_to(next_seg if next_seg.pos_marker else whitespace_seg)[
+        ::-1
+    ]:
         if ps.segment.is_type(align_within):
             parent_segment = ps.segment
         if ps.segment.is_type(align_scope):
@@ -252,7 +257,9 @@ def _determine_aligned_inline_spacing(
     return desired_space
 
 
-def _extract_alignment_config(constraint: str) -> Tuple[str,Optional[str],Optional[str]]:
+def _extract_alignment_config(
+    constraint: str,
+) -> Tuple[str, Optional[str], Optional[str]]:
     """Helper function to break apart an alignment config."""
     ##########TODO add doctests
     alignment_config = constraint.split(":")
@@ -260,7 +267,7 @@ def _extract_alignment_config(constraint: str) -> Tuple[str,Optional[str],Option
     align_within = alignment_config[2] if len(alignment_config) > 2 else None
     align_scope = alignment_config[3] if len(alignment_config) > 3 else None
     reflow_logger.debug(
-        "    Alignment Config: %s, %s, %s, %s",
+        "    Alignment Config: %s, %s, %s",
         seg_type,
         align_within,
         align_scope,
@@ -326,7 +333,9 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
-            seg_type, align_within, align_scope = _extract_alignment_config(post_constraint)
+            seg_type, align_within, align_scope = _extract_alignment_config(
+                post_constraint
+            )
 
             desired_space = _determine_aligned_inline_spacing(
                 root_segment,
@@ -408,6 +417,16 @@ def handle_respace__inline_without_space(
         # Either because there shouldn't be, or because "any"
         # means we shouldn't check.
         return segment_buffer, existing_results, False
+    # Are we supposed to be aligning?
+    elif post_constraint.startswith("align"):
+        reflow_logger.debug("    Inserting Aligned Whitespace.")
+        # TODO: We currently rely on a second pass to align
+        # insertions. This is where we could devise alignment
+        # in advance, but most of the alignment code relies on
+        # having existing position markers for those insertions.
+        # https://github.com/sqlfluff/sqlfluff/issues/4492
+        desired_space = " "
+        added_whitespace = WhitespaceSegment(desired_space)
     # Is it anything other than the default case?
     elif not (pre_constraint == post_constraint == "single"):  # pragma: no cover
         # TODO: This will get test coverage when configuration routines
@@ -415,15 +434,15 @@ def handle_respace__inline_without_space(
         raise NotImplementedError(
             f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
         )
+    else:
+        # Default to a single whitespace
+        reflow_logger.debug("    Inserting Single Whitespace.")
+        added_whitespace = WhitespaceSegment()
 
-    # Handle the default case
-
-    # Insert a single whitespace.
-    reflow_logger.debug("    Inserting Single Whitespace.")
     # Add it to the buffer first (the easy bit). The hard bit
     # is to then determine how to generate the appropriate LintFix
     # objects.
-    segment_buffer.append(WhitespaceSegment())
+    segment_buffer.append(added_whitespace)
 
     # So special handling here. If segments either side
     # already exist then we don't care which we anchor on
@@ -470,9 +489,9 @@ def handle_respace__inline_without_space(
         # Mutate the fix, it's still in the same result, and that result
         # is still in the existing_results.
         if existing_fix == "before":
-            fix.edit = [cast(BaseSegment, WhitespaceSegment())] + fix.edit
+            fix.edit = [cast(BaseSegment, added_whitespace)] + fix.edit
         elif existing_fix == "after":
-            fix.edit = fix.edit + [cast(BaseSegment, WhitespaceSegment())]
+            fix.edit = fix.edit + [cast(BaseSegment, added_whitespace)]
 
         # No need to add new results, because we mutated the existing.
         return segment_buffer, existing_results, True
