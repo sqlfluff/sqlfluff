@@ -252,6 +252,22 @@ def _determine_aligned_inline_spacing(
     return desired_space
 
 
+def _extract_alignment_config(constraint: str) -> Tuple[str,Optional[str],Optional[str]]:
+    """Helper function to break apart an alignment config."""
+    ##########TODO add doctests
+    alignment_config = constraint.split(":")
+    seg_type = alignment_config[1]
+    align_within = alignment_config[2] if len(alignment_config) > 2 else None
+    align_scope = alignment_config[3] if len(alignment_config) > 3 else None
+    reflow_logger.debug(
+        "    Alignment Config: %s, %s, %s, %s",
+        seg_type,
+        align_within,
+        align_scope,
+    )
+    return seg_type, align_within, align_scope
+
+
 def handle_respace__inline_with_space(
     pre_constraint: str,
     post_constraint: str,
@@ -310,17 +326,7 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
-            alignment_config = post_constraint.split(":")
-            seg_type = alignment_config[1]
-            align_within = alignment_config[2] if len(alignment_config) > 2 else None
-            align_scope = alignment_config[3] if len(alignment_config) > 3 else None
-            reflow_logger.debug(
-                "    Alignment Config: %s, %s, %s, %s",
-                seg_type,
-                align_within,
-                align_scope,
-                next_block.segments[0].pos_marker.working_line_pos,
-            )
+            seg_type, align_within, align_scope = _extract_alignment_config(post_constraint)
 
             desired_space = _determine_aligned_inline_spacing(
                 root_segment,
