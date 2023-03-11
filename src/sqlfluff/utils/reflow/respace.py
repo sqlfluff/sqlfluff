@@ -262,14 +262,16 @@ def _extract_alignment_config(
 ) -> Tuple[str, Optional[str], Optional[str]]:
     """Helper function to break apart an alignment config.
 
-    >>> _extract_alignment_config("align")
-    ("align", None, None)
-    >>> _extract_alignment_config("align:statement")
-    ("align", "statement", None)
-    >>> _extract_alignment_config("align:statement:bracketed")
-    ("align", "statement", "bracketed")
+    >>> _extract_alignment_config("align:alias_expression")
+    ("alias_expression", None, None)
+    >>> _extract_alignment_config("align:alias_expression:statement")
+    ("alias_expression", "statement", None)
+    >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
+    ("alias_expression", "statement", "bracketed")
     """
+    assert ":" in constraint
     alignment_config = constraint.split(":")
+    assert alignment_config[0] == "align"
     seg_type = alignment_config[1]
     align_within = alignment_config[2] if len(alignment_config) > 2 else None
     align_scope = alignment_config[3] if len(alignment_config) > 3 else None
