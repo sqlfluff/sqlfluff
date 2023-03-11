@@ -803,7 +803,7 @@ def _deduce_line_current_indent(
         else:
             reflow_logger.debug("    Handling as initial leading whitespace")
             for indent_seg in elements[0].segments[::-1]:
-                if indent_seg.is_type("whitespace"):
+                if indent_seg.is_type("whitespace") and not indent_seg.is_templated:
                     break
             # Handle edge case of no whitespace, but with newline.
             if not indent_seg.is_type("whitespace"):
@@ -819,6 +819,7 @@ def _deduce_line_current_indent(
         # It's a consumed indent.
         return cast(TemplateSegment, indent_seg).source_str.split("\n")[-1] or ""
     elif not indent_seg.pos_marker or not indent_seg.is_templated:
+        # It's a literal
         assert "\n" not in indent_seg.raw, f"Found newline in indent: {indent_seg}"
         return indent_seg.raw
     else:  # pragma: no cover
