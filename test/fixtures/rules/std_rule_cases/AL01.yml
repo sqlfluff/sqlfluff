@@ -145,3 +145,20 @@ test_alias_expression_4492:
       type:
         alias_expression:
           spacing_before: align
+
+test_alias_expression_4089:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/4089
+  fail_str:
+    SELECT
+    RANK() OVER (PARTITION BY Id ORDER BY Id DESC) nr_rank
+    FROM (values ('Amsterdam', 1), ('London', 2)) Cities(Name, Id)
+  fix_str:
+    SELECT
+    RANK() OVER (PARTITION BY Id ORDER BY Id DESC) nr_rank
+    FROM (values ('Amsterdam', 1), ('London', 2)) AS Cities(Name, Id)
+  configs:
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
