@@ -260,8 +260,15 @@ def _determine_aligned_inline_spacing(
 def _extract_alignment_config(
     constraint: str,
 ) -> Tuple[str, Optional[str], Optional[str]]:
-    """Helper function to break apart an alignment config."""
-    ##########TODO add doctests
+    """Helper function to break apart an alignment config.
+
+    >>> _extract_alignment_config("align")
+    ("align", None, None)
+    >>> _extract_alignment_config("align:statement")
+    ("align", "statement", None)
+    >>> _extract_alignment_config("align:statement:bracketed")
+    ("align", "statement", "bracketed")
+    """
     alignment_config = constraint.split(":")
     seg_type = alignment_config[1]
     align_within = alignment_config[2] if len(alignment_config) > 2 else None
