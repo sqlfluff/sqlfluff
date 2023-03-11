@@ -7,6 +7,9 @@ SELECT * FROM Produce
 UNPIVOT(sales FOR quarter IN (Q1, Q2, Q3, Q4));
 
 SELECT * FROM Produce
+UNPIVOT(sales FOR quarter IN (Q1 AS 1, Q2 AS 2, Q3 AS 3, Q4 AS 4));
+
+SELECT * FROM Produce
 UNPIVOT INCLUDE NULLS (sales FOR quarter IN (Q1, Q2, Q3, Q4));
 
 SELECT * FROM Produce
