@@ -731,7 +731,6 @@ def _map_line_buffers(
             )
             # There might be many indents at this point, but if any match, then
             # we should still force an indent
-            reflow_logger.warning("FOO: %s %s", [i in indent_point.untaken_indents for i in passing_indents], passing_indents)
             if any(i in indent_point.untaken_indents for i in passing_indents):
                 for i in passing_indents:
                     # If we don't have the location of the untaken indent, then
@@ -750,6 +749,14 @@ def _map_line_buffers(
                     # end with an IndentBlock, and we know here that `loc` refers to
                     # an IndentPoint.
                     if "start_bracket" in elements[loc + 1].class_types:
+                        continue
+
+                    # Second, check for placeholders. Indents around placeholders
+                    # are trickier to reason about. For now, don't force untaken
+                    # indents around placeholders.
+                    if "placeholder" in elements[loc + 1].class_types:
+                        continue
+                    if loc >= 1 and "placeholder" in elements[loc - 1].class_types:
                         continue
 
                     # If the location was in the line we're just closing. That's
