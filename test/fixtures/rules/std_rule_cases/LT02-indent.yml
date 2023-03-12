@@ -1798,7 +1798,7 @@ test_fix_untaken_positive_4433:
         id,
         user_id
     FROM another_table
-    WHERE 
+    WHERE
         TRUE
     )
     ;
@@ -1810,7 +1810,7 @@ test_fix_untaken_positive_4433:
             id,
             user_id
         FROM another_table
-        WHERE 
+        WHERE
             TRUE
     )
     ;
