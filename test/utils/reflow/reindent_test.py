@@ -610,6 +610,14 @@ def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, cap
             "    \n"
             "  \n",
         ),
+        # Test leading templated newlines.
+        # https://github.com/sqlfluff/sqlfluff/issues/4485
+        (
+            "{{ '\\n   \\n   ' }}\nSELECT 1",
+            # NOTE: This looks a little strange, but what's important
+            # here is that it doesn't raise an exception.
+            "\n   \n   \nSELECT 1",
+        ),
     ],
 )
 def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, caplog):
