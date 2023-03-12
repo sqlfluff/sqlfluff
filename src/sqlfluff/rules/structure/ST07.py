@@ -29,6 +29,11 @@ class Rule_ST07(BaseRule):
        rule, so for now we will keep it in SQLFluff, but encourage those that
        do not find value in the rule, to turn it off.
 
+    .. note::
+
+       This rule is disabled for ClickHouse as it supports ``USING`` without
+       brackets which this rule does not support.
+
     **Anti-pattern**
 
     .. code-block:: sql
@@ -61,8 +66,14 @@ class Rule_ST07(BaseRule):
     groups: Tuple[str, ...] = ("all", "structure")
     crawl_behaviour = SegmentSeekerCrawler({"join_clause"})
     is_fix_compatible = True
+    _dialects_disabled_by_default = [
+        "clickhouse",
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        if context.dialect.name in self._dialects_disabled_by_default:
+            return LintResult()
+
         """Look for USING in a join clause."""
         segment = FunctionalContext(context).segment
         parent_stack = FunctionalContext(context).parent_stack

@@ -9,7 +9,10 @@ from sqlfluff.core.parser import (
     AnySetOf,
     BaseSegment,
     Bracketed,
+    Conditional,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -25,7 +28,124 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-clickhouse_dialect.sets("reserved_keywords").clear()
+
+clickhouse_dialect.add(
+    JoinTypeKeywords=OneOf(
+        # This case INNER [ANY,ALL] JOIN
+        Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
+        # This case [ANY,ALL] INNER JOIN
+        Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
+        # This case FULL ALL OUTER JOIN
+        Sequence(
+            "FULL",
+            Ref.keyword("ALL", optional=True),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case ALL FULL OUTER JOIN
+        Sequence(
+            Ref.keyword("ALL", optional=True),
+            "FULL",
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+        Sequence(
+            "LEFT",
+            OneOf(
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                "ASOF",
+                optional=True,
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
+        Sequence(
+            OneOf(
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                "ASOF",
+            ),
+            "LEFT",
+        ),
+        # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+        Sequence(
+            "RIGHT",
+            OneOf(
+                "OUTER",
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                optional=True,
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
+        Sequence(
+            OneOf(
+                "ANTI",
+                "SEMI",
+                OneOf("ANY", "ALL", optional=True),
+                optional=True,
+            ),
+            "RIGHT",
+        ),
+        # This case CROSS JOIN
+        "CROSS",
+        # This case ANY JOIN
+        "ANY",
+        # This case ALL JOIN
+        "ALL",
+    )
+)
+
+
+class JoinClauseSegment(ansi.JoinClauseSegment):
+    """Any number of join clauses, including the `JOIN` keyword.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            Ref("JoinTypeKeywords", optional=True),
+            Ref("JoinKeywordsGrammar"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+            Conditional(Indent, indented_using_on=True),
+            OneOf(
+                # ON clause
+                Ref("JoinOnConditionSegment"),
+                # USING clause
+                Sequence(
+                    "USING",
+                    Conditional(Indent, indented_using_on=False),
+                    Delimited(
+                        OneOf(
+                            Bracketed(
+                                Delimited(Ref("SingleIdentifierGrammar")),
+                                ephemeral_name="UsingClauseContents",
+                            ),
+                            Delimited(Ref("SingleIdentifierGrammar")),
+                        ),
+                    ),
+                    Conditional(Dedent, indented_using_on=False),
+                ),
+                # Requires True for CROSS JOIN
+                optional=True,
+            ),
+            Conditional(Dedent, indented_using_on=True),
+        ),
+        # Note NATURAL joins do not support Join conditions
+        Sequence(
+            Ref("JoinKeywordsGrammar"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
+    )
 
 
 class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
@@ -54,6 +174,28 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     )
 
 
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause."""
+
+    type = "alias_expression"
+    match_grammar: Matchable = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Ref("SingleQuotedIdentifierSegment"),
+            exclude=OneOf(
+                "LATERAL",
+                "WINDOW",
+                "KEYS",
+            ),
+        ),
+    )
+
+
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression.
 
@@ -70,7 +212,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             exclude=OneOf(
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
-                Ref.keyword("Final"),
+                "FINAL",
+                Ref("JoinClauseSegment"),
             ),
             optional=True,
         ),
