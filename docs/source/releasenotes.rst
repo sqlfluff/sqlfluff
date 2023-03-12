@@ -50,109 +50,118 @@ To upgrade smoothly between versions, we recommend the following sequence:
    as :code:`~=2.0.0`, to ensure any minor bugfix releases are automatically
    included.
 
-#. Examine your configuration file (as mentioned above), and evaluate how rules
-   are currently specified. We recommend primarily using
-   *either* :code:`rules` *or* :code:`exclude_rules` rather than both, as detailed
-   in :ref:`ruleselection`. Using either the :code:`sqlfluff rules` CLI command or
-   the online :ref:`ruleref`, replace *all references* to legacy rule codes
-   (i.e. codes of the form :code:`L0XX`). Specifically:
+#. Examine your configuration file (as mentioned above), and evaluate how
+   rules are currently specified. We recommend primarily using *either*
+   :code:`rules` *or* :code:`exclude_rules` rather than both, as detailed
+   in :ref:`ruleselection`. Using either the :code:`sqlfluff rules` CLI
+   command or the online :ref:`ruleref`, replace *all references* to legacy
+   rule codes (i.e. codes of the form :code:`L0XX`). Specifically:
 
-   * In the :code:`rules` and :code:`exclude_rules` config values. Here, consider
-     using group specifiers or names to make your config simpler to read and
-     understand (e.g. :code:`capitalisation`, is much more understandable than
-     :code:`CP01,CP02,CP03,CP04,CP05`, but the two specifiers will have the
-     same effect). Note that while legacy codes *will still be understood* here
-     (because they remain valid as aliases for those rules) - you may find that
-     some rules no longer exist in isolation and so these references may be
-     misleading. e.g. :code:`L005` is now an alias for
-     :class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>` but that rule
-     is much more broad ranging than the original scope of :code:`L005`, which
-     was spacing around commas.
-   
-   * In :ref:`ruleconfig`. In particular here, legacy references to rule codes
-     are *no longer valid*, will raise warnings, and until resolved, the
-     configuration in those sections will be ignored. The new section references
-     should include the rule *name* (e.g. :code:`[sqlfluff:rules:capitalisation.keywords]`
-     rather than :code:`[sqlfluff:rules:L010]`). This switch is designed to make
-     configuration files more readable, but we cannot support backward compatibility
-     here without also having to resolve the potential ambiguity of the scenario
-     where both *code-based* and *name-based* are both used.
+   * In the :code:`rules` and :code:`exclude_rules` config values. Here,
+     consider using group specifiers or names to make your config simpler
+     to read and understand (e.g. :code:`capitalisation`, is much more
+     understandable than :code:`CP01,CP02,CP03,CP04,CP05`, but the two
+     specifiers will have the same effect). Note that while legacy codes
+     *will still be understood* here (because they remain valid as aliases
+     for those rules) - you may find that some rules no longer exist in
+     isolation and so these references may be misleading. e.g. :code:`L005`
+     is now an alias for
+     :class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>` but
+     that rule is much more broad ranging than the original scope of
+     :code:`L005`, which was only spacing around commas.
 
-   * Review the :ref:`layoutconfig` documentation, and check whether any indentation
-     or layout configuration should be revised.
+   * In :ref:`ruleconfig`. In particular here, legacy references to rule
+     codes are *no longer valid*, will raise warnings, and until resolved,
+     the configuration in those sections will be ignored. The new section
+     references should include the rule *name* (e.g.
+     :code:`[sqlfluff:rules:capitalisation.keywords]` rather than
+     :code:`[sqlfluff:rules:L010]`). This switch is designed to make
+     configuration files more readable, but we cannot support backward
+     compatibility here without also having to resolve the potential
+     ambiguity of the scenario where both *code-based* and *name-based*
+     are both used.
 
-#. Check your project for :ref:`in_file_config` which refer to rule codes. Alter
-   these in the same manner as described above for configuration files.
+   * Review the :ref:`layoutconfig` documentation, and check whether any
+     indentation or layout configuration should be revised.
 
-#. Test linting your project for unexpected linting issues. Where found, consider
-   whether to use :code:`sqlfluff fix` to repair them in bulk, or (if you disagree
-   with the changes) consider changing which rules you enable or their configuration
-   accordingly. In particular you may notice:
+#. Check your project for :ref:`in_file_config` which refer to rule codes.
+   Alter these in the same manner as described above for configuration files.
 
-   * The indentation rule (:code:`L003` as was, now :class:`LT02, layout.indent <sqlfluff.rules.sphinx.Rule_LT02>`) has had a significant rewrite, and while much more flexible
-     and accurate, it is also more specific. Note that :ref:`hangingindents` are
-     no longer supported, and that while not enabled by default, many users may
-     find the enabling of :ref:`implicitindents` to fit their organisation style
+#. Test linting your project for unexpected linting issues. Where found,
+   consider whether to use :code:`sqlfluff fix` to repair them in bulk,
+   or (if you disagree with the changes) consider changing which rules
+   you enable or their configuration accordingly. In particular you may notice:
+
+   * The indentation rule (:code:`L003` as was, now
+     :class:`LT02, layout.indent <sqlfluff.rules.sphinx.Rule_LT02>`) has had
+     a significant rewrite, and while much more flexible and accurate, it is
+     also more specific. Note that :ref:`hangingindents` are no longer
+     supported, and that while not enabled by default, many users may find
+     the enabling :ref:`implicitindents` fits their organisation's style
      better.
 
-   * The spacing rule (:class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>`) has a much
-     wider scope, and so may pick up spacing issues that were not previously
-     enforced. If you disagree with any of these, you can override the
-     :code:`sqlfluff:layout` sections of the config with different (or just more
-     liberal settings like :code:`any`).
+   * The spacing rule (
+     :class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>`) has a
+     much wider scope, and so may pick up spacing issues that were not
+     previously enforced. If you disagree with any of these, you can
+     override the :code:`sqlfluff:layout` sections of the config with
+     different (or just more liberal settings, like :code:`any`).
 
 .. _`compatible release`: https://peps.python.org/pep-0440/#compatible-release
 
 Upgrading to 1.4
 ----------------
 
-This release brings several internal changes, and acts as a prelude to 2.0.0.
-In particular, the following config values have changed:
+This release brings several internal changes, and acts as a prelude
+to 2.0.0. In particular, the following config values have changed:
 
 * :code:`sqlfluff:rules:L007:operator_new_lines`` has been changed to
   :code:`sqlfluff:layout:type:binary_operator:line_position`.
-* :code:`sqlfluff:rules:comma_style`` and :code:`sqlfluff:rules:L019:comma_style`
-  have both been consolidated into :code:`sqlfluff:layout:type:comma:line_position`.
+* :code:`sqlfluff:rules:comma_style`` and
+  :code:`sqlfluff:rules:L019:comma_style` have both been consolidated
+  into :code:`sqlfluff:layout:type:comma:line_position`.
 
-If any of these values have been set in your config, they will be automatically
-translated to the new values at runtime, and a warning will be shown. To silence
-the warning, update your config file to the new values. For more details on
-configuring layout (including some changes yet to come in future versions) see
-:ref:`layoutconfig`.
+If any of these values have been set in your config, they will be
+automatically translated to the new values at runtime, and a warning
+will be shown. To silence the warning, update your config file to the
+new values. For more details on configuring layout see :ref:`layoutconfig`.
 
 
 Upgrading to 1.3
 ----------------
 
-This release brings several potentially breaking changes to the underlying parse
-tree. For users of the cli tool in a linting context you should notice no change.
-If however your application relies on the structure of the SQLFluff parse tree
-or the naming of certain elements within the yaml format, then this may not be a
-drop-in replacement. Specifically:
+This release brings several potentially breaking changes to the underlying
+parse tree. For users of the cli tool in a linting context you should notice
+no change. If however your application relies on the structure of the SQLFluff
+parse tree or the naming of certain elements within the yaml format, then
+this may not be a drop-in replacement. Specifically:
 
-* The addition of a new :code:`end_of_file`` meta segment at the end of the parse
-  structure.
-* The addition of a :code:`template_loop`` meta segment to signify a jump backward
-  in the source file within a loop structure (e.g. a jinja :code:`for`` loop).
-* Much more specific types on some raw segments, in particular :code:`identifier`
-  and :code:`literal` type segments will now appear in the parse tree with their
-  more specific type (which used to be called :code:`name`)
-  e.g. :code:`naked_identifier`, :code:`quoted_identifier`, :code:`numeric_literal`
-  etc...
+* The addition of a new :code:`end_of_file`` meta segment at the end of
+  the parse structure.
+* The addition of a :code:`template_loop`` meta segment to signify a jump
+  backward in the source file within a loop structure (e.g. a jinja
+  :code:`for`` loop).
+* Much more specific types on some raw segments, in particular
+  :code:`identifier` and :code:`literal` type segments will now appear
+  in the parse tree with their more specific type (which used to be called
+  :code:`name`) e.g. :code:`naked_identifier`, :code:`quoted_identifier`,
+  :code:`numeric_literal` etc...
 
-If using the python api, the *parent* type (such as :code:`identifier`) will still
-register if you call :code:`.is_type("identifier")`, as this function checks all
-inherited types. However the eventual type returned by :code:`.get_type()`` will
-now be (in most cases) what used to be accessible at :code:`.name`. The
-:code:`name` attribute will be deprecated in a future release.
+If using the python api, the *parent* type (such as :code:`identifier`)
+will still register if you call :code:`.is_type("identifier")`, as this
+function checks all inherited types. However the eventual type returned
+by :code:`.get_type()`` will now be (in most cases) what used to be
+accessible at :code:`.name`. The :code:`name` attribute will be deprecated
+in a future release.
 
 
 Upgrading to 1.2
 ----------------
 
-This release introduces the capability to automatically skip large files, and sets
-default limits on the maximum file size before a file is skipped. Users should see
-a performance gain, but may experience warnings associated with these skipped files.
+This release introduces the capability to automatically skip large files, and
+sets default limits on the maximum file size before a file is skipped. Users
+should see a performance gain, but may experience warnings associated with
+these skipped files.
 
 
 Upgrades pre 1.0
