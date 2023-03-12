@@ -1364,7 +1364,7 @@ def _rebreak_priorities(spans: List[_RebreakSpan]) -> Dict[int, int]:
         # so for now it feels ok that it's coded here - it also wouldn't
         # be a breaking change at that point so no pressure to release
         # it early.
-        span_raw = span.target.raw
+        span_raw = span.target.raw_upper
         priority = 6  # Default to 6 for now i.e. the same as '+'
         # Override priority for specific precedence.
         if span_raw == ",":
