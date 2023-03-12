@@ -109,6 +109,46 @@ To upgrade smoothly between versions, we recommend the following sequence:
 
 .. _`compatible release`: https://peps.python.org/pep-0440/#compatible-release
 
+
+Example 2.0 config
+^^^^^^^^^^^^^^^^^^
+
+To illustrate the points above, this is an illustrative example config
+for a 2.0 compatible project. Note that the config is fairly brief and
+sets only the values which differ from the default config.
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    dialect = snowflake
+    templater = dbt
+    max_line_length = 120
+
+    # Exclude some specific rules based on a mixture of codes and names
+    exclude_rules = RF02, RF03, RF04, ST06, ST07, AM05, AM06, convention.left_join, layout.select_targets
+
+    [sqlfluff:indentation]
+    # Enabling implicit indents for this project.
+    # See https://docs.sqlfluff.com/en/stable/layout.html#configuring-indent-locations
+    allow_implicit_indents = True
+
+    # Add a few specific rule configurations, referenced by the rule names
+    # and not by the rule codes.
+    [sqlfluff:rules:capitalisation.keywords]
+    capitalisation_policy = lower
+
+    [sqlfluff:rules:capitalisation.identifiers]
+    capitalisation_policy = lower
+
+    [sqlfluff:rules:capitalisation.functions]
+    extended_capitalisation_policy = lower
+
+    # An example of setting a custom layout specification which
+    # is more lenient than default config.
+    [sqlfluff:layout:type:set_operator]
+    line_position = alone
+
+
 Upgrading to 1.4
 ----------------
 
