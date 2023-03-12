@@ -263,11 +263,11 @@ def _extract_alignment_config(
     """Helper function to break apart an alignment config.
 
     >>> _extract_alignment_config("align:alias_expression")
-    ("alias_expression", None, None)
+    ('alias_expression', None, None)
     >>> _extract_alignment_config("align:alias_expression:statement")
-    ("alias_expression", "statement", None)
+    ('alias_expression', 'statement', None)
     >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
-    ("alias_expression", "statement", "bracketed")
+    ('alias_expression', 'statement', 'bracketed')
     """
     assert ":" in constraint
     alignment_config = constraint.split(":")
