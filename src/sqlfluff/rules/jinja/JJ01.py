@@ -136,7 +136,7 @@ class Rule_JJ01(BaseRule):
                 if context.segment.source_fixes:
                     self.logger.debug(
                         "Segment already has source fixes. Skipping for safety: %s",
-                        context.segment.source_fixes
+                        context.segment.source_fixes,
                     )
                     continue
 
