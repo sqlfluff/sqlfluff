@@ -1779,16 +1779,22 @@ class FromUnpivotExpressionSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
+            # single column unpivot
             Bracketed(
                 Ref("SingleIdentifierGrammar"),
                 "FOR",
                 Ref("SingleIdentifierGrammar"),
                 "IN",
                 Bracketed(
-                    Delimited(Ref("SingleIdentifierGrammar")),
-                    Ref("UnpivotAliasExpressionSegment", optional=True),
+                    Delimited(
+                        Sequence(
+                            Delimited(Ref("SingleIdentifierGrammar")),
+                            Ref("UnpivotAliasExpressionSegment", optional=True),
+                        ),
+                    ),
                 ),
             ),
+            # multi column unpivot
             Bracketed(
                 Bracketed(
                     Delimited(
