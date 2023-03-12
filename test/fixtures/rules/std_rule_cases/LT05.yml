@@ -585,3 +585,21 @@ test_fail_do_not_fix_noqa:
         col3
     FROM
         really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
+
+test_operator_precedence:
+  fail_str: |
+    SELECT *
+    FROM foo
+    left join abcdef_abcd_details
+        on foo.abcdefgh_id = abcdef_abcd_details.abcdefgh_id and abcdef_abcd_details.abcdef_abcdef_abcdef_abcdef = 1
+  fix_str: |
+    SELECT *
+    FROM foo
+    left join abcdef_abcd_details
+        on
+            foo.abcdefgh_id = abcdef_abcd_details.abcdefgh_id
+            and abcdef_abcd_details.abcdef_abcdef_abcdef_abcdef = 1
+  configs:
+    core:
+      max_line_length: 100
+      dialect: snowflake
