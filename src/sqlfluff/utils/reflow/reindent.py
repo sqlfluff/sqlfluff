@@ -754,9 +754,9 @@ def _map_line_buffers(
                     # Second, check for placeholders. Indents around placeholders
                     # are trickier to reason about. For now, don't force untaken
                     # indents around placeholders.
-                    if "placeholder" in elements[loc + 1].class_types:
-                        continue
-                    if loc >= 1 and "placeholder" in elements[loc - 1].class_types:
+                    if "placeholder" in elements[loc + 1].class_types or (
+                        loc >= 1 and "placeholder" in elements[loc - 1].class_types
+                    ):
                         continue
 
                     # If the location was in the line we're just closing. That's
