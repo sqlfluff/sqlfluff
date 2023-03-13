@@ -11,7 +11,7 @@ Notable releases:
 * **1.0.x**: First *stable* release, no major changes to take advantage of a
   point of relative stability.
 * **2.0.x**: Recode of rules, whitespace fixing consolidation,
-  :code:`sqlfluff fix` and removal of support for dbt versions pre `1.1`.
+  :code:`sqlfluff format` and removal of support for dbt versions pre `1.1`.
   Note, that this release brings with it some breaking changes to rule coding
   and configuration, see :ref:`upgrading_2_0`.
 
