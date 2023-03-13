@@ -14,6 +14,70 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+Upgrading to 2.0 brings several important **breaking changes**:
+
+* All bundled rules have been recoded, both from generic `L00X` formats
+  into groups within similar codes (e.g. an *aliasing* group with codes
+  of the format `AL0X`), but also given *names* to allow much clearer
+  referencing (e.g. `aliasing.column`).
+* [Configuring rules](https://docs.sqlfluff.com/en/latest/configuration.html#rule-configuration)
+  now uses the rule *name* rather than the rule *code* to
+  specify the section. Any unrecognised references in config files (whether
+  they are references which *do* match existing rules by code or alias, or
+  whether the match no rules at all) will raise warnings at runtime.
+* A complete re-write of layout and whitespace handling rules (see
+  [layout](https://docs.sqlfluff.com/en/latest/layout.html)), and with
+  that a change in how layout is configured (see
+  [configuring layout](https://docs.sqlfluff.com/en/latest/layout.html#configuring-layout))
+  and the combination of some rules that were previously separate. One
+  example of this is that the legacy rules `L001`, `L005`, `L006`, `L008`,
+  `L023`, `L024`, `L039`, `L048` & `L071` have been combined simply into
+  [LT01](https://docs.sqlfluff.com/en/latest/rules.html#sqlfluff.rules.sphinx.Rule_LT01).
+* Dropping support for dbt versions before `1.1`.
+
+To help users upgrade to 2.0, we've put together a recommended process
+as part of our [release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html#upgrading-from-1-x-to-2-0).
+
+Beyond the breaking changes, this release brings *a load* of additional
+changes:
+
+* Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
+  to auto-format sql files using a known set of _fairly safe_ rules.
+* Databricks as a distinct new dialect (rather than as previously an alias
+  for `sparksql`).
+* Performance improvements in our parsing engine.
+* Dialect improvements to _almost all of them_.
+
+As a new major release, especially with significant rewrites of large
+portions of the codebase, we recommend using [compatible release](https://peps.python.org/pep-0440/#compatible-release)
+specifiers in your dependencies (i.e. `sqlfluff~=2.0.0`) so that you
+can automatically take advantage of any bugfix releases in the coming
+weeks. The alpha releases of 2.0.0 have been tested on a range of large
+projects, but we know that the range of use cases _"in the wild"_ is
+very diverse. If you do experience issues, please post them
+[on GitHub](https://github.com/sqlfluff/sqlfluff/issues/new/choose)
+in the usual manner.
+
+Finally thanks to everyone who has worked on this release, especially
+[@konnectr](https://github.com/konnectr),
+[@ValentinCrr](https://github.com/ValentinCrr),
+[@FabianScheidt](https://github.com/FabianScheidt),
+[@dflem97](https://github.com/dflem97),
+[@timcosta](https://github.com/timcosta),
+[@AidanHarveyNelson](https://github.com/AidanHarveyNelson),
+[@joar](https://github.com/joar),
+[@jmpfar](https://github.com/jmpfar),
+[@jared-rimmer](https://github.com/jared-rimmer),
+[@vesatoivonen](https://github.com/vesatoivonen),
+[@briankravec](https://github.com/briankravec),
+[@saintamh](https://github.com/saintamh),
+[@tdurieux](https://github.com/tdurieux),
+[@baa-ableton](https://github.com/baa-ableton),
+& [@WillAyd](https://github.com/WillAyd) who made their first contributions
+during the development of 2.0.0. Thanks for your contributions, and
+especially your patience in the slightly slower release of your efforts
+into the wild. 🙏🎉
+
 ## What’s Changed
 
 * Fix #4433 (more untaken positive indents) [#4499](https://github.com/sqlfluff/sqlfluff/pull/4499) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -174,9 +238,21 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## New Contributors
 
-* [@github-actions](https://github.com/github-actions) made their first contribution in [#4203](https://github.com/sqlfluff/sqlfluff/pull/4203)
 * [@konnectr](https://github.com/konnectr) made their first contribution in [#4488](https://github.com/sqlfluff/sqlfluff/pull/4488)
 * [@ValentinCrr](https://github.com/ValentinCrr) made their first contribution in [#4490](https://github.com/sqlfluff/sqlfluff/pull/4490)
+* [@FabianScheidt](https://github.com/FabianScheidt) made their first contribution in [#4426](https://github.com/sqlfluff/sqlfluff/pull/4426)
+* [@dflem97](https://github.com/dflem97) made their first contribution in [#4440](https://github.com/sqlfluff/sqlfluff/pull/4440)
+* [@timcosta](https://github.com/timcosta) made their first contribution in [#4391](https://github.com/sqlfluff/sqlfluff/pull/4391)
+* [@AidanHarveyNelson](https://github.com/AidanHarveyNelson) made their first contribution in [#4344](https://github.com/sqlfluff/sqlfluff/pull/4344)
+* [@joar](https://github.com/joar) made their first contribution in [#4341](https://github.com/sqlfluff/sqlfluff/pull/4341)
+* [@jmpfar](https://github.com/jmpfar) made their first contribution in [#4356](https://github.com/sqlfluff/sqlfluff/pull/4356)
+* [@jared-rimmer](https://github.com/jared-rimmer) made their first contribution in [#4403](https://github.com/sqlfluff/sqlfluff/pull/4403)
+* [@vesatoivonen](https://github.com/vesatoivonen) made their first contribution in [#4335](https://github.com/sqlfluff/sqlfluff/pull/4335)
+* [@briankravec](https://github.com/briankravec) made their first contribution in [#4421](https://github.com/sqlfluff/sqlfluff/pull/4421)
+* [@saintamh](https://github.com/saintamh) made their first contribution in [#4417](https://github.com/sqlfluff/sqlfluff/pull/4417)
+* [@tdurieux](https://github.com/tdurieux) made their first contribution in [#4262](https://github.com/sqlfluff/sqlfluff/pull/4262)
+* [@baa-ableton](https://github.com/baa-ableton) made their first contribution in [#4182](https://github.com/sqlfluff/sqlfluff/pull/4182)
+* [@WillAyd](https://github.com/WillAyd) made their first contribution in [#4198](https://github.com/sqlfluff/sqlfluff/pull/4198)
 
 ## [2.0.0a6] - 2023-03-06
 
@@ -203,7 +279,7 @@ It contains:
   which reference using legacy rules (or reference unknown rules) should
   now display warnings.
 * Introduces the the `sqlfluff format` CLI command (a la `sqlfmt` or `black`)
-  to auto-format sql files using a known set of _fairly safe_ set of rules.
+  to auto-format sql files using a known set of _fairly safe_ rules.
 * Databricks as a distinct new dialect (rather than as previously an alias
   for `sparksql`).
 
