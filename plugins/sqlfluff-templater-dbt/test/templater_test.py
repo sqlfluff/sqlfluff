@@ -82,6 +82,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         "ends_with_whitespace_stripping.sql",
         # Access dbt graph nodes
         "access_graph_nodes.sql",
+        # Call statements
+        "call_statement.sql",
     ],
 )
 def test__templater_dbt_templating_result(
@@ -105,16 +107,22 @@ def test_dbt_profiles_dir_env_var_uppercase(
 
 def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
     path = Path(project_dir) / "models/my_new_project" / fname
+    config = FluffConfig(configs=DBT_FLUFF_CONFIG)
     templated_file, _ = dbt_templater.process(
         in_str=path.read_text(),
         fname=str(path),
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        config=config,
     )
     template_output_folder_path = Path(
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
     )
     fixture_path = _get_fixture_path(template_output_folder_path, fname)
     assert str(templated_file) == fixture_path.read_text()
+    # Check we can lex the output too.
+    # https://github.com/sqlfluff/sqlfluff/issues/4013
+    lexer = Lexer(config=config)
+    _, lexing_violations = lexer.lex(templated_file)
+    assert not lexing_violations
 
 
 def _get_fixture_path(template_output_folder_path, fname):
