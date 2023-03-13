@@ -248,7 +248,7 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Sequence(
-        Ref.keyword("ARRAY"),
+        "ARRAY",
         Ref("ArrayTypeSchemaSegment", optional=True),
     )
 
