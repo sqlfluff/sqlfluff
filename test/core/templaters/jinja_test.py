@@ -866,7 +866,8 @@ def test__templater_jinja_slice_template(test, result):
 
 
 def _statement(*args, **kwargs):
-    return "_statement"
+    # NOTE: The standard dbt statement() call returns nothing.
+    return ""
 
 
 def _load_result(*args, **kwargs):
@@ -1299,30 +1300,30 @@ FROM {{ j }}{{ self.table_name() }}
             ],
         ),
         (
-            """{{ statement('variables', fetch_result=true) }}
-""",
+            "{{ statement('variables', fetch_result=true) }}\n",
             dict(
                 statement=_statement,
                 load_result=_load_result,
             ),
             [
-                ("templated", slice(0, 47, None), slice(0, 10, None)),
-                ("literal", slice(47, 48, None), slice(10, 11, None)),
+                ("templated", slice(0, 47, None), slice(0, 0, None)),
+                ("literal", slice(47, 48, None), slice(0, 1, None)),
             ],
         ),
         (
-            "{% call statement('variables', fetch_result=true) %}"
-            "select 1 as test"
-            "{% endcall %}\n",
+            "{% call statement('variables', fetch_result=true) %}\n"
+            "select 1 as test\n"
+            "{% endcall %}\n"
+            "select 2 as foo\n",
             dict(
                 statement=_statement,
                 load_result=_load_result,
             ),
             [
-                ("templated", slice(0, 52, None), slice(0, 10, None)),
-                ("literal", slice(52, 68, None), slice(10, 10, None)),
-                ("block_end", slice(68, 81, None), slice(10, 10, None)),
-                ("literal", slice(81, 82, None), slice(10, 11, None)),
+                ("block_start", slice(0, 52, None), slice(0, 0, None)),
+                ("literal", slice(52, 70, None), slice(0, 0, None)),
+                ("block_end", slice(70, 83, None), slice(0, 0, None)),
+                ("literal", slice(83, 100, None), slice(0, 17, None)),
             ],
         ),
     ],

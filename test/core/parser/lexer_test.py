@@ -178,7 +178,7 @@ def test__parser__lexer_slicing_calls():
     https://github.com/sqlfluff/sqlfluff/issues/4013
     """
     in_str = (
-        "{% call statement('variables', fetch_result=true) %}\n"
+        "{% call statement('unique_keys', fetch_result=true) %}\n"
         "    select 1 as test\n"
         "{% endcall %}\n"
         "{% set unique_keys = load_result('unique_keys') %}\n"
