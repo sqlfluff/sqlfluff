@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1ac769a469451f83cd79aeacda74b84cd3e92d57f9d5f24df882939a37691d5
+_hash: ea825b3ba14b42f2b2e3bc7c24d40c6086e32fb5c5359e9ce157af8c0bccbe80
 file:
   statement:
     select_statement:
@@ -19,8 +19,9 @@ file:
                 column_reference:
                   naked_identifier: a
               end_bracket: )
-            dot: .
-            parameter: b
+            semi_structured_expression:
+              dot: .
+              naked_identifier: b
           alias_expression:
             keyword: AS
             naked_identifier: field
@@ -35,44 +36,47 @@ file:
                 column_reference:
                   naked_identifier: a
               end_bracket: )
-            dot: .
-            star: '*'
+            semi_structured_expression:
+              dot: .
+              star: '*'
           alias_expression:
             keyword: AS
             naked_identifier: wildcard
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: testFunction
-          - bracketed:
+            bracketed:
               start_bracket: (
               expression:
                 column_reference:
                   naked_identifier: a
               end_bracket: )
-          - dot: .
-          - parameter: b
-          - dot: .
-          - parameter: c
+            semi_structured_expression:
+            - dot: .
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: c
           alias_expression:
             keyword: AS
             naked_identifier: field_with_field
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: testFunction
-          - bracketed:
+            bracketed:
               start_bracket: (
               expression:
                 column_reference:
                   naked_identifier: a
               end_bracket: )
-          - dot: .
-          - parameter: b
-          - dot: .
-          - star: '*'
+            semi_structured_expression:
+            - dot: .
+            - naked_identifier: b
+            - dot: .
+            - star: '*'
           alias_expression:
             keyword: AS
             naked_identifier: field_with_wildcard
@@ -99,8 +103,9 @@ file:
                       numeric_literal: '0'
                     end_bracket: )
               end_square_bracket: ']'
-            dot: .
-            star: '*'
+            semi_structured_expression:
+              dot: .
+              star: '*'
           alias_expression:
             keyword: AS
             naked_identifier: field_with_offset_wildcard
@@ -127,8 +132,9 @@ file:
                       numeric_literal: '0'
                     end_bracket: )
               end_square_bracket: ']'
-            dot: .
-            star: '*'
+            semi_structured_expression:
+              dot: .
+              star: '*'
           alias_expression:
             keyword: AS
             naked_identifier: field_with_safe_offset_wildcard
@@ -155,8 +161,9 @@ file:
                       numeric_literal: '1'
                     end_bracket: )
               end_square_bracket: ']'
-            dot: .
-            star: '*'
+            semi_structured_expression:
+              dot: .
+              star: '*'
           alias_expression:
             keyword: AS
             naked_identifier: field_with_ordinal_wildcard
@@ -183,8 +190,9 @@ file:
                       numeric_literal: '1'
                     end_bracket: )
               end_square_bracket: ']'
-            dot: .
-            parameter: a
+            semi_structured_expression:
+              dot: .
+              naked_identifier: a
           alias_expression:
             keyword: AS
             naked_identifier: field_with_ordinal_field

@@ -919,20 +919,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 # Functions returning STRUCTs in BigQuery can have the fields
                 # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
                 # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
-                Sequence(
-                    Ref("DotSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DotSegment"),
-                        ),
-                    ),
-                    OneOf(
-                        Ref("ParameterNameSegment"),
-                        Ref("StarSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("SemiStructuredAccessorSegment", optional=True),
                 Ref("PostFunctionGrammar", optional=True),
             ),
         ),
@@ -1125,17 +1112,18 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
     type = "semi_structured_expression"
     match_grammar = Sequence(
-        Ref("DotSegment"),
-        Ref("SingleIdentifierGrammar"),
-        Ref("ArrayAccessorSegment", optional=True),
         AnyNumberOf(
             Sequence(
                 Ref("DotSegment"),
-                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("StarSegment"),
+                ),
                 allow_gaps=True,
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
+            min_times=1,
         ),
         allow_gaps=True,
     )

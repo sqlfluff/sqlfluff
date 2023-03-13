@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f59c16d10e8bc8f466d59f6dd1c831095a7646afe8f107d0ec0288512283772
+_hash: e82416b945a853194035f5f1c35d78f22b47bd50d6bd6c7902c42b4438651696
 file:
 - statement:
     create_table_statement:
@@ -23,7 +23,7 @@ file:
               cast_expression:
                 column_reference:
                   naked_identifier: VALUE
-                snowflake_semi_structured_expression:
+                semi_structured_expression:
                   colon: ':'
                   semi_structured_element: id
                 casting_operator: '::'
@@ -490,7 +490,7 @@ file:
               cast_expression:
                 column_reference:
                   column_index_identifier_segment: $1
-                snowflake_semi_structured_expression:
+                semi_structured_expression:
                   colon: ':'
                   semi_structured_element: o_custkey
                 casting_operator: '::'
@@ -502,7 +502,7 @@ file:
               cast_expression:
                 column_reference:
                   column_index_identifier_segment: $1
-                snowflake_semi_structured_expression:
+                semi_structured_expression:
                   colon: ':'
                   semi_structured_element: o_orderdate
                 casting_operator: '::'
@@ -514,7 +514,7 @@ file:
               cast_expression:
                 column_reference:
                   column_index_identifier_segment: $1
-                snowflake_semi_structured_expression:
+                semi_structured_expression:
                   colon: ':'
                   semi_structured_element: o_orderstatus
                 casting_operator: '::'
@@ -526,7 +526,7 @@ file:
               cast_expression:
                 column_reference:
                   column_index_identifier_segment: $1
-                snowflake_semi_structured_expression:
+                semi_structured_expression:
                   colon: ':'
                   semi_structured_element: o_totalprice
                 casting_operator: '::'

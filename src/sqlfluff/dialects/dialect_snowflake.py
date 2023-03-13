@@ -1353,7 +1353,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
     https://docs.snowflake.com/en/user-guide/semistructured-considerations.html
     """
 
-    type = "snowflake_semi_structured_expression"
+    type = "semi_structured_expression"
     match_grammar = Sequence(
         OneOf(
             # If a field is already a VARIANT, this could
