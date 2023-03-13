@@ -3,35 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7028eaa159caaa519f3691bc92ad59783a0e192e83b0435f5633b589c6f7847
+_hash: a385cd32bc29fe03941e9b42b6ac62fb8b7d5760272ed88f2a543a7508b6b927
 file:
 - statement:
-    bracketed:
-      start_bracket: (
-      select_statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
-      end_bracket: )
+            numeric_literal: '0'
+            alias_expression:
+              keyword: AS
+              naked_identifier: bar
 - statement_terminator: ;
 - statement:
-    bracketed:
-      start_bracket: (
-      bracketed:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
         start_bracket: (
         select_statement:
           select_clause:
             keyword: SELECT
             select_clause_element:
               numeric_literal: '1'
+              alias_expression:
+                keyword: AS
+                naked_identifier: bar
         end_bracket: )
-      end_bracket: )
 - statement_terminator: ;
 - statement:
-    bracketed:
-      start_bracket: (
-      bracketed:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
         start_bracket: (
         bracketed:
           start_bracket: (
@@ -40,7 +53,9 @@ file:
               keyword: SELECT
               select_clause_element:
                 numeric_literal: '1'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: bar
           end_bracket: )
         end_bracket: )
-      end_bracket: )
 - statement_terminator: ;
