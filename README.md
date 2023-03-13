@@ -91,8 +91,10 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 **SQLFluff** adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), so breaking changes
 should be restricted to major versions releases. Some elements (such as the python API) are in a less
-stable state and may see more significant changes more often. See the [changelog](CHANGELOG.md) for more details.
-If you would like to join in please consider [contributing](CONTRIBUTING.md).
+stable state and may see more significant changes more often. For details on breaking changes and how
+to migrate between versions, see our [release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html).
+See the [changelog](CHANGELOG.md) for more details. If you would like to join in please
+consider [contributing](CONTRIBUTING.md).
 
 New releases are made monthly. For more information, visit [Releases](https://github.com/sqlfluff/sqlfluff/releases).
 
