@@ -2,4 +2,4 @@
   select 'tests' as key_name
 {% endcall %}
 {% set unique_keys = load_result('unique_keys') %}
-select 1
+select 1, '{{ unique_keys[0][0] }}'
