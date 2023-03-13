@@ -144,7 +144,7 @@ def test__config__load_toml():
             "testing_bar": 7.698,
             "testing_bool": False,
             "testing_arr": ["a", "b", "c"],
-            "rules": ["L010", "L035"],
+            "rules": ["LT03", "LT09"],
             "testing_inline_table": {"x": 1},
         },
         "bar": {"foo": "foobar"},
@@ -490,7 +490,7 @@ def test__config__toml_list_config():
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "ansi"
-    assert cfg.get("rules") == ["L010", "L035"]
+    assert cfg.get("rules") == ["LT03", "LT09"]
 
 
 def test__config__warn_unknown_rule(caplog):
