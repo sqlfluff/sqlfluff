@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6eb56f8f6b59aa57411f65d6f1e127fc47b936ca17cf53843296c210aae65551
+_hash: 1abe1b4ebaac883e5732f0f6422bbb001f44fd562b9a834fec52ecb40e785427
 file:
 - statement:
     select_statement:
@@ -35,26 +35,30 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - quoted_literal: "'first'"
-                      - comma: ','
-                      - quoted_literal: "'last'"
-                      - comma: ','
-                      - quoted_literal: "'age'"
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'first'"
+                        - comma: ','
+                        - quoted_literal: "'last'"
+                        - comma: ','
+                        - quoted_literal: "'age'"
+                        - end_square_bracket: ']'
                   - comma: ','
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - quoted_literal: "'Bob'"
-                      - comma: ','
-                      - quoted_literal: "'Smith'"
-                      - comma: ','
-                      - quoted_literal: "'35'"
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'Bob'"
+                        - comma: ','
+                        - quoted_literal: "'Smith'"
+                        - comma: ','
+                        - quoted_literal: "'35'"
+                        - end_square_bracket: ']'
                   - end_bracket: )
                 alias_expression:
                   keyword: AS
@@ -91,16 +95,20 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      array_literal:
-                        keyword: ARRAY
-                        start_square_bracket: '['
-                        end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                          start_square_bracket: '['
+                          end_square_bracket: ']'
                   - comma: ','
                   - expression:
-                      array_literal:
-                        keyword: ARRAY
-                        start_square_bracket: '['
-                        end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                          start_square_bracket: '['
+                          end_square_bracket: ']'
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -133,26 +141,30 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - numeric_literal: '10'
-                      - comma: ','
-                      - numeric_literal: '20'
-                      - comma: ','
-                      - numeric_literal: '30'
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '10'
+                        - comma: ','
+                        - numeric_literal: '20'
+                        - comma: ','
+                        - numeric_literal: '30'
+                        - end_square_bracket: ']'
                   - comma: ','
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - quoted_literal: "'a'"
-                      - comma: ','
-                      - null_literal: 'null'
-                      - comma: ','
-                      - quoted_literal: "'c'"
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'a'"
+                        - comma: ','
+                        - null_literal: 'null'
+                        - comma: ','
+                        - quoted_literal: "'c'"
+                        - end_square_bracket: ']'
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -189,26 +201,30 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - quoted_literal: "'k1'"
-                      - comma: ','
-                      - quoted_literal: "'k2'"
-                      - comma: ','
-                      - quoted_literal: "'k3'"
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'k1'"
+                        - comma: ','
+                        - quoted_literal: "'k2'"
+                        - comma: ','
+                        - quoted_literal: "'k3'"
+                        - end_square_bracket: ']'
                   - comma: ','
                   - expression:
-                      array_literal:
-                      - keyword: ARRAY
-                      - start_square_bracket: '['
-                      - numeric_literal: '20'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - comma: ','
-                      - numeric_literal: '15'
-                      - end_square_bracket: ']'
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '20'
+                        - comma: ','
+                        - numeric_literal: '3'
+                        - comma: ','
+                        - numeric_literal: '15'
+                        - end_square_bracket: ']'
                   - end_bracket: )
             - comma: ','
             - expression:

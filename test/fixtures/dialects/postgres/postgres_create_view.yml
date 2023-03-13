@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3122a61beb5e03eed4b5f1e764c205bc6c02f0d9e546c241aafcfb72fd7e7ec5
+_hash: 5d8742acb927b6adcc3e21676374283245b2728799fab3748bfb7389c5db4897
 file:
 - statement:
     create_view_statement:
@@ -431,10 +431,12 @@ file:
           - select_clause_element:
               expression:
                 cast_expression:
-                  array_literal:
-                    keyword: ARRAY
-                    start_square_bracket: '['
-                    end_square_bracket: ']'
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      end_square_bracket: ']'
                   casting_operator: '::'
                   data_type:
                     keyword: INTEGER
@@ -451,12 +453,14 @@ file:
           - select_clause_element:
               expression:
                 cast_expression:
-                  array_literal:
-                    keyword: ARRAY
-                    start_square_bracket: '['
-                    column_reference:
-                      quoted_identifier: '"name"'
-                    end_square_bracket: ']'
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      column_reference:
+                        quoted_identifier: '"name"'
+                      end_square_bracket: ']'
                   casting_operator: '::'
                   data_type:
                     keyword: text
@@ -469,12 +473,14 @@ file:
           - select_clause_element:
               expression:
                 cast_expression:
-                  array_literal:
-                    keyword: ARRAY
-                    start_square_bracket: '['
-                    column_reference:
-                      quoted_identifier: '"group_id"'
-                    end_square_bracket: ']'
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      column_reference:
+                        quoted_identifier: '"group_id"'
+                      end_square_bracket: ']'
                   casting_operator: '::'
                   data_type:
                     keyword: INTEGER

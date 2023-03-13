@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f93983ce5ceb29e93f96471d453262d066872f6216586a81c91e09f3295b6025
+_hash: c5ce1d7c663f64372f59dfc0f2028db823240dbb4eeb85312cb99f45af4edca5
 file:
 - statement:
     create_table_statement:
@@ -17,11 +17,13 @@ file:
         keyword: partitioned_by
         comparison_operator:
           raw_comparison_operator: '='
-        array_literal:
-          keyword: ARRAY
-          start_square_bracket: '['
-          quoted_literal: "'l_shipdate'"
-          end_square_bracket: ']'
+        typed_array_literal:
+          array_type:
+            keyword: ARRAY
+          array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'l_shipdate'"
+            end_square_bracket: ']'
         end_bracket: )
     - keyword: AS
     - select_statement:
@@ -154,11 +156,13 @@ file:
       - keyword: partitioning
       - comparison_operator:
           raw_comparison_operator: '='
-      - array_literal:
-          keyword: ARRAY
-          start_square_bracket: '['
-          quoted_literal: "'month(dt)'"
-          end_square_bracket: ']'
+      - typed_array_literal:
+          array_type:
+            keyword: ARRAY
+          array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'month(dt)'"
+            end_square_bracket: ']'
       - comma: ','
       - keyword: vacuum_min_snapshots_to_keep
       - comparison_operator:
