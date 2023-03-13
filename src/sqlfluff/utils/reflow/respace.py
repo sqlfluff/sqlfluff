@@ -119,7 +119,7 @@ def process_spacing(
                 removal_buffer.append(seg)
                 result_buffer.append(
                     LintResult(
-                        seg, [LintFix.delete(seg)], description="Stripping newlines."
+                        seg, [LintFix.delete(seg)], description="Unexpected line break."
                     )
                 )
                 # Carry on as though it wasn't here.

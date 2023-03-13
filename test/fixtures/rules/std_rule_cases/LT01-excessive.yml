@@ -270,3 +270,13 @@ test_fail_snowflake_semi_structured_multi:
   configs:
     core:
       dialect: snowflake
+
+test_pass_bigquery_specific:
+  # Test a selection of bigquery specific spacings work.
+  # Specifically EXCEPT & qualified functions.
+  pass_str: |
+    SELECT * EXCEPT (order_id);
+    SELECT NET.HOST(LOWER(url)) AS host FROM urls;
+  configs:
+    core:
+      dialect: bigquery
