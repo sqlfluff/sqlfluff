@@ -268,8 +268,16 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
     return buff
 
 
-def _split_comma_separated_string(raw_str: str) -> List[str]:
-    return [s.strip() for s in raw_str.split(",") if s.strip()]
+def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
+    """Converts comma separated string to List, stripping whitespace."""
+    if isinstance(raw, str):
+        return [s.strip() for s in raw.split(",") if s.strip()]
+    if isinstance(raw, list):
+        return raw
+    raise SQLFluffUserError(
+        f"Expected list or comma separated string. Got {type(raw)}"
+        f" instead for value {raw}."
+    )
 
 
 class ConfigLoader:
@@ -403,7 +411,7 @@ class ConfigLoader:
                 # Attempt to resolve paths
                 if name.lower() == "load_macros_from_path":
                     # Comma-separated list of paths.
-                    paths = _split_comma_separated_string(val)
+                    paths = split_comma_separated_string(val)
                     v_temp = []
                     for path in paths:
                         v_temp.append(cls._resolve_path(fpath, path))
@@ -751,17 +759,14 @@ class FluffConfig:
             ("ignore", "ignore"),
             ("warnings", "warnings"),
             ("rules", "rule_allowlist"),
-            # Allowlists and denylists
+            # Allowlists and denylistsignore_words
             ("exclude_rules", "rule_denylist"),
         ]:
             if self._configs["core"].get(in_key, None):
                 # Checking if key is string as can potentially be a list to
-                if isinstance(self._configs["core"][in_key], str):
-                    self._configs["core"][out_key] = _split_comma_separated_string(
-                        self._configs["core"][in_key]
-                    )
-                else:
-                    self._configs["core"][out_key] = self._configs["core"][in_key]
+                self._configs["core"][out_key] = split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
             else:
                 self._configs["core"][out_key] = []
         # Configure Recursion
