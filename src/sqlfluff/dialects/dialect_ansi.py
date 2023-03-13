@@ -2381,6 +2381,7 @@ ansi_dialect.add(
     SelectableGrammar=OneOf(
         OptionallyBracketed(Ref("WithCompoundStatementSegment")),
         Ref("NonWithSelectableGrammar"),
+        Bracketed(Ref("SelectableGrammar")),
     ),
     # Things that behave like select statements, which can form part of with
     # expressions.
@@ -2404,6 +2405,7 @@ ansi_dialect.add(
         # otherwise we can't because any order by clauses should belong
         # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("NonSetSelectableGrammar")),
     ),
 )
 
@@ -3595,7 +3597,6 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
-        Bracketed(Ref("StatementSegment")),
     )
 
     def get_table_references(self):

@@ -1,3 +1,4 @@
-set cutoff = (select foo
+set cutoff = (
+  select foo
 
 );
