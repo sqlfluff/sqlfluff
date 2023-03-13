@@ -493,6 +493,7 @@ class DatatypeSegment(BaseSegment):
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
         Ref("ArrayTypeSegment"),
+        Ref("SizedArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(
@@ -515,17 +516,6 @@ class DatatypeSegment(BaseSegment):
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
-        ),
-        # array types
-        OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
-            Ref("ArrayTypeSegment"),
-            Ref("SizedArrayTypeSegment"),
-            optional=True,
         ),
     )
 
