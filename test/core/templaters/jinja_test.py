@@ -25,6 +25,17 @@ JINJA_STRING = (
     "{% endif %}{% endfor %} WHERE {{condition}}\n\n"
 )
 
+JINJA_MACRO_CALL_SQL = (
+    "{% macro render_name(title) %}\n"
+    "  '{{ title }}. foo' as {{ caller() }}\n"
+    "{% endmacro %}\n"
+    "SELECT\n"
+    "    {% call render_name('Sir') %}\n"
+    "        bar\n"
+    "    {% endcall %}\n"
+    "FROM baz\n"
+)
+
 
 @pytest.mark.parametrize(
     "instr, expected_outstr",
@@ -841,6 +852,23 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{%- endfor %}", "block_end", 98),
             ],
         ),
+        (
+            JINJA_MACRO_CALL_SQL,
+            [
+                ("{% macro render_name(title) %}", "block_start", 0),
+                ("\n" "  '", "literal", 30),
+                ("{{ title }}", "templated", 34),
+                (". foo' as ", "literal", 45),
+                ("{{ caller() }}", "templated", 55),
+                ("\n", "literal", 69),
+                ("{% endmacro %}", "block_end", 70),
+                ("\n" "SELECT\n" "    ", "literal", 84),
+                ("{% call render_name('Sir') %}", "block_start", 96),
+                ("\n" "        bar\n" "    ", "literal", 125),
+                ("{% endcall %}", "block_end", 142),
+                ("\n" "FROM baz\n", "literal", 155),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
@@ -1324,6 +1352,28 @@ FROM {{ j }}{{ self.table_name() }}
                 ("literal", slice(52, 70, None), slice(0, 0, None)),
                 ("block_end", slice(70, 83, None), slice(0, 0, None)),
                 ("literal", slice(83, 100, None), slice(0, 17, None)),
+            ],
+        ),
+        (
+            JINJA_MACRO_CALL_SQL,
+            None,
+            [
+                # First all of this is the call block.
+                ("block_start", slice(0, 30, None), slice(0, 0, None)),
+                ("literal", slice(30, 34, None), slice(0, 0, None)),
+                ("templated", slice(34, 45, None), slice(0, 0, None)),
+                ("literal", slice(45, 55, None), slice(0, 0, None)),
+                ("templated", slice(55, 69, None), slice(0, 0, None)),
+                ("literal", slice(69, 70, None), slice(0, 0, None)),
+                ("block_end", slice(70, 84, None), slice(0, 0, None)),
+                # Then the actual query.
+                ("literal", slice(84, 96, None), slice(0, 12, None)),
+                # The block_start (call) contains the actual content.
+                ("block_start", slice(96, 125, None), slice(12, 47, None)),
+                # The middle and end of the call, have zero length in the template
+                ("literal", slice(125, 142, None), slice(47, 47, None)),
+                ("block_end", slice(142, 155, None), slice(47, 47, None)),
+                ("literal", slice(155, 165, None), slice(47, 57, None)),
             ],
         ),
     ],

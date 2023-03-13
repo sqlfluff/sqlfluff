@@ -563,10 +563,21 @@ def _iter_segments(
                             )
                         continue
 
-            elif tfs.slice_type == "templated":
+            elif tfs.slice_type in ("templated", "block_start"):
                 # Found a templated slice. Does it have length in the templated file?
                 # If it doesn't, then we'll pick it up next.
                 if not is_zero_slice(tfs.templated_slice):
+                    # If it's a block_start. Append to the block stack.
+                    # NOTE: This is rare, but call blocks do occasionally
+                    # have length (and so don't get picked up by _handle_zero_length_slice)
+                    if tfs.slice_type == "block_start":
+                        block_stack.append(uuid4())
+                        lexer_logger.debug(
+                            "        Incrementing block stack [non-zero] with %s before %s",
+                            block_stack[-1],
+                            templated_file.source_str[tfs.source_slice],
+                        )
+
                     # Is our current element totally contained in this slice?
                     if element.template_slice.stop <= tfs.templated_slice.stop:
                         lexer_logger.debug("     Contained templated slice.")

@@ -184,7 +184,7 @@ class JinjaTracer:
                 slice(self.source_idx, self.source_idx + target_slice_length),
             )
         )
-        if slice_type in ("literal", "templated"):
+        if target_slice_length:
             self.source_idx += target_slice_length
 
 

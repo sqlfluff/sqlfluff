@@ -172,30 +172,47 @@ def test__parser__lexer_trim_post_subdivide(caplog):
         assert len(res.elements) == 3
 
 
-def test__parser__lexer_slicing_calls():
+def _statement(*args, **kwargs):
+    return ""
+
+
+def _load_result(*args, **kwargs):
+    return ["foo", "bar"]
+
+
+@pytest.mark.parametrize(
+    "in_str, context",
+    [
+        (
+            "{% call statement('unique_keys', fetch_result=true) %}\n"
+            "    select 1 as test\n"
+            "{% endcall %}\n"
+            "{% set unique_keys = load_result('unique_keys') %}\n"
+            "select 2\n",
+            {"statement": _statement, "load_result": _load_result},
+        ),
+        (
+            "{% macro render_name(title) %}\n"
+            "  '{{ title }}. foo' as {{ caller() }}\n"
+            "{% endmacro %}\n"
+            "SELECT\n"
+            "    {% call render_name('Sir') %}\n"
+            "        bar\n"
+            "    {% endcall %}\n"
+            "FROM baz\n",
+            {},
+        ),
+    ],
+)
+def test__parser__lexer_slicing_calls(in_str, context):
     """Test slicing of call blocks.
 
     https://github.com/sqlfluff/sqlfluff/issues/4013
     """
-    in_str = (
-        "{% call statement('unique_keys', fetch_result=true) %}\n"
-        "    select 1 as test\n"
-        "{% endcall %}\n"
-        "{% set unique_keys = load_result('unique_keys') %}\n"
-        "select 2\n"
-    )
-
-    def _statement(*args, **kwargs):
-        return ""
-
-    def _load_result(*args, **kwargs):
-        return ["foo", "bar"]
 
     config = FluffConfig(overrides={"dialect": "ansi"})
 
-    templater = JinjaTemplater(
-        override_context={"statement": _statement, "load_result": _load_result}
-    )
+    templater = JinjaTemplater(override_context=context)
 
     templated_file, templater_violations = templater.process(
         in_str=in_str, fname="test.sql", config=config, formatter=None
