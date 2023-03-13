@@ -454,7 +454,8 @@ class JinjaAnalyzer:
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
                 if block_type.startswith("block"):
-                    self.track_block_start(block_type, tag_contents[0])
+                    # NOTE: For testing purposes. What happens if we remove this?
+                    # self.track_block_start(block_type, tag_contents[0])
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
                         slice_idx, block_type, tag_contents[0]
