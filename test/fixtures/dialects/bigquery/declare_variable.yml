@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7344a57c0e59ce697ccfabc4e78ada5ea7a5f53123ec3a8839bca556863d42d
+_hash: 0854d63975062f8193290e2ec7cfee33038b33404ad8ce59bb6cb165d20e4c7e
 file:
 - statement:
     declare_segment:
@@ -69,11 +69,12 @@ file:
       keyword: declare
       naked_identifier: arr1
       data_type:
-        keyword: array
-        start_angle_bracket: <
-        data_type:
-          data_type_identifier: string
-        end_angle_bracket: '>'
+        array_type:
+          keyword: array
+          start_angle_bracket: <
+          data_type:
+            data_type_identifier: string
+          end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -101,11 +102,12 @@ file:
     - keyword: declare
     - naked_identifier: arr4
     - data_type:
-        keyword: array
-        start_angle_bracket: <
-        data_type:
-          data_type_identifier: string
-        end_angle_bracket: '>'
+        array_type:
+          keyword: array
+          start_angle_bracket: <
+          data_type:
+            data_type_identifier: string
+          end_angle_bracket: '>'
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
@@ -119,15 +121,16 @@ file:
       keyword: declare
       naked_identifier: arr5
       data_type:
-        keyword: array
-        start_angle_bracket: <
-        data_type:
-          data_type_identifier: string
-          bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
-        end_angle_bracket: '>'
+        array_type:
+          keyword: array
+          start_angle_bracket: <
+          data_type:
+            data_type_identifier: string
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+          end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -135,16 +138,17 @@ file:
       naked_identifier: str1
       data_type:
         struct_type:
-        - keyword: struct
-        - start_angle_bracket: <
-        - parameter: f1
-        - data_type:
-            data_type_identifier: string
-        - comma: ','
-        - parameter: f2
-        - data_type:
-            data_type_identifier: string
-        - end_angle_bracket: '>'
+          keyword: struct
+          struct_type_schema:
+          - start_angle_bracket: <
+          - parameter: f1
+          - data_type:
+              data_type_identifier: string
+          - comma: ','
+          - parameter: f2
+          - data_type:
+              data_type_identifier: string
+          - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -152,26 +156,29 @@ file:
     - naked_identifier: str2
     - data_type:
         struct_type:
-        - keyword: struct
-        - start_angle_bracket: <
-        - parameter: f1
-        - data_type:
-            data_type_identifier: string
-        - comma: ','
-        - parameter: f2
-        - data_type:
-            data_type_identifier: string
-        - end_angle_bracket: '>'
+          keyword: struct
+          struct_type_schema:
+          - start_angle_bracket: <
+          - parameter: f1
+          - data_type:
+              data_type_identifier: string
+          - comma: ','
+          - parameter: f2
+          - data_type:
+              data_type_identifier: string
+          - end_angle_bracket: '>'
     - keyword: default
     - expression:
-        typeless_struct:
-          keyword: struct
-          bracketed:
-          - start_bracket: (
-          - quoted_literal: "'one'"
-          - comma: ','
-          - quoted_literal: "'two'"
-          - end_bracket: )
+        typed_struct_literal:
+          struct_type:
+            keyword: struct
+          struct_literal:
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'one'"
+            - comma: ','
+            - quoted_literal: "'two'"
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -179,14 +186,16 @@ file:
     - naked_identifier: str3
     - keyword: default
     - expression:
-        typeless_struct:
-          keyword: struct
-          bracketed:
-          - start_bracket: (
-          - quoted_literal: "'one'"
-          - comma: ','
-          - quoted_literal: "'two'"
-          - end_bracket: )
+        typed_struct_literal:
+          struct_type:
+            keyword: struct
+          struct_literal:
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'one'"
+            - comma: ','
+            - quoted_literal: "'two'"
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -194,16 +203,17 @@ file:
     - naked_identifier: str4
     - data_type:
         struct_type:
-        - keyword: struct
-        - start_angle_bracket: <
-        - parameter: f1
-        - data_type:
-            data_type_identifier: string
-        - comma: ','
-        - parameter: f2
-        - data_type:
-            data_type_identifier: string
-        - end_angle_bracket: '>'
+          keyword: struct
+          struct_type_schema:
+          - start_angle_bracket: <
+          - parameter: f1
+          - data_type:
+              data_type_identifier: string
+          - comma: ','
+          - parameter: f2
+          - data_type:
+              data_type_identifier: string
+          - end_angle_bracket: '>'
     - keyword: default
     - tuple:
         bracketed:
@@ -219,24 +229,25 @@ file:
       naked_identifier: str5
       data_type:
         struct_type:
-        - keyword: struct
-        - start_angle_bracket: <
-        - parameter: f1
-        - data_type:
-            data_type_identifier: string
-            bracketed:
-              start_bracket: (
-              numeric_literal: '10'
-              end_bracket: )
-        - comma: ','
-        - parameter: f2
-        - data_type:
-            data_type_identifier: string
-            bracketed:
-              start_bracket: (
-              numeric_literal: '10'
-              end_bracket: )
-        - end_angle_bracket: '>'
+          keyword: struct
+          struct_type_schema:
+          - start_angle_bracket: <
+          - parameter: f1
+          - data_type:
+              data_type_identifier: string
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+          - comma: ','
+          - parameter: f2
+          - data_type:
+              data_type_identifier: string
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+          - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:

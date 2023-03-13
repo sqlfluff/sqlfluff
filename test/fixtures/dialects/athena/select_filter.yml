@@ -3,24 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6b6aff3b1fe6fbbae5a9c418ef0bca8cf90abf31cd2f5e56c17a35f4d00fb53
+_hash: 3ce1960064878f554ec38c21008d429dadfab54d4103c548b97dc79020a5c74f
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          array_literal:
-          - keyword: ARRAY
-          - start_square_bracket: '['
-          - numeric_literal: '5'
-          - comma: ','
-          - null_literal: 'NULL'
-          - comma: ','
-          - numeric_literal: '7'
-          - comma: ','
-          - null_literal: 'NULL'
-          - end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+            array_literal:
+            - start_square_bracket: '['
+            - numeric_literal: '5'
+            - comma: ','
+            - null_literal: 'NULL'
+            - comma: ','
+            - numeric_literal: '7'
+            - comma: ','
+            - null_literal: 'NULL'
+            - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -33,10 +35,12 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                  keyword: ARRAY
-                  start_square_bracket: '['
-                  end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
             - comma: ','
             - expression:
                 column_reference:
@@ -56,19 +60,21 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal:
-                    sign_indicator: '-'
-                    numeric_literal: '6'
-                - comma: ','
-                - null_literal: 'NULL'
-                - comma: ','
-                - numeric_literal: '7'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '6'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - comma: ','
+                  - numeric_literal: '7'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
               - column_reference:
@@ -92,17 +98,19 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - null_literal: 'NULL'
-                - comma: ','
-                - numeric_literal: '7'
-                - comma: ','
-                - null_literal: 'NULL'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - comma: ','
+                  - numeric_literal: '7'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
               - column_reference:

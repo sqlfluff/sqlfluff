@@ -217,7 +217,6 @@ athena_dialect.replace(
         TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
         TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
-    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -242,6 +241,61 @@ athena_dialect.replace(
         Ref("RightArrowOperator"),
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
+
+
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("ColonSegment"),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
 
 
 class PrimitiveTypeSegment(BaseSegment):
@@ -311,36 +365,8 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("ColonSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("StructTypeSegment"),
+        Ref("ArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 608d3688543a3a624af4fb15522faaaa90f88ffdf0f8ab0560761d0fb4793891
+_hash: f7fa9aefe356b727b9a732c5acbae4cb77decee6ec6a4925dfc537c64194b225
 file:
 - statement:
     select_statement:
@@ -67,35 +67,37 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            array_literal:
-              keyword: ARRAY
-              start_square_bracket: '['
-              function:
-                function_name:
-                  function_name_identifier: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ROW
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+                start_square_bracket: '['
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ROW
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '1'
+                          end_bracket: )
+                    keyword: AS
+                    data_type:
+                      keyword: ROW
                       bracketed:
                         start_bracket: (
-                        expression:
-                          numeric_literal: '1'
+                        naked_identifier: x
+                        data_type:
+                          primitive_type:
+                            keyword: INT
                         end_bracket: )
-                  keyword: AS
-                  data_type:
-                    keyword: ROW
-                    bracketed:
-                      start_bracket: (
-                      naked_identifier: x
-                      data_type:
-                        primitive_type:
-                          keyword: INT
-                      end_bracket: )
-                  end_bracket: )
-              end_square_bracket: ']'
+                    end_bracket: )
+                end_square_bracket: ']'
             array_accessor:
               start_square_bracket: '['
               numeric_literal: '1'
@@ -121,35 +123,37 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      array_literal:
-                        keyword: ARRAY
-                        start_square_bracket: '['
-                        function:
-                          function_name:
-                            function_name_identifier: CAST
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              function:
-                                function_name:
-                                  function_name_identifier: ROW
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                          start_square_bracket: '['
+                          function:
+                            function_name:
+                              function_name_identifier: CAST
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: ROW
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      quoted_literal: "''"
+                                    end_bracket: )
+                              keyword: AS
+                              data_type:
+                                keyword: ROW
                                 bracketed:
                                   start_bracket: (
-                                  expression:
-                                    quoted_literal: "''"
+                                  naked_identifier: id
+                                  data_type:
+                                    primitive_type:
+                                      keyword: varchar
                                   end_bracket: )
-                            keyword: AS
-                            data_type:
-                              keyword: ROW
-                              bracketed:
-                                start_bracket: (
-                                naked_identifier: id
-                                data_type:
-                                  primitive_type:
-                                    keyword: varchar
-                                end_bracket: )
-                            end_bracket: )
-                        end_square_bracket: ']'
+                              end_bracket: )
+                          end_square_bracket: ']'
                   - comma: ','
                   - expression:
                       function:
@@ -188,18 +192,20 @@ file:
                 - start_bracket: (
                 - naked_identifier: approvers
                 - data_type:
-                    keyword: ARRAY
-                    start_angle_bracket: <
-                    data_type:
-                      keyword: ROW
-                      bracketed:
-                        start_bracket: (
-                        naked_identifier: id
+                    array_type:
+                      keyword: ARRAY
+                      array_type_schema:
+                        start_angle_bracket: <
                         data_type:
-                          primitive_type:
-                            keyword: varchar
-                        end_bracket: )
-                    end_angle_bracket: '>'
+                          keyword: ROW
+                          bracketed:
+                            start_bracket: (
+                            naked_identifier: id
+                            data_type:
+                              primitive_type:
+                                keyword: varchar
+                            end_bracket: )
+                        end_angle_bracket: '>'
                 - comma: ','
                 - naked_identifier: performer
                 - data_type:
