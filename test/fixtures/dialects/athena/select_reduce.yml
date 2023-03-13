@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad1d9abd13e8ba86dee71e83e8d19856891b3a75a42f45960e554444de1cc8f7
+_hash: feb95eedec538fb26ced4e00655755b22b368d8bd2dc4ad12e3460e80692ec73
 file:
 - statement:
     select_statement:
@@ -16,10 +16,12 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                  keyword: ARRAY
-                  start_square_bracket: '['
-                  end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
             - comma: ','
             - expression:
                 numeric_literal: '0'
@@ -59,15 +61,17 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal: '20'
-                - comma: ','
-                - numeric_literal: '50'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '20'
+                  - comma: ','
+                  - numeric_literal: '50'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 numeric_literal: '0'
@@ -107,17 +111,19 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal: '20'
-                - comma: ','
-                - null_literal: 'NULL'
-                - comma: ','
-                - numeric_literal: '50'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '20'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - comma: ','
+                  - numeric_literal: '50'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 numeric_literal: '0'
@@ -157,17 +163,19 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal: '20'
-                - comma: ','
-                - null_literal: 'NULL'
-                - comma: ','
-                - numeric_literal: '50'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '20'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - comma: ','
+                  - numeric_literal: '50'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 numeric_literal: '0'
@@ -217,17 +225,19 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal: '20'
-                - comma: ','
-                - null_literal: 'NULL'
-                - comma: ','
-                - numeric_literal: '50'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '20'
+                  - comma: ','
+                  - null_literal: 'NULL'
+                  - comma: ','
+                  - numeric_literal: '50'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 numeric_literal: '0'
@@ -284,13 +294,15 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '2147483647'
-                - comma: ','
-                - numeric_literal: '1'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '2147483647'
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 function:
@@ -341,17 +353,19 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                array_literal:
-                - keyword: ARRAY
-                - start_square_bracket: '['
-                - numeric_literal: '5'
-                - comma: ','
-                - numeric_literal: '6'
-                - comma: ','
-                - numeric_literal: '10'
-                - comma: ','
-                - numeric_literal: '20'
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '5'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - comma: ','
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '20'
+                  - end_square_bracket: ']'
             - comma: ','
             - expression:
                 function:

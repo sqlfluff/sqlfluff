@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26e46fc3a0b1ef5006e5d68bca65c9e73261c0e2636e412e2380d03585798a97
+_hash: ccb8cbfb25c805ab9a3e17dd51435b413f14c0ed420a691d989fa634733670cb
 file:
   statement:
     create_table_statement:
@@ -79,12 +79,14 @@ file:
       - column_definition:
           naked_identifier: countriesOrRegions
           data_type:
-            keyword: array
-            start_angle_bracket: <
-            data_type:
-              primitive_type:
-                keyword: string
-            end_angle_bracket: '>'
+            array_type:
+              keyword: array
+              array_type_schema:
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: string
+                end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: modificationTime
@@ -137,12 +139,14 @@ file:
       - column_definition:
           naked_identifier: supplySources
           data_type:
-            keyword: array
-            start_angle_bracket: <
-            data_type:
-              primitive_type:
-                keyword: string
-            end_angle_bracket: '>'
+            array_type:
+              keyword: array
+              array_type_schema:
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: string
+                end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: adChannelType

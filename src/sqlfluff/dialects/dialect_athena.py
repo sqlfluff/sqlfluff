@@ -247,7 +247,27 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        Ref.keyword("ARRAY"),
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
 
 
 class PrimitiveTypeSegment(BaseSegment):
@@ -333,20 +353,7 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("ArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(
