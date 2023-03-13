@@ -281,11 +281,12 @@ def test__config__load_user_appdir_config(
     [
         ("AL01,LT08,L031", ["AL01", "LT08", "L031"]),
         ("\nAL01,\nLT08,\nL031,", ["AL01", "LT08", "L031"]),
+        (["AL01", "LT08", "L031"], ["AL01", "LT08", "L031"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that comma separated string config is handled correctly."""
-    assert config._split_comma_separated_string(raw_str) == expected
+    """Tests that data types are handled correctly config is handled correctly."""
+    assert config.split_comma_separated_string(raw_str) == expected
 
 
 def test__config__templater_selection():

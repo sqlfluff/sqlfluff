@@ -696,7 +696,7 @@ class BaseRule(metaclass=RuleMetaclass):
 
     # Add comma seperated string to Base Rule to ensure that it uses the same
     # Configuration that is defined in the Config.py file
-    split_comma_separated_string = split_comma_separated_string
+    split_comma_separated_string = staticmethod(split_comma_separated_string)
 
     def __init__(self, code, description, **kwargs):
         self.description = description
