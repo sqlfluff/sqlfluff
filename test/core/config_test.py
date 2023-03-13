@@ -285,8 +285,15 @@ def test__config__load_user_appdir_config(
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that data types are handled correctly config is handled correctly."""
+    """Tests that string and lists are output correctly."""
     assert config.split_comma_separated_string(raw_str) == expected
+
+
+def test__config__split_comma_separated_string_correct_type():
+    """Tests that invalid data types throw the correct error."""
+    with pytest.raises(SQLFluffUserError):
+        config.split_comma_separated_string(1)
+        config.split_comma_separated_string(True)
 
 
 def test__config__templater_selection():
