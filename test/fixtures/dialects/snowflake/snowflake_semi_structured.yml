@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a43b2f5826601acc62ee22325fdf43e46e5e328fdaf51b66d952c81c0a78018
+_hash: 1fd11671106a0ebb0f68da3963f5a55a5fa359681839ac888c45ef3c283933b2
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
           expression:
             column_reference:
               naked_identifier: value
-            snowflake_semi_structured_expression:
+            semi_structured_expression:
               colon: ':'
               semi_structured_element: value
           alias_expression:
@@ -29,7 +29,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: value
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: id
               casting_operator: '::'
@@ -44,7 +44,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: value
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: value
               casting_operator: '::'
@@ -58,7 +58,7 @@ file:
           expression:
             column_reference:
               naked_identifier: value
-            snowflake_semi_structured_expression:
+            semi_structured_expression:
             - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
@@ -76,7 +76,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: value
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
               - colon: ':'
               - semi_structured_element: thing
               - array_accessor:
@@ -108,7 +108,7 @@ file:
               start_square_bracket: '['
               numeric_literal: '0'
               end_square_bracket: ']'
-            snowflake_semi_structured_expression:
+            semi_structured_expression:
               dot: .
               semi_structured_element: array_element_property
           alias_expression:
@@ -147,7 +147,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: value
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
               - colon: ':'
               - semi_structured_element: point
               - colon: ':'
@@ -174,7 +174,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: value
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
               - colon: ':'
               - semi_structured_element: point
               - colon: ':'
