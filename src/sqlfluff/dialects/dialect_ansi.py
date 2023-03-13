@@ -777,6 +777,47 @@ class TypedArrayLiteralSegment(BaseSegment):
     )
 
 
+class StructTypeSegment(BaseSegment):
+    """Expression to construct a STRUCT datatype.
+
+    (Used in BigQuery for example)
+    """
+
+    type = "struct_type"
+    match_grammar: Matchable = Nothing()
+
+
+class StructLiteralSegment(BaseSegment):
+    """An array literal segment.
+    
+    An unqualified struct literal:
+    e.g. (1, 2 as foo, 3)
+
+    NOTE: This rarely exists without a preceding type
+    and exists mostly for structural & layout reasons.
+    """
+
+    type = "struct_literal"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class TypedStructLiteralSegment(BaseSegment):
+    """An array literal segment."""
+
+    type = "typed_struct_literal"
+    match_grammar: Matchable = Sequence(
+        Ref("StructTypeSegment"),
+        Ref("StructLiteralSegment"),
+    )
+
+
 class ObjectLiteralSegment(BaseSegment):
     """An object literal segment."""
 
@@ -1972,8 +2013,8 @@ ansi_dialect.add(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
-            Ref("TypelessStructSegment"),
-            Ref("TypelessArraySegment"),
+            Ref("TypedStructLiteralSegment"),
+            Ref("ArrayExpressionSegment"),
             Ref("ColumnReferenceSegment"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
@@ -2791,33 +2832,16 @@ class TableEndClauseSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
-class TypelessStructSegment(BaseSegment):
-    """Expression to construct a STRUCT with implicit types.
-
-    (Yes in BigQuery for example)
-    """
-
-    type = "typeless_struct"
-    match_grammar: Matchable = Nothing()
-
-
-class TypelessArraySegment(BaseSegment):
+class ArrayExpressionSegment(BaseSegment):
     """Expression to construct a ARRAY from a subquery.
 
     (Yes in BigQuery for example)
+
+    NOTE: This differs from an array _literal_ in that it
+    takes the form of an expression.
     """
 
-    type = "typeless_array"
-    match_grammar: Matchable = Nothing()
-
-
-class StructTypeSegment(BaseSegment):
-    """Expression to construct a STRUCT datatype.
-
-    (Used in BigQuery for example)
-    """
-
-    type = "struct_type"
+    type = "array_expression"
     match_grammar: Matchable = Nothing()
 
 

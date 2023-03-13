@@ -1044,49 +1044,37 @@ class StructTypeSegment(ansi.StructTypeSegment):
 
     match_grammar = Sequence(
         "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
                     ),
-                    AnyNumberOf(Ref("ColumnConstraintSegment")),
-                    Ref("OptionsSegment", optional=True),
                 ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("OptionsSegment", optional=True),
             ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
         ),
+        bracket_type="angle",
+        bracket_pairs_set="angle_bracket_pairs",
     )
 
 
-class TypelessStructSegment(ansi.TypelessStructSegment):
-    """Expression to construct a STRUCT with implicit types.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
-    """
-
-    match_grammar = Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
-        ),
-    )
-
-
-class TypelessArraySegment(ansi.TypelessArraySegment):
+class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """Expression to construct a ARRAY from a subquery.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/array_functions#array
