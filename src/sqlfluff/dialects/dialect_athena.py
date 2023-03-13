@@ -217,7 +217,6 @@ athena_dialect.replace(
         TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
         TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
-    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -242,6 +241,13 @@ athena_dialect.replace(
         Ref("RightArrowOperator"),
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
 
 
 class PrimitiveTypeSegment(BaseSegment):

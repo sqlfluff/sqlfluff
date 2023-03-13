@@ -568,8 +568,6 @@ ansi_dialect.add(
         ),
         OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
-    # This is a placeholder for other dialects.
-    SimpleArrayTypeGrammar=Nothing(),
     AutoIncrementGrammar=Sequence("AUTO_INCREMENT"),
     # Base Expression element is the right thing to reference for everything
     # which functions as an expression, but could include literals.
@@ -744,12 +742,19 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
+class ArrayTypeSegment(BaseSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar: Matchable = Nothing()
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
     type = "array_literal"
     match_grammar: Matchable = Sequence(
-        Ref("SimpleArrayTypeGrammar", optional=True),
+        Ref("ArrayTypeSegment", optional=True),
         Bracketed(
             Delimited(Ref("BaseExpressionElementGrammar"), optional=True),
             bracket_type="square",

@@ -147,7 +147,6 @@ hive_dialect.replace(
         TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
         TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
-    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
@@ -223,6 +222,13 @@ hive_dialect.replace(
         ]
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
 
 
 class CreateDatabaseStatementSegment(BaseSegment):
@@ -503,8 +509,8 @@ class DatatypeSegment(BaseSegment):
                     Ref("ExpressionSegment", optional=True), bracket_type="square"
                 )
             ),
-            Ref("SimpleArrayTypeGrammar"),
-            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            Ref("ArrayTypeSegment"),
+            Sequence(Ref("ArrayTypeSegment"), Ref("ArrayLiteralSegment")),
             optional=True,
         ),
     )

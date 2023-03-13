@@ -421,7 +421,6 @@ postgres_dialect.replace(
         ],
         before=Ref("ArrayLiteralSegment"),
     ),
-    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "FromClauseTerminatorGrammar"
     ).copy(
@@ -701,11 +700,18 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Ref("ExpressionSegment", optional=True), bracket_type="square"
                 )
             ),
-            Ref("SimpleArrayTypeGrammar"),
-            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            Ref("ArrayTypeSegment"),
+            Sequence(Ref("ArrayTypeSegment"), Ref("ArrayLiteralSegment")),
             optional=True,
         ),
     )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
 
 
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):

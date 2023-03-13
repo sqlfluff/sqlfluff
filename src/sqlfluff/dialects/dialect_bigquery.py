@@ -203,14 +203,6 @@ bigquery_dialect.replace(
         Ref("NamedArgumentSegment"),
     ),
     TrimParametersGrammar=Nothing(),
-    SimpleArrayTypeGrammar=Sequence(
-        "ARRAY",
-        Bracketed(
-            Ref("DatatypeSegment"),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
@@ -309,6 +301,20 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
 
 
 class QualifyClauseSegment(BaseSegment):
@@ -1028,7 +1034,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Ref("SimpleArrayTypeGrammar"),
+        Ref("ArrayTypeSegment"),
         Ref("StructTypeSegment"),
     )
 
