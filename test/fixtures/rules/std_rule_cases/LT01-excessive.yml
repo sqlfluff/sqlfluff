@@ -280,3 +280,33 @@ test_pass_bigquery_specific:
   configs:
     core:
       dialect: bigquery
+
+test_pass_bigquery_specific_arrays_1:
+  # An example of _no whitespace_ after an array type
+  pass_str: |
+    SELECT ARRAY<FLOAT64>[1, 2, 3] AS floats;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_arrays_2:
+  # An example of _whitespace_ after an array type
+  pass_str: |
+    CREATE TEMPORARY FUNCTION DoSomething(param1 STRING, param2 STRING)
+    RETURNS ARRAY<STRING> LANGUAGE js AS """Some JS""";
+
+    SELECT DoSomething(col1) FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_structs:
+  # Test spacing of complex STRUCT brackets
+  pass_str: |
+    create table testing.array_struct_tbl (
+        address_array_of_nested_structs
+        ARRAY<STRUCT<coll STRUCT<col1_1 STRING, col1_2 INT64>, col2 STRING>>
+    )
+  configs:
+    core:
+      dialect: bigquery
