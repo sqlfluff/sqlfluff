@@ -48,9 +48,7 @@ class Rule_JJ01(BaseRule):
     # sections.
     crawl_behaviour = SegmentSeekerCrawler({"raw"})
     targets_templated = True
-    # NOTE: This rule does return fixes, but when is_fix_compatible
-    # is set, it spirals.
-    # is_fix_compatible = True
+    is_fix_compatible = True
 
     @staticmethod
     def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:
@@ -128,6 +126,19 @@ class Rule_JJ01(BaseRule):
                 if context.memory and src_idx in context.memory:
                     continue
                 memory.add(src_idx)
+
+                # Does the segment already have a source fix associated with it?
+                # NOTE: because we're fetching the raw slices, even if we've
+                # already fixed an issue, we won't know that. To make sure we don't
+                # double fixes, we check for fixes already present. We do this
+                # _after_ adding it to memory, because on a second pass through
+                # the file, the memory will have been wiped.
+                if context.segment.source_fixes:
+                    self.logger.debug(
+                        "Segment already has source fixes. Skipping for safety: %s",
+                        context.segment.source_fixes,
+                    )
+                    continue
 
                 # Partition and Position
                 tag_pre, ws_pre, inner, ws_post, tag_post = self._get_whitespace_ends(
