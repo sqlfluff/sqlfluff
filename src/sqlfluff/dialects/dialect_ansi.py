@@ -456,6 +456,7 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
         Ref("ArrayLiteralSegment"),
+        Ref("TypedArrayLiteralSegment"),
         Ref("ObjectLiteralSegment"),
     ),
     AndOperatorGrammar=StringParser("AND", BinaryOperatorSegment),
@@ -743,22 +744,36 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 class ArrayTypeSegment(BaseSegment):
-    """Prefix for array literals specifying the type."""
+    """Prefix for array literals specifying the type.
+    
+    Often "ARRAY" or "ARRAY<type>"
+    """
 
     type = "array_type"
     match_grammar: Matchable = Nothing()
 
 
 class ArrayLiteralSegment(BaseSegment):
-    """An array literal segment."""
+    """An array literal segment.
+    
+    An unqualified array literal:
+    e.g. [1, 2, 3]
+    """
 
     type = "array_literal"
+    match_grammar: Matchable = Bracketed(
+        Delimited(Ref("BaseExpressionElementGrammar"), optional=True),
+        bracket_type="square",
+    )
+
+
+class TypedArrayLiteralSegment(BaseSegment):
+    """An array literal segment."""
+
+    type = "typed_array_literal"
     match_grammar: Matchable = Sequence(
-        Ref("ArrayTypeSegment", optional=True),
-        Bracketed(
-            Delimited(Ref("BaseExpressionElementGrammar"), optional=True),
-            bracket_type="square",
-        ),
+        Ref("ArrayTypeSegment"),
+        Ref("ArrayLiteralSegment"),
     )
 
 
