@@ -1,0 +1,8 @@
+test-config:
+  # NOTE: LT02 is included in this test case because the fix for
+  # LT05 doesn't really make sense without it as the existing
+  # query is poorly indented.
+  rules:
+    - LT02
+    - LT05
+    - LT10

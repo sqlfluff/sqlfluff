@@ -7,7 +7,8 @@ Rules Reference
 which work their way through the parsed structure of a query to evaluate
 a particular rule or set of rules. The intent is that the definition of
 each specific rule should be really streamlined and only contain the logic
-for the rule itself, with all the other mechanics abstracted away.
+for the rule itself, with all the other mechanics abstracted away. To
+understand how rules are enabled and disabled see :ref:`ruleselection`.
 
 Core Rules
 ----------
@@ -36,7 +37,7 @@ only :code:`core` rules by default.
 Specific Rules
 --------------
 
-.. automodule:: sqlfluff.rules
+.. automodule:: sqlfluff.rules.sphinx
    :members:
    :member-order: alphabetical
 
@@ -49,13 +50,13 @@ ignore the lack of whitespace surrounding the ``*`` operator.
 
 .. code-block:: sql
 
-   a.a*a.b AS bad_1  -- noqa: L006
+   a.a*a.b AS bad_1  -- noqa: LT01
 
 Multiple rules can be ignored by placing them in a comma-delimited list.
 
 .. code-block:: sql
 
-   a.a *  a.b AS bad_2,  -- noqa: L007, L006
+   a.a *  a.b AS bad_2,  -- noqa: LT01, LT03
 
 It is also possible to ignore non-rule based errors, and instead opt to
 ignore templating (``TMP``) & parsing (``PRS``) errors.
@@ -89,8 +90,8 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. code-block:: sql
 
-    -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo -- noqa: disable=L012
+    -- Ignore rule AL02 from this line forward
+    SELECT col_a a FROM foo -- noqa: disable=AL02
 
     -- Ignore all rules from this line forward
     SELECT col_a a FROM foo -- noqa: disable=all

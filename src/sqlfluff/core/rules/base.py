@@ -16,11 +16,13 @@ missing.
 
 import bdb
 import copy
+from dataclasses import dataclass
 import fnmatch
 from itertools import chain
 import logging
 import pathlib
 import regex
+import re
 from typing import (
     cast,
     Iterable,
@@ -30,22 +32,27 @@ from typing import (
     Tuple,
     Union,
     Any,
+    Dict,
+    Type,
+    DefaultDict,
+    Iterator,
 )
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from sqlfluff.core.config import FluffConfig, split_comma_separated_string
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
-from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
-RuleGhost = namedtuple("RuleGhost", ["code", "description"])
+RuleGhost = namedtuple("RuleGhost", ["code", "name", "description"])
 
 # Instantiate the rules logger
 rules_logger = logging.getLogger("sqlfluff.rules")
@@ -473,7 +480,171 @@ class LintFix:
 EvalResultType = Union[LintResult, List[LintResult], None]
 
 
-class BaseRule:
+class RuleMetaclass(type):
+    """The metaclass for rules.
+
+    This metaclass provides provides auto-enrichment of the
+    rule docstring so that examples, groups, aliases and
+    names are added.
+
+    The reason we enrich the docstring is so that it can be
+    picked up by autodoc and all be displayed in the sqlfluff
+    docs.
+    """
+
+    # Precompile the regular expressions
+    _doc_search_regex = re.compile(
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s\\s{4}\\*\\*Configuration\\*\\*)",
+        flags=re.MULTILINE,
+    )
+    _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
+    _valid_rule_name_regex = regex.compile(r"[a-z][a-z\.\_]+")
+
+    def _populate_code_and_description(mcs, name, class_dict):
+        """Extract and validate the rule code & description.
+
+        We expect that rules are defined as classes with the name `Rule_XXXX`
+        where `XXXX` is of the form `LLNN`, where L is a letter and N is a
+        two digit number. For backward compatibility we also still support
+        the legacy format of LNNN i.e. a single letter and three digit number.
+
+        The two letters should be indicative of the grouping and focus of
+        the rule. e.g. capitalisation rules have the code CP for CaPitalisation.
+
+        If this receives classes by any other name, then it will raise a
+        :exc:`ValueError`.
+        """
+        rule_name_match = mcs._valid_classname_regex.match(name)
+        # Validate the name
+        if not rule_name_match:  # pragma: no cover
+            raise SQLFluffUserError(
+                f"Tried to define rule class with "
+                f"unexpected format: {name}. Format should be: "
+                "'Rule_PluginName_LL23' (for plugins) or "
+                "`Rule_LL23` (for core rules)."
+            )
+
+        plugin_name, code = rule_name_match.groups()
+        # If the docstring is multiline, then we extract just summary.
+        description = class_dict["__doc__"].replace("``", "'").split("\n")[0]
+        if plugin_name:
+            code = f"{plugin_name}_{code}"
+
+        class_dict["code"] = code
+        class_dict["description"] = description
+
+        return class_dict
+
+    def _populate_docstring(mcs, name, class_dict):
+        """Enrich the docstring in the class_dict.
+
+        This takes the various defined values in the BaseRule class
+        and uses them to populate documentation in the final class
+        docstring so that it can be displayed in the sphinx docs.
+        """
+        # Ensure that there _is_ a docstring.
+        assert (
+            "__doc__" in class_dict
+        ), f"Tried to define rule {name!r} without docstring."
+
+        # Build up a buffer of entries to add to the docstring.
+        fix_docs = (
+            "    This rule is ``sqlfluff fix`` compatible.\n\n"
+            if class_dict.get("is_fix_compatible", False)
+            else ""
+        )
+        name_docs = (
+            f"    **Name**: ``{class_dict['name']}``\n\n"
+            if class_dict.get("name", "")
+            else ""
+        )
+        alias_docs = (
+            ("    **Aliases**: ``" + "``, ``".join(class_dict["aliases"]) + "``\n\n")
+            if class_dict.get("aliases", [])
+            else ""
+        )
+        groups_docs = (
+            ("    **Groups**: ``" + "``, ``".join(class_dict["groups"]) + "``\n\n")
+            if class_dict.get("groups", [])
+            else ""
+        )
+
+        config_docs = ""
+        if class_dict.get("config_keywords", []):
+            config_docs = "\n    **Configuration**\n"
+            config_info = get_config_info()
+            for keyword in sorted(class_dict["config_keywords"]):
+                try:
+                    info_dict = config_info[keyword]
+                except KeyError:  # pragma: no cover
+                    raise KeyError(
+                        "Config value {!r} for rule {} is not configured in "
+                        "`config_info`.".format(keyword, name)
+                    )
+                config_docs += "\n    * ``{}``: {}".format(
+                    keyword, info_dict["definition"]
+                )
+                if (
+                    config_docs[-1] != "."
+                    and config_docs[-1] != "?"
+                    and config_docs[-1] != "\n"
+                ):
+                    config_docs += "."
+                if "validation" in info_dict:
+                    config_docs += " Must be one of ``{}``.".format(
+                        info_dict["validation"]
+                    )
+            config_docs += "\n"
+
+        all_docs = fix_docs + name_docs + alias_docs + groups_docs + config_docs
+        # Modify the docstring using the search regex.
+        class_dict["__doc__"] = mcs._doc_search_regex.sub(
+            f"\n\n{all_docs}\n\n\\1", class_dict["__doc__"], count=1
+        )
+        # If the inserted string is not now in the docstring - append it on
+        # the end. This just means the regex didn't find a better place to
+        # put it.
+        if all_docs not in class_dict["__doc__"]:
+            class_dict["__doc__"] += f"\n\n{all_docs}"
+
+        # Return the modified class_dict
+        return class_dict
+
+    def __new__(mcs, name, bases, class_dict):
+        """Generate a new class."""
+        # Optionally, groups may be inherited. At this stage of initialisation
+        # they won't have been. Check parent classes if they exist.
+        # names, aliases and description are less appropriate to inherit.
+        # NOTE: This applies in particular to CP02, which inherits all groups
+        # from CP01. If we don't do this, those groups don't show in the docs.
+        for base in reversed(bases):
+            if "groups" in class_dict:
+                break
+            elif base.groups:
+                class_dict["groups"] = base.groups
+                break
+
+        class_dict = mcs._populate_docstring(mcs, name, class_dict)
+        # Don't try and infer code and description for the base class
+        if bases:
+            class_dict = mcs._populate_code_and_description(mcs, name, class_dict)
+        # Validate rule names
+        rule_name = class_dict.get("name", "")
+        if rule_name:
+            if not mcs._valid_rule_name_regex.match(rule_name):
+                raise SQLFluffUserError(
+                    f"Tried to define rule with unexpected "
+                    f"name format: {rule_name}. Rule names should be lowercase "
+                    "and snake_case with optional `.` characters to indicate "
+                    "a namespace or grouping. e.g. `layout.spacing`."
+                )
+
+        # Use the stock __new__ method now we've adjusted the docstring.
+        return super().__new__(mcs, name, bases, class_dict)
+
+
+class BaseRule(metaclass=RuleMetaclass):
     """The base class for a rule.
 
     Args:
@@ -503,6 +674,25 @@ class BaseRule:
     # - On the first pass of the main phase
     # - In a second linter pass after the main phase
     lint_phase = "main"
+    # Groups attribute to be overwritten.
+    groups: Tuple[str, ...] = ()
+    # Name attribute to be overwritten.
+    # NOTE: for backward compatibility we should handle the case
+    # where no name is set gracefully.
+    name: str = ""
+    # Optional set of aliases for the rule. Most often used for old codes which
+    # referred to this rule.
+    aliases: Tuple[str, ...] = ()
+
+    # NOTE: code and description are provided here as hints, but should not
+    # be set directly. They are set automatically by the metaclass based on
+    # the class _name_ when defined.
+    code: str
+    description: str
+
+    # Should we document this rule as fixable? Used by the metaclass to add
+    # a line to the docstring.
+    is_fix_compatible = False
 
     # Add comma seperated string to Base Rule to ensure that it uses the same
     # Configuration that is defined in the Config.py file
@@ -532,6 +722,18 @@ class BaseRule:
                     )
         except AttributeError:
             self.logger.info(f"No config_keywords defined for {code}")
+
+    @classmethod
+    def get_config_ref(cls):
+        """Return the config lookup ref for this rule.
+
+        If a `name` is defined, it's the name - otherwise the code.
+
+        The name is a much more understandable reference and so makes config
+        files more readable. For backward compatibility however we also support
+        the rule code for those without names.
+        """
+        return cls.name if cls.name else cls.code
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Evaluate this rule against the current context.
@@ -657,8 +859,15 @@ class BaseRule:
 
             for lerr in new_lerrs:
                 self.logger.info("!! Violation Found: %r", lerr.description)
-            for lfix in new_fixes:
-                self.logger.info("!! Fix Proposed: %r", lfix)
+            if new_fixes:
+                if not self.is_fix_compatible:  # pragma: no cover
+                    rules_logger.error(
+                        f"Rule {self.code} returned a fix but is not documented as "
+                        "`is_fix_compatible`, you may encounter unusual fixing "
+                        "behaviour. Report this a bug to the developer of this rule."
+                    )
+                for lfix in new_fixes:
+                    self.logger.info("!! Fix Proposed: %r", lfix)
 
             # Consume the new results
             vs += new_lerrs
@@ -839,11 +1048,11 @@ class BaseRule:
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
-        are most often rules like L003 and L016 that make whitespace changes
+        are most often rules like LT02 and LT05 that make whitespace changes
         without a "deep" understanding of the parse structure. This function
         attempts to correct those issues automatically. It may not be perfect,
-        but it should be an improvement over the old behavior, where rules like
-        L003 often corrupted the parse tree, placing spaces in weird places that
+        but it should be an improvement over the old behaviour, where rules like
+        LT02 often corrupted the parse tree, placing spaces in weird places that
         caused issues with other rules. For more context, see issue #1304.
         """
         if not cls._adjust_anchors:
@@ -929,6 +1138,50 @@ class BaseRule:
         return anchor
 
 
+@dataclass(frozen=True)
+class RuleManifest:
+    """Element in the rule register."""
+
+    code: str
+    name: str
+    description: str
+    groups: Tuple[str]
+    aliases: Tuple[str]
+    rule_class: Type[BaseRule]
+
+
+@dataclass
+class RulePack:
+    """A bundle of rules to be applied.
+
+    This contains a set of rules, post filtering but also contains the mapping
+    required to interpret any noqa messages found in files.
+
+    The reason for this object is that rules are filtered and instantiated
+    into this pack in the main process when running in multi-processing mode so
+    that user defined rules can be used without reference issues.
+
+    Attributes:
+        rules (:obj:`list` of :obj:`BaseRule`): A filtered list of instantiated
+            rules to be applied to a given file.
+        reference_map (:obj:`dict`): A mapping of rule references to the codes
+            they refer to, e.g. `{"my_ref": {"LT01", "LT02"}}`. The references
+            (i.e. the keys) may be codes, groups, aliases or names. The values
+            of the mapping are sets of rule codes *only*. This object acts as
+            a lookup to be able to translate selectors (which may contain
+            diverse references) into a consolidated list of rule codes. This
+            mapping contains the full set of rules, rather than just the filtered
+            set present in the `rules` attribute.
+    """
+
+    rules: List[BaseRule]
+    reference_map: Dict[str, Set[str]]
+
+    def codes(self) -> Iterator[str]:
+        """Returns an iterator through the codes contained in the pack."""
+        return (r.code for r in self.rules)
+
+
 class RuleSet:
     """Class to define a ruleset.
 
@@ -952,22 +1205,22 @@ class RuleSet:
 
     """
 
-    def __init__(self, name, config_info):
+    def __init__(self, name, config_info) -> None:
         self.name = name
         self.config_info = config_info
-        self._register = {}
+        self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule=None):
+    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
         """Ensure that all config options are valid.
 
-        Config options can also be checked for a specific rule e.g L010.
+        Config options can also be checked for a specific rule e.g CP01.
         """
         rule_config = config.get_section("rules")
         for config_name, info_dict in self.config_info.items():
             config_option = (
                 rule_config.get(config_name)
-                if not rule
-                else rule_config.get(rule).get(config_name)
+                if not rule_ref
+                else rule_config.get(rule_ref).get(config_name)
             )
             valid_options = info_dict.get("validation")
             if (
@@ -985,28 +1238,13 @@ class RuleSet:
                     )
                 )
 
-    @property
-    def valid_rule_name_regex(self):
-        """Defines the accepted pattern for rule names.
-
-        The first group captures the plugin name (optional), which
-        must be capitalized.
-        The second group captures the rule code.
-
-        Examples of valid rule names:
-
-        * Rule_PluginName_L001
-        * Rule_L001
-        """
-        return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
-
     def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
 
         .. code-block:: python
 
            @myruleset.register
-           class Rule_L001(BaseRule):
+           class Rule_LT01(BaseRule):
                "Description of rule."
 
                def eval(self, **kwargs):
@@ -1020,25 +1258,9 @@ class RuleSet:
         :exc:`ValueError`.
 
         """
-        rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
-        # Validate the name
-        if not rule_name_match:  # pragma: no cover
-            raise ValueError(
-                (
-                    "Tried to register rule on set {!r} with unexpected "
-                    "format: {}, format should be: Rule_PluginName_L123 (for plugins) "
-                    "or Rule_L123 (for core rules)."
-                ).format(self.name, cls.__name__)
-            )
+        code = cls.code
 
-        plugin_name, code = rule_name_match.groups()
-        # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.replace("``", "'").split("\n")[0]
-
-        if plugin_name:
-            code = f"{plugin_name}_{code}"
-
-        # Keep track of the *class* in the register. Don't instantiate yet.
+        # Check for code collisions.
         if code in self._register:  # pragma: no cover
             raise ValueError(
                 "Rule {!r} has already been registered on RuleSet {!r}!".format(
@@ -1046,104 +1268,202 @@ class RuleSet:
                 )
             )
 
-        try:
-            assert (
-                "all" in cls.groups
-            ), "Rule {!r} must belong to the 'all' group".format(code)
-            groups = cls.groups
-        except AttributeError as attr_err:
-            raise AttributeError(
-                (
-                    "Rule {!r} doesn't belong to any rule groups. "
-                    "All rules must belong to at least one group"
-                ).format(code)
-            ) from attr_err
+        assert "all" in cls.groups, "Rule {!r} must belong to the 'all' group".format(
+            code
+        )
 
-        self._register[code] = dict(
-            code=code, description=description, groups=groups, cls=cls
+        self._register[code] = RuleManifest(
+            code=code,
+            name=cls.name,
+            description=cls.description,
+            groups=cls.groups,
+            aliases=cls.aliases,
+            rule_class=cls,
         )
 
         # Make sure we actually return the original class
         return cls
 
-    def _expand_config_rule_group_list(
-        self, rule_list: List[str], valid_groups: Set[str]
-    ) -> List[str]:
-        expanded_rule_list: List[str] = []
-        for r in rule_list:
-            if r in valid_groups:
-                rules_in_group = [
-                    rule
-                    for rule, rule_dict in self._register.items()
-                    if r in rule_dict["groups"]
-                ]
-                expanded_rule_list.extend(rules_in_group)
-            else:
-                expanded_rule_list.extend(r)
-
-        return expanded_rule_list
-
-    def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
-        """Expand a list of rule globs into a list of rule codes.
+    def _expand_rule_refs(
+        self, glob_list: List[str], reference_map: Dict[str, Set[str]]
+    ) -> Set[str]:
+        """Expand a list of rule references into a list of rule codes.
 
         Returns:
-            :obj:`list` of :obj:`str` rule codes.
+            :obj:`set` of :obj:`str` rule codes.
 
         """
-        expanded_glob_list = []
+        expanded_rule_set: Set[str] = set()
         for r in glob_list:
-            expanded_glob_list.extend(
-                [
-                    x
-                    for x in fnmatch.filter(self._register, r)
-                    if x not in expanded_glob_list
-                ]
+            # Is it a direct reference?
+            if r in reference_map:
+                expanded_rule_set.update(reference_map[r])
+            # Otherwise treat as a glob expression on all references.
+            # NOTE: We expand _all_ references (i.e. groups, aliases, names
+            # AND codes) so that we preserve the most backward compatibility
+            # with existing references to legacy codes in config files.
+            else:
+                matched_refs = fnmatch.filter(reference_map.keys(), r)
+                for matched in matched_refs:
+                    expanded_rule_set.update(reference_map[matched])
+        return expanded_rule_set
+
+    def rule_reference_map(self) -> Dict[str, Set[str]]:
+        """Generate a rule reference map for looking up rules.
+
+        Generate the master reference map. The priority order is:
+        codes > names > groups > aliases
+        (i.e. if there's a collision between a name and an alias - we assume
+        the alias is wrong)
+        """
+        valid_codes: Set[str] = set(self._register.keys())
+        reference_map: Dict[str, Set[str]] = {code: {code} for code in valid_codes}
+
+        # Generate name map.
+        name_map: Dict[str, Set[str]] = {
+            manifest.name: {manifest.code}
+            for manifest in self._register.values()
+            if manifest.name
+        }
+        # Check collisions.
+        name_collisions = set(name_map.keys()) & valid_codes
+        if name_collisions:  # pragma: no cover
+            # NOTE: This clause is untested, because it's quite hard to actually
+            # have a valid name which replicates a valid code. The name validation
+            # will probably catch it first.
+            rules_logger.warning(
+                "The following defined rule names were found which collide "
+                "with codes. Those names will not be available for selection: %s",
+                name_collisions,
             )
+        # Incorporate (with existing references taking precedence).
+        reference_map = {**name_map, **reference_map}
 
-        return expanded_glob_list
+        # Generate the group map.
+        group_map: DefaultDict[str, Set[str]] = defaultdict(set)
+        for manifest in self._register.values():
+            for group in manifest.groups:
+                if group in reference_map:
+                    rules_logger.warning(
+                        "Rule %s defines group %r which is already defined as a "
+                        "name or code of %s. This group will not be available "
+                        "for use as a result of this collision.",
+                        manifest.code,
+                        group,
+                        reference_map[group],
+                    )
+                else:
+                    group_map[group].add(manifest.code)
+        # Incorporate after all checks are done.
+        reference_map = {**group_map, **reference_map}
 
-    def get_rulelist(self, config) -> List[BaseRule]:
+        # Generate the alias map.
+        alias_map: DefaultDict[str, Set[str]] = defaultdict(set)
+        for manifest in self._register.values():
+            for alias in manifest.aliases:
+                if alias in reference_map:
+                    rules_logger.warning(
+                        "Rule %s defines alias %r which is already defined as a "
+                        "name, code or group of %s. This alias will "
+                        "not be available for use as a result of this collision.",
+                        manifest.code,
+                        alias,
+                        reference_map[alias],
+                    )
+                else:
+                    alias_map[alias].add(manifest.code)
+        # Incorporate after all checks are done.
+        return {**alias_map, **reference_map}
+
+    def get_rulepack(self, config) -> RulePack:
         """Use the config to return the appropriate rules.
 
         We use the config both for allowlisting and denylisting, but also
         for configuring the rules given the given config.
-
-        Returns:
-            :obj:`list` of instantiated :obj:`BaseRule`.
-
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
-        # Find all valid groups for ruleset
-        valid_groups: Set[str] = set(
-            [group for attrs in self._register.values() for group in attrs["groups"]]
+
+        # Fetch config section:
+        rules_config = config.get_section("rules")
+
+        # Generate the master reference map. The priority order is:
+        # codes > names > groups > aliases
+        # (i.e. if there's a collision between a name and an
+        # alias - we assume the alias is wrong.)
+        valid_codes: Set[str] = set(self._register.keys())
+        reference_map = self.rule_reference_map()
+        valid_config_lookups = set(
+            manifest.rule_class.get_config_ref() for manifest in self._register.values()
         )
-        # default the allowlist to all the rules if not set
-        allowlist = config.get("rule_allowlist") or list(self._register.keys())
+
+        # Validate config doesn't try to specify values for unknown rules.
+        # NOTE: We _warn_ here rather than error.
+        for unexpected_ref in [
+            # Filtering to dicts gives us the sections.
+            k
+            for k, v in rules_config.items()
+            if isinstance(v, dict)
+            # Only keeping ones we don't expect
+            if k not in valid_config_lookups
+        ]:
+            rules_logger.warning(
+                "Rule configuration contain a section for unexpected "
+                f"rule {unexpected_ref!r}. These values will be ignored."
+            )
+            # For convenience (and migration), if we do find a potential match
+            # for the reference - add that as a warning.
+            # NOTE: We don't actually accept config in these cases, even though
+            # we could potentially match - because how to resolve _multiple_
+            # matching config sections is ambiguous.
+            if unexpected_ref in reference_map:
+                referenced_codes = reference_map[unexpected_ref]
+                if len(referenced_codes) == 1:
+                    referenced_code = list(referenced_codes)[0]
+                    referenced_name = self._register[referenced_code].name
+                    config_ref = self._register[
+                        referenced_code
+                    ].rule_class.get_config_ref()
+                    rules_logger.warning(
+                        "The reference was however found as a match for rule "
+                        f"{referenced_code} with name {referenced_name!r}. "
+                        "SQLFluff assumes configuration for this rule will "
+                        f"be specified in 'sqlfluff:rules:{config_ref}'."
+                    )
+                elif referenced_codes:
+                    rules_logger.warning(
+                        "The reference was found as a match for multiple rules: "
+                        f"{referenced_codes}. Config should be specified by the "
+                        "name of the relevant rule e.g. "
+                        "'sqlfluff:rules:capitalisation.keywords'."
+                    )
+
+        # The lists here are lists of references, which might be codes,
+        # names, aliases or groups.
+        # We default the allowlist to all the rules if not set (i.e. not specifying
+        # any rules, just means "all the rules").
+        allowlist = config.get("rule_allowlist") or list(valid_codes)
         denylist = config.get("rule_denylist") or []
-        valid_rules_and_groups = list(self._register) + list(valid_groups)
 
         allowlisted_unknown_rule_codes = [
             r
             for r in allowlist
             # Add valid groups to the register when searching for invalid rules _only_
-            if not fnmatch.filter(valid_rules_and_groups, r)
+            if not fnmatch.filter(reference_map.keys(), r)
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to allowlist unknown rules: {!r}".format(
+                "Tried to allowlist unknown rule references: {!r}".format(
                     allowlisted_unknown_rule_codes
                 )
             )
 
         denylisted_unknown_rule_codes = [
-            r
-            for r in denylist
-            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
+            r for r in denylist if not fnmatch.filter(reference_map.keys(), r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
-                "Tried to denylist unknown rules: {!r}".format(
+                "Tried to denylist unknown rules references: {!r}".format(
                     denylisted_unknown_rule_codes
                 )
             )
@@ -1151,39 +1471,40 @@ class RuleSet:
         keylist = sorted(self._register.keys())
 
         # First we expand the allowlist and denylist globs
-        expanded_allowlist = self._expand_config_rule_glob_list(
-            allowlist
-        ) + self._expand_config_rule_group_list(allowlist, valid_groups)
-        expanded_denylist = self._expand_config_rule_glob_list(
-            denylist
-        ) + self._expand_config_rule_group_list(denylist, valid_groups)
+        expanded_allowlist = self._expand_rule_refs(allowlist, reference_map)
+        expanded_denylist = self._expand_rule_refs(denylist, reference_map)
 
         # Then we filter the rules
         keylist = [
             r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
 
-        # Construct the kwargs for instantiation before we actually do it.
-        rule_kwargs = {}
-        for k in keylist:
+        # Construct the kwargs for each rule and instantiate in turn.
+        instantiated_rules = []
+        # Keep only config which isn't a section (for specific rule) (i.e. isn't a dict)
+        # We'll handle those directly in the specific rule config section below.
+        generic_rule_config = {
+            k: v for k, v in rules_config.items() if not isinstance(v, dict)
+        }
+        for code in keylist:
             kwargs = {}
-            generic_rule_config = config.get_section("rules")
-            specific_rule_config = config.get_section(
-                ("rules", self._register[k]["code"])
-            )
+            rule_class = cast(Type[BaseRule], self._register[code].rule_class)
+            # Fetch the lookup code for the rule.
+            rule_config_ref = rule_class.get_config_ref()
+            specific_rule_config = config.get_section(("rules", rule_config_ref))
             if generic_rule_config:
                 kwargs.update(generic_rule_config)
             if specific_rule_config:
                 # Validate specific rule config before adding
-                self._validate_config_options(config, self._register[k]["code"])
+                self._validate_config_options(config, rule_config_ref)
                 kwargs.update(specific_rule_config)
-            kwargs["code"] = self._register[k]["code"]
+            kwargs["code"] = code
             # Allow variable substitution in making the description
-            kwargs["description"] = self._register[k]["description"].format(**kwargs)
-            rule_kwargs[k] = kwargs
+            kwargs["description"] = self._register[code].description.format(**kwargs)
+            # Instantiate when ready
+            instantiated_rules.append(rule_class(**kwargs))
 
-        # Instantiate in the final step
-        return [self._register[k]["cls"](**rule_kwargs[k]) for k in keylist]
+        return RulePack(instantiated_rules, reference_map)
 
     def copy(self):
         """Return a copy of self with a separate register."""

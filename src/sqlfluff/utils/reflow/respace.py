@@ -21,6 +21,25 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
+def _unpack_constraint(constraint: str, strip_newlines: bool):
+    """Unpack a spacing constraint.
+
+    Used as a helper function in `determine_constraints`.
+    """
+    # Unless align, split.
+    if constraint.startswith("align"):
+        modifier = ""
+    else:
+        constraint, _, modifier = constraint.partition(":")
+    if not modifier:
+        pass
+    elif modifier == "inline":
+        strip_newlines = True
+    else:  # pragma: no cover
+        raise NotImplementedError(f"Unexpected constraint modifier: {constraint}")
+    return constraint, strip_newlines
+
+
 def determine_constraints(
     prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
@@ -28,48 +47,45 @@ def determine_constraints(
 ) -> Tuple[str, str, bool]:
     """Given the surrounding blocks, determine appropriate constraints."""
     # Start with the defaults.
-    pre_constraint = prev_block.spacing_after if prev_block else "single"
-    post_constraint = next_block.spacing_before if next_block else "single"
+    pre_constraint, strip_newlines = _unpack_constraint(
+        prev_block.spacing_after if prev_block else "single", strip_newlines
+    )
+    post_constraint, strip_newlines = _unpack_constraint(
+        next_block.spacing_before if next_block else "single", strip_newlines
+    )
 
     # Work out the common parent segment and depth
+    within_spacing = ""
     if prev_block and next_block:
         common = prev_block.depth_info.common_with(next_block.depth_info)
         # Just check the most immediate parent for now for speed.
         # TODO: Review whether just checking the parent is enough.
         # NOTE: spacing configs will be available on both sides if they're common
         # so it doesn't matter whether we get it from prev_block or next_block.
+        idx = prev_block.depth_info.stack_hashes.index(common[-1])
+
         within_constraint = prev_block.stack_spacing_configs.get(common[-1], None)
-        if not within_constraint:
-            pass
-        elif within_constraint in ("touch", "inline"):
-            # NOTE: inline is actually a more extreme version of "touch".
-            # Examples:
-            # - "inline" would be used with an object reference, where the
-            #   parts have to all be together on one line like `a.b.c`.
-            # - "touch" would allow the above layout, _but also_ allow an
-            #   an optional line break between, much like between an opening
-            #   bracket and the following element: `(a)` or:
-            #   ```
-            #   (
-            #       a
-            #   )
-            #   ```
-            if within_constraint == "inline":
-                # If they are then strip newlines.
-                strip_newlines = True
-            # If segments are expected to be touch within. Then modify
-            # constraints accordingly.
-            # NOTE: We don't override if it's already "any"
-            if pre_constraint != "any":
-                pre_constraint = "touch"
-            if post_constraint != "any":
-                post_constraint = "touch"
-        else:  # pragma: no cover
-            idx = prev_block.depth_info.stack_hashes.index(common[-1])
-            raise NotImplementedError(
-                f"Unexpected within constraint: {within_constraint} for "
-                f"{prev_block.depth_info.stack_class_types[idx]}"
+        if within_constraint:
+            within_spacing, strip_newlines = _unpack_constraint(
+                within_constraint, strip_newlines
             )
+
+    # If segments are expected to be touch within. Then modify
+    # constraints accordingly.
+    if within_spacing == "touch":
+        # NOTE: We don't override if it's already "any"
+        if pre_constraint != "any":
+            pre_constraint = "touch"
+        if post_constraint != "any":
+            post_constraint = "touch"
+    elif within_spacing == "single":
+        pass
+    elif within_spacing:  # pragma: no cover
+        assert prev_block
+        raise NotImplementedError(
+            f"Unexpected within constraint: {within_constraint} for "
+            f"{prev_block.depth_info.stack_class_types[idx]}"
+        )
 
     return pre_constraint, post_constraint, strip_newlines
 

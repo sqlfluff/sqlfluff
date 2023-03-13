@@ -1,0 +1,82 @@
+rule: LT02
+
+spaces_pass_default:
+  pass_str: "SELECT\n    1"
+
+
+spaces_fail:
+  fail_str: "SELECT\n    1"
+  fix_str: "SELECT\n\t1"
+  configs:
+    rules:
+      indent_unit: tab
+
+
+spaces_fail_custom_tab_space_size:
+  fail_str: "SELECT\n  MAX(\n    a\n  )"
+  fix_str: "SELECT\n\tMAX(\n\t\ta\n\t)"
+  configs:
+    rules:
+      indent_unit: tab
+      tab_space_size: 2
+
+
+tabs_fail_default:
+  fail_str: "SELECT\n\t\t1\n"
+  fix_str: "SELECT\n    1\n"
+
+
+tabs_fail_default_set_tab_space_size:
+  fail_str: "SELECT\n\t\t1\n"
+  fix_str: "SELECT\n  1\n"
+  configs:
+    rules:
+      tab_space_size: 2
+
+
+tabs_pass:
+  pass_str: "SELECT\n\t1"
+  configs:
+    rules:
+      indent_unit: tab
+
+
+indented_comments:
+  pass_str: |
+    SELECT
+        a,         -- Some comment
+        longer_col -- A lined up comment
+    FROM spam
+
+
+indented_comments_default_config:
+  fail_str: |
+    SELECT
+    	a,			-- Some comment
+    	longer_col	-- A lined up comment
+    FROM spam
+  # The rule will only fix the indent before the select targets.
+  # Here tab indent is replaced with spaces.
+  fix_str: |
+    SELECT
+        a,			-- Some comment
+        longer_col	-- A lined up comment
+    FROM spam
+
+
+indented_comments_tab_config:
+  fail_str: |
+    SELECT
+        a,         -- Some comment
+        longer_col -- A lined up comment
+    FROM spam
+  # The rule will only fix the indent before the select targets.
+  # Here spaces indent is replaced with tab.
+  fix_str: |
+    SELECT
+    	a,         -- Some comment
+    	longer_col -- A lined up comment
+    FROM spam
+  configs:
+    rules:
+      indent_unit: tab

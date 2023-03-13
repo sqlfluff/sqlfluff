@@ -1,0 +1,307 @@
+rule: RF01
+
+test_pass_object_referenced_1:
+  # References in quotes in bigquery
+  pass_str: SELECT bar.user_id FROM `foo.far.bar`
+
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_object_not_referenced_1:
+  desc: Name foo is not referenced in FROM clause. It would need to be at the end of identifier in ticks or an alias.
+  fail_str: SELECT foo.user_id FROM `foo.far.bar`
+
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_object_not_referenced_2:
+  # References in WHERE clause
+  fail_str: SELECT * FROM my_tbl WHERE foo.bar > 0
+
+test_pass_object_referenced_2:
+  pass_str: |
+    SELECT * FROM db.sc.tbl2
+    WHERE a NOT IN (SELECT a FROM db.sc.tbl1)
+
+test_pass_object_referenced_3:
+  pass_str: |
+    SELECT * FROM db.sc.tbl2
+    WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)
+
+test_pass_object_referenced_4:
+  # Test ambiguous column reference caused by use of BigQuery structure fields.
+  # Here, 'et2' could either be a schema name or a table name.
+  # https://github.com/sqlfluff/sqlfluff/issues/1079
+  pass_str: |
+    SELECT et2.txn.amount
+    FROM `example_dataset2.example_table2` AS et2
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_object_referenced_5a:
+  # Test ambiguous column reference caused by use of BigQuery structure fields.
+  # Here, column,field should not trigger the rule as by default this rule is
+  # disabled for bigquery
+  # https://github.com/sqlfluff/sqlfluff/issues/1503
+  pass_str: |
+    SELECT col1.field, col
+    FROM `example_dataset2.example_table2`
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_object_referenced_5b:
+  # Same test as above but default (ANSI) should trigger
+  fail_str: |
+    SELECT col1.field
+    FROM table1
+
+test_pass_object_referenced_5c:
+  # Same test as above but for BigQuery but force is
+  # enabled so should fail
+  fail_str: |
+    SELECT col1.field
+    FROM `example_dataset2.example_table2`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_object_referenced_5d:
+  # Test for extra dialect (hive) compatibility
+  pass_str: SELECT col1.field, col2 FROM example_table
+  configs:
+    core:
+      dialect: hive
+
+test_pass_object_referenced_5e:
+  # Test for extra dialect (redshift) compatibility
+  pass_str: SELECT col1.field, col2 FROM example_table
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_object_referenced_6:
+  # Test references in subqueries (see issue #1939)
+  pass_str: |
+    select cc.c1
+    from (
+            select table1.c1
+            from
+                table1
+            inner join
+                table2
+                on table1.x_id = table2.x_id
+            inner join
+                table3
+                on table2.y_id = table3.y_id
+    ) as cc
+
+test_pass_object_referenced_7:
+  pass_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_table.id
+    )
+
+test_fail_object_referenced_7:
+  fail_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_tableeee.id
+    )
+
+test_pass_object_referenced_8:
+  pass_str: |
+    DELETE FROM agent1
+    WHERE EXISTS(
+        SELECT customer.cust_id FROM customer
+        WHERE agent1.agent_code <> customer.agent_code);
+
+test_pass_two_part_reference_8:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_9:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where public.agent1.agent_code <> customer.agent_code)
+
+test_fail_two_part_reference_10:
+  fail_str: |
+    select *
+    from schema1.agent1
+    where schema2.agent1.agent_code <> 'abc'
+
+test_fail_two_part_reference_11:
+  fail_str: |
+    delete from schema1.agent1
+    where exists(
+        select customer.cust_id from customer
+        where schema2.agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_11:
+  pass_str: |
+    select * from agent1
+    where public.agent1.agent_code <> '3'
+
+test_pass_bigquery_dash:
+  # References in quotes in bigquery
+  pass_str: SELECT bar.user_id FROM foo-far.bar
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.from:
+        force_enable: true
+
+test_pass_exasol_select_into:
+  pass_str: |
+    select *
+    into table schm.tab
+    from schm.tab2
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_simple_delete:
+  pass_str: |
+    delete from table1 where 1 = 1
+
+test_exasol_invalid_foreign_key_from:
+  pass_str: |
+    SELECT *
+    WITH INVALID FOREIGN KEY (nr)
+      FROM T1 REFERENCING T2 (id)
+  configs:
+    core:
+      dialect: exasol
+
+test_tsql_select_system_as_identifier:
+  pass_str: |
+    SELECT @@IDENTITY AS 'Identity'
+  configs:
+    core:
+      dialect: tsql
+
+test_mysql_select_no_from_should_not_except:
+  pass_str: |
+    SELECT DATE_SUB('1992-12-31 23:59:59.000002', INTERVAL '1.999999' SECOND_MICROSECOND);
+  configs:
+    core:
+      dialect: mysql
+
+test_nested_join_clause_does_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN I
+      LEFT OUTER JOIN P
+        ON I.Pcd = P.Iid
+      ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql
+
+test_nested_join_clauses_do_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN I
+      LEFT OUTER JOIN P
+        ON I.Pcd = P.Iid
+      LEFT OUTER JOIN C
+        ON I.Pcd = C.Iid
+      ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql
+
+test_parenthesized_join_clauses_do_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN (
+        I LEFT OUTER JOIN P
+            ON I.Pcd = P.Iid
+    ) ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql
+
+test_soql_ignore_rule:
+  pass_str: |
+    SELECT Account.Name FROM Contact
+  configs:
+    core:
+      dialect: soql
+
+test_postgres_value_table_alias:
+  pass_str: |
+    select
+        sc.col1 as colx
+        , pn.col1 as coly
+    from sch1.tbl1 as sc
+    cross join unnest(array[111, 222]) as pn(col1)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_update_with_alias:
+  pass_str: |
+    UPDATE tbl AS dest SET
+        t.title = 'TEST'
+    WHERE t.id = 101 AND EXISTS (
+        SELECT 1 FROM foobar AS tmp WHERE tmp.idx = dest.idx)
+
+test_pass_postgres_merge_with_alias:
+  pass_str: |
+    merge dw.sch.tbl dest
+    using land.sch.tbl src
+    on
+        src.idx = dest.idx
+        and src.name = dest.name
+        and src.idy = dest.idy
+    when not matched by source and exists
+    (
+        select 1 as tmp
+        from land.sch.tag as ld
+        where
+            ld.idx = dest.idx
+            and ld.name = dest.name
+    )
+        then update set
+            dest.ac = 'N'
+  configs:
+    core:
+      dialect: tsql

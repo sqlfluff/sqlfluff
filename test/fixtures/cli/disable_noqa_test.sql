@@ -2,5 +2,5 @@
 -- allows for inline noqa comments to be ignored.
 SELECT
     col_a AS a,
-    col_b as b  --noqa: L010
+    col_b as b  --noqa: CP01
 FROM t;

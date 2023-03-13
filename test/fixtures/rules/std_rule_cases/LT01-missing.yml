@@ -1,0 +1,51 @@
+rule: LT01
+
+test_fail_no_space_after_using_clause:
+  fail_str: select * from a JOIN b USING(x)
+  fix_str: select * from a JOIN b USING (x)
+
+test_pass_newline_after_using_clause:
+  # Check LT01 passes if there's a newline between
+  pass_str: |
+    select * from a JOIN b USING
+    (x)
+
+test_fail_cte_no_space_after_as:
+  # Check fixing of single space rule when space is missing
+  fail_str: WITH a AS(select 1) select * from a
+  fix_str: WITH a AS (select 1) select * from a
+
+test_fail_multiple_spaces_after_as:
+  # Check fixing of single space rule on multiple spaces
+  fail_str: WITH a AS  (select 1) select * from a
+  fix_str: WITH a AS (select 1) select * from a
+
+test_fail_cte_newline_after_as:
+  # Check fixing of replacing newline with space
+  fail_str: |
+    WITH a AS
+    (
+      select 1
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+      select 1
+    )
+    select * from a
+
+test_fail_cte_newline_and_spaces_after_as:
+  # Check stripping newlines and extra whitespace
+  fail_str: |
+    WITH a AS
+
+
+        (
+      select 1
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+      select 1
+    )
+    select * from a

@@ -1,0 +1,4 @@
+test-config:
+  rules:
+    - ST05
+    - JJ01

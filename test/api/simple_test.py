@@ -11,79 +11,91 @@ my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
 lint_result = [
     {
-        "code": "L010",
+        "code": "AM04",
+        "description": "Query produces an unknown number of result columns.",
+        "line_no": 1,
+        "line_pos": 1,
+        "name": "ambiguous.column_count",
+    },
+    {
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 1,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
-        "code": "L036",
+        "code": "LT09",
         "description": "Select targets should be on a new line unless there is only "
         "one select target.",
         "line_no": 1,
         "line_pos": 1,
+        "name": "layout.select_targets",
     },
     {
-        "code": "L044",
-        "description": "Query produces an unknown number of result columns.",
-        "line_no": 1,
-        "line_pos": 1,
-    },
-    {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before star '*'. Found '  '.",
         "line_no": 1,
         "line_pos": 7,
+        "name": "layout.spacing",
     },
     {
-        "code": "L013",
+        "code": "AL03",
         "line_no": 1,
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
+        "name": "aliasing.expression",
     },
     {
-        "code": "L010",
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 20,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": (
             "Expected only single space before naked identifier. Found '  '."
         ),
         "line_no": 1,
         "line_pos": 22,
+        "name": "layout.spacing",
     },
     {
-        "code": "L014",
+        "code": "CP02",
         "line_no": 1,
         "line_pos": 24,
         "description": "Unquoted identifiers must be consistently lower case.",
+        "name": "capitalisation.identifiers",
     },
     {
-        "code": "L039",
+        "code": "LT01",
         "description": "Expected only single space before 'from' keyword. Found '  '.",
         "line_no": 1,
         "line_pos": 27,
+        "name": "layout.spacing",
     },
     {
-        "code": "L010",
+        "code": "CP01",
         "line_no": 1,
         "line_pos": 29,
         "description": "Keywords must be consistently upper case.",
+        "name": "capitalisation.keywords",
     },
     {
-        "code": "L014",
+        "code": "CP02",
         "line_no": 1,
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
+        "name": "capitalisation.identifiers",
     },
     {
-        "code": "L009",
+        "code": "LT12",
         "line_no": 1,
         "line_pos": 41,
         "description": "Files must end with a single trailing newline.",
+        "name": "layout.end-of-file",
     },
 ]
 
@@ -106,7 +118,7 @@ def test__api__lint_string():
 
 def test__api__lint_string_specific():
     """Basic checking of lint functionality."""
-    rules = ["L014", "L009"]
+    rules = ["CP02", "LT12"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -114,7 +126,7 @@ def test__api__lint_string_specific():
 
 def test__api__lint_string_specific_single():
     """Basic checking of lint functionality."""
-    rules = ["L014"]
+    rules = ["CP02"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -122,27 +134,27 @@ def test__api__lint_string_specific_single():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039"]
+    exclude_rules = ["LT12", "CP01", "AL03", "CP02", "LT09", "LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
-    # Check only L044 is found
+    # Check only AM04 is found
     assert len(result) == 1
-    assert "L044" == result[0]["code"]
+    assert "AM04" == result[0]["code"]
 
 
 def test__api__lint_string_specific_exclude_single():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L039"]
+    exclude_rules = ["LT01"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
-    # Check only L044 is found
+    # Check only AM04 is found
     assert len(result) == 9
-    set(["L009", "L010", "L013", "L014", "L036", "L044"]) == set(
+    set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
         [r["code"] for r in result]
     )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L044"]
+    exclude_rules = ["LT12", "CP01", "AL03", "CP02", "LT09", "LT01", "AM04"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []
@@ -167,14 +179,14 @@ FROM mytable
 
 def test__api__fix_string_specific():
     """Basic checking of lint functionality with a specific rule."""
-    result = sqlfluff.fix(my_bad_query, rules=["L010"])
+    result = sqlfluff.fix(my_bad_query, rules=["CP01"])
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"
 
 
 def test__api__fix_string_specific_exclude():
     """Basic checking of lint functionality with a specific rule exclusion."""
-    result = sqlfluff.fix(my_bad_query, exclude_rules=["L036"])
+    result = sqlfluff.fix(my_bad_query, exclude_rules=["LT09"])
     # Check actual result
     assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
@@ -184,7 +196,7 @@ def test__api__fix_string_unparsable():
     bad_query = """SELECT my_col
 FROM my_schema.my_table
 where processdate ! 3"""
-    result = sqlfluff.fix(bad_query, rules=["L010"])
+    result = sqlfluff.fix(bad_query, rules=["CP01"])
     # Check fix result: should be unchanged because of the parse error.
     assert result == bad_query
 
@@ -194,7 +206,7 @@ def test__api__fix_string_unparsable_fix_even_unparsable():
     bad_query = """SELECT my_col
 FROM my_schema.my_table
 where processdate ! 3"""
-    result = sqlfluff.fix(bad_query, rules=["L010"], fix_even_unparsable=True)
+    result = sqlfluff.fix(bad_query, rules=["CP01"], fix_even_unparsable=True)
     # Check fix result: should be fixed because we overrode fix_even_unparsable.
     assert (
         result
@@ -268,8 +280,8 @@ def test__api__config_path():
         ),
         (
             # API overrides, so it uses that
-            dict(exclude_rules=["L027"]),
-            {"L029"},
+            dict(exclude_rules=["RF02"]),
+            {"RF04"},
         ),
     ],
 )
@@ -278,7 +290,7 @@ def test__api__config_override(kwargs, expected, tmpdir):
     config_path = "test/fixtures/api/config_override/.sqlfluff"
     sql = "SELECT TRIM(name) AS name FROM some_table"
     lint_results = sqlfluff.lint(sql, config_path=config_path, **kwargs)
-    assert expected == {"L027", "L029"}.intersection(
+    assert expected == {"RF02", "RF04"}.intersection(
         {lr["code"] for lr in lint_results}
     )
 

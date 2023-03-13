@@ -1,0 +1,164 @@
+rule: CP05
+
+test_pass_default_consistent_lower:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did integer,
+        name varchar(40),
+        ts time with time zone
+    );
+
+test_pass_default_consistent_upper:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did INTEGER,
+        name VARCHAR(40),
+        ts TIME WITH TIME ZONE
+    );
+
+test_pass_default_consistent_capitalised:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did Integer,
+        name Varchar(40),
+        ts Time With Time Zone
+    );
+
+test_pass_default_consistent_pascal:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did Integer,
+        name VarChar(40),
+        ts Time With Time Zone
+    );
+
+test_fail_data_type_inconsistent_capitalisation_1:
+  # Test that we don't have the "inconsistent" bug
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id BIGINT);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_fail_data_type_inconsistent_capitalisation_2:
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id bigint);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: lower
+
+test_fail_data_type_inconsistent_capitalisation_3:
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id Bigint);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: capitalise
+
+test_fail_data_type_capitalisation_policy_lower:
+  fail_str: CREATE TABLE table1 (account_id BIGINT);
+  fix_str: CREATE TABLE table1 (account_id bigint);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: lower
+
+test_fail_data_type_capitalisation_policy_lower_2:
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
+  fix_str: CREATE TABLE table1 (account_id bigint, column_two varchar(255));
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: lower
+
+test_fail_data_type_capitalisation_policy_upper:
+  fail_str: CREATE TABLE table1 (account_id bigint);
+  fix_str: CREATE TABLE table1 (account_id BIGINT);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_fail_data_type_capitalisation_policy_upper_2:
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two VARCHAR(255));
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_fail_data_type_capitalisation_policy_capitalise:
+  # Test for capitalised casing
+  fail_str: CREATE TABLE table1 (account_id BIGINT);
+  fix_str: CREATE TABLE table1 (account_id Bigint);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: capitalise
+
+test_fail_data_type_capitalisation_policy_keywords_1:
+  # Test cases where data types are keywords, not data_type_identifiers
+  # See: https://github.com/sqlfluff/sqlfluff/pull/2121
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two timestamp);
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_fail_data_type_capitalisation_policy_keywords_2:
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two timestamp with time zone);
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP WITH TIME ZONE);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_pass_sparksql_complex_data_types:
+  pass_str: |
+    CREATE TABLE table_identifier(
+      a STRUCT<b: STRING COMMENT 'struct_comment', c: BOOLEAN> COMMENT 'col_comment',
+      d MAP<STRING, BOOLEAN> COMMENT 'col_comment',
+      e ARRAY<STRING> COMMENT 'col_comment'
+    );
+  configs:
+    core:
+      dialect: sparksql
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_pass_bigquery_struct_params:
+  pass_str: |
+    CREATE TEMPORARY FUNCTION getTableInfo(payload STRING)
+    RETURNS STRUCT<has_table BOOLEAN, has_th BOOLEAN> LANGUAGE js AS '''
+    return 1
+    ''';
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+# See https://github.com/sqlfluff/sqlfluff/issues/3277
+test_pass_typless_structs_dont_trigger_rule:
+  pass_str: |
+    SELECT
+        STRUCT(
+            some_field,
+            some_other_field
+        ) AS col
+    FROM table
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper

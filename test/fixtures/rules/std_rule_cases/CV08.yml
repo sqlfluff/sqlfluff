@@ -1,0 +1,166 @@
+rule: CV08
+
+test_fail_right_join:
+  fail_str: |
+    SELECT
+        foo.col1,
+        bar.col2
+    FROM foo
+    RIGHT JOIN bar
+        ON foo.bar_id = bar.id;
+
+test_pass_left_join:
+  pass_str: |
+    SELECT
+        foo.col1,
+        bar.col2
+    FROM bar
+    LEFT JOIN foo
+        ON foo.bar_id = bar.id;
+
+test_pass_inner_join:
+  pass_str: |
+    SELECT
+        foo.col1,
+        bar.col2
+    FROM bar
+    INNER JOIN foo
+        ON foo.bar_id = bar.id;
+
+test_fail_right_and_right_join:
+  fail_str: |
+    SELECT
+        foo.col1,
+        bar.col2,
+        baz.col3
+    FROM foo
+    RIGHT JOIN bar
+        ON foo.bar_id = bar.id
+    RIGHT JOIN baz
+        ON foo.baz_id = baz.id;
+
+test_fail_right_and_left_join:
+  fail_str: |
+    SELECT
+        foo.col1,
+        bar.col2,
+        baz.col3
+    FROM foo
+    RIGHT JOIN bar
+        ON foo.bar_id = bar.id
+    LEFT JOIN baz
+        ON foo.baz_id = baz.id;
+
+test_fail_right_and_inner_join:
+  fail_str: |
+    SELECT
+        foo.col1,
+        bar.col2,
+        baz.col3
+    FROM foo
+    RIGHT JOIN bar
+        ON foo.bar_id = bar.id
+    INNER JOIN baz
+        ON foo.baz_id = baz.id;
+
+test_pass_left_inner_join:
+  pass_str: |
+    SELECT
+        foo.col1,
+        bar.col2,
+        baz.col3
+    FROM bar
+    LEFT JOIN foo
+        ON foo.bar_id = bar.id
+    INNER JOIN baz
+        ON foo.baz_id = baz.id;
+
+test_fail_subquery_right_join:
+  fail_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM foo
+        RIGHT JOIN bar
+            ON foo.bar_id = bar.id
+    );
+
+test_pass_subquery_left_join:
+  pass_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM bar
+        LEFT JOIN foo
+            ON foo.bar_id = bar.id
+    );
+
+test_pass_subquery_inner_join:
+  pass_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM bar
+        INNER JOIN foo
+            ON foo.bar_id = bar.id
+    );
+
+test_fail_with_right_join:
+  fail_str: |
+    WITH cte AS (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM foo
+        RIGHT JOIN bar
+            ON foo.bar_id = bar.id
+    )
+
+    SELECT
+        col1,
+        col2
+    FROM cte;
+
+test_pass_with_left_join:
+  pass_str: |
+    WITH cte AS (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM bar
+        LEFT JOIN foo
+            ON foo.bar_id = bar.id
+    )
+
+    SELECT
+        col1,
+        col2
+    FROM cte;
+
+test_pass_with_inner_join:
+  pass_str: |
+    WITH cte AS (
+        SELECT
+            foo.col1,
+            bar.col2
+        FROM bar
+        INNER JOIN foo
+            ON foo.bar_id = bar.id
+    )
+
+    SELECT
+        col1,
+        col2
+    FROM cte;

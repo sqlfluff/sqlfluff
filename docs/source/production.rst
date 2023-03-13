@@ -86,6 +86,8 @@ such as:
 * Configuring `diff-quality` to return an error code if the quality is too low
 * Troubleshooting
 
+.. _using-pre-commit:
+
 Using `pre-commit`_
 ^^^^^^^^^^^^^^^^^^^
 
@@ -137,7 +139,7 @@ like this:
         # additional_dependencies: ['<dbt-adapter>', 'sqlfluff-templater-dbt']
       - id: sqlfluff-fix
         # Arbitrary arguments to show an example
-        # args: [--rules, "L003,L014"]
+        # args: [--rules, "LT02,CP02"]
         # additional_dependencies: ['<dbt-adapter>', 'sqlfluff-templater-dbt']
 
 When trying to use the `dbt templater`_, uncomment the

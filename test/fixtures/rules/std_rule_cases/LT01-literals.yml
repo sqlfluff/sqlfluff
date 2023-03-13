@@ -1,0 +1,145 @@
+rule: LT01
+
+test_pass_simple_select:
+  pass_str: "SELECT 'foo'"
+
+test_pass_expression:
+  # Test that brackets don't trigger it
+  pass_str: "SELECT ('foo' || 'bar') as buzz"
+
+test_fail_as:
+  fail_str: |
+    SELECT
+        'foo'AS   bar
+    FROM foo
+  fix_str: |
+    SELECT
+        'foo' AS bar
+    FROM foo
+
+test_fail_expression:
+  fail_str: "SELECT ('foo'||'bar') as buzz"
+  fix_str: "SELECT ('foo' || 'bar') as buzz"
+
+test_pass_comma:
+  pass_str: |
+    SELECT
+        col1,
+        'string literal' AS new_column_literal,
+        CASE WHEN col2 IN ('a', 'b') THEN 'Y' ELSE 'N' END AS new_column_case
+    FROM some_table
+    WHERE col2 IN ('a', 'b', 'c', 'd');
+
+test_pass_semicolon:
+  pass_str: |
+   ALTER SESSION SET TIMEZONE = 'UTC';
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_udf_triple_single_quote:
+  pass_str: |
+   CREATE TEMPORARY FUNCTION a()
+   LANGUAGE js
+   AS '''
+   CODE GOES HERE
+   ''';
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_udf_triple_double_quote:
+  pass_str: |
+   CREATE TEMPORARY FUNCTION a()
+   LANGUAGE js
+   AS """
+   CODE GOES HERE
+   """;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_ansi_single_quote:
+  pass_str: "SELECT a + 'b' + 'c' FROM tbl;"
+
+test_fail_ansi_single_quote:
+  fail_str: "SELECT a +'b'+ 'c' FROM tbl;"
+  fix_str: "SELECT a + 'b' + 'c' FROM tbl;"
+
+test_pass_tsql_unicode_single_quote:
+  pass_str: "SELECT a + N'b' + N'c' FROM tbl;"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_unicode_single_quote:
+  fail_str: "SELECT a +N'b'+N'c' FROM tbl;"
+  fix_str: "SELECT a + N'b' + N'c' FROM tbl;"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_ansi_unicode_single_quote:
+  fail_str: "SELECT a + N'b' + N'c' FROM tbl;"
+  fix_str: "SELECT a + N 'b' + N 'c' FROM tbl;"
+  configs:
+    core:
+      dialect: ansi
+
+test_pass_casting_expression:
+  pass_str: "SELECT my_date = '2022-01-01'::DATE AS is_current FROM t;"
+
+test_fail_bigquery_casting:
+  fail_str: "SELECT DATE'2007-01-01';"
+  fix_str: "SELECT DATE '2007-01-01';"
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_teradata_casting_type1:
+  fail_str: "SELECT DATE'2007-01-01' AS the_date;"
+  fix_str: "SELECT DATE '2007-01-01' AS the_date;"
+  configs:
+    core:
+      dialect: teradata
+
+test_pass_teradata_casting_type2:
+  fail_str: "SELECT '9999-12-31'(DATE);"
+  fix_str: "SELECT '9999-12-31' (DATE);"
+  configs:
+    core:
+      dialect: teradata
+
+
+test_pass_sparksql_ansi_interval_minus:
+  pass_str: SELECT INTERVAL -'20 15:40:32.99899999' DAY TO SECOND AS col;
+  configs:
+    core:
+      dialect: sparksql
+
+
+test_pass_sparksql_multi_units_interval_minus:
+  pass_str: SELECT INTERVAL 2 HOUR -'3' MINUTE AS col;
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_old_python_test:
+  fail_str: SELECT a +'b'+'c' FROM tbl;
+  fix_str: SELECT a + 'b' + 'c' FROM tbl;
+  violations:
+    - code: LT01
+      description: Expected single whitespace between binary operator '+' and quoted literal.
+      line_no: 1
+      line_pos: 11
+      name: layout.spacing
+    - code: LT01
+      description: Expected single whitespace between quoted literal and binary operator '+'.
+      line_no: 1
+      line_pos: 14
+      name: layout.spacing
+    - code: LT01
+      description: Expected single whitespace between binary operator '+' and quoted literal.
+      line_no: 1
+      line_pos: 15
+      name: layout.spacing

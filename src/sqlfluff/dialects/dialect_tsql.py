@@ -64,6 +64,7 @@ tsql_dialect.sets("datetime_units").update(
         "MINUTE",
         "MM",
         "MONTH",
+        "MONTHS",
         "MS",
         "N",
         "NANOSECOND",
@@ -93,7 +94,9 @@ tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
 
-tsql_dialect.sets("bare_functions").update(["system_user"])
+tsql_dialect.sets("bare_functions").update(
+    ["system_user", "session_user", "current_user"]
+)
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -522,6 +525,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTypeStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
         ],
         remove=[
@@ -693,6 +697,86 @@ class InsertStatementSegment(BaseSegment):
             Ref("SelectableGrammar"),
             Ref("ExecuteScriptSegment"),
             Ref("DefaultValuesGrammar"),
+        ),
+    )
+
+
+class BulkInsertStatementSegment(BaseSegment):
+    """A `BULK INSERT` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_statement"
+    match_grammar = Sequence(
+        "BULK",
+        "INSERT",
+        Ref("TableReferenceSegment"),
+        "FROM",
+        Ref("QuotedLiteralSegment"),
+        Ref("BulkInsertStatementWithSegment", optional=True),
+    )
+
+
+class BulkInsertStatementWithSegment(BaseSegment):
+    """A `WITH` segment in the BULK INSERT statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/bulk-insert-transact-sql?view=sql-server-ver16
+    """
+
+    type = "bulk_insert_with_segment"
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            "BATCHSIZE",
+                            "FIRSTROW",
+                            "KILOBYTES_PER_BATCH",
+                            "LASTROW",
+                            "MAXERRORS",
+                            "ROWS_PER_BATCH",
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "CODEPAGE",
+                            "DATAFILETYPE",
+                            "DATA_SOURCE",
+                            "ERRORFILE",
+                            "ERRORFILE_DATA_SOURCE",
+                            "FORMATFILE_DATA_SOURCE",
+                            "ROWTERMINATOR",
+                            "FORMAT",
+                            "FIELDQUOTE",
+                            "FORMATFILE",
+                            "FIELDTERMINATOR",
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ORDER",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    OneOf("ASC", "DESC", optional=True),
+                                ),
+                            ),
+                        ),
+                    ),
+                    "CHECK_CONSTRAINTS",
+                    "FIRE_TRIGGERS",
+                    "KEEPIDENTITY",
+                    "KEEPNULLS",
+                    "TABLOCK",
+                )
+            )
         ),
     )
 
@@ -2475,11 +2559,23 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar = OneOf(
         "COALESCE",
-        "CURRENT_TIMESTAMP",
-        "CURRENT_USER",
         "LEFT",
         "NULLIF",
         "RIGHT",
+    )
+
+
+class ReservedKeywordBareFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are functions without parentheses.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
         "SESSION_USER",
         "SYSTEM_USER",
     )
@@ -2605,6 +2701,7 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = OneOf(
+        Ref("ReservedKeywordBareFunctionNameSegment"),
         Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
@@ -2810,7 +2907,79 @@ class AlterTableStatementSegment(BaseSegment):
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
                 ),
-            ),
+                Sequence(
+                    "SET",
+                    OneOf(
+                        Bracketed(
+                            Sequence(
+                                "FILESTREAM_ON",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("FilegroupNameSegment"),
+                                    Ref("PartitionSchemeNameSegment"),
+                                    OneOf(
+                                        "NULL",
+                                        Ref("LiteralGrammar"),  # for "default" value
+                                    ),
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "SYSTEM_VERSIONING",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "DATA_CONSISTENCY_CHECK",
+                                            Ref("EqualsSegment"),
+                                            OneOf("ON", "OFF"),
+                                            optional=True,
+                                        ),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "HISTORY_RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            )
+                        ),
+                        Bracketed(
+                            Sequence(
+                                "DATA_DELETION",
+                                Ref("EqualsSegment"),
+                                OneOf("ON", "OFF"),
+                                Sequence(
+                                    Bracketed(
+                                        "FILTER_COLUMN",
+                                        Ref("EqualsSegment"),
+                                        Ref("ColumnReferenceSegment"),
+                                        Sequence(
+                                            Ref("CommaSegment"),
+                                            "RETENTION_PERIOD",
+                                            Ref("EqualsSegment"),
+                                            Ref("NumericLiteralSegment", optional=True),
+                                            Ref("DatetimeUnitSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
         ),
     )
 
@@ -3939,7 +4108,9 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        OptionallyBracketed(Ref("ObjectReferenceSegment")),
+        OptionallyBracketed(
+            OneOf(Ref("ObjectReferenceSegment"), Ref("QuotedLiteralSegment"))
+        ),
         Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 
 from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import (
@@ -30,9 +31,22 @@ config_a = {
 }
 
 config_b = {
-    "core": {"rules": "L007", "dialect": "ansi"},
+    "core": {"rules": "LT03", "dialect": "ansi"},
     "layout": {
         "type": {"comma": {"line_position": "trailing", "spacing_before": "touch"}}
+    },
+}
+
+config_c = {
+    "core": {"rules": "LT03", "dialect": "ansi"},
+    # NOTE:
+    # - NOT_A_RULE doesn't match anything.
+    # - L001 is an alias, but no longer a rule.
+    # - layout is a group and but doesn't match any individual rule.
+    "rules": {
+        "NOT_A_RULE": {"foo": "bar"},
+        "L001": {"foo": "bar"},
+        "layout": {"foo": "bar"},
     },
 }
 
@@ -199,19 +213,33 @@ def test__config__nested_config_tests():
     test.
     """
     lntr = Linter(
-        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+        # Exclude CP02 in overrides (similar to cli --exclude-rules)
+        config=FluffConfig(overrides=dict(exclude_rules="CP02", dialect="ansi"))
     )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
         if k.endswith("nested\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert ("L009", 1, 12) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
+            # CP01 is enabled in the .sqlfluff file and not excluded.
+            assert ("CP01", 1, 4) in violations[k]
+            # LT02 is enabled in the .sqlfluff file and not excluded.
+            assert ("LT02", 1, 1) in violations[k]
+            # CP02 is enabled in the .sqlfluff file but excluded by the
+            # override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
         elif k.endswith("inheritance_b\\example.sql"):
-            assert ("L003", 1, 1) in violations[k]
-            assert "L002" not in [c[0] for c in violations[k]]
-            assert "L009" not in [c[0] for c in violations[k]]
+            # CP01 is enabled because while disabled in the tox.ini file,
+            # the exclude-rules option is overridden by the override above
+            # which effectively sets the exclude to CP02 and in effect
+            # re-enables CP01.
+            # This may seem counter-intuitive but is in line with current
+            # documentation on how to use `rules` and `exclude-rules`.
+            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            assert ("CP01", 1, 4) in violations[k]
+            # CP02 is disabled because of the override above.
+            assert "CP02" not in [c[0] for c in violations[k]]
+            # LT02 is disabled because it is not in the `rules` of tox.ini
+            assert "LT02" not in [c[0] for c in violations[k]]
 
 
 @patch("os.path.exists")
@@ -251,8 +279,8 @@ def test__config__load_user_appdir_config(
 @pytest.mark.parametrize(
     "raw_str, expected",
     [
-        ("L011,L022,L031", ["L011", "L022", "L031"]),
-        ("\nL011,\nL022,\nL031,", ["L011", "L022", "L031"]),
+        ("AL01,LT08,L031", ["AL01", "LT08", "L031"]),
+        ("\nAL01,\nLT08,\nL031,", ["AL01", "LT08", "L031"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
@@ -283,11 +311,11 @@ def test__config__glob_exclude_config_tests():
     lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L044", 10, 1) in violations[k]
-        assert "L027" not in [c[0] for c in violations[k]]
-        assert "L050" not in [c[0] for c in violations[k]]
-        assert "L051" not in [c[0] for c in violations[k]]
-        assert "L052" not in [c[0] for c in violations[k]]
+        assert ("AM04", 12, 1) in violations[k]
+        assert "RF02" not in [c[0] for c in violations[k]]
+        assert "LT13" not in [c[0] for c in violations[k]]
+        assert "AM05" not in [c[0] for c in violations[k]]
+        assert "CV06" not in [c[0] for c in violations[k]]
 
 
 def test__config__glob_include_config_tests():
@@ -300,11 +328,11 @@ def test__config__glob_include_config_tests():
     lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L050", 1, 1) in violations[k]
-        assert ("L051", 12, 1) in violations[k]
-        assert ("L052", 12, 9) in violations[k]
-        assert ("L027", 10, 8) in violations[k]
-        assert "L044" not in [c[0] for c in violations[k]]
+        assert ("LT13", 1, 1) in violations[k]
+        assert ("AM05", 14, 1) in violations[k]
+        assert ("CV06", 14, 9) in violations[k]
+        assert ("RF02", 12, 8) in violations[k]
+        assert "AM04" not in [c[0] for c in violations[k]]
 
 
 def test__config__rules_set_to_none():
@@ -318,9 +346,9 @@ def test__config__rules_set_to_none():
     lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L050", 1, 1) in violations[k]
-        assert ("L044", 12, 1) in violations[k]
-        assert ("L010", 12, 10) in violations[k]
+        assert ("LT13", 1, 1) in violations[k]
+        assert ("AM04", 12, 1) in violations[k]
+        assert ("CP01", 12, 10) in violations[k]
 
 
 def test__config__rules_group_with_exclude():
@@ -331,15 +359,15 @@ def test__config__rules_group_with_exclude():
     lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
-        assert ("L010", 15, 1) in violations[k]
-        assert "L019" not in [c[0] for c in violations[k]]
+        assert ("CP01", 15, 1) in violations[k]
+        assert "LT04" not in [c[0] for c in violations[k]]
 
 
 def test__config__get_section():
     """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
 
-    assert cfg.get_section("core").get("rules", None) == "L007"
+    assert cfg.get_section("core").get("rules", None) == "LT03"
     assert cfg.get_section(["layout", "type", "comma"]) == {
         "line_position": "trailing",
         "spacing_before": "touch",
@@ -351,7 +379,7 @@ def test__config__get():
     """Test FluffConfig.get method."""
     cfg = FluffConfig(config_b)
 
-    assert cfg.get("rules") == "L007"
+    assert cfg.get("rules") == "LT03"
     assert cfg.get("rulez") is None
     assert cfg.get("rulez", section="core", default=123) == 123
     assert (
@@ -369,14 +397,14 @@ def test__config__from_kwargs():
     # Instantiate config object.
     cfg = FluffConfig.from_kwargs(
         dialect="snowflake",
-        rules=["L001", "L002"],
-        exclude_rules=["L010", "L011"],
+        rules=["LT01", "LT02"],
+        exclude_rules=["CP01", "AL01"],
     )
 
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "snowflake"
-    assert cfg.get("rules") == "L001,L002"
-    assert cfg.get("exclude_rules") == "L010,L011"
+    assert cfg.get("rules") == "LT01,LT02"
+    assert cfg.get("exclude_rules") == "CP01,AL01"
 
 
 def test__config_missing_dialect():
@@ -424,7 +452,7 @@ def test__config__validate_configs_indirect():
 def test__config__validate_configs_precedence_same_file():
     """Test _validate_configs method of FluffConfig where there's a conflict."""
     # Check with a known conflicted value
-    old_key = ("rules", "L007", "operator_new_lines")
+    old_key = ("rules", "LT03", "operator_new_lines")
     new_key = ("layout", "type", "binary_operator", "line_position")
     # Check it's still conflicted.
     assert any(
@@ -455,3 +483,45 @@ def test__config__toml_list_config():
     # Verify we can later retrieve the config values.
     assert cfg.get("dialect") == "ansi"
     assert cfg.get("rules") == ["L010", "L035"]
+
+
+def test__config__warn_unknown_rule(caplog):
+    """Test warnings when rules are unknown."""
+    lntr = Linter(config=FluffConfig(config_c))
+    # NOTE: There is something strange with cross platform logging.
+    # To get around that, we briefly patch the logging propagation.
+    # As at 2023-02-21. This test passes on windows without stashing
+    # but is otherwise failing on linux.
+    fluff_logger = logging.getLogger("sqlfluff")
+    # Stash the current propagation.
+    propagate = fluff_logger.propagate
+    # Set to true
+    fluff_logger.propagate = True
+
+    try:
+        # Fetch rules to trigger checks:
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
+            lntr.get_rulepack()
+    # Regardless of success - restore the propagate setting.
+    finally:
+        fluff_logger.propagate = propagate
+
+    # Check we get a warning on the unrecognised rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'NOT_A_RULE'."
+    ) in caplog.text
+    # Check we get a warning for the deprecated rule.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'L001'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule.
+    assert "match for rule LT01 with name 'layout.spacing'" in caplog.text
+    # Check we get a warning for the group name.
+    assert (
+        "Rule configuration contain a section for unexpected rule 'layout'."
+    ) in caplog.text
+    # Check we get a hint for the matched rule group.
+    # NOTE: We don't check the set explicitly because we can't assume ordering.
+    assert ("The reference was found as a match for multiple rules: {") in caplog.text
+    assert ("LT01") in caplog.text
+    assert ("LT02") in caplog.text

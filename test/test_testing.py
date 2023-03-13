@@ -20,22 +20,22 @@ def test_assert_rule_fail_in_sql_handle_parse_error():
 def test_assert_rule_fail_in_sql_should_fail_queries_that_unexpectedly_pass():
     """Util assert_rule_fail_in_sql should fail if no failure."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_fail_in_sql(code="L001", sql="select 1")
-    failed_test.match("No L001 failures found in query which should fail")
+        assert_rule_fail_in_sql(code="LT01", sql="select 1")
+    failed_test.match("No LT01 failures found in query which should fail")
 
 
 def test_assert_rule_pass_in_sql_should_handle_parse_error():
     """Util assert_rule_pass_in_sql should handle parse errors."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_pass_in_sql(code="L001", sql="select from")
+        assert_rule_pass_in_sql(code="LT01", sql="select from")
     failed_test.match("Found unparsable section:")
 
 
 def test_assert_rule_pass_in_sql_should_fail_when_there_are_violations():
     """Util assert_rule_pass_in_sql should fail when there are violations."""
     with pytest.raises(Failed) as failed_test:
-        assert_rule_pass_in_sql(code="L005", sql="select a , b from t")
-    failed_test.match("Found L005 failures in query which should pass")
+        assert_rule_pass_in_sql(code="LT01", sql="select a , b from t")
+    failed_test.match("Found LT01 failures in query which should pass")
 
 
 def test_rules__test_helper_skipped_when_test_case_skipped():
@@ -49,7 +49,7 @@ def test_rules__test_helper_skipped_when_test_case_skipped():
 def test_rules__test_helper_has_variable_introspection(test_verbosity_level):
     """Make sure the helper gives variable introspection information on failure."""
     rule_test_case = RuleTestCase(
-        rule="L003",
+        rule="LT02",
         fail_str="""
             select
                 a,

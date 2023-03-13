@@ -1,0 +1,364 @@
+rule: LT04
+
+leading_comma_violations:
+  fail_str: |
+    SELECT
+      a
+      , b
+    FROM c
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM c
+
+leading_comma_violation_with_inline_comment:
+  fail_str: |
+    SELECT
+        a
+        , b -- inline comment
+        , c
+        /* non inline comment */
+        , d
+    FROM e
+  fix_str: |
+    SELECT
+        a,
+        b, -- inline comment
+        c,
+        /* non inline comment */
+        d
+    FROM e
+
+leading_commas_allowed:
+  pass_str: |
+    SELECT
+      a
+      , b
+    FROM c
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+leading_commas_allowed_with_header:
+  pass_str: |
+
+    SELECT
+      a
+      , b
+    FROM c
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+leading_comma_violations_in_with_statement:
+  fail_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    )
+
+    , cte_2 as (
+
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+  fix_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    ),
+
+    cte_2 as (
+
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+
+leading_commas_allowed_in_with_statement:
+  pass_str: |
+    WITH cte_1 as (
+        SELECT *
+        FROM table_1
+    )
+
+    , cte_2 as (
+        SELECT *
+        FROM table_2
+    )
+
+    SELECT * FROM table_3
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+trailing_comma_violations:
+  fail_str: |
+    SELECT
+        a,
+        b
+        FROM c
+  fix_str: |
+    SELECT
+        a
+        , b
+        FROM c
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+trailing_commas_allowed:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM c
+
+trailing_comma_fixing_removes_extra_whitespace:
+  fail_str: |
+    SELECT
+        field_1
+        ,   field_2
+        ,field_3,
+        field_4,
+        field_5
+    FROM a
+  fix_str: |
+    SELECT
+        field_1,
+        field_2,
+        field_3,
+        field_4,
+        field_5
+    FROM a
+
+leading_comma_fixing_flows_around_comments:
+  fail_str: |
+    SELECT
+        a.foo
+
+        -- another comment
+        , a.baz,
+        -- another comment
+         a.bar,
+
+        -- This is an important comment with awkward line spacing
+
+       a.foobar
+
+        /* Which might also
+        be followed by a multiline one */
+        , a.barfoo
+    FROM a
+    WHERE
+        a.field4 in (
+            '1',
+            '2',
+            '3'
+            ,'4'
+        )
+  fix_str: |
+    SELECT
+        a.foo
+
+        -- another comment
+        , a.baz
+        -- another comment
+         , a.bar
+
+        -- This is an important comment with awkward line spacing
+
+       , a.foobar
+
+        /* Which might also
+        be followed by a multiline one */
+        , a.barfoo
+    FROM a
+    WHERE
+        a.field4 in (
+            '1'
+            , '2'
+            , '3'
+            ,'4'
+        )
+
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+trailing_comma_move_past_several_comment_lines:
+  fail_str: |
+    SELECT
+    COUNT(1) AS campaign_count,
+    state_user_v_peer_open
+    ,business_type
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    --  coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    --  numerator this is the slope of the regression line considering STDDEV_POP(open_rate_su) to be
+    --  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    ,SAFE_DIVIDE(SAFE_MULTIPLY(CORR(open_rate_su, uses_small_subject_line), STDDEV_POP(open_rate_su)), STDDEV_POP(uses_small_subject_line))
+
+    FROM
+    global_actions_states
+  fix_str: |
+    SELECT
+    COUNT(1) AS campaign_count,
+    state_user_v_peer_open,
+    business_type,
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    --  coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    --  numerator this is the slope of the regression line considering STDDEV_POP(open_rate_su) to be
+    --  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    SAFE_DIVIDE(SAFE_MULTIPLY(CORR(open_rate_su, uses_small_subject_line), STDDEV_POP(open_rate_su)), STDDEV_POP(uses_small_subject_line))
+
+    FROM
+    global_actions_states
+  configs:
+    core:
+      # Set runaway_limit=2 to verify the fix only requires one pass. In an
+      # earlier version, the comma before "SAFE_DIVIDE()" was being moved one
+      # line per pass. Too lazy!
+      runaway_limit: 2
+
+leading_comma_move_past_several_comment_lines:
+  fail_str: |
+    SELECT
+    COUNT(1) AS campaign_count
+    ,state_user_v_peer_open,
+    business_type,
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    --  coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    --  numerator this is the slope of the regression line considering STDDEV_POP(open_rate_su) to be
+    --  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    SAFE_DIVIDE(SAFE_MULTIPLY(CORR(open_rate_su, uses_small_subject_line), STDDEV_POP(open_rate_su)), STDDEV_POP(uses_small_subject_line))
+
+    FROM
+    global_actions_states
+  fix_str: |
+    SELECT
+    COUNT(1) AS campaign_count
+    ,state_user_v_peer_open
+    , business_type
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    --  coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    --  numerator this is the slope of the regression line considering STDDEV_POP(open_rate_su) to be
+    --  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    , SAFE_DIVIDE(SAFE_MULTIPLY(CORR(open_rate_su, uses_small_subject_line), STDDEV_POP(open_rate_su)), STDDEV_POP(uses_small_subject_line))
+
+    FROM
+    global_actions_states
+  configs:
+    core:
+      # Set runaway_limit=2 to verify the fix only requires one pass. In an
+      # earlier version for the trailing comma case, commas were being moved
+      # "through" comment blocks one line per pass. Too lazy!
+      runaway_limit: 2
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+leading_comma_with_templated_column_1:
+  fail_str: |
+    SELECT
+        c1,
+        {{ "c2" }} AS days_since
+    FROM logs
+  fix_str: |
+    SELECT
+        c1
+        , {{ "c2" }} AS days_since
+    FROM logs
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+leading_comma_with_templated_column_2:
+  pass_str: |
+    SELECT
+        c1
+        , {{ "
+    c2" }} AS days_since
+    FROM logs
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+trailing_comma_with_templated_column_1:
+  fail_str: |
+    SELECT
+        {{ "c1" }}
+        , c2 AS days_since
+    FROM logs
+  fix_str: |
+    SELECT
+        {{ "c1" }},
+        c2 AS days_since
+    FROM logs
+
+trailing_comma_with_templated_column_2:
+  pass_str: |
+    SELECT
+        {{ "c1
+    " }}, c2 AS days_since
+    FROM logs
+
+leading_comma_fix_mixed_indent:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/4255
+  # NOTE: Undisturbed mixed indent.
+  fail_str: |
+    select B
+    	  ,C
+    from A
+  fix_str: |
+    select B,
+    	  C
+    from A
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: trailing
+
+trailing_comma_fix_mixed_indent:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/4255
+  # NOTE: Undisturbed mixed indent.
+  fail_str: |
+    select B,
+    	  C
+    from A
+  fix_str: |
+    select B
+    	  , C
+    from A
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading

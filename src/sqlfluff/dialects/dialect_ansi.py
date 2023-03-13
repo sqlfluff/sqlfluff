@@ -215,6 +215,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("minus", "-", CodeSegment),
         StringLexer("divide", "/", CodeSegment),
         StringLexer("percent", "%", CodeSegment),
+        StringLexer("question", "?", CodeSegment),
         StringLexer("ampersand", "&", CodeSegment),
         StringLexer("vertical_bar", "|", CodeSegment),
         StringLexer("caret", "^", CodeSegment),
@@ -282,7 +283,7 @@ ansi_dialect.sets("bracket_pairs").update(
 # an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
-# - It impacts core linter rules (see L020 and several other rules that subclass
+# - It impacts core linter rules (see AL04 and several other rules that subclass
 #   from it) and how they interpret the contents of table_expressions
 # - At least one other database (DB2) has the same value table function,
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
@@ -308,6 +309,7 @@ ansi_dialect.add(
     DotSegment=StringParser(".", SymbolSegment, type="dot"),
     StarSegment=StringParser("*", SymbolSegment, type="star"),
     TildeSegment=StringParser("~", SymbolSegment, type="tilde"),
+    ParameterSegment=StringParser("?", SymbolSegment, type="parameter"),
     CastOperatorSegment=StringParser("::", SymbolSegment, type="casting_operator"),
     PlusSegment=StringParser("+", SymbolSegment, type="binary_operator"),
     MinusSegment=StringParser("-", SymbolSegment, type="binary_operator"),
@@ -436,7 +438,7 @@ ansi_dialect.add(
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
     # Give it a different type as needs to be single quotes and
-    # should not be changed by rules (e.g. rule L064)
+    # should not be changed by rules (e.g. rule CV10)
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
@@ -568,6 +570,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    AutoIncrementGrammar=Sequence("AUTO_INCREMENT"),
     # Base Expression element is the right thing to reference for everything
     # which functions as an expression, but could include literals.
     BaseExpressionElementGrammar=OneOf(
@@ -1916,7 +1919,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("TimeZoneGrammar")),
+            AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
     ),
@@ -2689,7 +2692,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            Ref("AutoIncrementGrammar"),
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
@@ -3864,7 +3867,10 @@ class DropTriggerStatementSegment(BaseSegment):
     type = "drop_trigger"
 
     match_grammar: Matchable = Sequence(
-        "DROP", "TRIGGER", Ref("TriggerReferenceSegment")
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
     )
 
 

@@ -1,0 +1,638 @@
+rule: ST05
+
+select_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+
+cte_select_fail:
+  fail_str: |
+    with prep as (
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with prep as (
+      select 1 as x, 2 as z
+    ),
+    b as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+
+cte_with_clashing_name:
+  fail_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, z
+    from a
+    join (
+        select x, z from b
+    ) on a.x = z
+  fix_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    ),
+    prep_2 as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, z
+    from a
+    join prep_2 on a.x = z
+
+double_nested_fail:
+  fail_str: |
+    with p_cte as (
+      select 1 as x, 2 as z
+      UNION ALL
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select x, z from p_cte
+      ) as c
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with p_cte as (
+      select 1 as x, 2 as z
+      UNION ALL
+      select 1 as x, 2 as z
+    ),
+    c as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from c
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+double_nested_fail_2:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 2
+      line_pos: 20
+      name: structure.subquery
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+unfixable_cte_clash:
+  fail_str: |
+    with "b" as (
+      select x, z from p_cte
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select 1
+      ) as b
+    ) as c on (a.x = b.x)
+  fix_str: |
+    with "b" as (
+      select x, z from p_cte
+    ),
+    c as (
+      select x, z from (
+        select 1
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join c on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      line_no: 5
+      line_pos: 20
+      name: structure.subquery
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+with_recursive_fail_no_fix:
+  fail_str: |
+    with recursive p_cte as (
+      select 1 from tbl_foo
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from p_cte
+    ) as b on a.x = b.x
+
+select_multijoin_fail:
+  fail_str: |
+    select
+        a.x, d.x as foo, a.y, b.z
+    from (select a, x from foo) a
+    join d using(x)
+    join (
+        select x, z from b
+    ) as b using (x)
+  fix_str: |
+    with a as (select a, x from foo),
+    b as (
+        select x, z from b
+    )
+    select
+        a.x, d.x as foo, a.y, b.z
+    from a
+    join d using(x)
+    join b using (x)
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+with_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        with d as (
+            select x, z from b
+        )
+        select * from d
+    ) using (x)
+  fix_str: |
+    with prep_1 as (
+        with d as (
+            select x, z from b
+        )
+        select * from d
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join prep_1 using (x)
+
+set_fail:
+  fail_str: |
+    SELECT
+        a.x, a.y, b.z
+    FROM a
+    JOIN (
+        select x, z from b
+        union
+        select x, z from d
+    ) USING (x)
+  fix_str: |
+    WITH prep_1 AS (
+        select x, z from b
+        union
+        select x, z from d
+    )
+    SELECT
+        a.x, a.y, b.z
+    FROM a
+    JOIN prep_1 USING (x)
+
+simple_pass:
+  pass_str: |
+    with c as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, c.z
+    from a
+    join c on (a.x = c.x)
+
+from_clause_pass:
+  pass_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+from_clause_fail:
+  fail_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  fix_str: |
+    with a as (
+        select * from b
+    )
+    select
+        a.x, a.y
+    from a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: from
+
+both_clause_fail:
+  fail_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  fix_str: |
+    with a as (
+        select * from b
+    )
+    select
+        a.x, a.y
+    from a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+no_inner_from_pass:
+  pass_str: |
+    select a
+    from (select 1 as a)
+
+uses_templating:
+  fail_str: |
+    SELECT
+        a_table.id,
+        b_table.id
+    FROM a_table
+    INNER JOIN (
+        SELECT
+            id,
+            {{"mrgn"}} AS margin
+        FROM b_tbl
+    ) AS b_table ON a_table.some_column = b_table.some_column
+
+issue_2898_redshift_attribute_error:
+  fail_str: |
+    INSERT INTO target_table (target_column)
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN (
+        SELECT table2.join_column
+        FROM table2
+    ) AS temp3
+    ON table1.join_column = temp3.join_column
+  fix_str: |
+    INSERT INTO target_table (target_column)
+    WITH temp3 AS (
+        SELECT table2.join_column
+        FROM table2
+    )
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN temp3
+    ON table1.join_column = temp3.join_column
+  configs:
+    core:
+      dialect: postgres
+
+issue_3623_internal_error_multiple_templated_files:
+  fail_str: |
+    CREATE TABLE #procs
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH proc_icd
+    AS
+    ( SELECT
+        *
+      FROM fbp
+    )
+    SELECT
+       *
+    FROM
+    (
+       SELECT
+           *
+       FROM proc_icd
+    ) sub
+    ;
+
+    CREATE TABLE #tem
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    SELECT *
+    FROM
+    (
+        SELECT
+            *
+        FROM
+            a
+    ) b
+    ;
+  fix_str: |
+    CREATE TABLE #procs
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH proc_icd
+    AS
+    ( SELECT
+        *
+      FROM fbp
+    ),
+    sub AS (
+       SELECT
+           *
+       FROM proc_icd
+    )
+    SELECT
+       *
+    FROM
+    sub
+    ;
+
+    CREATE TABLE #tem
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH b AS (
+        SELECT
+            *
+        FROM
+            a
+    )
+    SELECT *
+    FROM
+    b
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3622_no_space_after_from:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    SELECT
+        col1
+    FROM(
+        SELECT 'x' AS col1
+    ) x
+  fix_str: |
+    CREATE TABLE t
+    AS
+    WITH x AS (
+        SELECT 'x' AS col1
+    )
+    SELECT
+        col1
+    FROM x
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3617_parentheses_around_ctas_select:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    (SELECT
+        Col1
+    FROM
+    (
+        SELECT 'x' AS COl1
+    ) x
+    )
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3572_correlated_subquery_1:
+  pass_str: |
+    select
+        pd.*
+    from person_dates
+    join
+        (select *
+         from events
+         where events.name = person_dates.name)
+
+
+issue_3572_correlated_subquery_2:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = pd.name)
+
+
+issue_3572_correlated_subquery_3:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = person_dates.name)
+
+issue_3598_avoid_looping_1:
+  fail_str: |
+    WITH cte1 AS (
+        SELECT a
+        FROM (SELECT a)
+    )
+    SELECT a FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT a),
+    cte1 AS (
+        SELECT a
+        FROM prep_1
+    )
+    SELECT a FROM cte1
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3598_avoid_looping_2:
+  fail_str: |
+    WITH cte1 AS (
+        SELECT *
+        FROM (SELECT * FROM mongo.temp)
+    )
+    SELECT * FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT * FROM mongo.temp),
+    cte1 AS (
+        SELECT *
+        FROM prep_1
+    )
+    SELECT * FROM cte1
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte:
+  fail_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      )
+    )
+    select b.z
+    from b
+  fix_str: |
+    with prep_1 as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from prep_1
+    )
+    select b.z
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_2:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from (select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_3:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from(select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both

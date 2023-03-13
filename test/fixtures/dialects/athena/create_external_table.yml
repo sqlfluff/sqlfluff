@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39e5d0780331792ce8d39c3674f19976b486a0de57d38a705d3c06a9c14afa1f
+_hash: c477f9eec8a7f403850f8c889f12d7effdafd774bd0da9b4a473f346ff133a1d
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: create
     - keyword: external
@@ -60,5 +60,171 @@ file:
       - keyword: BY
       - quoted_literal: "'\\n'"
     - keyword: LOCATION
-    - raw: "'s3://athena-examples-myregion/flight/csv/'"
-  statement_terminator: ;
+    - quoted_literal: "'s3://athena-examples-myregion/flight/csv/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bucketed_table
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: bucketed_by
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          keyword: ARRAY
+          start_square_bracket: '['
+          column_reference:
+            naked_identifier: column_name
+          end_square_bracket: ']'
+      - comma: ','
+      - keyword: bucket_count
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '30'
+      - comma: ','
+      - keyword: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PARQUET'"
+      - comma: ','
+      - keyword: external_location
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'s3://DOC-EXAMPLE-BUCKET/tables/parquet_table/'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`tpch100.lineitem_parq_partitioned`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`l_orderkey`'
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_partkey`'
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_suppkey`'
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_linenumber`'
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_quantity`'
+          data_type:
+            primitive_type:
+              keyword: double
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_extendedprice`'
+          data_type:
+            primitive_type:
+              keyword: double
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_discount`'
+          data_type:
+            primitive_type:
+              keyword: double
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_tax`'
+          data_type:
+            primitive_type:
+              keyword: double
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_returnflag`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_linestatus`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_commitdate`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_receiptdate`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_shipinstruct`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`l_comment`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          quoted_identifier: '`l_shipdate`'
+          data_type:
+            primitive_type:
+              keyword: string
+        end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - quoted_literal: "'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: INPUTFORMAT
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'"
+    - keyword: OUTPUTFORMAT
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'"
+    - keyword: LOCATION
+    - quoted_literal: "'s3://<my-tpch-bucket>/lineitem/'"

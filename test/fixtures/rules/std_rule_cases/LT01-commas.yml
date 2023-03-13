@@ -1,0 +1,23 @@
+rule: LT01
+
+test_fail_whitespace_before_comma:
+  fail_str: SELECT 1 ,4
+  fix_str: SELECT 1, 4
+
+test_pass_single_whitespace_after_comma:
+  pass_str: SELECT 1, 4
+
+test_fail_multiple_whitespace_after_comma:
+  fail_str: SELECT 1,   4
+  fix_str: SELECT 1, 4
+
+test_fail_no_whitespace_after_comma:
+  fail_str: SELECT 1,4
+  fix_str: SELECT 1, 4
+
+test_fail_no_whitespace_after_comma_2:
+  fail_str: SELECT FLOOR(dt) ,count(*) FROM test
+  fix_str: SELECT FLOOR(dt), count(*) FROM test
+
+test_pass_bigquery_trailing_comma:
+  pass_str: SELECT 1, 2,

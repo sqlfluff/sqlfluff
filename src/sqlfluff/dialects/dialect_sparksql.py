@@ -618,7 +618,8 @@ sparksql_dialect.add(
         trim_chars="@",
     ),
     # This is the same as QuotedLiteralSegment but
-    # is given a different `name` to stop L048 flagging
+    # is given a different `name` to stop LT01 flagging
+    # TODO: Work out how the LT01 change influence this.
     SignedQuotedLiteralSegment=OneOf(
         TypedParser(
             "single_quote",

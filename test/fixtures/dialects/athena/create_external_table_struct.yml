@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7eb4fb1603f437728979d755c7316334d6dd9673f296aabfacf858596c696296
+_hash: 26e46fc3a0b1ef5006e5d68bca65c9e73261c0e2636e412e2380d03585798a97
 file:
   statement:
     create_table_statement:
@@ -326,5 +326,5 @@ file:
       - keyword: BY
       - quoted_literal: "'\\n'"
     - keyword: LOCATION
-    - raw: "'s3://athena-examples-myregion/flight/csv/'"
+    - quoted_literal: "'s3://athena-examples-myregion/flight/csv/'"
   statement_terminator: ;

@@ -58,13 +58,13 @@ class BaseRunner(ABC):
         """
         for fname, rendered in self.iter_rendered(fnames):
             # Generate a fresh ruleset
-            rule_set = self.linter.get_ruleset(config=rendered.config)
+            rule_pack = self.linter.get_rulepack(config=rendered.config)
             yield (
                 fname,
                 functools.partial(
                     self.linter.lint_rendered,
                     rendered,
-                    rule_set,
+                    rule_pack,
                     fix,
                     # Formatters may or may not be passed. They don't pickle
                     # nicely so aren't appropriate in a multiprocessing world.
