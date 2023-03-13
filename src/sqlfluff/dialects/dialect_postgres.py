@@ -701,7 +701,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 )
             ),
             Ref("ArrayTypeSegment"),
-            Sequence(Ref("ArrayTypeSegment"), Ref("ArrayLiteralSegment")),
+            Ref("SizedArrayTypeSegment"),
             optional=True,
         ),
     )
@@ -712,6 +712,16 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class SizedArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "sized_array_type"
+    match_grammar = Sequence(
+        Ref("ArrayTypeSegment"),
+        Ref("ArrayAccessorSegment"),
+    )
 
 
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
