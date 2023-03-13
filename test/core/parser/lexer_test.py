@@ -209,7 +209,6 @@ def test__parser__lexer_slicing_calls(in_str, context):
 
     https://github.com/sqlfluff/sqlfluff/issues/4013
     """
-
     config = FluffConfig(overrides={"dialect": "ansi"})
 
     templater = JinjaTemplater(override_context=context)
