@@ -454,8 +454,6 @@ class JinjaAnalyzer:
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
                 if block_type.startswith("block"):
-                    # NOTE: For testing purposes. What happens if we remove this?
-                    # self.track_block_start(block_type, tag_contents[0])
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
                         slice_idx, block_type, tag_contents[0]
@@ -559,20 +557,6 @@ class JinjaAnalyzer:
             trimmed_content = str_buff[len(m_open.group(0)) : -len(m_close.group(0))]
             trimmed_parts = trimmed_content.split()
         return trimmed_parts
-
-    def track_block_start(self, block_type: str, tag_name: str) -> None:
-        """On starting a 'call' block, set slice_type to "templated"."""
-        if block_type == "block_start" and tag_name == "call":
-            # Replace RawSliceInfo for this slice with one that has block_type
-            # "templated".
-            old_raw_file_slice = self.raw_sliced[-1]
-            self.raw_sliced[-1] = old_raw_file_slice._replace(slice_type="templated")
-
-            # Move existing raw_slice_info entry since it's keyed by RawFileSlice.
-            self.raw_slice_info[self.raw_sliced[-1]] = self.raw_slice_info[
-                old_raw_file_slice
-            ]
-            del self.raw_slice_info[old_raw_file_slice]
 
     def track_block_end(self, block_type: str, tag_name: str) -> None:
         """On ending a 'for' or 'if' block, set up tracking."""
