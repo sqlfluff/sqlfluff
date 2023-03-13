@@ -4,6 +4,7 @@ import pytest
 import logging
 
 from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
+from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.parser.lexer import (
     StringLexer,
     LexMatch,
@@ -169,3 +170,42 @@ def test__parser__lexer_trim_post_subdivide(caplog):
         assert res.elements[1].raw == "\n"
         assert res.elements[2].raw == "/"
         assert len(res.elements) == 3
+
+
+def test__parser__lexer_slicing_calls():
+    """Test slicing of call blocks.
+
+    https://github.com/sqlfluff/sqlfluff/issues/4013
+    """
+    in_str = (
+        "{% call statement('variables', fetch_result=true) %}\n"
+        "    select 1 as test\n"
+        "{% endcall %}\n"
+        "{% set unique_keys = load_result('unique_keys') %}\n"
+        "select 2\n"
+    )
+
+    def _statement(*args, **kwargs):
+        return ""
+
+    def _load_result(*args, **kwargs):
+        return ["foo", "bar"]
+
+    config = FluffConfig(overrides={"dialect": "ansi"})
+
+    templater = JinjaTemplater(
+        override_context={"statement": _statement, "load_result": _load_result}
+    )
+
+    templated_file, templater_violations = templater.process(
+        in_str=in_str, fname="test.sql", config=config, formatter=None
+    )
+
+    assert (
+        not templater_violations
+    ), f"Found templater violations: {templater_violations}"
+
+    lexer = Lexer(config=config)
+    _, lexing_violations = lexer.lex(templated_file)
+
+    assert not lexing_violations, f"Found templater violations: {lexing_violations}"
