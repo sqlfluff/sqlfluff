@@ -753,6 +753,16 @@ class ArrayTypeSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
+class SizedArrayTypeSegment(BaseSegment):
+    """Array type with a size."""
+
+    type = "sized_array_type"
+    match_grammar = Sequence(
+        Ref("ArrayTypeSegment"),
+        Ref("ArrayAccessorSegment"),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
     

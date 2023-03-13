@@ -714,16 +714,6 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     match_grammar = Ref.keyword("ARRAY")
 
 
-class SizedArrayTypeSegment(ansi.ArrayTypeSegment):
-    """Prefix for array literals specifying the type."""
-
-    type = "sized_array_type"
-    match_grammar = Sequence(
-        Ref("ArrayTypeSegment"),
-        Ref("ArrayAccessorSegment"),
-    )
-
-
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
     """A `CREATE FUNCTION` statement.
 

@@ -510,7 +510,7 @@ class DatatypeSegment(BaseSegment):
                 )
             ),
             Ref("ArrayTypeSegment"),
-            Sequence(Ref("ArrayTypeSegment"), Ref("ArrayLiteralSegment")),
+            Ref("SizedArrayTypeSegment"),
             optional=True,
         ),
     )
