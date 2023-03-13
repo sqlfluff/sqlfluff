@@ -547,7 +547,8 @@ For example, the default indentation would be as follows:
       b
    FROM my_table
    JOIN another_table
-      ON condition1
+      ON
+         condition1
          AND condition2
 
 By setting your config file to:
@@ -566,12 +567,36 @@ Then the expected indentation will be:
       b
    FROM my_table
       JOIN another_table
-         ON condition1
+         ON
+            condition1
             AND condition2
 
 There is a similar :code:`indented_using_on` config (defaulted to :code:`True`)
 which can be set to :code:`False` to prevent the :code:`USING` or :code:`ON`
 clause from being indented, in which case the original SQL would become:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      b
+   FROM my_table
+   JOIN another_table
+   ON
+      condition1
+      AND condition2
+
+It's worth noting at this point, that for some users, the additional line
+break after :code:`ON` is unexpected, and this is a good example of an
+:ref:`implicit indent <implicitindents>`. By setting your config to:
+
+.. code-block:: cfg
+
+   [sqlfluff:indentation]
+   indented_using_on = False
+   allow_implicit_indents = True
+
+Then the expected indentation will be:
 
 .. code-block:: sql
 
@@ -586,7 +611,7 @@ clause from being indented, in which case the original SQL would become:
 There is also a similar :code:`indented_on_contents` config (defaulted to
 :code:`True`) which can be set to :code:`False` to align any :code:`AND`
 subsections of an :code:`ON` block with each other. If set to :code:`False`
-the original SQL would become:
+(assuming implicit indents are still enabled) the original SQL would become:
 
 .. code-block:: sql
 
@@ -599,8 +624,9 @@ the original SQL would become:
       AND condition2
 
 These can also be combined, so if :code:`indented_using_on` config is set to
-:code:`False`, and :code:`indented_on_contents` is also set to :code:`False`
-then the SQL would become:
+:code:`False`, :code:`indented_on_contents` is also set to :code:`False`, and
+:code:`allow_implicit_indents` is set tot :code:`True` then the SQL would
+become:
 
 .. code-block:: sql
 
