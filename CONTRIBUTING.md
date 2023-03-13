@@ -89,13 +89,18 @@ First ensure that you have tox installed:
 ```shell
 python3.8 -m pip install -U tox
 ```
-**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as the `mypy` checks are incompatible with 3.7. Those using newer versions of Python may replace `python3.8` as necessary (the test suite runs primarily under 3.11 for example).
+**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as
+the `mypy` checks are incompatible with 3.7. Those using newer versions of
+Python may replace `python3.8` as necessary (the test suite runs primarily
+under 3.11 for example).
 
-Note: Unfortunately tox does not currently support setting just a minimum Python version (though this may be be coming in tox 4!).
+Note: Unfortunately tox does not currently support setting just a minimum
+Python version (though this may be be coming in tox 4!).
 
 #### Creating a virtual environment
 
-A virtual environment can then be created and activated by running (check the [requirements](#requirements) before running this):
+A virtual environment can then be created and activated by running (check
+the [requirements](#requirements) before running this):
 ```shell
 tox -e dbt021-py38 --devenv .venv
 source .venv/bin/activate
@@ -138,7 +143,8 @@ pip install -e plugins/sqlfluff-templater-dbt/.
 
 ### Testing
 
-To test locally, SQLFluff uses `tox` (check the [requirements](#requirements)!). The test suite can be run via:
+To test locally, SQLFluff uses `tox` (check the [requirements](#requirements)!).
+The test suite can be run via:
 
 ```shell
 tox
@@ -185,7 +191,9 @@ sqlfluff parse test.sql
 
 #### dbt templater tests
 
-The dbt templater tests require a locally running Postgres instance. See the required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`. We recommend using https://postgresapp.com/.
+The dbt templater tests require a locally running Postgres instance. See the
+required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`.
+We recommend using https://postgresapp.com/.
 
 To run the dbt-related tests you will have to explicitly include these tests:
 
@@ -207,7 +215,8 @@ Docker Compose environment. It's a simple two-container configuration:
 Steps to use the Docker Compose environment:
 * Install Docker on your machine.
 * Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
-* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
+* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session
+  in the `app` container.
 
 Inside the container, run:
 ```
@@ -216,18 +225,23 @@ py.test -v plugins/sqlfluff-templater-dbt/test/
 
 ### Pre-Commit Config
 
-For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks by running (check the [requirements](#requirements) before running this):
+For development convenience we also provide a `.pre-commit-config.yaml` file
+to allow the user to install a selection of pre-commit hooks by running (check
+the [requirements](#requirements) before running this):
 
 ```
 tox -e pre-commit -- install
 ```
 
-These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
+These hooks can help the user identify and fix potential linting/typing
+violations prior to committing their code and therefore reduce having to deal
+with these sort of issues during code review.
 
 ### Documentation Website
 
-Documentation is built using Sphinx with some pages being built based on the source code.
-See the [Documentation Website README.md](./docs/README.md) file for more information on how to build and test this.
+Documentation is built using Sphinx with some pages being built based on the
+source code. See the [Documentation Website README.md](./docs/README.md) file
+for more information on how to build and test this.
 
 ### Building Package
 
@@ -237,13 +251,22 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
-The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows
+maintainers all merges since last release. Once we have a long enough list,
+we should prepare a release.
 
-A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml).
+A release PR can be created by maintainers via the
+["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/actions/workflows/create-release-pull-request.yaml).
 
-As further PRs are merged, we may need to rerun the release script again (or alternatively just manually updating the branch). This can only be rerun locally (the GitHub Action will exit error if the branch already exists to prevent overwriting it).
+As further PRs are merged, we may need to rerun the release script again
+(or alternatively just manually updating the branch). This can only be rerun
+locally (the GitHub Action will exit error if the branch already exists to
+prevent overwriting it).
 
-Check out the release branch created by the GitHub Action locally and run the script. It will preserve any `Highlights` you have added and update the other sections with new contributions. It can be run as follows (you will need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
+Check out the release branch created by the GitHub Action locally and run
+the script. It will preserve any `Highlights` you have added and update the
+other sections with new contributions. It can be run as follows (you will
+need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
 
 ```shell
 source .venv/bin/activate
@@ -252,26 +275,57 @@ export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
 python util.py prepare-release --new_version_num=0.13.4 # Change to your release number
 ```
 
-Below is the old list of release steps, but many are automated by the process described above.
+Below is the old list of release steps, but many are automated by the process
+described above.
 
 - [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
 - [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
-- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created by a GitHub Action on each PR merge.
-- [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release Notes", then it will basically recreate these notes (though in a slightly different format), but also add a nice "First contributors" section, so can copy that "First contributors" section too and then abandon that new draft ([an issues](https://github.com/release-drafter/release-drafter/issues/1001) has been raised to ask for this in Release Drafter GitHub Action).
-- [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically when displaying Markdown files, like it does for comments. You can use regex in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`, or if using the GitHub generated release notes then can replace `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
-- [ ] For the new contributors section, you can replace `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
-- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). We also don't use [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/) (e.g. `feat`) so make them more English readable. Make same edits locally in [CHANGELOG.md](CHANGELOG.md).
+- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases
+      to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created
+      by a GitHub Action on each PR merge.
+- [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release
+      Notes", then it will basically recreate these notes (though in a slightly
+      different format), but also add a nice "First contributors" section, so can
+      copy that "First contributors" section too and then abandon that new draft
+      ([an issues](https://github.com/release-drafter/release-drafter/issues/1001)
+      has been raised to ask for this in Release Drafter GitHub Action).
+- [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically
+      when displaying Markdown files, like it does for comments. You can use regex
+      in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to
+      `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`,
+      or if using the GitHub generated release notes then can replace
+      `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to
+      `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
+- [ ] For the new contributors section, you can replace
+      `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$`
+      with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
+- [ ] Check each issue title is clear, and if not edit issue title (which will
+      automatically update Release notes on next PR merged, as the Draft one is
+      recreated in full each time). We also don't use
+      [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/)
+      (e.g. `feat`) so make them more English readable. Make same edits locally
+      in [CHANGELOG.md](CHANGELOG.md).
 - [ ] Add a comment at the top to highlight the main things in this release.
-- [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added that made this a non-patch release.
-- [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.
-- [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR in GitHub to give them time to merge their work before the new release
+- [ ] If this is a non-patch release then update the `Notable changes` section in
+      `index.rst` with a brief summary of the new features added that made this a
+      non-patch release.
+- [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any
+      link conversions or other markup errors.
+- [ ] Open draft PR with those change a few days in advance to give contributors
+      notice. Tag those with open PRs in the PR in GitHub to give them time to merge
+      their work before the new release
 - [ ] Comment in #contributing slack channel about release candidate.
 - [ ] Update the draft PR as more changes get merged.
 - [ ] Get another contributor to approve the PR.
 - [ ] Merge the PR when looks like we've got all we’re gonna get for this release.
-- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your release PR which doesn’t need to go in this). Add version tag and a title and click “Publish release”.
-- [ ] Announce the release in the #general channel, with shout outs to those who contributed many, or big items.
-- [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your Twitter handle if you want access to Tweet on SQLFluff’s behalf).
+- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit
+      the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your
+      release PR which doesn’t need to go in this). Add version tag and a title and
+      click “Publish release”.
+- [ ] Announce the release in the #general channel, with shout outs to those who
+      contributed many, or big items.
+- [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your
+      Twitter handle if you want access to Tweet on SQLFluff’s behalf).
 
 :warning: **Before creating a new release, ensure that
 [setup.cfg](setup.cfg) is up-to-date with a new version** :warning:.
