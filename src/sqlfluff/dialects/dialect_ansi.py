@@ -745,7 +745,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 class ArrayTypeSegment(BaseSegment):
     """Prefix for array literals specifying the type.
-    
+
     Often "ARRAY" or "ARRAY<type>"
     """
 
@@ -765,7 +765,7 @@ class SizedArrayTypeSegment(BaseSegment):
 
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
-    
+
     An unqualified array literal:
     e.g. [1, 2, 3]
     """
@@ -799,7 +799,7 @@ class StructTypeSegment(BaseSegment):
 
 class StructLiteralSegment(BaseSegment):
     """An array literal segment.
-    
+
     An unqualified struct literal:
     e.g. (1, 2 as foo, 3)
 
