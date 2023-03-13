@@ -239,6 +239,34 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     )
 
 
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("ColonSegment"),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
+
+
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -477,22 +505,7 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("ColonSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("StructTypeSegment"),
         Sequence(
             "UNIONTYPE",
             Bracketed(

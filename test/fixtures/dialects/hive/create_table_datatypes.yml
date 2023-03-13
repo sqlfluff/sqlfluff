@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6a65da897c214b67c7d4439f51c9e0ae4129bb02aecadaecc30a8ff02087cbb
+_hash: 1c0c9996996949b39b8d78939103b1432d2f93cf5744ac8016ec6b3998c4c244
 file:
   statement:
     create_table_statement:
@@ -72,46 +72,48 @@ file:
       - column_definition:
           naked_identifier: col7
           data_type:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - naked_identifier: field1
-          - colon: ':'
-          - data_type:
-              primitive_type:
-                keyword: boolean
-          - comma: ','
-          - naked_identifier: field2
-          - colon: ':'
-          - data_type:
-              array_type:
-                keyword: ARRAY
-                start_angle_bracket: <
-                data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: field1
+              - colon: ':'
+              - data_type:
                   primitive_type:
-                  - keyword: double
-                  - keyword: precision
-                end_angle_bracket: '>'
-          - comma: ','
-          - naked_identifier: field3
-          - colon: ':'
-          - data_type:
-            - keyword: UNIONTYPE
-            - start_angle_bracket: <
-            - data_type:
-                primitive_type:
-                  keyword: string
-            - comma: ','
-            - data_type:
-                primitive_type:
-                  keyword: decimal
-                  bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '10'
-                  - comma: ','
-                  - numeric_literal: '2'
-                  - end_bracket: )
-            - end_angle_bracket: '>'
-          - end_angle_bracket: '>'
+                    keyword: boolean
+              - comma: ','
+              - naked_identifier: field2
+              - colon: ':'
+              - data_type:
+                  array_type:
+                    keyword: ARRAY
+                    start_angle_bracket: <
+                    data_type:
+                      primitive_type:
+                      - keyword: double
+                      - keyword: precision
+                    end_angle_bracket: '>'
+              - comma: ','
+              - naked_identifier: field3
+              - colon: ':'
+              - data_type:
+                - keyword: UNIONTYPE
+                - start_angle_bracket: <
+                - data_type:
+                    primitive_type:
+                      keyword: string
+                - comma: ','
+                - data_type:
+                    primitive_type:
+                      keyword: decimal
+                      bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '10'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_bracket: )
+                - end_angle_bracket: '>'
+              - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: col8
