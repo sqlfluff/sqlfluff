@@ -228,7 +228,15 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
+        ),
+    )
 
 
 class CreateDatabaseStatementSegment(BaseSegment):
@@ -456,14 +464,7 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("ArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(

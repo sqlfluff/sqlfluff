@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 049d7b4751c32d8c8387eda398d38964105340e733dfe259657f8fe1aea38c4f
+_hash: c6a65da897c214b67c7d4439f51c9e0ae4129bb02aecadaecc30a8ff02087cbb
 file:
   statement:
     create_table_statement:
@@ -48,12 +48,13 @@ file:
       - column_definition:
           naked_identifier: col5
           data_type:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
-              primitive_type:
-                keyword: double
-            end_angle_bracket: '>'
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                primitive_type:
+                  keyword: double
+              end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: col6
@@ -82,13 +83,14 @@ file:
           - naked_identifier: field2
           - colon: ':'
           - data_type:
-              keyword: ARRAY
-              start_angle_bracket: <
-              data_type:
-                primitive_type:
-                - keyword: double
-                - keyword: precision
-              end_angle_bracket: '>'
+              array_type:
+                keyword: ARRAY
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                  - keyword: double
+                  - keyword: precision
+                end_angle_bracket: '>'
           - comma: ','
           - naked_identifier: field3
           - colon: ':'
@@ -121,12 +123,13 @@ file:
                 keyword: string
           - comma: ','
           - data_type:
-              keyword: ARRAY
-              start_angle_bracket: <
-              data_type:
-                primitive_type:
-                  keyword: char
-              end_angle_bracket: '>'
+              array_type:
+                keyword: ARRAY
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: char
+                end_angle_bracket: '>'
           - end_angle_bracket: '>'
       - end_bracket: )
   statement_terminator: ;
