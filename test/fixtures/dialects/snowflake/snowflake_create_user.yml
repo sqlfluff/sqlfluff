@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e874fb7a01a7da4a354be907ed5b30ab5acf5f1ba5daa20a0e8ed75e200ed50
+_hash: 22283b573b8035fbf38494b02509411ee71d9b5493e78f1c4c88b09998ca16e8
 file:
-  statement:
+- statement:
     create_user_statement:
     - keyword: create
     - keyword: user
@@ -20,6 +20,41 @@ file:
         raw_comparison_operator: '='
     - object_reference:
         naked_identifier: myrole
+    - keyword: display_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: user1
+    - keyword: login_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_login_name
+    - keyword: first_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: User1
+    - keyword: middle_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: abc
+    - keyword: last_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: Test1
+    - keyword: default_warehouse
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_default_warehouse
+    - keyword: default_namespace
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_default_namespace
     - keyword: default_secondary_roles
     - comparison_operator:
         raw_comparison_operator: '='
@@ -31,4 +66,51 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+        naked_identifier: user2
+    - keyword: password
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'abc123'"
+    - keyword: default_role
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'myrole'"
+    - keyword: display_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'user 2'"
+    - keyword: login_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'test login name'"
+    - keyword: first_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'User'"
+    - keyword: middle_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'abc'"
+    - keyword: last_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'test2'"
+    - keyword: default_warehouse
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_default_warehouse'"
+    - keyword: default_namespace
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_default_namespace'"
+    - keyword: must_change_password
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;
