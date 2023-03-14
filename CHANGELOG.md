@@ -80,6 +80,11 @@ into the wild. 🙏🎉
 
 ## What’s Changed
 
+* Revise templating and lexing of calls. [#4506](https://github.com/sqlfluff/sqlfluff/pull/4506) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Struct Access Spacing [#4512](https://github.com/sqlfluff/sqlfluff/pull/4512) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Array and Struct Spacing [#4511](https://github.com/sqlfluff/sqlfluff/pull/4511) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add a deprecation warning for removed config option. [#4509](https://github.com/sqlfluff/sqlfluff/pull/4509) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bigquery spacing (#4508) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix #4433 (more untaken positive indents) [#4499](https://github.com/sqlfluff/sqlfluff/pull/4499) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix parse error on double parentheses [#4504](https://github.com/sqlfluff/sqlfluff/pull/4504) [@yoichi](https://github.com/yoichi)
 * 2.0.0 Migration Guide [#4498](https://github.com/sqlfluff/sqlfluff/pull/4498) [@alanmcruickshank](https://github.com/alanmcruickshank)
