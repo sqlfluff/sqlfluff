@@ -15,6 +15,7 @@ https://github.com/pytest-dev/pytest/issues/3697#issuecomment-792129636
 """
 
 import logging
+from typing import Iterator
 from contextlib import contextmanager
 
 from _pytest.logging import LogCaptureHandler, _remove_ansi_escape_sequences
@@ -36,7 +37,7 @@ class FluffLogHandler(LogCaptureHandler):
 
 
 @contextmanager
-def fluff_log_catcher(level: int, logger_name: str) -> FluffLogHandler:
+def fluff_log_catcher(level: int, logger_name: str) -> Iterator[FluffLogHandler]:
     """Context manager that sets the level for capturing of logs.
 
     After the end of the 'with' statement the level is restored to its
