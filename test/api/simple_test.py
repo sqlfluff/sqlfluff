@@ -309,4 +309,6 @@ def test__api__invalid_dialect():
             config_path="test/fixtures/api/config_path_test/extra_configs/.sqlfluff",
         )
 
-    assert str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
+    assert (
+        str(err.value) == "Error loading dialect 'not_a_real_dialect': Unknown dialect"
+    )
