@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af66c03d2426536302e47edcc891a5fdf0e17bbfd2c5486e5682142a3d157399
+_hash: 4365dc3e6ab7cd269f5d84bafa6c9298f3eb5e5d2e2727235ab88d604bcc102a
 file:
 - statement:
     create_external_table_statement:
@@ -96,7 +96,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c1
                   casting_operator: '::'
@@ -121,7 +121,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c2
                   casting_operator: '::'
@@ -146,7 +146,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c3
                   casting_operator: '::'
@@ -171,7 +171,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c4
                   casting_operator: '::'
@@ -192,7 +192,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: VALUE
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: c5
               casting_operator: '::'
@@ -214,7 +214,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c6
                   casting_operator: '::'
@@ -239,7 +239,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c7
                   casting_operator: '::'
@@ -264,7 +264,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c8
                   casting_operator: '::'
@@ -285,7 +285,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: VALUE
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: c9
               casting_operator: '::'
@@ -307,7 +307,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c10
                   casting_operator: '::'
@@ -332,7 +332,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c11
                   casting_operator: '::'
@@ -357,7 +357,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c12
                   casting_operator: '::'
@@ -378,7 +378,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: VALUE
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: c13
               casting_operator: '::'
@@ -396,7 +396,7 @@ file:
             cast_expression:
               column_reference:
                 naked_identifier: VALUE
-              snowflake_semi_structured_expression:
+              semi_structured_expression:
                 colon: ':'
                 semi_structured_element: c14
               casting_operator: '::'
@@ -418,7 +418,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c15
                   casting_operator: '::'
@@ -443,7 +443,7 @@ file:
                 cast_expression:
                   column_reference:
                     naked_identifier: VALUE
-                  snowflake_semi_structured_expression:
+                  semi_structured_expression:
                     colon: ':'
                     semi_structured_element: c16
                   casting_operator: '::'

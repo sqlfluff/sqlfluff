@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e62576d94377d6c4eb95311e7ab6a2e58fc10e53584c027551305513850de441
+_hash: 246b131824ddd434f87567ae1f0cf10a63055d0c33282c264e12c5f22081cd9c
 file:
   statement:
     select_statement:
@@ -11,35 +11,37 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            array_literal:
-              keyword: ARRAY
-              start_square_bracket: '['
-              function:
-                function_name:
-                  function_name_identifier: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ROW
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+                start_square_bracket: '['
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ROW
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '1'
+                          end_bracket: )
+                    keyword: AS
+                    data_type:
+                      keyword: ROW
                       bracketed:
                         start_bracket: (
-                        expression:
-                          numeric_literal: '1'
+                        naked_identifier: x
+                        data_type:
+                          primitive_type:
+                            keyword: INT
                         end_bracket: )
-                  keyword: AS
-                  data_type:
-                    keyword: ROW
-                    bracketed:
-                      start_bracket: (
-                      naked_identifier: x
-                      data_type:
-                        primitive_type:
-                          keyword: INT
-                      end_bracket: )
-                  end_bracket: )
-              end_square_bracket: ']'
+                    end_bracket: )
+                end_square_bracket: ']'
             array_accessor:
               start_square_bracket: '['
               numeric_literal: '1'

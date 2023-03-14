@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 099d904a7e9dcceb73016d13237d27d6770f4857540a51c53c5aff39529b5b81
+_hash: 886daa26e3b50467bf7f6a7be24692fe49125414ffc523e1eb4c7efc91067e16
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            typeless_array:
+            array_expression:
               keyword: array
               bracketed:
                 start_bracket: (
@@ -105,26 +105,28 @@ file:
         keyword: select
         select_clause_element:
           expression:
-            typeless_struct:
-              keyword: struct
-              bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: bar
-                - dot: .
-                - naked_identifier: bar_id
-              - alias_expression:
-                  keyword: as
-                  naked_identifier: id
-              - comma: ','
-              - column_reference:
-                - naked_identifier: bar
-                - dot: .
-                - naked_identifier: bar_name
-              - alias_expression:
-                  keyword: as
-                  naked_identifier: bar
-              - end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: struct
+              struct_literal:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: bar
+                  - dot: .
+                  - naked_identifier: bar_id
+                - alias_expression:
+                    keyword: as
+                    naked_identifier: id
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: bar
+                  - dot: .
+                  - naked_identifier: bar_name
+                - alias_expression:
+                    keyword: as
+                    naked_identifier: bar
+                - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: bar
@@ -178,39 +180,42 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    array_literal:
-                    - keyword: ARRAY
-                    - start_angle_bracket: <
-                    - data_type:
-                        struct_type:
-                        - keyword: STRUCT
-                        - start_angle_bracket: <
-                        - parameter: col_1
-                        - data_type:
-                            data_type_identifier: STRING
-                        - comma: ','
-                        - parameter: col_2
-                        - data_type:
-                            data_type_identifier: STRING
-                        - end_angle_bracket: '>'
-                    - end_angle_bracket: '>'
-                    - start_square_bracket: '['
-                    - expression:
-                        bracketed:
-                        - start_bracket: (
-                        - quoted_literal: "'hello'"
-                        - comma: ','
-                        - quoted_literal: "'world'"
-                        - end_bracket: )
-                    - comma: ','
-                    - expression:
-                        bracketed:
-                        - start_bracket: (
-                        - quoted_literal: "'hi'"
-                        - comma: ','
-                        - quoted_literal: "'there'"
-                        - end_bracket: )
-                    - end_square_bracket: ']'
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                        start_angle_bracket: <
+                        data_type:
+                          struct_type:
+                            keyword: STRUCT
+                            struct_type_schema:
+                            - start_angle_bracket: <
+                            - parameter: col_1
+                            - data_type:
+                                data_type_identifier: STRING
+                            - comma: ','
+                            - parameter: col_2
+                            - data_type:
+                                data_type_identifier: STRING
+                            - end_angle_bracket: '>'
+                        end_angle_bracket: '>'
+                      array_literal:
+                      - start_square_bracket: '['
+                      - expression:
+                          bracketed:
+                          - start_bracket: (
+                          - quoted_literal: "'hello'"
+                          - comma: ','
+                          - quoted_literal: "'world'"
+                          - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          bracketed:
+                          - start_bracket: (
+                          - quoted_literal: "'hi'"
+                          - comma: ','
+                          - quoted_literal: "'there'"
+                          - end_bracket: )
+                      - end_square_bracket: ']'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -219,71 +224,78 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            struct_type:
-              keyword: STRUCT
-              start_angle_bracket: <
-              data_type:
-                data_type_identifier: int64
-              end_angle_bracket: '>'
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '5'
-              end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: STRUCT
+                struct_type_schema:
+                  start_angle_bracket: <
+                  data_type:
+                    data_type_identifier: int64
+                  end_angle_bracket: '>'
+              struct_literal:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '5'
+                  end_bracket: )
       - comma: ','
       - select_clause_element:
           expression:
-            struct_type:
-              keyword: STRUCT
-              start_angle_bracket: <
-              data_type:
-                data_type_identifier: date
-              end_angle_bracket: '>'
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: '"2011-05-05"'
-              end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: STRUCT
+                struct_type_schema:
+                  start_angle_bracket: <
+                  data_type:
+                    data_type_identifier: date
+                  end_angle_bracket: '>'
+              struct_literal:
+                bracketed:
+                  start_bracket: (
+                  quoted_literal: '"2011-05-05"'
+                  end_bracket: )
       - comma: ','
       - select_clause_element:
           expression:
-            struct_type:
-            - keyword: STRUCT
-            - start_angle_bracket: <
-            - parameter: x
-            - data_type:
-                data_type_identifier: int64
-            - comma: ','
-            - parameter: y
-            - data_type:
-                data_type_identifier: string
-            - end_angle_bracket: '>'
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                column_reference:
-                - naked_identifier: t
-                - dot: .
-                - naked_identifier: str_col
-            - end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: STRUCT
+                struct_type_schema:
+                - start_angle_bracket: <
+                - parameter: x
+                - data_type:
+                    data_type_identifier: int64
+                - comma: ','
+                - parameter: y
+                - data_type:
+                    data_type_identifier: string
+                - end_angle_bracket: '>'
+              struct_literal:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '1'
+                  comma: ','
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: str_col
+                  end_bracket: )
       - comma: ','
       - select_clause_element:
           expression:
-            struct_type:
-              keyword: STRUCT
-              start_angle_bracket: <
-              data_type:
-                data_type_identifier: int64
-              end_angle_bracket: '>'
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: int_col
-              end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: STRUCT
+                struct_type_schema:
+                  start_angle_bracket: <
+                  data_type:
+                    data_type_identifier: int64
+                  end_angle_bracket: '>'
+              struct_literal:
+                bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: int_col
+                  end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -291,16 +303,18 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            typeless_struct:
-              keyword: STRUCT
-              bracketed:
-              - start_bracket: (
-              - column_reference:
-                  naked_identifier: some_field
-              - comma: ','
-              - column_reference:
-                  naked_identifier: some_other_field
-              - end_bracket: )
+            typed_struct_literal:
+              struct_type:
+                keyword: STRUCT
+              struct_literal:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: some_field
+                - comma: ','
+                - column_reference:
+                    naked_identifier: some_other_field
+                - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: col

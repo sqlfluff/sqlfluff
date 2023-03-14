@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, cast, TYPE_CHECKING
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.errors import SQLFluffUserError
 
 from sqlfluff.utils.reflow.helpers import pretty_segment_name
 
@@ -26,17 +27,29 @@ def _unpack_constraint(constraint: str, strip_newlines: bool):
 
     Used as a helper function in `determine_constraints`.
     """
+    # Check for deprecated options.
+    if constraint == "inline":  # pragma: no cover
+        reflow_logger.warning(
+            "Found 'inline' specified as a 'spacing_within' constraint. "
+            "This setting is deprecated and has been replaced by the more "
+            "explicit 'touch:inline'. Upgrade your configuration to "
+            "remove this warning."
+        )
+        constraint = "touch:inline"
+
     # Unless align, split.
     if constraint.startswith("align"):
         modifier = ""
     else:
         constraint, _, modifier = constraint.partition(":")
+
     if not modifier:
         pass
     elif modifier == "inline":
         strip_newlines = True
     else:  # pragma: no cover
-        raise NotImplementedError(f"Unexpected constraint modifier: {constraint}")
+        raise SQLFluffUserError(f"Unexpected constraint modifier: {constraint!r}")
+
     return constraint, strip_newlines
 
 
@@ -82,8 +95,8 @@ def determine_constraints(
         pass
     elif within_spacing:  # pragma: no cover
         assert prev_block
-        raise NotImplementedError(
-            f"Unexpected within constraint: {within_constraint} for "
+        raise SQLFluffUserError(
+            f"Unexpected within constraint: {within_constraint!r} for "
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
 
@@ -119,7 +132,7 @@ def process_spacing(
                 removal_buffer.append(seg)
                 result_buffer.append(
                     LintResult(
-                        seg, [LintFix.delete(seg)], description="Stripping newlines."
+                        seg, [LintFix.delete(seg)], description="Unexpected line break."
                     )
                 )
                 # Carry on as though it wasn't here.

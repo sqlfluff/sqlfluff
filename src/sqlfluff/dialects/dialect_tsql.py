@@ -464,9 +464,8 @@ tsql_dialect.replace(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("ColumnReferenceSegment"),
-            Sequence(
-                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
-            ),
+            Ref("TypedArrayLiteralSegment"),
+            Ref("ArrayLiteralSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,

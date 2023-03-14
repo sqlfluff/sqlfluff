@@ -203,14 +203,6 @@ bigquery_dialect.replace(
         Ref("NamedArgumentSegment"),
     ),
     TrimParametersGrammar=Nothing(),
-    SimpleArrayTypeGrammar=Sequence(
-        "ARRAY",
-        Bracketed(
-            Ref("DatatypeSegment"),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
@@ -309,6 +301,20 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
 
 
 class QualifyClauseSegment(BaseSegment):
@@ -913,20 +919,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 # Functions returning STRUCTs in BigQuery can have the fields
                 # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
                 # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
-                Sequence(
-                    Ref("DotSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DotSegment"),
-                        ),
-                    ),
-                    OneOf(
-                        Ref("ParameterNameSegment"),
-                        Ref("StarSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("SemiStructuredAccessorSegment", optional=True),
                 Ref("PostFunctionGrammar", optional=True),
             ),
         ),
@@ -1028,7 +1021,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Ref("SimpleArrayTypeGrammar"),
+        Ref("ArrayTypeSegment"),
         Ref("StructTypeSegment"),
     )
 
@@ -1038,49 +1031,37 @@ class StructTypeSegment(ansi.StructTypeSegment):
 
     match_grammar = Sequence(
         "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
                     ),
-                    AnyNumberOf(Ref("ColumnConstraintSegment")),
-                    Ref("OptionsSegment", optional=True),
                 ),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("OptionsSegment", optional=True),
             ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
         ),
+        bracket_type="angle",
+        bracket_pairs_set="angle_bracket_pairs",
     )
 
 
-class TypelessStructSegment(ansi.TypelessStructSegment):
-    """Expression to construct a STRUCT with implicit types.
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
-    """
-
-    match_grammar = Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
-        ),
-    )
-
-
-class TypelessArraySegment(ansi.TypelessArraySegment):
+class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """Expression to construct a ARRAY from a subquery.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/array_functions#array
@@ -1131,17 +1112,18 @@ class SemiStructuredAccessorSegment(BaseSegment):
 
     type = "semi_structured_expression"
     match_grammar = Sequence(
-        Ref("DotSegment"),
-        Ref("SingleIdentifierGrammar"),
-        Ref("ArrayAccessorSegment", optional=True),
         AnyNumberOf(
             Sequence(
                 Ref("DotSegment"),
-                Ref("SingleIdentifierGrammar"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("StarSegment"),
+                ),
                 allow_gaps=True,
             ),
             Ref("ArrayAccessorSegment", optional=True),
             allow_gaps=True,
+            min_times=1,
         ),
         allow_gaps=True,
     )

@@ -1,4 +1,4 @@
-SELECT * EXCEPT({% include query %}) FROM
+SELECT * EXCEPT ({% include query %}) FROM
     (
         SELECT
             tbl1.*,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e49b6d2bea54dae9c4a29e63e5f8dbc165525e0b9b91100b981a377ab6dfa1c1
+_hash: cbf066dd0c8317bbf87b4729592f41e65bf7ac4e26cf7eb7d0a29504232c43a4
 file:
   statement:
     select_statement:
@@ -21,15 +21,17 @@ file:
             end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
-          array_literal:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: BOOLEAN
-            end_angle_bracket: '>'
-            start_square_bracket: '['
-            boolean_literal: 'false'
-            end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: BOOLEAN
+              end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              boolean_literal: 'false'
+              end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
           array_literal:
@@ -41,15 +43,17 @@ file:
             naked_identifier: strcol1
       - comma: ','
       - select_clause_element:
-          array_literal:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: string
-            end_angle_bracket: '>'
-            start_square_bracket: '['
-            quoted_literal: "'b'"
-            end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: string
+              end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              quoted_literal: "'b'"
+              end_square_bracket: ']'
           alias_expression:
             keyword: AS
             naked_identifier: strcol2
@@ -64,15 +68,17 @@ file:
             naked_identifier: numcol1
       - comma: ','
       - select_clause_element:
-          array_literal:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: NUMERIC
-            end_angle_bracket: '>'
-            start_square_bracket: '['
-            numeric_literal: '1.4'
-            end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: NUMERIC
+              end_angle_bracket: '>'
+            array_literal:
+              start_square_bracket: '['
+              numeric_literal: '1.4'
+              end_square_bracket: ']'
           alias_expression:
             keyword: AS
             naked_identifier: numcol2
@@ -81,29 +87,31 @@ file:
           array_literal:
             start_square_bracket: '['
             expression:
-              typeless_struct:
-                keyword: STRUCT
-                bracketed:
-                - start_bracket: (
-                - quoted_literal: '"Rudisha"'
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: name
-                - comma: ','
-                - array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '23.4'
+              typed_struct_literal:
+                struct_type:
+                  keyword: STRUCT
+                struct_literal:
+                  bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '"Rudisha"'
+                  - alias_expression:
+                      keyword: AS
+                      naked_identifier: name
                   - comma: ','
-                  - numeric_literal: '26.3'
-                  - comma: ','
-                  - numeric_literal: '26.4'
-                  - comma: ','
-                  - numeric_literal: '26.1'
-                  - end_square_bracket: ']'
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: splits
-                - end_bracket: )
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '23.4'
+                    - comma: ','
+                    - numeric_literal: '26.3'
+                    - comma: ','
+                    - numeric_literal: '26.4'
+                    - comma: ','
+                    - numeric_literal: '26.1'
+                    - end_square_bracket: ']'
+                  - alias_expression:
+                      keyword: AS
+                      naked_identifier: splits
+                  - end_bracket: )
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
@@ -115,19 +123,19 @@ file:
             - naked_identifier: col1
             - dot: .
             - naked_identifier: obj1
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: safe_offset
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '1'
-                    end_bracket: )
-              end_square_bracket: ']'
             semi_structured_expression:
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: safe_offset
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
+                end_square_bracket: ']'
               dot: .
               naked_identifier: a
           alias_expression:
