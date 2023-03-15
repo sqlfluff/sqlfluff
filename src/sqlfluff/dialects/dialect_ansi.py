@@ -1893,14 +1893,12 @@ ansi_dialect.add(
                     Ref.keyword("NOT", optional=True),
                 ),
                 # We need to add a lot more here...
-                OneOf(
-                    Ref("SignedSegmentGrammar"),
-                    # Ref('TildeSegment'),
-                    Ref("NotOperatorGrammar"),
-                    "PRIOR",
-                    # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
-                ),
-                optional = True
+                Ref("SignedSegmentGrammar"),
+                # Ref('TildeSegment'),
+                Ref("NotOperatorGrammar"),
+                "PRIOR",
+                # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
+                optional=True
             ),
             Ref("Expression_C_Grammar"),
             Sequence(
