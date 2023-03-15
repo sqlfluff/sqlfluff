@@ -48,7 +48,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: ./.github/workflows/ci-test-reusable.yml
+    uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.11"
       coverage: true
@@ -65,7 +65,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: ./.github/workflows/ci-test-reusable.yml
+    uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: ${{ matrix.python-version }}
     secrets:

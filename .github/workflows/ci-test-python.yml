@@ -6,9 +6,10 @@
 # See: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 #
 # Called by ci-tests.yml
+# This one does the python tests
 #
 
-name: Modular SQLFluff Test Workflow
+name: Modular SQLFluff python test workflow
 
 on:
   workflow_call:
