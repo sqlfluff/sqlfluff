@@ -96,6 +96,29 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
+  # This lints all our dialect fixtures to check rules can handle a variety
+  # of SQL and don't error out badly.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  ruleslinting:
+    runs-on: ubuntu-latest
+    name: Rules critical errors tests
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install tox
+        pip install .
+    - name: Run the tests
+      run: |
+        tox -e ruleslinting -- -n 2 test
+
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -115,6 +138,31 @@ jobs:
         SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
         tox -e ${{ matrix.jobs }}
+
+  ymlchecks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt -r requirements_dev.txt
+        python setup.py develop
+    - name: Generate the YAML files
+      run: |
+        python test/generate_parse_fixture_yml.py
+    - name: Test the generated YAML files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          git diff
+          echo "Generated YAML files do not match branch."
+          echo "Please run the following command to generate these:"
+          echo "  python test/generate_parse_fixture_yml.py"
+          exit 1
+        fi
 
   examples:
     runs-on: ubuntu-latest
