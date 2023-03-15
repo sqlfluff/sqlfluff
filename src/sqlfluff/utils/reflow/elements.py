@@ -694,6 +694,7 @@ class ReflowPoint(ReflowElement):
             segment_buffer, results = handle_respace__inline_with_space(
                 pre_constraint,
                 post_constraint,
+                prev_block,
                 next_block,
                 root_segment,
                 segment_buffer,
