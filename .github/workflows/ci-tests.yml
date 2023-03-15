@@ -61,6 +61,7 @@ jobs:
     - name: Run the tests
       run: |
         tox -e py -- -n 2 test
+
   python-version-tests-cov:
     runs-on: ubuntu-latest
     strategy:
@@ -80,19 +81,26 @@ jobs:
     - name: Run the tests
       run: |
         tox -e py -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
+    - name: Upload Coverage (codecov)
       uses: codecov/codecov-action@v3
       with:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
-    - name: Coveralls Parallel
+    - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
         parallel: true
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-data
+        path: ".coverage.*"
+        if-no-files-found: ignore
+
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -133,6 +141,7 @@ jobs:
           echo "Running $file"
           python "$file"
         done
+
   dbt-tests:
     runs-on: ubuntu-latest
     services:
@@ -171,6 +180,7 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
+
   dbt-tests-cov:
     runs-on: ubuntu-latest
     services:
@@ -207,19 +217,26 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
+    - name: Upload Coverage (codecov)
       uses: codecov/codecov-action@v3
       with:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
-    - name: Coveralls Parallel
+    - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.dbt-version }}
         parallel: true
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-data
+        path: ".coverage.*"
+        if-no-files-found: ignore
+
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -255,6 +272,13 @@ jobs:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-data
+        path: ".coverage.*"
+        if-no-files-found: ignore
+
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -286,6 +310,7 @@ jobs:
       # None of these test need temp dir set
       run: |
         python -m tox -e dbt140-winpy -- plugins/sqlfluff-templater-dbt
+
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
@@ -326,3 +351,33 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
+  
+  coverage_check:
+    name: Combine & check coverage.
+    runs-on: ubuntu-latest
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - run: python -m pip install --upgrade coverage[toml]
+
+      - name: Download coverage data.
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-data
+
+      - name: Combine coverage & fail if it's <100%.
+        run: |
+          python -m coverage combine
+          python -m coverage html --skip-covered --skip-empty
+          python -m coverage report --fail-under=100          
+
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@v2
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}
