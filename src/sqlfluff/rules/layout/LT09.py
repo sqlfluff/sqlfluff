@@ -37,16 +37,15 @@ class Rule_LT09(BaseRule):
     Multiple select targets on the same line.
 
     .. code-block:: sql
-        :force:
 
         select a, b
-        from foo
+        from foo;
 
         -- Single select target on its own line.
 
         SELECT
             a
-        FROM foo
+        FROM foo;
 
 
     **Best practice**
@@ -54,18 +53,28 @@ class Rule_LT09(BaseRule):
     Multiple select targets each on their own line.
 
     .. code-block:: sql
-        :force:
 
         select
             a,
             b
-        from foo
+        from foo;
 
         -- Single select target on the same line as the ``SELECT``
         -- keyword.
 
         SELECT a
-        FROM foo
+        FROM foo;
+
+        -- When select targets span multiple lines, however they
+        -- can still be on a new line.
+
+        SELECT
+            SUM(
+                1 + SUM(
+                    2 + 3
+                )
+            ) AS col
+        FROM test_table;
 
     """
 
@@ -212,13 +221,32 @@ class Rule_LT09(BaseRule):
             select_targets_info.select_idx
             < select_targets_info.first_new_line_idx
             < select_targets_info.first_select_target_idx
-        ):  
+        ):
+            self.logger.info(
+                "Target at index %s is already on a single line.",
+                select_targets_info.first_select_target_idx,
+            )
             return None
 
         # Do we have a modifier?
         select_children = select_clause.children()
         modifier: Optional[Segments]
         modifier = select_children.first(sp.is_type("select_clause_modifier"))
+
+        # Does the target contain a newline?
+        # i.e. even if it's a single element, does it already span more than
+        # one line?
+        if (
+            "newline"
+            in select_children[
+                select_targets_info.first_select_target_idx
+            ].descendant_type_set
+        ):
+            self.logger.info(
+                "Target at index %s spans multiple lines so ignoring.",
+                select_targets_info.first_select_target_idx,
+            )
+            return None
 
         # Prepare the select clause which will be inserted
         insert_buff = [
@@ -372,13 +400,9 @@ class Rule_LT09(BaseRule):
                         ),
                     ]
                     fixes += _fixes_for_move_after_select_clause(
-                        select_children[
-                            select_targets_info.first_select_target_idx
-                        ],
+                        select_children[select_targets_info.first_select_target_idx],
                     )
-                elif select_stmt.segments[after_select_clause_idx].is_type(
-                    "dedent"
-                ):
+                elif select_stmt.segments[after_select_clause_idx].is_type("dedent"):
                     # Again let's strip back the whitespace, but simpler
                     # as don't need to worry about new line so just break
                     # if see non-whitespace
@@ -395,9 +419,7 @@ class Rule_LT09(BaseRule):
                         )
                 else:
                     fixes += _fixes_for_move_after_select_clause(
-                        select_children[
-                            select_targets_info.first_select_target_idx
-                        ],
+                        select_children[select_targets_info.first_select_target_idx],
                     )
 
         if select_targets_info.comment_after_select_idx == -1:
