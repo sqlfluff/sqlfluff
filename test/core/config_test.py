@@ -18,6 +18,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplater,
     PlaceholderTemplater,
 )
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 from pathlib import Path
 from unittest.mock import patch, call
@@ -469,26 +470,12 @@ def test__config__validate_configs_precedence_same_file():
     assert not any(k == old_key for k, _ in res)
 
 
-def test__config__warn_unknown_rule(caplog):
+def test__config__warn_unknown_rule():
     """Test warnings when rules are unknown."""
     lntr = Linter(config=FluffConfig(config_c))
-    # NOTE: There is something strange with cross platform logging.
-    # To get around that, we briefly patch the logging propagation.
-    # As at 2023-02-21. This test passes on windows without stashing
-    # but is otherwise failing on linux.
-    fluff_logger = logging.getLogger("sqlfluff")
-    # Stash the current propagation.
-    propagate = fluff_logger.propagate
-    # Set to true
-    fluff_logger.propagate = True
 
-    try:
-        # Fetch rules to trigger checks:
-        with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
-            lntr.get_rulepack()
-    # Regardless of success - restore the propagate setting.
-    finally:
-        fluff_logger.propagate = propagate
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+        lntr.get_rulepack()
 
     # Check we get a warning on the unrecognised rule.
     assert (

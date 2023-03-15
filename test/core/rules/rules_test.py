@@ -22,6 +22,7 @@ from sqlfluff.utils.testing.rules import get_rule_from_set
 from test.fixtures.rules.custom.L000 import Rule_L000
 from test.fixtures.rules.custom.S000 import Rule_S000
 from sqlfluff.core.rules.loader import get_rules_from_path
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 class Rule_T042(BaseRule):
@@ -214,30 +215,15 @@ def test_rules_cannot_be_instantiated_without_declared_configs():
 
 def test_rules_legacy_doc_decorators(caplog):
     """Ensure that the deprecated decorators can still be imported but do nothing."""
-    # NOTE: There is something strange with cross platform logging.
-    # To get around that, we briefly patch the logging propogation.
-    # As at 2023-02-21. This test passes on windows without stashing
-    # but is otherwise failing on linux.
-    fluff_logger = logging.getLogger("sqlfluff")
-    # Stash the current propagation.
-    propagate = fluff_logger.propagate
-    # Set to true
-    fluff_logger.propagate = True
+    with fluff_log_catcher(logging.WARNING, "sqlfluff") as caplog:
 
-    try:
-        with caplog.at_level(logging.WARNING):
+        @document_fix_compatible
+        @document_groups
+        @document_configuration
+        class Rule_NewRule_ZZ99(BaseRule):
+            """Untouched Text."""
 
-            @document_fix_compatible
-            @document_groups
-            @document_configuration
-            class Rule_NewRule_ZZ99(BaseRule):
-                """Untouched Text."""
-
-                pass
-
-    # Regardless of success - restore the propagate setting.
-    finally:
-        fluff_logger.propagate = propagate
+            pass
 
     # Check they didn't do anything to the docstring.
     assert Rule_NewRule_ZZ99.__doc__ == """Untouched Text."""
