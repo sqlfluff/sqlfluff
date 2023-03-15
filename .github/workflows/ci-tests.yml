@@ -41,7 +41,7 @@ jobs:
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
-  
+
   # Test with coverage tracking on most recent python (py11).
   python-version-tests-cov:
     permissions:
