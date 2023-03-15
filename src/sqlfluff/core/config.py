@@ -319,6 +319,12 @@ class ConfigLoader:
         ...     }}
         ... })
         [(('rules', 'capitalisation.keywords', 'capitalisation_policy'), 'upper')]
+
+        NOTE: Some rules make have more than one dot in their name.
+        >>> ConfigLoader._walk_toml({"rules":
+        ...     {"a": {"b": {"c": {"d": {"e": "f"}}}}}
+        ... })
+        [(('rules', 'a.b.c.d', 'e'), 'f')]
         """
         buff: List[Tuple[Tuple[str, ...], Any]] = []
         # NOTE: For the "rules" section of the sqlfluff config,
