@@ -327,3 +327,8 @@ test_pass_bigquery_specific_struct_access:
   configs:
     core:
       dialect: bigquery
+
+test_postgres_datatype:
+  # https://github.com/sqlfluff/sqlfluff/issues/4521
+  pass_str: |
+    select 1::NUMERIC(3, 1)
