@@ -6,14 +6,18 @@
 # See: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 #
 # Called by ci-tests.yml
+# This one does the dbt tests
 #
 
-name: Modular SQLFluff Test Workflow
+name: Modular SQLFluff dbt test workflow
 
 on:
   workflow_call:
     inputs:
       python-version:
+        required: true
+        type: string
+      dbt-version:
         required: true
         type: string
       coverage:
@@ -26,8 +30,27 @@ on:
 
 jobs:
   modular-python-test:
+    name: py${{ inputs.python-version }}-${{ inputs.dbt-version }}
     runs-on: ubuntu-latest
-    name: py${{ inputs.python-version }}
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
     steps:
     - uses: actions/checkout@v3
 
@@ -39,19 +62,13 @@ jobs:
     - name: Install dependencies
       run: pip install tox
 
-    - name: Parse Python Version
-      id: py_version
-      run: |
-        PYVERSION=$(echo "${{ matrix.python-version }}" | sed -e 's/\.//g')
-        echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
-
     - name: Run the tests (with coverage)
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test
+      run: tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
 
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
+      run: tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
 
     - name: Upload Coverage (codecov)
       uses: codecov/codecov-action@v3
@@ -67,7 +84,7 @@ jobs:
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.python-version }}
+        flag-name: run-${{ inputs.dbt-version }}
         parallel: true
 
     - name: Upload coverage data (github)
