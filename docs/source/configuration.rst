@@ -73,7 +73,7 @@ For example, a snippet from a :code:`pyproject.toml` file:
 
     # For rule specific configuration, use dots between the names exactly
     # as you would in .sqlfluff. In the background, SQLFluff will unpack the
-    # configuration paths accordingly. 
+    # configuration paths accordingly.
     [tool.sqlfluff.rules.capitalisation.keywords]
     capitalisation_policy = "upper"
 
