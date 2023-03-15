@@ -71,6 +71,31 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
+  dbt-tests-cov:
+    name: dbt 1.4 Plugin Tests
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: "3.10"
+      dbt-version: "dbt140"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  dbt-tests-nocov:
+    name: dbt 1.1 Plugin Tests
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: "3.9"
+      dbt-version: "dbt110"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -111,99 +136,6 @@ jobs:
           echo "Running $file"
           python "$file"
         done
-
-  dbt-tests:
-    runs-on: ubuntu-latest
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-    strategy:
-      matrix:
-        # We don't enforce coverage on older dbt versions.
-        dbt-version: [ 'dbt110' ]
-    name: DBT Plugin ${{ matrix.dbt-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        # Use Python 3.10 rather than 3.9 due to this issue.
-        # https://github.com/dbt-labs/dbt-core/issues/2827
-        python-version: '3.9'
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
-
-  dbt-tests-cov:
-    runs-on: ubuntu-latest
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-    strategy:
-      matrix:
-        # We enforce coverage on this, the latest dbt version.
-        dbt-version: [ 'dbt140' ]
-    name: DBT Plugin ${{ matrix.dbt-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage (codecov)
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.dbt-version }}
-        parallel: true
-    - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-data
-        path: ".coverage.*"
-        if-no-files-found: ignore
 
   python-windows-tests:
     runs-on: windows-latest
