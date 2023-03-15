@@ -71,6 +71,12 @@ For example, a snippet from a :code:`pyproject.toml` file:
     [tool.sqlfluff.templater.jinja]
     apply_dbt_builtins = true
 
+    # For rule specific configuration, use dots between the names exactly
+    # as you would in .sqlfluff. In the background, SQLFluff will unpack the
+    # configuration paths accordingly. 
+    [tool.sqlfluff.rules.capitalisation.keywords]
+    capitalisation_policy = "upper"
+
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
 .. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
