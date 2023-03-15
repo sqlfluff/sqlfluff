@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7775b88f55c77a35515b37384786c1bd94cc2be7968b7f712a5957a2ec5b3345
+_hash: 56b3bc9a35d5763e93c41c2175c93226682aa90631c1b04d49d138ec955f3d57
 file:
 - multi_statement_segment:
     for_in_statement:
@@ -30,9 +30,9 @@ file:
                   table_reference:
                   - naked_identifier: bigquery
                   - dash: '-'
-                  - naked_identifier: public
+                  - naked_identifier_part: public
                   - dash: '-'
-                  - naked_identifier: data
+                  - naked_identifier_part: data
                   - dot: .
                   - naked_identifier: samples
                   - dot: .
@@ -87,9 +87,9 @@ file:
                   table_reference:
                   - naked_identifier: bigquery
                   - dash: '-'
-                  - naked_identifier: public
+                  - naked_identifier_part: public
                   - dash: '-'
-                  - naked_identifier: data
+                  - naked_identifier_part: data
                   - dot: .
                   - naked_identifier: samples
                   - dot: .

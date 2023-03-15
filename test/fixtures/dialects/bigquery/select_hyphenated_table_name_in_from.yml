@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4389fa4a2f6c1c625776cf5e631134833d847c12997731a811f2045eccb665d6
+_hash: a26d8cfcbf1a3ad541ad3d1f282262de54ff33409d166453de1d31a1a3f4dda3
 file:
 - statement:
     select_statement:
@@ -21,15 +21,15 @@ file:
               table_reference:
               - naked_identifier: project
               - dash: '-'
-              - naked_identifier: a
+              - naked_identifier_part: a
               - dot: .
               - naked_identifier: dataset
               - dash: '-'
-              - naked_identifier: b
+              - naked_identifier_part: b
               - dot: .
               - naked_identifier: table
               - dash: '-'
-              - naked_identifier: c
+              - naked_identifier_part: c
           join_clause:
           - keyword: JOIN
           - from_expression_element:
@@ -37,11 +37,98 @@ file:
                 table_reference:
                 - naked_identifier: dataset
                 - dash: '-'
-                - naked_identifier: c
+                - naked_identifier_part: c
                 - dot: .
                 - naked_identifier: table
                 - dash: '-'
-                - naked_identifier: d
+                - naked_identifier_part: d
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: a
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier_part: 1a
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier_part: '1'
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: project23
+              - dash: '-'
+              - naked_identifier_part: '123'
+              - dot: .
+              - naked_identifier: dataset7
+              - dash: '-'
+              - naked_identifier_part: b1
+              - dot: .
+              - naked_identifier: table
+              - dash: '-'
+              - naked_identifier_part: 2c
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dataset12
+                - dash: '-'
+                - naked_identifier_part: c1
+                - dot: .
+                - naked_identifier: table
+                - dash: '-'
+                - naked_identifier_part: 1d
           - keyword: USING
           - bracketed:
               start_bracket: (
@@ -79,7 +166,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-              - naked_identifier: table
-              - dash: '-'
-              - naked_identifier: a123
+                naked_identifier: table
+                dash: '-'
+                naked_identifier_part: a123
 - statement_terminator: ;

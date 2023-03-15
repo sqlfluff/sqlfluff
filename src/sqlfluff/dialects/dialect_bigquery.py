@@ -131,6 +131,14 @@ bigquery_dialect.add(
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
+    NakedIdentifierPart=RegexParser(
+        # The part of a an identifier after a hyphen.
+        # NOTE: This one can match an "all numbers" variant.
+        # https://cloud.google.com/resource-manager/docs/creating-managing-projects
+        r"[A-Z0-9_]+",
+        ansi.IdentifierSegment,
+        type="naked_identifier_part",
+    ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -1229,7 +1237,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("DashSegment"),
-                    OneOf(Ref("SingleIdentifierGrammar"), Ref("NumericLiteralSegment")),
+                    Ref("NakedIdentifierPart"),
                     allow_gaps=False,
                 ),
                 optional=True,
