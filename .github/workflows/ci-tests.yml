@@ -213,12 +213,6 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v2
       with:
