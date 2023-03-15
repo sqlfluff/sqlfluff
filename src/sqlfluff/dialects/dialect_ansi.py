@@ -186,7 +186,7 @@ ansi_dialect.set_lexer_matchers(
         #     |\.\d+               e.g. .456
         #     |\d+                 e.g. 123
         # )
-        # ([eE][+-]?\d+)?          Optional exponential.
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
         # (
         #     (?<=\.)              If matched character ends with . (e.g. 123.) then
         #                          don't worry about word boundary check.
@@ -195,7 +195,7 @@ ansi_dialect.set_lexer_matchers(
         # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),

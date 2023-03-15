@@ -137,7 +137,7 @@ bigquery_dialect.add(
         # https://cloud.google.com/resource-manager/docs/creating-managing-projects
         r"[A-Z0-9_]+",
         ansi.IdentifierSegment,
-        type="naked_identifier_part",
+        type="naked_identifier",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
