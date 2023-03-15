@@ -24,6 +24,7 @@ on:
     types: [checks_requested]
 
 jobs:
+
   linting:
     runs-on: ubuntu-latest
     strategy:
@@ -36,12 +37,12 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - &install_tox_step name: Install dependencies
+      shell: bash
+      run: pip install tox
     - name: Run the tests
-      run: |
-        tox -e ${{ matrix.jobs }}
+      run: tox -e ${{ matrix.jobs }}
+
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -55,12 +56,9 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
-      run: |
-        tox -e py -- -n 2 test
+      run: tox -e py -- -n 2 test
 
   python-version-tests-cov:
     runs-on: ubuntu-latest
@@ -75,26 +73,23 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
-      run: |
-        tox -e py -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage (codecov)
+      run: tox -e py -- --cov=sqlfluff -n 2 test
+    - &codecov_coverage_step name: Upload Coverage (codecov)
       uses: codecov/codecov-action@v3
       with:
         # Public token to allow coverage from forks to work.
         token: fd44b020-c716-4f72-b5f3-03fa20119956
         files: ./coverage.xml
-    - name: Coveralls Parallel (coveralls)
+    - &coveralls_coverage_step name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
         parallel: true
-    - name: Upload coverage data (github)
+    - &github_coverage_step name: Upload coverage data (github)
       uses: actions/upload-artifact@v2
       with:
         name: coverage-data
@@ -113,14 +108,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
       env:
         SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
         tox -e ${{ matrix.jobs }}
+
   examples:
     runs-on: ubuntu-latest
     name: example tests
@@ -146,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       # Label used to access the service container
-      postgres:
+      postgres: &postgres_service
         # Docker Hub image
         image: postgres
         # Provide the password for postgres
@@ -174,9 +168,7 @@ jobs:
         # Use Python 3.10 rather than 3.9 due to this issue.
         # https://github.com/dbt-labs/dbt-core/issues/2827
         python-version: '3.9'
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
@@ -184,22 +176,7 @@ jobs:
   dbt-tests-cov:
     runs-on: ubuntu-latest
     services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
+      postgres: *postgres_service
     strategy:
       matrix:
         # We enforce coverage on this, the latest dbt version.
@@ -211,31 +188,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage (codecov)
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.dbt-version }}
-        parallel: true
-    - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-data
-        path: ".coverage.*"
-        if-no-files-found: ignore
+    - *codecov_coverage_step
+    - *coveralls_coverage_step
+    - *github_coverage_step
 
   python-windows-tests:
     runs-on: windows-latest
@@ -254,10 +213,7 @@ jobs:
       shell: bash
       run: |
         env | sort
-    - name: Install dependencies
-      shell: bash
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
@@ -266,18 +222,8 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-data
-        path: ".coverage.*"
-        if-no-files-found: ignore
+    - *codecov_coverage_step
+    - *github_coverage_step
 
   python-windows-dbt-tests:
     runs-on: windows-latest
@@ -300,10 +246,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
-    - name: Install dependencies
-      shell: bash
-      run: |
-        pip install tox
+    - *install_tox_step
     - name: Run the tests
       shell: bash
       # Do not set explicitly temp dir for dbt as causes problems
@@ -351,7 +294,7 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
-  
+
   coverage_check:
     name: Combine & check coverage.
     runs-on: ubuntu-latest
@@ -373,7 +316,7 @@ jobs:
         run: |
           python -m coverage combine
           python -m coverage html --skip-covered --skip-empty
-          python -m coverage report --fail-under=100          
+          python -m coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@v2
