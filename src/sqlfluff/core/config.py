@@ -295,9 +295,39 @@ class ConfigLoader:
         return global_loader
 
     @classmethod
-    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
-        """Recursively walk the nested config inside a TOML file."""
-        buff: List[tuple] = []
+    def _walk_toml(
+        cls, config: Dict[str, Any], base_key: Tuple[str, ...] = ()
+    ) -> List[Tuple[Tuple[str, ...], Any]]:
+        """Recursively walk the nested config inside a TOML file.
+
+        For standard usage it mimics the standard loader.
+
+        >>> ConfigLoader._walk_toml({"foo": "bar"})
+        [(('foo',), 'bar')]
+        >>> ConfigLoader._walk_toml({"foo": {"bar": "baz"}})
+        [(('foo', 'bar'), 'baz')]
+
+        For the "rules" section, there's a special handling
+        to condense nested sections from the toml for rules
+        which contain a dot (or more) (".") in their name.
+
+        >>> ConfigLoader._walk_toml({"rules": {"a": {"b": {"c": "d"}}}})
+        [(('rules', 'a.b', 'c'), 'd')]
+        >>> ConfigLoader._walk_toml({"rules":
+        ...     {"capitalisation": {"keywords":
+        ...         {"capitalisation_policy": "upper"}
+        ...     }}
+        ... })
+        [(('rules', 'capitalisation.keywords', 'capitalisation_policy'), 'upper')]
+        """
+        buff: List[Tuple[Tuple[str, ...], Any]] = []
+        # NOTE: For the "rules" section of the sqlfluff config,
+        # rule names are often qualified with a dot ".". In the
+        # toml scenario this can get interpreted as a nested
+        # section, and we resolve that edge case here.
+        if len(base_key) == 3 and base_key[0] == "rules":
+            base_key = ("rules", ".".join(base_key[1:]))
+
         for k, v in config.items():
             key = base_key + (k,)
             if isinstance(v, dict):

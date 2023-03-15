@@ -149,6 +149,7 @@ def test__config__load_toml():
         },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
+        "rules": {"capitalisation.keywords": {"capitalisation_policy": "upper"}},
     }
 
 
