@@ -509,3 +509,26 @@ def test__config__warn_unknown_rule(caplog):
     assert ("The reference was found as a match for multiple rules: {") in caplog.text
     assert ("LT01") in caplog.text
     assert ("LT02") in caplog.text
+
+
+def test__process_inline_config():
+    """Test the processing of inline in-file configuration directives."""
+    cfg = FluffConfig(config_b)
+    assert cfg.get("rules") == "LT03"
+
+    cfg.process_inline_config("-- sqlfluff:rules:LT02")
+    assert cfg.get("rules") == "LT02"
+
+    assert cfg.get("tab_space_size", section="indentation") == 4
+    cfg.process_inline_config("-- sqlfluff:indentation:tab_space_size:20")
+    assert cfg.get("tab_space_size", section="indentation") == 20
+
+    assert cfg.get("dialect") == "ansi"
+    assert cfg.get("dialect_obj").name == "ansi"
+    cfg.process_inline_config("-- sqlfluff:dialect:postgres")
+    assert cfg.get("dialect") == "postgres"
+    assert cfg.get("dialect_obj").name == "postgres"
+
+    assert cfg.get("rulez") is None
+    cfg.process_inline_config("-- sqlfluff:rulez:LT06")
+    assert cfg.get("rulez") == "LT06"
