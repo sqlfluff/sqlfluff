@@ -7,7 +7,7 @@
 # It will run on any pull request, except non-code changes
 # (images, markdown files, )
 #
-name: CI Tests
+name: CI
 on:
   workflow_dispatch:
   schedule:
@@ -44,6 +44,7 @@ jobs:
 
   # Test with coverage tracking on most recent python (py11).
   python-version-tests-cov:
+    name: Python 3.11 Tests
     permissions:
       contents: read
       pull-requests: write
@@ -57,6 +58,7 @@ jobs:
   # Test without coverage tracking on older python versions.
   # This saves time, as testing without coverage tracking is faster.
   python-version-tests-nocov:
+    name: Python ${{ matrix.python-version }} Tests
     strategy:
       matrix:
         python-version: [ '3.7', '3.8', '3.9', '3.10' ]
@@ -88,6 +90,7 @@ jobs:
         SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
         tox -e ${{ matrix.jobs }}
+
   examples:
     runs-on: ubuntu-latest
     name: example tests

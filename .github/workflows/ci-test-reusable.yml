@@ -27,7 +27,7 @@ on:
 jobs:
   modular-python-test:
     runs-on: ubuntu-latest
-    name: Python ${{ inputs.python-version }} tests
+    name: py${{ inputs.python-version }}
     steps:
     - uses: actions/checkout@v3
 
