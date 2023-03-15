@@ -41,6 +41,7 @@ jobs:
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
+
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -50,6 +51,11 @@ jobs:
     name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v3
+    - name: Parse Python Version
+      id: py_version
+      run: |
+        PYVERSION=$(echo "${{ matrix.python-version }}" | sed -e 's/\.//g')
+        echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -57,7 +63,7 @@ jobs:
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
-      run: tox -e py -- -n 2 test
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
 
   python-version-tests-cov:
     runs-on: ubuntu-latest
