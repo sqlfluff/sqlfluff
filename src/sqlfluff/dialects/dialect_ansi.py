@@ -1899,8 +1899,8 @@ ansi_dialect.add(
                     Ref("NotOperatorGrammar"),
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
-                    optional=True
-                )
+                ),
+                optional = True
             ),
             Ref("Expression_C_Grammar"),
             Sequence(
