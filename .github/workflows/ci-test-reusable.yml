@@ -21,7 +21,7 @@ on:
         type: boolean
         default: false
     secrets:
-      github_token:
+      gh_token:
         required: true
 
 jobs:
@@ -66,7 +66,7 @@ jobs:
       if: ${{ inputs.coverage }}
       with:
         path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
+        github-token: ${{ secrets.gh_token }}
         flag-name: run-${{ inputs.python-version }}
         parallel: true
 

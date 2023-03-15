@@ -52,7 +52,7 @@ jobs:
       python-version: "3.11"
       coverage: true
     secrets:
-      github_token: ${{ secrets.github_token }}
+      gh_token: ${{ secrets.github_token }}
 
   # Test without coverage tracking on older python versions.
   # This saves time, as testing without coverage tracking is faster.
@@ -67,7 +67,7 @@ jobs:
     with:
       python-version: ${{ matrix.python-version }}
     secrets:
-      github_token: ${{ secrets.github_token }}
+      gh_token: ${{ secrets.github_token }}
 
   other-tests:
     runs-on: ubuntu-latest
