@@ -41,66 +41,33 @@ jobs:
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
-
-  python-version-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # We don't enforce coverage on older Python versions.
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
-    name: Python ${{ matrix.python-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Parse Python Version
-      id: py_version
-      run: |
-        PYVERSION=$(echo "${{ matrix.python-version }}" | sed -e 's/\.//g')
-        echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
-
+  
+  # Test with coverage tracking on most recent python (py11).
   python-version-tests-cov:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-reusable.yml
+    with:
+      python-version: "3.11"
+      coverage: true
+    secrets:
+      github_token: ${{ secrets.github_token }}
+
+  # Test without coverage tracking on older python versions.
+  # This saves time, as testing without coverage tracking is faster.
+  python-version-tests-nocov:
     strategy:
       matrix:
-        # We enforce coverage on this, the latest Python version.
-        python-version: [ '3.11' ]
-    name: Python ${{ matrix.python-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      run: tox -e py -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage (codecov)
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.python-version }}
-        parallel: true
-    - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-data
-        path: ".coverage.*"
-        if-no-files-found: ignore
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-reusable.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+    secrets:
+      github_token: ${{ secrets.github_token }}
 
   other-tests:
     runs-on: ubuntu-latest
