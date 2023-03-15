@@ -381,9 +381,12 @@ def handle_respace__inline_with_space(
                 next_pos = next_block.segments[0].pos_marker
             elif last_whitespace.pos_marker:
                 next_pos = last_whitespace.pos_marker.end_point_marker()
-            elif prev_block and prev_block.segments[-1].pos_marker:
+            # These second clauses are much less likely and so are excluded from
+            # coverage. If we find a way of covering them, that would be great
+            # but for now they exist as backups.
+            elif prev_block and prev_block.segments[-1].pos_marker:  # pragma: no cover
                 next_pos = prev_block.segments[-1].pos_marker.end_point_marker()
-            else:
+            else:  # pragma: no cover
                 reflow_logger.info("Unable to find position marker for alignment.")
                 next_pos = None
                 desired_space = " "
