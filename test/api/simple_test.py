@@ -310,5 +310,5 @@ def test__api__invalid_dialect():
         )
 
     assert (
-        str(err.value) == "Error loading dialect 'not_a_real_dialect': Unknown dialect"
+        str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
     )
