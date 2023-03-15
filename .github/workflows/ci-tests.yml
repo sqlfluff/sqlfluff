@@ -334,7 +334,7 @@ jobs:
 
       - name: Combine coverage & fail if it's <100%.
         run: |
-          python -m coverage combine
+          python -m coverage combine --debug=pathmap
           python -m coverage html --skip-covered --skip-empty
           python -m coverage report --fail-under=100
 
