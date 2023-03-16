@@ -1050,7 +1050,7 @@ def _lint_line_untaken_negative_indents(
         # To catch them we also check that we're shallower than the start of
         # of the line.
         if ip.initial_indent_balance > indent_line.opening_balance():
-            continue   
+            continue
 
         # It's negative, is it untaken? In the case of a multi-dedent
         # they must _all_ be untaken to take this route.
