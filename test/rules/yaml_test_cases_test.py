@@ -14,6 +14,7 @@ ids, test_cases = load_test_cases(
 )
 
 
+@pytest.mark.parser_suite
 @pytest.mark.parametrize("test_case", test_cases, ids=ids)
 def test__rule_test_case(test_case, caplog):
     """Run the tests."""
