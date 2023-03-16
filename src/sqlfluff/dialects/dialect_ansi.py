@@ -1489,13 +1489,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        # TODO: Revisit this to make sure it's sensible.
-        Conditional(Dedent, indented_joins=False),
+        Dedent,
+        Conditional(Indent, indented_joins=True),
         AnyNumberOf(
             Sequence(
-                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
-                Conditional(Dedent, indented_joins=True),
             ),
             optional=True,
         ),
