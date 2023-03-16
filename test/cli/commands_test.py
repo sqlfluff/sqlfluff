@@ -1387,19 +1387,6 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 1,
-            "message": "LT09: Select targets should be on a new line unless there is "
-            "only one select target.",
-            "start_column": 1,
-            "end_column": 1,
-            "title": "SQLFluff",
-        },
-        {
-            "annotation_level": "warning",
-            # Normalise paths to control for OS variance
-            "file": os.path.normpath(
-                "test/fixtures/linter/identifier_capitalisation.sql"
-            ),
             "line": 2,
             "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
@@ -1493,9 +1480,6 @@ def test__cli__command_lint_serialize_github_annotation_native():
 
     assert result.output == "\n".join(
         [
-            f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
-            "LT09: Select targets should be on a new line unless there is only one "
-            "select target. [layout.select_targets]",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",

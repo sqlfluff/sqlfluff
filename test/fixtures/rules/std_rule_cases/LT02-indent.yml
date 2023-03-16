@@ -1815,6 +1815,17 @@ test_fix_untaken_positive_4433:
     )
     ;
 
+test_implicit_case_4542:
+  # https://github.com/sqlfluff/sqlfluff/issues/4542
+  pass_str: |
+    select
+        a,
+        case when b is null then 0 else 1 end as c
+    from my_table;
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
 test_indented_joins_4484:
   # https://github.com/sqlfluff/sqlfluff/issues/4484
   pass_str: |

@@ -777,6 +777,37 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
+class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
+    """A `CREATE INDEX` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-index.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("UNIQUE", "FULLTEXT", "SPATIAL", optional=True),
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        Ref("IndexTypeGrammar", optional=True),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedKeyPartListGrammar"),
+        Ref("IndexOptionsSegment", optional=True),
+        AnySetOf(
+            Sequence(
+                "ALGORITHM",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", "INPLACE", "COPY"),
+            ),
+            Sequence(
+                "LOCK",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
+            ),
+        ),
+    )
+
+
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
@@ -853,6 +884,7 @@ mysql_dialect.add(
     # key_part: {col_name [(length)] | (expr)} [ASC | DESC]
     # https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    # https://dev.mysql.com/doc/refman/8.0/en/create-index.html
     BracketedKeyPartListGrammar=Bracketed(
         Delimited(
             Sequence(
@@ -862,6 +894,7 @@ mysql_dialect.add(
                         Ref("ColumnReferenceSegment"),
                         Bracketed(Ref("NumericLiteralSegment")),
                     ),
+                    Bracketed(Ref("ExpressionSegment")),
                 ),
                 OneOf("ASC", "DESC", optional=True),
             ),
