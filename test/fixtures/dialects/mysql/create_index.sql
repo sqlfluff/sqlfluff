@@ -9,3 +9,4 @@ CREATE INDEX idx ON tbl (col DESC);
 CREATE INDEX part_of_name ON customer (name(10));
 CREATE INDEX idx ON tbl (col) ALGORITHM DEFAULT;
 CREATE INDEX idx ON tbl (col) LOCK DEFAULT;
+CREATE INDEX idx ON tbl ((col1 + col2), (col1 - col2), col1);

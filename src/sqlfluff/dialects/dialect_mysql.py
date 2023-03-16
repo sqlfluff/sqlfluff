@@ -894,6 +894,7 @@ mysql_dialect.add(
                         Ref("ColumnReferenceSegment"),
                         Bracketed(Ref("NumericLiteralSegment")),
                     ),
+                    Bracketed(Ref("ExpressionSegment")),
                 ),
                 OneOf("ASC", "DESC", optional=True),
             ),
