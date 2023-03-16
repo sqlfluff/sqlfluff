@@ -884,6 +884,7 @@ mysql_dialect.add(
     # key_part: {col_name [(length)] | (expr)} [ASC | DESC]
     # https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    # https://dev.mysql.com/doc/refman/8.0/en/create-index.html
     BracketedKeyPartListGrammar=Bracketed(
         Delimited(
             Sequence(
