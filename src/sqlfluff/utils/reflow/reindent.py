@@ -1043,6 +1043,15 @@ def _lint_line_untaken_negative_indents(
         # Is line break, or positive indent?
         if ip.is_line_break or ip.indent_impulse >= 0:
             continue
+
+        # When using implicit indents, we may find untaken negatives which
+        # aren't shallower than the line they're on. This is because they
+        # were implicit on the way up and so not included in `untaken_indents`.
+        # To catch them we also check that we're shallower than the start of
+        # of the line.
+        if ip.initial_indent_balance > indent_line.opening_balance():
+            continue   
+
         # It's negative, is it untaken? In the case of a multi-dedent
         # they must _all_ be untaken to take this route.
         covered_indents = set(
