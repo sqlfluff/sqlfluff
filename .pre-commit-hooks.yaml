@@ -1,5 +1,6 @@
 - id: sqlfluff-lint
   name: sqlfluff-lint
+  # Set `--processes 0` to use maximum parallelism
   entry: sqlfluff lint --processes 0
   language: python
   description: "Lints sql files with `SQLFluff`"
@@ -9,9 +10,12 @@
 
 - id: sqlfluff-fix
   name: sqlfluff-fix
-  # Needs to use "--force" to disable confirmation
-  # By default all the rules are applied
-  entry: sqlfluff fix --show-lint-violations --force --processes 0
+  # Set a couple of default flags:
+  #  - `--force` to disable confirmation
+  #  - `--show-lint-violations` shows issues to not require running `sqlfluff lint`
+  #  - `--processes 0` to use maximum parallelism
+  # By default, this hook applies all rules.
+  entry: sqlfluff fix --force --show-lint-violations --processes 0
   language: python
   description: "Fixes sql lint errors with `SQLFluff`"
   types: [sql]
