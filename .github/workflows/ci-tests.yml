@@ -96,8 +96,7 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  # This lints all our dialect fixtures to check rules can handle a variety
-  # of SQL and don't error out badly.
+  # This runs the bulk of the dialect _parsing_ tests.
   #
   # It's run as a separate job as takes longer than the CI jobs and allows
   # them to be rerun separately if GitHub Actions or Coverage is experiencing
@@ -114,10 +113,15 @@ jobs:
     with:
       python-version: "3.11"
       marks: "parse_suite"
-      coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
-  
+
+  # This lints all our dialect fixtures to check rules can handle a variety
+  # of SQL and don't error out badly.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
   dialects_fix:
     name: Dialect fixing
     strategy:
@@ -132,7 +136,7 @@ jobs:
       marks: "fix_suite"
     secrets:
       gh_token: ${{ secrets.github_token }}
-  
+
   # This lints all our rules fixtures to check rules.
   #
   # It's run as a separate job as takes longer than the CI jobs and allows
