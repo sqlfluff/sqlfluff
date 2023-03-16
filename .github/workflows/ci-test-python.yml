@@ -17,6 +17,10 @@ on:
       python-version:
         required: true
         type: string
+      marks:
+        required: false
+        type: string
+        default: "not integration"
       coverage:
         required: false
         type: boolean
@@ -43,16 +47,16 @@ jobs:
     - name: Parse Python Version
       id: py_version
       run: |
-        PYVERSION=$(echo "${{ matrix.python-version }}" | sed -e 's/\.//g')
+        PYVERSION=$(echo "${{ inputs.python-version }}" | sed -e 's/\.//g')
         echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
 
     - name: Run the tests (with coverage)
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}"
 
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}"
 
     - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master

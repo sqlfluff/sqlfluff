@@ -103,77 +103,56 @@ jobs:
   # them to be rerun separately if GitHub Actions or Coverage is experiencing
   # issues.
   dialects_parse:
-    runs-on: ubuntu-latest
     name: Dialect parsing
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
-        pip install .
-    - name: Run the tests
-      run: |
-        tox -e dialects_parse -- -n 2 test
-
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "parse_suite"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+  
   dialects_fix:
-    runs-on: ubuntu-latest
     name: Dialect fixing
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
-        pip install .
-    - name: Run the tests
-      run: |
-        tox -e dialects_fix -- -n 2 test
-
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "fix_suite"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+  
   # This lints all our rules fixtures to check rules.
   #
   # It's run as a separate job as takes longer than the CI jobs and allows
   # them to be rerun separately if GitHub Actions or Coverage is experiencing
   # issues.
   rules:
-    runs-on: ubuntu-latest
     name: Rule yaml test cases
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
-        pip install .
-    - name: Run the tests
-      run: |
-        tox -e rules -- -n 2 test
-
-    - name: Coveralls Parallel (coveralls)
-      uses: coverallsapp/github-action@master
-      if: ${{ inputs.coverage }}
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.python-version }}
-        parallel: true
-
-    - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v3
-      if: ${{ inputs.coverage }}
-      with:
-        name: coverage-data
-        path: ".coverage.*"
-        if-no-files-found: ignore
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "rules_suite"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
 
   other-tests:
     runs-on: ubuntu-latest
@@ -340,7 +319,7 @@ jobs:
 
   coveralls_finish:
     name: Finalise coveralls.
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -352,7 +331,7 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
