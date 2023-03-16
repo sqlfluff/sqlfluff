@@ -64,7 +64,7 @@ jobs:
         parallel: true
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: ${{ inputs.coverage }}
       with:
         name: coverage-data
