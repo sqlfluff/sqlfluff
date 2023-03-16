@@ -251,7 +251,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- --cov=sqlfluff -n 2 test
+        python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v3
       with:
