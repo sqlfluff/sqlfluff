@@ -54,14 +54,6 @@ jobs:
       if: ${{ !inputs.coverage }}
       run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
 
-    - name: Upload Coverage (codecov)
-      uses: codecov/codecov-action@v3
-      if: ${{ inputs.coverage }}
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-
     - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
       if: ${{ inputs.coverage }}
