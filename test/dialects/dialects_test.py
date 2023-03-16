@@ -43,7 +43,8 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSe
     return Parser(config=config).parse(tokens)
 
 
-@pytest.mark.parser_suite
+@pytest.mark.integration
+@pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
@@ -63,7 +64,8 @@ def test__dialect__base_file_parse(dialect, file):
     assert "unparsable" not in typs
 
 
-@pytest.mark.parser_suite
+@pytest.mark.integration
+@pytest.mark.fix_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(
     dialect, file, raise_critical_errors_after_fix, caplog
@@ -85,7 +87,8 @@ def test__dialect__base_broad_fix(
         Linter(config=config).lint_string(raw, fix=True)
 
 
-@pytest.mark.parser_suite
+@pytest.mark.integration
+@pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
 def test__dialect__base_parse_struct(
     dialect,

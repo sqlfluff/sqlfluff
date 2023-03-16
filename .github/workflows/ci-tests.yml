@@ -102,7 +102,7 @@ jobs:
   # It's run as a separate job as takes longer than the CI jobs and allows
   # them to be rerun separately if GitHub Actions or Coverage is experiencing
   # issues.
-  parser:
+  dialects_parse:
     runs-on: ubuntu-latest
     name: Dialect parsing and fixing
     steps:
@@ -117,7 +117,24 @@ jobs:
         pip install .
     - name: Run the tests
       run: |
-        tox -e parser -- -n 2 test
+        tox -e dialects_parse -- -n 2 test
+
+  dialects_fix:
+    runs-on: ubuntu-latest
+    name: Dialect parsing and fixing
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install tox
+        pip install .
+    - name: Run the tests
+      run: |
+        tox -e dialects_fix -- -n 2 test
 
   # This lints all our rules fixtures to check rules.
   #
