@@ -45,7 +45,6 @@ db2_dialect.replace(
     ),
     PostFunctionGrammar=OneOf(
         Ref("OverClauseSegment"),
-        Ref("FilterClauseGrammar"),
         Ref("WithinGroupClauseSegment"),
     ),
     Expression_C_Grammar=OneOf(
