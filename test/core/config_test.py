@@ -281,9 +281,9 @@ def test__config__load_user_appdir_config(
 @pytest.mark.parametrize(
     "raw_str, expected",
     [
-        ("AL01,LT08,L031", ["AL01", "LT08", "L031"]),
-        ("\nAL01,\nLT08,\nL031,", ["AL01", "LT08", "L031"]),
-        (["AL01", "LT08", "L031"], ["AL01", "LT08", "L031"]),
+        ("AL01,LT08,AL07", ["AL01", "LT08", "AL07"]),
+        ("\nAL01,\nLT08,\nAL07,", ["AL01", "LT08", "AL07"]),
+        (["AL01", "LT08", "AL07"], ["AL01", "LT08", "AL07"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):

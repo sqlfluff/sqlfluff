@@ -81,7 +81,7 @@ def test_epoch_datetime_unit(raw: str) -> None:
 def test_space_is_not_reserved(raw: str) -> None:
     """Ensure that SPACE is not treated as reserved."""
     cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "LT12,LT05,L031", "dialect": "postgres"}}
+        configs={"core": {"exclude_rules": "LT12,LT05,AL07", "dialect": "postgres"}}
     )
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
