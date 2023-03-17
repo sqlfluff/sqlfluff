@@ -69,9 +69,11 @@ jobs:
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
       # test jobs and we need to make sure that their coverage files don't collide.s
+      id: cov_suffix
       if: ${{ inputs.coverage }}
       run: |
         COVSUFFIX=$(echo "${{ inputs.marks }}" | sed -e 's/ /-/g')
+        echo "COVSUFFIX=$COVSUFFIX" >> $GITHUB_OUTPUT
         for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
 
     - name: Coveralls Parallel (coveralls)
@@ -80,7 +82,7 @@ jobs:
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.python-version }}
+        flag-name: run-${{ inputs.python-version }}-${{ steps.cov_suffix.outputs.COVSUFFIX }}
         parallel: true
 
     - name: Upload coverage data (github)
