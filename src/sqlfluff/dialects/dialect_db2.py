@@ -59,7 +59,7 @@ db2_dialect.replace(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
-        Sequence(Ref("NumericLiteralSegment"), "DAYS"),
+        Sequence(Ref("NumericLiteralSegment"), OneOf("DAYS", "DAY")),
     ),
 )
 
