@@ -109,6 +109,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      # We test coverage here for some parsing routines.
+      coverage: true
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.11"
