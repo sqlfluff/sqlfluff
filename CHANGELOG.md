@@ -14,8 +14,30 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is mostly a bugfix release addressing some of the issues from the recent
+2.0 release. Notable fixes are:
+- Spacing for (as applied by `LT01`) for datatypes, hypenated identifiers and
+  casting operators.
+- Several bugs in the indentation routines (`LT02`), in particular with implicit
+  indents.
+- Fixing a conflict between `LT09` and `LT02`, by only limiting `LT09` to bringing
+  targets onto a single line if there is only one select target **and** that it
+  contains no newlines.
+- Supporting arrays, and the new rules configuration more effectively in `pyproject.toml`.
+- Configuring dialects on a file by file basis using inline comments now works.
+
+This release also brings one small new feature in allowing additional flags to
+be passed to SQLFluff when called as a `pre-commit` hook.
+
+Thanks especially to [@JavierMonton](https://github.com/JavierMonton) and
+[@LauraRichter](https://github.com/LauraRichter) who made their first contributions
+to the project as part of this release! 🎉🏆
+
 ## What’s Changed
 
+* Add support for arrays in TOML configuration [#4387](https://github.com/sqlfluff/sqlfluff/pull/4387) [@AidanHarveyNelson](https://github.com/AidanHarveyNelson)
+* Rethink test segregation in CI [#4547](https://github.com/sqlfluff/sqlfluff/pull/4547) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4515 and add more test cases [#4525](https://github.com/sqlfluff/sqlfluff/pull/4525) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add additional flags to `sqlfluff` invocations in pre-commit hooks [#4546](https://github.com/sqlfluff/sqlfluff/pull/4546) [@borchero](https://github.com/borchero)
 * Resolve #4484 (issues with indented_joins indents) [#4544](https://github.com/sqlfluff/sqlfluff/pull/4544) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Per file dialect selection fix [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518) [@LauraRichter](https://github.com/LauraRichter)
