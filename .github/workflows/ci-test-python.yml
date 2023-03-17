@@ -58,6 +58,14 @@ jobs:
       if: ${{ !inputs.coverage }}
       run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}"
 
+    - name: Rename coverage files with suffix
+      # NOTE: We do this because we're using the same tox environment for multiple
+      # test jobs and we need to make sure that their coverage files don't collide.s
+      if: ${{ !inputs.coverage }}
+      run: |
+        COVSUFFIX=$(echo "${{ inputs.marks }}" | sed -e 's/ /-/g')
+        for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
+
     - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
       if: ${{ inputs.coverage }}
