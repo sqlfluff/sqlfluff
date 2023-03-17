@@ -109,12 +109,12 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      # We test coverage here for some parsing routines.
-      coverage: true
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.11"
       marks: "parse_suite"
+      # We test coverage here for some parsing routines.
+      coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -340,14 +340,14 @@ jobs:
     needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
       - run: python -m pip install --upgrade coverage[toml]
 
       - name: Download coverage data.
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: coverage-data
 
