@@ -50,13 +50,21 @@ jobs:
         PYVERSION=$(echo "${{ inputs.python-version }}" | sed -e 's/\.//g')
         echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
 
+    # Run test process (with or without coverage).
+    # Arguments after the "--" are passed through to pytest:
+    #   --cov=...       The library to include in coverage reporting.
+    #   -n 2            Runs with two parallel processes.
+    #   test            The path to detect tests within.
+    #   -m ...          The pytest marks to filter tests.
+    #   --durations=16  Displays the 16 slowest runs to help with performance debugging.
     - name: Run the tests (with coverage)
+      # NOTE: We have a separate job for coverage reporting because
+      # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}"
-
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}"
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16
 
     - name: Rename coverage files with suffix
       # NOTE: We do this because we're using the same tox environment for multiple
