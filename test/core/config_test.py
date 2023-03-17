@@ -145,6 +145,7 @@ def test__config__load_toml():
             "testing_bar": 7.698,
             "testing_bool": False,
             "testing_arr": ["a", "b", "c"],
+            "rules": ["LT03", "LT09"],
             "testing_inline_table": {"x": 1},
         },
         "bar": {"foo": "foobar"},
@@ -280,13 +281,21 @@ def test__config__load_user_appdir_config(
 @pytest.mark.parametrize(
     "raw_str, expected",
     [
-        ("AL01,LT08,L031", ["AL01", "LT08", "L031"]),
-        ("\nAL01,\nLT08,\nL031,", ["AL01", "LT08", "L031"]),
+        ("AL01,LT08,AL07", ["AL01", "LT08", "AL07"]),
+        ("\nAL01,\nLT08,\nAL07,", ["AL01", "LT08", "AL07"]),
+        (["AL01", "LT08", "AL07"], ["AL01", "LT08", "AL07"]),
     ],
 )
 def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that comma separated string config is handled correctly."""
-    assert config._split_comma_separated_string(raw_str) == expected
+    """Tests that string and lists are output correctly."""
+    assert config.split_comma_separated_string(raw_str) == expected
+
+
+def test__config__split_comma_separated_string_correct_type():
+    """Tests that invalid data types throw the correct error."""
+    with pytest.raises(SQLFluffUserError):
+        config.split_comma_separated_string(1)
+        config.split_comma_separated_string(True)
 
 
 def test__config__templater_selection():
@@ -469,6 +478,21 @@ def test__config__validate_configs_precedence_same_file():
     assert len(res) == 1
     # Check that the old key isn't there.
     assert not any(k == old_key for k, _ in res)
+
+
+def test__config__toml_list_config():
+    """Test Parsing TOML list of values."""
+    c = ConfigLoader()
+    loaded_config = c.load_config_file(
+        os.path.join("test", "fixtures", "config", "toml"),
+        "pyproject.toml",
+    )
+    loaded_config["core"]["dialect"] = "ansi"
+    cfg = FluffConfig(loaded_config)
+
+    # Verify we can later retrieve the config values.
+    assert cfg.get("dialect") == "ansi"
+    assert cfg.get("rules") == ["LT03", "LT09"]
 
 
 def test__config__warn_unknown_rule():
