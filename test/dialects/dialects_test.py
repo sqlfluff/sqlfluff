@@ -81,7 +81,18 @@ def test__dialect__base_file_parse(dialect, file):
 def test__dialect__base_broad_fix(
     dialect, file, raise_critical_errors_after_fix, caplog
 ):
-    """Run a full fix with all rules, in search of critical errors."""
+    """Run a full fix with all rules, in search of critical errors.
+
+    NOTE: This suite does all of the same things as the above test
+    suite (the `parse_suite`), but also runs fix. In CI, we run
+    the above tests _with_ coverage tracking, but these we run
+    _without_.
+
+    The purpose of this test is as a more stretching run through
+    a wide range of test sql examples, and the full range of rules
+    to find any potential critical errors raised by any interactions
+    between different dialects and rules.
+    """
     raw = load_file(dialect, file)
     config_overrides = dict(dialect=dialect)
 
