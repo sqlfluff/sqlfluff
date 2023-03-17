@@ -178,13 +178,15 @@ ansi_dialect.set_lexer_matchers(
         # (?>                      Atomic grouping
         #                          (https://www.regular-expressions.info/atomic.html).
         #     \d+\.\d+             e.g. 123.456
-        #     |\d+\.(?!\.)         e.g. 123.
+        #     |\d+\.(?![\.\w])     e.g. 123.
         #                          (N.B. negative lookahead assertion to ensure we
-        #                          don't match range operators `..` in Exasol).
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
         #     |\.\d+               e.g. .456
         #     |\d+                 e.g. 123
         # )
-        # ([eE][+-]?\d+)?          Optional exponential.
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
         # (
         #     (?<=\.)              If matched character ends with . (e.g. 123.) then
         #                          don't worry about word boundary check.
@@ -193,7 +195,7 @@ ansi_dialect.set_lexer_matchers(
         # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?!\.)|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -1487,13 +1489,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        # TODO: Revisit this to make sure it's sensible.
-        Conditional(Dedent, indented_joins=False),
+        Dedent,
+        Conditional(Indent, indented_joins=True),
         AnyNumberOf(
             Sequence(
-                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
-                Conditional(Dedent, indented_joins=True),
             ),
             optional=True,
         ),

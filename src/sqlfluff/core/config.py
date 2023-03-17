@@ -801,19 +801,25 @@ class FluffConfig:
             self._configs["core"]["recurse"] = True
 
         # Dialect and Template selection.
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        self._initialise_dialect(dialect, require_dialect)
+
+        self._configs["core"]["templater_obj"] = self.get_templater(
+            self._configs["core"]["templater"]
+        )
+
+    def _initialise_dialect(
+        self, dialect: Optional[str], require_dialect: bool = True
+    ) -> None:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        dialect: Optional[str] = self._configs["core"]["dialect"]
         if dialect is not None:
             self._configs["core"]["dialect_obj"] = dialect_selector(
                 self._configs["core"]["dialect"]
             )
         elif require_dialect:
             self.verify_dialect_specified()
-        self._configs["core"]["templater_obj"] = self.get_templater(
-            self._configs["core"]["templater"]
-        )
 
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not."""
@@ -940,6 +946,7 @@ class FluffConfig:
         if exclude_rules:
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
+
         return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
@@ -1094,6 +1101,9 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+        # If the config is for dialect, initialise the dialect
+        if config_path[:-1] == ["dialect"]:
+            self._initialise_dialect(config_path[-1])
 
     def process_raw_file_for_config(self, raw_str: str):
         """Process a full raw file for inline config and update self."""

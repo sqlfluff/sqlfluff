@@ -34,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -108,7 +108,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -128,7 +128,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -144,7 +144,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -170,7 +170,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -195,7 +195,7 @@ jobs:
         git config --global core.eol lf
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
     - name: List Env
@@ -213,14 +213,8 @@ jobs:
       run: |
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: coverage-data
         path: ".coverage.*"
@@ -244,7 +238,7 @@ jobs:
         git config --global core.eol lf
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
     - name: Install dependencies
@@ -265,7 +259,7 @@ jobs:
     name: pip install tests
     steps:
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - uses: actions/checkout@v3
@@ -323,7 +317,7 @@ jobs:
           python -m coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: html-report
           path: htmlcov
