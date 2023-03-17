@@ -1002,7 +1002,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
-        """Iterate raw segments, optionally expanding some children."""
+        """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
                 yield from s.iter_segments(
