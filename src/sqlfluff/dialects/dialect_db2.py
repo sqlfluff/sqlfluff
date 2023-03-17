@@ -43,8 +43,10 @@ db2_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    PostFunctionGrammar=Sequence(
-        Ref("WithinGroupClauseSegment", optional=True),
+    PostFunctionGrammar=OneOf(
+        Ref("OverClauseSegment"),
+        Ref("FilterClauseGrammar"),
+        Ref("WithinGroupClauseSegment"),
     ),
     Expression_C_Grammar=OneOf(
         Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
