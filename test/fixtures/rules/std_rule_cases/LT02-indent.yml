@@ -1788,3 +1788,53 @@ test_fix_macro_indents_4367:
         {{ my_macro("mycol") }},
         something_else
     FROM mytable
+
+test_fix_untaken_positive_4433:
+  # https://github.com/sqlfluff/sqlfluff/issues/4433
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    WHERE
+        TRUE
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+        WHERE
+            TRUE
+    )
+    ;
+
+test_implicit_case_4542:
+  # https://github.com/sqlfluff/sqlfluff/issues/4542
+  pass_str: |
+    select
+        a,
+        case when b is null then 0 else 1 end as c
+    from my_table;
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_indented_joins_4484:
+  # https://github.com/sqlfluff/sqlfluff/issues/4484
+  pass_str: |
+    select *
+    from table_1
+        inner join table_2
+            on table_1.key = table_2.key
+        inner join table_3
+            on table_2.key = table_3.key
+  configs:
+    indentation:
+      indented_joins: true

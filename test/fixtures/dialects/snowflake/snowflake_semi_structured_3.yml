@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b936d0c53e60ea3e2218b58700181c23b632f40b7597f3e7e25da58e8686bfb
+_hash: 8d87ced2cb76bdc46947437b43aeacc28944904f5747df8f6bde8556a59c7527
 file:
   statement:
     select_statement:
@@ -48,7 +48,7 @@ file:
                   - dot: .
                   - naked_identifier: metadata
                 end_bracket: )
-            snowflake_semi_structured_expression:
+            semi_structured_expression:
               colon: ':'
               semi_structured_element: customer_id
           alias_expression:

@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, cast, TYPE_CHECKING
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.errors import SQLFluffUserError
 
 from sqlfluff.utils.reflow.helpers import pretty_segment_name
 
@@ -26,17 +27,29 @@ def _unpack_constraint(constraint: str, strip_newlines: bool):
 
     Used as a helper function in `determine_constraints`.
     """
+    # Check for deprecated options.
+    if constraint == "inline":  # pragma: no cover
+        reflow_logger.warning(
+            "Found 'inline' specified as a 'spacing_within' constraint. "
+            "This setting is deprecated and has been replaced by the more "
+            "explicit 'touch:inline'. Upgrade your configuration to "
+            "remove this warning."
+        )
+        constraint = "touch:inline"
+
     # Unless align, split.
     if constraint.startswith("align"):
         modifier = ""
     else:
         constraint, _, modifier = constraint.partition(":")
+
     if not modifier:
         pass
     elif modifier == "inline":
         strip_newlines = True
     else:  # pragma: no cover
-        raise NotImplementedError(f"Unexpected constraint modifier: {constraint}")
+        raise SQLFluffUserError(f"Unexpected constraint modifier: {constraint!r}")
+
     return constraint, strip_newlines
 
 
@@ -82,8 +95,8 @@ def determine_constraints(
         pass
     elif within_spacing:  # pragma: no cover
         assert prev_block
-        raise NotImplementedError(
-            f"Unexpected within constraint: {within_constraint} for "
+        raise SQLFluffUserError(
+            f"Unexpected within constraint: {within_constraint!r} for "
             f"{prev_block.depth_info.stack_class_types[idx]}"
         )
 
@@ -119,7 +132,7 @@ def process_spacing(
                 removal_buffer.append(seg)
                 result_buffer.append(
                     LintResult(
-                        seg, [LintFix.delete(seg)], description="Stripping newlines."
+                        seg, [LintFix.delete(seg)], description="Unexpected line break."
                     )
                 )
                 # Carry on as though it wasn't here.
@@ -182,7 +195,12 @@ def _determine_aligned_inline_spacing(
     # Find the level of segment that we're aligning.
     # NOTE: Reverse slice
     parent_segment = None
-    for ps in root_segment.path_to(next_seg)[::-1]:
+
+    # Edge case: if next_seg has no position, we should use the position
+    # of the whitespace for searching.
+    for ps in root_segment.path_to(next_seg if next_seg.pos_marker else whitespace_seg)[
+        ::-1
+    ]:
         if ps.segment.is_type(align_within):
             parent_segment = ps.segment
         if ps.segment.is_type(align_scope):
@@ -252,6 +270,33 @@ def _determine_aligned_inline_spacing(
     return desired_space
 
 
+def _extract_alignment_config(
+    constraint: str,
+) -> Tuple[str, Optional[str], Optional[str]]:
+    """Helper function to break apart an alignment config.
+
+    >>> _extract_alignment_config("align:alias_expression")
+    ('alias_expression', None, None)
+    >>> _extract_alignment_config("align:alias_expression:statement")
+    ('alias_expression', 'statement', None)
+    >>> _extract_alignment_config("align:alias_expression:statement:bracketed")
+    ('alias_expression', 'statement', 'bracketed')
+    """
+    assert ":" in constraint
+    alignment_config = constraint.split(":")
+    assert alignment_config[0] == "align"
+    seg_type = alignment_config[1]
+    align_within = alignment_config[2] if len(alignment_config) > 2 else None
+    align_scope = alignment_config[3] if len(alignment_config) > 3 else None
+    reflow_logger.debug(
+        "    Alignment Config: %s, %s, %s",
+        seg_type,
+        align_within,
+        align_scope,
+    )
+    return seg_type, align_within, align_scope
+
+
 def handle_respace__inline_with_space(
     pre_constraint: str,
     post_constraint: str,
@@ -310,16 +355,8 @@ def handle_respace__inline_with_space(
     ) or pre_constraint == post_constraint == "single":
         # Determine the desired spacing, either as alignment or as a single.
         if post_constraint.startswith("align") and next_block:
-            alignment_config = post_constraint.split(":")
-            seg_type = alignment_config[1]
-            align_within = alignment_config[2] if len(alignment_config) > 2 else None
-            align_scope = alignment_config[3] if len(alignment_config) > 3 else None
-            reflow_logger.debug(
-                "    Alignment Config: %s, %s, %s, %s",
-                seg_type,
-                align_within,
-                align_scope,
-                next_block.segments[0].pos_marker.working_line_pos,
+            seg_type, align_within, align_scope = _extract_alignment_config(
+                post_constraint
             )
 
             desired_space = _determine_aligned_inline_spacing(
@@ -402,6 +439,16 @@ def handle_respace__inline_without_space(
         # Either because there shouldn't be, or because "any"
         # means we shouldn't check.
         return segment_buffer, existing_results, False
+    # Are we supposed to be aligning?
+    elif post_constraint.startswith("align"):
+        reflow_logger.debug("    Inserting Aligned Whitespace.")
+        # TODO: We currently rely on a second pass to align
+        # insertions. This is where we could devise alignment
+        # in advance, but most of the alignment code relies on
+        # having existing position markers for those insertions.
+        # https://github.com/sqlfluff/sqlfluff/issues/4492
+        desired_space = " "
+        added_whitespace = WhitespaceSegment(desired_space)
     # Is it anything other than the default case?
     elif not (pre_constraint == post_constraint == "single"):  # pragma: no cover
         # TODO: This will get test coverage when configuration routines
@@ -409,15 +456,15 @@ def handle_respace__inline_without_space(
         raise NotImplementedError(
             f"Unexpected Constraints: {pre_constraint}, {post_constraint}"
         )
+    else:
+        # Default to a single whitespace
+        reflow_logger.debug("    Inserting Single Whitespace.")
+        added_whitespace = WhitespaceSegment()
 
-    # Handle the default case
-
-    # Insert a single whitespace.
-    reflow_logger.debug("    Inserting Single Whitespace.")
     # Add it to the buffer first (the easy bit). The hard bit
     # is to then determine how to generate the appropriate LintFix
     # objects.
-    segment_buffer.append(WhitespaceSegment())
+    segment_buffer.append(added_whitespace)
 
     # So special handling here. If segments either side
     # already exist then we don't care which we anchor on
@@ -464,9 +511,9 @@ def handle_respace__inline_without_space(
         # Mutate the fix, it's still in the same result, and that result
         # is still in the existing_results.
         if existing_fix == "before":
-            fix.edit = [cast(BaseSegment, WhitespaceSegment())] + fix.edit
+            fix.edit = [cast(BaseSegment, added_whitespace)] + fix.edit
         elif existing_fix == "after":
-            fix.edit = fix.edit + [cast(BaseSegment, WhitespaceSegment())]
+            fix.edit = fix.edit + [cast(BaseSegment, added_whitespace)]
 
         # No need to add new results, because we mutated the existing.
         return segment_buffer, existing_results, True

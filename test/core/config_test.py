@@ -18,6 +18,7 @@ from sqlfluff.core.templaters import (
     JinjaTemplater,
     PlaceholderTemplater,
 )
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 from pathlib import Path
 from unittest.mock import patch, call
@@ -149,6 +150,7 @@ def test__config__load_toml():
         },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
+        "rules": {"capitalisation.keywords": {"capitalisation_policy": "upper"}},
     }
 
 
@@ -493,26 +495,12 @@ def test__config__toml_list_config():
     assert cfg.get("rules") == ["LT03", "LT09"]
 
 
-def test__config__warn_unknown_rule(caplog):
+def test__config__warn_unknown_rule():
     """Test warnings when rules are unknown."""
     lntr = Linter(config=FluffConfig(config_c))
-    # NOTE: There is something strange with cross platform logging.
-    # To get around that, we briefly patch the logging propagation.
-    # As at 2023-02-21. This test passes on windows without stashing
-    # but is otherwise failing on linux.
-    fluff_logger = logging.getLogger("sqlfluff")
-    # Stash the current propagation.
-    propagate = fluff_logger.propagate
-    # Set to true
-    fluff_logger.propagate = True
 
-    try:
-        # Fetch rules to trigger checks:
-        with caplog.at_level(logging.WARNING, logger="sqlfluff.rules"):
-            lntr.get_rulepack()
-    # Regardless of success - restore the propagate setting.
-    finally:
-        fluff_logger.propagate = propagate
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+        lntr.get_rulepack()
 
     # Check we get a warning on the unrecognised rule.
     assert (
@@ -533,3 +521,26 @@ def test__config__warn_unknown_rule(caplog):
     assert ("The reference was found as a match for multiple rules: {") in caplog.text
     assert ("LT01") in caplog.text
     assert ("LT02") in caplog.text
+
+
+def test__process_inline_config():
+    """Test the processing of inline in-file configuration directives."""
+    cfg = FluffConfig(config_b)
+    assert cfg.get("rules") == "LT03"
+
+    cfg.process_inline_config("-- sqlfluff:rules:LT02")
+    assert cfg.get("rules") == "LT02"
+
+    assert cfg.get("tab_space_size", section="indentation") == 4
+    cfg.process_inline_config("-- sqlfluff:indentation:tab_space_size:20")
+    assert cfg.get("tab_space_size", section="indentation") == 20
+
+    assert cfg.get("dialect") == "ansi"
+    assert cfg.get("dialect_obj").name == "ansi"
+    cfg.process_inline_config("-- sqlfluff:dialect:postgres")
+    assert cfg.get("dialect") == "postgres"
+    assert cfg.get("dialect_obj").name == "postgres"
+
+    assert cfg.get("rulez") is None
+    cfg.process_inline_config("-- sqlfluff:rulez:LT06")
+    assert cfg.get("rulez") == "LT06"

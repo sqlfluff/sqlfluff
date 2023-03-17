@@ -464,9 +464,8 @@ tsql_dialect.replace(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("ColumnReferenceSegment"),
-            Sequence(
-                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
-            ),
+            Ref("TypedArrayLiteralSegment"),
+            Ref("ArrayLiteralSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
@@ -826,7 +825,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterGrammar", optional=True),
-            Ref("ForXmlSegment", optional=True),
+            Ref("ForClauseSegment", optional=True),
         ]
     )
 
@@ -4097,6 +4096,107 @@ class SetExpressionSegment(BaseSegment):
     )
 
 
+class ForClauseSegment(BaseSegment):
+    """A For Clause segment for TSQL.
+
+    This is used to format results into XML or JSON
+    """
+
+    type = "for_clause"
+
+    _common_directives_for_xml = Sequence(
+        Sequence(
+            "BINARY",
+            "BASE64",
+        ),
+        "TYPE",
+        Sequence(
+            "ROOT",
+            Bracketed(
+                Ref("LiteralGrammar"),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+    _elements = Sequence("ELEMENTS", OneOf("XSINIL", "ABSENT", optional=True))
+
+    match_grammar = Sequence(
+        "FOR",
+        OneOf(
+            "BROWSE",
+            Sequence(
+                "JSON",
+                Delimited(
+                    OneOf(
+                        "AUTO",
+                        "PATH",
+                    ),
+                    Sequence(
+                        "ROOT",
+                        Bracketed(
+                            Ref("LiteralGrammar"),
+                            optional=True,
+                        ),
+                        optional=True,
+                    ),
+                    Ref.keyword("INCLUDE_NULL_VALUES", optional=True),
+                    Ref.keyword("WITHOUT_ARRAY_WRAPPER", optional=True),
+                ),
+            ),
+            Sequence(
+                "XML",
+                OneOf(
+                    Delimited(
+                        Sequence(
+                            "PATH",
+                            Bracketed(
+                                Ref("LiteralGrammar"),
+                                optional=True,
+                            ),
+                        ),
+                        _common_directives_for_xml,
+                        _elements,
+                    ),
+                    Delimited(
+                        "EXPLICIT",
+                        _common_directives_for_xml,
+                        Ref.keyword("XMLDATA", optional=True),
+                    ),
+                    Delimited(
+                        OneOf(
+                            "AUTO",
+                            Sequence(
+                                "RAW",
+                                Bracketed(
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                        _common_directives_for_xml,
+                        _elements,
+                        Sequence(
+                            OneOf(
+                                "XMLDATA",
+                                Sequence(
+                                    "XMLSCHEMA",
+                                    Bracketed(
+                                        Ref("LiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
@@ -4842,25 +4942,6 @@ class FetchCursorStatementSegment(BaseSegment):
         "FROM",
         Ref("CursorNameGrammar"),
         Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
-    )
-
-
-class ForXmlSegment(BaseSegment):
-    """A segment for `FOR XML` in `SELECT` statements.
-
-    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
-    """
-
-    type = "for_xml_segment"
-    match_grammar: Matchable = Sequence(
-        "FOR",
-        "XML",
-        OneOf(
-            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
-            "AUTO",
-            "EXPLICIT",
-            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
-        ),
     )
 
 

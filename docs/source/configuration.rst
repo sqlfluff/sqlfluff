@@ -71,6 +71,12 @@ For example, a snippet from a :code:`pyproject.toml` file:
     [tool.sqlfluff.templater.jinja]
     apply_dbt_builtins = true
 
+    # For rule specific configuration, use dots between the names exactly
+    # as you would in .sqlfluff. In the background, SQLFluff will unpack the
+    # configuration paths accordingly.
+    [tool.sqlfluff.rules.capitalisation.keywords]
+    capitalisation_policy = "upper"
+
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
 .. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
@@ -108,6 +114,8 @@ steps overriding those from earlier:
 
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
+
+.. _in_file_config:
 
 In-File Configuration Directives
 --------------------------------
@@ -363,9 +371,9 @@ For example, if passed the following *.sql* file:
 .. note::
 
     If there are variables in the template which cannot be found in
-    the current configuration context, then this will raise a `SQLTemplatingError`
-    and this will appear as a violation without a line number, quoting
-    the name of the variable that couldn't be found.
+    the current configuration context, then this will raise a
+    `SQLTemplatingError` and this will appear as a violation without
+    a line number, quoting the name of the variable that couldn't be found.
 
 Placeholder templating
 ^^^^^^^^^^^^^^^^^^^^^^

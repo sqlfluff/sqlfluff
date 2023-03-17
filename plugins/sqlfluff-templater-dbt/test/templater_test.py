@@ -12,6 +12,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -82,6 +83,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         "ends_with_whitespace_stripping.sql",
         # Access dbt graph nodes
         "access_graph_nodes.sql",
+        # Call statements
+        "call_statement.sql",
     ],
 )
 def test__templater_dbt_templating_result(
@@ -105,16 +108,22 @@ def test_dbt_profiles_dir_env_var_uppercase(
 
 def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
     path = Path(project_dir) / "models/my_new_project" / fname
+    config = FluffConfig(configs=DBT_FLUFF_CONFIG)
     templated_file, _ = dbt_templater.process(
         in_str=path.read_text(),
         fname=str(path),
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        config=config,
     )
     template_output_folder_path = Path(
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
     )
     fixture_path = _get_fixture_path(template_output_folder_path, fname)
     assert str(templated_file) == fixture_path.read_text()
+    # Check we can lex the output too.
+    # https://github.com/sqlfluff/sqlfluff/issues/4013
+    lexer = Lexer(config=config)
+    _, lexing_violations = lexer.lex(templated_file)
+    assert not lexing_violations
 
 
 def _get_fixture_path(template_output_folder_path, fname):
@@ -435,7 +444,7 @@ def test__templater_dbt_handle_database_connection_failure(
     )
 
 
-def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
+def test__project_dir_does_not_exist_error(dbt_templater):  # noqa: F811
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={
@@ -443,18 +452,11 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
             "templater": {"dbt": {"project_dir": "./non_existing_directory"}},
         }
     )
-    logger = logging.getLogger("sqlfluff")
-    original_propagate_value = logger.propagate
-    try:
-        logger.propagate = True
-        with caplog.at_level(logging.ERROR, logger="sqlfluff.templater"):
-            dbt_project_dir = dbt_templater._get_project_dir()
-        assert (
-            f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
-            "Check it exists."
-        ) in caplog.text
-    finally:
-        logger.propagate = original_propagate_value
+    with fluff_log_catcher(logging.ERROR, "sqlfluff.templater") as caplog:
+        dbt_project_dir = dbt_templater._get_project_dir()
+    assert (
+        f"dbt_project_dir: {dbt_project_dir} could not be accessed. " "Check it exists."
+    ) in caplog.text
 
 
 @pytest.mark.parametrize(

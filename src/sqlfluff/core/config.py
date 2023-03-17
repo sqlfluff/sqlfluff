@@ -303,9 +303,45 @@ class ConfigLoader:
         return global_loader
 
     @classmethod
-    def _walk_toml(cls, config: Dict[str, Any], base_key=()):
-        """Recursively walk the nested config inside a TOML file."""
-        buff: List[tuple] = []
+    def _walk_toml(
+        cls, config: Dict[str, Any], base_key: Tuple[str, ...] = ()
+    ) -> List[Tuple[Tuple[str, ...], Any]]:
+        """Recursively walk the nested config inside a TOML file.
+
+        For standard usage it mimics the standard loader.
+
+        >>> ConfigLoader._walk_toml({"foo": "bar"})
+        [(('foo',), 'bar')]
+        >>> ConfigLoader._walk_toml({"foo": {"bar": "baz"}})
+        [(('foo', 'bar'), 'baz')]
+
+        For the "rules" section, there's a special handling
+        to condense nested sections from the toml for rules
+        which contain a dot (or more) (".") in their name.
+
+        >>> ConfigLoader._walk_toml({"rules": {"a": {"b": {"c": "d"}}}})
+        [(('rules', 'a.b', 'c'), 'd')]
+        >>> ConfigLoader._walk_toml({"rules":
+        ...     {"capitalisation": {"keywords":
+        ...         {"capitalisation_policy": "upper"}
+        ...     }}
+        ... })
+        [(('rules', 'capitalisation.keywords', 'capitalisation_policy'), 'upper')]
+
+        NOTE: Some rules make have more than one dot in their name.
+        >>> ConfigLoader._walk_toml({"rules":
+        ...     {"a": {"b": {"c": {"d": {"e": "f"}}}}}
+        ... })
+        [(('rules', 'a.b.c.d', 'e'), 'f')]
+        """
+        buff: List[Tuple[Tuple[str, ...], Any]] = []
+        # NOTE: For the "rules" section of the sqlfluff config,
+        # rule names are often qualified with a dot ".". In the
+        # toml scenario this can get interpreted as a nested
+        # section, and we resolve that edge case here.
+        if len(base_key) == 3 and base_key[0] == "rules":
+            base_key = ("rules", ".".join(base_key[1:]))
+
         for k, v in config.items():
             key = base_key + (k,)
             if isinstance(v, dict):
@@ -774,19 +810,25 @@ class FluffConfig:
             self._configs["core"]["recurse"] = True
 
         # Dialect and Template selection.
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        self._initialise_dialect(dialect, require_dialect)
+
+        self._configs["core"]["templater_obj"] = self.get_templater(
+            self._configs["core"]["templater"]
+        )
+
+    def _initialise_dialect(
+        self, dialect: Optional[str], require_dialect: bool = True
+    ) -> None:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        dialect: Optional[str] = self._configs["core"]["dialect"]
         if dialect is not None:
             self._configs["core"]["dialect_obj"] = dialect_selector(
                 self._configs["core"]["dialect"]
             )
         elif require_dialect:
             self.verify_dialect_specified()
-        self._configs["core"]["templater_obj"] = self.get_templater(
-            self._configs["core"]["templater"]
-        )
 
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not."""
@@ -913,6 +955,7 @@ class FluffConfig:
         if exclude_rules:
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
+
         return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
@@ -1067,6 +1110,9 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+        # If the config is for dialect, initialise the dialect
+        if config_path[:-1] == ["dialect"]:
+            self._initialise_dialect(config_path[-1])
 
     def process_raw_file_for_config(self, raw_str: str):
         """Process a full raw file for inline config and update self."""

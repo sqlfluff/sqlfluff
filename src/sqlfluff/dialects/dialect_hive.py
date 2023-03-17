@@ -147,7 +147,6 @@ hive_dialect.replace(
         TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
         TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
-    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
@@ -223,6 +222,49 @@ hive_dialect.replace(
         ]
     ),
 )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
+        ),
+    )
+
+
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("ColonSegment"),
+                Ref("DatatypeSegment"),
+                Ref("CommentGrammar", optional=True),
+            ),
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
 
 
 class CreateDatabaseStatementSegment(BaseSegment):
@@ -450,14 +492,8 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("ArrayTypeSegment"),
+        Ref("SizedArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(
@@ -470,22 +506,7 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("ColonSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("StructTypeSegment"),
         Sequence(
             "UNIONTYPE",
             Bracketed(
@@ -495,17 +516,6 @@ class DatatypeSegment(BaseSegment):
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
-        ),
-        # array types
-        OneOf(
-            AnyNumberOf(
-                Bracketed(
-                    Ref("ExpressionSegment", optional=True), bracket_type="square"
-                )
-            ),
-            Ref("SimpleArrayTypeGrammar"),
-            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
-            optional=True,
         ),
     )
 

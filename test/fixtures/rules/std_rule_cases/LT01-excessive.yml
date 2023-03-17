@@ -270,3 +270,65 @@ test_fail_snowflake_semi_structured_multi:
   configs:
     core:
       dialect: snowflake
+
+test_pass_bigquery_specific:
+  # Test a selection of bigquery specific spacings work.
+  # Specifically EXCEPT & qualified functions.
+  pass_str: |
+    SELECT * EXCEPT (order_id);
+    SELECT NET.HOST(LOWER(url)) AS host FROM urls;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_arrays_1:
+  # An example of _no whitespace_ after an array type
+  pass_str: |
+    SELECT ARRAY<FLOAT64>[1, 2, 3] AS floats;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_arrays_2:
+  # An example of _whitespace_ after an array type
+  pass_str: |
+    CREATE TEMPORARY FUNCTION DoSomething(param1 STRING, param2 STRING)
+    RETURNS ARRAY<STRING> LANGUAGE js AS """Some JS""";
+
+    SELECT DoSomething(col1) FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_structs:
+  # Test spacing of complex STRUCT brackets
+  pass_str: |
+    create table testing.array_struct_tbl (
+        address_array_of_nested_structs
+        ARRAY<STRUCT<coll STRUCT<col1_1 STRING, col1_2 INT64>, col2 STRING>>
+    )
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_struct_access:
+  # Test spacing of function access
+  pass_str: |
+    SELECT
+      testFunction(a).b AS field,
+      testFunction(a).* AS wildcard,
+      testFunction(a).b.c AS field_with_field,
+      testFunction(a).b.* AS field_with_wildcard,
+      testFunction(a)[OFFSET(0)].* AS field_with_offset_wildcard,
+      testFunction(a)[SAFE_OFFSET(0)].* AS field_with_safe_offset_wildcard,
+      testFunction(a)[ORDINAL(1)].* AS field_with_ordinal_wildcard,
+      testFunction(a)[ORDINAL(1)].a AS field_with_ordinal_field
+    FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_postgres_datatype:
+  # https://github.com/sqlfluff/sqlfluff/issues/4521
+  pass_str: |
+    select 1::NUMERIC(3, 1)

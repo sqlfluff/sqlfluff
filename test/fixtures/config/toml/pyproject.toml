@@ -13,3 +13,6 @@ foo = "foobar"
 
 [tool.sqlfluff.fnarr.fnarr]
 foo = "foobar"
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"

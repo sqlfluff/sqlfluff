@@ -3,25 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae7c029c61edcc47c841a14b2575a6025ddafe6b24eb425b83a25f5241c2b741
+_hash: 703561cc4a19243823ae4bb0768e333f8a24d41beb5f3f9cb4406b66ac180ced
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          array_literal:
-          - keyword: array
-          - start_square_bracket: '['
-          - column_reference:
-              naked_identifier: a
-          - comma: ','
-          - column_reference:
-              naked_identifier: b
-          - comma: ','
-          - column_reference:
-              naked_identifier: c
-          - end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: array
+            array_literal:
+            - start_square_bracket: '['
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            - comma: ','
+            - column_reference:
+                naked_identifier: c
+            - end_square_bracket: ']'
           alias_expression:
             keyword: as
             naked_identifier: arr
@@ -55,17 +57,19 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    array_literal:
-                    - keyword: array
-                    - start_square_bracket: '['
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '3'
-                    - comma: ','
-                    - numeric_literal: '6'
-                    - comma: ','
-                    - numeric_literal: '12'
-                    - end_square_bracket: ']'
+                    typed_array_literal:
+                      array_type:
+                        keyword: array
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - comma: ','
+                      - numeric_literal: '6'
+                      - comma: ','
+                      - numeric_literal: '12'
+                      - end_square_bracket: ']'
                   end_bracket: )
             alias_expression:
               keyword: as
@@ -87,35 +91,37 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                array_literal:
-                - keyword: array
-                - start_square_bracket: '['
-                - function:
-                    function_name:
-                      function_name_identifier: row
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        quoted_literal: "'pending.freebet'"
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          naked_identifier: pending_fb
-                    - end_bracket: )
-                - comma: ','
-                - function:
-                    function_name:
-                      function_name_identifier: row
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        quoted_literal: "'bonus.balance'"
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          naked_identifier: bonus
-                    - end_bracket: )
-                - end_square_bracket: ']'
+                typed_array_literal:
+                  array_type:
+                    keyword: array
+                  array_literal:
+                  - start_square_bracket: '['
+                  - function:
+                      function_name:
+                        function_name_identifier: row
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'pending.freebet'"
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: pending_fb
+                      - end_bracket: )
+                  - comma: ','
+                  - function:
+                      function_name:
+                        function_name_identifier: row
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'bonus.balance'"
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: bonus
+                      - end_bracket: )
+                  - end_square_bracket: ']'
               end_bracket: )
       from_clause:
         keyword: from
@@ -132,15 +138,17 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          array_literal:
-          - keyword: array
-          - start_square_bracket: '['
-          - quoted_literal: "'a'"
-          - comma: ','
-          - quoted_literal: "'b'"
-          - comma: ','
-          - quoted_literal: "'c'"
-          - end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: array
+            array_literal:
+            - start_square_bracket: '['
+            - quoted_literal: "'a'"
+            - comma: ','
+            - quoted_literal: "'b'"
+            - comma: ','
+            - quoted_literal: "'c'"
+            - end_square_bracket: ']'
           alias_expression:
             keyword: as
             naked_identifier: arr
@@ -159,13 +167,15 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          array_literal:
-            keyword: array
-            start_square_bracket: '['
-            quoted_literal: "'a'"
-            comma: ','
-            null_literal: 'null'
-            end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: array
+            array_literal:
+              start_square_bracket: '['
+              quoted_literal: "'a'"
+              comma: ','
+              null_literal: 'null'
+              end_square_bracket: ']'
           alias_expression:
             keyword: as
             naked_identifier: arr
@@ -184,10 +194,12 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          array_literal:
-            keyword: array
-            start_square_bracket: '['
-            end_square_bracket: ']'
+          typed_array_literal:
+            array_type:
+              keyword: array
+            array_literal:
+              start_square_bracket: '['
+              end_square_bracket: ']'
           alias_expression:
             keyword: as
             naked_identifier: arr

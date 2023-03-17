@@ -729,9 +729,9 @@ def _map_line_buffers(
                     -1,
                 )
             )
-            # For it to be a problem - all passing indents must be untaken. If any
-            # were taken, then we can interpret the drop as closing that one.
-            if all(i in indent_point.untaken_indents for i in passing_indents):
+            # There might be many indents at this point, but if any match, then
+            # we should still force an indent
+            if any(i in indent_point.untaken_indents for i in passing_indents):
                 for i in passing_indents:
                     # If we don't have the location of the untaken indent, then
                     # skip it for now. TODO: Check this isn't a bug when this happens.
@@ -749,6 +749,14 @@ def _map_line_buffers(
                     # end with an IndentBlock, and we know here that `loc` refers to
                     # an IndentPoint.
                     if "start_bracket" in elements[loc + 1].class_types:
+                        continue
+
+                    # Second, check for placeholders. Indents around placeholders
+                    # are trickier to reason about. For now, don't force untaken
+                    # indents around placeholders.
+                    if "placeholder" in elements[loc + 1].class_types or (
+                        loc >= 1 and "placeholder" in elements[loc - 1].class_types
+                    ):
                         continue
 
                     # If the location was in the line we're just closing. That's
@@ -1035,6 +1043,18 @@ def _lint_line_untaken_negative_indents(
         # Is line break, or positive indent?
         if ip.is_line_break or ip.indent_impulse >= 0:
             continue
+
+        # When using implicit indents, we may find untaken negatives which
+        # aren't shallower than the line they're on. This is because they
+        # were implicit on the way up and so not included in `untaken_indents`.
+        # To catch them we also check that we're shallower than the start of
+        # of the line.
+        if (
+            ip.initial_indent_balance + ip.indent_trough
+            >= indent_line.opening_balance()
+        ):
+            continue
+
         # It's negative, is it untaken? In the case of a multi-dedent
         # they must _all_ be untaken to take this route.
         covered_indents = set(
