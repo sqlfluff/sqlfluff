@@ -10,6 +10,32 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.1] - 2023-03-17
+
+## Highlights
+
+## What’s Changed
+
+* Add additional flags to `sqlfluff` invocations in pre-commit hooks [#4546](https://github.com/sqlfluff/sqlfluff/pull/4546) [@borchero](https://github.com/borchero)
+* Resolve #4484 (issues with indented_joins indents) [#4544](https://github.com/sqlfluff/sqlfluff/pull/4544) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Per file dialect selection fix [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518) [@LauraRichter](https://github.com/LauraRichter)
+* MySQL: Add CREATE INDEX [#4538](https://github.com/sqlfluff/sqlfluff/pull/4538) [@yoichi](https://github.com/yoichi)
+* Resolve implicit indent issues when catching negative indents [#4543](https://github.com/sqlfluff/sqlfluff/pull/4543) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Github Action Deprecations [#4545](https://github.com/sqlfluff/sqlfluff/pull/4545) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* LT09 and multiline select targets [#4529](https://github.com/sqlfluff/sqlfluff/pull/4529) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove Codecov from CI [#4535](https://github.com/sqlfluff/sqlfluff/pull/4535) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bigquery hyphentated identifiers [#4530](https://github.com/sqlfluff/sqlfluff/pull/4530) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Attempt in-house coverage [#4532](https://github.com/sqlfluff/sqlfluff/pull/4532) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres datatype spacing issues [#4528](https://github.com/sqlfluff/sqlfluff/pull/4528) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support new rules config in toml files. [#4526](https://github.com/sqlfluff/sqlfluff/pull/4526) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve #1146 (log propagation) [#4513](https://github.com/sqlfluff/sqlfluff/pull/4513) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Optional quotes for `create user` statement [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514) [@JavierMonton](https://github.com/JavierMonton)
+
+## New Contributors
+
+* [@JavierMonton](https://github.com/JavierMonton) made their first contribution in [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514)
+* [@LauraRichter](https://github.com/LauraRichter) made their first contribution in [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518)
+
 ## [2.0.0] - 2023-03-13
 
 ## Highlights
