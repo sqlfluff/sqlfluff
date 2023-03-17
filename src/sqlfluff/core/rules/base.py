@@ -39,7 +39,7 @@ from typing import (
 )
 from collections import namedtuple, defaultdict
 
-from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.config import FluffConfig, split_comma_separated_string
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -694,6 +694,10 @@ class BaseRule(metaclass=RuleMetaclass):
     # a line to the docstring.
     is_fix_compatible = False
 
+    # Add comma seperated string to Base Rule to ensure that it uses the same
+    # Configuration that is defined in the Config.py file
+    split_comma_separated_string = staticmethod(split_comma_separated_string)
+
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
@@ -1132,11 +1136,6 @@ class BaseRule(metaclass=RuleMetaclass):
                     child = seg
                     break
         return anchor
-
-    @staticmethod
-    def split_comma_separated_string(raw_str: str) -> List[str]:
-        """Converts comma separated string to List, stripping whitespace."""
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
 @dataclass(frozen=True)
