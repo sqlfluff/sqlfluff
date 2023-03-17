@@ -96,28 +96,69 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
+  # This runs the bulk of the dialect _parsing_ tests.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  dialects_parse:
+    name: Dialect parsing
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "parse_suite"
+      # We test coverage here for some parsing routines.
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
   # This lints all our dialect fixtures to check rules can handle a variety
   # of SQL and don't error out badly.
   #
   # It's run as a separate job as takes longer than the CI jobs and allows
   # them to be rerun separately if GitHub Actions or Coverage is experiencing
   # issues.
-  ruleslinting:
-    runs-on: ubuntu-latest
-    name: Rules critical errors tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install tox
-        pip install .
-    - name: Run the tests
-      run: |
-        tox -e ruleslinting -- -n 2 test
+  dialects_fix:
+    name: Dialect fixing
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "fix_suite"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # This lints all our rules fixtures to check rules.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  rules:
+    name: Rule yaml test cases
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "rules_suite"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
 
   other-tests:
     runs-on: ubuntu-latest
@@ -212,7 +253,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- --cov=sqlfluff -n 2 test
+        python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v3
       with:
@@ -284,7 +325,7 @@ jobs:
 
   coveralls_finish:
     name: Finalise coveralls.
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -296,17 +337,17 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
       - run: python -m pip install --upgrade coverage[toml]
 
       - name: Download coverage data.
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: coverage-data
 
