@@ -1552,7 +1552,7 @@ def _fix_long_line_with_comment(
     current_indent: str,
     line_length_limit: int,
     last_indent_idx: Optional[int],
-    shift_comments: str = "before",
+    trailing_comments: str = "before",
 ) -> Tuple[ReflowSequenceType, List[LintFix]]:
     """Fix long line by moving trailing comments if possible."""
     # If the comment contains a noqa, don't fix it. It's unsafe.
@@ -1569,7 +1569,24 @@ def _fix_long_line_with_comment(
     comment_seg = line_buffer[-1].segments[-1]
     first_seg = line_buffer[0].segments[0]
     last_elem_idx = elements.index(line_buffer[-1])
-    # It is! Move the comment to the line before.
+
+    assert trailing_comments in (
+        "after",
+        "before",
+    ), f"Unexpected value for `trailing_comments`: {trailing_comments!r}"
+
+    # The simpler case if if we're moving the comment to the line
+    # _after_. In that case we just coerce the point before it to
+    # be an indent.
+    if trailing_comments == "after":
+        anchor_point = cast(ReflowPoint, line_buffer[-2])
+        results, new_point = anchor_point.indent_to(current_indent, before=comment_seg)
+        # Mutate elements
+        elements[last_elem_idx - 1] = new_point
+        return elements, fixes_from_results(results)
+
+    # Otherwise we're moving it up and _before_ the line, which is
+    # a little more involved (but also the default).
     fixes = [
         # Remove the comment from it's current position, and any
         # whitespace in the previous point.
@@ -1581,17 +1598,8 @@ def _fix_long_line_with_comment(
         ],
     ]
 
-    # Reinsert it at the start of the current line, with a newline
-    # after it.
-    assert shift_comments in (
-        "after",
-        "before",
-    ), f"Unexpected value for `shift_comments`: {shift_comments!r}"
-
-    # For new make sure we're "before"
-    assert shift_comments == "before"  ### CHANGE ME BEFORE MERGING
-
-    # Start of file case.
+    # Are we at the start of the file? If so, there's no
+    # indent, and also no previous segments to deal with.
     if last_indent_idx is None:
         new_point = ReflowPoint((NewlineSegment(),))
         prev_elems = []
