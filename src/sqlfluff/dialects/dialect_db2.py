@@ -43,8 +43,9 @@ db2_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    PostFunctionGrammar=Sequence(
-        Ref("WithinGroupClauseSegment", optional=True),
+    PostFunctionGrammar=OneOf(
+        Ref("OverClauseSegment"),
+        Ref("WithinGroupClauseSegment"),
     ),
     Expression_C_Grammar=OneOf(
         Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
@@ -57,7 +58,7 @@ db2_dialect.replace(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
-        Sequence(Ref("NumericLiteralSegment"), "DAYS"),
+        Sequence(Ref("NumericLiteralSegment"), OneOf("DAYS", "DAY")),
     ),
 )
 

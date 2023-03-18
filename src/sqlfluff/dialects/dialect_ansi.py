@@ -509,6 +509,7 @@ ansi_dialect.add(
         "LIMIT",
         "OVERLAPS",
         Ref("SetOperatorSegment"),
+        "FETCH",
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
     # non-standard keywords)
@@ -536,6 +537,7 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+        "FETCH",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
@@ -543,12 +545,14 @@ ansi_dialect.add(
         "HAVING",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -1638,6 +1642,7 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
+            "FETCH",
         ),
         enforce_whitespace_preceding_terminator=True,
     )
