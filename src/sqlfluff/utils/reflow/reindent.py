@@ -1593,56 +1593,44 @@ def _fix_long_line_with_comment(
 
     # Start of file case.
     if last_indent_idx is None:
-        elements = (
-            [
-                line_buffer[-1],
-                ReflowPoint((NewlineSegment(),)),
-            ]
-            + line_buffer[:-2]
-            + elements[last_elem_idx + 1 :]
-        )
-        fixes.append(
-            LintFix.create_before(
-                first_seg,
-                [
-                    comment_seg,
-                    NewlineSegment(),
-                ],
-            )
-        )
-        return elements, fixes
-
-    # Normal "before" case
+        new_point = ReflowPoint((NewlineSegment(),))
+        prev_elems = []
+        anchor = first_seg
     else:
-        fixes.append(
-            # NOTE: This looks a little convoluted, but we create
-            # *before* a block here rather than *after* a point,
-            # because the point may have been modified already by
-            # reflow code and may not be a reliable anchor.
-            LintFix.create_before(
-                elements[last_indent_idx + 1].segments[0],
-                [
-                    comment_seg,
-                    NewlineSegment(),
-                    WhitespaceSegment(current_indent),
-                ],
+        new_point = ReflowPoint(
+            (
+                NewlineSegment(),
+                WhitespaceSegment(current_indent),
             )
         )
-        elements = (
-            elements[: last_indent_idx + 1]
-            + [
-                line_buffer[-1],
-                ReflowPoint(
-                    (
-                        NewlineSegment(),
-                        WhitespaceSegment(current_indent),
-                    )
-                ),
-            ]
-            + line_buffer[:-2]
-            + elements[last_elem_idx + 1 :]
+        prev_elems = elements[: last_indent_idx + 1]
+        anchor = elements[last_indent_idx + 1].segments[0]
+
+    fixes.append(
+        # NOTE: This looks a little convoluted, but we create
+        # *before* a block here rather than *after* a point,
+        # because the point may have been modified already by
+        # reflow code and may not be a reliable anchor.
+        LintFix.create_before(
+            anchor,
+            [
+                comment_seg,
+                *new_point.segments,
+            ],
         )
-        return elements, fixes
+    )
+
+    elements = (
+        prev_elems
+        + [
+            line_buffer[-1],
+            new_point,
+        ]
+        + line_buffer[:-2]
+        + elements[last_elem_idx + 1 :]
+    )
+
+    return elements, fixes
 
 
 def lint_line_length(
