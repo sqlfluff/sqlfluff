@@ -1572,7 +1572,7 @@ def lint_line_length(
     results: List[LintResult] = []
 
     last_indent_idx = None
-    for i, elem in enumerate(elements):
+    for i, elem in enumerate(elem_buffer):
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
@@ -1585,7 +1585,7 @@ def lint_line_length(
             # the following code assumes we're on a point and not a block.
             # We're safe from indexing errors if we're on a point, because
             # we know there's always a trailing block.
-            "end_of_file" in elements[i + 1].class_types
+            "end_of_file" in elem_buffer[i + 1].class_types
             # Or is there a newline?
             or has_untemplated_newline(cast(ReflowPoint, elem))
         ):
@@ -1604,7 +1604,7 @@ def lint_line_length(
 
         # Get the current indent.
         if last_indent_idx is not None:
-            current_indent = _deduce_line_current_indent(elements, last_indent_idx)
+            current_indent = _deduce_line_current_indent(elem_buffer, last_indent_idx)
         else:
             current_indent = ""
 
@@ -1717,7 +1717,7 @@ def lint_line_length(
                             # because the point may have been modified already by
                             # reflow code and may not be a reliable anchor.
                             LintFix.create_before(
-                                elements[last_indent_idx + 1].segments[0],
+                                elem_buffer[last_indent_idx + 1].segments[0],
                                 [
                                     comment_seg,
                                     NewlineSegment(),
@@ -1743,8 +1743,8 @@ def lint_line_length(
                     # + the rest of the line (without the last point and comment)
                     # + anything else after the line
                     if last_indent_idx is not None:
-                        elements = (
-                            elements[: last_indent_idx + 1]
+                        elem_buffer = (
+                            elem_buffer[: last_indent_idx + 1]
                             + [
                                 line_buffer[-1],
                                 ReflowPoint(
@@ -1755,17 +1755,17 @@ def lint_line_length(
                                 ),
                             ]
                             + line_buffer[:-2]
-                            + elements[i:]
+                            + elem_buffer[i:]
                         )
                     # Edge case for start of file:
                     else:
-                        elements = (
+                        elem_buffer = (
                             [
                                 line_buffer[-1],
                                 ReflowPoint((NewlineSegment(),)),
                             ]
                             + line_buffer[:-2]
-                            + elements[i:]
+                            + elem_buffer[i:]
                         )
 
             # Then check for cases where we have no other options.
@@ -1806,12 +1806,12 @@ def lint_line_length(
                     if e_idx == i:
                         continue
 
-                    e = cast(ReflowPoint, elements[e_idx])
+                    e = cast(ReflowPoint, elem_buffer[e_idx])
 
                     # We need to check for negative sections so they get the right
                     # indent (otherwise they'll be over indented).
                     # The `desired_indent` above is for the "uphill" side.
-                    following_class_types = elements[e_idx + 1].class_types
+                    following_class_types = elem_buffer[e_idx + 1].class_types
                     indent_stats = e.get_indent_impulse(
                         allow_implicit_indents, following_class_types
                     )
@@ -1822,11 +1822,10 @@ def lint_line_length(
 
                     new_results, new_point = e.indent_to(
                         new_indent,
-                        after=elements[e_idx - 1].segments[-1],
-                        before=elements[e_idx + 1].segments[0],
+                        after=elem_buffer[e_idx - 1].segments[-1],
+                        before=elem_buffer[e_idx + 1].segments[0],
                     )
-                    # NOTE: Mutation of elements.
-                    elements[e_idx] = new_point
+                    elem_buffer[e_idx] = new_point
                     line_results += new_results
 
                     # If the balance is *also* negative, then we should also
