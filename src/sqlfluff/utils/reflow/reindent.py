@@ -1647,6 +1647,7 @@ def lint_line_length(
     single_indent: str,
     line_length_limit: int,
     allow_implicit_indents: bool = False,
+    trailing_comments: str = "before",
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -1783,6 +1784,7 @@ def lint_line_length(
                     current_indent,
                     line_length_limit,
                     last_indent_idx,
+                    trailing_comments=trailing_comments,
                 )
 
             # Then check for cases where we have no other options.
