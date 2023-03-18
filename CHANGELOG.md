@@ -10,6 +10,54 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.1] - 2023-03-17
+
+## Highlights
+
+This is mostly a bugfix release addressing some of the issues from the recent
+2.0 release. Notable fixes are:
+- Spacing for (as applied by `LT01`) for datatypes, hypenated identifiers and
+  casting operators.
+- Several bugs in the indentation routines (`LT02`), in particular with implicit
+  indents.
+- Fixing a conflict between `LT09` and `LT02`, by only limiting `LT09` to bringing
+  targets onto a single line if there is only one select target **and** that it
+  contains no newlines.
+- Supporting arrays, and the new rules configuration more effectively in `pyproject.toml`.
+- Configuring dialects on a file by file basis using inline comments now works.
+
+This release also brings one small new feature in allowing additional flags to
+be passed to SQLFluff when called as a `pre-commit` hook.
+
+Thanks especially to [@JavierMonton](https://github.com/JavierMonton) and
+[@LauraRichter](https://github.com/LauraRichter) who made their first contributions
+to the project as part of this release! 🎉🏆
+
+## What’s Changed
+
+* Add support for arrays in TOML configuration [#4387](https://github.com/sqlfluff/sqlfluff/pull/4387) [@AidanHarveyNelson](https://github.com/AidanHarveyNelson)
+* Rethink test segregation in CI [#4547](https://github.com/sqlfluff/sqlfluff/pull/4547) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4515 and add more test cases [#4525](https://github.com/sqlfluff/sqlfluff/pull/4525) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add additional flags to `sqlfluff` invocations in pre-commit hooks [#4546](https://github.com/sqlfluff/sqlfluff/pull/4546) [@borchero](https://github.com/borchero)
+* Resolve #4484 (issues with indented_joins indents) [#4544](https://github.com/sqlfluff/sqlfluff/pull/4544) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Per file dialect selection fix [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518) [@LauraRichter](https://github.com/LauraRichter)
+* MySQL: Add CREATE INDEX [#4538](https://github.com/sqlfluff/sqlfluff/pull/4538) [@yoichi](https://github.com/yoichi)
+* Resolve implicit indent issues when catching negative indents [#4543](https://github.com/sqlfluff/sqlfluff/pull/4543) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Github Action Deprecations [#4545](https://github.com/sqlfluff/sqlfluff/pull/4545) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* LT09 and multiline select targets [#4529](https://github.com/sqlfluff/sqlfluff/pull/4529) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove Codecov from CI [#4535](https://github.com/sqlfluff/sqlfluff/pull/4535) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bigquery hyphentated identifiers [#4530](https://github.com/sqlfluff/sqlfluff/pull/4530) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Attempt in-house coverage [#4532](https://github.com/sqlfluff/sqlfluff/pull/4532) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres datatype spacing issues [#4528](https://github.com/sqlfluff/sqlfluff/pull/4528) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support new rules config in toml files. [#4526](https://github.com/sqlfluff/sqlfluff/pull/4526) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve #1146 (log propagation) [#4513](https://github.com/sqlfluff/sqlfluff/pull/4513) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Optional quotes for `create user` statement [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514) [@JavierMonton](https://github.com/JavierMonton)
+
+## New Contributors
+
+* [@JavierMonton](https://github.com/JavierMonton) made their first contribution in [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514)
+* [@LauraRichter](https://github.com/LauraRichter) made their first contribution in [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518)
+
 ## [2.0.0] - 2023-03-13
 
 ## Highlights
