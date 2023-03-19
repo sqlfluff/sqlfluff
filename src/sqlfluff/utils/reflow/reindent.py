@@ -1545,6 +1545,126 @@ def _match_indents(
     return matched_indents
 
 
+def _fix_long_line_with_fractional_targets(
+    elements: ReflowSequenceType, target_breaks: List[int], desired_indent: str
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
+    """Work out fixes for splitting a long line at locations like operators.
+
+    This is a helper function within .lint_line_length().
+    """
+    line_results = []
+    for e_idx in target_breaks:
+        e = cast(ReflowPoint, elements[e_idx])
+        new_results, new_point = e.indent_to(
+            desired_indent,
+            after=elements[e_idx - 1].segments[-1],
+            before=elements[e_idx + 1].segments[0],
+        )
+        # NOTE: Mutation of elements.
+        elements[e_idx] = new_point
+        line_results += new_results
+    return elements, line_results
+
+
+def _fix_long_line_with_integer_targets(
+    elements: ReflowSequenceType,
+    target_breaks: List[int],
+    line_length_limit: int,
+    inner_indent: str,
+    outer_indent: str,
+    allow_implicit_indents: bool,
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
+    """Work out fixes for splitting a long line at locations like indents.
+
+    This is a helper function within .lint_line_length().
+    """
+    line_results = []
+    # Create a stash of indent_stats. We're going to need them
+    # twice, so we generate them one for later use.
+    _indent_stats_cache: Dict[int, IndentStats] = {}
+    for e_idx in target_breaks:
+        # Generate indent stats for it.
+        e = cast(ReflowPoint, elements[e_idx])
+        # We need to check for negative sections so they get the right
+        # indent (otherwise they'll be over indented).
+        # The `desired_indent` above is for the "uphill" side.
+        following_class_types = elements[e_idx + 1].class_types
+        indent_stats = e.get_indent_impulse(
+            allow_implicit_indents, following_class_types
+        )
+        # Cache them for later
+        _indent_stats_cache[e_idx] = indent_stats
+
+    # If we can get to the uphill indent of later break, and still be within
+    # the line limit, then we can skip everything before it.
+    purge_before = 0
+    for e_idx in target_breaks:
+        # Is the following block already past the limit?
+        # NOTE: We use the block because we know it will have segments.
+        if not elements[e_idx + 1].segments[0].pos_marker:
+            # If it doesn't have position - we should just bow out
+            # now. It's too complicated.
+            break  # pragma: no cover
+        if (
+            elements[e_idx + 1].segments[0].pos_marker.working_line_pos
+            > line_length_limit
+        ):
+            # If we're past the line length limit, stop looking.
+            break
+
+        # Fetch cached indent stats
+        indent_stats = _indent_stats_cache[e_idx]
+        if indent_stats.trough < 0:
+            # It's negative. Skip onward.
+            continue
+
+        # If we get this far, then it's positive, but still within
+        # the line limit. We can purge any pairs before this.
+        purge_before = e_idx
+        reflow_logger.debug("    ...breaks before %s unnecessary.", purge_before)
+    # Only keep indices which are after the critical point.
+    target_breaks = [e_idx for e_idx in target_breaks if e_idx >= purge_before]
+    reflow_logger.debug("    Remaining breaks: %s.", target_breaks)
+
+    for e_idx in target_breaks:
+        e = cast(ReflowPoint, elements[e_idx])
+        indent_stats = _indent_stats_cache[e_idx]
+        if indent_stats.trough < 0:
+            new_indent = outer_indent
+            # NOTE: If we're about to insert a dedent before a
+            # comma or semicolon ... don't. They are a bit special
+            # in being allowed to trail.
+            if elements[e_idx + 1].class_types.intersection(
+                ("statement_terminator", "comma")
+            ):
+                reflow_logger.debug("    Skipping dedent before comma or semicolon.")
+                # We break rather than continue because this is
+                # necessarily a step back down.
+                break
+        else:
+            new_indent = inner_indent
+
+        new_results, new_point = e.indent_to(
+            new_indent,
+            after=elements[e_idx - 1].segments[-1],
+            before=elements[e_idx + 1].segments[0],
+        )
+        # NOTE: Mutation of elements.
+        elements[e_idx] = new_point
+        line_results += new_results
+
+        # If the balance is *also* negative, then we should also stop.
+        # We've indented a whole section - that's enough for now.
+        # We've already skipped over any unnecessary sections, and they shouldn't
+        # be reassessed on the next pass. If there are later sections which *also*
+        # need to be reindented, then we'll catch them when we come back around.
+        if indent_stats.trough < 0:
+            reflow_logger.debug("    Stopping as we're back down.")
+            break
+
+    return elements, line_results
+
+
 def lint_line_length(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
@@ -1792,65 +1912,34 @@ def lint_line_length(
                 desired_indent = current_indent
                 if target_balance >= 1:
                     desired_indent += single_indent
+                target_breaks = matched_indents[target_balance]
                 reflow_logger.debug(
                     "    Targeting balance of %s, indent: %r for %s",
                     target_balance,
                     desired_indent,
-                    matched_indents[target_balance],
+                    target_breaks,
                 )
-                line_results: List[LintResult] = []
-                for e_idx in matched_indents[target_balance]:
-                    # If the option is the final element. Don't touch it, because
-                    # there's already an indent there.
-                    if e_idx == i:
-                        continue
 
-                    e = cast(ReflowPoint, elements[e_idx])
+                # Is one of the locations the final element? If so remove it.
+                # There's already a line break there.
+                if i in target_breaks:
+                    target_breaks.remove(i)
 
-                    # We need to check for negative sections so they get the right
-                    # indent (otherwise they'll be over indented).
-                    # The `desired_indent` above is for the "uphill" side.
-                    following_class_types = elements[e_idx + 1].class_types
-                    indent_stats = e.get_indent_impulse(
-                        allow_implicit_indents, following_class_types
+                # Is it an "integer" indent or a fractional indent.
+                # Handle accordingly.
+                if target_balance % 1 == 0:
+                    elem_buffer, line_results = _fix_long_line_with_integer_targets(
+                        elem_buffer,
+                        target_breaks,
+                        line_length_limit,
+                        desired_indent,
+                        current_indent,
+                        allow_implicit_indents=allow_implicit_indents,
                     )
-                    if indent_stats.trough < 0:
-                        new_indent = current_indent
-                        # NOTE: If we're about to insert a dedent before a
-                        # comma or semicolon ... don't. They are a bit special
-                        # in being allowed to trail.
-                        if elements[e_idx + 1].class_types.intersection(
-                            ("statement_terminator", "comma")
-                        ):
-                            reflow_logger.debug(
-                                "    Skipping dedent before comma or semicolon."
-                            )
-                            continue
-                    else:
-                        new_indent = desired_indent
-
-                    new_results, new_point = e.indent_to(
-                        new_indent,
-                        after=elements[e_idx - 1].segments[-1],
-                        before=elements[e_idx + 1].segments[0],
+                else:
+                    elem_buffer, line_results = _fix_long_line_with_fractional_targets(
+                        elem_buffer, target_breaks, desired_indent
                     )
-                    # NOTE: Mutation of elements.
-                    elements[e_idx] = new_point
-                    line_results += new_results
-
-                    # If the balance is *also* negative, then we should also
-                    # stop. We've indented a whole section - that's enough for now.
-                    # TODO: The smart thing to do would be to first identify the
-                    # *best* section to indent, rather than the lowest and then
-                    # the first, but that's too smart for now.
-                    # If we're still not short enough, then we'll catch the next
-                    # part when we come back around.
-                    # NOTE: This only makes sense if this is an indent point and
-                    # not a rebreaking operation (i.e. this is an integer balance).
-                    # Otherwise break at all the points.
-                    if indent_stats.impulse < 0 and target_balance % 1 == 0:
-                        reflow_logger.debug("    Stopping as we're back down.")
-                        break
 
                 # Consolidate all the results for the line into one.
                 fixes = fixes_from_results(line_results)
