@@ -53,15 +53,13 @@ class Rule_CP01(BaseRule):
     lint_phase = "post"
     # Binary operators behave like keywords too.
     crawl_behaviour = SegmentSeekerCrawler({"keyword", "binary_operator", "date_part"})
-    # Skip boolean and null literals (which are also keywords)
-    # as they have their own rule (CP04)
-    _exclude_elements: List[Tuple[str, str]] = [
-        ("type", "null_literal"),
-        ("type", "boolean_literal"),
-        ("parenttype", "data_type"),
-        ("parenttype", "datetime_type_identifier"),
-        ("parenttype", "primitive_type"),
-    ]
+    # Skip literals (which are also keywords) as they have their own rule (CP04)
+    _exclude_types: Tuple[str, ...] = ("literal",)
+    _exclude_parent_types: Tuple[str, ...] = (
+        "data_type",
+        "datetime_type_identifier",
+        "primitive_type",
+    )
     config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
@@ -74,21 +72,18 @@ class Rule_CP01(BaseRule):
         for what the possible case is.
 
         """
-        # Skip if not an element of the specified type/name
-        parent: Optional[BaseSegment] = (
-            context.parent_stack[-1] if context.parent_stack else None
-        )
-        if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
+        # NOTE: Given the dialect structure we can assume the targets have a parent.
+        parent: BaseSegment = context.parent_stack[-1]
+        if context.segment.is_type(*self._exclude_types) or parent.is_type(
+            *self._exclude_parent_types
+        ):
             return [LintResult(memory=context.memory)]
 
         # Used by CP03 (that inherits from this rule)
         # If it's a qualified function_name (i.e with more than one part to
         # function_name). Then it is likely an existing user defined function (UDF)
         # which are case sensitive so ignore for this.
-        if (
-            context.parent_stack[-1].get_type() == "function_name"
-            and len(context.parent_stack[-1].segments) != 1
-        ):
+        if parent.get_type() == "function_name" and len(parent.segments) != 1:
             return [LintResult(memory=context.memory)]
 
         return [self._handle_segment(context.segment, context.memory)]

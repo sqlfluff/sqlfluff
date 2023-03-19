@@ -40,9 +40,7 @@ class Rule_AL02(Rule_AL01):
     config_keywords = ["aliasing"]
     # NB: crawl_behaviour is the same as Rule AL01
 
-    _target_parent_types = (
-        "select_clause_element",
-    )
+    _target_parent_types = ("select_clause_element",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # T-SQL supports alternative alias expressions for AL02

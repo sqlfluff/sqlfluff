@@ -40,7 +40,9 @@ class Rule_CP03(Rule_CP01):
     crawl_behaviour = SegmentSeekerCrawler(
         {"function_name_identifier", "bare_function"}
     )
-    _exclude_elements: List[Tuple[str, str]] = []
+    _exclude_types = ()
+    _exclude_parent_types = ()
+
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
