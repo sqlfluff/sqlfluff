@@ -1,6 +1,5 @@
 """Implementation of Rule CP04."""
 
-from typing import Tuple, List
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
