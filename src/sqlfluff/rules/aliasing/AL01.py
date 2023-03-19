@@ -1,5 +1,5 @@
 """Implementation of Rule AL01."""
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from sqlfluff.core.parser import (
     KeywordSegment,
