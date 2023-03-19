@@ -1083,7 +1083,7 @@ def _lint_line_untaken_negative_indents(
         # NOTE: This could potentially lead to a weird situation if two
         # statements are already on the same line. That's a bug to solve later.
         if elements[ip.idx + 1 :] and elements[ip.idx + 1].class_types.intersection(
-            {"statement_terminator", "comma"}
+            ("statement_terminator", "comma")
         ):
             reflow_logger.debug(
                 "    Detected missing -ve line break @ line %s, before "
@@ -1816,6 +1816,16 @@ def lint_line_length(
                     )
                     if indent_stats.trough < 0:
                         new_indent = current_indent
+                        # NOTE: If we're about to insert a dedent before a
+                        # comma or semicolon ... don't. They are a bit special
+                        # in being allowed to trail.
+                        if elements[e_idx + 1].class_types.intersection(
+                            ("statement_terminator", "comma")
+                        ):
+                            reflow_logger.debug(
+                                "    Skipping dedent before comma or semicolon."
+                            )
+                            continue
                     else:
                         new_indent = desired_indent
 
