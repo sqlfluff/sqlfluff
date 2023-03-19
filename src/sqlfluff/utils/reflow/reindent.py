@@ -1082,13 +1082,12 @@ def _lint_line_untaken_negative_indents(
         # more configurable.
         # NOTE: This could potentially lead to a weird situation if two
         # statements are already on the same line. That's a bug to solve later.
-        if (
-            elements[ip.idx + 1 :]
-            and "statement_terminator" in elements[ip.idx + 1].class_types
+        if elements[ip.idx + 1 :] and elements[ip.idx + 1].class_types.intersection(
+            {"statement_terminator", "comma"}
         ):
             reflow_logger.debug(
                 "    Detected missing -ve line break @ line %s, before "
-                "semicolon. Ignoring...",
+                "semicolon or comma. Ignoring...",
                 elements[ip.idx + 1].segments[0].pos_marker.working_line_no,
             )
             continue
