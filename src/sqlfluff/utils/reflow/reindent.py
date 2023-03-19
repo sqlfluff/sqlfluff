@@ -688,8 +688,8 @@ def _map_line_buffers(
 
         if not indent_point.is_line_break:
             # If it's not a line break, we should still check whether it's
-            # untaken to keep track of them.
-            if indent_point.indent_impulse:
+            # a positive untaken to keep track of them.
+            if indent_point.indent_impulse > 0:
                 untaken_indent_locs[
                     indent_point.initial_indent_balance + indent_point.indent_impulse
                 ] = indent_point.idx
