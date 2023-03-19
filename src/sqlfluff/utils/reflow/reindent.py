@@ -757,7 +757,11 @@ def _map_line_buffers(
                     if "placeholder" in elements[loc + 1].class_types or (
                         loc >= 1 and "placeholder" in elements[loc - 1].class_types
                     ):
-                        continue
+                        # TODO: Review whether this is really necessary. Developments
+                        # in the indentation algorithm should make this unnecessary
+                        # but I've left it in for now as a safety valve in case an
+                        # example arises where it's necessary.
+                        continue  # pragma: no cover
 
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
