@@ -356,10 +356,13 @@ test_fail_parenthesize_expression_when_config_shorthand_from_convert:
         preferred_type_casting_style: shorthand
 
 test_fail_parenthesize_expression_when_config_shorthand_from_convert:
+  # https://github.com/sqlfluff/sqlfluff/issues/4453
   fail_str: |
-    SELECT (TRIM(value:Longitude::VARCHAR))::DOUBLE AS longitude
+    select (trim(value:Longitude::varchar))::double as longitude;
+    select col:a.b:c::varchar as bar;
   fix_str: |
-    SELECT CAST(TRIM(CAST(value:Longitude AS varchar) AS DOUBLE) as longitude
+    select cast((trim(cast(value:Longitude as varchar))) as double) as longitude;
+    select cast(col:a.b:c as varchar) as bar;
   configs:
     core:
       dialect: snowflake
