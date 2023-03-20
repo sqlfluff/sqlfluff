@@ -4,6 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
+from uuid import uuid4
 import regex
 from typing import Collection, Type, Optional, List, Tuple, Union
 
@@ -32,6 +33,15 @@ class BaseParser(Matchable):
         self.type = type
         self.optional = optional
         self.segment_kwargs = segment_kwargs or {}
+        # Generate a cache key
+        self._cache_key = uuid4().hex
+
+    def cache_key(self) -> str:
+        """Get the cache key for this parser.
+
+        For parsers, they're unique per-instance.
+        """
+        return self._cache_key
 
     def is_optional(self) -> bool:
         """Return whether this element is optional."""

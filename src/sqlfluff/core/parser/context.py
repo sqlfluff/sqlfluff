@@ -42,6 +42,9 @@ class RootParseContext:
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
         self.uuid = uuid.uuid4()
+        # A dict for parse caching. This is reset for each file,
+        # but persists for the duration of an individual file parse.
+        self._parse_cache = {}
 
     @classmethod
     def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":

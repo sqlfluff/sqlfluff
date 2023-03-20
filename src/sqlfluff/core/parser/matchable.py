@@ -34,3 +34,12 @@ class Matchable(ABC):
     def copy(self, **kwargs) -> "Matchable":  # pragma: no cover TODO?
         """Copy this Matchable."""
         return copy.copy(self)
+
+    @abstractmethod
+    def cache_key(self) -> str:
+        """A string to use for cache keying.
+
+        This string should be unique at the parsing stage such that
+        if there has already been a match against this key for a set
+        of segments, that we can reuse that match.
+        """

@@ -3,6 +3,7 @@
 import copy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any
+from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -163,6 +164,15 @@ class BaseGrammar(Matchable):
         # If this is the case, the actual segment construction happens in the
         # match_wrapper.
         self.ephemeral_name = ephemeral_name
+        # Generate a cache key
+        self._cache_key = uuid4().hex
+
+    def cache_key(self) -> str:
+        """Get the cache key for this grammar.
+
+        For grammars these are unique per-instance.
+        """
+        return self._cache_key
 
     def is_optional(self):
         """Return whether this segment is optional.
@@ -218,13 +228,40 @@ class BaseGrammar(Matchable):
         if trim_noncode:
             pre_nc, segments, post_nc = trim_non_code_segments(segments)
 
+        # Characterise this location.
+        # Initial segment raw, loc, type and length of segment series.
+        loc_key = (segments[0].raw, segments[0].pos_marker.working_loc, segments[0].get_type(), len(segments))
+
         best_match_length = 0
         # iterate at this position across all the matchers
         for matcher in matchers:
-            # MyPy seems to require a type hint here. Not quite sure why.
-            res_match: MatchResult = matcher.match(
-                segments, parse_context=parse_context
-            )
+            
+            # Need to cache against the matcher too.
+            cache_key = (loc_key, matcher.cache_key())
+
+            # Check parse cache.
+            # TODO: We shouldn't be reaching through this many private methods!!!
+            # TODO: TIDY THIS UP LATER
+            if cache_key in parse_context._root_ctx._parse_cache:
+                # If it is, reuse that one. Don't re-match.
+                res_match = parse_context._root_ctx._parse_cache[cache_key]
+                
+                # TODO: Revise this logging if it works.
+                parse_match_logging(
+                    cls.__name__,
+                    "_look_ahead_match",
+                    "CH!",
+                    parse_context=parse_context,
+                    cache_hit="TRUE - CACHE HIT",
+                )
+            else:
+                # MyPy seems to require a type hint here. Not quite sure why.
+                res_match: MatchResult = matcher.match(
+                    segments, parse_context=parse_context
+                )
+                # Cache it, in case we need it later.
+                parse_context._root_ctx._parse_cache[cache_key] = res_match
+
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
                 if trim_noncode:

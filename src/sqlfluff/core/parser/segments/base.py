@@ -207,6 +207,10 @@ class SegmentMetaclass(type):
         here saves calculating it at runtime for each
         instance of the class.
         """
+        # Create a cache uuid on definition.
+        # We do it here so every _definition_ of a segment
+        # gets a unique UUID regardless of dialect.
+        class_dict["_cache_key"] = uuid4().hex
         class_obj = super().__new__(mcs, name, bases, class_dict)
         added_type = class_dict.get("type", None)
         class_types = {added_type} if added_type else set()
@@ -695,6 +699,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Other segments will either override this method, or aren't
             # simple.
             return None
+
+    @classmethod
+    def cache_key(cls) -> str:
+        """Return the cache key for this segment definition.
+
+        NOTE: The key itself is generated on _definition_ by the metaclass.
+        """
+        return cls._cache_key
 
     @classmethod
     def is_optional(cls):
