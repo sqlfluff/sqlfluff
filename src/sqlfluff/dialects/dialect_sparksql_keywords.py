@@ -92,7 +92,6 @@ UNRESERVED_KEYWORDS = [
     "BY",
     "CACHE",
     "CASCADE",
-    "CATALOG",
     "CHANGE",
     "CLEAR",
     "CLUSTER",
@@ -306,4 +305,6 @@ UNRESERVED_KEYWORDS = [
     "TEXT",
     "CHOICES",
     "REMOVE",
+    # Databricks - Unity Catalog
+    "CATALOG",
 ]
