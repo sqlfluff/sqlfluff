@@ -581,9 +581,9 @@ ansi_dialect.add(
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
-        Ref("ColumnReferenceSegment"),
         Ref("IntervalExpressionSegment"),
         Ref("FunctionSegment"),
+        Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
         Sequence(
             Ref("DatatypeSegment"),
