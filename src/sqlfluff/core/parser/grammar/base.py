@@ -249,10 +249,9 @@ class BaseGrammar(Matchable):
             # Check parse cache.
             # TODO: We shouldn't be reaching through this many private methods!!!
             # TODO: TIDY THIS UP LATER
-            res_match: MatchResult
             if cache_key in parse_context._root_ctx._parse_cache:
                 # If it is, reuse that one. Don't re-match.
-                res_match = parse_context._root_ctx._parse_cache[cache_key]
+                res_match: MatchResult = parse_context._root_ctx._parse_cache[cache_key]
 
                 # TODO: Revise this logging if it works.
                 parse_match_logging(
@@ -264,9 +263,7 @@ class BaseGrammar(Matchable):
                 )
             else:
                 # MyPy seems to require a type hint here. Not quite sure why.
-                res_match = matcher.match(
-                    segments, parse_context=parse_context
-                )
+                res_match = matcher.match(segments, parse_context=parse_context)
                 # Cache it, in case we need it later.
                 parse_context._root_ctx._parse_cache[cache_key] = res_match
 
