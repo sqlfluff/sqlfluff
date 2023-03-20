@@ -261,7 +261,16 @@ def rebreak_sequence(
     # to handle comments differently. There are two other important points:
     # 1. The next newline outward before code (but passing over comments).
     # 2. The point before the next _code_ segment (ditto comments).
-    locations = [_RebreakLocation.from_span(span, elem_buff) for span in spans]
+    locations = []
+    for span in spans:
+        try:
+            locations.append(_RebreakLocation.from_span(span, elem_buff))
+        # If we try and create a location from an incomplete span (i.e. on
+        # where we're unable to find the next newline effectively), then
+        # we'll get an exception. If we do - skip that one - we won't be
+        # able to effectively work with it even if we could construct it.
+        except UnboundLocalError:
+            pass
 
     # Handle each span:
     for loc in locations:
