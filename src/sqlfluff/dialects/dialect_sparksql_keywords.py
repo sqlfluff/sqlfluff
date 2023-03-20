@@ -92,6 +92,7 @@ UNRESERVED_KEYWORDS = [
     "BY",
     "CACHE",
     "CASCADE",
+    "CATALOG",
     "CHANGE",
     "CLEAR",
     "CLUSTER",

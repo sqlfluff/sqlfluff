@@ -805,8 +805,38 @@ class DatatypeSegment(PrimitiveTypeSegment):
     )
 
 
+# Object Reference Segments
+class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a catalog.
+
+    https://docs.databricks.com/data-governance/unity-catalog/create-catalogs.html
+    """
+
+    type = "catalog_reference"
+
+
 # Data Definition Statements
 # http://spark.apache.org/docs/latest/sql-ref-syntax-ddl.html
+class AlterCatalogStatementSegment(BaseSegment):
+    """An `ALTER CATALOG` statement.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-alter-catalog.html
+    """
+
+    type = "alter_catalog_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "CATALOG",
+        Ref("CatalogReferenceSegment"),
+        "SET",
+        "OWNER TO",
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE/SCHEMA` statement.
 
@@ -1032,6 +1062,22 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
+class CreateCatalogStatementSegment(BaseSegment):
+    """A `CREATE CATALOG` statement.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-catalog.html
+    """
+
+    type = "create_catalog_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "CATALOG",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("CatalogReferenceSegment"),
+        Ref("CommentGrammar", optional=True),
+    )
+
+
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -1219,6 +1265,22 @@ class RemoveWidgetStatementSegment(BaseSegment):
     )
 
 
+class DropCatalogStatementSegment(BaseSegment):
+    """A `DROP CATALOG` statement.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-drop-catalog.html
+    """
+
+    type = "drop_catalog_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CATALOG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("CatalogReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     """A `DROP DATABASE` statement.
 
@@ -1275,6 +1337,20 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+class UseCatalogStatementSegment(BaseSegment):
+    """A `USE CATALOG` statement.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-use-catalog.html
+    """
+
+    type = "use_catalog_statement"
+    match_grammar = Sequence(
+        "USE",
+        "CATALOG",
+        Ref("CatalogReferenceSegment"),
     )
 
 
@@ -2497,6 +2573,11 @@ class StatementSegment(ansi.StatementSegment):
             # Databricks - widgets
             Ref("CreateWidgetStatementSegment"),
             Ref("RemoveWidgetStatementSegment"),
+            # Databricks - Unity Catalog
+            Ref("AlterCatalogStatementSegment"),
+            Ref("CreateCatalogStatementSegment"),
+            Ref("DropCatalogStatementSegment"),
+            Ref("UseCatalogStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
