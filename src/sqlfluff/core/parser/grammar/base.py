@@ -228,24 +228,32 @@ class BaseGrammar(Matchable):
         if trim_noncode:
             pre_nc, segments, post_nc = trim_non_code_segments(segments)
 
+        # At parse time we should be able to count on there being a location.
+        assert segments[0].pos_marker
+
         # Characterise this location.
         # Initial segment raw, loc, type and length of segment series.
-        loc_key = (segments[0].raw, segments[0].pos_marker.working_loc, segments[0].get_type(), len(segments))
+        loc_key = (
+            segments[0].raw,
+            segments[0].pos_marker.working_loc,
+            segments[0].get_type(),
+            len(segments),
+        )
 
         best_match_length = 0
         # iterate at this position across all the matchers
         for matcher in matchers:
-            
             # Need to cache against the matcher too.
             cache_key = (loc_key, matcher.cache_key())
 
             # Check parse cache.
             # TODO: We shouldn't be reaching through this many private methods!!!
             # TODO: TIDY THIS UP LATER
+            res_match: MatchResult
             if cache_key in parse_context._root_ctx._parse_cache:
                 # If it is, reuse that one. Don't re-match.
                 res_match = parse_context._root_ctx._parse_cache[cache_key]
-                
+
                 # TODO: Revise this logging if it works.
                 parse_match_logging(
                     cls.__name__,
@@ -256,7 +264,7 @@ class BaseGrammar(Matchable):
                 )
             else:
                 # MyPy seems to require a type hint here. Not quite sure why.
-                res_match: MatchResult = matcher.match(
+                res_match = matcher.match(
                     segments, parse_context=parse_context
                 )
                 # Cache it, in case we need it later.
