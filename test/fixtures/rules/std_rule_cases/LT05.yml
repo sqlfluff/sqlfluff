@@ -654,12 +654,12 @@ test_order_by_rebreak_span:
 
 test_trailing_semicolon_moves:
   # The checks that we don't move the semicolon or the comma.
-  fail_str:
+  fail_str: |
     SELECT my_very_long_field,
     FROM foo
     ORDER BY my_very_long_field;
-  fix_str:
-    SELECT 
+  fix_str: |
+    SELECT
         my_very_long_field,
     FROM foo
     ORDER BY
@@ -668,3 +668,14 @@ test_trailing_semicolon_moves:
     core:
       dialect: bigquery
       max_line_length: 20
+  # After fixing there are still issues, but we're still keeping
+  # the comma and semicolon where they are.
+  violations_after_fix:
+    - description: Line is too long (23 > 20).
+      line_no: 2
+      line_pos: 5
+      name: layout.long_lines
+    - description: Line is too long (23 > 20).
+      line_no: 5
+      line_pos: 5
+      name: layout.long_lines
