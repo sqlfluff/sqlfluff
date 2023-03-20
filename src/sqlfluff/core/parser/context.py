@@ -12,7 +12,7 @@ import logging
 import uuid
 from typing import Optional, TYPE_CHECKING, Dict
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.match_result import MatchResult
 
 # Get the parser logger
