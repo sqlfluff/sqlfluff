@@ -402,24 +402,12 @@ class Rule_CV11(BaseRule):
                         convert_content[1],
                         convert_content[0],
                     )
-            if convert_content and len(convert_content) > 2:
-                return LintResult(
-                    anchor=context.segment,
-                    memory=context.memory,
-                    description=(
-                        "Used type casting style is different from"
-                        " the preferred type casting style."
-                    ),
-                )
-            elif cast_content and len(cast_content) > 2:
-                return LintResult(
-                    anchor=context.segment,
-                    memory=context.memory,
-                    description=(
-                        "Used type casting style is different from"
-                        " the preferred type casting style."
-                    ),
-                )
+
+            # Don't fix if there's too much content.
+            if (convert_content and len(convert_content) > 2) or (
+                cast_content and len(cast_content) > 2
+            ):
+                fixes = []
 
             return LintResult(
                 anchor=context.segment,
