@@ -1770,7 +1770,13 @@ def lint_line_length(
 
             # Identify rebreak spans first so we can work out their indentation
             # in the next section.
-            spans = identify_rebreak_spans(line_elements, root_segment)
+            # NOTE: In identifying spans, we give the method a little more than
+            # the line, so that it can correctly identify the ends of things
+            # accurately. It's safe to go to i+1 because there is always an
+            # end_of_file marker at the end which we could span into.
+            spans = identify_rebreak_spans(
+                line_elements + [elements[i + 1]], root_segment
+            )
             reflow_logger.debug("    spans: %s", spans)
             rebreak_priorities = _rebreak_priorities(spans)
             reflow_logger.debug("    rebreak_priorities: %s", rebreak_priorities)

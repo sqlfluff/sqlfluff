@@ -624,3 +624,32 @@ test_long_functions_and_aliases:
         my_expression_function(col6, col7 + col8, arg4)
         = col9 + col10 as another_relatively_long_alias
     FROM my_table
+
+test_order_by_rebreak_span:
+  # This tests that we can correctly rebreak an "order by" expressions.
+  fail_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }} order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
+  pass_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by
+                        tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }}
+                    order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
