@@ -751,14 +751,6 @@ def _map_line_buffers(
                     if "start_bracket" in elements[loc + 1].class_types:
                         continue
 
-                    # Second, check for placeholders. Indents around placeholders
-                    # are trickier to reason about. For now, don't force untaken
-                    # indents around placeholders.
-                    if "placeholder" in elements[loc + 1].class_types or (
-                        loc >= 1 and "placeholder" in elements[loc - 1].class_types
-                    ):
-                        continue
-
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
                     # on the same line. Otherwise it is - append it to the buffer
