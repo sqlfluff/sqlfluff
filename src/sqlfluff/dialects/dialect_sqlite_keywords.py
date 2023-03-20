@@ -199,5 +199,4 @@ UNRESERVED_KEYWORDS = [
     "PASSIVE",
     "RESTART",
     "RESET",
-    "FETCH",
 ]
