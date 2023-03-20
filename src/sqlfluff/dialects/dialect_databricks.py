@@ -13,9 +13,6 @@ sparksql_dialect = load_raw_dialect("sparksql")
 databricks_dialect = sparksql_dialect.copy_as("databricks")
 
 databricks_dialect.sets("unreserved_keywords").update(
-    sparksql_dialect.sets("unreserved_keywords")
-)
-databricks_dialect.sets("unreserved_keywords").update(
     sparksql_dialect.sets("reserved_keywords")
 )
 databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWORDS)
