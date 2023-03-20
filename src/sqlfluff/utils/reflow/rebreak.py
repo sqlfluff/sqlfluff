@@ -265,7 +265,7 @@ def rebreak_sequence(
     for span in spans:
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
-        # If we try and create a location from an incomplete span (i.e. on
+        # If we try and create a location from an incomplete span (i.e. one
         # where we're unable to find the next newline effectively), then
         # we'll get an exception. If we do - skip that one - we won't be
         # able to effectively work with it even if we could construct it.
