@@ -2,7 +2,7 @@
 
 import copy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any
+from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any, cast
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
@@ -243,29 +243,28 @@ class BaseGrammar(Matchable):
         best_match_length = 0
         # iterate at this position across all the matchers
         for matcher in matchers:
-            # Need to cache against the matcher too.
-            cache_key = (loc_key, matcher.cache_key())
-
             # Check parse cache.
-            # TODO: We shouldn't be reaching through this many private methods!!!
-            # TODO: TIDY THIS UP LATER
-            if cache_key in parse_context._root_ctx._parse_cache:
-                # If it is, reuse that one. Don't re-match.
-                res_match: MatchResult = parse_context._root_ctx._parse_cache[cache_key]
-
-                # TODO: Revise this logging if it works.
+            matcher_key = matcher.cache_key()
+            res_match: Optional[MatchResult] = parse_context.check_parse_cache(
+                loc_key, matcher_key
+            )
+            if res_match:
                 parse_match_logging(
                     cls.__name__,
                     "_look_ahead_match",
-                    "CH!",
+                    "HIT",
                     parse_context=parse_context,
-                    cache_hit="TRUE - CACHE HIT",
+                    cache_hit=matcher.__class__.__name__,
+                    cache_key=matcher_key,
                 )
             else:
-                # MyPy seems to require a type hint here. Not quite sure why.
+                # Match fresh if no cache hit
                 res_match = matcher.match(segments, parse_context=parse_context)
-                # Cache it, in case we need it later.
-                parse_context._root_ctx._parse_cache[cache_key] = res_match
+                # Cache it for later to for performance.
+                parse_context.put_parse_cache(loc_key, matcher_key, res_match)
+
+            # By here we know that it's a MatchResult
+            res_match = cast(MatchResult, res_match)
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
