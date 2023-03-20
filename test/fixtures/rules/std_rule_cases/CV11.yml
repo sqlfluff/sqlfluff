@@ -323,7 +323,6 @@ test_pass_when_dialect_is_teradata:
     core:
       dialect: teradata
 
-
 test_fail_parenthesize_expression_when_config_shorthand_from_cast:
   fail_str: |
     select
@@ -340,7 +339,6 @@ test_fail_parenthesize_expression_when_config_shorthand_from_cast:
       convention.casting_style:
         preferred_type_casting_style: shorthand
 
-
 test_fail_parenthesize_expression_when_config_shorthand_from_convert:
   fail_str: |
     select
@@ -356,3 +354,15 @@ test_fail_parenthesize_expression_when_config_shorthand_from_convert:
     rules:
       convention.casting_style:
         preferred_type_casting_style: shorthand
+
+test_fail_parenthesize_expression_when_config_shorthand_from_convert:
+  fail_str: |
+    SELECT (TRIM(value:Longitude::VARCHAR))::DOUBLE AS longitude
+  fix_str: |
+    SELECT CAST(TRIM(CAST(value:Longitude AS varchar) AS DOUBLE) as longitude
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
