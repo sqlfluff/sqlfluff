@@ -1272,6 +1272,7 @@ class UseDatabaseStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "USE",
+        OneOf("DATABASE", "SCHEMA"),
         Ref("DatabaseReferenceSegment"),
     )
 
@@ -2124,7 +2125,7 @@ class DescribeStatementSegment(BaseSegment):
         OneOf("DESCRIBE", "DESC"),
         OneOf(
             Sequence(
-                "DATABASE",
+                OneOf("DATABASE", "SCHEMA"),
                 Ref.keyword("EXTENDED", optional=True),
                 Ref("DatabaseReferenceSegment"),
             ),
