@@ -4,5 +4,5 @@ DESCRIBE DATABASE EXTENDED employees;
 
 DESC DATABASE deployment;
 
--- Keywords SCHEMAS and DATABASES are interchangeable.
+-- Keywords SCHEMA and DATABASE are interchangeable.
 DESCRIBE SCHEMA employees;

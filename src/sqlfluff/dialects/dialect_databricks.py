@@ -84,7 +84,7 @@ class DropCatalogStatementSegment(BaseSegment):
     """
 
     type = "drop_catalog_statement"
-    match_grammar: Matchable = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "CATALOG",
         Ref("IfExistsGrammar", optional=True),

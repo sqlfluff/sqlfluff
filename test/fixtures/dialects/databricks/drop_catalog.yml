@@ -3,17 +3,8 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c912ff28e60446e058ec6cd54fdf7a51d629f51e6ba93515ff5475592e8843e
+_hash: 7ea0dd1142a5697ad4fedde41ded6e228ee8f187261cbe617e7e9f231fe5a7e6
 file:
-- statement:
-    create_catalog_statement:
-    - keyword: CREATE
-    - keyword: CATALOG
-    - catalog_reference:
-        naked_identifier: vaccine
-    - keyword: COMMENT
-    - quoted_literal: "'This catalog is used to maintain information about vaccines'"
-- statement_terminator: ;
 - statement:
     drop_catalog_statement:
     - keyword: DROP
