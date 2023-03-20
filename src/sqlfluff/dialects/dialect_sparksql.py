@@ -828,10 +828,10 @@ class AlterCatalogStatementSegment(BaseSegment):
         "ALTER",
         "CATALOG",
         Ref("CatalogReferenceSegment"),
-        "SET",
-        "OWNER TO",
-        OneOf(
-            Ref("LiteralGrammar"),
+        Ref.keyword("SET", optional=True),
+        Sequence(
+            "OWNER",
+            "TO",
             Ref("SingleIdentifierGrammar"),
         ),
     )
