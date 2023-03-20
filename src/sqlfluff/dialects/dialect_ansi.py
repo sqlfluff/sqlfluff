@@ -591,8 +591,10 @@ ansi_dialect.add(
         ),
         terminators=[
             Ref("CommaSegment"),
-            Ref("AliasExpressionSegment"),
-        ]
+            # TODO: We can almost certainly add a few more here, but for
+            # now, the most reliable (and impactful) is the comma.
+            # Others could include some variant on AliasExpressionSegment.
+        ],
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
