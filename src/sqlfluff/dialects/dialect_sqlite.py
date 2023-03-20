@@ -63,6 +63,7 @@ sqlite_dialect.replace(
     CommentClauseSegment=Nothing(),
     IntervalExpressionSegment=Nothing(),
     TimeZoneGrammar=Nothing(),
+    FetchClauseSegment=Nothing(),
     TrimParametersGrammar=Nothing(),
     LikeGrammar=Sequence("LIKE"),
     OverlapsClauseSegment=Nothing(),
