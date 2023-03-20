@@ -42,7 +42,7 @@ class Rule_LT07(BaseRule):
 
     """
 
-    name = "layout.functions"
+    name = "layout.cte_bracket"
     aliases = ("L018",)
     groups = ("all", "core", "layout")
     crawl_behaviour = SegmentSeekerCrawler(
