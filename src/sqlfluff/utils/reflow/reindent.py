@@ -1539,8 +1539,10 @@ def _match_indents(
 
 def _fix_long_line_with_fractional_targets(
     elements: ReflowSequenceType, target_breaks: List[int], desired_indent: str
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> List[LintResult]:
     """Work out fixes for splitting a long line at locations like operators.
+
+    NOTE: This mutates `elements` to avoid copying.
 
     This is a helper function within .lint_line_length().
     """
@@ -1555,7 +1557,7 @@ def _fix_long_line_with_fractional_targets(
         # NOTE: Mutation of elements.
         elements[e_idx] = new_point
         line_results += new_results
-    return elements, line_results
+    return line_results
 
 
 def _fix_long_line_with_integer_targets(
@@ -1565,8 +1567,10 @@ def _fix_long_line_with_integer_targets(
     inner_indent: str,
     outer_indent: str,
     allow_implicit_indents: bool,
-) -> Tuple[ReflowSequenceType, List[LintResult]]:
+) -> List[LintResult]:
     """Work out fixes for splitting a long line at locations like indents.
+
+    NOTE: This mutates `elements` to avoid copying.
 
     This is a helper function within .lint_line_length().
     """
@@ -1654,7 +1658,7 @@ def _fix_long_line_with_integer_targets(
             reflow_logger.debug("    Stopping as we're back down.")
             break
 
-    return elements, line_results
+    return line_results
 
 
 def lint_line_length(
@@ -1923,10 +1927,15 @@ def lint_line_length(
                 if i in target_breaks:
                     target_breaks.remove(i)
 
-                # Is it an "integer" indent or a fractional indent.
-                # Handle accordingly.
+                # Is it an "integer" indent or a fractional indent?
+                # Integer indents (i.e. 1.0, 2.0, ...) are based on Indent and
+                # Dedent tokens. Fractional indents (i.e. 1.5, 1.52, ...) are
+                # based more on rebreak spans (e.g. around commas and operators).
+                # The latter is simpler in that it doesn't change the indents,
+                # just adds line breaks. The former is more complicated.
+                # NOTE: Both of these methods mutate the `elem_buffer`.
                 if target_balance % 1 == 0:
-                    elem_buffer, line_results = _fix_long_line_with_integer_targets(
+                    line_results = _fix_long_line_with_integer_targets(
                         elem_buffer,
                         target_breaks,
                         line_length_limit,
@@ -1935,7 +1944,7 @@ def lint_line_length(
                         allow_implicit_indents=allow_implicit_indents,
                     )
                 else:
-                    elem_buffer, line_results = _fix_long_line_with_fractional_targets(
+                    line_results = _fix_long_line_with_fractional_targets(
                         elem_buffer, target_breaks, desired_indent
                     )
 
