@@ -33,7 +33,7 @@ test_fail_line_too_long_with_comments_2:
   # has been corrected. Ideally LT02 would have been run _first_
   # on this file.
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
-  fix_str: "    SELECT\n    COUNT(*)\nFROM tbl\n"
+  fix_str: "    SELECT COUNT(*)\nFROM tbl\n"
   configs:
     core:
       max_line_length: 20
@@ -41,7 +41,7 @@ test_fail_line_too_long_with_comments_2:
 test_fail_line_too_long_with_comments_3:
   # Check priority of fixes
   fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
-  fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
+  fix_str: "-- Some Comment\nSELECT COUNT(*)\nFROM tbl\n"
   configs:
     core:
       max_line_length: 18
@@ -564,9 +564,7 @@ test_fix_window_function:
         ) ignore nulls over (
             partition by c order by d desc
         ),
-        first_value(
-            a
-        ) respect nulls over (
+        first_value(a) respect nulls over (
             partition by c order by d desc
         )
     )
@@ -639,7 +637,7 @@ test_order_by_rebreak_span:
             inner join tbl2
                 on tbl1.the_name = tbl2.the_name
         )
-  pass_str: |
+  fix_str: |
     select * from
         (
             select
