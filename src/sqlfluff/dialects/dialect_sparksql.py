@@ -1364,7 +1364,7 @@ class UseDatabaseStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "USE",
-        OneOf("DATABASE", "SCHEMA"),
+        OneOf("DATABASE", "SCHEMA", optional=True),
         Ref("DatabaseReferenceSegment"),
     )
 
