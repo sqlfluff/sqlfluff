@@ -651,3 +651,18 @@ test_order_by_rebreak_span:
             inner join tbl2
                 on tbl1.the_name = tbl2.the_name
         )
+
+test_trailing_semicolon_moves:
+  # The checks that we don't move the semicolon when we don't need to.
+  fail_str:
+    SELECT bar
+    FROM foo
+    ORDER BY my_very_long_field;
+  fix_str:
+    SELECT bar
+    FROM foo
+    ORDER BY
+        my_very_long_field;
+  configs:
+    core:
+      max_line_length: 25
