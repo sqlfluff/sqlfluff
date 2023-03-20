@@ -589,6 +589,12 @@ ansi_dialect.add(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        # These terminators allow better performance by giving a signal
+        # of a likely complete match if they come after a match. For
+        # example "123," only needs to match against the LiteralGrammar
+        # and because a comma follows, never be matched against
+        # ExpressionSegment or FunctionSegment, which are both much
+        # more complicated.
         terminators=[
             Ref("CommaSegment"),
             # TODO: We can almost certainly add a few more here, but for
