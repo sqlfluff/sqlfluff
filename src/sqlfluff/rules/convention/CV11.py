@@ -371,7 +371,7 @@ class Rule_CV11(BaseRule):
                         expression_datatype_segment[data_type_idx],
                         expression_datatype_segment[data_type_idx + 1 :],
                     )
-                    self.logger.warning("FIXES: %s", fixes)
+
             elif self.preferred_type_casting_style == "convert":
                 if current_type_casting_style == "cast":
                     cast_content = self._get_children(
