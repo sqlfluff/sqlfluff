@@ -688,8 +688,8 @@ def _map_line_buffers(
 
         if not indent_point.is_line_break:
             # If it's not a line break, we should still check whether it's
-            # untaken to keep track of them.
-            if indent_point.indent_impulse:
+            # a positive untaken to keep track of them.
+            if indent_point.indent_impulse > 0:
                 untaken_indent_locs[
                     indent_point.initial_indent_balance + indent_point.indent_impulse
                 ] = indent_point.idx
@@ -757,7 +757,11 @@ def _map_line_buffers(
                     if "placeholder" in elements[loc + 1].class_types or (
                         loc >= 1 and "placeholder" in elements[loc - 1].class_types
                     ):
-                        continue
+                        # TODO: Review whether this is really necessary. Developments
+                        # in the indentation algorithm should make this unnecessary
+                        # but I've left it in for now as a safety valve in case an
+                        # example arises where it's necessary.
+                        continue  # pragma: no cover
 
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
