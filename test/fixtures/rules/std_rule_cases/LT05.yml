@@ -653,16 +653,18 @@ test_order_by_rebreak_span:
         )
 
 test_trailing_semicolon_moves:
-  # The checks that we don't move the semicolon when we don't need to.
+  # The checks that we don't move the semicolon or the comma.
   fail_str:
-    SELECT bar
+    SELECT my_very_long_field,
     FROM foo
     ORDER BY my_very_long_field;
   fix_str:
-    SELECT bar
+    SELECT 
+        my_very_long_field,
     FROM foo
     ORDER BY
         my_very_long_field;
   configs:
     core:
-      max_line_length: 25
+      dialect: bigquery
+      max_line_length: 20
