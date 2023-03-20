@@ -12,7 +12,10 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
 )
-from sqlfluff.dialects.dialect_databricks_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_databricks_keywords import (
+    RESERVED_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_sparksql as sparksql
