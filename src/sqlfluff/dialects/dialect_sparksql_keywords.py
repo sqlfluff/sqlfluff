@@ -305,6 +305,4 @@ UNRESERVED_KEYWORDS = [
     "TEXT",
     "CHOICES",
     "REMOVE",
-    # Databricks - Unity Catalog
-    "CATALOG",
 ]
