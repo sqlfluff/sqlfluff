@@ -581,14 +581,18 @@ ansi_dialect.add(
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
+        Ref("ColumnReferenceSegment"),
         Ref("IntervalExpressionSegment"),
         Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
         Sequence(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        terminators=[
+            Ref("CommaSegment"),
+            Ref("AliasExpressionSegment"),
+        ]
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
