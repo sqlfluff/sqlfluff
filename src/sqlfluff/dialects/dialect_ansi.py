@@ -509,6 +509,7 @@ ansi_dialect.add(
         "LIMIT",
         "OVERLAPS",
         Ref("SetOperatorSegment"),
+        "FETCH",
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
     # non-standard keywords)
@@ -536,6 +537,7 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+        "FETCH",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
@@ -543,12 +545,14 @@ ansi_dialect.add(
         "HAVING",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -585,6 +589,18 @@ ansi_dialect.add(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        # These terminators allow better performance by giving a signal
+        # of a likely complete match if they come after a match. For
+        # example "123," only needs to match against the LiteralGrammar
+        # and because a comma follows, never be matched against
+        # ExpressionSegment or FunctionSegment, which are both much
+        # more complicated.
+        terminators=[
+            Ref("CommaSegment"),
+            # TODO: We can almost certainly add a few more here, but for
+            # now, the most reliable (and impactful) is the comma.
+            # Others could include some variant on AliasExpressionSegment.
+        ],
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
@@ -1489,13 +1505,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        # TODO: Revisit this to make sure it's sensible.
-        Conditional(Dedent, indented_joins=False),
+        Dedent,
+        Conditional(Indent, indented_joins=True),
         AnyNumberOf(
             Sequence(
-                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
-                Conditional(Dedent, indented_joins=True),
             ),
             optional=True,
         ),
@@ -1640,6 +1654,7 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
+            "FETCH",
         ),
         enforce_whitespace_preceding_terminator=True,
     )

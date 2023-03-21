@@ -25,6 +25,10 @@ class AnyNumberOf(BaseGrammar):
         self.max_times_per_element = kwargs.pop("max_times_per_element", None)
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
+        # The intent here is that if we match something, and then the _next_
+        # item is one of these, we can safely conclude it's a "total" match.
+        # In those cases, we return early without considering more options.
+        self.terminators = kwargs.pop("terminators", None)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -150,6 +154,7 @@ class AnyNumberOf(BaseGrammar):
                 available_options,
                 parse_context=ctx,
                 trim_noncode=False,
+                terminators=self.terminators,
             )
 
         return match, matched_option

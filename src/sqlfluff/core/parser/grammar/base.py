@@ -242,6 +242,10 @@ class BaseGrammar(Matchable):
                     best_match = res_match, matcher
                     best_match_length = res_match.trimmed_matched_length
 
+                    # If we've got a terminator next, it's an opportunity to
+                    # end earlier, and claim an effectively "complete" match.
+                    # NOTE: This means that by specifying terminators, we can
+                    # significantly increase performance.
                     if terminators:
                         _, segs, _ = trim_non_code_segments(
                             best_match[0].unmatched_segments

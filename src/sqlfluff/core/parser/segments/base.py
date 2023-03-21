@@ -253,6 +253,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
     pos_marker: Optional[PositionMarker]
+    # _preface_modifier used in ._preface()
+    _preface_modifier: str = ""
 
     def __init__(
         self,
@@ -837,7 +839,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
-            modifier="[META] " if self.is_meta else "",
+            modifier=self._preface_modifier,
             type=self.get_type() + ":",
         )
         preface = "{pos:20}|{padded_type:60}  {suffix}".format(
@@ -1002,7 +1004,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
-        """Iterate raw segments, optionally expanding some children."""
+        """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
                 yield from s.iter_segments(

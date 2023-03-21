@@ -852,7 +852,7 @@ class WhereClauseSegment(BaseSegment):
     type = "where_clause"
     match_grammar = Sequence(
         "WHERE",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )

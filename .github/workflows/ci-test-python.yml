@@ -17,6 +17,10 @@ on:
       python-version:
         required: true
         type: string
+      marks:
+        required: false
+        type: string
+        default: "not integration"
       coverage:
         required: false
         type: boolean
@@ -33,7 +37,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
 
@@ -43,16 +47,34 @@ jobs:
     - name: Parse Python Version
       id: py_version
       run: |
-        PYVERSION=$(echo "${{ matrix.python-version }}" | sed -e 's/\.//g')
+        PYVERSION=$(echo "${{ inputs.python-version }}" | sed -e 's/\.//g')
         echo "PYVERSION=$PYVERSION" >> $GITHUB_OUTPUT
 
+    # Run test process (with or without coverage).
+    # Arguments after the "--" are passed through to pytest:
+    #   --cov=...       The library to include in coverage reporting.
+    #   -n 2            Runs with two parallel processes.
+    #   test            The path to detect tests within.
+    #   -m ...          The pytest marks to filter tests.
+    #   --durations=16  Displays the 16 slowest runs to help with performance debugging.
     - name: Run the tests (with coverage)
+      # NOTE: We have a separate job for coverage reporting because
+      # it impacts performance and slows the test suite significantly.
       if: ${{ inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test
-
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- --cov=sqlfluff -n 2 test -m "${{ inputs.marks }}" --durations=16
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test
+      run: tox -e py${{ steps.py_version.outputs.PYVERSION }} -- -n 2 test -m "${{ inputs.marks }}" --durations=16
+
+    - name: Rename coverage files with suffix
+      # NOTE: We do this because we're using the same tox environment for multiple
+      # test jobs and we need to make sure that their coverage files don't collide.s
+      id: cov_suffix
+      if: ${{ inputs.coverage }}
+      run: |
+        COVSUFFIX=$(echo "${{ inputs.marks }}" | sed -e 's/ /-/g')
+        echo "COVSUFFIX=$COVSUFFIX" >> $GITHUB_OUTPUT
+        for file in .coverage.*; do mv "$file" "$file.$COVSUFFIX"; done;
 
     - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
@@ -60,11 +82,11 @@ jobs:
       with:
         path-to-lcov: coverage.lcov
         github-token: ${{ secrets.gh_token }}
-        flag-name: run-${{ inputs.python-version }}
+        flag-name: run-${{ inputs.python-version }}-${{ steps.cov_suffix.outputs.COVSUFFIX }}
         parallel: true
 
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: ${{ inputs.coverage }}
       with:
         name: coverage-data

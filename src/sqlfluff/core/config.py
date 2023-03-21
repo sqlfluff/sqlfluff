@@ -268,8 +268,16 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
     return buff
 
 
-def _split_comma_separated_string(raw_str: str) -> List[str]:
-    return [s.strip() for s in raw_str.split(",") if s.strip()]
+def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
+    """Converts comma separated string to List, stripping whitespace."""
+    if isinstance(raw, str):
+        return [s.strip() for s in raw.split(",") if s.strip()]
+    if isinstance(raw, list):
+        return raw
+    raise SQLFluffUserError(
+        f"Expected list or comma separated string. Got {type(raw)}"
+        f" instead for value {raw}."
+    )
 
 
 class ConfigLoader:
@@ -439,7 +447,7 @@ class ConfigLoader:
                 # Attempt to resolve paths
                 if name.lower() == "load_macros_from_path":
                     # Comma-separated list of paths.
-                    paths = _split_comma_separated_string(val)
+                    paths = split_comma_separated_string(val)
                     v_temp = []
                     for path in paths:
                         v_temp.append(cls._resolve_path(fpath, path))
@@ -787,11 +795,12 @@ class FluffConfig:
             ("ignore", "ignore"),
             ("warnings", "warnings"),
             ("rules", "rule_allowlist"),
-            # Allowlists and denylists
+            # Allowlists and denylistsignore_words
             ("exclude_rules", "rule_denylist"),
         ]:
             if self._configs["core"].get(in_key, None):
-                self._configs["core"][out_key] = _split_comma_separated_string(
+                # Checking if key is string as can potentially be a list to
+                self._configs["core"][out_key] = split_comma_separated_string(
                     self._configs["core"][in_key]
                 )
             else:
@@ -801,19 +810,25 @@ class FluffConfig:
             self._configs["core"]["recurse"] = True
 
         # Dialect and Template selection.
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        self._initialise_dialect(dialect, require_dialect)
+
+        self._configs["core"]["templater_obj"] = self.get_templater(
+            self._configs["core"]["templater"]
+        )
+
+    def _initialise_dialect(
+        self, dialect: Optional[str], require_dialect: bool = True
+    ) -> None:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        dialect: Optional[str] = self._configs["core"]["dialect"]
         if dialect is not None:
             self._configs["core"]["dialect_obj"] = dialect_selector(
                 self._configs["core"]["dialect"]
             )
         elif require_dialect:
             self.verify_dialect_specified()
-        self._configs["core"]["templater_obj"] = self.get_templater(
-            self._configs["core"]["templater"]
-        )
 
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not."""
@@ -940,6 +955,7 @@ class FluffConfig:
         if exclude_rules:
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
+
         return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
@@ -1094,6 +1110,9 @@ class FluffConfig:
         config_path = [elem.strip() for elem in config_line.split(":")]
         # Set the value
         self.set_value(config_path[:-1], config_path[-1])
+        # If the config is for dialect, initialise the dialect
+        if config_path[:-1] == ["dialect"]:
+            self._initialise_dialect(config_path[-1])
 
     def process_raw_file_for_config(self, raw_str: str):
         """Process a full raw file for inline config and update self."""
