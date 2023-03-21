@@ -1814,3 +1814,14 @@ test_fix_untaken_positive_4433:
             TRUE
     )
     ;
+
+test_ansi_case_when_implicit_4559:
+  # https://github.com/sqlfluff/sqlfluff/issues/4559#issuecomment-1477811414
+  pass_str: |
+    SELECT CASE WHEN t.col1 = 1 THEN 1 ELSE 0 END AS col
+    FROM t
+  configs:
+    core:
+      dialect: ansi
+    indentation:
+      allow_implicit_indents: true

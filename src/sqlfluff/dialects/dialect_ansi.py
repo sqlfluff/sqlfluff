@@ -30,8 +30,8 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     GreedyUntil,
-    Indent,
     ImplicitIndent,
+    Indent,
     KeywordSegment,
     Matchable,
     MultiStringParser,
@@ -1862,7 +1862,7 @@ class CaseExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Sequence(
             "CASE",
-            Indent,
+            ImplicitIndent,
             AnyNumberOf(Ref("WhenClauseSegment")),
             Ref("ElseClauseSegment", optional=True),
             Dedent,
@@ -1871,7 +1871,7 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             "CASE",
             Ref("ExpressionSegment"),
-            Indent,
+            ImplicitIndent,
             AnyNumberOf(Ref("WhenClauseSegment")),
             Ref("ElseClauseSegment", optional=True),
             Dedent,
