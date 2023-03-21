@@ -3850,7 +3850,7 @@ class SetStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        OneOf("SESSION", "LOCAL", optional=True),
+        OneOf("SESSION", "LOCAL", "SCHEMA", optional=True),
         OneOf(
             Sequence(
                 Ref("ParameterNameSegment"),
