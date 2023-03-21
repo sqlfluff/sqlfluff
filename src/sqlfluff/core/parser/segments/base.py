@@ -253,6 +253,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
     pos_marker: Optional[PositionMarker]
+    # _preface_modifier used in ._preface()
+    _preface_modifier: str = ""
 
     def __init__(
         self,
@@ -837,7 +839,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
-            modifier="[META] " if self.is_meta else "",
+            modifier=self._preface_modifier,
             type=self.get_type() + ":",
         )
         preface = "{pos:20}|{padded_type:60}  {suffix}".format(
