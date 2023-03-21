@@ -1545,7 +1545,11 @@ def _fix_long_line_with_comment(
     last_indent_idx: Optional[int],
     trailing_comments: str = "before",
 ) -> Tuple[ReflowSequenceType, List[LintFix]]:
-    """Fix long line by moving trailing comments if possible."""
+    """Fix long line by moving trailing comments if possible.
+
+    This method (unlike the ones for normal lines), just returns
+    a new `elements` argument rather than mutating it.
+    """
     # If the comment contains a noqa, don't fix it. It's unsafe.
     if "noqa" in line_buffer[-1].segments[-1].raw:
         reflow_logger.debug("    Unfixable because noqa unsafe to move.")
@@ -1572,8 +1576,9 @@ def _fix_long_line_with_comment(
     if trailing_comments == "after":
         anchor_point = cast(ReflowPoint, line_buffer[-2])
         results, new_point = anchor_point.indent_to(current_indent, before=comment_seg)
-        # Mutate elements
-        elements[last_elem_idx - 1] = new_point
+        elements = (
+            elements[: last_elem_idx - 1] + [new_point] + elements[last_elem_idx:]
+        )
         return elements, fixes_from_results(results)
 
     # Otherwise we're moving it up and _before_ the line, which is
