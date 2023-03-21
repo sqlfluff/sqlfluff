@@ -22,6 +22,7 @@ class MetaSegment(RawSegment):
     # closed on the same line.
     is_implicit = False
     is_meta = True
+    _preface_modifier = "[META] "
 
     def __init__(
         self,
@@ -122,6 +123,7 @@ class ImplicitIndent(Indent):
             AND b
     """
 
+    _preface_modifier = "[META] (implicit) "
     is_implicit = True
 
 

@@ -4,7 +4,7 @@
 import logging
 from typing import List, Optional, Tuple, cast, TYPE_CHECKING
 
-from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment, PositionMarker
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.errors import SQLFluffUserError
@@ -187,6 +187,7 @@ def _determine_aligned_inline_spacing(
     root_segment: BaseSegment,
     whitespace_seg: RawSegment,
     next_seg: RawSegment,
+    next_pos: PositionMarker,
     segment_type: str,
     align_within: Optional[str],
     align_scope: Optional[str],
@@ -225,12 +226,27 @@ def _determine_aligned_inline_spacing(
                 sibling,
             )
 
+    # If there's only one sibling, we have nothing to compare to. Default to a single
+    # space.
+    if len(siblings) <= 1:
+        desired_space = " "
+        reflow_logger.debug(
+            "    desired_space: %r (based on no other siblings)",
+            desired_space,
+        )
+        return desired_space
+
+    # If the segment we're aligning, has position. Use that position.
+    # If it doesn't, then use the provided one. We can't do sibling analysis without it.
+    if next_seg.pos_marker:
+        next_pos = next_seg.pos_marker
+
     # Is the current indent the only one on the line?
     if any(
         # Same line
-        sibling.pos_marker.working_line_no == next_seg.pos_marker.working_line_no
+        sibling.pos_marker.working_line_no == next_pos.working_line_no
         # And not same position (i.e. not self)
-        and sibling.pos_marker.working_line_pos != next_seg.pos_marker.working_line_pos
+        and sibling.pos_marker.working_line_pos != next_pos.working_line_pos
         for sibling in siblings
     ):
         reflow_logger.debug("    Found sibling on same line. Treat as single")
@@ -300,6 +316,7 @@ def _extract_alignment_config(
 def handle_respace__inline_with_space(
     pre_constraint: str,
     post_constraint: str,
+    prev_block: Optional["ReflowBlock"],
     next_block: Optional["ReflowBlock"],
     root_segment: BaseSegment,
     segment_buffer: List[RawSegment],
@@ -359,21 +376,41 @@ def handle_respace__inline_with_space(
                 post_constraint
             )
 
-            desired_space = _determine_aligned_inline_spacing(
-                root_segment,
-                last_whitespace,
-                next_block.segments[0],
-                seg_type,
-                align_within,
-                align_scope,
-            )
+            next_pos: Optional[PositionMarker]
+            if next_block.segments[0].pos_marker:
+                next_pos = next_block.segments[0].pos_marker
+            elif last_whitespace.pos_marker:
+                next_pos = last_whitespace.pos_marker.end_point_marker()
+            # These second clauses are much less likely and so are excluded from
+            # coverage. If we find a way of covering them, that would be great
+            # but for now they exist as backups.
+            elif prev_block and prev_block.segments[-1].pos_marker:  # pragma: no cover
+                next_pos = prev_block.segments[-1].pos_marker.end_point_marker()
+            else:  # pragma: no cover
+                reflow_logger.info("Unable to find position marker for alignment.")
+                next_pos = None
+                desired_space = " "
+                desc = (
+                    "Expected only single space. " "Found " f"{last_whitespace.raw!r}."
+                )
 
-            desc = (
-                f"{seg_type!r} elements are expected to be aligned. Found "
-                "incorrect whitespace before "
-                f"{pretty_segment_name(next_block.segments[0])}: "
-                f"{last_whitespace.raw!r}."
-            )
+            if next_pos:
+                desired_space = _determine_aligned_inline_spacing(
+                    root_segment,
+                    last_whitespace,
+                    next_block.segments[0],
+                    next_pos,
+                    seg_type,
+                    align_within,
+                    align_scope,
+                )
+
+                desc = (
+                    f"{seg_type!r} elements are expected to be aligned. Found "
+                    "incorrect whitespace before "
+                    f"{pretty_segment_name(next_block.segments[0])}: "
+                    f"{last_whitespace.raw!r}."
+                )
         else:
             if next_block:
                 desc = (

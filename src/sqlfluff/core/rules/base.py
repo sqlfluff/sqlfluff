@@ -39,7 +39,7 @@ from typing import (
 )
 from collections import namedtuple, defaultdict
 
-from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.config import FluffConfig, split_comma_separated_string
 
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -694,6 +694,10 @@ class BaseRule(metaclass=RuleMetaclass):
     # a line to the docstring.
     is_fix_compatible = False
 
+    # Add comma seperated string to Base Rule to ensure that it uses the same
+    # Configuration that is defined in the Config.py file
+    split_comma_separated_string = staticmethod(split_comma_separated_string)
+
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
@@ -964,41 +968,6 @@ class BaseRule(metaclass=RuleMetaclass):
         return None
 
     @staticmethod
-    def matches_target_tuples(
-        seg: BaseSegment,
-        target_tuples: List[Tuple[str, str]],
-        parent: Optional[BaseSegment] = None,
-    ):
-        """Does the given segment match any of the given type tuples?"""
-        if seg.raw_upper in [
-            elem[1] for elem in target_tuples if elem[0] == "raw_upper"
-        ]:
-            return True  # pragma: no cover
-        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
-            return True
-        # For parent type checks, there's a higher risk of getting an incorrect
-        # segment, so we add some additional guards. We also only check keywords
-        # as for other types we can check directly rather than using parent
-        elif (
-            not seg.is_meta
-            and not seg.is_comment
-            and not seg.is_templated
-            and not seg.is_whitespace
-            and isinstance(seg, RawSegment)
-            and len(seg.raw) > 0
-            and seg.is_type("keyword")
-            and parent
-            and parent.is_type(
-                *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
-            )
-        ):
-            # TODO: This clause is much less used post crawler migration.
-            # Consider whether this should be removed once that migration
-            # is complete.
-            return True  # pragma: no cover
-        return False
-
-    @staticmethod
     def discard_unsafe_fixes(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
@@ -1132,11 +1101,6 @@ class BaseRule(metaclass=RuleMetaclass):
                     child = seg
                     break
         return anchor
-
-    @staticmethod
-    def split_comma_separated_string(raw_str: str) -> List[str]:
-        """Converts comma separated string to List, stripping whitespace."""
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
 @dataclass(frozen=True)

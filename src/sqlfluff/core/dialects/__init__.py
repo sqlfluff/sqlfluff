@@ -59,6 +59,8 @@ def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Dial
     """Dynamically load a dialect."""
     if label in _legacy_dialects:
         raise SQLFluffUserError(_legacy_dialects[label])
+    elif label not in _dialect_lookup:
+        raise KeyError("Unknown dialect")
     module_name, name = _dialect_lookup[label]
     module = import_module(f"{base_module}.{module_name}")
     result: Dialect = getattr(module, name)
