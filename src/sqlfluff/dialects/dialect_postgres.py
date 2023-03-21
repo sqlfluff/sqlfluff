@@ -3864,7 +3864,7 @@ class SetStatementSegment(BaseSegment):
                 "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
             ),
             Sequence(
-                "SCHEMA", OneOf(Ref("QuotedLiteralSegment"))
+                "SCHEMA", Ref("QuotedLiteralSegment")
             ),
         ),
     )
