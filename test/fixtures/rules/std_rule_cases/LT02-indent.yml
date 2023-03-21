@@ -1814,3 +1814,87 @@ test_fix_untaken_positive_4433:
             TRUE
     )
     ;
+
+test_ansi_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: ansi
+    indentation:
+      allow_implicit_indents: true
+
+test_duckdb_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: duckdb
+    indentation:
+      allow_implicit_indents: true
+
+test_exasol_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: exasol
+    indentation:
+      allow_implicit_indents: true
+
+test_postgres_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: postgres
+    indentation:
+      allow_implicit_indents: true
+
+test_snowflake_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      allow_implicit_indents: true
+
+test_sparksql_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: sparksql
+    indentation:
+      allow_implicit_indents: true
+
+test_tsql_group_by_implicit_4539:
+  # https://github.com/sqlfluff/sqlfluff/issues/4539
+  pass_str: |
+    SELECT t.col1, t.col2
+    FROM t
+    GROUP BY t.col1, t.col2
+  configs:
+    core:
+      dialect: tsql
+    indentation:
+      allow_implicit_indents: true
