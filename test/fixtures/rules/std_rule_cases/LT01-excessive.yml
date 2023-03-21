@@ -330,5 +330,16 @@ test_pass_bigquery_specific_struct_access:
 
 test_postgres_datatype:
   # https://github.com/sqlfluff/sqlfluff/issues/4521
+  # https://github.com/sqlfluff/sqlfluff/issues/4565
   pass_str: |
-    select 1::NUMERIC(3, 1)
+    select
+        1::NUMERIC(3, 1),
+        2::double precision,
+        '2020-01-01'::timestamp with time zone,
+        'foo'::character varying,
+        B'10101'::bit(3),
+        B'10101'::bit varying(3),
+        B'10101'::bit varying
+  configs:
+    core:
+      dialect: postgres
