@@ -63,7 +63,7 @@ class Rule_CP05(Rule_CP01):
         """Inconsistent capitalisation of datatypes.
 
         We use the `memory` feature here to keep track of cases known to be
-        Inconsistent with what we've seen so far as well as the top choice
+        inconsistent with what we've seen so far as well as the top choice
         for what the possible case is.
 
         """
