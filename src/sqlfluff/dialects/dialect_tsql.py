@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
+    ImplicitIndent,
     Indent,
     Matchable,
     Nothing,
@@ -3677,7 +3678,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         OneOf(
             Ref("ColumnReferenceSegment"),
             # Can `GROUP BY 1`

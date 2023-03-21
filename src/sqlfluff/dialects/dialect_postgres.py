@@ -1,5 +1,6 @@
 """The PostgreSQL dialect."""
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -9,9 +10,9 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    ImplicitIndent,
     Indent,
     Matchable,
-    TypedParser,
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
@@ -20,22 +21,20 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
-    SymbolSegment,
     StartsWith,
     StringParser,
+    SymbolSegment,
+    TypedParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.lexer import StringLexer
+from sqlfluff.core.parser.segments.base import BracketedSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
-    postgres_keywords,
     get_keywords,
+    postgres_keywords,
     postgres_postgis_datatype_keywords,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -1355,7 +1354,7 @@ class GroupByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
