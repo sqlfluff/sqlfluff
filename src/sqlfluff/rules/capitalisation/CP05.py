@@ -50,6 +50,10 @@ class Rule_CP05(Rule_CP01):
             "data_type",
         }
     )
+    # NOTE: CP05 overrides `_eval` and then only calls
+    # `_handle_segment` from CP01. Setting `_exclude_types`
+    # and `_exclude_parent_types` therefore has no effect.
+    # They are set here to empty tuples to avoid confusion.
     _exclude_types = ()
     _exclude_parent_types = ()
     config_keywords = [
