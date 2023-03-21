@@ -66,6 +66,7 @@ class ReflowConfig:
     hanging_indents: bool = False
     skip_indentation_in: FrozenSet[str] = frozenset()
     allow_implicit_indents: bool = False
+    trailing_comments: str = "before"
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs):
@@ -100,6 +101,7 @@ class ReflowConfig:
             allow_implicit_indents=config.get(
                 "allow_implicit_indents", ["indentation"]
             ),
+            trailing_comments=config.get("trailing_comments", ["indentation"]),
         )
 
     def get_block_config(

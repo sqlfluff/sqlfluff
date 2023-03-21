@@ -2,7 +2,7 @@
 
 from sqlfluff.core import Linter
 
-from sqlfluff.utils.reflow.depthmap import DepthMap
+from sqlfluff.utils.reflow.depthmap import DepthMap, StackPosition
 
 
 def parse_ansi_string(sql, config):
@@ -64,3 +64,45 @@ def test_reflow_depthmap_from_raws_and_root(default_config):
     # The depth info dict depends on the sequence so we only need
     # to check those are equal.
     assert dm_direct.depth_info == dm_indirect.depth_info
+
+
+def test_reflow_depthmap_order_by(default_config):
+    """Test depth mapping of an order by clause."""
+    sql = "SELECT * FROM foo ORDER BY bar DESC\n"
+    root = parse_ansi_string(sql, default_config)
+    # Get the `ORDER` and `DESC` segments.
+    order_seg = None
+    desc_seg = None
+    for raw in root.raw_segments:
+        if raw.raw_upper == "ORDER":
+            order_seg = raw
+        elif raw.raw_upper == "DESC":
+            desc_seg = raw
+    # Make sure we find them
+    assert order_seg
+    assert desc_seg
+
+    # Generate a depth map
+    depth_map = DepthMap.from_parent(root)
+    # Check their depth info
+    order_seg_di = depth_map.get_depth_info(order_seg)
+    desc_seg_di = depth_map.get_depth_info(desc_seg)
+    # Make sure they both contain an order by clause.
+    assert frozenset({"base", "orderby_clause"}) in order_seg_di.stack_class_types
+    assert frozenset({"base", "orderby_clause"}) in desc_seg_di.stack_class_types
+    # Get the ID of one and make sure it's in the other
+    order_by_hash = order_seg_di.stack_hashes[
+        order_seg_di.stack_class_types.index(frozenset({"base", "orderby_clause"}))
+    ]
+    assert order_by_hash in order_seg_di.stack_hashes
+    assert order_by_hash in desc_seg_di.stack_hashes
+    # Get the position information
+    order_stack_pos = order_seg_di.stack_positions[order_by_hash]
+    desc_stack_pos = desc_seg_di.stack_positions[order_by_hash]
+    # Make sure the position information is correct
+    print(order_stack_pos)
+    print(desc_stack_pos)
+    assert order_stack_pos == StackPosition(idx=0, len=9, type="start")
+    # NOTE: Unhelpfully, not an "end" but that's because there's a dedent
+    # there. We work around that in the rebreak logic.
+    assert desc_stack_pos == StackPosition(idx=7, len=9, type="")
