@@ -1,6 +1,6 @@
 """Implementation of Rule CV11."""
 
-from typing import Optional, List
+from typing import Optional, List, Iterable
 
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -81,22 +81,26 @@ class Rule_CV11(BaseRule):
     @staticmethod
     def _cast_fix_list(
         context: RuleContext,
-        cast_arg_1: BaseSegment,
+        cast_arg_1: Iterable[BaseSegment],
         cast_arg_2: BaseSegment,
         later_types: Optional[Segments] = None,
     ) -> List[LintFix]:
         """Generate list of fixes to convert CONVERT and ShorthandCast to CAST."""
         # Add cast and opening parenthesis.
-        edits = [
-            KeywordSegment("cast"),
-            SymbolSegment("(", type="start_bracket"),
-            cast_arg_1,
-            WhitespaceSegment(),
-            KeywordSegment("as"),
-            WhitespaceSegment(),
-            cast_arg_2,
-            SymbolSegment(")", type="end_bracket"),
-        ]
+        edits = (
+            [
+                KeywordSegment("cast"),
+                SymbolSegment("(", type="start_bracket"),
+            ]
+            + list(cast_arg_1)
+            + [
+                WhitespaceSegment(),
+                KeywordSegment("as"),
+                WhitespaceSegment(),
+                cast_arg_2,
+                SymbolSegment(")", type="end_bracket"),
+            ]
+        )
 
         if later_types:
             pre_edits: List[BaseSegment] = [
@@ -250,7 +254,7 @@ class Rule_CV11(BaseRule):
 
                     fixes = self._cast_fix_list(
                         context,
-                        convert_content[1],
+                        [convert_content[1]],
                         convert_content[0],
                     )
                 elif current_type_casting_style == "shorthand":
@@ -262,7 +266,7 @@ class Rule_CV11(BaseRule):
                     print(previous_skipped)
                     fixes = self._cast_fix_list(
                         context,
-                        expression_datatype_segment[0],
+                        [expression_datatype_segment[0]],
                         expression_datatype_segment[1],
                         # We can have multiple shorthandcast e.g 1::int::text
                         # in that case, we need to introduce nested CAST()
@@ -349,19 +353,25 @@ class Rule_CV11(BaseRule):
 
                     fixes = self._cast_fix_list(
                         context,
-                        convert_content[1],
+                        [convert_content[1]],
                         convert_content[0],
                     )
                 elif current_type_casting_style == "shorthand":
                     expression_datatype_segment = self._get_children(
                         functional_context.segment
                     )
+
+                    for data_type_idx, seg in enumerate(expression_datatype_segment):
+                        if seg.is_type("data_type"):
+                            break
+
                     fixes = self._cast_fix_list(
                         context,
-                        expression_datatype_segment[0],
-                        expression_datatype_segment[1],
-                        expression_datatype_segment[2:],
+                        expression_datatype_segment[:data_type_idx],
+                        expression_datatype_segment[data_type_idx],
+                        expression_datatype_segment[data_type_idx + 1 :],
                     )
+
             elif self.preferred_type_casting_style == "convert":
                 if current_type_casting_style == "cast":
                     cast_content = self._get_children(
@@ -402,24 +412,12 @@ class Rule_CV11(BaseRule):
                         convert_content[1],
                         convert_content[0],
                     )
-            if convert_content and len(convert_content) > 2:
-                return LintResult(
-                    anchor=context.segment,
-                    memory=context.memory,
-                    description=(
-                        "Used type casting style is different from"
-                        " the preferred type casting style."
-                    ),
-                )
-            elif cast_content and len(cast_content) > 2:
-                return LintResult(
-                    anchor=context.segment,
-                    memory=context.memory,
-                    description=(
-                        "Used type casting style is different from"
-                        " the preferred type casting style."
-                    ),
-                )
+
+            # Don't fix if there's too much content.
+            if (convert_content and len(convert_content) > 2) or (
+                cast_content and len(cast_content) > 2
+            ):
+                fixes = []
 
             return LintResult(
                 anchor=context.segment,

@@ -33,7 +33,7 @@ test_fail_line_too_long_with_comments_2:
   # has been corrected. Ideally LT02 would have been run _first_
   # on this file.
   fail_str: "    SELECT COUNT(*) FROM tbl\n"
-  fix_str: "    SELECT\n    COUNT(*)\nFROM tbl\n"
+  fix_str: "    SELECT COUNT(*)\nFROM tbl\n"
   configs:
     core:
       max_line_length: 20
@@ -41,7 +41,7 @@ test_fail_line_too_long_with_comments_2:
 test_fail_line_too_long_with_comments_3:
   # Check priority of fixes
   fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
-  fix_str: "-- Some Comment\nSELECT\n    COUNT(*)\nFROM tbl\n"
+  fix_str: "-- Some Comment\nSELECT COUNT(*)\nFROM tbl\n"
   configs:
     core:
       max_line_length: 18
@@ -564,9 +564,7 @@ test_fix_window_function:
         ) ignore nulls over (
             partition by c order by d desc
         ),
-        first_value(
-            a
-        ) respect nulls over (
+        first_value(a) respect nulls over (
             partition by c order by d desc
         )
     )
@@ -603,3 +601,81 @@ test_operator_precedence:
     core:
       max_line_length: 100
       dialect: snowflake
+
+test_long_functions_and_aliases:
+  # https://github.com/sqlfluff/sqlfluff/issues/4033
+  fail_str: |
+    SELECT
+        my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
+        my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
+        my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
+    FROM my_table
+  fix_str: |
+    SELECT
+        my_function(col1 + col2, arg2, arg3) over (
+            partition by col3, col4
+            order by col5 rows between unbounded preceding and current row
+        ) as my_relatively_long_alias,
+        my_other_function(
+            col6, col7 + col8, arg4
+        ) as my_other_relatively_long_alias,
+        my_expression_function(col6, col7 + col8, arg4)
+        = col9 + col10 as another_relatively_long_alias
+    FROM my_table
+
+test_order_by_rebreak_span:
+  # This tests that we can correctly rebreak an "order by" expressions.
+  fail_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }} order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
+  fix_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by
+                        tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }}
+                    order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
+
+test_trailing_semicolon_moves:
+  # The checks that we don't move the semicolon or the comma.
+  fail_str: |
+    SELECT my_very_long_field,
+    FROM foo
+    ORDER BY my_very_long_field;
+  fix_str: |
+    SELECT
+        my_very_long_field,
+    FROM foo
+    ORDER BY
+        my_very_long_field;
+  configs:
+    core:
+      dialect: bigquery
+      max_line_length: 20
+  # After fixing there are still issues, but we're still keeping
+  # the comma and semicolon where they are.
+  violations_after_fix:
+    - description: Line is too long (23 > 20).
+      line_no: 2
+      line_pos: 5
+      name: layout.long_lines
+    - description: Line is too long (23 > 20).
+      line_no: 5
+      line_pos: 5
+      name: layout.long_lines
