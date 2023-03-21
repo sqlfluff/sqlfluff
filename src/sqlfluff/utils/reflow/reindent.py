@@ -1537,6 +1537,106 @@ def _match_indents(
     return matched_indents
 
 
+def _fix_long_line_with_comment(
+    line_buffer: ReflowSequenceType,
+    elements: ReflowSequenceType,
+    current_indent: str,
+    line_length_limit: int,
+    last_indent_idx: Optional[int],
+    trailing_comments: str = "before",
+) -> Tuple[ReflowSequenceType, List[LintFix]]:
+    """Fix long line by moving trailing comments if possible.
+
+    This method (unlike the ones for normal lines), just returns
+    a new `elements` argument rather than mutating it.
+    """
+    # If the comment contains a noqa, don't fix it. It's unsafe.
+    if "noqa" in line_buffer[-1].segments[-1].raw:
+        reflow_logger.debug("    Unfixable because noqa unsafe to move.")
+        return elements, []
+
+    # If the comment is longer than the limit _anyway_, don't move
+    # it. It will still be too long.
+    if len(line_buffer[-1].segments[-1].raw) + len(current_indent) > line_length_limit:
+        reflow_logger.debug("    Unfixable because comment too long anyway.")
+        return elements, []
+
+    comment_seg = line_buffer[-1].segments[-1]
+    first_seg = line_buffer[0].segments[0]
+    last_elem_idx = elements.index(line_buffer[-1])
+
+    assert trailing_comments in (
+        "after",
+        "before",
+    ), f"Unexpected value for `trailing_comments`: {trailing_comments!r}"
+
+    # The simpler case if if we're moving the comment to the line
+    # _after_. In that case we just coerce the point before it to
+    # be an indent.
+    if trailing_comments == "after":
+        anchor_point = cast(ReflowPoint, line_buffer[-2])
+        results, new_point = anchor_point.indent_to(current_indent, before=comment_seg)
+        elements = (
+            elements[: last_elem_idx - 1] + [new_point] + elements[last_elem_idx:]
+        )
+        return elements, fixes_from_results(results)
+
+    # Otherwise we're moving it up and _before_ the line, which is
+    # a little more involved (but also the default).
+    fixes = [
+        # Remove the comment from it's current position, and any
+        # whitespace in the previous point.
+        LintFix.delete(comment_seg),
+        *[
+            LintFix.delete(ws)
+            for ws in line_buffer[-2].segments
+            if ws.is_type("whitespace")
+        ],
+    ]
+
+    # Are we at the start of the file? If so, there's no
+    # indent, and also no previous segments to deal with.
+    if last_indent_idx is None:
+        new_point = ReflowPoint((NewlineSegment(),))
+        prev_elems = []
+        anchor = first_seg
+    else:
+        new_point = ReflowPoint(
+            (
+                NewlineSegment(),
+                WhitespaceSegment(current_indent),
+            )
+        )
+        prev_elems = elements[: last_indent_idx + 1]
+        anchor = elements[last_indent_idx + 1].segments[0]
+
+    fixes.append(
+        # NOTE: This looks a little convoluted, but we create
+        # *before* a block here rather than *after* a point,
+        # because the point may have been modified already by
+        # reflow code and may not be a reliable anchor.
+        LintFix.create_before(
+            anchor,
+            [
+                comment_seg,
+                *new_point.segments,
+            ],
+        )
+    )
+
+    elements = (
+        prev_elems
+        + [
+            line_buffer[-1],
+            new_point,
+        ]
+        + line_buffer[:-2]
+        + elements[last_elem_idx + 1 :]
+    )
+
+    return elements, fixes
+
+
 def _fix_long_line_with_fractional_targets(
     elements: ReflowSequenceType, target_breaks: List[int], desired_indent: str
 ) -> List[LintResult]:
@@ -1667,6 +1767,7 @@ def lint_line_length(
     single_indent: str,
     line_length_limit: int,
     allow_implicit_indents: bool = False,
+    trailing_comments: str = "before",
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the sequence to lines over the configured length.
 
@@ -1687,7 +1788,7 @@ def lint_line_length(
     results: List[LintResult] = []
 
     last_indent_idx = None
-    for i, elem in enumerate(elements):
+    for i, elem in enumerate(elem_buffer):
         # Are there newlines in the element?
         # If not, add it to the buffer and wait to evaluate the line.
         # If yes, it's time to evaluate the line.
@@ -1700,7 +1801,7 @@ def lint_line_length(
             # the following code assumes we're on a point and not a block.
             # We're safe from indexing errors if we're on a point, because
             # we know there's always a trailing block.
-            "end_of_file" in elements[i + 1].class_types
+            "end_of_file" in elem_buffer[i + 1].class_types
             # Or is there a newline?
             or has_untemplated_newline(cast(ReflowPoint, elem))
         ):
@@ -1719,7 +1820,7 @@ def lint_line_length(
 
         # Get the current indent.
         if last_indent_idx is not None:
-            current_indent = _deduce_line_current_indent(elements, last_indent_idx)
+            current_indent = _deduce_line_current_indent(elem_buffer, last_indent_idx)
         else:
             current_indent = ""
 
@@ -1803,91 +1904,14 @@ def lint_line_length(
                 and line_buffer[-1].segments[-1].is_type("inline_comment")
             ):
                 reflow_logger.debug("    Handling as inline comment line.")
-
-                # Sense check a few edge cases:
-                if "noqa" in line_buffer[-1].segments[-1].raw:
-                    reflow_logger.debug("    Unfixable because noqa unsafe to move.")
-                    fixes = []
-                elif (
-                    len(line_buffer[-1].segments[-1].raw) + len(current_indent)
-                    > line_length_limit
-                ):
-                    reflow_logger.debug(
-                        "    Unfixable because comment too long anyway."
-                    )
-                    fixes = []
-                else:
-                    comment_seg = line_buffer[-1].segments[-1]
-                    # It is! Move the comment to the line before.
-                    fixes = [
-                        # Remove the comment from it's current position, and any
-                        # whitespace in the previous point.
-                        LintFix.delete(comment_seg),
-                        *[
-                            LintFix.delete(ws)
-                            for ws in line_buffer[-2].segments
-                            if ws.is_type("whitespace")
-                        ],
-                    ]
-                    # Reinsert it at the start of the current line, with a newline
-                    # after it.
-                    if last_indent_idx:
-                        fixes.append(
-                            # NOTE: This looks a little convoluted, but we create
-                            # *before* a block here rather than *after* a point,
-                            # because the point may have been modified already by
-                            # reflow code and may not be a reliable anchor.
-                            LintFix.create_before(
-                                elements[last_indent_idx + 1].segments[0],
-                                [
-                                    comment_seg,
-                                    NewlineSegment(),
-                                    WhitespaceSegment(current_indent),
-                                ],
-                            )
-                        )
-                    # Edge case handling for start of file:
-                    else:
-                        fixes.append(
-                            LintFix.create_before(
-                                first_seg,
-                                [
-                                    comment_seg,
-                                    NewlineSegment(),
-                                ],
-                            )
-                        )
-                    # Update the elements too (which is also a little complicated).
-                    #   everything up to this line
-                    # + the comment
-                    # + a new indent point
-                    # + the rest of the line (without the last point and comment)
-                    # + anything else after the line
-                    if last_indent_idx is not None:
-                        elements = (
-                            elements[: last_indent_idx + 1]
-                            + [
-                                line_buffer[-1],
-                                ReflowPoint(
-                                    (
-                                        NewlineSegment(),
-                                        WhitespaceSegment(current_indent),
-                                    )
-                                ),
-                            ]
-                            + line_buffer[:-2]
-                            + elements[i:]
-                        )
-                    # Edge case for start of file:
-                    else:
-                        elements = (
-                            [
-                                line_buffer[-1],
-                                ReflowPoint((NewlineSegment(),)),
-                            ]
-                            + line_buffer[:-2]
-                            + elements[i:]
-                        )
+                elem_buffer, fixes = _fix_long_line_with_comment(
+                    line_buffer,
+                    elem_buffer,
+                    current_indent,
+                    line_length_limit,
+                    last_indent_idx,
+                    trailing_comments=trailing_comments,
+                )
 
             # Then check for cases where we have no other options.
             elif not matched_indents:
