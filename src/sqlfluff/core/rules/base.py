@@ -968,41 +968,6 @@ class BaseRule(metaclass=RuleMetaclass):
         return None
 
     @staticmethod
-    def matches_target_tuples(
-        seg: BaseSegment,
-        target_tuples: List[Tuple[str, str]],
-        parent: Optional[BaseSegment] = None,
-    ):
-        """Does the given segment match any of the given type tuples?"""
-        if seg.raw_upper in [
-            elem[1] for elem in target_tuples if elem[0] == "raw_upper"
-        ]:
-            return True  # pragma: no cover
-        elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
-            return True
-        # For parent type checks, there's a higher risk of getting an incorrect
-        # segment, so we add some additional guards. We also only check keywords
-        # as for other types we can check directly rather than using parent
-        elif (
-            not seg.is_meta
-            and not seg.is_comment
-            and not seg.is_templated
-            and not seg.is_whitespace
-            and isinstance(seg, RawSegment)
-            and len(seg.raw) > 0
-            and seg.is_type("keyword")
-            and parent
-            and parent.is_type(
-                *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
-            )
-        ):
-            # TODO: This clause is much less used post crawler migration.
-            # Consider whether this should be removed once that migration
-            # is complete.
-            return True  # pragma: no cover
-        return False
-
-    @staticmethod
     def discard_unsafe_fixes(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):

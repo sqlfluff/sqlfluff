@@ -1,6 +1,6 @@
 """Implementation of Rule CP05."""
 
-from typing import Tuple, List, Optional
+from typing import List
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.context import RuleContext
@@ -50,13 +50,12 @@ class Rule_CP05(Rule_CP01):
             "data_type",
         }
     )
-    _target_elems: List[Tuple[str, str]] = [
-        ("parenttype", "data_type"),
-        ("parenttype", "datetime_type_identifier"),
-        ("parenttype", "primitive_type"),
-        ("type", "data_type_identifier"),
-    ]
-    _exclude_elements: List[Tuple[str, str]] = []
+    # NOTE: CP05 overrides `_eval` and then only calls
+    # `_handle_segment` from CP01. Setting `_exclude_types`
+    # and `_exclude_parent_types` therefore has no effect.
+    # They are set here to empty tuples to avoid confusion.
+    _exclude_types = ()
+    _exclude_parent_types = ()
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
@@ -65,20 +64,13 @@ class Rule_CP05(Rule_CP01):
     _description_elem = "Datatypes"
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
-        """Inconsistent capitalisation of keywords.
+        """Inconsistent capitalisation of datatypes.
 
         We use the `memory` feature here to keep track of cases known to be
-        INconsistent with what we've seen so far as well as the top choice
+        inconsistent with what we've seen so far as well as the top choice
         for what the possible case is.
 
         """
-        # Skip if not an element of the specified type/name
-        parent: Optional[BaseSegment] = (
-            context.parent_stack[-1] if context.parent_stack else None
-        )
-        if self.matches_target_tuples(context.segment, self._exclude_elements, parent):
-            return [LintResult(memory=context.memory)]  # pragma: no cover
-
         results = []
         # For some of these segments we want to run the code on
         if context.segment.is_type(
@@ -95,10 +87,12 @@ class Rule_CP05(Rule_CP01):
                 if res:
                     results.append(res)
 
+        # NOTE: Given the dialect structure we can assume the targets have a parent.
+        parent: BaseSegment = context.parent_stack[-1]
         # Don't process it if it's likely to have been processed by the parent.
-        if context.segment.is_type("data_type_identifier") and not context.parent_stack[
-            -1
-        ].is_type("primitive_type", "datetime_type_identifier", "data_type"):
+        if context.segment.is_type("data_type_identifier") and not parent.is_type(
+            "primitive_type", "datetime_type_identifier", "data_type"
+        ):
             results.append(
                 self._handle_segment(context.segment, context.memory)
             )  # pragma: no cover
