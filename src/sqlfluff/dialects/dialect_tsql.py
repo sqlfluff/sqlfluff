@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    ImplicitIndent,
     Matchable,
     Nothing,
     OneOf,
@@ -851,7 +852,7 @@ class WhereClauseSegment(BaseSegment):
     type = "where_clause"
     match_grammar = Sequence(
         "WHERE",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
