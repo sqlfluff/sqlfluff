@@ -1859,7 +1859,7 @@ class GoStatementSegment(BaseSegment):
 
 class BracketedArguments(BaseSegment):
     """A series of bracketed arguments.
-    
+
     e.g. the bracketed part of numeric(1, 3)
     """
 

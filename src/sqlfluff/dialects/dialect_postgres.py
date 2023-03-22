@@ -118,7 +118,7 @@ postgres_dialect.insert_lexer_matchers(
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
             segment_kwargs={"type": "bit_string_literal"},
-        )
+        ),
     ],
     before="like_operator",
 )

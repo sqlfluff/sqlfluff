@@ -749,16 +749,19 @@ class PrimitiveTypeSegment(BaseSegment):
 
 class ArrayTypeSegment(hive.ArrayTypeSegment):
     """ARRAY type as per hive"""
+
     pass
 
 
 class StructTypeSegment(hive.StructTypeSegment):
     """STRUCT type as per hive"""
+
     pass
 
 
 class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
     """STRUCT type schema as per hive"""
+
     pass
 
 

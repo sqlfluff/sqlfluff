@@ -1000,17 +1000,14 @@ class ColumnDatatypeSegment(BaseSegment):
 
 class BracketedArguments(BaseSegment):
     """A series of bracketed arguments.
-    
+
     e.g. the bracketed part of numeric(1, 3)
     """
 
     type = "bracketed_arguments"
     match_grammar = Bracketed(
         # The brackets might be empty for some cases...
-        Delimited(
-            Ref("NumericLiteralSegment"),
-            optional=True
-        ),
+        Delimited(Ref("NumericLiteralSegment"), optional=True),
         # In exasol, some types offer on optional MAX
         # qualifier of BIT, BYTE or CHAR
         OneOf("BIT", "BYTE", "CHAR", optional=True),

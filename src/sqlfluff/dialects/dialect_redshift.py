@@ -334,7 +334,7 @@ class DateTimeTypeIdentifier(BaseSegment):
 
 class BracketedArguments(BaseSegment):
     """A series of bracketed arguments.
-    
+
     e.g. the bracketed part of numeric(1, 3)
     """
 
@@ -348,7 +348,7 @@ class BracketedArguments(BaseSegment):
                 # keyword in their parameters.
                 "MAX",
             ),
-            optional=True
+            optional=True,
         ),
     )
 
