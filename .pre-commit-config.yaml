@@ -62,6 +62,6 @@ repos:
         args: [-c=.yamllint]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.0.243"
+    rev: "v0.0.257"
     hooks:
       - id: ruff
