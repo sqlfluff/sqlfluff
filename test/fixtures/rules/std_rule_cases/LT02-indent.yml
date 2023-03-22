@@ -1856,7 +1856,7 @@ test_ansi_case_when_implicit_4590:
   pass_str: |
     SELECT
         'foo',
-        CASE WHEN @bar != 0 THEN
+        CASE WHEN bar != 0 THEN
             1
         END
     FROM t
