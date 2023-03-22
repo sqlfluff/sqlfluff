@@ -998,6 +998,25 @@ class ColumnDatatypeSegment(BaseSegment):
     )
 
 
+class BracketedArguments(BaseSegment):
+    """A series of bracketed arguments.
+    
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        # The brackets might be empty for some cases...
+        Delimited(
+            Ref("NumericLiteralSegment"),
+            optional=True
+        ),
+        # In exasol, some types offer on optional MAX
+        # qualifier of BIT, BYTE or CHAR
+        OneOf("BIT", "BYTE", "CHAR", optional=True),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1012,12 +1031,7 @@ class DatatypeSegment(BaseSegment):
         # Numeric Data Types
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
-            Bracketed(
-                Delimited(
-                    Ref("NumericLiteralSegment"),
-                ),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         "BIGINT",
         Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
@@ -1038,29 +1052,25 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             "INTERVAL",
             "YEAR",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             "TO",
             "MONTH",
         ),
         Sequence(
             "INTERVAL",
             "DAY",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             "TO",
             "SECOND",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             "GEOMETRY",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             "HASHTYPE",
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                OneOf("BIT", "BYTE", optional=True),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             OneOf(
@@ -1073,23 +1083,19 @@ class DatatypeSegment(BaseSegment):
                         "NVARCHAR",
                         "NVARCHAR2",
                     ),
-                    Bracketed(
-                        Ref("NumericLiteralSegment"),
-                        OneOf("CHAR", "BYTE", optional=True),
-                        optional=True,
-                    ),
+                    Ref("BracketedArguments", optional=True),
                 ),
                 Sequence("LONG", "VARCHAR"),
                 Sequence(
                     "CHARACTER",
                     Sequence(
                         OneOf(Sequence("LARGE", "OBJECT"), "VARYING", optional=True),
-                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        Ref("BracketedArguments", optional=True),
                     ),
                 ),
                 Sequence(
                     "CLOB",
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    Ref("BracketedArguments", optional=True),
                 ),
             ),
             Ref("CharCharacterSetGrammar", optional=True),
