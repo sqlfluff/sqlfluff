@@ -332,6 +332,27 @@ class DateTimeTypeIdentifier(BaseSegment):
     )
 
 
+class BracketedArguments(BaseSegment):
+    """A series of bracketed arguments.
+    
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        # The brackets might be empty for some cases...
+        Delimited(
+            OneOf(
+                Ref("LiteralGrammar"),
+                # In redshift, character types offer on optional MAX
+                # keyword in their parameters.
+                "MAX",
+            ),
+            optional=True
+        ),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -358,10 +379,7 @@ class DatatypeSegment(BaseSegment):
         # numeric types [precision ["," scale])]
         Sequence(
             OneOf("DECIMAL", "NUMERIC"),
-            Bracketed(
-                Delimited(Ref("NumericLiteralSegment")),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         # character types
         OneOf(
@@ -374,13 +392,7 @@ class DatatypeSegment(BaseSegment):
                     Sequence("CHARACTER", "VARYING"),
                     "NVARCHAR",
                 ),
-                Bracketed(
-                    OneOf(
-                        Ref("NumericLiteralSegment"),
-                        "MAX",
-                    ),
-                    optional=True,
-                ),
+                Ref("BracketedArguments", optional=True),
             ),
             "BPCHAR",
             "TEXT",
@@ -404,10 +416,7 @@ class DatatypeSegment(BaseSegment):
                 "VARBINARY",
                 Sequence("BINARY", "VARYING"),
             ),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         "ANYELEMENT",
     )

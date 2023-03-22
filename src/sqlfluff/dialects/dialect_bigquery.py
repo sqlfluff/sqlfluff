@@ -1026,7 +1026,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(
             Ref("DatatypeIdentifierSegment"),  # Simple type
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_data_types
-            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("ArrayTypeSegment"),

@@ -343,3 +343,76 @@ test_postgres_datatype:
   configs:
     core:
       dialect: postgres
+
+test_redshift_datatype:
+  pass_str: |
+    select
+        1::NUMERIC(3, 1),
+        2::double precision,
+        '2020-01-01'::timestamp with time zone,
+        'foo'::character varying,
+        'foo'::character varying(MAX),
+        'foo'::character varying(255),
+        '10101'::binary varying(6)
+  configs:
+    core:
+      dialect: redshift
+
+test_bigquery_datatype:
+  pass_str: |
+      select 1::NUMERIC(3, 1)
+  configs:
+    core:
+      dialect: bigquery
+
+test_athena_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          'foo'::VARCHAR(4),
+          'bar'::CHAR(3),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>,
+          '2020-01-01'::timestamp with time zone
+  configs:
+    core:
+      dialect: athena
+
+test_hive_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>,
+          col3::ARRAY<int>[4]
+  configs:
+    core:
+      dialect: hive
+
+test_sqlite_datatype:
+  pass_str: |
+      select
+          1::double precision,
+          1::DECIMAL(10, 5),
+          1::unsigned big int,
+          'foo'::varying character(255),
+          'foo'::character(20),
+          'foo'::nvarchar(200)
+  configs:
+    core:
+      dialect: sqlite
+
+test_sparksql_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          'bar'::CHAR(3),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>
+  configs:
+    core:
+      dialect: sparksql
