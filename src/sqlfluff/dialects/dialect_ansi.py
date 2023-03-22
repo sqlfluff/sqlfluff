@@ -1852,7 +1852,7 @@ class WhenClauseSegment(BaseSegment):
             Ref("ExpressionSegment"),
             Dedent,
         ),
-        Indent,
+        ImplicitIndent,
         "THEN",
         ImplicitIndent,
         Ref("ExpressionSegment"),
