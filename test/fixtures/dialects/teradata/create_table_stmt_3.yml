@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7fbf02d7f6097837f16800fe669722f75a9d81baf345f63c6f04aa51a31fba0
+_hash: 9ffbbc697e46c5549859022966608d7c9f4296ec1962c3a455cf26707f2d873d
 file:
   statement:
     create_table_statement:
@@ -19,11 +19,11 @@ file:
             naked_identifier: DES_EVENTO
         - data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '255'
-              end_bracket: )
+                end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET

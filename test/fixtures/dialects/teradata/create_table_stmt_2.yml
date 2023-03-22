@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd33bf070f394474732e4a74bd1808082a78a7044c40b8841b064723f31f75a5
+_hash: 8b9d1e361194f1e8fa9e08200de67e0ca3b3b581d305f7577b5c9038fe0ca3ca
 file:
   statement:
     create_table_statement:
@@ -19,11 +19,11 @@ file:
             naked_identifier: CHAR_FIELD
         - data_type:
             data_type_identifier: CHAR
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '19'
-              end_bracket: )
+                end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
@@ -60,14 +60,13 @@ file:
             naked_identifier: DECIMAL_FIELD
           data_type:
             data_type_identifier: DECIMAL
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '15'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '15'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
           td_column_attribute_constraint:
             keyword: COMPRESS
             bracketed:
@@ -108,11 +107,11 @@ file:
             naked_identifier: TIMESTAMP_FIELD
           data_type:
             data_type_identifier: TIMESTAMP
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '6'
-              end_bracket: )
+                end_bracket: )
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

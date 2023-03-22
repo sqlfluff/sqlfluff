@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d2367df86b733e01c31b74fd789fa082675d68347a588e3bda401261c000de45
+_hash: 9ded27ea23a5a527e9a235ea24249e64b61d4711444cf4b648973734d3618169
 file:
 - batch:
     statement:
@@ -89,11 +89,12 @@ file:
                               keyword: as
                               data_type:
                                 data_type_identifier: CHAR
-                                bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    numeric_literal: '4'
-                                  end_bracket: )
+                                bracketed_arguments:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      numeric_literal: '4'
+                                    end_bracket: )
                               end_bracket: )
                           binary_operator: +
                           quoted_literal: "'0104'"
@@ -148,11 +149,12 @@ file:
                                   keyword: AS
                                   data_type:
                                     data_type_identifier: CHAR
-                                    bracketed:
-                                      start_bracket: (
-                                      expression:
-                                        numeric_literal: '4'
-                                      end_bracket: )
+                                    bracketed_arguments:
+                                      bracketed:
+                                        start_bracket: (
+                                        expression:
+                                          numeric_literal: '4'
+                                        end_bracket: )
                                   end_bracket: )
                             - binary_operator: +
                             - quoted_literal: "'12'"
@@ -178,11 +180,12 @@ file:
                                   keyword: AS
                                   data_type:
                                     data_type_identifier: CHAR
-                                    bracketed:
-                                      start_bracket: (
-                                      expression:
-                                        numeric_literal: '2'
-                                      end_bracket: )
+                                    bracketed_arguments:
+                                      bracketed:
+                                        start_bracket: (
+                                        expression:
+                                          numeric_literal: '2'
+                                        end_bracket: )
                                   end_bracket: )
                             end_bracket: )
                         binary_operator: +
@@ -403,10 +406,11 @@ file:
       - keyword: RETURNS
       - data_type:
           data_type_identifier: nvarchar
-          bracketed:
-            start_bracket: (
-            keyword: max
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
       - keyword: AS
       - procedure_statement:
           statement:
@@ -418,10 +422,11 @@ file:
                   parameter: '@str'
                   data_type:
                     data_type_identifier: nvarchar
-                    bracketed:
-                      start_bracket: (
-                      keyword: max
-                      end_bracket: )
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        keyword: max
+                        end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:

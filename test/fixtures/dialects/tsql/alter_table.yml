@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a586045c6ed2abb30cdd526d4e0dfeeceb32daf854b0c6fbfcdb30eda6fed4c6
+_hash: 4e240e41dde1c884915f6b1bed1d5c8af6fcaa7437f9962ef42d9b1070ca6504
 file:
 - batch:
     statement:
@@ -38,11 +38,12 @@ file:
           naked_identifier: column_b
           data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '20'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '20'
+                end_bracket: )
           column_constraint_segment:
             keyword: 'NULL'
     statement_terminator: ;
@@ -81,11 +82,12 @@ file:
         - naked_identifier: column_b
         - data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '20'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '20'
+                end_bracket: )
         - column_constraint_segment:
             keyword: 'NULL'
         - column_constraint_segment:
@@ -297,11 +299,12 @@ file:
           naked_identifier: rec_number
           data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '36'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '36'
+                end_bracket: )
 - go_statement:
     keyword: GO
 - batch:

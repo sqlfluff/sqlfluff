@@ -255,7 +255,7 @@ class StructTypeSchemaSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("SingleIdentifierGrammar"),
                 Ref("ColonSegment"),
                 Ref("DatatypeSegment"),
                 Ref("CommentGrammar", optional=True),
