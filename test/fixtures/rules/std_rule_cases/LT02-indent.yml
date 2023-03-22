@@ -1815,17 +1815,6 @@ test_fix_untaken_positive_4433:
     )
     ;
 
-test_ansi_case_when_implicit_4559:
-  # https://github.com/sqlfluff/sqlfluff/issues/4559#issuecomment-1477811414
-  pass_str: |
-    SELECT CASE WHEN t.col1 = 1 THEN 1 ELSE 0 END AS col
-    FROM t
-  configs:
-    core:
-      dialect: ansi
-    indentation:
-      allow_implicit_indents: true
-
 test_implicit_case_4542:
   # https://github.com/sqlfluff/sqlfluff/issues/4542
   pass_str: |
@@ -1859,5 +1848,20 @@ test_tsql_where_implicit_4559:
   configs:
     core:
       dialect: tsql
+    indentation:
+      allow_implicit_indents: true
+
+test_ansi_case_when_implicit_4590:
+  # https://github.com/sqlfluff/sqlfluff/issues/4590
+  pass_str: |
+    SELECT
+        'foo',
+        CASE WHEN @bar != 0 THEN
+            1
+        END
+    FROM t
+  configs:
+    core:
+      dialect: ansi
     indentation:
       allow_implicit_indents: true
