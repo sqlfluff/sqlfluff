@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83dd94e5079631bf1bc7d5abce6bbffad6f7717340bb7f857b3cd96048df7f97
+_hash: 38d98df551428927f3dfbb68de7c816f03dfbd3cc494a3b07241c92db86247fe
 file:
 - statement:
     create_table_statement:
@@ -25,10 +25,11 @@ file:
               - data_type:
                   primitive_type:
                     keyword: varchar
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '10'
-                      end_bracket: )
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '10'
+                        end_bracket: )
               - comma: ','
               - naked_identifier: age
               - colon: ':'
@@ -76,10 +77,11 @@ file:
                   - data_type:
                       primitive_type:
                         keyword: VARCHAR
-                        bracketed:
-                          start_bracket: (
-                          numeric_literal: '10'
-                          end_bracket: )
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            numeric_literal: '10'
+                            end_bracket: )
                   - comma: ','
                   - naked_identifier: age
                   - data_type:

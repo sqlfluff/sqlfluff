@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e42fd85a50adbe93a29b3dd9037595c4f09a3a7a5c67c84eebd2daa2369f7cd
+_hash: 899769991a0703ecd90c18a7162dc7f624521b1cebf46d87f2d18368c7461560
 file:
 - statement:
     create_table_statement:
@@ -21,10 +21,11 @@ file:
               naked_identifier: a
               data_type:
               - keyword: VARCHAR
-              - bracketed:
-                  start_bracket: (
-                  numeric_literal: '20'
-                  end_bracket: )
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '20'
+                    end_bracket: )
               - keyword: UTF8
       - comma: ','
       - table_content_definition:
@@ -33,12 +34,13 @@ file:
               naked_identifier: b
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '24'
-                - comma: ','
-                - numeric_literal: '4'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '24'
+                  - comma: ','
+                  - numeric_literal: '4'
+                  - end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
               - keyword: NOT
@@ -288,10 +290,11 @@ file:
               naked_identifier: country
               data_type:
                 keyword: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '40'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '40'
+                    end_bracket: )
       - comma: ','
       - table_content_definition:
           table_constraint_definition:
@@ -360,10 +363,11 @@ file:
               naked_identifier: b
               data_type:
                 keyword: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '20'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '20'
+                    end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -385,12 +389,13 @@ file:
               naked_identifier: ID
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '18'
-                - comma: ','
-                - numeric_literal: '0'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
             column_constraint_segment:
               keyword: IDENTITY
               table_constraint_definition:
@@ -424,12 +429,13 @@ file:
               naked_identifier: ID
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '18'
-                - comma: ','
-                - numeric_literal: '0'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
       - comma: ','
       - table_content_definition:
           column_definition:
@@ -437,10 +443,11 @@ file:
               naked_identifier: C1
               data_type:
                 keyword: CHAR
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '1'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
       - comma: ','
       - table_content_definition:
           table_constraint_definition:
@@ -470,12 +477,13 @@ file:
               naked_identifier: ID
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '18'
-                - comma: ','
-                - numeric_literal: '0'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
       - comma: ','
       - table_content_definition:
           column_definition:
@@ -483,10 +491,11 @@ file:
               naked_identifier: C1
               data_type:
                 keyword: CHAR
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '1'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
       - comma: ','
       - table_content_definition:
           table_constraint_definition:
@@ -517,10 +526,11 @@ file:
               naked_identifier: C1
               data_type:
                 keyword: CHAR
-                bracketed:
-                  start_bracket: (
-                  numeric_literal: '1'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
               - keyword: CONSTRAINT

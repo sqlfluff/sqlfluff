@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 609766cf0f7add54c181ff475b51330286da57701948ba9686bf1091661eed85
+_hash: 69630c224e7d42bd02d11e08fa7078e7b972ee4fabbb9150d5879b170ce1ee55
 file:
 - statement:
     create_procedure_statement:
@@ -75,23 +75,26 @@ file:
         - parameter: test_table
         - data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
         - comma: ','
         - parameter: test_col
         - data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: VARCHAR
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
     - keyword: LANGUAGE
     - keyword: JAVASCRIPT
     - keyword: AS

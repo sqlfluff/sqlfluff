@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6571d63bee7a840364cfc9dcc69baad6ce37f3b03876af1532d5469fdab84aa2
+_hash: 00f304d6ee102003b6d8f10e865a978a0d8426ae757544b3c721bc29c25262db
 file:
 - statement:
     select_statement:
@@ -164,12 +164,13 @@ file:
               keyword: as
               data_type:
                 keyword: decimal
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
               end_bracket: )
       from_clause:
         keyword: from
@@ -191,12 +192,13 @@ file:
               start_bracket: (
               data_type:
                 keyword: decimal
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
               comma: ','
               expression:
                 column_reference:
@@ -222,12 +224,13 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: decimal
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '38'
-                - comma: ','
-                - numeric_literal: '2'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
