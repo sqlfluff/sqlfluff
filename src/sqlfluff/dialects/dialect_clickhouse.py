@@ -101,13 +101,12 @@ clickhouse_dialect.add(
 )
 
 
-class BracketedArguments(BaseSegment):
+class BracketedArguments(ansi.BracketedArguments):
     """A series of bracketed arguments.
 
     e.g. the bracketed part of numeric(1, 3)
     """
 
-    type = "bracketed_arguments"
     match_grammar = Bracketed(
         Delimited(
             OneOf(
