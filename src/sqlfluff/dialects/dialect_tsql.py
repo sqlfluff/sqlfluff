@@ -1865,15 +1865,14 @@ class BracketedArguments(BaseSegment):
 
     type = "bracketed_arguments"
     match_grammar = Bracketed(
-        # The brackets might be empty for some cases...
         Delimited(
             OneOf(
                 # TSQL allows optional MAX in some data types
                 "MAX",
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
+                Ref("ExpressionSegment"),
             ),
+            # The brackets might be empty for some cases...
+            optional=True,
         ),
     )
 
