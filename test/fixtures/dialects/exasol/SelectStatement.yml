@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 413a3e631dda3ac322923173545eb45268a3051bb70d6e94ed812fefef1b3c04
+_hash: 1d9c8d0de467df4cb21269fda3e771ddfd90848dde0ec3b60bb6dfd7782f1438
 file:
 - statement:
     select_statement:
@@ -323,10 +323,11 @@ file:
                         naked_identifier: v
                         data_type:
                           keyword: VARCHAR
-                          bracketed:
-                            start_bracket: (
-                            numeric_literal: '1'
-                            end_bracket: )
+                          bracketed_arguments:
+                            bracketed:
+                              start_bracket: (
+                              numeric_literal: '1'
+                              end_bracket: )
                     end_bracket: )
                 - import_from_clause:
                     keyword: FROM
@@ -980,19 +981,21 @@ file:
                   naked_identifier: id
                   data_type:
                     keyword: VARCHAR
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '2000'
-                      end_bracket: )
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '2000'
+                        end_bracket: )
               - comma: ','
               - column_datatype_definition:
                   naked_identifier: error_column
                   data_type:
                     keyword: VARCHAR
-                    bracketed:
-                      start_bracket: (
-                      numeric_literal: '2000000'
-                      end_bracket: )
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '2000000'
+                        end_bracket: )
               - end_bracket: )
       from_clause:
         keyword: FROM

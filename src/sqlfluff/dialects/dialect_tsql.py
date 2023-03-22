@@ -1858,6 +1858,25 @@ class GoStatementSegment(BaseSegment):
     match_grammar = Ref.keyword("GO")
 
 
+class BracketedArguments(ansi.BracketedArguments):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # TSQL allows optional MAX in some data types
+                "MAX",
+                Ref("ExpressionSegment"),
+            ),
+            # The brackets might be empty for some cases...
+            optional=True,
+        ),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1879,16 +1898,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # Stop Gap until explicit Data Types as only relevent for character
         Ref.keyword("VARYING", optional=True),
-        Bracketed(
-            OneOf(
-                "MAX",
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
+        Ref("BracketedArguments", optional=True),
         Ref("CharCharacterSetGrammar", optional=True),
     )
 

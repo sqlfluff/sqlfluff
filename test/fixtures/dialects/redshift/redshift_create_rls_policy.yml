@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0d9fd0e05165e340cbde4a3938407ec0f549388c1fc0cc633f0a59dd35e7075
+_hash: 4a3d668d485fa7a049937fa617411a44a32ddfe24d99dfd50558f6d64e04d58f
 file:
 - statement:
     create_rls_policy_statement:
@@ -19,10 +19,11 @@ file:
           naked_identifier: catgroup
         data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
         end_bracket: )
     - keyword: USING
     - bracketed:
@@ -49,21 +50,23 @@ file:
           naked_identifier: foo
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: bar
       - data_type:
           keyword: DECIMAL
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '10'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - end_bracket: )
     - keyword: AS
     - alias_expression:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c158e3d5521d5f515b33918f3d2acbaf9305561e3f78fb82175e1c9c59c2890c
+_hash: 7880269f4bce9ff93caca9665e3b5f3aff1c424509d69405f4aac0bd39d9405a
 file:
 - statement:
     create_table_statement:
@@ -47,10 +47,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -96,10 +97,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -119,10 +121,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: CONSTRAINT
@@ -164,10 +167,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: PRIMARY
@@ -199,10 +203,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -217,10 +222,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
           quoted_literal: "'Luso Films'"
@@ -273,10 +279,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -299,10 +306,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - column_constraint_segment:
           keyword: UNIQUE
       - end_bracket: )
@@ -324,10 +332,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - comma: ','
       - table_constraint:
           keyword: UNIQUE
@@ -355,10 +364,11 @@ file:
           naked_identifier: name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - comma: ','
       - table_constraint:
           keyword: UNIQUE
@@ -1224,10 +1234,11 @@ file:
       - data_type:
         - keyword: character
         - keyword: varying
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '40'
-            end_bracket: )
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'

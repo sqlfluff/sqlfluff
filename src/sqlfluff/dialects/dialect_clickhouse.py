@@ -101,6 +101,25 @@ clickhouse_dialect.add(
 )
 
 
+class BracketedArguments(ansi.BracketedArguments):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # Dataypes like Nullable allow optional datatypes here.
+                Ref("DatatypeIdentifierSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            # The brackets might be empty for some cases...
+            optional=True,
+        ),
+    )
+
+
 class JoinClauseSegment(ansi.JoinClauseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
 

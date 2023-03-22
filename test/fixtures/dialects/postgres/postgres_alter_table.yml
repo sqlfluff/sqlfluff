@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 41dfc3fcb84393e15f3b50236490fe3e599c6ddb098c8aa1b70ecfeccf168bf1
+_hash: 866be1b451584cabb0ddf9f4f7ed9716dae714a6269a8e7a13362581c86462ff
 file:
 - statement:
     alter_table_statement:
@@ -18,10 +18,11 @@ file:
           naked_identifier: address
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '30'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '30'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -62,10 +63,11 @@ file:
           naked_identifier: status
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '30'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '30'
+              end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
           quoted_literal: "'old'"
@@ -106,10 +108,11 @@ file:
       - keyword: TYPE
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '80'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '80'
+              end_bracket: )
     - comma: ','
     - alter_table_action_segment:
       - keyword: ALTER
@@ -119,10 +122,11 @@ file:
       - keyword: TYPE
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '100'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1fd11671106a0ebb0f68da3963f5a55a5fa359681839ac888c45ef3c283933b2
+_hash: bb6046b43b0d0fc5451fc777357451cd2ebbce591a7cc1d418c8e453eb99d68d
 file:
 - statement:
     select_statement:
@@ -157,14 +157,13 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: NUMBER
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    numeric_literal: '10'
-                - comma: ','
-                - expression:
-                    numeric_literal: '6'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: lat
@@ -184,14 +183,13 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: NUMBER
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    numeric_literal: '10'
-                - comma: ','
-                - expression:
-                    numeric_literal: '6'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: lng

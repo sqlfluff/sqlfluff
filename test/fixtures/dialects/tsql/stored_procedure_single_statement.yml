@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c8937fc2416f96d82bcc938dd539ee97a0f9325979556e8bf1d29956bfad457
+_hash: 3e7b1bb873be22b78273c31cc7f23750f41e2ccc8bcac842a2ffcccdb1027d2b
 file:
   batch:
     create_procedure_statement:
@@ -25,11 +25,12 @@ file:
         - parameter: '@Orange'
         - data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '100'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '100'
+                end_bracket: )
         - end_bracket: )
     - keyword: AS
     - procedure_statement:

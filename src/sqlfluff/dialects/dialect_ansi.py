@@ -879,6 +879,19 @@ class TimeZoneGrammar(BaseSegment):
     )
 
 
+class BracketedArguments(BaseSegment):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        # The brackets might be empty for some cases...
+        Delimited(Ref("LiteralGrammar"), optional=True),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -915,15 +928,8 @@ class DatatypeSegment(BaseSegment):
                     allow_gaps=False,
                 ),
             ),
-            Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
-                optional=True,
-            ),
+            # There may be no brackets for some data types
+            Ref("BracketedArguments", optional=True),
             OneOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),

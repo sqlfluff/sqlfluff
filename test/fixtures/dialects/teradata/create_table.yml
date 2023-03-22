@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9575db20580324d3eeb9919f2fdebdb2174b8b78d41d59ccfe94dffa6e31f8e9
+_hash: 3badd344b1e26c3368e9102fa001ff4302206b72fb4594f4dda4a6611a08fd32
 file:
 - statement:
     create_table_statement:
@@ -20,11 +20,11 @@ file:
             naked_identifier: Org_Unit_Code
           data_type:
             data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '6'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
@@ -38,11 +38,11 @@ file:
             naked_identifier: Org_Unit_Type
           data_type:
             data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '3'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
@@ -56,11 +56,11 @@ file:
             naked_identifier: Entity_Code
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '10'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:
@@ -72,11 +72,11 @@ file:
             naked_identifier: Parent_Org_Unit_Code
           data_type:
             data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '6'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
@@ -90,11 +90,11 @@ file:
             naked_identifier: Parent_Org_Unit_Type
           data_type:
             data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '3'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
@@ -108,11 +108,11 @@ file:
             naked_identifier: Parent_Entity_Code
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '10'
-              end_bracket: )
+                end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
           column_constraint_segment:

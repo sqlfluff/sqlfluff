@@ -111,6 +111,14 @@ postgres_dialect.insert_lexer_matchers(
             segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
+        # https://www.postgresql.org/docs/current/sql-syntax-lexical.html
+        RegexLexer(
+            "bit_string_literal",
+            # binary (e.g. b'1001') or hex (e.g. X'1FF')
+            r"[bBxX]'[0-9a-fA-F]*'",
+            CodeSegment,
+            segment_kwargs={"type": "bit_string_literal"},
+        ),
     ],
     before="like_operator",
 )
@@ -305,6 +313,21 @@ postgres_dialect.replace(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "single_quote",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
+                ),
+            ),
+        ),
+        Sequence(
+            TypedParser(
+                "bit_string_literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
+            ),
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                TypedParser(
+                    "bit_string_literal",
                     ansi.LiteralSegment,
                     type="quoted_literal",
                 ),
@@ -629,15 +652,12 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     # numeric types [(precision)]
                     Sequence(
                         OneOf("FLOAT"),
-                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        Ref("BracketedArguments", optional=True),
                     ),
                     # numeric types [precision ["," scale])]
                     Sequence(
                         OneOf("DECIMAL", "NUMERIC"),
-                        Bracketed(
-                            Delimited(Ref("NumericLiteralSegment")),
-                            optional=True,
-                        ),
+                        Ref("BracketedArguments", optional=True),
                     ),
                     # monetary type
                     "MONEY",
@@ -650,7 +670,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                                 Sequence("CHARACTER", "VARYING"),
                                 "VARCHAR",
                             ),
-                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                            Ref("BracketedArguments", optional=True),
                         ),
                         "TEXT",
                     ),
@@ -668,10 +688,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Sequence(
                         "BIT",
                         OneOf("VARYING", optional=True),
-                        Bracketed(
-                            Ref("NumericLiteralSegment"),
-                            optional=True,
-                        ),
+                        Ref("BracketedArguments", optional=True),
                     ),
                     # uuid type
                     "UUID",

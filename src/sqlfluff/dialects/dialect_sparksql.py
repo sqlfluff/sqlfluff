@@ -739,24 +739,33 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP",
         "STRING",
         Sequence(
-            OneOf("CHAR", "CHARACTER", "VARCHAR"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
+            Ref("BracketedArguments", optional=True),
         ),
         "BINARY",
-        Sequence(
-            OneOf("DECIMAL", "DEC", "NUMERIC"),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                Ref("CommaSegment"),
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
         "INTERVAL",
     )
 
 
-class DatatypeSegment(PrimitiveTypeSegment):
+class ArrayTypeSegment(hive.ArrayTypeSegment):
+    """ARRAY type as per hive."""
+
+    pass
+
+
+class StructTypeSegment(hive.StructTypeSegment):
+    """STRUCT type as per hive."""
+
+    pass
+
+
+class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
+    """STRUCT type schema as per hive."""
+
+    pass
+
+
+class DatatypeSegment(BaseSegment):
     """Spark SQL Data types.
 
     https://spark.apache.org/docs/latest/sql-ref-datatypes.html
@@ -765,14 +774,7 @@ class DatatypeSegment(PrimitiveTypeSegment):
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("ArrayTypeSegment"),
         Sequence(
             "MAP",
             Bracketed(
@@ -785,23 +787,7 @@ class DatatypeSegment(PrimitiveTypeSegment):
                 bracket_type="angle",
             ),
         ),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                # CommentGrammar here is valid Spark SQL
-                # even though its not stored in Sparks Catalog
-                Delimited(
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("ColonSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("StructTypeSegment"),
     )
 
 

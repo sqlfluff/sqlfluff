@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4052e3a94919da01eaac14af07687ab6822cc1c2429e9c9adaae17eaa401b7b7
+_hash: 205e694478b52c2ebb744d5573cddbc130bc1f58635e2083a2887106d1544107
 file:
   statement:
     create_udf_script:
@@ -23,10 +23,11 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          numeric_literal: '2000'
-          end_bracket: )
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '2000'
+            end_bracket: )
     - keyword: AS
     - script_content:
       - raw: l
