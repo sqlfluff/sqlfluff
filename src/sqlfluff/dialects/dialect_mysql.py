@@ -263,7 +263,10 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
