@@ -1823,6 +1823,8 @@ test_ansi_case_when_implicit_4559:
   configs:
     core:
       dialect: ansi
+    indentation:
+      allow_implicit_indents: true
 
 test_implicit_case_4542:
   # https://github.com/sqlfluff/sqlfluff/issues/4542
