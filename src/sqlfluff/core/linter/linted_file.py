@@ -10,6 +10,7 @@ import logging
 import shutil
 import stat
 import tempfile
+from dataclasses import dataclass
 from typing import (
     Any,
     Iterable,
@@ -20,6 +21,7 @@ from typing import (
     Union,
     cast,
     Type,
+    Dict,
 )
 
 from sqlfluff.core.errors import (
@@ -38,12 +40,21 @@ from sqlfluff.core.linter.common import NoQaDirective
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
+@dataclass
+class FileTimings:
+    step_timings: Dict[str, float]
+    # NOTE: Because rules may run more than once for any
+    # given file we record each run and then we can post
+    # process this as we wish later.
+    rule_timings: List[Tuple[str, str, float]]
+
+
 class LintedFile(NamedTuple):
     """A class to store the idea of a linted file."""
 
     path: str
     violations: List[SQLBaseError]
-    time_dict: dict
+    timings: FileTimings
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile

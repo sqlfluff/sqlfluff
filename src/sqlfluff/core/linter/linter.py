@@ -48,7 +48,7 @@ from sqlfluff.core.linter.common import (
     NoQaDirective,
     RenderedFile,
 )
-from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.linter.linted_file import LintedFile, FileTimings
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
 
@@ -502,6 +502,8 @@ class Linter:
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
         previous_versions: Set[Tuple[str, Tuple[SourceFix, ...]]] = {(tree.raw, ())}
+        # Keep a buffer for recording rule timings.
+        rule_timings: List[Tuple[str, str, float]] = []
 
         # If we are fixing then we want to loop up to the runaway_limit, otherwise just
         # once for linting.
@@ -576,6 +578,7 @@ class Linter:
                         continue
 
                     progress_bar_crawler.set_description(f"rule {crawler.code}")
+                    t0 = time.monotonic()
 
                     # fixes should be a dict {} with keys edit, delete, create
                     # delete is just a list of segments to delete
@@ -648,6 +651,11 @@ class Linter:
                                 # we want to stop.
                                 cls._warn_unfixable(crawler.code)
 
+                    # Record rule timing
+                    rule_timings.append(
+                        (crawler.code, crawler.name, time.monotonic() - t0)
+                    )
+
                 if fix and not changed:
                     # We did not change the file. Either the file is clean (no
                     # fixes), or any fixes which are present will take us back
@@ -691,7 +699,7 @@ class Linter:
         linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
         linter_logger.info("\n" + tree.stringify())
 
-        return tree, initial_linting_errors, ignore_buff
+        return tree, initial_linting_errors, ignore_buff, rule_timings
 
     @classmethod
     def lint_parsed(
@@ -709,7 +717,12 @@ class Linter:
         if parsed.tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", parsed.fname)
-            tree, initial_linting_errors, ignore_buff = cls.lint_fix_parsed(
+            (
+                tree,
+                initial_linting_errors,
+                ignore_buff,
+                rule_timings,
+            ) = cls.lint_fix_parsed(
                 parsed.tree,
                 config=parsed.config,
                 rule_pack=rule_pack,
@@ -728,6 +741,7 @@ class Linter:
             # If no parsed tree, set to None
             tree = None
             ignore_buff = []
+            rule_timings = []
             if not parsed.config.get("disable_noqa"):
                 # Templating and/or parsing have failed. Look for "noqa"
                 # comments (the normal path for identifying these comments
@@ -753,7 +767,7 @@ class Linter:
             parsed.fname,
             # Deduplicate violations
             LintedFile.deduplicate_in_source_space(violations),
-            time_dict,
+            FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_buff,
             templated_file=parsed.templated_file,
@@ -898,7 +912,7 @@ class Linter:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
         rule_pack = self.get_rulepack(config=config)
-        fixed_tree, violations, _ = self.lint_fix_parsed(
+        fixed_tree, violations, _, _ = self.lint_fix_parsed(
             tree,
             config,
             rule_pack,
@@ -919,7 +933,7 @@ class Linter:
         """Return just the violations from lintfix when we're only linting."""
         config = config or self.config
         rule_pack = self.get_rulepack(config=config)
-        _, violations, _ = self.lint_fix_parsed(
+        _, violations, _, _ = self.lint_fix_parsed(
             tree,
             config,
             rule_pack,

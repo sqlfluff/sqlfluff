@@ -22,7 +22,7 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 
-from sqlfluff.core.timing import TimingSummary
+from sqlfluff.core.timing import TimingSummary, RuleTimingSummary
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -145,10 +145,12 @@ class LintingResult:
     def timing_summary(self) -> Dict[str, Dict[str, float]]:
         """Return a timing summary."""
         timing = TimingSummary()
+        rules_timing = RuleTimingSummary()
         for dir in self.paths:
             for file in dir.files:
-                timing.add(file.time_dict)
-        return timing.summary()
+                timing.add(file.timings.step_timings)
+                rules_timing.add(file.timings.rule_timings)
+        return {**timing.summary(), **rules_timing.summary()}
 
     def persist_timing_records(self, filename):
         """Persist the timing records as a csv to external analysis."""
