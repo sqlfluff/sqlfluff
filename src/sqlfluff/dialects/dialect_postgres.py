@@ -4798,3 +4798,23 @@ class NamedArgumentSegment(BaseSegment):
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
     )
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Override from ANSI to allow optional WITH ORDINALITY clause
+    """
+
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Sequence(
+            Ref("FunctionSegment"),
+            Sequence("WITH", "ORDINALITY", optional="True"),
+        ),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+    )
