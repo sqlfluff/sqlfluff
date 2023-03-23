@@ -1858,12 +1858,12 @@ class WhenClauseSegment(BaseSegment):
             Ref("ExpressionSegment"),
             Dedent,
         ),
-        Indent,
+        Conditional(Indent, indented_then=True),
         "THEN",
         ImplicitIndent,
         Ref("ExpressionSegment"),
         Dedent,
-        Dedent,
+        Conditional(Dedent, indented_then=True),
     )
 
 
