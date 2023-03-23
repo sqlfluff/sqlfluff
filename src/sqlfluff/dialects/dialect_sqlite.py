@@ -490,6 +490,20 @@ class PragmaStatementSegment(BaseSegment):
     )
 
 
+class OverClauseSegment(ansi.OverClauseSegment):
+    """An OVER clause for window functions."""
+
+    match_grammar: Matchable = Sequence(
+        "OVER",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
+                Ref("WindowSpecificationSegment", optional=True),
+            ),
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
