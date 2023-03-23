@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-This is a very _bugfix_ release. Most notably this solves some of the
+This is primarily a _bugfix_ release. Most notably this solves some of the
 issues introduced in 2.0.1 around spacing within datatypes. Expressions
 like `1.0::double precision` should now be spaced correctly.
 
@@ -45,12 +45,12 @@ many users. 🚀
 * Remove matches_target_tuples (#3873) [#4561](https://github.com/sqlfluff/sqlfluff/pull/4561) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Use terminators in BaseExpression [#4577](https://github.com/sqlfluff/sqlfluff/pull/4577) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Address #1630: Optionally move comments after long line [#4558](https://github.com/sqlfluff/sqlfluff/pull/4558) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* added schema to set statement [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580) [@JackWolverson](https://github.com/JackWolverson)
+* Added schema to set statement [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580) [@JackWolverson](https://github.com/JackWolverson)
 * Refactor lint_line_length and fix comma bug [#4564](https://github.com/sqlfluff/sqlfluff/pull/4564) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix untaken indent bug [#4562](https://github.com/sqlfluff/sqlfluff/pull/4562) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * SQLite: Fix SELECT LIMIT [#4566](https://github.com/sqlfluff/sqlfluff/pull/4566) [@greg-finley](https://github.com/greg-finley)
 * Fix #4453: Snowflake semi-stuctured casts in CV11 [#4571](https://github.com/sqlfluff/sqlfluff/pull/4571) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* name of LT07 [#4557](https://github.com/sqlfluff/sqlfluff/pull/4557) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Name of LT07 [#4557](https://github.com/sqlfluff/sqlfluff/pull/4557) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Patch fetch and over [#4555](https://github.com/sqlfluff/sqlfluff/pull/4555) [@mikaeltw](https://github.com/mikaeltw)
 
 ## New Contributors
