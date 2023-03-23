@@ -14,8 +14,29 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a very _bugfix_ release. Most notably this solves some of the
+issues introduced in 2.0.1 around spacing within datatypes. Expressions
+like `1.0::double precision` should now be spaced correctly.
+
+Beyond that, this contains a selection of smaller bugfixes and dialect
+improvements. Even for a relatively small release we saw three new
+contributors (thanks [@aurany](https://github.com/aurany), [@JackWolverson](https://github.com/JackWolverson)
+& [@mikaeltw](https://github.com/mikaeltw) 🎉).
+
+The one new _feature_ (as such) is being able to now configure `LT05`
+(aka `layout.long_lines`) to optionally move trailing comments _after_
+the line they are found on, rather than the default behaviour of moving
+them up and _before_. Users can enable this with the `trailing_comments`
+configuration setting in the `indentation` section.
+
+This release _also_ contains some performance optimisations in the parser,
+especially on queries with heavily nested expressions. There will be more
+to come in this space, but we hope this leads to a better experience for
+many users. 🚀
+
 ## What’s Changed
 
+* Parse Caching [#4576](https://github.com/sqlfluff/sqlfluff/pull/4576) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Data type spacing [#4592](https://github.com/sqlfluff/sqlfluff/pull/4592) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * MySQL: allow quoted literal in alias name [#4591](https://github.com/sqlfluff/sqlfluff/pull/4591) [@yoichi](https://github.com/yoichi)
 * Make implicit indents visible in the parse tree [#4584](https://github.com/sqlfluff/sqlfluff/pull/4584) [@alanmcruickshank](https://github.com/alanmcruickshank)
