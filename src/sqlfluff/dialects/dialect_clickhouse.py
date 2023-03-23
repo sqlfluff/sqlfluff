@@ -18,6 +18,9 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
+    SymbolSegment,
+    TypedParser,
+    StringLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
@@ -28,6 +31,13 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+clickhouse_dialect.insert_lexer_matchers(
+    [
+        StringLexer("higher_order", r"->", SymbolSegment, segment_kwargs={"type": "higher_order"})
+    ],
+    before="newline",
+)
 
 clickhouse_dialect.add(
     JoinTypeKeywords=OneOf(
@@ -97,7 +107,21 @@ clickhouse_dialect.add(
         "ANY",
         # This case ALL JOIN
         "ALL",
-    )
+    ),
+    HigherOrderSegment=TypedParser("higher_order",
+                                   SymbolSegment,
+                                   type="higher_order"
+                                   ),
+)
+clickhouse_dialect.replace(
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add Higher-order functions
+        Ref("HigherOrderSegment"),
+    ),
 )
 
 
