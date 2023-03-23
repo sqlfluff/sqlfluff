@@ -183,6 +183,9 @@ class DbtTemplater(JinjaTemplater):
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
 
+        If config is set, we check the DBT_PROFILES_DIR environment
+        variable.
+
         The default is `~/.dbt` in 0.17 but we use the
         PROFILES_DIR variable from the dbt library to
         support a change of default in the future, as well
@@ -194,6 +197,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
+                or os.getenv("DBT_PROFILES_DIR")
                 or flags.PROFILES_DIR
             )
         )
