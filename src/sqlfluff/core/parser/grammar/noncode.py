@@ -23,6 +23,15 @@ class NonCodeMatcher(Matchable):
         """Not optional."""
         return False
 
+    def cache_key(self) -> str:
+        """Get the cache key for the matcher.
+
+        NOTE: In this case, this class is a bit of a singleton
+        and so we don't need a unique UUID in the same way as
+        other classes.
+        """
+        return "non-code-matcher"
+
     @match_wrapper(v_level=4)
     def match(self, segments, parse_context):
         """Match any starting non-code segments."""
