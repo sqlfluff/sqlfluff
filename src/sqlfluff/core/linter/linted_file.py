@@ -54,7 +54,7 @@ class LintedFile(NamedTuple):
 
     path: str
     violations: List[SQLBaseError]
-    timings: FileTimings
+    timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile

@@ -148,8 +148,9 @@ class LintingResult:
         rules_timing = RuleTimingSummary()
         for dir in self.paths:
             for file in dir.files:
-                timing.add(file.timings.step_timings)
-                rules_timing.add(file.timings.rule_timings)
+                if file.timings:
+                    timing.add(file.timings.step_timings)
+                    rules_timing.add(file.timings.rule_timings)
         return {**timing.summary(), **rules_timing.summary()}
 
     def persist_timing_records(self, filename):
