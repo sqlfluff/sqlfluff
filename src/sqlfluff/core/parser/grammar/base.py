@@ -195,7 +195,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -399,25 +399,31 @@ class BaseGrammar(Matchable):
             simple_match = None
             for idx, seg in enumerate(segments):
                 for matcher, simple in simple_matchers:
-                    # Simple will be a tuple of options
                     assert simple
-                    trimmed_seg = _trim_elem(seg)
-                    for simple_option in simple:
-                        if simple_option == trimmed_seg:
-                            simple_match = (matcher, simple_option)
+                    simple_raws, simple_types = simple
+                    # Simple will be a tuple of options
+                    assert simple_raws or simple_types
+                    if simple_raws:
+                        trimmed_seg = _trim_elem(seg)
+                        if trimmed_seg in simple_raws:
+                            simple_match = matcher
+                            break
+                    if simple_types and not simple_match:
+                        intersection = simple_types.intersection(seg.class_types)
+                        if intersection:
+                            simple_match = matcher
                             break
                     if simple_match:
                         break
                 # We've managed to match. We can shortcut home.
                 # NB: We may still need to deal with whitespace.
                 if simple_match:
-                    matcher, simple_option = simple_match
-                    match = matcher.match(segments[idx:], parse_context)
+                    match = simple_match.match(segments[idx:], parse_context)
                     if match:
                         best_simple_match = (
                             segments[:idx],
                             match,
-                            matcher,
+                            simple_match,
                         )
                         break
                     else:
@@ -847,9 +853,7 @@ class Ref(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(
-        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
-    ) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None):
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.

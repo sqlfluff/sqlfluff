@@ -123,16 +123,13 @@ class TypedParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a uppercase hash matching route?
 
-        TypedParser segment does NOT for now. We might need to later for efficiency.
-
-        There is a way that this *could* be enabled, by allowing *another*
-        shortcut route, to look ahead at the types of upcoming segments,
-        rather than their content.
+        TypedParser segment doesn't support matching against raw strings,
+        but it does support it against types.
         """
-        return None
+        return frozenset(), frozenset((cls.template,))
 
     def _is_first_match(self, segment: BaseSegment):
         """Return true if the type matches the target type."""
@@ -152,7 +149,7 @@ class StringParser(BaseParser):
     ):
         self.template = template.upper()
         # Create list version upfront to avoid recreating it multiple times.
-        self._simple = [self.template]
+        self._simple = frozenset((self.template,))
         super().__init__(
             raw_class=raw_class,
             type=type,
@@ -160,13 +157,13 @@ class StringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: "ParseContext", crumbs=None):
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
         just return the template here.
         """
-        return self._simple
+        return self._simple, frozenset()
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
@@ -190,7 +187,7 @@ class MultiStringParser(BaseParser):
     ):
         self.templates = {template.upper() for template in templates}
         # Create list version upfront to avoid recreating it multiple times.
-        self._simple = list(self.templates)
+        self._simple = frozenset(self.templates)
         super().__init__(
             raw_class=raw_class,
             type=type,
@@ -198,13 +195,13 @@ class MultiStringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: "ParseContext", crumbs=None):
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
         just return the templates here.
         """
-        return self._simple
+        return self._simple, frozenset()
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
@@ -240,7 +237,7 @@ class RegexParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.
