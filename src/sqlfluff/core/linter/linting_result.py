@@ -10,6 +10,7 @@ from typing import (
     overload,
     Tuple,
     Union,
+    Set,
 )
 from typing_extensions import Literal
 
@@ -142,7 +143,7 @@ class LintingResult:
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
 
-    def timing_summary(self) -> Dict[str, Dict[str, float]]:
+    def timing_summary(self) -> Dict[str, Dict[str, Any]]:
         """Return a timing summary."""
         timing = TimingSummary()
         rules_timing = RuleTimingSummary()
@@ -153,8 +154,8 @@ class LintingResult:
                     rules_timing.add(file.timings.rule_timings)
         return {**timing.summary(), **rules_timing.summary()}
 
-    def persist_timing_records(self, filename):
-        """Persist the timing records as a csv to external analysis."""
+    def persist_timing_records(self, filename: str) -> None:
+        """Persist the timing records as a csv for external analysis."""
         meta_fields = [
             "path",
             "source_chars",
@@ -163,13 +164,29 @@ class LintingResult:
             "raw_segments",
         ]
         timing_fields = ["templating", "lexing", "parsing", "linting"]
+
+        # Iterate through all the files to get rule timing information so
+        # we know what headings we're going to need.
+        rule_codes: Set[str] = set()
+        file_timing_dicts: Dict[str, dict] = {}
+        for dir in self.paths:
+            for file in dir.files:
+                if not file.timings:  # pragma: no cover
+                    continue
+                file_timing_dicts[file.path] = file.timings.get_rule_timing_dict()
+                rule_codes.update(file_timing_dicts[file.path].keys())
+
         with open(filename, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=meta_fields + timing_fields)
+            writer = csv.DictWriter(
+                f, fieldnames=meta_fields + timing_fields + sorted(rule_codes)
+            )
 
             writer.writeheader()
 
             for dir in self.paths:
                 for file in dir.files:
+                    if not file.timings:  # pragma: no cover
+                        continue
                     writer.writerow(
                         {
                             "path": file.path,
@@ -194,6 +211,7 @@ class LintingResult:
                                 else ""
                             ),
                             **file.timings.step_timings,
+                            **file_timing_dicts[file.path],
                         }
                     )
 

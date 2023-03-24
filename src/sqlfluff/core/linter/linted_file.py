@@ -10,6 +10,7 @@ import logging
 import shutil
 import stat
 import tempfile
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import (
     Any,
@@ -42,11 +43,26 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 @dataclass
 class FileTimings:
+    """A dataclass for holding the timings information for a file."""
+
     step_timings: Dict[str, float]
     # NOTE: Because rules may run more than once for any
     # given file we record each run and then we can post
     # process this as we wish later.
     rule_timings: List[Tuple[str, str, float]]
+
+    def get_rule_timing_dict(self) -> Dict[str, float]:
+        """Generate a summary to total time in each rule.
+
+        This is primarily for csv export.
+        """
+        total_times: Dict[str, float] = defaultdict(float)
+
+        for code, _, time in self.rule_timings:
+            total_times[code] += time
+
+        # Return as plain dict
+        return dict(total_times.items())
 
 
 class LintedFile(NamedTuple):

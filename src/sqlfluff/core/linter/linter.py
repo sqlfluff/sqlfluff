@@ -54,6 +54,7 @@ from sqlfluff.core.linter.linting_result import LintingResult
 
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
+RuleTimingsType = List[Tuple[str, str, float]]
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -491,7 +492,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
-    ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
@@ -503,7 +504,7 @@ class Linter:
         # Keep a set of previous versions to catch infinite loops.
         previous_versions: Set[Tuple[str, Tuple[SourceFix, ...]]] = {(tree.raw, ())}
         # Keep a buffer for recording rule timings.
-        rule_timings: List[Tuple[str, str, float]] = []
+        rule_timings: RuleTimingsType = []
 
         # If we are fixing then we want to loop up to the runaway_limit, otherwise just
         # once for linting.
