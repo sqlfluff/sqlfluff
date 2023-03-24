@@ -18,6 +18,9 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
+    SymbolSegment,
+    TypedParser,
+    StringLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
@@ -28,6 +31,12 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
+    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
+    before="newline",
+)
 
 clickhouse_dialect.add(
     JoinTypeKeywords=OneOf(
@@ -97,7 +106,18 @@ clickhouse_dialect.add(
         "ANY",
         # This case ALL JOIN
         "ALL",
-    )
+    ),
+    LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+)
+clickhouse_dialect.replace(
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add Lambda Function
+        Ref("LambdaFunctionSegment"),
+    ),
 )
 
 
