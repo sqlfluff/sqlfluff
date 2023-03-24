@@ -33,9 +33,7 @@ clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 clickhouse_dialect.insert_lexer_matchers(
-    [
-        StringLexer("higher_order", r"->", SymbolSegment, segment_kwargs={"type": "higher_order"})
-    ],
+    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
     before="newline",
 )
 
@@ -108,10 +106,7 @@ clickhouse_dialect.add(
         # This case ALL JOIN
         "ALL",
     ),
-    HigherOrderSegment=TypedParser("higher_order",
-                                   SymbolSegment,
-                                   type="higher_order"
-                                   ),
+    HigherOrderSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
 clickhouse_dialect.replace(
     BinaryOperatorGrammar=OneOf(
