@@ -18,6 +18,9 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
+    SymbolSegment,
+    TypedParser,
+    StringLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
@@ -28,6 +31,12 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
+    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
+    before="newline",
+)
 
 clickhouse_dialect.add(
     JoinTypeKeywords=OneOf(
@@ -97,7 +106,18 @@ clickhouse_dialect.add(
         "ANY",
         # This case ALL JOIN
         "ALL",
-    )
+    ),
+    LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+)
+clickhouse_dialect.replace(
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add Lambda Function
+        Ref("LambdaFunctionSegment"),
+    ),
 )
 
 
@@ -436,12 +456,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-class ClusterReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to a cluster."""
-
-    type = "cluster_reference"
-
-
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -464,7 +478,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "ON",
             "CLUSTER",
-            Ref("ClusterReferenceSegment"),
+            Ref("ExpressionSegment"),
             optional=True,
         ),
         OneOf(
@@ -513,15 +527,50 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table/
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "TO",
+                Ref("TableReferenceSegment"),
+                Ref("EngineSegment", optional=True),
+            ),
+            Sequence(
+                Ref("EngineSegment", optional=True),
+                Sequence("POPULATE", optional=True),
+            ),
+        ),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("TableEndClauseSegment", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
-            Ref("EngineSegment"),
-            Ref("ClusterReferenceSegment"),
-            Ref("ColumnTTLSegment"),
-            Ref("TableTTLSegment"),
+            Ref("CreateTableStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
         ]
     )

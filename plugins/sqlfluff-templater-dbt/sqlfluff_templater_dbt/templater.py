@@ -19,11 +19,13 @@ try:
     from dbt.exceptions import (
         CompilationException as DbtCompilationException,
         FailedToConnectException as DbtFailedToConnectException,
+        DbtProjectError,
     )
 except ImportError:
     from dbt.exceptions import (
         CompilationError as DbtCompilationException,
         FailedToConnectError as DbtFailedToConnectException,
+        DbtProjectError,
     )
 
 from dbt import flags
@@ -33,7 +35,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
+from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile, SQLFluffUserError
 
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
@@ -149,6 +151,8 @@ class DbtTemplater(JinjaTemplater):
             # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
             os.chdir(self.project_dir)
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        except DbtProjectError as err:  # pragma: no cover
+            raise SQLFluffUserError(f"DbtProjectError: {err}")
         finally:
             os.chdir(old_cwd)
         return self.dbt_manifest
