@@ -119,7 +119,6 @@ class AnyNumberOf(BaseGrammar):
                 available_options.append(opt)
                 matched_simple += 1
                 matched = True
-                break
 
             if not matched:
                 # Ditch this option, the simple match has failed

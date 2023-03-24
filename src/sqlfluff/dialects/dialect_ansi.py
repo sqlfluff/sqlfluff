@@ -2293,16 +2293,16 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
+        Ref("NumericLiteralSegment"),
         OneOf(
-            Ref("NumericLiteralSegment"),
             Sequence(
-                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
+                "OFFSET", Ref("NumericLiteralSegment")
             ),
             Sequence(
-                Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
             ),
+            optional=True,
         ),
         Dedent,
     )

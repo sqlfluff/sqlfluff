@@ -154,6 +154,9 @@ bigquery_dialect.add(
             Ref("ArrayLiteralSegment"),
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
+            terminators=[
+                Ref("SemicolonSegment"),
+            ]
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
@@ -1322,11 +1325,10 @@ class DeclareStatementSegment(BaseSegment):
         "DECLARE",
         Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
-            Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                Ref("DefaultDeclareOptionsGrammar"),
+                Ref("DefaultDeclareOptionsGrammar", optional=True),
             ),
         ),
     )
