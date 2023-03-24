@@ -535,8 +535,8 @@ def test__cli__command_lint_parse(command):
             (
                 lint,
                 [
-                    "test/fixtures/linter/autofix/bigquery004_templating/before.sql",
-                    "--bench"
+                    "test/fixtures/linter/autofix/bigquery/004_templating/before.sql",
+                    "--bench",
                 ],
             ),
             1,
