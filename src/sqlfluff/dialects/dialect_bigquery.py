@@ -156,7 +156,7 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
             terminators=[
                 Ref("SemicolonSegment"),
-            ]
+            ],
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(

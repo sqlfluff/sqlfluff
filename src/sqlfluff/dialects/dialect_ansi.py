@@ -2295,9 +2295,7 @@ class LimitClauseSegment(BaseSegment):
         Indent,
         Ref("NumericLiteralSegment"),
         OneOf(
-            Sequence(
-                "OFFSET", Ref("NumericLiteralSegment")
-            ),
+            Sequence("OFFSET", Ref("NumericLiteralSegment")),
             Sequence(
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
