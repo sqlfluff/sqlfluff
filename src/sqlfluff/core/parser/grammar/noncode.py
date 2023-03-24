@@ -4,8 +4,6 @@ This is a stub of a grammar, intended for use entirely as a
 terminator or similar alongside other matchers.
 """
 
-from typing import Optional, List
-
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable

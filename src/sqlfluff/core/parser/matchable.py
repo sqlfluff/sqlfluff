@@ -2,7 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, TYPE_CHECKING, FrozenSet
+from typing import Optional, Tuple, TYPE_CHECKING, FrozenSet
 
 
 if TYPE_CHECKING:  # pragma: no cover

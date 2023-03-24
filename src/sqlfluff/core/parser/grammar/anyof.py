@@ -1,7 +1,5 @@
 """AnyNumberOf and OneOf."""
 
-import logging
-
 from typing import List, Optional, Tuple, Set
 
 from sqlfluff.core.parser.context import ParseContext
@@ -74,10 +72,9 @@ class AnyNumberOf(BaseGrammar):
 
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[List[MatchableType], List[str]]:
+    ) -> List[MatchableType]:
         """Use the simple matchers to prune which options to match on."""
         available_options = []
-        simple_opts = []
         prune_buff = []
         non_simple = 0
         pruned_simple = 0
@@ -88,18 +85,18 @@ class AnyNumberOf(BaseGrammar):
         # If we don't have an appropriate option to match against,
         # then we should just return immediately. Nothing will match.
         if not first_elem:
-            return self._elements, []
+            return self._elements
         first_raw, first_types = first_elem
 
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
-            # logging.warning("SIMPLE: %s, %s", opt, simple)
             if simple is None:
                 # This element is not simple, we have to do a
                 # full match with it...
                 available_options.append(opt)
                 non_simple += 1
                 continue
+
             # Otherwise we have a simple option, so let's use
             # it for pruning.
             simple_raws, simple_types = simple
@@ -110,40 +107,19 @@ class AnyNumberOf(BaseGrammar):
             # simple _type_ matching.
 
             # Match Raws
-            if simple_raws:
-                for simple_raw in simple_raws:
-                    # Check it's not a whitespace option
-                    if not simple_raw.strip():  # pragma: no cover
-                        raise NotImplementedError(
-                            "_prune_options not supported for whitespace matching."
-                        )
-
-                    # match the FIRST non-whitespace element of the list.
-                    if first_raw != simple_raw:
-                        # No match, carry on.
-                        continue
-
-                    # If we get here, it's matched the FIRST element of the string buffer.
-                    available_options.append(opt)
-                    simple_opts.append(simple_raw)
-                    matched_simple += 1
-                    matched = True
-                    break
+            if simple_raws and first_raw in simple_raws:
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched_simple += 1
+                matched = True
 
             # Match Types
-            if simple_types and not matched:
-                for simple_type in simple_types:
-                    # match the FIRST non-whitespace element of the list.
-                    if simple_type not in first_types:
-                        # No match, carry on.
-                        continue
-
-                    # If we get here, it's matched the FIRST element of the string buffer.
-                    available_options.append(opt)
-                    simple_opts.append(simple_type)
-                    matched_simple += 1
-                    matched = True
-                    break
+            if simple_types and not matched and first_types.intersection(simple_types):
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched_simple += 1
+                matched = True
+                break
 
             if not matched:
                 # Ditch this option, the simple match has failed
@@ -164,7 +140,7 @@ class AnyNumberOf(BaseGrammar):
             opts=available_options or "ALL",
         )
 
-        return available_options, simple_opts
+        return available_options
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
@@ -179,9 +155,7 @@ class AnyNumberOf(BaseGrammar):
         # to return earlier if we can.
         # `segments` may already be nested so we need to break out
         # the raw segments within it.
-        available_options, _ = self._prune_options(
-            segments, parse_context=parse_context
-        )
+        available_options = self._prune_options(segments, parse_context=parse_context)
 
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
@@ -221,9 +195,7 @@ class AnyNumberOf(BaseGrammar):
         n_matches = 0
 
         # Keep track of the number of times each option has been matched.
-        available_options, _ = self._prune_options(
-            segments, parse_context=parse_context
-        )
+        available_options = self._prune_options(segments, parse_context=parse_context)
         available_option_counter = {str(o): 0 for o in available_options}
 
         while True:

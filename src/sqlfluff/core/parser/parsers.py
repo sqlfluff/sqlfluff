@@ -6,7 +6,7 @@ Matchable objects which return individual segments.
 from abc import abstractmethod
 from uuid import uuid4
 import regex
-from typing import Collection, Type, Optional, List, Tuple, Union
+from typing import Collection, Type, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.matchable import Matchable

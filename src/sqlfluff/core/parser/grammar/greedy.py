@@ -1,7 +1,5 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import Optional, List
-
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper

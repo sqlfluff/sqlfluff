@@ -1,6 +1,6 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, List, Tuple, cast
+from typing import Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 
