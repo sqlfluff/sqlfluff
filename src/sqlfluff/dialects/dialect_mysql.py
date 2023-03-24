@@ -699,7 +699,9 @@ class TableConstraintSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(  # [ CONSTRAINT <Constraint name> ]
-                "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+                "CONSTRAINT",
+                Sequence(Ref("ObjectReferenceSegment"), optional=True),
+                optional=True,
             ),
             OneOf(
                 # UNIQUE [INDEX | KEY] [index_name] [index_type] (key_part,...)
