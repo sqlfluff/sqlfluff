@@ -33,6 +33,7 @@ clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 clickhouse_dialect.insert_lexer_matchers(
+    # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
     [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
     before="newline",
 )
@@ -106,7 +107,7 @@ clickhouse_dialect.add(
         # This case ALL JOIN
         "ALL",
     ),
-    HigherOrderSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
+    LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
 clickhouse_dialect.replace(
     BinaryOperatorGrammar=OneOf(
@@ -114,8 +115,8 @@ clickhouse_dialect.replace(
         Ref("StringBinaryOperatorGrammar"),
         Ref("BooleanBinaryOperatorGrammar"),
         Ref("ComparisonOperatorGrammar"),
-        # Add Higher-order functions
-        Ref("HigherOrderSegment"),
+        # Add Lambda Function
+        Ref("LambdaFunctionSegment"),
     ),
 )
 
