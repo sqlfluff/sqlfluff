@@ -193,7 +193,7 @@ class LintingResult:
                                 if file.tree
                                 else ""
                             ),
-                            **file.time_dict,
+                            **file.timings.step_timings,
                         }
                     )
 

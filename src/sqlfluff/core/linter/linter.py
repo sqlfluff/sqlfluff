@@ -691,7 +691,7 @@ class Linter:
                     # Reason: When the linter hits the loop limit, the file is often
                     # messy, e.g. some of the fixes were applied repeatedly, possibly
                     # other weird things. We don't want the user to see this junk!
-                    return save_tree, initial_linting_errors, ignore_buff
+                    return save_tree, initial_linting_errors, ignore_buff, rule_timings
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
