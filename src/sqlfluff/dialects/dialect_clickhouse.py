@@ -436,12 +436,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-class ClusterReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to a cluster."""
-
-    type = "cluster_reference"
-
-
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -464,7 +458,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "ON",
             "CLUSTER",
-            Ref("ClusterReferenceSegment"),
+            Ref("ExpressionSegment"),
             optional=True,
         ),
         OneOf(
@@ -513,15 +507,50 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/table/
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "TO",
+                Ref("TableReferenceSegment"),
+                Ref("EngineSegment", optional=True),
+            ),
+            Sequence(
+                Ref("EngineSegment", optional=True),
+                Sequence("POPULATE", optional=True),
+            ),
+        ),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("TableEndClauseSegment", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
-            Ref("EngineSegment"),
-            Ref("ClusterReferenceSegment"),
-            Ref("ColumnTTLSegment"),
-            Ref("TableTTLSegment"),
+            Ref("CreateTableStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
         ]
     )
