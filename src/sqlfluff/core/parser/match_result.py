@@ -3,8 +3,8 @@
 This should be the default response from any `match` method.
 """
 
-from typing import Tuple, TYPE_CHECKING
 from collections import namedtuple
+from typing import TYPE_CHECKING, Tuple
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 

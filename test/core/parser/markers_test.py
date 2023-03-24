@@ -1,9 +1,8 @@
 """Tests for PositionMarker."""
 
 import pytest
-
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.templaters import TemplatedFile
 
 
 @pytest.mark.parametrize(

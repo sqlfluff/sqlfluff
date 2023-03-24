@@ -1,34 +1,34 @@
 """The Test file for The New Parser (Grammar Classes)."""
 
-import pytest
 import logging
+from os import getenv
 
+import pytest
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser import (
+    Indent,
     KeywordSegment,
+    RegexParser,
     StringParser,
     SymbolSegment,
-    RegexParser,
     WhitespaceSegment,
-    Indent,
 )
 from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.grammar import (
+    Anything,
+    Conditional,
+    Delimited,
+    GreedyUntil,
+    Nothing,
+    OneOf,
+    Ref,
+    Sequence,
+    StartsWith,
+)
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
-from sqlfluff.core.parser.grammar import (
-    OneOf,
-    Sequence,
-    GreedyUntil,
-    Delimited,
-    StartsWith,
-    Anything,
-    Nothing,
-    Ref,
-    Conditional,
-)
-from sqlfluff.core.errors import SQLParseError
-from os import getenv
+from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 

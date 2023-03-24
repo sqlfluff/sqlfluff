@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from sqlfluff import diff_quality_plugin
 from sqlfluff.cli.commands import lint
 from sqlfluff.utils.testing.cli import invoke_assert_code

@@ -1,42 +1,42 @@
 """Defines the templaters."""
 
-from collections import deque
-from contextlib import contextmanager
+import logging
 import os
 import os.path
-import logging
-from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
-
+from collections import deque
+from contextlib import contextmanager
 from dataclasses import dataclass
+from typing import Any, Deque, Dict, Iterator, List, Optional, Tuple
 
-from dbt.version import get_installed_version
+from dbt.adapters.factory import get_adapter, register_adapter
+from dbt.compilation import Compiler as DbtCompiler
 from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-from dbt.adapters.factory import register_adapter, get_adapter
-from dbt.compilation import Compiler as DbtCompiler
+from dbt.version import get_installed_version
 
 try:
     from dbt.exceptions import (
         CompilationException as DbtCompilationException,
+    )
+    from dbt.exceptions import (
         FailedToConnectException as DbtFailedToConnectException,
     )
 except ImportError:
     from dbt.exceptions import (
         CompilationError as DbtCompilationException,
+    )
+    from dbt.exceptions import (
         FailedToConnectError as DbtFailedToConnectException,
     )
 
 from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
-
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile
-
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
-
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -163,6 +163,8 @@ class DbtTemplater(JinjaTemplater):
 
         from dbt.graph.selector_methods import (
             MethodManager as DbtSelectorMethodManager,
+        )
+        from dbt.graph.selector_methods import (
             MethodName as DbtMethodName,
         )
 

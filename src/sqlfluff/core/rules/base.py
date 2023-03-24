@@ -16,39 +16,39 @@ missing.
 
 import bdb
 import copy
-from dataclasses import dataclass
 import fnmatch
-from itertools import chain
 import logging
 import pathlib
-import regex
 import re
+from collections import defaultdict, namedtuple
+from dataclasses import dataclass
+from itertools import chain
 from typing import (
-    cast,
+    Any,
+    DefaultDict,
+    Dict,
     Iterable,
-    Optional,
+    Iterator,
     List,
+    Optional,
     Set,
     Tuple,
-    Union,
-    Any,
-    Dict,
     Type,
-    DefaultDict,
-    Iterator,
+    Union,
+    cast,
 )
-from collections import namedtuple, defaultdict
+
+import regex
 
 from sqlfluff.core.config import FluffConfig, split_comma_separated_string
-
+from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
 from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.dialects import Dialect
-from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
-from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)

@@ -1,7 +1,6 @@
 """The aliasing plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.layout.LT01 import Rule_LT01
 from sqlfluff.rules.layout.LT02 import Rule_LT02
 from sqlfluff.rules.layout.LT03 import Rule_LT03

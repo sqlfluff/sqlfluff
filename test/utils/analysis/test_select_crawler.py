@@ -1,6 +1,5 @@
 """Test the select_crawler module."""
 import pytest
-
 from sqlfluff.core.linter.linter import Linter
 from sqlfluff.utils.analysis import select_crawler
 

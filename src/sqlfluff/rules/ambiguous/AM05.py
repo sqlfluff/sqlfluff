@@ -1,8 +1,8 @@
 """Implementation of Rule AM05."""
 from typing import Optional, Tuple
-from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 

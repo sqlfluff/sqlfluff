@@ -1,5 +1,5 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple, Any, List
+from typing import Any, List, Optional, Tuple
 
 CheckTuple = Tuple[str, int, int]
 

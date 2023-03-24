@@ -1,27 +1,26 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, List, Tuple, cast
+from os import getenv
+from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
-
-from sqlfluff.core.parser.segments import (
-    BaseSegment,
-    Indent,
-    Dedent,
-    allow_ephemeral,
-    BracketedSegment,
-    MetaSegment,
-)
-from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
-from os import getenv
+from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    BracketedSegment,
+    Dedent,
+    Indent,
+    MetaSegment,
+    allow_ephemeral,
+)
 
 
 class Sequence(BaseGrammar):

@@ -1,20 +1,20 @@
 """Module for loading config."""
 
+import configparser
 import logging
 import os
 import os.path
-import configparser
 import sys
 from dataclasses import dataclass
-
-import pluggy
 from itertools import chain
-from typing import Dict, Iterator, List, Tuple, Any, Optional, Union, Iterable, Callable
 from pathlib import Path
-from sqlfluff.core.plugin.host import get_plugin_manager
-from sqlfluff.core.errors import SQLFluffUserError
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 import appdirs
+import pluggy
+
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 if sys.version_info >= (3, 11):
     import tomllib

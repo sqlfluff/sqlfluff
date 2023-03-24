@@ -1,7 +1,6 @@
 """Implementation of Rule CP03."""
 
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 

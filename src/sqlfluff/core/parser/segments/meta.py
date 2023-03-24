@@ -1,13 +1,12 @@
 """Indent and Dedent classes."""
 
+from typing import List, Optional
 from uuid import UUID
 
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
-from sqlfluff.core.parser.context import ParseContext
-from typing import Optional, List
-
 from sqlfluff.core.templaters.base import TemplatedFile
 
 

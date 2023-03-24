@@ -9,7 +9,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
-    TypedParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -20,6 +19,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi

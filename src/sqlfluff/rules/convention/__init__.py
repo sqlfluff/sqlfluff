@@ -1,7 +1,6 @@
 """The convention plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.convention.CV01 import Rule_CV01
 from sqlfluff.rules.convention.CV02 import Rule_CV02
 from sqlfluff.rules.convention.CV03 import Rule_CV03

@@ -8,15 +8,16 @@ NB: This is not part of the core sqlfluff code.
 
 # This contains various utility scripts
 
-import shutil
 import os
-import click
-import time
+import re
+import shutil
 import subprocess
 import sys
-import yaml
+import time
+
+import click
 import requests
-import re
+import yaml
 from ghapi.all import GhApi
 
 

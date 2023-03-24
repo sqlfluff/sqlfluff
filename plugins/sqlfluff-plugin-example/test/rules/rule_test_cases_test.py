@@ -1,5 +1,6 @@
 """Runs the rule test cases."""
 import os
+
 import pytest
 from sqlfluff.utils.testing.rules import load_test_cases, rules__test_helper
 

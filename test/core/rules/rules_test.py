@@ -1,28 +1,26 @@
 """Tests for the standard set of rules."""
-import pytest
 import logging
-
-from sqlfluff.core import Linter
-from sqlfluff.core.linter import RuleTuple
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix
-from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
-    document_groups,
-    document_configuration,
-)
-from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.utils.testing.rules import get_rule_from_set
-
 from test.fixtures.rules.custom.L000 import Rule_L000
 from test.fixtures.rules.custom.S000 import Rule_S000
+
+import pytest
+from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.linter import RuleTuple
+from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, get_ruleset
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+    document_groups,
+)
 from sqlfluff.core.rules.loader import get_rules_from_path
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
+from sqlfluff.utils.testing.rules import get_rule_from_set
 
 
 class Rule_T042(BaseRule):

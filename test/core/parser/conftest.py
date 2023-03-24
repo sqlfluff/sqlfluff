@@ -1,7 +1,6 @@
 """Test fixtures for parser tests."""
 
 import pytest
-
 from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.parser.segments import TemplateSegment
 

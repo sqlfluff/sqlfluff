@@ -2,15 +2,13 @@
 
 
 import logging
-from typing import List, Optional, Tuple, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple, cast
 
-from sqlfluff.core.parser import BaseSegment, RawSegment, PositionMarker
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.segments.raw import WhitespaceSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.errors import SQLFluffUserError
-
 from sqlfluff.utils.reflow.helpers import pretty_segment_name
-
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.utils.reflow.elements import ReflowBlock

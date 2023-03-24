@@ -2,23 +2,22 @@
 
 import copy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any, cast
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Type, Union, cast
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.string_helpers import curtail_string
-
-from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
-    parse_match_logging,
     LateBoundJoinSegmentsCurtailed,
+    parse_match_logging,
 )
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
+from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
+from sqlfluff.core.string_helpers import curtail_string
 
 # Either a Matchable (a grammar or parser) or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]

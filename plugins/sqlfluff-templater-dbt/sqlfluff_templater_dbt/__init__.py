@@ -1,7 +1,8 @@
 """Defines the hook endpoints for the dbt templater plugin."""
 
-from sqlfluff_templater_dbt.templater import DbtTemplater
 from sqlfluff.core.plugin import hookimpl
+
+from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 @hookimpl

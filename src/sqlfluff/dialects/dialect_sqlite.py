@@ -5,19 +5,19 @@ https://www.sqlite.org/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
+    Delimited,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     Ref,
     Sequence,
-    Delimited,
-    TypedParser,
-    Nothing,
-    AnyNumberOf,
-    Anything,
     StartsWith,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import (

@@ -5,8 +5,8 @@ contains all of the routines to apply fixes to that file
 post linting.
 """
 
-import os
 import logging
+import os
 import shutil
 import stat
 import tempfile
@@ -17,22 +17,21 @@ from typing import (
     NamedTuple,
     Optional,
     Tuple,
+    Type,
     Union,
     cast,
-    Type,
 )
 
 from sqlfluff.core.errors import (
+    CheckTuple,
     SQLBaseError,
     SQLLintError,
-    CheckTuple,
 )
-from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
+from sqlfluff.core.linter.common import NoQaDirective
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
-
-from sqlfluff.core.linter.common import NoQaDirective
+from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")

@@ -3,7 +3,6 @@
 import pytest
 from sqlfluff.core import FluffConfig
 
-
 DBT_FLUFF_CONFIG = {
     "core": {
         "templater": "dbt",

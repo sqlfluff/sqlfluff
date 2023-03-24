@@ -4,17 +4,16 @@ Any files in the test/fixtures/linter/autofix directory will be picked up
 and automatically tested against the appropriate dialect.
 """
 
-from typing import Optional
-import pytest
-import os
-import tempfile
-import shutil
 import json
 import logging
+import os
+import shutil
+import tempfile
+from typing import Optional
+
+import pytest
 import yaml
-
 from sqlfluff.core import FluffConfig, Linter
-
 
 # Construct the tests from the filepath
 test_cases = []

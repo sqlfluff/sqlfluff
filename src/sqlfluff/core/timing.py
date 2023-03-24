@@ -1,7 +1,7 @@
 """Timing summary class."""
 
-from typing import Optional, List, Dict
 from collections import defaultdict
+from typing import Dict, List, Optional
 
 
 class TimingSummary:

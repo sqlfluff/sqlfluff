@@ -1,8 +1,8 @@
 """Defined the `match_wrapper` which adds validation and logging to match methods."""
 
+from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 from sqlfluff.core.parser.match_logging import ParseMatchLogObject
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 
 
 class WrapParseMatchLogObject(ParseMatchLogObject):

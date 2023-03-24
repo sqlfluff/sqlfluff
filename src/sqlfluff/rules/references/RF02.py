@@ -1,6 +1,7 @@
 """Implementation of Rule RF02."""
-import regex
 from typing import List, Optional
+
+import regex
 
 from sqlfluff.core.rules import LintResult
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04

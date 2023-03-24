@@ -9,10 +9,10 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
+    MultiStringParser,
     OneOf,
     Ref,
     Sequence,
-    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi

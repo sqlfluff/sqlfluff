@@ -1,11 +1,11 @@
 """Implementation of Rule CP05."""
 
 from typing import List
+
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 

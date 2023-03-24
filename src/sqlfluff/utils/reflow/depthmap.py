@@ -2,12 +2,11 @@
 
 import logging
 from dataclasses import dataclass
-from typing import FrozenSet, List, Sequence, Tuple, Type, Dict
+from typing import Dict, FrozenSet, List, Sequence, Tuple, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.parser.segments.raw import RawSegment
-
 
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 

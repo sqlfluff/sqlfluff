@@ -6,8 +6,7 @@ from typing import Generator, NamedTuple, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class TableAliasInfo(NamedTuple):

@@ -1,12 +1,13 @@
 """The simple public API methods."""
 
 from typing import Any, Dict, List, Optional
+
 from sqlfluff.core import (
-    dialect_selector,
     FluffConfig,
     Linter,
     SQLBaseError,
     SQLFluffUserError,
+    dialect_selector,
 )
 
 

@@ -4,7 +4,6 @@ NOTE: Yes the title of this bundle is ...ambiguous. 😁
 """
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.ambiguous.AM01 import Rule_AM01
 from sqlfluff.rules.ambiguous.AM02 import Rule_AM02
 from sqlfluff.rules.ambiguous.AM03 import Rule_AM03

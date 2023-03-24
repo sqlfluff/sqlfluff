@@ -1,7 +1,6 @@
 """Test the helpers."""
 
 import pytest
-
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.file_helpers import get_encoding
 

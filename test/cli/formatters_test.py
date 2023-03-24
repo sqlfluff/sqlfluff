@@ -4,7 +4,6 @@ import re
 import textwrap
 
 import pytest
-
 from sqlfluff.cli.commands import fix
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import FileOutput

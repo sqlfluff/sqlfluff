@@ -4,14 +4,15 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
+from typing import Collection, List, Optional, Tuple, Type, Union
 from uuid import uuid4
+
 import regex
-from typing import Collection, Type, Optional, List, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.segments import RawSegment, BaseSegment
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 
 
 class BaseParser(Matchable):

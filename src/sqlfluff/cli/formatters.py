@@ -1,6 +1,6 @@
 """Defines the formatters for the CLI."""
-from io import StringIO
 import sys
+from io import StringIO
 from typing import List, Optional, Tuple, Union
 
 import click
@@ -9,14 +9,13 @@ from colorama import Style
 from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.helpers import (
     get_package_version,
-    get_python_version,
     get_python_implementation,
+    get_python_version,
     pad_line,
     wrap_field,
 )
 from sqlfluff.cli.outputstream import OutputStream
-
-from sqlfluff.core import SQLBaseError, FluffConfig, Linter, TimingSummary
+from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
 

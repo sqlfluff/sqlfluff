@@ -6,7 +6,6 @@ https://duckdb.org/docs/
 from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
@@ -18,6 +17,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 

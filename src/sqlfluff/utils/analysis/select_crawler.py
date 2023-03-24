@@ -1,15 +1,15 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union, Tuple
+from typing import Dict, Generator, List, NamedTuple, Optional, Tuple, Type, Union
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.utils.analysis.select import (
-    get_select_statement_info,
     SelectStatementColumnsAndTables,
+    get_select_statement_info,
 )
 from sqlfluff.utils.functional import Segments, sp
 

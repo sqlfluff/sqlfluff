@@ -2,13 +2,11 @@
 
 from typing import List, NamedTuple, Optional, Sequence
 
-from sqlfluff.core.parser import WhitespaceSegment
-
-from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class SelectTargetsInfo(NamedTuple):

@@ -1,30 +1,28 @@
 """Tests for the configuration routines."""
 
+import logging
 import os
 import sys
-import logging
+from pathlib import Path
+from unittest.mock import call, patch
 
-from sqlfluff.core import config, Linter, FluffConfig
+import appdirs
+import pytest
+from sqlfluff.core import FluffConfig, Linter, config
 from sqlfluff.core.config import (
     REMOVED_CONFIGS,
     ConfigLoader,
-    nested_combine,
     dict_diff,
+    nested_combine,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
-    RawTemplater,
-    PythonTemplater,
     JinjaTemplater,
     PlaceholderTemplater,
+    PythonTemplater,
+    RawTemplater,
 )
 from sqlfluff.utils.testing.logging import fluff_log_catcher
-
-from pathlib import Path
-from unittest.mock import patch, call
-import appdirs
-import pytest
-
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4},

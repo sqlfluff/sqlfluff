@@ -1,23 +1,22 @@
 """Tests for the dbt templater."""
 
-from copy import deepcopy
 import glob
-import os
 import logging
+import os
 import shutil
+from copy import deepcopy
 from pathlib import Path
-from unittest import mock
-
-import pytest
-
-from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff.utils.testing.logging import fluff_log_catcher
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
     project_dir,
 )
+from unittest import mock
+
+import pytest
+from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtFailedToConnectException, DbtTemplater
 
 

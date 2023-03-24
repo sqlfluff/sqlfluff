@@ -8,7 +8,7 @@ from sqlfluff.core.parser.grammar.base import (
     MatchableType,
     cached_method_for_parse_context,
 )
-from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
+from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult

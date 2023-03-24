@@ -1,34 +1,34 @@
 """Definitions of the segment classes."""
 
 from sqlfluff.core.parser.segments.base import (
-    BaseSegment,
     BaseFileSegment,
-    UnparsableSegment,
+    BaseSegment,
     BracketedSegment,
-    IdentitySet,
     FixPatch,
+    IdentitySet,
     SourceFix,
-)
-from sqlfluff.core.parser.segments.generator import SegmentGenerator
-from sqlfluff.core.parser.segments.raw import (
-    RawSegment,
-    CodeSegment,
-    UnlexableSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    KeywordSegment,
-    SymbolSegment,
+    UnparsableSegment,
 )
 from sqlfluff.core.parser.segments.ephemeral import EphemeralSegment, allow_ephemeral
+from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.core.parser.segments.meta import (
-    MetaSegment,
-    Indent,
     Dedent,
-    ImplicitIndent,
-    TemplateSegment,
     EndOfFile,
+    ImplicitIndent,
+    Indent,
+    MetaSegment,
     TemplateLoop,
+    TemplateSegment,
+)
+from sqlfluff.core.parser.segments.raw import (
+    CodeSegment,
+    CommentSegment,
+    KeywordSegment,
+    NewlineSegment,
+    RawSegment,
+    SymbolSegment,
+    UnlexableSegment,
+    WhitespaceSegment,
 )
 
 __all__ = (

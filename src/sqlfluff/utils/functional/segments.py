@@ -5,7 +5,6 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 
-
 PredicateType = Callable[[BaseSegment], bool]
 
 

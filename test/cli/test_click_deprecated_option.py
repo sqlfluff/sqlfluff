@@ -1,14 +1,13 @@
 """The Test suite for `DeprecatedOption` - extension for click options."""
+from test.cli.commands_test import invoke_assert_code
 from typing import List
 
 import click
 import pytest
-
 from sqlfluff.cli.click_deprecated_option import (
     DeprecatedOption,
     DeprecatedOptionsCommand,
 )
-from test.cli.commands_test import invoke_assert_code
 
 
 class TestClickDeprecatedOption:

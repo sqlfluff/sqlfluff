@@ -1,8 +1,7 @@
 """The Test file for CLI helpers."""
 
 import pytest
-
-from sqlfluff.cli.helpers import wrap_elem, wrap_field, pad_line
+from sqlfluff.cli.helpers import pad_line, wrap_elem, wrap_field
 
 
 @pytest.mark.parametrize(

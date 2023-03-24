@@ -1,6 +1,5 @@
 """Test components for working with object and table references."""
 import pytest
-
 from sqlfluff.core.rules import reference
 
 

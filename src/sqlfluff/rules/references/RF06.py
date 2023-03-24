@@ -1,13 +1,13 @@
 """Implementation of Rule RF06."""
 
-from typing import List, Optional, cast, Type
+from typing import List, Optional, Type, cast
 
 import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_RF06(BaseRule):

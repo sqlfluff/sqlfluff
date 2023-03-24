@@ -1,15 +1,14 @@
 """Base implementation for the plugin."""
 
 import os.path
-
 from typing import List, Type
 
 from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
+from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.loader import get_rules_from_path
-from sqlfluff.core.rules import BaseRule
-from sqlfluff.core.templaters import core_templaters, RawTemplater
+from sqlfluff.core.templaters import RawTemplater, core_templaters
 
 
 @hookimpl

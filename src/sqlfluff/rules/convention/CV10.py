@@ -4,11 +4,11 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.utils.functional import rsp, FunctionalContext
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import LiteralSegment
+from sqlfluff.utils.functional import FunctionalContext, rsp
 
 
 class Rule_CV10(BaseRule):

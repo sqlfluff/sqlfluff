@@ -1,8 +1,7 @@
 """Test the helpers."""
 
 import pytest
-
-from sqlfluff.core.parser.helpers import trim_non_code_segments, iter_indices
+from sqlfluff.core.parser.helpers import iter_indices, trim_non_code_segments
 
 
 @pytest.mark.parametrize(

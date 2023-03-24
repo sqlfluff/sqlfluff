@@ -11,20 +11,12 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
-
-from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
-
-from sqlfluff.core.parser.grammar.base import Ref
-from sqlfluff.core.parser.grammar.sequence import Sequence
+from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf
+from sqlfluff.core.parser.grammar.base import Anything, Ref
+from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.segments.base import BaseSegment
-
-from sqlfluff.core.parser.grammar.base import Anything
-from sqlfluff.core.parser.grammar.sequence import Bracketed
-
-from sqlfluff.core.parser.grammar.anyof import OneOf
-
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 

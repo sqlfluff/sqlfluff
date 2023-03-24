@@ -1,16 +1,16 @@
 """Implementation of Rule JJ01."""
 from typing import Tuple
-from sqlfluff.core.parser.segments import SourceFix
 
+from sqlfluff.core.parser.segments import SourceFix
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
-    LintResult,
     LintFix,
+    LintResult,
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import rsp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, rsp
 
 
 class Rule_JJ01(BaseRule):

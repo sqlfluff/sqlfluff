@@ -6,21 +6,20 @@ from typing import NamedTuple
 
 import pytest
 import yaml
-
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.linter import Linter
-from sqlfluff.core.parser import Parser, Lexer
+from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
-    Indent,
+    BaseSegment,
+    CodeSegment,
+    CommentSegment,
     Dedent,
-    WhitespaceSegment,
+    Indent,
     NewlineSegment,
     SymbolSegment,
-    CommentSegment,
-    CodeSegment,
-    BaseSegment,
+    WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile

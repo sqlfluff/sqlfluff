@@ -15,7 +15,6 @@ from diff_cover.violationsreporters.base import (
     Violation,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

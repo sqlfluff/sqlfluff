@@ -1,25 +1,27 @@
 """Implementation of Rule AL05."""
 
 from dataclasses import dataclass, field
-from typing import cast, List, Set
+from typing import List, Set, cast
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments import BaseSegment
-from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import (
-    Query as SelectCrawlerQuery,
-    SelectCrawler,
-)
 from sqlfluff.core.rules import (
     BaseRule,
+    EvalResultType,
     LintFix,
     LintResult,
     RuleContext,
-    EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select_crawler import (
+    Query as SelectCrawlerQuery,
+)
+from sqlfluff.utils.analysis.select_crawler import (
+    SelectCrawler,
+)
 from sqlfluff.utils.functional import Segments, sp
-from sqlfluff.core.dialects.common import AliasInfo
 
 
 @dataclass

@@ -6,7 +6,6 @@ import logging
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 
-
 parser_logger = logging.getLogger("sqlfluff.parser")
 
 

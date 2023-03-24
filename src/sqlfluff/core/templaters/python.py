@@ -2,19 +2,18 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
+from typing import Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
 
 from sqlfluff.core.errors import SQLTemplaterError
-from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.slice_helpers import offset_slice, zero_slice
-
+from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters.base import (
+    RawFileSlice,
     RawTemplater,
     TemplatedFile,
-    templater_logger,
-    RawFileSlice,
     TemplatedFileSlice,
     large_file_check,
+    templater_logger,
 )
 
 

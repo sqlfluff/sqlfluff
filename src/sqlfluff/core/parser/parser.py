@@ -1,9 +1,9 @@
 """Defines the Parser class."""
 
-from typing import Optional, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Sequence
 
-from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.parser.context import RootParseContext
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover

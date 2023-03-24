@@ -1,17 +1,16 @@
 """Implementation of Rule CV11."""
 
-from typing import Optional, List, Iterable
-
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.utils.functional import sp, FunctionalContext, Segments
+from typing import Iterable, List, Optional
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
-    SymbolSegment,
-    KeywordSegment,
     BaseSegment,
+    KeywordSegment,
+    SymbolSegment,
+    WhitespaceSegment,
 )
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_CV11(BaseRule):
@@ -92,12 +91,12 @@ class Rule_CV11(BaseRule):
                 KeywordSegment("cast"),
                 SymbolSegment("(", type="start_bracket"),
             ]
-            + list(cast_arg_1)
+            + list(cast_arg_1)  # type: ignore
             + [
-                WhitespaceSegment(),
+                WhitespaceSegment(),  # type: ignore
                 KeywordSegment("as"),
-                WhitespaceSegment(),
-                cast_arg_2,
+                WhitespaceSegment(),  # type: ignore
+                cast_arg_2,  # type: ignore
                 SymbolSegment(")", type="end_bracket"),
             ]
         )
@@ -116,7 +115,7 @@ class Rule_CV11(BaseRule):
                 SymbolSegment(")", type="end_bracket"),
             ]
             for _type in later_types:
-                edits = pre_edits + edits + in_edits + [_type] + post_edits
+                edits = pre_edits + edits + in_edits + [_type] + post_edits  # type: ignore # noqa: E501
 
         fixes = [
             LintFix.replace(

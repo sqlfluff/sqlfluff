@@ -1,9 +1,8 @@
 """Tests for templaters."""
 import pytest
-
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.templaters import PlaceholderTemplater
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.templaters import PlaceholderTemplater
 
 
 def test__templater_raw():

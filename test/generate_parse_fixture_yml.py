@@ -1,22 +1,19 @@
 """Utility to generate yml files for all the parsing examples."""
+import fnmatch
 import multiprocessing
 import os
-import fnmatch
 import re
-import click
 from typing import Callable, Dict, List, Optional, TypeVar
 
-
+import click
 import yaml
-
 from conftest import (
+    ParseExample,
     compute_parse_tree_hash,
     get_parse_fixtures,
     parse_example_file,
-    ParseExample,
 )
 from sqlfluff.core.errors import SQLParseError
-
 
 S = TypeVar("S")
 

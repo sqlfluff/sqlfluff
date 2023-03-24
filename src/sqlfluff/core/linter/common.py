@@ -1,17 +1,17 @@
 """Defines small container classes to hold intermediate results during linting."""
 
 from typing import (
+    Dict,
     List,
     NamedTuple,
     Optional,
     Tuple,
-    Dict,
 )
 
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.templaters import TemplatedFile
 
 
 class RuleTuple(NamedTuple):

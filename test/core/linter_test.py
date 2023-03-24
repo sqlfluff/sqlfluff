@@ -1,28 +1,26 @@
 """The Test file for the linter class."""
 
-import os
 import logging
+import os
 from typing import List
 from unittest.mock import patch
 
 import pytest
-
-from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.linter import runner
-from sqlfluff.core.errors import (
-    SQLFluffSkipFile,
-    SQLLexError,
-    SQLBaseError,
-    SQLLintError,
-    SQLParseError,
-    SQLFluffUserError,
-)
+import sqlfluff.core.linter as linter
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
-from sqlfluff.core.linter import LintingResult, NoQaDirective
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLFluffSkipFile,
+    SQLFluffUserError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+)
+from sqlfluff.core.linter import LintingResult, NoQaDirective, runner
 from sqlfluff.core.linter.runner import get_runner
-import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher

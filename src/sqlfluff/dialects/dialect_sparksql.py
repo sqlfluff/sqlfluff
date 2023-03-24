@@ -14,6 +14,7 @@ https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apa
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CommentSegment,
@@ -21,29 +22,27 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
-    TypedParser,
+    Matchable,
+    MultiStringParser,
     OneOf,
     OptionallyBracketed,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
+    StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Anything,
-    StartsWith,
-    RegexParser,
-    Matchable,
-    MultiStringParser,
-    StringLexer,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")

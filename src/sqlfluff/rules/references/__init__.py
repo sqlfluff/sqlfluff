@@ -1,7 +1,6 @@
 """The references plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.references.RF01 import Rule_RF01
 from sqlfluff.rules.references.RF02 import Rule_RF02
 from sqlfluff.rules.references.RF03 import Rule_RF03

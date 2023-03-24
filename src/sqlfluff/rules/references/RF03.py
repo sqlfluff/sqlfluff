@@ -5,19 +5,18 @@ from typing import Iterator, List, Optional, Set
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.raw import SymbolSegment
-from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules import (
     BaseRule,
+    EvalResultType,
     LintFix,
     LintResult,
-    EvalResultType,
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment
-
+from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 

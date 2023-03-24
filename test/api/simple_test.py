@@ -3,7 +3,6 @@
 import json
 
 import pytest
-
 import sqlfluff
 from sqlfluff.core.errors import SQLFluffUserError
 

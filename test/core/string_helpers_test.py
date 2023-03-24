@@ -1,7 +1,6 @@
 """Test the helpers."""
 
 import pytest
-
 from sqlfluff.core.string_helpers import findall
 
 

@@ -4,7 +4,7 @@
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, FrozenSet, Set, Optional
+from typing import AbstractSet, Dict, FrozenSet, Optional, Set
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo

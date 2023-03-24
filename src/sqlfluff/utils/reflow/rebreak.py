@@ -2,19 +2,16 @@
 
 import logging
 from dataclasses import dataclass
-
-from typing import List, Type, Tuple, cast
+from typing import List, Tuple, Type, cast
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintFix, LintResult
-
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import (
+    deduce_line_indent,
     fixes_from_results,
     pretty_segment_name,
-    deduce_line_indent,
 )
-
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset

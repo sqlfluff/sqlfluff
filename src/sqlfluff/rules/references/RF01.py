@@ -1,23 +1,24 @@
 """Implementation of Rule RF01."""
 from dataclasses import dataclass, field
-from typing import cast, List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.utils.analysis.select_crawler import (
-    Query as SelectCrawlerQuery,
-    SelectCrawler,
-)
 from sqlfluff.core.rules import (
     BaseRule,
+    EvalResultType,
     LintResult,
     RuleContext,
-    EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.reference import object_ref_matches_table
-
+from sqlfluff.utils.analysis.select_crawler import (
+    Query as SelectCrawlerQuery,
+)
+from sqlfluff.utils.analysis.select_crawler import (
+    SelectCrawler,
+)
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 _START_TYPES = [
     "delete_statement",

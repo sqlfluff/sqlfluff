@@ -3,11 +3,11 @@
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
 
-from dataclasses import dataclass, field
 import logging
-import regex
-from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Callable, Dict, List, NamedTuple, Optional, Tuple, cast
 
+import regex
 from jinja2 import Environment
 from jinja2.environment import Template
 from jinja2.exceptions import TemplateSyntaxError
@@ -16,7 +16,6 @@ from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFileSlice,
 )
-
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

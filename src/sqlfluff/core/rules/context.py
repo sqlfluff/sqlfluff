@@ -2,18 +2,16 @@
 
 
 import pathlib
-
+from dataclasses import dataclass, field
 from typing import (
+    Any,
     Optional,
     Tuple,
-    Any,
 )
 
-from dataclasses import dataclass, field
 from sqlfluff.core.config import FluffConfig
-
-from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 
 

@@ -1,5 +1,6 @@
 """Implementation of Rule ST07."""
 from typing import List, Optional, Tuple
+
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     KeywordSegment,
@@ -8,9 +9,9 @@ from sqlfluff.core.parser.segments.raw import (
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
-from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment, IdentifierSegment
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_ST07(BaseRule):

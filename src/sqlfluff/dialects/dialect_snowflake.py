@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -32,14 +32,14 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    MultiStringParser,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")

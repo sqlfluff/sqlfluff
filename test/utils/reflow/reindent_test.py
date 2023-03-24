@@ -7,20 +7,18 @@ Specifically:
 """
 
 import logging
-import pytest
 
+import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
-
-from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.sequence import ReflowSequence
-from sqlfluff.utils.reflow.helpers import deduce_line_indent
+from sqlfluff.utils.reflow.helpers import deduce_line_indent, fixes_from_results
 from sqlfluff.utils.reflow.reindent import (
-    lint_indent_points,
     _crawl_indent_points,
-    _IndentPoint,
     _IndentLine,
+    _IndentPoint,
+    lint_indent_points,
 )
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 def parse_ansi_string(sql, config):

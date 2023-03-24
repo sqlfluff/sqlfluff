@@ -4,8 +4,7 @@ from typing import List, NamedTuple, Optional, Sequence, cast
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
-
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
 
@@ -218,10 +217,7 @@ class Rule_CV06(BaseRule):
         # Adjust before_segment and anchor_segment for preceding inline
         # comments. Inline comments can contain noqa logic so we need to add the
         # newline after the inline comment.
-        (
-            before_segment,
-            anchor_segment,
-        ) = self._handle_preceding_inline_comments(
+        (before_segment, anchor_segment,) = self._handle_preceding_inline_comments(
             info.before_segment, info.anchor_segment
         )
 

@@ -1,17 +1,16 @@
 """The Test file for The New Parser (Base Segment Classes)."""
 
 import pytest
-
 from sqlfluff.core.parser import (
+    BaseFileSegment,
+    BaseSegment,
     PositionMarker,
     RawSegment,
-    BaseSegment,
-    BaseFileSegment,
 )
-from sqlfluff.core.parser.segments.base import PathStep
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.templaters import TemplatedFile
 
 
 @pytest.fixture(scope="module")

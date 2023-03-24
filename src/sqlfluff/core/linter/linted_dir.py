@@ -12,15 +12,14 @@ from typing import (
     Union,
     overload,
 )
-from typing_extensions import Literal
 
+from typing_extensions import Literal
 
 from sqlfluff.core.errors import (
     CheckTuple,
 )
-from sqlfluff.core.parser.segments.base import BaseSegment
-
 from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class LintedDir:

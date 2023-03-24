@@ -2,7 +2,7 @@
 from typing import List
 
 from sqlfluff.core.parser.segments.base import IdentitySet
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
 

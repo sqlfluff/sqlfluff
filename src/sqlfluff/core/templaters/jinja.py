@@ -1,8 +1,8 @@
 """Defines the templaters."""
+import importlib
 import logging
 import os.path
 import pkgutil
-import importlib
 import sys
 from functools import reduce
 from typing import Callable, Dict, Generator, List, Optional, Tuple

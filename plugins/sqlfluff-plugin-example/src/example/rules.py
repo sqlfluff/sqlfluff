@@ -3,6 +3,10 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
+import os.path
+from typing import List, Type
+
+from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import (
     BaseRule,
@@ -10,9 +14,6 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from typing import List, Type
-import os.path
-from sqlfluff.core.config import ConfigLoader
 
 
 @hookimpl

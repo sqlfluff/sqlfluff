@@ -8,6 +8,7 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -26,8 +27,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     StringParser,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")

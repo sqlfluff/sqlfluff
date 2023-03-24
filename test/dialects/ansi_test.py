@@ -1,8 +1,8 @@
 """Tests specific to the ansi dialect."""
 
-import pytest
 import logging
 
+import pytest
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import Lexer
 

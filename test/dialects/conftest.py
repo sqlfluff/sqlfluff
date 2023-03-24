@@ -1,12 +1,11 @@
 """Sharing fixtures to test the dialects."""
-import pytest
-
 import logging
 
+import pytest
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import (
-    Lexer,
     BaseSegment,
+    Lexer,
     RawSegment,
 )
 from sqlfluff.core.parser.context import RootParseContext

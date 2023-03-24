@@ -3,17 +3,17 @@
 https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
 """
 
-from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
+    CodeSegment,
     OneOf,
     Ref,
-    Sequence,
     RegexLexer,
-    CodeSegment,
+    Sequence,
     TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 

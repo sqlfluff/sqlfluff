@@ -5,19 +5,19 @@ and automatically tested against the appropriate dialect.
 """
 import logging
 from typing import Any, Dict, Optional
-import pytest
 
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.linter import RenderedFile, ParsedString
+import pytest
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.linter import ParsedString, RenderedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.templaters import TemplatedFile
 
 from ..conftest import (
     compute_parse_tree_hash,
+    get_parse_fixtures,
     load_file,
     make_dialect_path,
     parse_example_file,
-    get_parse_fixtures,
 )
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(

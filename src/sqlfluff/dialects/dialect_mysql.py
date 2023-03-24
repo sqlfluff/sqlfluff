@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     Delimited,
     KeywordSegment,
     Matchable,
-    TypedParser,
     OneOf,
     Ref,
     RegexLexer,
@@ -26,12 +25,13 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
     mysql_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")

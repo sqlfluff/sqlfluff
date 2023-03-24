@@ -1,7 +1,6 @@
 """Tests specific to the snowflake dialect."""
 
 import pytest
-
 from sqlfluff.core import Linter
 from sqlfluff.core.dialects import dialect_selector
 

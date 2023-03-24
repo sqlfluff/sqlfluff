@@ -1,8 +1,8 @@
 """Methods to load rules."""
 
 import os
-from importlib import import_module
 from glob import glob
+from importlib import import_module
 
 
 def get_rules_from_path(

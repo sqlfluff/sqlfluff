@@ -2,8 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext

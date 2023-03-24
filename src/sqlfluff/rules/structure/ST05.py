@@ -29,22 +29,21 @@ from sqlfluff.core.rules import (
     LintResult,
     RuleContext,
 )
-from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional.segment_predicates import (
-    is_keyword,
-    is_type,
-    is_whitespace,
-)
-from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
     TableReferenceSegment,
     WithCompoundStatementSegment,
 )
-
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
+from sqlfluff.utils.functional import FunctionalContext, Segments
+from sqlfluff.utils.functional.segment_predicates import (
+    is_keyword,
+    is_type,
+    is_whitespace,
+)
 
 _SELECT_TYPES = [
     "with_compound_statement",

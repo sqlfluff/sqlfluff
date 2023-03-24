@@ -7,26 +7,25 @@ from typing import (
     Dict,
     List,
     Optional,
-    overload,
     Tuple,
     Union,
+    overload,
 )
+
 from typing_extensions import Literal
 
 from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
-
 from sqlfluff.core.errors import (
     CheckTuple,
     SQLLintError,
     SQLParseError,
     SQLTemplaterError,
 )
-
-from sqlfluff.core.timing import TimingSummary
+from sqlfluff.core.linter.linted_dir import LintedDir
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.timing import TimingSummary
 
 
 class LintingResult:

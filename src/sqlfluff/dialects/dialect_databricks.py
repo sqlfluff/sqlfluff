@@ -6,7 +6,6 @@ It also has some extensions.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-
 from sqlfluff.dialects.dialect_databricks_keywords import RESERVED_KEYWORDS
 
 sparksql_dialect = load_raw_dialect("sparksql")

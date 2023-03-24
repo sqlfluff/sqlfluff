@@ -13,15 +13,14 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Matchable,
+    OneOf,
     Ref,
     RegexLexer,
     Sequence,
     StringLexer,
     StringParser,
     SymbolSegment,
-    OneOf,
 )
-
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 

@@ -4,7 +4,6 @@ from typing import Optional, Tuple
 from sqlfluff.core.parser import (
     KeywordSegment,
 )
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence

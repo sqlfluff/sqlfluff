@@ -1,11 +1,11 @@
 """Defines the base dialect class."""
 
-from typing import Set, Union, Type
+from typing import Set, Type, Union
 
 from sqlfluff.core.parser import (
+    BaseSegment,
     KeywordSegment,
     SegmentGenerator,
-    BaseSegment,
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar

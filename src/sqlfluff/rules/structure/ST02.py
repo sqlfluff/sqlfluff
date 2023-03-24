@@ -2,15 +2,14 @@
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
-    SymbolSegment,
     KeywordSegment,
+    SymbolSegment,
+    WhitespaceSegment,
 )
 from sqlfluff.core.parser.segments.base import BaseSegment
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_ST02(BaseRule):

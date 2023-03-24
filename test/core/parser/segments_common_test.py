@@ -1,7 +1,6 @@
 """The Test file for The New Parser (Marker Classes)."""
 
 import pytest
-
 from sqlfluff.core.parser import KeywordSegment, StringParser
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.segments import EphemeralSegment

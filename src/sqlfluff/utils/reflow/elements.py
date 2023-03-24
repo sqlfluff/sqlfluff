@@ -1,30 +1,29 @@
 """Dataclasses for reflow work."""
 
-from itertools import chain
 import logging
 from dataclasses import dataclass
+from itertools import chain
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    RawSegment,
-    NewlineSegment,
-    WhitespaceSegment,
-    TemplateSegment,
     Indent,
+    NewlineSegment,
+    RawSegment,
     SourceFix,
+    TemplateSegment,
+    WhitespaceSegment,
 )
 from sqlfluff.core.rules.base import LintFix, LintResult
-
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
 # Respace Algorithms
 from sqlfluff.utils.reflow.respace import (
     determine_constraints,
-    process_spacing,
     handle_respace__inline_with_space,
     handle_respace__inline_without_space,
+    process_spacing,
 )
 
 # We're in the utils module, but users will expect reflow

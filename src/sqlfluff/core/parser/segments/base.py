@@ -8,52 +8,50 @@ Here we define:
   analysis.
 """
 
+import logging
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy, copy
+from copy import copy, deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Dict,
-    Optional,
-    List,
-    Tuple,
     Iterator,
+    List,
+    Optional,
     Set,
-    TYPE_CHECKING,
+    Tuple,
 )
-import logging
 from uuid import UUID, uuid4
 
 from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.string_helpers import (
-    frame_msg,
-    curtail_string,
-)
-
-from sqlfluff.core.parser.context import RootParseContext
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.context import ParseContext, RootParseContext
 from sqlfluff.core.parser.helpers import (
     check_still_complete,
     trim_non_code_segments,
 )
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.string_helpers import (
+    curtail_string,
+    frame_msg,
+)
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
-    from sqlfluff.core.rules import LintFix  # pragma: no cover
     from sqlfluff.core.parser.segments import RawSegment  # pragma: no cover
+    from sqlfluff.core.rules import LintFix  # pragma: no cover
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")

@@ -10,7 +10,7 @@ and match depth of the current operation.
 
 import logging
 import uuid
-from typing import Optional, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.match_result import MatchResult

@@ -1,7 +1,6 @@
 """The structure plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.structure.ST01 import Rule_ST01
 from sqlfluff.rules.structure.ST02 import Rule_ST02
 from sqlfluff.rules.structure.ST03 import Rule_ST03

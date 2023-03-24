@@ -1,12 +1,11 @@
 """Conditional Grammar."""
 
-from sqlfluff.core.parser.segments import Indent
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
 )
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments import Indent
 
 
 class Conditional(BaseGrammar):

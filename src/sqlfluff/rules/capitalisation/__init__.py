@@ -1,7 +1,6 @@
 """The capitalisation plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 from sqlfluff.rules.capitalisation.CP02 import Rule_CP02
 from sqlfluff.rules.capitalisation.CP03 import Rule_CP03

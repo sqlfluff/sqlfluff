@@ -1,8 +1,7 @@
 """Plugin related tests."""
 import pytest
-
-from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 
 def test__plugin_manager_registers_example_plugin():

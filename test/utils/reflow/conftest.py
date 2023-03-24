@@ -1,7 +1,6 @@
 """Common test fixtures for reflow modules."""
 
 import pytest
-
 from sqlfluff.core import FluffConfig
 
 

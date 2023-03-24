@@ -4,8 +4,8 @@ These are mostly on the ReflowPoint class.
 """
 
 import logging
-import pytest
 
+import pytest
 from sqlfluff.core import Linter
 from sqlfluff.utils.reflow.elements import ReflowPoint
 from sqlfluff.utils.reflow.helpers import fixes_from_results
