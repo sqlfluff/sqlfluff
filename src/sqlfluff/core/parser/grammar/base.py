@@ -27,6 +27,15 @@ if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
+def _trim_elem(seg):
+    """Trim whitespace off an element.
+
+    Used as a helper function in BaseGrammar._look_ahead_match.
+    """
+    s = seg.raw_upper.split(maxsplit=1)
+    return s[0] if s else ""
+
+
 @dataclass
 class BracketInfo:
     """BracketInfo tuple for keeping track of brackets during matching.
@@ -361,156 +370,89 @@ class BaseGrammar(Matchable):
         # Here we enable a performance optimisation. Most of the time in this cycle
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
-        # First: Assess the matchers passed in, if any are
-        # "simple", then we effectively use a hash lookup across the
-        # content of segments to quickly evaluate if the segment is present.
-        # Matchers which aren't "simple" still take a slower route.
-        _matchers = [
-            (matcher, matcher.simple(parse_context=parse_context))
-            for matcher in matchers
-        ]
-        simple_matchers = [matcher for matcher in _matchers if matcher[1]]
-        non_simple_matchers = [matcher[0] for matcher in _matchers if not matcher[1]]
+
+        # For existing compound segments, we should assume that within
+        # that segment, things are internally consistent, that means
+        # rather than enumerating all the individual segments of a longer
+        # one we just dump out the whole segment, but splitting off the
+        # first element separated by whitespace. This is a) faster and
+        # also b) prevents some really horrible bugs with bracket matching.
+        # See https://github.com/sqlfluff/sqlfluff/issues/433
+
+        parse_match_logging(
+            cls.__name__,
+            "_look_ahead_match",
+            "SI",
+            parse_context=parse_context,
+            v_level=4,
+        )
+
         best_simple_match = None
-        if simple_matchers:
-            # If they're all simple we can use a hash match to identify the first one.
-            # Build a buffer of all the upper case raw segments ahead of us.
-
-            # For existing compound segments, we should assume that within
-            # that segment, things are internally consistent, that means
-            # rather than enumerating all the individual segments of a longer
-            # one we just dump out the whole segment, but splitting off the
-            # first element separated by whitespace. This is a) faster and
-            # also b) prevents some really horrible bugs with bracket matching.
-            # See https://github.com/sqlfluff/sqlfluff/issues/433
-
-            def _trim_elem(seg):
-                s = seg.raw_upper.split(maxsplit=1)
-                return s[0] if s else ""
-
-            parse_match_logging(
-                cls.__name__,
-                "_look_ahead_match",
-                "SI",
-                parse_context=parse_context,
-                v_level=4,
-            )
-
-            simple_match = None
-            for idx, seg in enumerate(segments):
-                for matcher, simple in simple_matchers:
-                    assert simple
-                    simple_raws, simple_types = simple
-                    # Simple will be a tuple of options
-                    assert simple_raws or simple_types
-                    if simple_raws:
-                        trimmed_seg = _trim_elem(seg)
-                        if trimmed_seg in simple_raws:
-                            simple_match = matcher
-                            break
-                    if simple_types and not simple_match:
-                        intersection = simple_types.intersection(seg.class_types)
-                        if intersection:
-                            simple_match = matcher
-                            break
-                    if simple_match:
-                        break
-                # We've managed to match. We can shortcut home.
-                # NB: We may still need to deal with whitespace.
-                if simple_match:
-                    match = simple_match.match(segments[idx:], parse_context)
-                    if match:
-                        best_simple_match = (
-                            segments[:idx],
-                            match,
-                            simple_match,
-                        )
-                        break
-                    else:
-                        simple_match = None
-
-        if not non_simple_matchers:
-            # There are no other matchers, we can just shortcut now.
-
-            parse_match_logging(
-                cls.__name__,
-                "_look_ahead_match",
-                "SC",
-                parse_context=parse_context,
-                v_level=4,
-                bsm=None
-                if not best_simple_match
-                else (
-                    len(best_simple_match[0]),
-                    len(best_simple_match[1]),
-                    best_simple_match[2],
-                ),
-            )
-
-            if best_simple_match:
-                return best_simple_match
-            else:
-                return ((), MatchResult.from_unmatched(segments), None)
-
-        # Make some buffers
-        seg_buff = segments
-        pre_seg_buff: Tuple[BaseSegment, ...] = ()
-
-        # Loop
-        while True:
-            # Do we have anything left to match on?
-            if seg_buff:
-                # Great, carry on.
-                pass
-            else:
-                # We've got to the end without a match, return empty
-                return ((), MatchResult.from_unmatched(segments), None)
-
-            # We only check the NON-simple ones here for brevity.
-            mat, m = cls._longest_trimmed_match(
-                seg_buff,
-                non_simple_matchers,
-                parse_context=parse_context,
-                trim_noncode=False,
-            )
-
-            if mat and not best_simple_match:
-                return (pre_seg_buff, mat, m)
-            elif mat:
-                # Given we have mat - we should always have these two.
-                assert m
-                assert best_simple_match
-                # It will be earlier than the simple one if we've even checked,
-                # but there's a chance that this might be *longer*, or just FIRST.
-                pre_lengths = (len(pre_seg_buff), len(best_simple_match[0]))
-                mat_lengths = (len(mat), len(best_simple_match[1]))
-                mat_indexes = (matchers.index(m), matchers.index(best_simple_match[2]))
-                if (
-                    (pre_lengths[0] < pre_lengths[1])
-                    or (
-                        pre_lengths[0] == pre_lengths[1]
-                        and mat_lengths[0] > mat_lengths[1]
+        simple_match = None
+        for idx, seg in enumerate(segments):
+            for matcher in matchers:
+                simple = matcher.simple(parse_context=parse_context)
+                if not simple:  # pragma: no cover
+                    # NOTE: For all bundled dialects, this clause is true, but until
+                    # the RegexMatcher is completely deprecated (and therefore that
+                    # `.simple()` must provide a result), it is still _possible_
+                    # to end up here.
+                    raise NotImplementedError(
+                        "All matchers passed to `._look_ahead_match()` are "
+                        "assumed to have a functioning `.simple()` option. "
+                        "In a future release it will be compulsory for _all_ "
+                        "matchables to implement `.simple()`. Please report "
+                        "this as a bug on GitHub along with your current query "
+                        f"and dialect.\nProblematic matcher: {matcher}"
                     )
-                    or (
-                        pre_lengths[0] == pre_lengths[1]
-                        and mat_lengths[0] == mat_lengths[1]
-                        and mat_indexes[0] < mat_indexes[1]
+                simple_raws, simple_types = simple
+                # Simple will be a tuple of options
+                assert simple_raws or simple_types
+                if simple_raws:
+                    trimmed_seg = _trim_elem(seg)
+                    if trimmed_seg in simple_raws:
+                        simple_match = matcher
+                        break
+                if simple_types and not simple_match:
+                    intersection = simple_types.intersection(seg.class_types)
+                    if intersection:
+                        simple_match = matcher
+                        break
+
+            # We've managed to match. We can shortcut home.
+            # NB: We may still need to deal with whitespace.
+            if simple_match:
+                match = simple_match.match(segments[idx:], parse_context)
+                if match:
+                    best_simple_match = (
+                        segments[:idx],
+                        match,
+                        simple_match,
                     )
-                ):
-                    return (pre_seg_buff, mat, m)
+                    break
                 else:
-                    # TODO: Make a test case to cover this.
-                    return best_simple_match  # pragma: no cover
-            else:
-                # If there aren't any matches, then advance the buffer and try again.
-                # Two improvements:
-                # 1) if we get as far as the first simple match, then return that.
-                # 2) be eager in consuming non-code segments if allowed
-                if best_simple_match and len(pre_seg_buff) >= len(best_simple_match[0]):
-                    return best_simple_match
+                    simple_match = None
 
-                pre_seg_buff += (seg_buff[0],)
-                seg_buff = seg_buff[1:]
+        # There are no other matchers, we can just shortcut now.
+        parse_match_logging(
+            cls.__name__,
+            "_look_ahead_match",
+            "SC",
+            parse_context=parse_context,
+            v_level=4,
+            bsm=None
+            if not best_simple_match
+            else (
+                len(best_simple_match[0]),
+                len(best_simple_match[1]),
+                best_simple_match[2],
+            ),
+        )
+
+        if best_simple_match:
+            return best_simple_match
+        else:
+            return ((), MatchResult.from_unmatched(segments), None)
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(
