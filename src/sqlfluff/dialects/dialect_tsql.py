@@ -527,6 +527,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSynonymStatementSegment"),
             Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateDatabaseScopedCredentialStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -5070,5 +5071,33 @@ class TemporalQuerySegment(BaseSegment):
                     )
                 ),
             ),
+        ),
+    )
+
+
+class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
+    """A statement to create a database scoped credential.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-scoped-credential-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_database_scoped_credential_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "DATABASE",
+        "SCOPED",
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        "IDENTITY",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            "SECRET",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
