@@ -27,10 +27,23 @@ if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
-def _trim_elem(seg):
-    """Trim whitespace off an element.
+def first_trimmed_raw(seg):
+    """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
+
+    For existing compound segments, we should assume that within
+    that segment, things are internally consistent, that means
+    rather than enumerating all the individual segments of a longer
+    one we just dump out the whole segment, but splitting off the
+    first element separated by whitespace. This is a) faster and
+    also b) prevents some really horrible bugs with bracket matching.
+    See https://github.com/sqlfluff/sqlfluff/issues/433
+
+    This fetches the _whole_ raw of a potentially compound segment
+    to match against, trimming off any whitespace. This is the
+    most efficient way to get at the first element of a potentially
+    longer segment.
     """
     s = seg.raw_upper.split(maxsplit=1)
     return s[0] if s else ""
@@ -371,14 +384,6 @@ class BaseGrammar(Matchable):
         # happens in loops looking for simple matchers which we should
         # be able to find a shortcut for.
 
-        # For existing compound segments, we should assume that within
-        # that segment, things are internally consistent, that means
-        # rather than enumerating all the individual segments of a longer
-        # one we just dump out the whole segment, but splitting off the
-        # first element separated by whitespace. This is a) faster and
-        # also b) prevents some really horrible bugs with bracket matching.
-        # See https://github.com/sqlfluff/sqlfluff/issues/433
-
         parse_match_logging(
             cls.__name__,
             "_look_ahead_match",
@@ -406,10 +411,10 @@ class BaseGrammar(Matchable):
                         f"and dialect.\nProblematic matcher: {matcher}"
                     )
                 simple_raws, simple_types = simple
-                # Simple will be a tuple of options
+
                 assert simple_raws or simple_types
                 if simple_raws:
-                    trimmed_seg = _trim_elem(seg)
+                    trimmed_seg = first_trimmed_raw(seg)
                     if trimmed_seg in simple_raws:
                         simple_match = matcher
                         break
@@ -422,6 +427,8 @@ class BaseGrammar(Matchable):
             # We've managed to match. We can shortcut home.
             # NB: We may still need to deal with whitespace.
             if simple_match:
+                # If we have a _simple_ match, now we should call the
+                # full match method to actually produce the result.
                 match = simple_match.match(segments[idx:], parse_context)
                 if match:
                     best_simple_match = (
@@ -433,7 +440,8 @@ class BaseGrammar(Matchable):
                 else:
                     simple_match = None
 
-        # There are no other matchers, we can just shortcut now.
+        # There are no other matchers, we can just shortcut now. Either with
+        # no match, or the best one we found (if we found one).
         parse_match_logging(
             cls.__name__,
             "_look_ahead_match",
