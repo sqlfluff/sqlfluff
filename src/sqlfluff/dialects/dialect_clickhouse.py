@@ -500,6 +500,30 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/database
+    """
+
+    type = "create_database_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        Ref("EngineSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
