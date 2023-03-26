@@ -700,7 +700,7 @@ class TableConstraintSegment(BaseSegment):
         Sequence(
             Sequence(  # [ CONSTRAINT <Constraint name> ]
                 "CONSTRAINT",
-                Sequence(Ref("ObjectReferenceSegment"), optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 optional=True,
             ),
             OneOf(
