@@ -21,6 +21,8 @@ from sqlfluff.core.parser import (
     TypedParser,
     StringLexer,
 )
+from sqlfluff.core.parser.parsers import MultiStringParser
+from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
     UNRESERVED_KEYWORDS,
@@ -108,6 +110,7 @@ clickhouse_dialect.add(
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
+
 clickhouse_dialect.replace(
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
@@ -316,6 +319,17 @@ class EngineFunctionSegment(BaseSegment):
                 optional=True,
             ),
         ),
+    )
+
+
+class OnClusterSegment(BaseSegment):
+    """A `ON CLUSTER` clause."""
+
+    type = "on_cluster"
+    match_grammar = Sequence(
+        "ON",
+        "CLUSTER",
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -678,7 +692,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
             "CLUSTER",
             Ref("SingleIdentifierGrammar"),
             optional=True,
-        ),
+        )
     )
 
 
@@ -806,6 +820,286 @@ class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
         ),
     )
 
+class SystemMergesSegment(BaseSegment):
+    """A `SYSTEM ... MERGES` statement.
+    """
+
+    type = "system_merges_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "MERGES",
+        OneOf(
+            Sequence(
+                "ON",
+                "VOLUME",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("TableReferenceSegment"),
+        )
+    )
+
+
+class SystemTTLMergesSegment(BaseSegment):
+    """A `SYSTEM ... TTL MERGES` statement.
+    """
+
+    type = "system_ttl_merges_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "TTL",
+        "MERGES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemMovesSegment(BaseSegment):
+    """A `SYSTEM ... MOVES` statement.
+    """
+
+    type = "system_moves_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "MOVES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemReplicaSegment(BaseSegment):
+    """A `SYSTEM ... REPLICA` statement.
+    """
+
+    type = "system_replica_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "SYNC",
+                "REPLICA",
+                Ref("OnClusterSegment", optional=True),
+                Ref("TableReferenceSegment"),
+                Sequence("STRICT", optional=True),
+            ),
+            Sequence(
+                "DROP",
+                "REPLICA",
+                Ref("ExpressionSegment"),
+                Sequence(
+                    "FROM",
+                    OneOf(
+                        Sequence(
+                            "DATABASE",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            "TABLE",
+                            Ref("TableReferenceSegment"),
+                        ),
+                        Sequence(
+                            "ZKPATH",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "RESTART",
+                "REPLICA",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "RESTORE",
+                "REPLICA",
+                Ref("TableReferenceSegment"),
+                Ref("OnClusterSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class SystemFilesystemSegment(BaseSegment):
+    """A `SYSTEM ... FILESYSTEM` statement.
+    """
+
+    type = "system_filesystem_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        "DROP",
+        "FILESYSTEM",
+        "CACHE",
+    )
+
+
+class SystemReplicatedSegment(BaseSegment):
+    """A `SYSTEM ... REPLICATED` statement.
+    """
+    
+    type = "system_replicated_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "REPLICATED",
+        "SENDS",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemReplicationSegment(BaseSegment):
+    """A `SYSTEM ... REPLICATION` statement.
+    """
+    
+    type = "system_replication_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "REPLICATION",
+        "QUEUES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemFetchesSegment(BaseSegment):
+    """A `SYSTEM ... FETCHES` statement.
+    """
+    
+    type = "system_fetches_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "FETCHES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemDistributedSegment(BaseSegment):
+    """A `SYSTEM ... DISTRIBUTED` statement.
+    """
+    
+    type = "system_distributed_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        OneOf(
+            Sequence(
+                OneOf(
+                    "START",
+                    "STOP",
+                ),
+                "DISTRIBUTED",
+                "SENDS",
+            ),
+            Sequence(
+                "FLUSH",
+                "DISTRIBUTED",
+            ),
+        ),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class SystemModelSegment(BaseSegment):
+    """A `SYSTEM ... MODEL` statement.
+    """
+    
+    type = "system_model_segment"
+
+    match_grammar = Sequence(
+        # "SYSTEM",
+        "RELOAD",
+        OneOf(
+            Sequence(
+                "MODEL",
+                Ref("OnClusterSegment", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "MODELS",
+                Ref("OnClusterSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class SystemFileSegment(BaseSegment):
+    """A `SYSTEM ... FILE` statement.
+    """
+
+    type = "system_file_segment"
+
+    match_grammar = Sequence(
+        "SYNC",
+        "FILE",
+        "CACHE",
+    )
+
+
+class SystemUnfreezeSegment(BaseSegment):
+    """A `SYSTEM ... UNFREEZE` statement.
+    """
+
+    type = "system_unfreeze_segment"
+
+    match_grammar = Sequence(
+        "UNFREEZE",
+        "WITH",
+        "NAME",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class SystemStatementSegment(BaseSegment):
+    """A `SYSTEM ...` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_statement"
+
+    match_grammar: Matchable = Sequence(
+        "SYSTEM",
+        OneOf(
+            Ref("SystemMergesSegment"),
+            Ref("SystemTTLMergesSegment"),
+            Ref("SystemMovesSegment"),
+            Ref("SystemReplicaSegment"),
+            Ref("SystemReplicatedSegment"),
+            Ref("SystemReplicationSegment"),
+            Ref("SystemFetchesSegment"),
+            Ref("SystemDistributedSegment"),
+            Ref("SystemFileSegment"),
+            Ref("SystemFilesystemSegment"),
+            Ref("SystemUnfreezeSegment"),
+        ),
+    )
+
 
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -818,5 +1112,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
             Ref("DropSettingProfileStatementSegment"),
+            Ref("SystemStatementSegment"),
         ]
     )
+
