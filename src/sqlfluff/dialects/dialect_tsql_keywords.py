@@ -249,6 +249,7 @@ UNRESERVED_KEYWORDS = [
     "CONTROL",
     "COMPRESS_ALL_ROW_GROUPS",
     "COMPRESSION_DELAY",
+    "CREDENTIAL",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
     "DATA_CONSISTENCY_CHECK",
@@ -452,6 +453,8 @@ UNRESERVED_KEYWORDS = [
     "SCHEMA_ONLY",
     "SCHEMA_AND_DATA",
     "SCHEMABINDING",
+    "SCOPED",
+    "SECRET",
     "SECURITYAUDIT",  # listed as reserved but functionally unreserved
     "SELF",
     "SETERROR",
