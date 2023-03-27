@@ -1,6 +1,6 @@
 """AnyNumberOf and OneOf."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Set
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -32,9 +32,7 @@ class AnyNumberOf(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(
-        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
-    ) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs: Optional[List[str]] = None):
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
@@ -45,8 +43,13 @@ class AnyNumberOf(BaseGrammar):
         ]
         if any(elem is None for elem in simple_buff):
             return None
-        # Flatten the list
-        return [inner for outer in simple_buff for inner in outer]
+        # Combine the lists
+        simple_raws = [simple[0] for simple in simple_buff if simple[0]]
+        simple_types = [simple[1] for simple in simple_buff if simple[1]]
+        return (
+            frozenset.union(*simple_raws) if simple_raws else frozenset(),
+            frozenset.union(*simple_types) if simple_types else frozenset(),
+        )
 
     def is_optional(self) -> bool:
         """Return whether this element is optional.
@@ -57,19 +60,21 @@ class AnyNumberOf(BaseGrammar):
         return self.optional or self.min_times == 0
 
     @staticmethod
-    def _first_non_whitespace(segments) -> Optional[str]:
+    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
         """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.first_non_whitespace_segment_raw_upper:
-                return segment.first_non_whitespace_segment_raw_upper
+                return (
+                    segment.first_non_whitespace_segment_raw_upper,
+                    segment.class_types,
+                )
         return None
 
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[List[MatchableType], List[str]]:
+    ) -> List[MatchableType]:
         """Use the simple matchers to prune which options to match on."""
         available_options = []
-        simple_opts = []
         prune_buff = []
         non_simple = 0
         pruned_simple = 0
@@ -77,6 +82,11 @@ class AnyNumberOf(BaseGrammar):
 
         # Find the first code element to match against.
         first_elem = self._first_non_whitespace(segments)
+        # If we don't have an appropriate option to match against,
+        # then we should just return immediately. Nothing will match.
+        if not first_elem:
+            return self._elements
+        first_raw, first_types = first_elem
 
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
@@ -86,27 +96,31 @@ class AnyNumberOf(BaseGrammar):
                 available_options.append(opt)
                 non_simple += 1
                 continue
+
             # Otherwise we have a simple option, so let's use
             # it for pruning.
-            for simple_opt in simple:
-                # Check it's not a whitespace option
-                if not simple_opt.strip():  # pragma: no cover
-                    raise NotImplementedError(
-                        "_prune_options not supported for whitespace matching."
-                    )
-                # We want to know if the first meaningful element of the str_buff
-                # matches the option.
+            simple_raws, simple_types = simple
+            matched = False
 
-                # match the FIRST non-whitespace element of the list.
-                if first_elem != simple_opt:
-                    # No match, carry on.
-                    continue
+            # We want to know if the first meaningful element of the str_buff
+            # matches the option, based on either simple _raw_ matching or
+            # simple _type_ matching.
+
+            # Match Raws
+            if simple_raws and first_raw in simple_raws:
                 # If we get here, it's matched the FIRST element of the string buffer.
                 available_options.append(opt)
-                simple_opts.append(simple_opt)
                 matched_simple += 1
-                break
-            else:
+                matched = True
+
+            # Match Types
+            if simple_types and not matched and first_types.intersection(simple_types):
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched_simple += 1
+                matched = True
+
+            if not matched:
                 # Ditch this option, the simple match has failed
                 prune_buff.append(opt)
                 pruned_simple += 1
@@ -125,7 +139,7 @@ class AnyNumberOf(BaseGrammar):
             opts=available_options or "ALL",
         )
 
-        return available_options, simple_opts
+        return available_options
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
@@ -140,9 +154,7 @@ class AnyNumberOf(BaseGrammar):
         # to return earlier if we can.
         # `segments` may already be nested so we need to break out
         # the raw segments within it.
-        available_options, _ = self._prune_options(
-            segments, parse_context=parse_context
-        )
+        available_options = self._prune_options(segments, parse_context=parse_context)
 
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
@@ -182,9 +194,7 @@ class AnyNumberOf(BaseGrammar):
         n_matches = 0
 
         # Keep track of the number of times each option has been matched.
-        available_options, _ = self._prune_options(
-            segments, parse_context=parse_context
-        )
+        available_options = self._prune_options(segments, parse_context=parse_context)
         available_option_counter = {str(o): 0 for o in available_options}
 
         while True:

@@ -1,7 +1,5 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import Optional, List
-
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -170,7 +168,7 @@ class StartsWith(GreedyUntil):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a uppercase hash matching route?
 
         `StartsWith` is simple, if the thing it starts with is also simple.
