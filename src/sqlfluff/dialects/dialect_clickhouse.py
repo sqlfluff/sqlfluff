@@ -2,7 +2,6 @@
 
 https://clickhouse.com/
 """
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -120,6 +119,16 @@ clickhouse_dialect.replace(
     ),
 )
 
+clickhouse_dialect.replace(
+    JoinLikeClauseGrammar=Sequence(
+        AnyNumberOf(
+            Ref("ArrayJoinClauseSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    ),
+)
+
 
 class BracketedArguments(ansi.BracketedArguments):
     """A series of bracketed arguments.
@@ -177,13 +186,26 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
             ),
             Conditional(Dedent, indented_using_on=True),
         ),
-        # Note NATURAL joins do not support Join conditions
-        Sequence(
-            Ref("JoinKeywordsGrammar"),
-            Indent,
-            Ref("FromExpressionElementSegment"),
-            Dedent,
+    )
+
+
+class ArrayJoinClauseSegment(BaseSegment):
+    """[LEFT] ARRAY JOIN does not support Join conditions and doesn't work as real JOIN.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/array-join
+    """
+
+    type = "array_join_clause"
+
+    match_grammar: Matchable = Sequence(
+        Ref.keyword("LEFT", optional=True),
+        "ARRAY",
+        Ref("JoinKeywordsGrammar"),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
         ),
+        Dedent,
     )
 
 
