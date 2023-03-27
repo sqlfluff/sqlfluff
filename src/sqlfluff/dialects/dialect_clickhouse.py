@@ -827,7 +827,6 @@ class SystemMergesSegment(BaseSegment):
     type = "system_merges_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -851,7 +850,6 @@ class SystemTTLMergesSegment(BaseSegment):
     type = "system_ttl_merges_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -869,7 +867,6 @@ class SystemMovesSegment(BaseSegment):
     type = "system_moves_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -911,7 +908,7 @@ class SystemReplicaSegment(BaseSegment):
                         ),
                         Sequence(
                             "ZKPATH",
-                            Ref("ObjectReferenceSegment"),
+                            Ref("PathIdentifierSegment"),
                         ),
                     ),
                     optional=True,
@@ -939,7 +936,6 @@ class SystemFilesystemSegment(BaseSegment):
     type = "system_filesystem_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         "DROP",
         "FILESYSTEM",
         "CACHE",
@@ -953,7 +949,6 @@ class SystemReplicatedSegment(BaseSegment):
     type = "system_replicated_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -971,7 +966,6 @@ class SystemReplicationSegment(BaseSegment):
     type = "system_replication_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -989,7 +983,6 @@ class SystemFetchesSegment(BaseSegment):
     type = "system_fetches_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             "START",
             "STOP",
@@ -1006,7 +999,6 @@ class SystemDistributedSegment(BaseSegment):
     type = "system_distributed_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         OneOf(
             Sequence(
                 OneOf(
@@ -1015,13 +1007,15 @@ class SystemDistributedSegment(BaseSegment):
                 ),
                 "DISTRIBUTED",
                 "SENDS",
+                Ref("TableReferenceSegment"),
             ),
             Sequence(
                 "FLUSH",
                 "DISTRIBUTED",
+                Ref("TableReferenceSegment"),
             ),
         ),
-        Ref("TableReferenceSegment"),
+        # Ref("TableReferenceSegment"),
     )
 
 
@@ -1032,17 +1026,18 @@ class SystemModelSegment(BaseSegment):
     type = "system_model_segment"
 
     match_grammar = Sequence(
-        # "SYSTEM",
         "RELOAD",
         OneOf(
             Sequence(
-                "MODEL",
-                Ref("OnClusterSegment", optional=True),
-                Ref("ObjectReferenceSegment"),
-            ),
-            Sequence(
                 "MODELS",
                 Ref("OnClusterSegment", optional=True),
+            ),
+            Sequence(
+                "MODEL",
+                AnySetOf(
+                    Ref("OnClusterSegment", optional=True),
+                    Ref("PathIdentifierSegment"),
+                ),
             ),
         ),
     )
@@ -1097,6 +1092,7 @@ class SystemStatementSegment(BaseSegment):
             Ref("SystemFileSegment"),
             Ref("SystemFilesystemSegment"),
             Ref("SystemUnfreezeSegment"),
+            Ref("SystemModelSegment"),
         ),
     )
 

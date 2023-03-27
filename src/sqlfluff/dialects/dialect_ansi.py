@@ -121,6 +121,15 @@ class CompositeComparisonOperatorSegment(BaseSegment):
     type = "comparison_operator"
 
 
+class PathSegment(CodeSegment):
+    """A system path segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "path_segment"
+
+
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
@@ -722,6 +731,12 @@ ansi_dialect.add(
             OneOf("AS", "TO", optional=True),
             Ref("TableReferenceSegment"),
         ),
+    ),
+    QuotedPathSegment=TypedParser(
+        "double_quote", PathSegment, type="quoted_path"
+    ),
+    SingleQuotedPathSegment=TypedParser(
+        "single_quote", PathSegment, type="quoted_path"
     ),
 )
 
@@ -4058,3 +4073,28 @@ class LocalAliasSegment(BaseSegment):
 
     type = "local_alias_segment"
     match_grammar: Matchable = Nothing()
+
+
+class PathSegment(BaseSegment):
+    """A reference to a path."""
+
+    type = "path_reference"
+    match_grammar: Matchable = Sequence(
+        Ref("SlashSegment"),
+        Delimited(
+            Ref("CodeSegment"),
+            delimiter=Ref("SlashSegment"),
+            allow_gaps=False,
+        ),
+    )
+
+
+class PathIdentifierSegment(BaseSegment):
+    """A reference to a path."""
+
+    type = "path_reference"
+    match_grammar: Matchable = OneOf(
+        Ref("PathSegment"),
+        Ref("SingleQuotedPathSegment"),
+        Ref("QuotedPathSegment"),
+    )
