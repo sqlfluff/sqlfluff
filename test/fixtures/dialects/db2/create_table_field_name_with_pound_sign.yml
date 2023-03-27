@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10f3b4f58d751b37ee4aa9a901fdea77a7ec0175e149f9288a0168cf1462fdf5
+_hash: 13105ac0dbc90718b62d6e22bace4ccb56603dbc9629cffda3add9014a2307a1
 file:
   statement:
     create_table_statement:
@@ -17,39 +17,36 @@ file:
           naked_identifier: my_field_1#
           data_type:
             data_type_identifier: decimal
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '2'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: '#my_field_1'
           data_type:
             data_type_identifier: decimal
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '2'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: '#'
           data_type:
             data_type_identifier: decimal
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - end_bracket: )
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '2'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
       - end_bracket: )
   statement_terminator: ;

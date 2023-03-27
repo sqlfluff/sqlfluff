@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc6640b52894d99c9c6bb382dcaa1de71630c65eaa51007683569191d4fa7057
+_hash: 935199c7ac89c3a42afe824da3a00b3541e19ed276476b2ef8cd50e05ab7c023
 file:
   batch:
   - statement:
@@ -69,11 +69,12 @@ file:
                 keyword: as
                 data_type:
                   data_type_identifier: datetime2
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '7'
-                    end_bracket: )
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '7'
+                      end_bracket: )
                 end_bracket: )
             alias_expression:
               keyword: as
@@ -94,10 +95,11 @@ file:
         parameter: '@sample'
         data_type:
           data_type_identifier: nvarchar
-          bracketed:
-            start_bracket: (
-            keyword: max
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -111,8 +113,9 @@ file:
               keyword: as
               data_type:
                 data_type_identifier: nvarchar
-                bracketed:
-                  start_bracket: (
-                  keyword: max
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    keyword: max
+                    end_bracket: )
               end_bracket: )

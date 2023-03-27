@@ -263,15 +263,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
                 Ref("DatatypeIdentifierSegment"),
             ),
-            Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
     )
 

@@ -175,6 +175,7 @@ UNRESERVED_KEYWORDS = [
     "CLOB",
     "BLOB",
     "REAL",
+    "BIG",
     "DOUBLE",
     "PRECISION",
     "FLOAT",

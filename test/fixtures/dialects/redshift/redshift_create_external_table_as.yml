@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 544c9c565672cef9ac4cefe062707d7dcde10903d1403182d76c833b5526b8b9
+_hash: 5a2eac3d5e8513beb33d3032b380eb39d87c37ababa89c2006b45da8aecf0b5e
 file:
 - statement:
     create_external_table_statement:
@@ -504,10 +504,11 @@ file:
             naked_identifier: l_shipmode
         - data_type:
             keyword: varchar
-            bracketed:
-              start_bracket: (
-              numeric_literal: '24'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '24'
+                end_bracket: )
         - end_bracket: )
     - keyword: ROW
     - keyword: FORMAT

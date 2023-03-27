@@ -318,29 +318,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "FLOAT",  # used in DDL
         "REAL",  # used "in SQL functions like SELECT CAST"
         Sequence(
-            "DECIMAL",
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                    optional=True,
-                ),
-            ),
-        ),
-        Sequence(
-            "CHAR",
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        Sequence(
-            "VARCHAR",
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
+            OneOf("DECIMAL", "CHAR", "VARCHAR"),
+            Ref("BracketedArguments", optional=True),
         ),
         "STRING",
         "BINARY",

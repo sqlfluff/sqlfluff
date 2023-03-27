@@ -1,5 +1,5 @@
 """Implementation of Rule AL01."""
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -45,10 +45,10 @@ class Rule_AL01(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"alias_expression"}, provide_raw_stack=True)
     is_fix_compatible = True
 
-    _target_elems: List[Tuple[str, str]] = [
-        ("type", "from_expression_element"),
-        ("type", "merge_statement"),
-    ]
+    _target_parent_types: Tuple[str, ...] = (
+        "from_expression_element",
+        "merge_statement",
+    )
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
@@ -60,7 +60,7 @@ class Rule_AL01(BaseRule):
         self.aliasing: str
 
         assert context.segment.is_type("alias_expression")
-        if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
+        if context.parent_stack[-1].is_type(*self._target_parent_types):
             if any(e.raw_upper == "AS" for e in context.segment.segments):
                 if self.aliasing == "implicit":
                     if context.segment.segments[0].raw_upper == "AS":

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f61ec5dd4a6ba9978e233cba06f0b7d6a9d3483827a18fe8f7b594c545c6224d
+_hash: 499e9012f5cb95c4d85b318e244cf97db07a0782422e2f77aa327eb635e1e8a9
 file:
 - batch:
     statement:
@@ -76,11 +76,12 @@ file:
               keyword: as
               data_type:
                 data_type_identifier: char
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '3'
-                  end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '3'
+                    end_bracket: )
               end_bracket: )
         statement_terminator: ;
 - go_statement:
@@ -552,11 +553,12 @@ file:
             naked_identifier: ProductName
             data_type:
               data_type_identifier: nvarchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '50'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '50'
+                  end_bracket: )
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'

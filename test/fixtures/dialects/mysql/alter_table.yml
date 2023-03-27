@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 41fcfee6a93246aff99c4bb64693cda8eff625400fa30d5fd23e5063cf327638
+_hash: 395b48c34e9c2652d61220b12abffe11f67b90929ebf2faa8b053406caf530ea
 file:
 - statement:
     alter_table_statement:
@@ -17,11 +17,11 @@ file:
         quoted_identifier: '`name`'
         data_type:
           data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '255'
-            end_bracket: )
+              end_bracket: )
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -75,11 +75,11 @@ file:
       - quoted_identifier: '`date_of_birth`'
       - data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '11'
-            end_bracket: )
+              end_bracket: )
       - column_constraint_segment:
           keyword: 'NULL'
       - column_constraint_segment:
@@ -100,11 +100,11 @@ file:
         quoted_identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '11'
-            end_bracket: )
+              end_bracket: )
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -123,11 +123,11 @@ file:
         quoted_identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '11'
-            end_bracket: )
+              end_bracket: )
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -144,11 +144,11 @@ file:
         quoted_identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '11'
-            end_bracket: )
+              end_bracket: )
     - keyword: AFTER
     - column_reference:
         quoted_identifier: '`name`'
@@ -394,3 +394,29 @@ file:
     - keyword: INDEX
     - index_reference:
         quoted_identifier: '`index_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`x`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`xk`'
+          end_bracket: )
+      - keyword: REFERENCES
+      - column_reference:
+          quoted_identifier: '`y`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`yk`'
+          end_bracket: )
+- statement_terminator: ;

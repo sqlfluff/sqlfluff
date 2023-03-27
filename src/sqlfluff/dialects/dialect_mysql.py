@@ -263,7 +263,10 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
@@ -696,7 +699,9 @@ class TableConstraintSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(  # [ CONSTRAINT <Constraint name> ]
-                "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
             ),
             OneOf(
                 # UNIQUE [INDEX | KEY] [index_name] [index_type] (key_part,...)

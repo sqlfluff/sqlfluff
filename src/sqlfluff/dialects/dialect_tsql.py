@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    ImplicitIndent,
     Matchable,
     Nothing,
     OneOf,
@@ -526,6 +527,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSynonymStatementSegment"),
             Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateDatabaseScopedCredentialStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -851,7 +853,7 @@ class WhereClauseSegment(BaseSegment):
     type = "where_clause"
     match_grammar = Sequence(
         "WHERE",
-        Indent,
+        ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
@@ -1857,6 +1859,25 @@ class GoStatementSegment(BaseSegment):
     match_grammar = Ref.keyword("GO")
 
 
+class BracketedArguments(ansi.BracketedArguments):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                # TSQL allows optional MAX in some data types
+                "MAX",
+                Ref("ExpressionSegment"),
+            ),
+            # The brackets might be empty for some cases...
+            optional=True,
+        ),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1878,16 +1899,7 @@ class DatatypeSegment(BaseSegment):
         ),
         # Stop Gap until explicit Data Types as only relevent for character
         Ref.keyword("VARYING", optional=True),
-        Bracketed(
-            OneOf(
-                "MAX",
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
+        Ref("BracketedArguments", optional=True),
         Ref("CharCharacterSetGrammar", optional=True),
     )
 
@@ -5059,5 +5071,33 @@ class TemporalQuerySegment(BaseSegment):
                     )
                 ),
             ),
+        ),
+    )
+
+
+class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
+    """A statement to create a database scoped credential.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-scoped-credential-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_database_scoped_credential_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "DATABASE",
+        "SCOPED",
+        "CREDENTIAL",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        "IDENTITY",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            "SECRET",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )

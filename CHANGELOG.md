@@ -10,6 +10,55 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.2] - 2023-03-23
+
+## Highlights
+
+This is primarily a _bugfix_ release. Most notably this solves some of the
+issues introduced in 2.0.1 around spacing within datatypes. Expressions
+like `1.0::double precision` should now be spaced correctly.
+
+Beyond that, this contains a selection of smaller bugfixes and dialect
+improvements. Even for a relatively small release we saw three new
+contributors (thanks [@aurany](https://github.com/aurany), [@JackWolverson](https://github.com/JackWolverson)
+& [@mikaeltw](https://github.com/mikaeltw) 🎉).
+
+The one new _feature_ (as such) is being able to now configure `LT05`
+(aka `layout.long_lines`) to optionally move trailing comments _after_
+the line they are found on, rather than the default behaviour of moving
+them up and _before_. Users can enable this with the `trailing_comments`
+configuration setting in the `indentation` section.
+
+This release _also_ contains some performance optimisations in the parser,
+especially on queries with heavily nested expressions. There will be more
+to come in this space, but we hope this leads to a better experience for
+many users. 🚀
+
+## What’s Changed
+
+* Parse Caching [#4576](https://github.com/sqlfluff/sqlfluff/pull/4576) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Data type spacing [#4592](https://github.com/sqlfluff/sqlfluff/pull/4592) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: allow quoted literal in alias name [#4591](https://github.com/sqlfluff/sqlfluff/pull/4591) [@yoichi](https://github.com/yoichi)
+* Make implicit indents visible in the parse tree [#4584](https://github.com/sqlfluff/sqlfluff/pull/4584) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4559: TSQL implicit indents on WHERE [#4583](https://github.com/sqlfluff/sqlfluff/pull/4583) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Added keywords to DB2 dialect from IBM docs [#4575](https://github.com/sqlfluff/sqlfluff/pull/4575) [@aurany](https://github.com/aurany)
+* Remove matches_target_tuples (#3873) [#4561](https://github.com/sqlfluff/sqlfluff/pull/4561) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Use terminators in BaseExpression [#4577](https://github.com/sqlfluff/sqlfluff/pull/4577) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Address #1630: Optionally move comments after long line [#4558](https://github.com/sqlfluff/sqlfluff/pull/4558) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Added schema to set statement [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580) [@JackWolverson](https://github.com/JackWolverson)
+* Refactor lint_line_length and fix comma bug [#4564](https://github.com/sqlfluff/sqlfluff/pull/4564) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix untaken indent bug [#4562](https://github.com/sqlfluff/sqlfluff/pull/4562) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SQLite: Fix SELECT LIMIT [#4566](https://github.com/sqlfluff/sqlfluff/pull/4566) [@greg-finley](https://github.com/greg-finley)
+* Fix #4453: Snowflake semi-stuctured casts in CV11 [#4571](https://github.com/sqlfluff/sqlfluff/pull/4571) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Name of LT07 [#4557](https://github.com/sqlfluff/sqlfluff/pull/4557) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Patch fetch and over [#4555](https://github.com/sqlfluff/sqlfluff/pull/4555) [@mikaeltw](https://github.com/mikaeltw)
+
+## New Contributors
+
+* [@mikaeltw](https://github.com/mikaeltw) made their first contribution in [#4555](https://github.com/sqlfluff/sqlfluff/pull/4555)
+* [@JackWolverson](https://github.com/JackWolverson) made their first contribution in [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580)
+* [@aurany](https://github.com/aurany) made their first contribution in [#4575](https://github.com/sqlfluff/sqlfluff/pull/4575)
+
 ## [2.0.1] - 2023-03-17
 
 ## Highlights

@@ -380,6 +380,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
 
     match_grammar = Sequence(
         Ref("DatatypeIdentifierSegment"),
+        Ref("BracketedArguments", optional=True),
         Bracketed(
             OneOf(
                 Delimited(Ref("ExpressionSegment")),

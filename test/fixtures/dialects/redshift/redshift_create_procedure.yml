@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16bdf27c12ddfed8b01f70cdd28d5ef9448e8161bb52cbbb05ac2492e515ec67
+_hash: 28b9d6a0b11c121a1f22aabba6fb4737c14511348e978c8ad2a58cf98697c1d7
 file:
 - statement:
     create_procedure_statement:
@@ -23,10 +23,11 @@ file:
         - parameter: f2
         - data_type:
             keyword: varchar
-            bracketed:
-              start_bracket: (
-              numeric_literal: '20'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
         - end_bracket: )
     - function_definition:
       - keyword: AS
@@ -60,19 +61,21 @@ file:
         - keyword: INOUT
         - data_type:
             keyword: varchar
-            bracketed:
-              start_bracket: (
-              numeric_literal: '256'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '256'
+                end_bracket: )
         - comma: ','
         - parameter: out_var
         - keyword: OUT
         - data_type:
             keyword: varchar
-            bracketed:
-              start_bracket: (
-              numeric_literal: '256'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '256'
+                end_bracket: )
         - end_bracket: )
     - function_definition:
         keyword: AS

@@ -10,11 +10,20 @@ test_pass_line_too_long_config_override:
 test_fail_line_too_long_with_comments_1:
   # Check we move comments correctly
   fail_str: "SELECT 1 -- Some Comment\n"
-
   fix_str: "-- Some Comment\nSELECT 1\n"
   configs:
     core:
       max_line_length: 18
+
+test_fail_line_too_long_with_comments_1_after:
+  # Check we move comments correctly
+  fail_str: "SELECT 1 -- Some Comment\n"
+  fix_str: "SELECT 1\n-- Some Comment\n"
+  configs:
+    core:
+      max_line_length: 18
+    indentation:
+      trailing_comments: after
 
 test_fail_line_too_long_with_comments_1_no_newline:
   # Check we move comments correctly, and that it
