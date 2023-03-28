@@ -1205,6 +1205,22 @@ class RemoveWidgetStatementSegment(BaseSegment):
     )
 
 
+class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
+    """A `DROP DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-database.html
+    """
+
+    type = "drop_database_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` STATEMENT.
 
@@ -2110,7 +2126,7 @@ class DescribeStatementSegment(BaseSegment):
         OneOf("DESCRIBE", "DESC"),
         OneOf(
             Sequence(
-                "DATABASE",
+                OneOf("DATABASE", "SCHEMA"),
                 Ref.keyword("EXTENDED", optional=True),
                 Ref("DatabaseReferenceSegment"),
             ),
