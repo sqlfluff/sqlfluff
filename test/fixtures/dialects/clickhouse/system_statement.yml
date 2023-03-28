@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd2408f975b3dd0b85cd7640bd08aefe1b8248d54371ecde1d77945baf9524b9
+_hash: 080c38f92135d2cb78f3a6761e9534c37edef3f1b171c83422947130f4251010
 file:
 - statement:
     select_statement:
@@ -50,12 +50,11 @@ file:
       system_model_segment:
       - keyword: RELOAD
       - keyword: MODEL
-      - path_reference:
-          path_reference:
-          - slash: /
-          - raw: model
-          - slash: /
-          - raw: path
+      - path_segment:
+        - slash: /
+        - raw: model
+        - slash: /
+        - raw: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -67,12 +66,11 @@ file:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
-      - path_reference:
-          path_reference:
-          - slash: /
-          - raw: model
-          - slash: /
-          - raw: path
+      - path_segment:
+        - slash: /
+        - raw: model
+        - slash: /
+        - raw: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -134,8 +132,8 @@ file:
           quoted_literal: "'replica_name'"
       - keyword: FROM
       - keyword: ZKPATH
-      - path_reference:
-          quoted_path: "'/path/to/table/in/zk'"
+      - path_segment:
+          quoted_literal: "'/path/to/table/in/zk'"
 - statement_terminator: ;
 - statement:
     system_statement:

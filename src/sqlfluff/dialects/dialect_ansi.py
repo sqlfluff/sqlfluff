@@ -121,15 +121,6 @@ class CompositeComparisonOperatorSegment(BaseSegment):
     type = "comparison_operator"
 
 
-class BasePathSegment(CodeSegment):
-    """A system path segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "path_segment"
-
-
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
@@ -731,12 +722,6 @@ ansi_dialect.add(
             OneOf("AS", "TO", optional=True),
             Ref("TableReferenceSegment"),
         ),
-    ),
-    DoubleQuotedPathSegment=TypedParser(
-        "double_quote", BasePathSegment, type="quoted_path"
-    ),
-    SingleQuotedPathSegment=TypedParser(
-        "single_quote", BasePathSegment, type="quoted_path"
     ),
 )
 
@@ -4075,26 +4060,18 @@ class LocalAliasSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
-class PathSegment(BasePathSegment):
+class PathSegment(BaseSegment):
     """A reference to a path."""
 
-    type = "path_reference"
-    match_grammar: Matchable = Sequence(
-        Ref("SlashSegment"),
-        Delimited(
-            Ref("CodeSegment"),
-            delimiter=Ref("SlashSegment"),
-            allow_gaps=False,
-        ),
-    )
-
-
-class PathIdentifierSegment(BaseSegment):
-    """A reference to a path."""
-
-    type = "path_reference"
+    type = "path_segment"
     match_grammar: Matchable = OneOf(
-        Ref("PathSegment"),
-        Ref("SingleQuotedPathSegment"),
-        Ref("DoubleQuotedPathSegment"),
+        Sequence(
+            Ref("SlashSegment"),
+            Delimited(
+                Ref("CodeSegment"),
+                delimiter=Ref("SlashSegment"),
+                allow_gaps=False,
+            ),
+        ),
+        Ref("QuotedLiteralSegment"),
     )

@@ -914,7 +914,7 @@ class SystemReplicaSegment(BaseSegment):
                         ),
                         Sequence(
                             "ZKPATH",
-                            Ref("PathIdentifierSegment"),
+                            Ref("PathSegment"),
                         ),
                     ),
                     optional=True,
@@ -1054,7 +1054,7 @@ class SystemModelSegment(BaseSegment):
                 "MODEL",
                 AnySetOf(
                     Ref("OnClusterSegment", optional=True),
-                    Ref("PathIdentifierSegment"),
+                    Ref("PathSegment"),
                 ),
             ),
         ),
