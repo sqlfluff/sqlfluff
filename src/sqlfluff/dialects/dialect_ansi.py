@@ -121,7 +121,7 @@ class CompositeComparisonOperatorSegment(BaseSegment):
     type = "comparison_operator"
 
 
-class PathSegment(CodeSegment):
+class BasePathSegment(CodeSegment):
     """A system path segment.
 
     Defined here for type inheritance.
@@ -733,10 +733,10 @@ ansi_dialect.add(
         ),
     ),
     DoubleQuotedPathSegment=TypedParser(
-        "double_quote", PathSegment, type="quoted_path"
+        "double_quote", BasePathSegment, type="quoted_path"
     ),
     SingleQuotedPathSegment=TypedParser(
-        "single_quote", PathSegment, type="quoted_path"
+        "single_quote", BasePathSegment, type="quoted_path"
     ),
 )
 
@@ -4075,7 +4075,7 @@ class LocalAliasSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
-class PathSegment(BaseSegment):
+class PathSegment(BasePathSegment):
     """A reference to a path."""
 
     type = "path_reference"
