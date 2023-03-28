@@ -1882,7 +1882,7 @@ class PivotClauseSegment(BaseSegment):
             Indent,
             Delimited(
                 Sequence(
-                    Ref("FunctionSegment"),
+                    Ref("BaseExpressionElementGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
