@@ -2362,8 +2362,11 @@ class NamedWindowExpressionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Window name
         "AS",
-        Bracketed(
-            Ref("WindowSpecificationSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
+                Ref("WindowSpecificationSegment"),
+            ),
         ),
     )
 
@@ -2419,7 +2422,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2434,6 +2436,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
