@@ -1,4 +1,7 @@
-"""A list of databricks reserved keywords."""
+"""A list of databricks reserved keywords.
+
+https://docs.databricks.com/sql/language-manual/sql-ref-reserved-words.html
+"""
 
 RESERVED_KEYWORDS = [
     "ANTI",
@@ -17,4 +20,9 @@ RESERVED_KEYWORDS = [
     "SEMI",
     "UNION",
     "USING",
+]
+
+UNRESERVED_KEYWORDS = [
+    # Unity Catalog
+    "CATALOG"
 ]
