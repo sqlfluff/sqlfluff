@@ -732,7 +732,7 @@ ansi_dialect.add(
             Ref("TableReferenceSegment"),
         ),
     ),
-    QuotedPathSegment=TypedParser(
+    DoubleQuotedPathSegment=TypedParser(
         "double_quote", PathSegment, type="quoted_path"
     ),
     SingleQuotedPathSegment=TypedParser(
@@ -4096,5 +4096,5 @@ class PathIdentifierSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("PathSegment"),
         Ref("SingleQuotedPathSegment"),
-        Ref("QuotedPathSegment"),
+        Ref("DoubleQuotedPathSegment"),
     )

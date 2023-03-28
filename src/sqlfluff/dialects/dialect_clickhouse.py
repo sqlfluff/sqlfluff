@@ -21,8 +21,6 @@ from sqlfluff.core.parser import (
     TypedParser,
     StringLexer,
 )
-from sqlfluff.core.parser.parsers import MultiStringParser
-from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import (
     UNRESERVED_KEYWORDS,
@@ -822,6 +820,8 @@ class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
 
 class SystemMergesSegment(BaseSegment):
     """A `SYSTEM ... MERGES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_merges_segment"
@@ -839,12 +839,14 @@ class SystemMergesSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             Ref("TableReferenceSegment"),
-        )
+        ),
     )
 
 
 class SystemTTLMergesSegment(BaseSegment):
     """A `SYSTEM ... TTL MERGES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_ttl_merges_segment"
@@ -862,6 +864,8 @@ class SystemTTLMergesSegment(BaseSegment):
 
 class SystemMovesSegment(BaseSegment):
     """A `SYSTEM ... MOVES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_moves_segment"
@@ -878,6 +882,8 @@ class SystemMovesSegment(BaseSegment):
 
 class SystemReplicaSegment(BaseSegment):
     """A `SYSTEM ... REPLICA` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_replica_segment"
@@ -931,6 +937,8 @@ class SystemReplicaSegment(BaseSegment):
 
 class SystemFilesystemSegment(BaseSegment):
     """A `SYSTEM ... FILESYSTEM` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_filesystem_segment"
@@ -944,8 +952,10 @@ class SystemFilesystemSegment(BaseSegment):
 
 class SystemReplicatedSegment(BaseSegment):
     """A `SYSTEM ... REPLICATED` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
-    
+
     type = "system_replicated_segment"
 
     match_grammar = Sequence(
@@ -961,8 +971,10 @@ class SystemReplicatedSegment(BaseSegment):
 
 class SystemReplicationSegment(BaseSegment):
     """A `SYSTEM ... REPLICATION` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
-    
+
     type = "system_replication_segment"
 
     match_grammar = Sequence(
@@ -978,8 +990,10 @@ class SystemReplicationSegment(BaseSegment):
 
 class SystemFetchesSegment(BaseSegment):
     """A `SYSTEM ... FETCHES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
-    
+
     type = "system_fetches_segment"
 
     match_grammar = Sequence(
@@ -994,8 +1008,10 @@ class SystemFetchesSegment(BaseSegment):
 
 class SystemDistributedSegment(BaseSegment):
     """A `SYSTEM ... DISTRIBUTED` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
-    
+
     type = "system_distributed_segment"
 
     match_grammar = Sequence(
@@ -1021,8 +1037,10 @@ class SystemDistributedSegment(BaseSegment):
 
 class SystemModelSegment(BaseSegment):
     """A `SYSTEM ... MODEL` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
-    
+
     type = "system_model_segment"
 
     match_grammar = Sequence(
@@ -1045,6 +1063,8 @@ class SystemModelSegment(BaseSegment):
 
 class SystemFileSegment(BaseSegment):
     """A `SYSTEM ... FILE` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_file_segment"
@@ -1058,6 +1078,8 @@ class SystemFileSegment(BaseSegment):
 
 class SystemUnfreezeSegment(BaseSegment):
     """A `SYSTEM ... UNFREEZE` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
     """
 
     type = "system_unfreeze_segment"
@@ -1111,4 +1133,3 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
         ]
     )
-
