@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc37cc13dd4c0f8fa749d3a979221aff04f86f70c50d8f9e18bf771127fd2155
+_hash: 6fe63a40ae5b468ad5207ebec94cf11a25d2bcb96fb8437e5534cd2a96b54f92
 file:
 - statement:
     select_statement:
@@ -571,6 +571,64 @@ file:
                 - alias_expression:
                     keyword: AS
                     naked_identifier: c2
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table
+              end_bracket: )
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: min
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: timestamp_ns
+                      end_bracket: )
+                  binary_operator: /
+                  numeric_literal: 1e9
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: min_timestamp_s
+              - keyword: FOR
+              - naked_identifier: run_id
+              - keyword: in
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: test_run_id
+                - alias_expression:
+                    keyword: as
+                    naked_identifier: test
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: ctrl_run_id
+                - alias_expression:
+                    keyword: as
+                    naked_identifier: ctrl
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
