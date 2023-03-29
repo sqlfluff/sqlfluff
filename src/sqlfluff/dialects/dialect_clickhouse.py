@@ -1097,7 +1097,6 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
-            Ref("CreateTableStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
