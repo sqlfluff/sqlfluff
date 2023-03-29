@@ -122,6 +122,7 @@ UNRESERVED_KEYWORDS = [
     "OPTIMIZE",
     "OR",
     "OUTFILE",
+    "OVERRIDE",
     "POPULATE",
     "PREWHERE",
     "PRIMARY",

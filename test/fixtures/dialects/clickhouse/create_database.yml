@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b17cb4cfd8dbacf69bc6f8e1d234e84c7b505d5dde63ded16c7ac2931f1d855
+_hash: e021bc1a0983622f95d6b412d5e235724e1f81dc269e7c83fdba982fe50136ac
 file:
 - statement:
     create_database_statement:
@@ -70,4 +70,1800 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           quoted_literal: "'db_comment'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Atomic
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testlazy
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testlazy
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Lazy
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: expiration_time_in_seconds
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testdb
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testdb
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'zoo_path'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'shard_name'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'replica_name'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testdb
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'zoo_path'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'shard_name'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'replica_name'"
+          - end_bracket: )
+    - keyword: SETTINGS
+    - expression:
+      - column_reference:
+          naked_identifier: key1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - column_reference:
+          naked_identifier: value1
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: testdb
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'zoo_path'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'shard_name'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'replica_name'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: key1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - naked_identifier: key2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: r
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'some/path/r'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'shard1'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'replica1'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: r
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'some/path/r'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'shard1'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'other_replica'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: r
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'some/path/r'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'other_shard'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'{replica}'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: r
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: Replicated
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'some/path/r'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'other_shard'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'r2'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test_database
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: PostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test_database
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: PostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'mysecretpassword'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test_database
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: PostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'mysecretpassword'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'schema_name'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: test_database
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: PostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'mysecretpassword'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'schema_name'"
+          - comma: ','
+          - expression:
+              numeric_literal: '1'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: clusterENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: test
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: read_write_timeout
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10000'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql_db
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'test'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'my_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: read_write_timeout
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10000'
+      - comma: ','
+      - naked_identifier: connect_timeout
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: sqlite_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: SQLite
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'sqlite.db'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: postgres_db
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: postgres_database
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_schema
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'postgres_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: database1
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_tables_list
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'schema1.table1,schema2.table2,schema1.table3'"
+      - comma: ','
+      - naked_identifier: materialized_postgresql_tables_list_with_schema
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: database1
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_schema_list
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'schema1,schema2,schema3'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: database1
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_tables_list
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'table1,table2,table3'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: demodb
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'postgres1:5432'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'postgres_password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_replication_slot
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'clickhouse_sync'"
+      - comma: ','
+      - naked_identifier: materialized_postgresql_snapshot
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'0000000A-0000023F-3'"
+      - comma: ','
+      - naked_identifier: materialized_postgresql_tables_list
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'table1,table2,table3'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_schema
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'postgres_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_schema
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'postgres_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedPostgreSQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'host:port'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'database'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'password'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_postgresql_schema
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'postgres_schema'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - expression:
+        column_reference:
+          naked_identifier: cluster
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'InnoDB'"
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+        naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - end_bracket: )
 - statement_terminator: ;

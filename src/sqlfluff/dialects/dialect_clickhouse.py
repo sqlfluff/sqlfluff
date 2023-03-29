@@ -656,97 +656,41 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        Ref("OnClusterClauseSegment", optional=True),
-        Ref.keyword("SYNC", optional=True),
-    )
-
-
-class DropDictionaryStatementSegment(BaseSegment):
-    """A `DROP DICTIONARY` statement.
-
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/drop/
-    """
-
-    type = "drop_dictionary_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        "DICTIONARY",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref.keyword("SYNC", optional=True),
-    )
-
-
-class DropUserStatementSegment(ansi.DropUserStatementSegment):
-    """A `DROP USER` statement.
-
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/drop/
-    """
-
-    type = "drop_user_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        "USER",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("OnClusterClauseSegment", optional=True),
-    )
-
-
-class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
-    """A `DROP ROLE` statement.
-
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/drop/
-    """
-
-    type = "drop_user_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        "ROLE",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("OnClusterClauseSegment", optional=True),
-    )
-
-
-class DropQuotaStatementSegment(BaseSegment):
-    """A `DROP QUOTA` statement.
-
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/drop/
-    """
-
-    type = "drop_quota_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        "QUOTA",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("OnClusterClauseSegment", optional=True),
-    )
-
-
-class DropSettingProfileStatementSegment(BaseSegment):
-    """A `DROP setting PROFILE` statement.
-
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/drop/
-    """
-
-    type = "drop_setting_profile_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        Delimited(
-            Ref("NakedIdentifierSegment"),
-            min_delimiters=0,
+        AnySetOf(
+            Sequence(
+                "ON",
+                "CLUSTER",
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
+            Ref("EngineSegment", optional=True),
+            Sequence(
+                "COMMENT",
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "SETTINGS",
+                Ref('ExpressionSegment'),
+                optional=True,
+            ),
+        ),
+        AnyNumberOf(
+            "TABLE",
+            "OVERRIDE",
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("ColumnConstraintSegment"),
+                    ),
+                ),
+                # Column definition may be missing if using AS SELECT
+                optional=True,
+            ),
+            optional=True,
         ),
         "PROFILE",
         Ref("IfExistsGrammar", optional=True),
