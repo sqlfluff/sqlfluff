@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e021bc1a0983622f95d6b412d5e235724e1f81dc269e7c83fdba982fe50136ac
+_hash: 8af292223448477c863915add3dacfdec3d823baec7e0e8f0781a1e982e52c3b
 file:
 - statement:
     create_database_statement:
@@ -176,13 +176,10 @@ file:
               quoted_literal: "'replica_name'"
           - end_bracket: )
     - keyword: SETTINGS
-    - expression:
-      - column_reference:
-          naked_identifier: key1
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - column_reference:
-          naked_identifier: value1
+    - naked_identifier: key1
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: value1
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -1866,4 +1863,42 @@ file:
           data_type:
             data_type_identifier: String
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: mysql
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        engine_function:
+          function_name:
+            function_name_identifier: MaterializedMySQL
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'localhost:3306'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'db'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'user'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'***'"
+          - end_bracket: )
+    - keyword: SETTINGS
+    - naked_identifier: allows_query_when_mysql_lost
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: 'true'
+    - comma: ','
+    - naked_identifier: max_wait_time_when_mysql_unavailable
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10000'
 - statement_terminator: ;

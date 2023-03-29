@@ -671,7 +671,21 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
             ),
             Sequence(
                 "SETTINGS",
-                Ref('ExpressionSegment'),
+                Delimited(
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                Ref("BooleanLiteralGrammar"),
+                            ),
+                            optional=True,
+                        ),
+                    )
+                ),
                 optional=True,
             ),
         ),
@@ -687,7 +701,6 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
                         Ref("ColumnConstraintSegment"),
                     ),
                 ),
-                # Column definition may be missing if using AS SELECT
                 optional=True,
             ),
             optional=True,

@@ -74,6 +74,4 @@ CREATE DATABASE db_name ENGINE = MaterializedMySQL('localhost:3306', 'db', 'user
 CREATE DATABASE db_name ON CLUSTER cluster ENGINE = MaterializedMySQL('localhost:3306', 'db', 'user', '***') SETTINGS materialized_mysql_database_engine = 'InnoDB';
 CREATE DATABASE db_name ON CLUSTER cluster ENGINE = MaterializedMySQL('localhost:3306', 'db', 'user', '***') SETTINGS materialized_mysql_database_engine = 'InnoDB' TABLE OVERRIDE table1 (id UInt32, name String) TABLE OVERRIDE table2 (id UInt32, name String);
 
--- TODO
--- CREATE DATABASE mysql ENGINE = MaterializedMySQL('localhost:3306', 'db', 'user', '***') SETTINGS allows_query_when_mysql_lost=true, max_wait_time_when_mysql_unavailable=10000;
--- Parameter not supported in SETTINGS: key=<boolean> (i.e. allows_query_when_mysql_lost=true) in Ref("ExpressionSegment")
+CREATE DATABASE mysql ENGINE = MaterializedMySQL('localhost:3306', 'db', 'user', '***') SETTINGS allows_query_when_mysql_lost=true, max_wait_time_when_mysql_unavailable=10000;
