@@ -255,7 +255,7 @@ class StructTypeSchemaSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("SingleIdentifierGrammar"),
                 Ref("ColonSegment"),
                 Ref("DatatypeSegment"),
                 Ref("CommentGrammar", optional=True),
@@ -472,12 +472,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP",
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMERIC"),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                Ref("CommaSegment"),
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         "DATE",
         "VARCHAR",

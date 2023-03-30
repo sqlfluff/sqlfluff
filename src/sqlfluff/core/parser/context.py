@@ -10,10 +10,12 @@ and match depth of the current operation.
 
 import logging
 import uuid
+from typing import Optional, TYPE_CHECKING, Dict
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.match_result import MatchResult
 
 # Get the parser logger
-from typing import Dict
-
 parser_logger = logging.getLogger("sqlfluff.parser")
 
 
@@ -42,6 +44,9 @@ class RootParseContext:
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
         self.uuid = uuid.uuid4()
+        # A dict for parse caching. This is reset for each file,
+        # but persists for the duration of an individual file parse.
+        self._parse_cache = {}
 
     @classmethod
     def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
@@ -171,6 +176,19 @@ class ParseContext:
         ctx = self._copy()
         ctx.match_segment = name
         return ctx
+
+    def check_parse_cache(
+        self, loc_key: tuple, matcher_key: str
+    ) -> Optional["MatchResult"]:
+        """Check against the parse cache for a pre-existing match.
+
+        If no match is found in the cache, this returns None.
+        """
+        return self._root_ctx._parse_cache.get((loc_key, matcher_key))
+
+    def put_parse_cache(self, loc_key: tuple, matcher_key: str, match: "MatchResult"):
+        """Store a match in the cache for later retrieval."""
+        self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
 
 
 class ParseDenylist:

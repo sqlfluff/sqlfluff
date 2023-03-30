@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c4df4bc451697763a63f72353e16d68127913db625f1b309fd65bccac00232f
+_hash: ccc658e26d6da19c548f74249a88d58ab89cef1a54e3c532b04b3e8f49134ecc
 file:
   batch:
     statement:
@@ -20,32 +20,35 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )

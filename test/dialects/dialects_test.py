@@ -7,7 +7,8 @@ import logging
 from typing import Any, Dict, Optional
 import pytest
 
-from sqlfluff.core.parser import Parser, Lexer
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.linter import RenderedFile, ParsedString
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -24,66 +25,98 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
 )
 
 
-def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSegment]:
+def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[ParsedString]:
     """Performs a Lex and Parse, with cacheable inputs within fixture."""
     # Load the right dialect
     config = FluffConfig(overrides=config_overrides)
-    tokens, lex_vs = Lexer(config=config).lex(raw)
-    # From just the initial parse, check we're all there
-    assert "".join(token.raw for token in tokens) == raw
-    # Check we don't have lexing issues
-    assert not lex_vs
-    # TODO: Handle extremely verbose logging
-    # temp - use negative grep: | grep -v "INFO\|DEBUG\|\[L\|#\|Initial\|^$"
-    # better maybe - https://docs.pytest.org/en/6.2.x/logging.html#caplog-fixture
-
-    if not raw:
+    # Construct rendered file (to skip the templater)
+    templated_file = TemplatedFile.from_string(raw)
+    rendered_file = RenderedFile(
+        templated_file,
+        [],
+        config,
+        {},
+        templated_file.fname,
+        "utf8",
+        raw,
+    )
+    # Parse (which includes lexing)
+    linter = Linter(config=config)
+    parsed_file = linter.parse_rendered(rendered_file)
+    if not raw:  # Empty file case
+        # We're just checking there aren't exceptions in this case.
         return None
+    # Check we managed to parse
+    assert parsed_file.tree
+    # From just the initial parse, check we're all there
+    assert "".join(token.raw for token in parsed_file.tree.raw_segments) == raw
+    # Check we don't have lexing or parsing issues
+    assert not parsed_file.violations
+    return parsed_file
 
-    return Parser(config=config).parse(tokens)
 
-
+@pytest.mark.integration
+@pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_file_parse(dialect, file):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
     config_overrides = dict(dialect=dialect)
     # Use the helper function to avoid parsing twice
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overrides, raw)
-    if not parsed:
+    parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
+    if not parsed:  # Empty file case
         return
-
-    print(f"Post-parse structure: {parsed.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {parsed.stringify()}")
+    print(f"Post-parse structure: {parsed.tree.to_tuple(show_raw=True)}")
+    print(f"Post-parse structure: {parsed.tree.stringify()}")
     # Check we're all there.
-    assert parsed.raw == raw
+    assert parsed.tree.raw == raw
     # Check that there's nothing unparsable
-    typs = parsed.type_set()
+    typs = parsed.tree.type_set()
     assert "unparsable" not in typs
 
 
-@pytest.mark.integration_test
+@pytest.mark.integration
+@pytest.mark.fix_suite
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(
     dialect, file, raise_critical_errors_after_fix, caplog
 ):
-    """Run a full fix with all rules, in search of critical errors."""
+    """Run a full fix with all rules, in search of critical errors.
+
+    NOTE: This suite does all of the same things as the above test
+    suite (the `parse_suite`), but also runs fix. In CI, we run
+    the above tests _with_ coverage tracking, but these we run
+    _without_.
+
+    The purpose of this test is as a more stretching run through
+    a wide range of test sql examples, and the full range of rules
+    to find any potential critical errors raised by any interactions
+    between different dialects and rules.
+    """
     raw = load_file(dialect, file)
     config_overrides = dict(dialect=dialect)
-    # Lean on the cached result of the above test if possible
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overrides, raw)
-    if not parsed:
+
+    parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
+    if not parsed:  # Empty file case
         return
     else:
-        print(parsed.stringify())
+        print(parsed.tree.stringify())
 
     config = FluffConfig(overrides=config_overrides)
-    # Due to "raise_critical_errors_after_fix" fixure "fix",
+    linter = Linter(config=config)
+    rule_pack = linter.get_rulepack()
+    # Due to "raise_critical_errors_after_fix" fixture "fix",
     # will now throw.
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        Linter(config=config).lint_string(raw, fix=True)
+        linter.lint_parsed(
+            parsed,
+            rule_pack,
+            fix=True,
+        )
 
 
+@pytest.mark.integration
+@pytest.mark.parse_suite
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
 def test__dialect__base_parse_struct(
     dialect,

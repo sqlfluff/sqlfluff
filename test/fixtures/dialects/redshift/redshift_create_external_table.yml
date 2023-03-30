@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e726b6bf80889e1cb0aa978bee525887797e2058afecba7ee00f19572ec16d8c
+_hash: 5b6df3353f64d90fb128da7d2a5d1a94e0961673673ec9d3ad2feb1de1c6d8ff
 file:
 - statement:
     create_external_table_statement:
@@ -281,12 +281,13 @@ file:
           naked_identifier: pricepaid
       - data_type:
           keyword: decimal
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '8'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '8'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: saletime
@@ -348,10 +349,11 @@ file:
           naked_identifier: event_type
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: recipientaccountid
@@ -402,21 +404,23 @@ file:
           naked_identifier: club_name
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '15'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '15'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: league_spi
       - data_type:
           keyword: decimal
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '6'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: league_nspi
@@ -468,10 +472,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '10'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
       - end_bracket: )
     - keyword: ROW
     - keyword: FORMAT

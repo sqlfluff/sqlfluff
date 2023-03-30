@@ -131,6 +131,14 @@ bigquery_dialect.add(
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
+    NakedIdentifierPart=RegexParser(
+        # The part of a an identifier after a hyphen.
+        # NOTE: This one can match an "all numbers" variant.
+        # https://cloud.google.com/resource-manager/docs/creating-managing-projects
+        r"[A-Z0-9_]+",
+        ansi.IdentifierSegment,
+        type="naked_identifier",
+    ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -146,6 +154,9 @@ bigquery_dialect.add(
             Ref("ArrayLiteralSegment"),
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
+            terminators=[
+                Ref("SemicolonSegment"),
+            ],
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
@@ -1018,7 +1029,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Sequence(
             Ref("DatatypeIdentifierSegment"),  # Simple type
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#parameterized_data_types
-            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("ArrayTypeSegment"),
@@ -1229,7 +1240,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("DashSegment"),
-                    OneOf(Ref("SingleIdentifierGrammar"), Ref("NumericLiteralSegment")),
+                    Ref("NakedIdentifierPart"),
                     allow_gaps=False,
                 ),
                 optional=True,
@@ -1314,11 +1325,10 @@ class DeclareStatementSegment(BaseSegment):
         "DECLARE",
         Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
-            Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                Ref("DefaultDeclareOptionsGrammar"),
+                Ref("DefaultDeclareOptionsGrammar", optional=True),
             ),
         ),
     )
@@ -1701,6 +1711,17 @@ class ParameterizedSegment(BaseSegment):
     match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))
 
 
+class PivotForClauseSegment(BaseSegment):
+    """The FOR part of a PIVOT expression.
+
+    Needed to avoid BaseExpressionElementGrammar swallowing up the IN part
+    """
+
+    type = "pivot_for_clause"
+    match_grammar = GreedyUntil("IN")
+    parse_grammar = Ref("BaseExpressionElementGrammar")
+
+
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
@@ -1718,7 +1739,7 @@ class FromPivotExpressionSegment(BaseSegment):
                 ),
             ),
             "FOR",
-            Ref("SingleIdentifierGrammar"),
+            Ref("PivotForClauseSegment"),
             "IN",
             Bracketed(
                 Delimited(

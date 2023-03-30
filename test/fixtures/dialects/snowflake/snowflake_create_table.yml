@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e82416b945a853194035f5f1c35d78f22b47bd50d6bd6c7902c42b4438651696
+_hash: 6253e281a173eaa117a9689da502e225a4e0257cbe8794d870bee5fc4ac9b19a
 file:
 - statement:
     create_table_statement:
@@ -462,11 +462,11 @@ file:
           naked_identifier: orderstatus
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '100'
-              end_bracket: )
+                end_bracket: )
           column_constraint_segment:
             keyword: default
             null_literal: 'null'
@@ -475,11 +475,11 @@ file:
           naked_identifier: price
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '255'
-              end_bracket: )
+                end_bracket: )
       - end_bracket: )
     - keyword: as
     - select_statement:
@@ -857,11 +857,11 @@ file:
           quoted_identifier: '"COL1"'
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '128'
-              end_bracket: )
+                end_bracket: )
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -870,11 +870,11 @@ file:
           quoted_identifier: '"COL2"'
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '128'
-              end_bracket: )
+                end_bracket: )
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 949a316997d06d8bd81c0b45452d66cb06690d73bbbad7dfdfcc4c30a70fcd3c
+_hash: aeb7acea73d669a0a20a1a1a8280c6f23521a663b9ab9fd3c40d4c110312b983
 file:
 - batch:
     statement:
@@ -20,34 +20,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH
@@ -93,34 +96,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH
@@ -164,34 +170,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH
@@ -243,34 +252,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH
@@ -327,34 +339,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH
@@ -410,34 +425,37 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '100'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  numeric_literal: '10'
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '10'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - table_distribution_index_clause:
           keyword: WITH

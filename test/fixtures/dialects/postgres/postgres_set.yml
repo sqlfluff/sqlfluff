@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c737f9e45be0fab74b2a65be0f9dfee377c8004e59cc09a4de27301ec509f30b
+_hash: e966e9d3dfde5f1921fb58fdf6dbe47e1c53e66e733dfb9f1c2baf27f619c448
 file:
 - statement:
     set_statement:
@@ -69,4 +69,16 @@ file:
     - keyword: TIME
     - keyword: ZONE
     - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: "'my_schema'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: "'public'"
 - statement_terminator: ;

@@ -387,7 +387,7 @@ def test__cli__command_render_stdin():
                 "--rules",
                 "CP01,LT01",
                 "--exclude-rules",
-                "LT01,L031",
+                "LT01,AL07",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -397,7 +397,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT01,LT03,L031",
+                "LT01,LT03,AL07",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -407,7 +407,7 @@ def test__cli__command_render_stdin():
             [
                 "-n",
                 "--exclude-rules",
-                "LT02,LT12,L031",
+                "LT02,LT12,AL07",
                 "--ignore",
                 "parsing,lexing",
                 "test/fixtures/linter/parse_lex_error.sql",
@@ -526,6 +526,18 @@ def test__cli__command_lint_parse(command):
             (
                 render,
                 ["test/fixtures/cli/fail_many.sql"],
+            ),
+            1,
+        ),
+        # Test a longer lint fail with --bench
+        # This tests the threshold rules clause
+        (
+            (
+                lint,
+                [
+                    "test/fixtures/linter/autofix/bigquery/004_templating/before.sql",
+                    "--bench",
+                ],
             ),
             1,
         ),
@@ -1387,19 +1399,6 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 1,
-            "message": "LT09: Select targets should be on a new line unless there is "
-            "only one select target.",
-            "start_column": 1,
-            "end_column": 1,
-            "title": "SQLFluff",
-        },
-        {
-            "annotation_level": "warning",
-            # Normalise paths to control for OS variance
-            "file": os.path.normpath(
-                "test/fixtures/linter/identifier_capitalisation.sql"
-            ),
             "line": 2,
             "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
@@ -1493,9 +1492,6 @@ def test__cli__command_lint_serialize_github_annotation_native():
 
     assert result.output == "\n".join(
         [
-            f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
-            "LT09: Select targets should be on a new line unless there is only one "
-            "select target. [layout.select_targets]",
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",

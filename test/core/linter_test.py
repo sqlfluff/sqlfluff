@@ -25,6 +25,7 @@ from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 class DummyLintError(SQLBaseError):
@@ -765,7 +766,7 @@ def test_linted_file_ignore_masked_violations(
     lf = linter.LintedFile(
         path="",
         violations=violations,
-        time_dict={},
+        timings=None,
         tree=None,
         ignore_mask=ignore_mask,
         templated_file=TemplatedFile.from_string(""),
@@ -943,7 +944,7 @@ def test_delayed_exception():
         de.reraise()
 
 
-def test__attempt_to_change_templater_warning(caplog):
+def test__attempt_to_change_templater_warning():
     """Test warning when changing templater in .sqlfluff file in subdirectory."""
     initial_config = FluffConfig(
         configs={"core": {"templater": "jinja", "dialect": "ansi"}}
@@ -952,20 +953,14 @@ def test__attempt_to_change_templater_warning(caplog):
     updated_config = FluffConfig(
         configs={"core": {"templater": "python", "dialect": "ansi"}}
     )
-    logger = logging.getLogger("sqlfluff")
-    original_propagate_value = logger.propagate
-    try:
-        logger.propagate = True
-        with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
-            lntr.render_string(
-                in_str="select * from table",
-                fname="test.sql",
-                config=updated_config,
-                encoding="utf-8",
-            )
-        assert "Attempt to set templater to " in caplog.text
-    finally:
-        logger.propagate = original_propagate_value
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        lntr.render_string(
+            in_str="select * from table",
+            fname="test.sql",
+            config=updated_config,
+            encoding="utf-8",
+        )
+    assert "Attempt to set templater to " in caplog.text
 
 
 @pytest.mark.parametrize(

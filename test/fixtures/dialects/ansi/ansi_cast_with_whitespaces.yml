@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16bffa5df2ab1ccf240d9e0f886e0892fb7653fec079027c2e0957b8dda7bc09
+_hash: 98901f41139ba11863745752a671f49b443c94a77a7fd6ece89c6f40ffb33aff
 file:
 - statement:
     select_statement:
@@ -137,11 +137,11 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  expression:
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
                     numeric_literal: '512'
-                  end_bracket: )
+                    end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -231,11 +231,11 @@ file:
                   casting_operator: '::'
                   data_type:
                     data_type_identifier: VARCHAR
-                    bracketed:
-                      start_bracket: (
-                      expression:
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
                         numeric_literal: '512'
-                      end_bracket: )
+                        end_bracket: )
               - comparison_operator:
                   raw_comparison_operator: '='
               - cast_expression:
@@ -246,11 +246,11 @@ file:
                   casting_operator: '::'
                   data_type:
                     data_type_identifier: VARCHAR
-                    bracketed:
-                      start_bracket: (
-                      expression:
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
                         numeric_literal: '512'
-                      end_bracket: )
+                        end_bracket: )
       where_clause:
         keyword: WHERE
         expression:

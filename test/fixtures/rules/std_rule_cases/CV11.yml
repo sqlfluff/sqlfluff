@@ -323,7 +323,6 @@ test_pass_when_dialect_is_teradata:
     core:
       dialect: teradata
 
-
 test_fail_parenthesize_expression_when_config_shorthand_from_cast:
   fail_str: |
     select
@@ -340,7 +339,6 @@ test_fail_parenthesize_expression_when_config_shorthand_from_cast:
       convention.casting_style:
         preferred_type_casting_style: shorthand
 
-
 test_fail_parenthesize_expression_when_config_shorthand_from_convert:
   fail_str: |
     select
@@ -356,3 +354,18 @@ test_fail_parenthesize_expression_when_config_shorthand_from_convert:
     rules:
       convention.casting_style:
         preferred_type_casting_style: shorthand
+
+test_fail_snowflake_semi_structured_cast_4453:
+  # https://github.com/sqlfluff/sqlfluff/issues/4453
+  fail_str: |
+    select (trim(value:Longitude::varchar))::double as longitude;
+    select col:a.b:c::varchar as bar;
+  fix_str: |
+    select cast((trim(cast(value:Longitude as varchar))) as double) as longitude;
+    select cast(col:a.b:c as varchar) as bar;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast

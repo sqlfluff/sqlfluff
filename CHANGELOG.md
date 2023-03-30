@@ -10,6 +10,103 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.2] - 2023-03-23
+
+## Highlights
+
+This is primarily a _bugfix_ release. Most notably this solves some of the
+issues introduced in 2.0.1 around spacing within datatypes. Expressions
+like `1.0::double precision` should now be spaced correctly.
+
+Beyond that, this contains a selection of smaller bugfixes and dialect
+improvements. Even for a relatively small release we saw three new
+contributors (thanks [@aurany](https://github.com/aurany), [@JackWolverson](https://github.com/JackWolverson)
+& [@mikaeltw](https://github.com/mikaeltw) 🎉).
+
+The one new _feature_ (as such) is being able to now configure `LT05`
+(aka `layout.long_lines`) to optionally move trailing comments _after_
+the line they are found on, rather than the default behaviour of moving
+them up and _before_. Users can enable this with the `trailing_comments`
+configuration setting in the `indentation` section.
+
+This release _also_ contains some performance optimisations in the parser,
+especially on queries with heavily nested expressions. There will be more
+to come in this space, but we hope this leads to a better experience for
+many users. 🚀
+
+## What’s Changed
+
+* Parse Caching [#4576](https://github.com/sqlfluff/sqlfluff/pull/4576) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Data type spacing [#4592](https://github.com/sqlfluff/sqlfluff/pull/4592) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: allow quoted literal in alias name [#4591](https://github.com/sqlfluff/sqlfluff/pull/4591) [@yoichi](https://github.com/yoichi)
+* Make implicit indents visible in the parse tree [#4584](https://github.com/sqlfluff/sqlfluff/pull/4584) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4559: TSQL implicit indents on WHERE [#4583](https://github.com/sqlfluff/sqlfluff/pull/4583) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Added keywords to DB2 dialect from IBM docs [#4575](https://github.com/sqlfluff/sqlfluff/pull/4575) [@aurany](https://github.com/aurany)
+* Remove matches_target_tuples (#3873) [#4561](https://github.com/sqlfluff/sqlfluff/pull/4561) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Use terminators in BaseExpression [#4577](https://github.com/sqlfluff/sqlfluff/pull/4577) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Address #1630: Optionally move comments after long line [#4558](https://github.com/sqlfluff/sqlfluff/pull/4558) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Added schema to set statement [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580) [@JackWolverson](https://github.com/JackWolverson)
+* Refactor lint_line_length and fix comma bug [#4564](https://github.com/sqlfluff/sqlfluff/pull/4564) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix untaken indent bug [#4562](https://github.com/sqlfluff/sqlfluff/pull/4562) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SQLite: Fix SELECT LIMIT [#4566](https://github.com/sqlfluff/sqlfluff/pull/4566) [@greg-finley](https://github.com/greg-finley)
+* Fix #4453: Snowflake semi-stuctured casts in CV11 [#4571](https://github.com/sqlfluff/sqlfluff/pull/4571) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Name of LT07 [#4557](https://github.com/sqlfluff/sqlfluff/pull/4557) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Patch fetch and over [#4555](https://github.com/sqlfluff/sqlfluff/pull/4555) [@mikaeltw](https://github.com/mikaeltw)
+
+## New Contributors
+
+* [@mikaeltw](https://github.com/mikaeltw) made their first contribution in [#4555](https://github.com/sqlfluff/sqlfluff/pull/4555)
+* [@JackWolverson](https://github.com/JackWolverson) made their first contribution in [#4580](https://github.com/sqlfluff/sqlfluff/pull/4580)
+* [@aurany](https://github.com/aurany) made their first contribution in [#4575](https://github.com/sqlfluff/sqlfluff/pull/4575)
+
+## [2.0.1] - 2023-03-17
+
+## Highlights
+
+This is mostly a bugfix release addressing some of the issues from the recent
+2.0 release. Notable fixes are:
+- Spacing for (as applied by `LT01`) for datatypes, hypenated identifiers and
+  casting operators.
+- Several bugs in the indentation routines (`LT02`), in particular with implicit
+  indents.
+- Fixing a conflict between `LT09` and `LT02`, by only limiting `LT09` to bringing
+  targets onto a single line if there is only one select target **and** that it
+  contains no newlines.
+- Supporting arrays, and the new rules configuration more effectively in `pyproject.toml`.
+- Configuring dialects on a file by file basis using inline comments now works.
+
+This release also brings one small new feature in allowing additional flags to
+be passed to SQLFluff when called as a `pre-commit` hook.
+
+Thanks especially to [@JavierMonton](https://github.com/JavierMonton) and
+[@LauraRichter](https://github.com/LauraRichter) who made their first contributions
+to the project as part of this release! 🎉🏆
+
+## What’s Changed
+
+* Add support for arrays in TOML configuration [#4387](https://github.com/sqlfluff/sqlfluff/pull/4387) [@AidanHarveyNelson](https://github.com/AidanHarveyNelson)
+* Rethink test segregation in CI [#4547](https://github.com/sqlfluff/sqlfluff/pull/4547) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4515 and add more test cases [#4525](https://github.com/sqlfluff/sqlfluff/pull/4525) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add additional flags to `sqlfluff` invocations in pre-commit hooks [#4546](https://github.com/sqlfluff/sqlfluff/pull/4546) [@borchero](https://github.com/borchero)
+* Resolve #4484 (issues with indented_joins indents) [#4544](https://github.com/sqlfluff/sqlfluff/pull/4544) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Per file dialect selection fix [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518) [@LauraRichter](https://github.com/LauraRichter)
+* MySQL: Add CREATE INDEX [#4538](https://github.com/sqlfluff/sqlfluff/pull/4538) [@yoichi](https://github.com/yoichi)
+* Resolve implicit indent issues when catching negative indents [#4543](https://github.com/sqlfluff/sqlfluff/pull/4543) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Github Action Deprecations [#4545](https://github.com/sqlfluff/sqlfluff/pull/4545) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* LT09 and multiline select targets [#4529](https://github.com/sqlfluff/sqlfluff/pull/4529) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove Codecov from CI [#4535](https://github.com/sqlfluff/sqlfluff/pull/4535) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Bigquery hyphentated identifiers [#4530](https://github.com/sqlfluff/sqlfluff/pull/4530) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Attempt in-house coverage [#4532](https://github.com/sqlfluff/sqlfluff/pull/4532) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres datatype spacing issues [#4528](https://github.com/sqlfluff/sqlfluff/pull/4528) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support new rules config in toml files. [#4526](https://github.com/sqlfluff/sqlfluff/pull/4526) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve #1146 (log propagation) [#4513](https://github.com/sqlfluff/sqlfluff/pull/4513) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Optional quotes for `create user` statement [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514) [@JavierMonton](https://github.com/JavierMonton)
+
+## New Contributors
+
+* [@JavierMonton](https://github.com/JavierMonton) made their first contribution in [#4514](https://github.com/sqlfluff/sqlfluff/pull/4514)
+* [@LauraRichter](https://github.com/LauraRichter) made their first contribution in [#4518](https://github.com/sqlfluff/sqlfluff/pull/4518)
+
 ## [2.0.0] - 2023-03-13
 
 ## Highlights

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4accb429e0edd7857ac7c2df421079bd7aa7a9ac5ed932491e9e071bfe6c227
+_hash: 7d3fe19e4caf58d383de1e5d252eb2b50348dfcb5fa8a3a0a44196995e2453ce
 file:
 - statement:
     create_table_statement:
@@ -25,10 +25,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -67,10 +68,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_attribute_segment:
         - keyword: GENERATED
         - keyword: BY
@@ -118,46 +120,51 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: col4
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: col5
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: col6
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - table_constraint:
       - keyword: DISTKEY
@@ -200,10 +207,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_constraint_segment:
           keyword: REFERENCES
           table_reference:
@@ -251,10 +259,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - table_constraint:
       - keyword: DISTKEY
@@ -291,10 +300,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - table_constraint:
       - keyword: DISTKEY
@@ -331,10 +341,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - table_constraint:
       - keyword: DISTKEY
@@ -371,10 +382,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'YES'
@@ -400,10 +412,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'NO'
@@ -447,10 +460,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
         - keyword: TEXT255
@@ -492,10 +506,11 @@ file:
           naked_identifier: col2
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
         - keyword: TEXT255
@@ -504,10 +519,11 @@ file:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
         - keyword: CASE_SENSITIVE
@@ -516,10 +532,11 @@ file:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
         - keyword: CASE_INSENSITIVE
@@ -552,10 +569,11 @@ file:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '60'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '60'
+              end_bracket: )
       - comma: ','
       - table_constraint:
           keyword: UNIQUE
@@ -610,10 +628,11 @@ file:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '60'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '60'
+              end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: PRIMARY
@@ -673,10 +692,11 @@ file:
           naked_identifier: col3
       - data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '60'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '60'
+              end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: FOREIGN
@@ -801,10 +821,11 @@ file:
           naked_identifier: col_name
         data_type:
           keyword: VARCHAR
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:

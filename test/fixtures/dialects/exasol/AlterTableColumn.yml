@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 830de392062d8919d6406b638f6a147ab37532248dd51fec82eaf3a04c3689c9
+_hash: 2b5949c81506c6ef3ba0649f65e32fd812eb7682e6080c9e181520ba389c9635
 file:
 - statement:
     alter_table_statement:
@@ -23,12 +23,13 @@ file:
               naked_identifier: new_dec
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - numeric_literal: '18'
-                - comma: ','
-                - numeric_literal: '0'
-                - end_bracket: )
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -46,10 +47,11 @@ file:
                 naked_identifier: new_char
                 data_type:
                   keyword: CHAR
-                  bracketed:
-                    start_bracket: (
-                    numeric_literal: '10'
-                    end_bracket: )
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '10'
+                      end_bracket: )
               column_constraint_segment:
                 keyword: DEFAULT
                 quoted_literal: "'some text'"
@@ -94,12 +96,13 @@ file:
             naked_identifier: i
             data_type:
               keyword: DECIMAL
-              bracketed:
-              - start_bracket: (
-              - numeric_literal: '10'
-              - comma: ','
-              - numeric_literal: '2'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -116,10 +119,11 @@ file:
             naked_identifier: j
             data_type:
               keyword: VARCHAR
-              bracketed:
-                start_bracket: (
-                numeric_literal: '5'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '5'
+                  end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
               quoted_literal: "'text'"

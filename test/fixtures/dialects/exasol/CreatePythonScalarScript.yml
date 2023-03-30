@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc371af29b8f949369fa476a81b009cf89d025b40ba61cda52e3b086c09e6c10
+_hash: af169dbaf70811431a7c01120ab5baae8f5ad5efbff01f193b718b53d07d27a6
 file:
   statement:
     create_udf_script:
@@ -23,28 +23,31 @@ file:
           naked_identifier: JSON_STR
           data_type:
             keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              numeric_literal: '2000000'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '2000000'
+                end_bracket: )
       - comma: ','
       - column_datatype_definition:
           naked_identifier: LANGUAGE_KEY
           data_type:
             keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              numeric_literal: '50'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '50'
+                end_bracket: )
       - comma: ','
       - column_datatype_definition:
           naked_identifier: TXT_KEY
           data_type:
             keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              numeric_literal: '50'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '50'
+                end_bracket: )
       - end_bracket: )
     - emits_segment:
         keyword: EMITS
@@ -54,10 +57,11 @@ file:
             naked_identifier: X
             data_type:
               keyword: VARCHAR
-              bracketed:
-                start_bracket: (
-                numeric_literal: '2000000'
-                end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '2000000'
+                  end_bracket: )
           end_bracket: )
     - keyword: AS
     - script_content:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4389fa4a2f6c1c625776cf5e631134833d847c12997731a811f2045eccb665d6
+_hash: 6f00f24816a288acc08abb48e0eb2f4fb427b593666602762f52ae53d5e62f87
 file:
 - statement:
     select_statement:
@@ -42,6 +42,93 @@ file:
                 - naked_identifier: table
                 - dash: '-'
                 - naked_identifier: d
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: a
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier: 1a
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier: '1'
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: project23
+              - dash: '-'
+              - naked_identifier: '123'
+              - dot: .
+              - naked_identifier: dataset7
+              - dash: '-'
+              - naked_identifier: b1
+              - dot: .
+              - naked_identifier: table
+              - dash: '-'
+              - naked_identifier: 2c
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dataset12
+                - dash: '-'
+                - naked_identifier: c1
+                - dot: .
+                - naked_identifier: table
+                - dash: '-'
+                - naked_identifier: 1d
           - keyword: USING
           - bracketed:
               start_bracket: (

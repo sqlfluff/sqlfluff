@@ -1814,3 +1814,39 @@ test_fix_untaken_positive_4433:
             TRUE
     )
     ;
+
+test_implicit_case_4542:
+  # https://github.com/sqlfluff/sqlfluff/issues/4542
+  pass_str: |
+    select
+        a,
+        case when b is null then 0 else 1 end as c
+    from my_table;
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_indented_joins_4484:
+  # https://github.com/sqlfluff/sqlfluff/issues/4484
+  pass_str: |
+    select *
+    from table_1
+        inner join table_2
+            on table_1.key = table_2.key
+        inner join table_3
+            on table_2.key = table_3.key
+  configs:
+    indentation:
+      indented_joins: true
+
+test_tsql_where_implicit_4559:
+  # https://github.com/sqlfluff/sqlfluff/issues/4559
+  pass_str: |
+    SELECT t.col1
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    core:
+      dialect: tsql
+    indentation:
+      allow_implicit_indents: true

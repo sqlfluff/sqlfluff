@@ -22,6 +22,7 @@ class MetaSegment(RawSegment):
     # closed on the same line.
     is_implicit = False
     is_meta = True
+    _preface_modifier = "[META] "
 
     def __init__(
         self,
@@ -64,7 +65,7 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -122,6 +123,7 @@ class ImplicitIndent(Indent):
             AND b
     """
 
+    _preface_modifier = "[META] (implicit) "
     is_implicit = True
 
 

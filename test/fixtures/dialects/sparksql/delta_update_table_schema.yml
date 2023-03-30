@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 63ea3f968b4add320516f1caca79f87260d6f9e5f221ae9d11b739b4767ef2d1
+_hash: 1df824dca4c17f32f634e4d7bc9e0d4ef4bf35a94d2847f357bce6ed98793baf
 file:
 - statement:
     alter_table_statement:
@@ -354,26 +354,28 @@ file:
       - column_definition:
           naked_identifier: col_b
           data_type:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - naked_identifier: key2
-          - colon: ':'
-          - data_type:
-              primitive_type:
-                keyword: STRING
-          - comma: ','
-          - naked_identifier: nested
-          - colon: ':'
-          - data_type:
-              primitive_type:
-                keyword: STRING
-          - comma: ','
-          - naked_identifier: key1
-          - colon: ':'
-          - data_type:
-              primitive_type:
-                keyword: STRING
-          - end_angle_bracket: '>'
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: key2
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - comma: ','
+              - naked_identifier: nested
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - comma: ','
+              - naked_identifier: key1
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
           naked_identifier: col_a

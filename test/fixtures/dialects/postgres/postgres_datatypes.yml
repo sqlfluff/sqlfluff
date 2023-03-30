@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67fe4cda699b59e407814faa7e106c8b83eaf551895a6a36e63a45b15a8e92de
+_hash: 7cf843dbbfd1ddd3907ede58652e56d6e0a9c7446e8b623461a83834f985e330
 file:
 - statement:
     create_table_statement:
@@ -107,10 +107,11 @@ file:
           naked_identifier: b
       - data_type:
           keyword: float
-          bracketed:
-            start_bracket: (
-            numeric_literal: '24'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '24'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: c
@@ -145,41 +146,45 @@ file:
           naked_identifier: b
       - data_type:
           keyword: numeric
-          bracketed:
-            start_bracket: (
-            numeric_literal: '7'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: ba
       - data_type:
           keyword: decimal
-          bracketed:
-            start_bracket: (
-            numeric_literal: '7'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: c
       - data_type:
           keyword: numeric
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '7'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '7'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: ca
       - data_type:
           keyword: decimal
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '7'
-          - comma: ','
-          - numeric_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '7'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -213,10 +218,11 @@ file:
           naked_identifier: b
       - data_type:
           keyword: char
-          bracketed:
-            start_bracket: (
-            numeric_literal: '7'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: c
@@ -227,10 +233,11 @@ file:
           naked_identifier: d
       - data_type:
           keyword: character
-          bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: e
@@ -243,19 +250,21 @@ file:
       - data_type:
         - keyword: character
         - keyword: varying
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '8'
-            end_bracket: )
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '8'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: g
       - data_type:
           keyword: varchar
-          bracketed:
-            start_bracket: (
-            numeric_literal: '9'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '9'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: h
@@ -520,10 +529,11 @@ file:
           naked_identifier: b
       - data_type:
           keyword: bit
-          bracketed:
-            start_bracket: (
-            numeric_literal: '3'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '3'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: c
@@ -536,10 +546,11 @@ file:
       - data_type:
         - keyword: bit
         - keyword: varying
-        - bracketed:
-            start_bracket: (
-            numeric_literal: '5'
-            end_bracket: )
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

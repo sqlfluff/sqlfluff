@@ -7,7 +7,7 @@
 # It will run on any pull request, except non-code changes
 # (images, markdown files, )
 #
-name: CI Tests
+name: CI
 on:
   workflow_dispatch:
   schedule:
@@ -24,6 +24,7 @@ on:
     types: [checks_requested]
 
 jobs:
+
   linting:
     runs-on: ubuntu-latest
     strategy:
@@ -33,66 +34,132 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
-      run: |
-        tox -e ${{ matrix.jobs }}
-  python-version-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # We don't enforce coverage on older Python versions.
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
-    name: Python ${{ matrix.python-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e py -- -n 2 test
+      run: tox -e ${{ matrix.jobs }}
+
+  # Test with coverage tracking on most recent python (py11).
   python-version-tests-cov:
-    runs-on: ubuntu-latest
+    name: Python 3.11 Tests
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # Test without coverage tracking on older python versions.
+  # This saves time, as testing without coverage tracking is faster.
+  python-version-tests-nocov:
+    name: Python ${{ matrix.python-version }} Tests
     strategy:
       matrix:
-        # We enforce coverage on this, the latest Python version.
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  dbt-tests-cov:
+    name: dbt 1.4 Plugin Tests
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: "3.10"
+      dbt-version: "dbt140"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  dbt-tests-nocov:
+    name: dbt 1.1 Plugin Tests
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: "3.9"
+      dbt-version: "dbt110"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # This runs the bulk of the dialect _parsing_ tests.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  dialects_parse:
+    name: Dialect parsing
+    strategy:
+      matrix:
         python-version: [ '3.11' ]
-    name: Python ${{ matrix.python-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e py -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.python-version }}
-        parallel: true
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "parse_suite"
+      # We test coverage here for some parsing routines.
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # This lints all our dialect fixtures to check rules can handle a variety
+  # of SQL and don't error out badly.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  dialects_fix:
+    name: Dialect fixing
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "fix_suite"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  # This lints all our rules fixtures to check rules.
+  #
+  # It's run as a separate job as takes longer than the CI jobs and allows
+  # them to be rerun separately if GitHub Actions or Coverage is experiencing
+  # issues.
+  rules:
+    name: Rule yaml test cases
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.11"
+      marks: "rules_suite"
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -102,24 +169,49 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
       env:
         SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
         tox -e ${{ matrix.jobs }}
+
+  ymlchecks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt -r requirements_dev.txt
+        python setup.py develop
+    - name: Generate the YAML files
+      run: |
+        python test/generate_parse_fixture_yml.py
+    - name: Test the generated YAML files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          git diff
+          echo "Generated YAML files do not match branch."
+          echo "Please run the following command to generate these:"
+          echo "  python test/generate_parse_fixture_yml.py"
+          exit 1
+        fi
+
   examples:
     runs-on: ubuntu-latest
     name: example tests
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - name: Install dependencies
@@ -133,93 +225,7 @@ jobs:
           echo "Running $file"
           python "$file"
         done
-  dbt-tests:
-    runs-on: ubuntu-latest
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-    strategy:
-      matrix:
-        # We don't enforce coverage on older dbt versions.
-        dbt-version: [ 'dbt110' ]
-    name: DBT Plugin ${{ matrix.dbt-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        # Use Python 3.10 rather than 3.9 due to this issue.
-        # https://github.com/dbt-labs/dbt-core/issues/2827
-        python-version: '3.9'
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
-  dbt-tests-cov:
-    runs-on: ubuntu-latest
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: password
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-    strategy:
-      matrix:
-        # We enforce coverage on this, the latest dbt version.
-        dbt-version: [ 'dbt140' ]
-    name: DBT Plugin ${{ matrix.dbt-version }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
-      with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        path-to-lcov: coverage.lcov
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.dbt-version }}
-        parallel: true
+
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.10 Windows tests
@@ -230,7 +236,7 @@ jobs:
         git config --global core.eol lf
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
     - name: List Env
@@ -239,8 +245,7 @@ jobs:
         env | sort
     - name: Install dependencies
       shell: bash
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
@@ -248,13 +253,14 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- --cov=sqlfluff -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v3
+        python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v3
       with:
-        # Public token to allow coverage from forks to work.
-        token: fd44b020-c716-4f72-b5f3-03fa20119956
-        files: ./coverage.xml
+        name: coverage-data
+        path: ".coverage.*"
+        if-no-files-found: ignore
+
   python-windows-dbt-tests:
     runs-on: windows-latest
     name: DBT Plugin Python 3.10 Windows tests
@@ -273,19 +279,19 @@ jobs:
         git config --global core.eol lf
     - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
     - name: Install dependencies
       shell: bash
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
       shell: bash
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
         python -m tox -e dbt140-winpy -- plugins/sqlfluff-templater-dbt
+
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
@@ -294,7 +300,7 @@ jobs:
     name: pip install tests
     steps:
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     - uses: actions/checkout@v3
@@ -318,7 +324,8 @@ jobs:
         sqlfluff lint --dialect=ansi <(echo "select 1")
 
   coveralls_finish:
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests]
+    name: Finalise coveralls.
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -326,3 +333,33 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
+
+  coverage_check:
+    name: Combine & check 100% coverage.
+    runs-on: ubuntu-latest
+    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - run: python -m pip install --upgrade coverage[toml]
+
+      - name: Download coverage data.
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-data
+
+      - name: Combine coverage & fail if it's <100%.
+        run: |
+          python -m coverage combine
+          python -m coverage html --skip-covered --skip-empty
+          python -m coverage report --fail-under=100
+
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}

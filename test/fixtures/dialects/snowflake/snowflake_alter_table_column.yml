@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22878f1f16fcd23b97eeabe2abce943e02764130cdad64ba43b7353535333d37
+_hash: 9807fdbeb3a8025069b187ca234e3a42b40ac4c1250900bd6b73abb75c721f41
 file:
 - statement:
     alter_table_statement:
@@ -32,11 +32,11 @@ file:
           naked_identifier: my_column
           data_type:
             data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
                 numeric_literal: '5000'
-              end_bracket: )
+                end_bracket: )
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -352,11 +352,11 @@ file:
       - keyword: type
       - data_type:
           data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
               numeric_literal: '50'
-            end_bracket: )
+              end_bracket: )
       - comma: ','
       - keyword: column
       - column_reference:

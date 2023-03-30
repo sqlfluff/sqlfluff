@@ -178,13 +178,15 @@ ansi_dialect.set_lexer_matchers(
         # (?>                      Atomic grouping
         #                          (https://www.regular-expressions.info/atomic.html).
         #     \d+\.\d+             e.g. 123.456
-        #     |\d+\.(?!\.)         e.g. 123.
+        #     |\d+\.(?![\.\w])     e.g. 123.
         #                          (N.B. negative lookahead assertion to ensure we
-        #                          don't match range operators `..` in Exasol).
+        #                          don't match range operators `..` in Exasol, and
+        #                          that in bigquery we don't match the "."
+        #                          in "asd-12.foo").
         #     |\.\d+               e.g. .456
         #     |\d+                 e.g. 123
         # )
-        # ([eE][+-]?\d+)?          Optional exponential.
+        # (\.?[eE][+-]?\d+)?          Optional exponential.
         # (
         #     (?<=\.)              If matched character ends with . (e.g. 123.) then
         #                          don't worry about word boundary check.
@@ -193,7 +195,7 @@ ansi_dialect.set_lexer_matchers(
         # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+\.\d+|\d+\.(?!\.)|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
@@ -507,6 +509,7 @@ ansi_dialect.add(
         "LIMIT",
         "OVERLAPS",
         Ref("SetOperatorSegment"),
+        "FETCH",
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
     # non-standard keywords)
@@ -534,6 +537,7 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+        "FETCH",
     ),
     GroupByClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
@@ -541,12 +545,14 @@ ansi_dialect.add(
         "HAVING",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     HavingClauseTerminatorGrammar=OneOf(
         Sequence("ORDER", "BY"),
         "LIMIT",
         "QUALIFY",
         "WINDOW",
+        "FETCH",
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -583,6 +589,18 @@ ansi_dialect.add(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        # These terminators allow better performance by giving a signal
+        # of a likely complete match if they come after a match. For
+        # example "123," only needs to match against the LiteralGrammar
+        # and because a comma follows, never be matched against
+        # ExpressionSegment or FunctionSegment, which are both much
+        # more complicated.
+        terminators=[
+            Ref("CommaSegment"),
+            # TODO: We can almost certainly add a few more here, but for
+            # now, the most reliable (and impactful) is the comma.
+            # Others could include some variant on AliasExpressionSegment.
+        ],
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
@@ -861,6 +879,19 @@ class TimeZoneGrammar(BaseSegment):
     )
 
 
+class BracketedArguments(BaseSegment):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    type = "bracketed_arguments"
+    match_grammar = Bracketed(
+        # The brackets might be empty for some cases...
+        Delimited(Ref("LiteralGrammar"), optional=True),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -897,15 +928,8 @@ class DatatypeSegment(BaseSegment):
                     allow_gaps=False,
                 ),
             ),
-            Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
-                optional=True,
-            ),
+            # There may be no brackets for some data types
+            Ref("BracketedArguments", optional=True),
             OneOf(
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
@@ -1487,13 +1511,11 @@ class FromExpressionSegment(BaseSegment):
             Ref("MLTableExpressionSegment"),
             Ref("FromExpressionElementSegment"),
         ),
-        # TODO: Revisit this to make sure it's sensible.
-        Conditional(Dedent, indented_joins=False),
+        Dedent,
+        Conditional(Indent, indented_joins=True),
         AnyNumberOf(
             Sequence(
-                Conditional(Indent, indented_joins=True),
                 OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
-                Conditional(Dedent, indented_joins=True),
             ),
             optional=True,
         ),
@@ -1638,6 +1660,7 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
+            "FETCH",
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2270,16 +2293,14 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
+        Ref("NumericLiteralSegment"),
         OneOf(
-            Ref("NumericLiteralSegment"),
+            Sequence("OFFSET", Ref("NumericLiteralSegment")),
             Sequence(
-                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
             ),
+            optional=True,
         ),
         Dedent,
     )
@@ -2341,8 +2362,11 @@ class NamedWindowExpressionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Window name
         "AS",
-        Bracketed(
-            Ref("WindowSpecificationSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
+                Ref("WindowSpecificationSegment"),
+            ),
         ),
     )
 
@@ -2398,7 +2422,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2413,6 +2436,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 

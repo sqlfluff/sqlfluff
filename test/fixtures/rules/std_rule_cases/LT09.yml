@@ -330,3 +330,14 @@ test_create_view:
     SELECT c
     FROM table1
     INNER JOIN table2 ON (table1.id = table2.id);
+
+test_multiline_single:
+  # https://github.com/sqlfluff/sqlfluff/issues/4516
+  pass_str: |
+    SELECT
+        SUM(
+            1 + SUM(
+                2 + 3
+            )
+        ) AS col
+    FROM test_table
