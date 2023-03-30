@@ -728,6 +728,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TINYINT",
         # TODO : not currently supported; add segment - see NumericLiteralSegment
         # "SHORT",
+        "LONG",
         "SMALLINT",
         "INT",
         "INTEGER",
