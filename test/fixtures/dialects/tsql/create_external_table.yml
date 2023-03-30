@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1c22acc0db333217c097ceb6de2ae4c654004f60b4c12c99557f22c388024068
+file:
+  batch:
+    statement:
+      create_external_table_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - object_reference:
+        - naked_identifier: schema_name
+        - dot: .
+        - naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: column_name_1
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '50'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: column_name_2
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: column_name_3
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: DATA_SOURCE
+          comparison_operator:
+            raw_comparison_operator: '='
+          object_reference:
+            naked_identifier: external_data_source
+          end_bracket: )
