@@ -5121,27 +5121,21 @@ class CreateExternalDataSourceStatementSegment(BaseSegment):
         "WITH",
         Bracketed(
             Delimited(
-                Sequence(
-                    Ref("TableLocationClause"),
-                    optional=True,
-                ),
+                Ref("TableLocationClause"),
                 Sequence(
                     "CONNECTION_OPTIONS",
                     Ref("EqualsSegment"),
                     AnyNumberOf(Ref("QuotedLiteralSegmentOptWithN")),
-                    optional=True,
                 ),
                 Sequence(
                     "CREDENTIAL",
                     Ref("EqualsSegment"),
                     Ref("ObjectReferenceSegment"),
-                    optional=True,
                 ),
                 Sequence(
                     "PUSHDOWN",
                     Ref("EqualsSegment"),
                     OneOf("ON", "OFF"),
-                    optional=True,
                 ),
             ),
         ),
