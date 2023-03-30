@@ -297,13 +297,13 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
-class EngineFunctionSegment(BaseSegment):
+class TableEngineFunctionSegment(BaseSegment):
     """A ClickHouse `ENGINE` clause function.
 
     With this segment we attempt to match all possible engines.
     """
 
-    type = "engine_function"
+    type = "table_engine_function"
     match_grammar: Matchable = Sequence(
         Sequence(
             Ref(
@@ -338,7 +338,7 @@ class OnClusterClauseSegment(BaseSegment):
     )
 
 
-class EngineSegment(BaseSegment):
+class TableEngineSegment(BaseSegment):
     """An `ENGINE` used in `CREATE TABLE`."""
 
     type = "engine"
@@ -347,7 +347,107 @@ class EngineSegment(BaseSegment):
         "ENGINE",
         Ref("EqualsSegment"),
         Sequence(
-            Ref("EngineFunctionSegment"),
+            Ref("TableEngineFunctionSegment"),
+            AnySetOf(
+                Sequence(
+                    "ORDER",
+                    "BY",
+                    OneOf(
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "PRIMARY",
+                    "KEY",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "SAMPLE",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "SETTINGS",
+                    Delimited(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                optional=True,
+                            ),
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class DatabaseEngineFunctionSegment(BaseSegment):
+    """A ClickHouse `ENGINE` clause function.
+
+    With this segment we attempt to match all possible engines.
+    """
+
+    type = "engine_function"
+    match_grammar: Matchable = Sequence(
+        Sequence(
+            # Ref(
+            #     "FunctionNameSegment",
+            #     exclude=OneOf(
+            #         Ref("DatePartFunctionNameSegment"),
+            #         Ref("ValuesClauseSegment"),
+            #     ),
+            # ),
+            OneOf(
+                "Atomic",
+                "MySQL",
+                "MaterializedMySQL",
+                "Lazy",
+                "PostgreSQL",
+                "MaterializedPostgreSQL",
+                "Replicated",
+                "SQLite",
+            ),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                ),
+                # Engine functions may omit brackets.
+                optional=True,
+            ),
+        ),
+    )
+
+
+class DatabaseEngineSegment(BaseSegment):
+    """An `ENGINE` used in `CREATE TABLE`."""
+
+    type = "database_engine"
+
+    match_grammar = Sequence(
+        "ENGINE",
+        Ref("EqualsSegment"),
+        Sequence(
+            Ref("DatabaseEngineFunctionSegment"),
             AnySetOf(
                 Sequence(
                     "ORDER",
@@ -558,7 +658,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     # Column definition may be missing if using AS SELECT
                     optional=True,
                 ),
-                Ref("EngineSegment"),
+                Ref("TableEngineSegment"),
                 # CREATE TABLE (...) AS SELECT:
                 Sequence(
                     "AS",
@@ -570,7 +670,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "AS",
                 Ref("TableReferenceSegment"),
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
             ),
             # CREATE TABLE AS table_function():
             Sequence(
@@ -609,10 +709,10 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Sequence(
                 "TO",
                 Ref("TableReferenceSegment"),
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
             ),
             Sequence(
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
                 Sequence("POPULATE", optional=True),
             ),
         ),
@@ -663,7 +763,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
                 Ref("ExpressionSegment"),
                 optional=True,
             ),
-            Ref("EngineSegment", optional=True),
+            Ref("DatabaseEngineSegment", optional=True),
             Sequence(
                 "COMMENT",
                 Ref("ExpressionSegment"),

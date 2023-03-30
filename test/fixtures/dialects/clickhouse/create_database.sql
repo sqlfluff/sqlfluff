@@ -1,6 +1,8 @@
-CREATE DATABASE db_name ENGINE = engine() COMMENT 'Comment';
+CREATE DATABASE db_name;
+CREATE DATABASE db_name COMMENT 'Comment';
+CREATE DATABASE db_name ENGINE = Lazy() COMMENT 'Comment';
 
-CREATE DATABASE db_comment ENGINE = Memory COMMENT 'The temporary database';
+CREATE DATABASE db_comment ENGINE = Lazy() COMMENT 'The temporary database';
 SELECT name, comment FROM system.databases WHERE name = 'db_comment';
 
 -- https://clickhouse.com/docs/en/engines/database-engines/atomic

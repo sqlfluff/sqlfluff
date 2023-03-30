@@ -128,7 +128,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -164,7 +164,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -200,7 +200,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
