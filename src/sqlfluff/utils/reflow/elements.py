@@ -384,30 +384,47 @@ class ReflowPoint(ReflowElement):
                 indent_seg.pos_marker.source_slice.stop - len(current_indent) - 1,
                 indent_seg.pos_marker.source_slice.stop,
             )
-            new_placeholder = indent_seg.edit(
-                source_fixes=[
-                    SourceFix(
-                        "\n" + desired_indent,
-                        source_slice,
-                        # The templated slice is going to be a zero slice _anyway_.
-                        indent_seg.pos_marker.templated_slice,
-                    )
-                ],
-                source_str=indent_seg.source_str[: -len(current_indent) + 1]
-                + desired_indent,
+
+            new_source_fix = SourceFix(
+                "\n" + desired_indent,
+                source_slice,
+                # The templated slice is going to be a zero slice _anyway_.
+                indent_seg.pos_marker.templated_slice,
             )
-            new_segments = [
-                new_placeholder if seg is indent_seg else seg for seg in self.segments
-            ]
+
+            if new_source_fix in indent_seg.source_fixes:  # pragma: no cover
+                # NOTE: If we're trying to reapply the same fix, don't.
+                # Just return an error without the fixes. This is probably
+                # a bug if we're taking this route, but this clause will help
+                # catch bugs faster if they occur.
+                reflow_logger.warning(
+                    "Attempted to apply a duplicate source fix to %r. "
+                    "Returning this time without fix.",
+                    indent_seg.pos_marker.source_str(),
+                )
+                fixes = []
+                new_segments = self.segments
+            else:
+                new_placeholder = indent_seg.edit(
+                    source_fixes=[new_source_fix],
+                    source_str=indent_seg.source_str[: -len(current_indent) + 1]
+                    + desired_indent,
+                )
+                fixes = [LintFix.replace(indent_seg, [new_placeholder])]
+                new_segments = tuple(
+                    new_placeholder if seg is indent_seg else seg
+                    for seg in self.segments
+                )
+
             return [
                 LintResult(
                     indent_seg,
-                    [LintFix.replace(indent_seg, [new_placeholder])],
+                    fixes,
                     description=description
                     or f"Expected {_indent_description(desired_indent)}.",
                     source=source,
                 )
-            ], ReflowPoint(tuple(new_segments))
+            ], ReflowPoint(new_segments)
 
         elif self.num_newlines():
             # There is already a newline. Is there an indent?
