@@ -52,7 +52,8 @@ def test__rules__fix_utf8(project_dir):  # noqa
     assert violations_dict[qual_path], f"No issues found for {qual_path}."
     lnt.persist_changes(fixed_file_suffix="FIXED")
     # TODO: Check contents of file:
-    # ./plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/utf8/testFIXED.sql
+    # ./plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/
+    # my_new_project/utf8/testFIXED.sql
     # Against a git file, similar to the autofix tests
     fixed_path = Path(project_dir) / "models/my_new_project/utf8/testFIXED.sql"
     cmp_filepath = Path(project_dir) / "models/my_new_project/utf8/test.sql.fixed"
