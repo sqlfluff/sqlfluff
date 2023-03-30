@@ -690,6 +690,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/006", False, True),
         ("jinja_l_metas/007", False, True),
         ("jinja_l_metas/008", False, True),
+        ("jinja_l_metas/009", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
@@ -748,9 +749,18 @@ def test__templater_jinja_block_matching(caplog):
     groups = {
         "for actions clause 1": [(6, 5), (9, 5), (12, 5), (15, 5)],
         "for actions clause 2": [(17, 5), (21, 5), (29, 5), (37, 5)],
-        "if loop.first 1": [(18, 9), (20, 9), (20, 9)],
-        "if loop.first 2": [(22, 9), (22, 9), (28, 9)],
-        "if loop.first 3": [(30, 9), (30, 9), (36, 9)],
+        # NOTE: all the if loop clauses are grouped together.
+        "if loop.first": [
+            (18, 9),
+            (20, 9),
+            (20, 9),
+            (22, 9),
+            (22, 9),
+            (28, 9),
+            (30, 9),
+            (30, 9),
+            (36, 9),
+        ],
     }
 
     # Check all are accounted for:
