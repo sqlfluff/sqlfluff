@@ -3660,6 +3660,7 @@ class TableExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
+        Ref("OpenJsonSegment"),
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
         Ref("TableReferenceSegment"),
@@ -5106,8 +5107,7 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
 
 
 class OpenJsonWithClauseSegment(BaseSegment):
-    """
-    A `WITH` clause of an `OPENJSON()` table-valued function.
+    """A `WITH` clause of an `OPENJSON()` table-valued function.
 
     https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#with_clause
     """
@@ -5140,10 +5140,9 @@ class OpenJsonWithClauseSegment(BaseSegment):
 
 
 class OpenJsonSegment(BaseSegment):
-    """
-    An `OPENJSON()` table-valued function.
+    """An `OPENJSON()` table-valued function.
 
-    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#examples
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#syntax
     """
 
     type = "openjson_segment"
@@ -5152,7 +5151,11 @@ class OpenJsonSegment(BaseSegment):
         "OPENJSON",
         Bracketed(
             Delimited(
-                "TODO",  # jsonExpression
+                OneOf(
+                    Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ParameterNameSegment"),
+                ),
                 Sequence(
                     Ref("QuotedLiteralSegment"),  # path
                     optional=True,
@@ -5160,7 +5163,7 @@ class OpenJsonSegment(BaseSegment):
             ),
         ),
         Sequence(
-            Ref("OpenJsonWithClause"),  # path
+            Ref("OpenJsonWithClauseSegment"),
             optional=True,
         ),
     )
