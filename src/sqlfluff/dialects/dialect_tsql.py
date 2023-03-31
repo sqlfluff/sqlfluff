@@ -5491,7 +5491,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
             Delimited(
                 Ref("TableLocationClause"),
                 Sequence(
-
                     "DATA_SOURCE",
                     Ref("EqualsSegment"),
                     Ref("ObjectReferenceSegment"),
