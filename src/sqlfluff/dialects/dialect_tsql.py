@@ -110,13 +110,20 @@ tsql_dialect.sets("file_compression").update(
 )
 
 tsql_dialect.sets("file_encoding").clear()
-tsql_dialect.sets("file_encoding").update(["'UTF8'", "'UTF16'"])
+tsql_dialect.sets("file_encoding").update(
+    [
+        "'UTF8'",
+        "'UTF16'",
+    ]
+)
 
 tsql_dialect.sets("serde_method").clear()
-tsql_dialect.sets("serde_method").update([
-    "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'",
-    "'org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe'",
-])
+tsql_dialect.sets("serde_method").update(
+    [
+        "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'",
+        "'org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe'",
+    ]
+)
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -5234,8 +5241,7 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
 
 
 class ExternalFileFormatDelimitedTextClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *Delimited text* clause.
+    """`CREATE EXTERNAL FILE FORMAT` *Delimited text* clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delimited#syntax
     """
@@ -5273,8 +5279,7 @@ class ExternalFileFormatDelimitedTextClause(BaseSegment):
 
 
 class ExternalFileFormatRcClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *Record Columnar file format (RcFile)* clause.
+    """`CREATE EXTERNAL FILE FORMAT` *Record Columnar file format (RcFile)* clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=rc#syntax
     """
@@ -5308,8 +5313,7 @@ class ExternalFileFormatRcClause(BaseSegment):
 
 
 class ExternalFileFormatOrcClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *Optimized Row Columnar (ORC)* format clause.
+    """`CREATE EXTERNAL FILE FORMAT` *Optimized Row Columnar (ORC)* format clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=orc#syntax
     """
@@ -5335,8 +5339,7 @@ class ExternalFileFormatOrcClause(BaseSegment):
 
 
 class ExternalFileFormatParquetClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *PARQUET* format clause.
+    """`CREATE EXTERNAL FILE FORMAT` *PARQUET* format clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=parquet#syntax
     """
@@ -5362,8 +5365,7 @@ class ExternalFileFormatParquetClause(BaseSegment):
 
 
 class ExternalFileFormatJsonClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *JSON* format clause.
+    """`CREATE EXTERNAL FILE FORMAT` *JSON* format clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=json#syntax
     """
@@ -5389,8 +5391,7 @@ class ExternalFileFormatJsonClause(BaseSegment):
 
 
 class ExternalFileFormatDeltaClause(BaseSegment):
-    """
-    `CREATE EXTERNAL FILE FORMAT` *Delta Lake* format clause.
+    """`CREATE EXTERNAL FILE FORMAT` *Delta Lake* format clause.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delta#syntax
     """

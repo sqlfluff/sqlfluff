@@ -347,7 +347,7 @@ UNRESERVED_KEYWORDS = [
     "KEEPIDENTITY",
     "KEEPNULLS",
     "KILOBYTES_PER_BATCH",
-    "LABEL",  # *reserved* keyword in Azure Synapse; but would break TSQL parsing 
+    "LABEL",  # *reserved* keyword in Azure Synapse; but would break TSQL parsing
     "LANGUAGE",
     "LAST",
     "LASTROW",
