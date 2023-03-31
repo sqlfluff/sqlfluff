@@ -5184,8 +5184,9 @@ class CreateExternalDataSourceStatementSegment(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
-    """`CREATE EXTERNAL FILE FORMAT` Delimited text format options clause."""
+    """`CREATE EXTERNAL FILE FORMAT` Delimited text `FORMAT_OPTIONS` clause."""
 
     type = "external_file_delimited_text_format_options_clause"
 
@@ -5234,8 +5235,8 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
 
 class ExternalFileFormatDelimitedTextClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` Delimited text clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *Delimited text* clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delimited#syntax
     """
 
@@ -5270,10 +5271,11 @@ class ExternalFileFormatDelimitedTextClause(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatRcClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` Record Columnar file format (RcFile) clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *Record Columnar file format (RcFile)* clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=rc#syntax
     """
 
@@ -5304,10 +5306,11 @@ class ExternalFileFormatRcClause(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatOrcClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` Optimized Row Columnar (ORC) format clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *Optimized Row Columnar (ORC)* format clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=orc#syntax
     """
 
@@ -5330,10 +5333,11 @@ class ExternalFileFormatOrcClause(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatParquetClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` PARQUET format clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *PARQUET* format clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=parquet#syntax
     """
 
@@ -5356,10 +5360,11 @@ class ExternalFileFormatParquetClause(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatJsonClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` JSON format clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *JSON* format clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=json#syntax
     """
 
@@ -5382,26 +5387,26 @@ class ExternalFileFormatJsonClause(BaseSegment):
         ),
     )
 
+
 class ExternalFileFormatDeltaClause(BaseSegment):
     """
-    `CREATE EXTERNAL FILE FORMAT` Delta Lake format clause.
-    
+    `CREATE EXTERNAL FILE FORMAT` *Delta Lake* format clause.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delta#syntax
     """
 
     type = "external_file_delta_clause"
 
-    match_grammar = Delimited(
-        Sequence(
-            "FORMAT_TYPE",
-            Ref("EqualsSegment"),
-            "DELTA",
-            optional=False,
-        ),
+    match_grammar = Sequence(
+        "FORMAT_TYPE",
+        Ref("EqualsSegment"),
+        "DELTA",
     )
 
+
 class CreateExternalFileFormat(BaseSegment):
-    """A statement to create an external file format object.
+    """A statement to create an `EXTERNAL FILE FORMAT` object.
+
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delta#syntax
     """
 
