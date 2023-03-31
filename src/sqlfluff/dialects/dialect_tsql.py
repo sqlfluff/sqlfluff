@@ -528,6 +528,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("OpenJsonWithClauseSegment"),
+            Ref("OpenJsonSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -5098,6 +5100,67 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
             "SECRET",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class OpenJsonWithClauseSegment(BaseSegment):
+    """
+    A `WITH` clause of an `OPENJSON()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#with_clause
+    """
+
+    type = "openjson_with_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("QuotedLiteralSegment"),  # column_path
+                            optional=True,
+                        ),
+                        Sequence(
+                            "AS",
+                            "JSON",
+                            optional=True,
+                        ),
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
+    )
+
+
+class OpenJsonSegment(BaseSegment):
+    """
+    An `OPENJSON()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#examples
+    """
+
+    type = "openjson_segment"
+
+    match_grammar = Sequence(
+        "OPENJSON",
+        Bracketed(
+            Delimited(
+                "TODO",  # jsonExpression
+                Sequence(
+                    Ref("QuotedLiteralSegment"),  # path
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            Ref("OpenJsonWithClause"),  # path
             optional=True,
         ),
     )
