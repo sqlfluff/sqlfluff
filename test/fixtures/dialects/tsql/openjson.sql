@@ -2,6 +2,12 @@
 https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#examples
 */
 
+SELECT *
+FROM products
+INNER JOIN OPENJSON(N'[1,2,3,4]') AS productTypes
+  ON product.productTypeID = productTypes.value
+; 
+
 SELECT * FROM OPENJSON(@json)
         WITH (  month VARCHAR(3),
                 temp int,

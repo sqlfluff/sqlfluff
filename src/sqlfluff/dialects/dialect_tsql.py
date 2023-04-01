@@ -3660,9 +3660,9 @@ class TableExpressionSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
-        Ref("OpenJsonSegment"),
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
+        Ref("OpenJsonSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),

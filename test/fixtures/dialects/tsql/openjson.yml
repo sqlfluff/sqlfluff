@@ -3,9 +3,54 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b82e8fba42437fb62153399b3cc88dc3a768df9427780fe11264297578ea13e5
+_hash: b0aed6157fb7463eb1ea734057995c2536cb98aabdd752bf4b40ec583132683d
 file:
   batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: products
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: OPENJSON
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "N'[1,2,3,4]'"
+                      end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: productTypes
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: product
+                  - dot: .
+                  - naked_identifier: productTypeID
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: productTypes
+                  - dot: .
+                  - naked_identifier: value
+          statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -390,11 +435,12 @@ file:
           from_expression:
             from_expression_element:
               table_expression:
-                openjson_segment:
-                  keyword: OPENJSON
+                function:
+                  function_name:
+                    function_name_identifier: OPENJSON
                   bracketed:
                     start_bracket: (
-                    column_reference:
+                    expression:
                       parameter: '@JSON'
                     end_bracket: )
               alias_expression:
@@ -405,14 +451,16 @@ file:
             - keyword: APPLY
             - from_expression_element:
                 table_expression:
-                  openjson_segment:
-                    keyword: OPENJSON
+                  function:
+                    function_name:
+                      function_name_identifier: OPENJSON
                     bracketed:
                       start_bracket: (
-                      column_reference:
-                      - naked_identifier: root
-                      - dot: .
-                      - naked_identifier: value
+                      expression:
+                        column_reference:
+                        - naked_identifier: root
+                        - dot: .
+                        - naked_identifier: value
                       end_bracket: )
                 alias_expression:
                   keyword: AS
