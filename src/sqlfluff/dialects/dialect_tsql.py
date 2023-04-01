@@ -528,6 +528,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("CreateExternalDataSourceStatementSegment"),
             Ref("OpenJsonWithClauseSegment"),
             Ref("OpenJsonSegment"),
         ],
@@ -3239,7 +3240,7 @@ class TableLocationClause(BaseSegment):
         Ref("EqualsSegment"),
         OneOf(
             "USER_DB",  # Azure Synapse Analytics specific
-            Ref("QuotedLiteralSegment"),  # External Table
+            Ref("QuotedLiteralSegmentOptWithN"),  # External Table
         ),
     )
 
@@ -5102,6 +5103,44 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateExternalDataSourceStatementSegment(BaseSegment):
+    """A statement to create an external data source.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-data-source-transact-sql?view=sql-server-ver16&tabs=dedicated#syntax
+    """
+
+    type = "create_external_data_source_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "DATA",
+        "SOURCE",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Ref("TableLocationClause"),
+                Sequence(
+                    "CONNECTION_OPTIONS",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(Ref("QuotedLiteralSegmentOptWithN")),
+                ),
+                Sequence(
+                    "CREDENTIAL",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "PUSHDOWN",
+                    Ref("EqualsSegment"),
+                    OneOf("ON", "OFF"),
+                ),
+            ),
         ),
     )
 
