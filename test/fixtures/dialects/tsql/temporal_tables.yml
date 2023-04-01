@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d66d0d6cba86db7a5b3fea6e509b2eca5b706032e71909585ff41ae4f374dc25
+_hash: bbd05ea5802b6edbcb5baf6d32bf80afd3ce4fa374f6cf87ff658b3bf31190a8
 file:
 - batch:
   - statement:
@@ -193,6 +193,118 @@ file:
           - end_bracket: )
       - statement_terminator: ;
   - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: Department
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: DeptID
+          - data_type:
+              data_type_identifier: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: CLUSTERED
+        - comma: ','
+        - column_definition:
+            naked_identifier: DeptName
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '50'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: ManagerID
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: ParentDeptID
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ValidFrom
+          - data_type:
+              data_type_identifier: DATETIME2
+          - column_constraint_segment:
+            - keyword: GENERATED
+            - keyword: ALWAYS
+            - keyword: AS
+            - keyword: ROW
+            - keyword: START
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ValidTo
+          - data_type:
+              data_type_identifier: DATETIME2
+          - column_constraint_segment:
+            - keyword: GENERATED
+            - keyword: ALWAYS
+            - keyword: AS
+            - keyword: ROW
+            - keyword: END
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: ValidFrom
+            - comma: ','
+            - column_reference:
+                naked_identifier: ValidTo
+            - end_bracket: )
+        - end_bracket: )
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+              start_bracket: (
+              keyword: HISTORY_TABLE
+              comparison_operator:
+                raw_comparison_operator: '='
+              table_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: DepartmentHistory
+              end_bracket: )
+          - end_bracket: )
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
