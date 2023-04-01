@@ -5142,9 +5142,10 @@ class CreateExternalDataSourceStatementSegment(BaseSegment):
         ),
     )
 
+
 class PeriodSegment(BaseSegment):
     """A `PERIOD FOR SYSTEM_TIME` for `CREATE TABLE` of temporal tables.
-    
+
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver16#generated-always-as--row--transaction_id--sequence_number----start--end---hidden---not-null-
     """
