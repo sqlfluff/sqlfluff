@@ -313,6 +313,15 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         options: List[Set[int]] = []
         for idx in group_lines:
             line = lines[idx]
+
+            first_block = elements[first_point_idx + 1]
+            assert first_block.segments
+            first_segment = first_block.segments[0]
+            if first_segment.is_type("template_loop"):
+                # For template loops, don't count the line. They behave
+                # strangely.
+                continue
+
             steps: Set[int] = {line.initial_indent_balance}
             # Run backward through the pre point.
             indent_balance = line.initial_indent_balance
@@ -345,42 +354,46 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             # If we're next to another block which is "inner" (i.e.) has
             # already been handled. We can assume all options up to it's
             # new indent are open for use.
-            first_block = elements[first_point_idx + 1]
-            assert first_block.segments
-            first_segment = first_block.segments[0]
+
             _case_type = None
-            if first_segment.is_type("template_loop"):
-                _case_type = "loop"
-            elif first_segment.is_type("placeholder"):
+            if first_segment.is_type("placeholder"):
                 _case_type = cast(TemplateSegment, first_segment).block_type
 
-            if _case_type in ("block_start", "block_mid", "loop"):
+            if _case_type in ("block_start", "block_mid"):
                 # Is following _line_ AND element also a block?
                 # i.e. nothing else between.
                 if first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1:
                     seg = elements[first_point_idx + 3].segments[0]
                     if seg.is_type("placeholder"):
                         if cast(TemplateSegment, seg).block_type == "block_start":
-                            steps.update(
+                            _inter_steps = list(
                                 range(
                                     line.initial_indent_balance,
                                     lines[idx + 1].initial_indent_balance,
                                 )
                             )
+                            reflow_logger.debug(
+                                "      Precedes block. Adding Steps: %s", _inter_steps
+                            )
+                            steps.update(_inter_steps)
 
-            if _case_type in ("block_end", "block_mid", "loop"):
+            if _case_type in ("block_end", "block_mid"):
                 # Is preceding _line_ AND element also a block?
                 # i.e. nothing else between.
                 if first_point_idx - 1 == lines[idx - 1].indent_points[0].idx - 1:
                     seg = elements[first_point_idx - 1].segments[0]
                     if seg.is_type("placeholder"):
                         if cast(TemplateSegment, seg).block_type == "block_end":
-                            steps.update(
+                            _inter_steps = list(
                                 range(
                                     line.initial_indent_balance,
                                     lines[idx - 1].initial_indent_balance,
                                 )
                             )
+                            reflow_logger.debug(
+                                "      Follows block. Adding Steps: %s", _inter_steps
+                            )
+                            steps.update(_inter_steps)
 
             reflow_logger.debug(
                 "    Line %s: Initial Balance: %s Options: %s",
