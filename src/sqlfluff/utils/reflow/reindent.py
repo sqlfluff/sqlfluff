@@ -317,53 +317,71 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             # Run backward through the pre point.
             indent_balance = line.initial_indent_balance
             first_point_idx = line.indent_points[0].idx
-            for seg_idx, seg in enumerate(elements[first_point_idx].segments[::-1]):
+            for seg in elements[first_point_idx].segments[::-1]:
                 if seg.is_type("indent"):
                     # If it's the one straight away, after a block_end or
-                    # block_mid, skip it.
-                    if seg_idx == 0:
-                        last_block = elements[first_point_idx + 1]
-                        if "placeholder" in last_block.class_types:
-                            if cast(
-                                TemplateSegment, last_block.segments[0]
-                            ).block_type in ("block_end", "block_mid"):
-                                continue
-
-                    if seg_idx == len(elements[first_point_idx].segments) - 1:
-                        next_block = elements[first_point_idx - 1]
-                        if "placeholder" in next_block.class_types:
-                            if cast(
-                                TemplateSegment, next_block.segments[0]
-                            ).block_type in ("block_start", "block_mid"):
-                                continue
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    if cast(Indent, seg).block_uuid:
+                        continue
                     # Minus because we're going backward.
                     indent_balance -= cast(Indent, seg).indent_val
                     steps.add(indent_balance)
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
             last_point_idx = line.indent_points[-1].idx
-            for seg_idx, seg in enumerate(elements[last_point_idx].segments):
+            for seg in elements[last_point_idx].segments:
                 if seg.is_type("indent"):
                     # If it's the one straight away, after a block_start or
-                    # block_mid, skip it.
-                    if seg_idx == 0:
-                        last_block = elements[last_point_idx - 1]
-                        if "placeholder" in last_block.class_types:
-                            if cast(
-                                TemplateSegment, last_block.segments[0]
-                            ).block_type in ("block_start", "block_mid"):
-                                continue
-
-                    if seg_idx == len(elements[last_point_idx].segments) - 1:
-                        next_block = elements[last_point_idx + 1]
-                        if "placeholder" in next_block.class_types:
-                            if cast(
-                                TemplateSegment, next_block.segments[0]
-                            ).block_type in ("block_end", "block_mid"):
-                                continue
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    if cast(Indent, seg).block_uuid:
+                        continue
                     # Positive because we're going forward.
                     indent_balance += cast(Indent, seg).indent_val
                     steps.add(indent_balance)
+
+            # NOTE: Edge case for consecutive blocks of the same type.
+            # If we're next to another block which is "inner" (i.e.) has
+            # already been handled. We can assume all options up to it's
+            # new indent are open for use.
+            first_block = elements[first_point_idx + 1]
+            assert first_block.segments
+            first_segment = first_block.segments[0]
+            _case_type = None
+            if first_segment.is_type("template_loop"):
+                _case_type = "loop"
+            elif first_segment.is_type("placeholder"):
+                _case_type = cast(TemplateSegment, first_segment).block_type
+
+            if _case_type in ("block_start", "block_mid", "loop"):
+                # Is following _line_ AND element also a block?
+                # i.e. nothing else between.
+                if first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1:
+                    seg = elements[first_point_idx + 3].segments[0]
+                    if seg.is_type("placeholder"):
+                        if cast(TemplateSegment, seg).block_type == "block_start":
+                            steps.update(
+                                range(
+                                    line.initial_indent_balance,
+                                    lines[idx + 1].initial_indent_balance,
+                                )
+                            )
+
+            if _case_type in ("block_end", "block_mid", "loop"):
+                # Is preceding _line_ AND element also a block?
+                # i.e. nothing else between.
+                if first_point_idx - 1 == lines[idx - 1].indent_points[0].idx - 1:
+                    seg = elements[first_point_idx - 1].segments[0]
+                    if seg.is_type("placeholder"):
+                        if cast(TemplateSegment, seg).block_type == "block_end":
+                            steps.update(
+                                range(
+                                    line.initial_indent_balance,
+                                    lines[idx - 1].initial_indent_balance,
+                                )
+                            )
+
             reflow_logger.debug(
                 "    Line %s: Initial Balance: %s Options: %s",
                 idx,
@@ -398,7 +416,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                 # if we have a temp balance - crystallise it
                 if temp_balance_trough is not None:
                     reflow_logger.debug(
-                        "Save Trough: %s + %s",
+                        "    Save Trough: %s + %s",
                         temp_balance_trough,
                         lines[last_group_line].initial_indent_balance,
                     )
