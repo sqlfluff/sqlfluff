@@ -364,7 +364,11 @@ def _handle_zero_length_slice(
     # Then handle blocks (which aren't jumps backward)
     if tfs.slice_type.startswith("block"):
         # It's a block. Yield a placeholder with potential indents.
-        if add_indents and tfs.slice_type in ("block_end", "block_mid"):
+
+        # Update block stack or add indents
+        if tfs.slice_type == "block_start":
+            block_stack.enter(tfs.source_slice)
+        elif add_indents and tfs.slice_type in ("block_end", "block_mid"):
             yield Dedent(
                 is_template=True,
                 pos_marker=PositionMarker.from_point(
@@ -372,11 +376,9 @@ def _handle_zero_length_slice(
                     tfs.templated_slice.start,
                     templated_file,
                 ),
+                # NOTE: We mark the dedent with the block uuid too.
+                block_uuid=block_stack.top(),
             )
-
-        # Update block stack
-        if tfs.slice_type == "block_start":
-            block_stack.enter(tfs.source_slice)
 
         yield TemplateSegment.from_slice(
             tfs.source_slice,
@@ -386,11 +388,10 @@ def _handle_zero_length_slice(
             block_uuid=block_stack.top(),
         )
 
-        # Update block stack
+        # Update block stack or add indents
         if tfs.slice_type == "block_end":
             block_stack.exit()
-
-        if add_indents and tfs.slice_type in ("block_start", "block_mid"):
+        elif add_indents and tfs.slice_type in ("block_start", "block_mid"):
             yield Indent(
                 is_template=True,
                 pos_marker=PositionMarker.from_point(
@@ -398,6 +399,8 @@ def _handle_zero_length_slice(
                     tfs.templated_slice.stop,
                     templated_file,
                 ),
+                # NOTE: We mark the indent with the block uuid too.
+                block_uuid=block_stack.top(),
             )
 
         # Before we move on, we might have a _forward_ jump to the next

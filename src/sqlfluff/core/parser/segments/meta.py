@@ -110,7 +110,7 @@ class Indent(MetaSegment):
 
     def _suffix(self) -> str:
         """If present, output the block uuid."""
-        return f"[Block: {self.block_uuid.hex[:6]}]" if self.block_uuid else ""
+        return f"[Block: {self.block_uuid.hex[:6]!r}]" if self.block_uuid else ""
 
 
 class ImplicitIndent(Indent):
@@ -184,7 +184,7 @@ class TemplateSegment(MetaSegment):
         """Also output what it's a placeholder for."""
         return (
             f"[Type: {self.block_type!r}, Raw: {self.source_str!r}"
-            + (f", Block: {self.block_uuid.hex[:6]}" if self.block_uuid else "")
+            + (f", Block: {self.block_uuid.hex[:6]!r}" if self.block_uuid else "")
             + "]"
         )
 
