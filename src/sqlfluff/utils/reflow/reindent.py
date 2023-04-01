@@ -314,7 +314,12 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         for idx in group_lines:
             line = lines[idx]
 
+            steps: Set[int] = {line.initial_indent_balance}
+            # Run backward through the pre point.
+            indent_balance = line.initial_indent_balance
+            first_point_idx = line.indent_points[0].idx
             first_block = elements[first_point_idx + 1]
+
             assert first_block.segments
             first_segment = first_block.segments[0]
             if first_segment.is_type("template_loop"):
@@ -322,10 +327,6 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                 # strangely.
                 continue
 
-            steps: Set[int] = {line.initial_indent_balance}
-            # Run backward through the pre point.
-            indent_balance = line.initial_indent_balance
-            first_point_idx = line.indent_points[0].idx
             for seg in elements[first_point_idx].segments[::-1]:
                 if seg.is_type("indent"):
                     # If it's the one straight away, after a block_end or
