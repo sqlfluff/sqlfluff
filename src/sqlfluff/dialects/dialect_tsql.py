@@ -5295,9 +5295,7 @@ class ExternalFileFormatRcClause(BaseSegment):
         Sequence(
             "SERDE_METHOD",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("SerdeMethodSegment"),
-            ),
+            Ref("SerdeMethodSegment"),
         ),
         Sequence(
             "DATA_COMPRESSION",
