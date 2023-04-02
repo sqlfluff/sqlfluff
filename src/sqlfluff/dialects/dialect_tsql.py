@@ -5157,21 +5157,15 @@ class OpenJsonWithClauseSegment(BaseSegment):
         "WITH",
         Bracketed(
             Delimited(
-                AnyNumberOf(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Ref("QuotedLiteralSegment", optional=True),  # column_path
                     Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("QuotedLiteralSegment"),  # column_path
-                            optional=True,
-                        ),
-                        Sequence(
-                            "AS",
-                            "JSON",
-                            optional=True,
-                        ),
+                        "AS",
+                        "JSON",
+                        optional=True,
                     ),
-                    min_times=1,
                 ),
             ),
         ),
@@ -5195,14 +5189,8 @@ class OpenJsonSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                     Ref("ParameterNameSegment"),
                 ),
-                Sequence(
-                    Ref("QuotedLiteralSegment"),  # path
-                    optional=True,
-                ),
+                Ref("QuotedLiteralSegment"),  # path
             ),
         ),
-        Sequence(
-            Ref("OpenJsonWithClauseSegment"),
-            optional=True,
-        ),
+        Ref("OpenJsonWithClauseSegment", optional=True),
     )
