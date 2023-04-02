@@ -221,7 +221,7 @@ athena_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"([_]+|[A-Z0-9_]*[A-Z][A-Z0-9_]*)",
+            r"[A-Z0-9_]*[A-Z_][A-Z0-9_]*",
             ansi.IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",

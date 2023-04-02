@@ -2874,6 +2874,7 @@ class CreateTableStatementSegment(BaseSegment):
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableIndexSegment"),
+                            Ref("PeriodSegment"),
                         ),
                         allow_trailing=True,
                     )
@@ -5190,6 +5191,27 @@ class CreateExternalDataSourceStatementSegment(BaseSegment):
     )
 
 
+class PeriodSegment(BaseSegment):
+    """A `PERIOD FOR SYSTEM_TIME` for `CREATE TABLE` of temporal tables.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver16#generated-always-as--row--transaction_id--sequence_number----start--end---hidden---not-null-
+    """
+
+    type = "period_segment"
+    match_grammar = Sequence(
+        "PERIOD",
+        "FOR",
+        "SYSTEM_TIME",
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
     """`CREATE EXTERNAL FILE FORMAT` Delimited text `FORMAT_OPTIONS` clause."""
 
@@ -5398,6 +5420,4 @@ class CreateExternalFileFormat(BaseSegment):
                 Ref("ExternalFileFormatParquetClause"),
                 Ref("ExternalFileFormatJsonClause"),
                 Ref("ExternalFileFormatDeltaClause"),
-            ),
-        ),
     )

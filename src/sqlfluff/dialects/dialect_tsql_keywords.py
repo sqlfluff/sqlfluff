@@ -413,6 +413,7 @@ UNRESERVED_KEYWORDS = [
     "PAUSED",
     "PERCENTILE_CONT",
     "PERCENTILE_DISC",
+    "PERIOD",
     "PERSISTED",
     "PRECEDING",
     "PRECISION",  # listed as reserved but functionally unreserved
