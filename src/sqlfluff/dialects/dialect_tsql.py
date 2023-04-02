@@ -528,6 +528,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BulkInsertStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
+            Ref("CreateExternalDataSourceStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -2825,6 +2826,7 @@ class CreateTableStatementSegment(BaseSegment):
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableIndexSegment"),
+                            Ref("PeriodSegment"),
                         ),
                         allow_trailing=True,
                     )
@@ -3237,7 +3239,7 @@ class TableLocationClause(BaseSegment):
         Ref("EqualsSegment"),
         OneOf(
             "USER_DB",  # Azure Synapse Analytics specific
-            Ref("QuotedLiteralSegment"),  # External Table
+            Ref("QuotedLiteralSegmentOptWithN"),  # External Table
         ),
     )
 
@@ -5099,5 +5101,64 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateExternalDataSourceStatementSegment(BaseSegment):
+    """A statement to create an external data source.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-data-source-transact-sql?view=sql-server-ver16&tabs=dedicated#syntax
+    """
+
+    type = "create_external_data_source_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "DATA",
+        "SOURCE",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Bracketed(
+            Delimited(
+                Ref("TableLocationClause"),
+                Sequence(
+                    "CONNECTION_OPTIONS",
+                    Ref("EqualsSegment"),
+                    AnyNumberOf(Ref("QuotedLiteralSegmentOptWithN")),
+                ),
+                Sequence(
+                    "CREDENTIAL",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "PUSHDOWN",
+                    Ref("EqualsSegment"),
+                    OneOf("ON", "OFF"),
+                ),
+            ),
+        ),
+    )
+
+
+class PeriodSegment(BaseSegment):
+    """A `PERIOD FOR SYSTEM_TIME` for `CREATE TABLE` of temporal tables.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver16#generated-always-as--row--transaction_id--sequence_number----start--end---hidden---not-null-
+    """
+
+    type = "period_segment"
+    match_grammar = Sequence(
+        "PERIOD",
+        "FOR",
+        "SYSTEM_TIME",
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+                Ref("ColumnReferenceSegment"),
+            ),
         ),
     )

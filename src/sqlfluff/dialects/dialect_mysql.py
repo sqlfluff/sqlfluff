@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Matchable,
     TypedParser,
     OneOf,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -1343,7 +1344,7 @@ class AlterViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        Ref("SelectStatementSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -1371,7 +1372,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        Ref("SelectStatementSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
