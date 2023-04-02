@@ -5221,16 +5221,12 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
         Sequence(
             "USE_TYPE_DEFAULT",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("BooleanLiteralGrammar"),
-            ),
+            Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
             "ENCODING",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileEncodingSegment"),
-            ),
+            Ref("FileEncodingSegment"),
         ),
         Sequence(
             "PARSER_VERSION",
@@ -5270,9 +5266,7 @@ class ExternalFileFormatDelimitedTextClause(BaseSegment):
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileCompressionSegment"),
-            ),
+            Ref("FileCompressionSegment"),
             optional=True,
         ),
     )
@@ -5304,9 +5298,7 @@ class ExternalFileFormatRcClause(BaseSegment):
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileCompressionSegment"),
-            ),
+            Ref("FileCompressionSegment"),
             optional=True,
         ),
     )
@@ -5325,14 +5317,11 @@ class ExternalFileFormatOrcClause(BaseSegment):
             "FORMAT_TYPE",
             Ref("EqualsSegment"),
             "ORC",
-            optional=False,
         ),
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileCompressionSegment"),
-            ),
+            Ref("FileCompressionSegment"),
             optional=True,
         ),
     )
@@ -5356,9 +5345,7 @@ class ExternalFileFormatParquetClause(BaseSegment):
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileCompressionSegment"),
-            ),
+            Ref("FileCompressionSegment"),
             optional=True,
         ),
     )
@@ -5382,9 +5369,7 @@ class ExternalFileFormatJsonClause(BaseSegment):
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("FileCompressionSegment"),
-            ),
+            Ref("FileCompressionSegment"),
             optional=True,
         ),
     )
