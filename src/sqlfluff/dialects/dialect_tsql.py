@@ -5256,7 +5256,6 @@ class ExternalFileFormatDelimitedTextClause(BaseSegment):
             "FORMAT_TYPE",
             Ref("EqualsSegment"),
             "DELIMITEDTEXT",
-            optional=False,
         ),
         Sequence(
             "FORMAT_OPTIONS",
@@ -5292,7 +5291,6 @@ class ExternalFileFormatRcClause(BaseSegment):
             "FORMAT_TYPE",
             Ref("EqualsSegment"),
             "RCFILE",
-            optional=False,
         ),
         Sequence(
             "SERDE_METHOD",
@@ -5300,7 +5298,6 @@ class ExternalFileFormatRcClause(BaseSegment):
             OneOf(
                 Ref("SerdeMethodSegment"),
             ),
-            optional=False,
         ),
         Sequence(
             "DATA_COMPRESSION",
@@ -5347,7 +5344,6 @@ class ExternalFileFormatParquetClause(BaseSegment):
             "FORMAT_TYPE",
             Ref("EqualsSegment"),
             "PARQUET",
-            optional=False,
         ),
         Sequence(
             "DATA_COMPRESSION",
@@ -5371,7 +5367,6 @@ class ExternalFileFormatJsonClause(BaseSegment):
             "FORMAT_TYPE",
             Ref("EqualsSegment"),
             "JSON",
-            optional=False,
         ),
         Sequence(
             "DATA_COMPRESSION",
