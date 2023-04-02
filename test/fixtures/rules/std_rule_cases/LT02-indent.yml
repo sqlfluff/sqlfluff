@@ -1859,13 +1859,13 @@ test_jinja_nested_tracking:
   pass_str: |
     SELECT *
     FROM
-        {% for action in ['a', 'b'] %}
-            {% if loop.first %}
-                {{action}}_var
-            {% else %}
-            JOIN
-                {{action}}_var
-                USING
-                    (c, d, e)
-            {% endif %}
-        {% endfor %}
+    {% for action in ['a', 'b'] %}
+        {% if loop.first %}
+            {{action}}_var
+        {% else %}
+        JOIN
+            {{action}}_var
+            USING
+                (c, d, e)
+        {% endif %}
+    {% endfor %}

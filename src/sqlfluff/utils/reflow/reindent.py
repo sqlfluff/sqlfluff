@@ -413,8 +413,10 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         # first to last.
         last_group_line: Optional[int] = group_lines[0]  # last = previous.
         net_balance = 0
-        balance_trough = None
-        temp_balance_trough = None
+        balance_trough: Optional[int] = None
+        temp_balance_trough: Optional[int] = None
+        inner_lines = []
+        reflow_logger.debug("    Intermediate lines:")
         # NOTE: +1 on the last range to make sure we _do_ process the last one.
         for idx in range(group_lines[0] + 1, group_lines[-1] + 1):
             for grp in sorted_group_indices[group_idx + 1 :]:
@@ -427,16 +429,24 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
 
             # Is it in this group?
             if idx in group_lines:
+                # Stash the line indices of the inner lines.
+                if last_group_line:
+                    _inner_lines = list(range(last_group_line + 1, idx))
+                    reflow_logger.debug(
+                        "      Extending Intermediates with %s", _inner_lines
+                    )
+                    inner_lines.extend(_inner_lines)
                 # if we have a temp balance - crystallise it
                 if temp_balance_trough is not None:
-                    reflow_logger.debug(
-                        "    Save Trough: %s + %s",
-                        temp_balance_trough,
-                        lines[last_group_line].initial_indent_balance,
+                    balance_trough = (
+                        temp_balance_trough
+                        if balance_trough is None
+                        else min(balance_trough, temp_balance_trough)
                     )
-                    temp_balance_trough += lines[last_group_line].initial_indent_balance
-                    balance_trough = min(
-                        balance_trough or temp_balance_trough, temp_balance_trough
+                    reflow_logger.debug(
+                        "      + Save Trough: %s (min = %s)",
+                        temp_balance_trough,
+                        balance_trough,
                     )
                     temp_balance_trough = None
                 last_group_line = idx
@@ -454,19 +464,25 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                         ).block_type
                         if _block_type in ("block_end", "block_mid"):
                             reflow_logger.debug(
-                                "Skipping trough before %r", _block_type
+                                "      Skipping trough before %r", _block_type
                             )
                             continue
                     if ip.indent_trough < 0 and not is_subgroup_line:
                         # NOTE: We set it temporarily here, because if we're going
                         # to pass an outer template loop then we should discard it.
                         # i.e. only count intervals within inner loops.
-                        if temp_balance_trough:
-                            temp_balance_trough = min(
-                                temp_balance_trough, net_balance + ip.indent_trough
-                            )
-                        else:
-                            temp_balance_trough = net_balance + ip.indent_trough
+                        _this_through = net_balance + ip.indent_trough
+                        temp_balance_trough = (
+                            _this_through
+                            if temp_balance_trough is None
+                            else min(temp_balance_trough, _this_through)
+                        )
+                        reflow_logger.debug(
+                            "      Stash Trough: %s (min = %s) @ %s",
+                            _this_through,
+                            temp_balance_trough,
+                            idx,
+                        )
                     # NOTE: We update net_balance _after_ the clause above.
                     net_balance += ip.indent_impulse
 
@@ -483,17 +499,18 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
 
         # Is there a mutually agreeable option?
         reflow_logger.debug("    Balance Trough: %s", balance_trough)
-        if balance_trough is not None and balance_trough <= best_indent:
+        if balance_trough is not None and balance_trough <= 0:
             # Set the indent to the minimum of the existing ones.
             best_indent = min(lines[idx].initial_indent_balance for idx in group_lines)
-            reflow_logger.debug("    Case 3: Best: %s", best_indent)
+            reflow_logger.debug(
+                "    Case 3: Best: %s. Inner Lines: %s", best_indent, inner_lines
+            )
             # Remove one indent from all intermediate lines.
             # This is because we're effectively saying that these
             # placeholders shouldn't impact the indentation within them.
-            for idx in range(group_lines[0] + 1, group_lines[-1]):
-                if idx not in group_lines:
-                    # MUTATION
-                    lines[idx].initial_indent_balance -= 1
+            for idx in inner_lines:
+                # MUTATION
+                lines[idx].initial_indent_balance -= 1
         else:
             reflow_logger.debug(
                 "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
