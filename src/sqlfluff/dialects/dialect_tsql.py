@@ -576,8 +576,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
-            Ref("ExternalFileFormatDelimitedTextFormatOptionClause"),
-            Ref("ExternalFileFormatDelimitedTextClause"),
             Ref("CreateExternalFileFormat"),
         ],
         remove=[
@@ -5199,12 +5197,9 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
 
     match_grammar = OneOf(
         Sequence(
-            "FIELD_TERMINATOR",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-        ),
-        Sequence(
-            "STRING_DELIMITER",
+            OneOf(
+                "FIELD_TERMINATOR", "STRING_DELIMITER", "DATE_FORMAT", "PARSER_VERSION"
+            ),
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
         ),
@@ -5212,11 +5207,6 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
             "FIRST_ROW",
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
-        ),
-        Sequence(
-            "DATE_FORMAT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
         ),
         Sequence(
             "USE_TYPE_DEFAULT",
@@ -5227,11 +5217,6 @@ class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
             "ENCODING",
             Ref("EqualsSegment"),
             Ref("FileEncodingSegment"),
-        ),
-        Sequence(
-            "PARSER_VERSION",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
         ),
     )
 
