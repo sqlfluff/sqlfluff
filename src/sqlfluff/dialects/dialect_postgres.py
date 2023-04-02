@@ -174,7 +174,7 @@ postgres_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={"type": "double_quote"},
         ),
-        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment, segment_kwargs={"type": "code"}),
     ]
 )
 
@@ -242,11 +242,12 @@ postgres_dialect.add(
         Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
     ),
     # Add a Full equivalent which also allow keywords
-    NakedIdentifierFullSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_]*",
+    NakedIdentifierFullSegment=TypedParser(
+        "code",
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
+    VersionIdentifierSegment=RegexParser(r"[A-Z0-9_.]*", ansi.IdentifierSegment),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
