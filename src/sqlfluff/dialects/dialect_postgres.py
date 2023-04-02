@@ -174,7 +174,12 @@ postgres_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={"type": "double_quote"},
         ),
-        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment, segment_kwargs={"type": "code"}),
+        RegexLexer(
+            "code",
+            r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
+            CodeSegment,
+            segment_kwargs={"type": "code"},
+        ),
     ]
 )
 
