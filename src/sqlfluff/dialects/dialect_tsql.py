@@ -5420,4 +5420,6 @@ class CreateExternalFileFormat(BaseSegment):
                 Ref("ExternalFileFormatParquetClause"),
                 Ref("ExternalFileFormatJsonClause"),
                 Ref("ExternalFileFormatDeltaClause"),
+            ),
+        ),
     )
