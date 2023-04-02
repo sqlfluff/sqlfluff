@@ -31,8 +31,8 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Athena](https://aws.amazon.com/athena/)
 - [BigQuery](https://cloud.google.com/bigquery/)
 - [ClickHouse](https://clickhouse.com/)
-- [Databricks](https://databricks.com/) (note: currently this is just an alias
-  for the `sparksql` dialect).
+- [Databricks](https://databricks.com/) (note: this extends the `sparksql` dialect with
+  [Unity Catalog](https://docs.databricks.com/data-governance/unity-catalog/index.html) syntax).
 - [Db2](https://www.ibm.com/analytics/db2)
 - [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
