@@ -1,7 +1,7 @@
-"""the Greenplum dialect.
+"""The Greenplum dialect.
 
-http://www.greenplum.org/
-
+Greenplum (http://www.greenplum.org/) is a Massively Parallel Postgres,
+so we base this dialect on Postgres.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -27,7 +27,9 @@ greenplum_dialect.sets("reserved_keywords").update(
 class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
-    As specified in https://www.postgresql.org/docs/13/sql-createtable.html
+    As specified in
+    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE.html
+    This is overriden from Postgres to add the `DISTRIBUTED` clause.
     """
 
     match_grammar = Sequence(
@@ -144,24 +146,20 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 ),
             ),
             Sequence("USING", Ref("ParameterNameSegment")),
-            OneOf(
-                Sequence(
-                    "WITH",
-                    Bracketed(
-                        Delimited(
+            Sequence(
+                "WITH",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
                             Sequence(
-                                Ref("ParameterNameSegment"),
-                                Sequence(
-                                    Ref("EqualsSegment"),
-                                    Ref("LiteralGrammar"),
-                                    optional=True,
-                                ),
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                                optional=True,
                             ),
-                            optional=True,
-                        )
-                    ),
+                        ),
+                    )
                 ),
-                Sequence("WITHOUT", "OIDS"),
             ),
             Sequence(
                 "ON",

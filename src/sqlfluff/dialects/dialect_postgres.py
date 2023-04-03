@@ -1697,7 +1697,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     "WITH",
                     Bracketed(
-                        AnyNumberOf(
+                        Delimited(
                             Sequence(
                                 Ref("ParameterNameSegment"),
                                 Sequence(
