@@ -28,16 +28,16 @@ def distribute_work(work_items: List[S], work_fn: Callable[[S], None]) -> None:
             pass
 
 
-def _create_yaml_path(example: ParseExample) -> str:
+def _create_file_path(example: ParseExample, ext: str = ".yml") -> str:
     dialect, sqlfile = example
     root, _ = os.path.splitext(sqlfile)
-    path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
+    path = os.path.join("test", "fixtures", "dialects", dialect, root + ext)
     return path
 
 
 def _is_matching_new_criteria(example: ParseExample):
     """Is the Yaml doesn't exist or is older than the SQL."""
-    yaml_path = _create_yaml_path(example)
+    yaml_path = _create_file_path(example)
     if not os.path.exists(yaml_path):
         return True
 
@@ -55,25 +55,27 @@ def generate_one_parse_fixture(example: ParseExample) -> None:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
     tree = parse_example_file(dialect, sqlfile)
+
+    # Check we don't have any base types or unparsable sections
+    types = tree.type_set()
+    sql_path = _create_file_path(example, ".sql")
+    if "base" in types:
+        raise SQLParseError(f"Unnamed base section when parsing: {sql_path}")
+    if "unparsable" in types:
+        for unparsable in tree.iter_unparsables():
+            print("Found unparsable segment...")
+            print(unparsable.stringify())
+        raise SQLParseError(f"Could not parse: {sql_path}")
+
     _hash = compute_parse_tree_hash(tree)
     # Remove the .sql file extension
-    path = _create_yaml_path(example)
+    path = _create_file_path(example)
     with open(path, "w", newline="\n") as f:
         r: Optional[Dict[str, Optional[str]]] = None
 
         if not tree:
             f.write("")
             return
-
-        # Check we don't have any base types or unparsable sections
-        types = tree.type_set()
-        if "base" in types:
-            raise SQLParseError(f"Unnamed base section when parsing: {f.name}")
-        if "unparsable" in types:
-            for unparsable in tree.iter_unparsables():
-                print("Found unparsable segment...")
-                print(unparsable.stringify())
-            raise SQLParseError(f"Could not parse: {f.name}")
 
         records = tree.as_record(code_only=True, show_raw=True)
         assert records, "TypeGuard"

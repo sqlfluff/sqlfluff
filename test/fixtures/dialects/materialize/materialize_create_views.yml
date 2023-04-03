@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e47162cf0ca19d94e60235647045a9bdfb752f2efa41d00991012479e329ae4
+_hash: 4be57036ad8e690e8a4c9558ca524fb6b19854e6f04ea7c17a30896b5096745b
 file:
 - statement:
     create_materialized_view_statement:
@@ -15,9 +15,9 @@ file:
       - dot: .
       - quoted_identifier: '"test"'
     - keyword: AS
-    - raw: SELECT
+    - code: SELECT
     - numeric_literal: '1'
-    - raw: AS
+    - code: AS
     - double_quote: '"id"'
 - statement_terminator: ;
 - statement:
@@ -48,11 +48,11 @@ file:
       - dot: .
       - quoted_identifier: '"test"'
     - keyword: AS
-    - raw: SELECT
+    - code: SELECT
     - single_quote: "'{\"a\": 1}'"
     - raw: '::'
-    - raw: json
-    - raw: AS
+    - code: json
+    - code: AS
     - double_quote: '"id"'
 - statement_terminator: ;
 - statement:
@@ -63,35 +63,35 @@ file:
     - object_reference:
         naked_identifier: active_customer_per_geo
     - keyword: AS
-    - raw: SELECT
-    - raw: geo
+    - code: SELECT
+    - code: geo
     - raw: .
-    - raw: name
+    - code: name
     - comma: ','
-    - raw: count
+    - code: count
     - bracketed:
         start_bracket: (
         raw: '*'
         end_bracket: )
-    - raw: FROM
-    - raw: geo_regions
-    - raw: AS
-    - raw: geo
-    - raw: JOIN
-    - raw: active_customers
-    - raw: 'ON'
-    - raw: active_customers
+    - code: FROM
+    - code: geo_regions
+    - code: AS
+    - code: geo
+    - code: JOIN
+    - code: active_customers
+    - code: 'ON'
+    - code: active_customers
     - raw: .
-    - raw: geo_id
+    - code: geo_id
     - raw: '='
-    - raw: geo
+    - code: geo
     - raw: .
-    - raw: id
-    - raw: GROUP
-    - raw: BY
-    - raw: geo
+    - code: id
+    - code: GROUP
+    - code: BY
+    - code: geo
     - raw: .
-    - raw: name
+    - code: name
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -101,17 +101,17 @@ file:
     - object_reference:
         naked_identifier: active_customers
     - keyword: AS
-    - raw: SELECT
-    - raw: guid
+    - code: SELECT
+    - code: guid
     - comma: ','
-    - raw: geo_id
+    - code: geo_id
     - comma: ','
-    - raw: last_active_on
-    - raw: FROM
-    - raw: customer_source
-    - raw: GROUP
-    - raw: BY
-    - raw: geo_id
+    - code: last_active_on
+    - code: FROM
+    - code: customer_source
+    - code: GROUP
+    - code: BY
+    - code: geo_id
 - statement_terminator: ;
 - statement:
     create_view_statement:

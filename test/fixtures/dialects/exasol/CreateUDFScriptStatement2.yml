@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40be04105289e8ce8061c7fad43e925e3692a7a1d0b3f79ba39e9209f69a0c75
+_hash: 817327c1c70904715f4d2304fc74a2cfc8a95e8e279203b30f08bc4e08337296
 file:
   statement:
     create_udf_script:
@@ -41,50 +41,50 @@ file:
           end_bracket: )
     - keyword: AS
     - script_content:
-      - raw: function
-      - raw: run
+      - code: function
+      - code: run
       - bracketed:
           start_bracket: (
-          raw: ctx
+          code: ctx
           end_bracket: )
-      - raw: local
-      - raw: word
+      - code: local
+      - code: word
       - raw: '='
-      - raw: ctx
+      - code: ctx
       - raw: .
-      - raw: w
-      - raw: if
+      - code: w
+      - code: if
       - bracketed:
         - start_bracket: (
-        - raw: word
+        - code: word
         - like_operator: '~'
         - raw: '='
-        - raw: 'null'
+        - code: 'null'
         - end_bracket: )
-      - raw: then
-      - raw: for
-      - raw: i
-      - raw: in
-      - raw: unicode
+      - code: then
+      - code: for
+      - code: i
+      - code: in
+      - code: unicode
       - raw: .
-      - raw: utf8
+      - code: utf8
       - raw: .
-      - raw: gmatch
+      - code: gmatch
       - bracketed:
           start_bracket: (
-          raw: word
+          code: word
           comma: ','
           single_quote: "'([%w%p]+)'"
           end_bracket: )
-      - raw: do
-      - raw: ctx
+      - code: do
+      - code: ctx
       - raw: .
-      - raw: emit
+      - code: emit
       - bracketed:
           start_bracket: (
-          raw: i
+          code: i
           end_bracket: )
-      - raw: end
-      - raw: end
-      - raw: end
+      - code: end
+      - code: end
+      - code: end
   function_script_terminator: /

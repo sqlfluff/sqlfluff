@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a34c4368d0453fcd8c9df9799107c972653582fd0b00ea2e230a4a7e47f48183
+_hash: 14a224ca214ea00272992458a67532a8f2524fa05cd154bdb5a18024bf39402f
 file:
 - statement:
     copy_to_statement:
@@ -69,8 +69,8 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - raw: FORMAT
-      - raw: binary
+      - code: FORMAT
+      - code: binary
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,8 +99,8 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - raw: FORMAT
-      - raw: binary
+      - code: FORMAT
+      - code: binary
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,11 +134,11 @@ file:
           start_bracket: (
           numeric_literal: '6'
           comma: ','
-          raw: 'NULL'
+          code: 'NULL'
           end_bracket: )
-      - raw: ORDER
-      - raw: BY
-      - raw: column1
+      - code: ORDER
+      - code: BY
+      - code: column1
       - end_bracket: )
     - keyword: TO
     - keyword: STDOUT
@@ -161,13 +161,13 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - raw: FORMAT
-      - raw: CSV
+      - code: FORMAT
+      - code: CSV
       - comma: ','
-      - raw: DELIMITER
+      - code: DELIMITER
       - single_quote: "'!'"
       - comma: ','
-      - raw: QUOTE
+      - code: QUOTE
       - single_quote: "'!'"
       - end_bracket: )
 - statement_terminator: ;
@@ -181,7 +181,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        raw: DELIMITER
+        code: DELIMITER
         single_quote: "'|'"
         end_bracket: )
 - statement_terminator: ;
@@ -194,8 +194,8 @@ file:
     - keyword: STDIN
     - bracketed:
       - start_bracket: (
-      - raw: FORMAT
-      - raw: CSV
+      - code: FORMAT
+      - code: CSV
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -207,7 +207,7 @@ file:
     - keyword: STDIN
     - bracketed:
         start_bracket: (
-        raw: DELIMITER
+        code: DELIMITER
         single_quote: "'|'"
         end_bracket: )
 - statement_terminator: ;

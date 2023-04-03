@@ -1,6 +1,8 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Tuple, cast
+# NOTE: We rename the typing.Sequence here so it doesn't collide
+# with the grammar class that we're defining.
+from typing import Optional, Tuple, cast, Type, Sequence as _Sequence
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -15,13 +17,52 @@ from sqlfluff.core.parser.segments import (
 from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
+    MatchableType,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from os import getenv
+
+
+def _all_remaining_metas(
+    remaining_elements: _Sequence[MatchableType], parse_context: ParseContext
+) -> Optional[Tuple[BaseSegment, ...]]:
+    """Check the remaining elements, instantiate them if they're metas.
+
+    Helper function in `Sequence.match()`.
+    """
+    # Are all the remaining elements metas?
+    if not all(
+        e.is_optional()
+        or isinstance(e, Conditional)
+        or (not isinstance(e, Matchable) and e.is_meta)
+        for e in remaining_elements
+    ):
+        # No? Return Nothing.
+        return None
+
+    # Yes, so we shortcut back early because we don't want
+    # to claim any more whitespace.
+    return_segments: Tuple[BaseSegment, ...] = tuple()
+    # Instantiate all the metas
+    for e in remaining_elements:
+        # If it's meta, instantiate it.
+        if e.is_optional():
+            continue
+        elif isinstance(e, Conditional):
+            if e.is_enabled(parse_context):
+                meta_match = e.match(tuple(), parse_context)
+                if meta_match:
+                    return_segments += meta_match.matched_segments
+            continue
+        elif not isinstance(e, Matchable) and e.is_meta:
+            indent_seg = cast(Type[MetaSegment], e)
+            return_segments += (indent_seg(),)
+    return return_segments
 
 
 class Sequence(BaseGrammar):
@@ -72,18 +113,46 @@ class Sequence(BaseGrammar):
                 break
 
             while True:
-                # Consume non-code if appropriate
-                if self.allow_gaps:
-                    pre_nc, mid_seg, post_nc = trim_non_code_segments(
-                        unmatched_segments
+                # Is there anything left to match on?
+                if len(unmatched_segments) == 0:
+                    # There isn't, but we still have elements left to match.
+                    # Do only optional or meta elements remain?
+                    remaining_metas = _all_remaining_metas(
+                        self._elements[idx:], parse_context
                     )
-                else:
-                    pre_nc = ()
-                    mid_seg = unmatched_segments
-                    post_nc = ()
+                    if remaining_metas is not None:
+                        # We're safe. Claim them and return.
+                        meta_post_nc += remaining_metas
+                        early_break = True
+                        break
+                    else:
+                        # No, there's more left to match.
+                        # That means we've haven't matched the whole
+                        # sequence.
+                        return MatchResult.from_unmatched(segments)
 
-                # Is it an indent or dedent?
+                # Then handle any metas mid-sequence.
+                new_metas = ()
+                # Is it a raw meta?
                 if elem.is_meta:
+                    new_metas = (elem(),)
+                elif isinstance(elem, Conditional):
+                    if not elem.is_enabled(parse_context):
+                        # If it's not active, skip it.
+                        break
+                    # Then if it _is_ active. Match against it.
+                    with parse_context.deeper_match() as ctx:
+                        meta_match = elem.match(unmatched_segments, parse_context=ctx)
+                    # Did it match and leave the unmatched portion the same?
+                    if (
+                        meta_match
+                        and meta_match.unmatched_segments == unmatched_segments
+                    ):
+                        # If it did, it's just returned a new meta, keep it.
+                        new_metas = meta_match.matched_segments
+
+                # Do we have a new meta?
+                if new_metas:
                     # Elements with a negative indent value come AFTER
                     # the whitespace. Positive or neutral come BEFORE.
                     # HOWEVER: If one is already there, we must preserve
@@ -93,89 +162,66 @@ class Sequence(BaseGrammar):
                     # negative then we should insert it after the positive
                     # instead.
                     # https://github.com/sqlfluff/sqlfluff/issues/3836
-                    if elem.indent_val >= 0 and not any(
+                    if all(e.indent_val >= 0 for e in new_metas) and not any(
                         seg.indent_val < 1 for seg in meta_post_nc
                     ):
-                        meta_pre_nc += (elem(),)
+                        meta_pre_nc += new_metas
                     else:
-                        meta_post_nc += (elem(),)
+                        meta_post_nc += new_metas
                     break
 
-                # Is it a conditional? If so is it active
-                if isinstance(elem, Conditional) and not elem.is_enabled(parse_context):
-                    # If it's not active, skip it.
-                    break
+                # NOTE: If we get this far, we know:
+                # - there are segments left to match on.
+                # - the next elements aren't metas (including metas in conditionals)
 
-                if len(pre_nc + mid_seg + post_nc) == 0:
-                    # We've run our of sequence without matching everything.
-                    # Do only optional or meta elements remain?
-                    if all(
-                        e.is_optional() or e.is_meta or isinstance(e, Conditional)
-                        for e in self._elements[idx:]
-                    ):
-                        # then it's ok, and we can return what we've got so far.
-                        # No need to deal with anything left over because we're at the
-                        # end, unless it's a meta segment.
-
-                        # We'll add those meta segments after any existing ones. So
-                        # the go on the meta_post_nc stack.
-                        for e in self._elements[idx:]:
-                            # If it's meta, instantiate it.
-                            if e.is_meta:
-                                meta_post_nc += (e(),)  # pragma: no cover TODO?
-                            # If it's conditional and it's enabled, match it.
-                            if isinstance(e, Conditional) and e.is_enabled(
-                                parse_context
-                            ):
-                                meta_match = e.match(tuple(), parse_context)
-                                if meta_match:
-                                    meta_post_nc += meta_match.matched_segments
-
-                        # Early break to exit via the happy match path.
-                        early_break = True
-                        break
-                    else:
-                        # we've got to the end of the sequence without matching all
-                        # required elements.
-                        return MatchResult.from_unmatched(segments)
+                # Split off any non-code before continuing to match.
+                if self.allow_gaps:
+                    pre_nc, mid_seg, post_nc = trim_non_code_segments(
+                        unmatched_segments
+                    )
                 else:
-                    # We've already dealt with potential whitespace above, so carry on
-                    # to matching
-                    with parse_context.deeper_match() as ctx:
-                        elem_match = elem.match(mid_seg, parse_context=ctx)
+                    pre_nc = ()
+                    mid_seg = unmatched_segments
+                    post_nc = ()
 
-                    if elem_match.has_match():
-                        # We're expecting mostly partial matches here, but complete
-                        # matches are possible. Don't be greedy with whitespace!
-                        matched_segments += (
-                            meta_pre_nc
-                            + pre_nc
-                            + meta_post_nc
-                            + elem_match.matched_segments
-                        )
-                        meta_pre_nc = ()
-                        meta_post_nc = ()
-                        unmatched_segments = elem_match.unmatched_segments + post_nc
-                        # Each time we do this, we do a sense check to make sure we
-                        # haven't dropped anything. (Because it's happened before!).
-                        if self.test_env:
-                            check_still_complete(
-                                segments,
-                                matched_segments.matched_segments,
-                                unmatched_segments,
-                            )
-                        # Break out of the while loop and move to the next element.
+                # We've already dealt with potential whitespace above, so carry on
+                # to matching
+                with parse_context.deeper_match() as ctx:
+                    elem_match = elem.match(mid_seg, parse_context=ctx)
+
+                if not elem_match.has_match():
+                    # If we can't match an element, we should ascertain whether it's
+                    # required. If so then fine, move on, but otherwise we should
+                    # crash out without a match. We have not matched the sequence.
+                    if elem.is_optional():
+                        # This will crash us out of the while loop and move us
+                        # onto the next matching element
                         break
                     else:
-                        # If we can't match an element, we should ascertain whether it's
-                        # required. If so then fine, move on, but otherwise we should
-                        # crash out without a match. We have not matched the sequence.
-                        if elem.is_optional():
-                            # This will crash us out of the while loop and move us
-                            # onto the next matching element
-                            break
-                        else:
-                            return MatchResult.from_unmatched(segments)
+                        return MatchResult.from_unmatched(segments)
+
+                # Otherwise we _do_ mave a match.
+
+                # We're expecting mostly partial matches here, but complete
+                # matches are possible. Don't be greedy with whitespace!
+                matched_segments += (
+                    meta_pre_nc + pre_nc + meta_post_nc + elem_match.matched_segments
+                )
+                meta_pre_nc = ()
+                meta_post_nc = ()
+                unmatched_segments = elem_match.unmatched_segments + post_nc
+                # Each time we do this, we do a sense check to make sure we
+                # haven't dropped anything. (Because it's happened before!).
+                if self.test_env:
+                    check_still_complete(
+                        segments,
+                        matched_segments.matched_segments,
+                        unmatched_segments,
+                    )
+                # Break out of the while loop. If there are more segments, we'll
+                # begin again with the next one. Otherwise well fall out to the
+                # closing return below.
+                break
 
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).

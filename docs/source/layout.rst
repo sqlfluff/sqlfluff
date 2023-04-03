@@ -655,6 +655,21 @@ indented within the :code:`WITH` clause:
 
    SELECT 1 FROM some_cte
 
+There is also a similar :code:`indented_then` config (defaulted to
+:code:`True`) which can be set to :code:`False` to allow :code:`THEN`
+without an indent after :code:`WHEN`:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      CASE
+         WHEN b >= 42 THEN
+            1
+         ELSE 0
+      END AS c
+   FROM some_table
+
 By default, *SQLFluff* aims to follow the most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub

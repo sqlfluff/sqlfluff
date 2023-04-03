@@ -404,6 +404,7 @@ UNRESERVED_KEYWORDS = [
     "PAUSED",
     "PERCENTILE_CONT",
     "PERCENTILE_DISC",
+    "PERIOD",
     "PERSISTED",
     "PRECEDING",
     "PRECISION",  # listed as reserved but functionally unreserved
@@ -413,6 +414,7 @@ UNRESERVED_KEYWORDS = [
     "QUERY_GOVERNOR_COST_LIMIT",
     "QUERYTRACEON",
     "QUOTED_IDENTIFIER",
+    "R",  # sqlcmd command
     "RANDOMIZED",
     "RANGE",
     "RANK",
@@ -466,6 +468,7 @@ UNRESERVED_KEYWORDS = [
     "SERIALIZABLE",
     "SERVER",
     "SETERROR",
+    "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",
     "SHOWPLAN_TEXT",
     "SHOWPLAN_XML",

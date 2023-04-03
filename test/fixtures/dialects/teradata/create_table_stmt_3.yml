@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ffbbc697e46c5549859022966608d7c9f4296ec1962c3a455cf26707f2d873d
+_hash: 2a1999394771b519f4daf4b3d620f1b4ea325dac0b388b5b6486149cadff9d39
 file:
   statement:
     create_table_statement:
@@ -68,22 +68,22 @@ file:
             function_name_identifier: RANGE_N
           bracketed:
           - start_bracket: (
-          - raw: FEC_OPERACION
-          - raw: BETWEEN
-          - raw: DATE
+          - code: FEC_OPERACION
+          - code: BETWEEN
+          - code: DATE
           - single_quote: "'2007-01-01'"
-          - raw: AND
-          - raw: DATE
+          - code: AND
+          - code: DATE
           - single_quote: "'2022-01-01'"
-          - raw: EACH
-          - raw: INTERVAL
+          - code: EACH
+          - code: INTERVAL
           - single_quote: "'1'"
-          - raw: MONTH
+          - code: MONTH
           - comma: ','
-          - raw: 'NO'
-          - raw: RANGE
-          - raw: OR
-          - raw: UNKNOWN
+          - code: 'NO'
+          - code: RANGE
+          - code: OR
+          - code: UNKNOWN
           - end_bracket: )
       - keyword: INDEX
       - object_reference:

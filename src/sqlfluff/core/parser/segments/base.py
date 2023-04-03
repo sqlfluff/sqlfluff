@@ -516,8 +516,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Return a tuple structure from an iterable of segments."""
         return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
-    @staticmethod
-    def _suffix():
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
