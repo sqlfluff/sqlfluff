@@ -414,6 +414,7 @@ UNRESERVED_KEYWORDS = [
     "QUERY_GOVERNOR_COST_LIMIT",
     "QUERYTRACEON",
     "QUOTED_IDENTIFIER",
+    "R",  # sqlcmd command
     "RANDOMIZED",
     "RANGE",
     "RANK",
@@ -467,6 +468,7 @@ UNRESERVED_KEYWORDS = [
     "SERIALIZABLE",
     "SERVER",
     "SETERROR",
+    "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",
     "SHOWPLAN_TEXT",
     "SHOWPLAN_XML",
