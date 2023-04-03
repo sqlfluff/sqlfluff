@@ -21,6 +21,7 @@ This is primarily a _bugfix_ and _dialect_ release:
 * Performance improvements to `TypedParser`.
 * Rule timings now appear in the `--persist-timing` option for deeper
   performance understanding.
+* The introduction of a Greenplum dialect.
 * Dialect improvements to TSQL, Athena, Snowflake, MySQL, SparkSQL
   BigQuery, Databricks, Clickhouse & Postgres.
 
@@ -29,6 +30,7 @@ in this release 🎉🏆🎉.
 
 ## What’s Changed
 
+* Start of the Greenplum dialect implementation [#4661](https://github.com/sqlfluff/sqlfluff/pull/4661) [@JackWolverson](https://github.com/JackWolverson)
 * Enable configuring whether to require indent before THEN [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598) [@fredriv](https://github.com/fredriv)
 * Sequence Meta Handling [#4622](https://github.com/sqlfluff/sqlfluff/pull/4622) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add support for non-quoted file paths in SparkSQL [#4650](https://github.com/sqlfluff/sqlfluff/pull/4650) [@bmorck](https://github.com/bmorck)
