@@ -516,8 +516,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Return a tuple structure from an iterable of segments."""
         return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
-    @staticmethod
-    def _suffix():
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
@@ -690,7 +689,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -1706,7 +1705,7 @@ class BracketedSegment(BaseSegment):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
@@ -1715,12 +1714,17 @@ class BracketedSegment(BaseSegment):
             )
             if persistent
         ]
-        start_simple = []
+        simple_raws = set()
         for ref in start_brackets:
-            start_simple += parse_context.dialect.ref(ref).simple(
+            bracket_simple = parse_context.dialect.ref(ref).simple(
                 parse_context, crumbs=crumbs
             )
-        return start_simple
+            assert bracket_simple, "All bracket segments must support simple."
+            assert bracket_simple[0], "All bracket segments must support raw simple."
+            # NOTE: By making this assumption we don't have to handle the "typed"
+            # simple here.
+            simple_raws.update(bracket_simple[0])
+        return frozenset(simple_raws), frozenset()
 
     @classmethod
     def match(

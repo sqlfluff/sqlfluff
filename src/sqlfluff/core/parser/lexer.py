@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Iterator, Optional, List, Tuple, Union, NamedTuple
+from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict
 from uuid import UUID, uuid4
 import regex
 
@@ -20,10 +20,61 @@ from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.templaters.base import TemplatedFileSlice
-from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice
+from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice, to_tuple
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
+
+
+class BlockTracker:
+    """This is an object for keeping track of templating blocks.
+
+    Using the .enter() and .exit() methods on opening and closing
+    blocks, we can match up tags of the same level so that later
+    it's easier to treat them the same way in the linting engine.
+
+    In case looping means that we encounter the same block more
+    than once, we use cache uuids against their source location
+    so that if we try to re-enter the block again, it will get
+    the same uuid on the second pass.
+    """
+
+    _stack: List[UUID] = []
+    _map: Dict[Tuple[int, int], UUID] = {}
+
+    def enter(self, src_slice: slice) -> None:
+        """Add a block to the stack."""
+        key = to_tuple(src_slice)
+        uuid = self._map.get(key, None)
+
+        if not uuid:
+            uuid = uuid4()
+            self._map[key] = uuid
+            lexer_logger.debug(
+                "        Entering block stack @ %s: %s (fresh)",
+                src_slice,
+                uuid,
+            )
+        else:
+            lexer_logger.debug(
+                "        Entering block stack @ %s: %s (cached)",
+                src_slice,
+                uuid,
+            )
+
+        self._stack.append(uuid)
+
+    def exit(self) -> None:
+        """Pop a block from the stack."""
+        uuid = self._stack.pop()
+        lexer_logger.debug(
+            "        Exiting block stack: %s",
+            uuid,
+        )
+
+    def top(self) -> UUID:
+        """Get the uuid on top of the stack."""
+        return self._stack[-1]
 
 
 class LexedElement(NamedTuple):
@@ -262,7 +313,7 @@ class RegexLexer(StringLexer):
 def _handle_zero_length_slice(
     tfs: TemplatedFileSlice,
     next_tfs: Optional[TemplatedFileSlice],
-    block_stack: List[UUID],
+    block_stack: BlockTracker,
     templated_file: TemplatedFile,
     add_indents: bool,
 ):
@@ -300,7 +351,7 @@ def _handle_zero_length_slice(
                     pos_marker=pos_marker,
                 )
 
-            yield TemplateLoop(pos_marker=pos_marker, block_uuid=block_stack[-1])
+            yield TemplateLoop(pos_marker=pos_marker, block_uuid=block_stack.top())
 
             if add_indents:
                 yield Indent(
@@ -313,7 +364,11 @@ def _handle_zero_length_slice(
     # Then handle blocks (which aren't jumps backward)
     if tfs.slice_type.startswith("block"):
         # It's a block. Yield a placeholder with potential indents.
-        if add_indents and tfs.slice_type in ("block_end", "block_mid"):
+
+        # Update block stack or add indents
+        if tfs.slice_type == "block_start":
+            block_stack.enter(tfs.source_slice)
+        elif add_indents and tfs.slice_type in ("block_end", "block_mid"):
             yield Dedent(
                 is_template=True,
                 pos_marker=PositionMarker.from_point(
@@ -321,15 +376,8 @@ def _handle_zero_length_slice(
                     tfs.templated_slice.start,
                     templated_file,
                 ),
-            )
-
-        # Update block stack
-        if tfs.slice_type == "block_start":
-            block_stack.append(uuid4())
-            lexer_logger.debug(
-                "        Incrementing block stack with %s before %s",
-                block_stack[-1],
-                templated_file.source_str[tfs.source_slice],
+                # NOTE: We mark the dedent with the block uuid too.
+                block_uuid=block_stack.top(),
             )
 
         yield TemplateSegment.from_slice(
@@ -337,19 +385,13 @@ def _handle_zero_length_slice(
             tfs.templated_slice,
             block_type=tfs.slice_type,
             templated_file=templated_file,
-            block_uuid=block_stack[-1],
+            block_uuid=block_stack.top(),
         )
 
-        # Update block stack
+        # Update block stack or add indents
         if tfs.slice_type == "block_end":
-            lexer_logger.debug(
-                "        Popping block stack with %s after %s",
-                block_stack[-1],
-                templated_file.source_str[tfs.source_slice],
-            )
-            block_stack.pop()
-
-        if add_indents and tfs.slice_type in ("block_start", "block_mid"):
+            block_stack.exit()
+        elif add_indents and tfs.slice_type in ("block_start", "block_mid"):
             yield Indent(
                 is_template=True,
                 pos_marker=PositionMarker.from_point(
@@ -357,6 +399,8 @@ def _handle_zero_length_slice(
                     tfs.templated_slice.stop,
                     templated_file,
                 ),
+                # NOTE: We mark the indent with the block uuid too.
+                block_uuid=block_stack.top(),
             )
 
         # Before we move on, we might have a _forward_ jump to the next
@@ -410,7 +454,8 @@ def _iter_segments(
 ) -> Iterator[RawSegment]:
     # An index to track where we've got to in the templated file.
     tfs_idx = 0
-    block_stack: List[UUID] = []
+    # We keep a map of previous block locations in case they re-occur.
+    block_stack = BlockTracker()
 
     # Now work out source slices, and add in template placeholders.
     for idx, element in enumerate(lexed_elements):
@@ -572,13 +617,7 @@ def _iter_segments(
                     # have length (and so don't get picked up by
                     # _handle_zero_length_slice)
                     if tfs.slice_type == "block_start":
-                        block_stack.append(uuid4())
-                        lexer_logger.debug(
-                            "        Incrementing block stack [non-zero] "
-                            "with %s before %s",
-                            block_stack[-1],
-                            templated_file.source_str[tfs.source_slice],
-                        )
+                        block_stack.enter(tfs.source_slice)
 
                     # Is our current element totally contained in this slice?
                     if element.template_slice.stop <= tfs.templated_slice.stop:

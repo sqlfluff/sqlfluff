@@ -150,6 +150,20 @@ sparksql_dialect.insert_lexer_matchers(
     ],
     before="code",
 )
+sparksql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "file_literal",
+            (
+                r"[a-zA-z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\))+"
+                r"([a-zA-Z0-9\-_\.]*(:|\?|=|&))*[a-zA-Z0-9\-_\.]*\.?[a-z]*"
+            ),
+            CodeSegment,
+            segment_kwargs={"type": "file_literal"},
+        ),
+    ],
+    before="newline",
+)
 
 # Set the bare functions
 sparksql_dialect.sets("bare_functions").clear()
@@ -383,6 +397,9 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
+    FileLiteralSegment=TypedParser(
+        "file_literal", ansi.LiteralSegment, type="file_literal"
+    ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
         ansi.IdentifierSegment,
@@ -728,6 +745,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TINYINT",
         # TODO : not currently supported; add segment - see NumericLiteralSegment
         # "SHORT",
+        "LONG",
         "SMALLINT",
         "INT",
         "INTEGER",
@@ -1202,6 +1220,22 @@ class RemoveWidgetStatementSegment(BaseSegment):
         "REMOVE",
         "WIDGET",
         Ref("WidgetNameIdentifierSegment"),
+    )
+
+
+class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
+    """A `DROP DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-database.html
+    """
+
+    type = "drop_database_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1866,7 +1900,7 @@ class PivotClauseSegment(BaseSegment):
             Indent,
             Delimited(
                 Sequence(
-                    Ref("FunctionSegment"),
+                    Ref("BaseExpressionElementGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
@@ -1992,7 +2026,10 @@ class AddJarSegment(BaseSegment):
     match_grammar = Sequence(
         "ADD",
         Ref("JarKeywordSegment"),
-        AnyNumberOf(Ref("QuotedLiteralSegment")),
+        AnyNumberOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileLiteralSegment"),
+        ),
     )
 
 
@@ -2110,7 +2147,7 @@ class DescribeStatementSegment(BaseSegment):
         OneOf("DESCRIBE", "DESC"),
         OneOf(
             Sequence(
-                "DATABASE",
+                OneOf("DATABASE", "SCHEMA"),
                 Ref.keyword("EXTENDED", optional=True),
                 Ref("DatabaseReferenceSegment"),
             ),

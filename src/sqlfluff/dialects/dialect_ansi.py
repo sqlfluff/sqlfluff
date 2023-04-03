@@ -230,7 +230,10 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("crly_bracket_close", "}", CodeSegment),
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
-        RegexLexer("code", r"[0-9a-zA-Z_]+", CodeSegment),
+        # This is the "fallback" lexer for anything else which looks like SQL.
+        RegexLexer(
+            "code", r"[0-9a-zA-Z_]+", CodeSegment, segment_kwargs={"type": "code"}
+        ),
     ]
 )
 
@@ -350,12 +353,9 @@ ansi_dialect.add(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=RegexParser(r"[A-Z0-9_.]*", IdentifierSegment),
     ParameterNameSegment=RegexParser(r"[A-Z][A-Z0-9_]*", CodeSegment, type="parameter"),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=TypedParser(
+        "code", CodeSegment, type="function_name_identifier"
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(
@@ -2293,16 +2293,14 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
+        Ref("NumericLiteralSegment"),
         OneOf(
-            Ref("NumericLiteralSegment"),
+            Sequence("OFFSET", Ref("NumericLiteralSegment")),
             Sequence(
-                Ref("NumericLiteralSegment"), "OFFSET", Ref("NumericLiteralSegment")
-            ),
-            Sequence(
-                Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
             ),
+            optional=True,
         ),
         Dedent,
     )
@@ -2364,8 +2362,11 @@ class NamedWindowExpressionSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Window name
         "AS",
-        Bracketed(
-            Ref("WindowSpecificationSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
+                Ref("WindowSpecificationSegment"),
+            ),
         ),
     )
 
@@ -2421,7 +2422,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -2436,6 +2436,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 

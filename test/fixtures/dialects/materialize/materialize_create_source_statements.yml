@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3d984f3cf9c375c5ada88ba1c0222d93beeb3efd0f472dad53eadcc7eb54eeb
+_hash: e4637e97ea11a573f43a5e1d0a19f101f3e569164fa4f0886387efd47fb8053a
 file:
 - statement:
     create_source_kafka_statement:
@@ -18,24 +18,24 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - raw: AVRO
-    - raw: USING
-    - raw: CONFLUENT
-    - raw: SCHEMA
-    - raw: REGISTRY
-    - raw: CONNECTION
-    - raw: csr_connection
-    - raw: WITH
+    - code: AVRO
+    - code: USING
+    - code: CONFLUENT
+    - code: SCHEMA
+    - code: REGISTRY
+    - code: CONNECTION
+    - code: csr_connection
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -129,24 +129,24 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - raw: PROTOBUF
-    - raw: USING
-    - raw: CONFLUENT
-    - raw: SCHEMA
-    - raw: REGISTRY
-    - raw: CONNECTION
-    - raw: csr_connection
-    - raw: WITH
+    - code: PROTOBUF
+    - code: USING
+    - code: CONFLUENT
+    - code: SCHEMA
+    - code: REGISTRY
+    - code: CONNECTION
+    - code: csr_connection
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_kafka_statement:
@@ -161,20 +161,20 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - raw: TEXT
-    - raw: ENVELOPE
-    - raw: UPSERT
-    - raw: WITH
+    - code: TEXT
+    - code: ENVELOPE
+    - code: UPSERT
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_kafka_statement:
@@ -200,21 +200,21 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - raw: CSV
-    - raw: WITH
+    - code: CSV
+    - code: WITH
     - numeric_literal: '3'
-    - raw: COLUMNS
-    - raw: WITH
+    - code: COLUMNS
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -231,11 +231,11 @@ file:
     - keyword: TABLES
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -249,8 +249,8 @@ file:
     - keyword: TPCH
     - bracketed:
       - start_bracket: (
-      - raw: SCALE
-      - raw: FACTOR
+      - code: SCALE
+      - code: FACTOR
       - numeric_literal: '1'
       - end_bracket: )
     - keyword: FOR
@@ -258,11 +258,11 @@ file:
     - keyword: TABLES
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -276,11 +276,11 @@ file:
     - keyword: COUNTER
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -295,7 +295,7 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        raw: PUBLICATION
+        code: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
@@ -303,11 +303,11 @@ file:
     - keyword: TABLES
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -322,26 +322,26 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        raw: PUBLICATION
+        code: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
     - keyword: TABLES
     - bracketed:
       - start_bracket: (
-      - raw: table_1
+      - code: table_1
       - comma: ','
-      - raw: table_2
-      - raw: AS
-      - raw: alias_table_2
+      - code: table_2
+      - code: AS
+      - code: alias_table_2
       - end_bracket: )
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -356,16 +356,16 @@ file:
         naked_identifier: pg_connection
     - bracketed:
       - start_bracket: (
-      - raw: PUBLICATION
+      - code: PUBLICATION
       - single_quote: "'mz_source'"
       - comma: ','
-      - raw: TEXT
-      - raw: COLUMNS
+      - code: TEXT
+      - code: COLUMNS
       - bracketed:
         - start_bracket: (
-        - raw: table
+        - code: table
         - raw: .
-        - raw: column_of_unsupported_type
+        - code: column_of_unsupported_type
         - end_bracket: )
       - end_bracket: )
     - keyword: FOR
@@ -373,11 +373,11 @@ file:
     - keyword: TABLES
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -392,16 +392,16 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        raw: PUBLICATION
+        code: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:

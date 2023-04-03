@@ -3672,6 +3672,7 @@ class CreateUserSegment(BaseSegment):
             ),
             Ref("CommentEqualsClauseSegment"),
         ),
+        Dedent,
     )
 
 

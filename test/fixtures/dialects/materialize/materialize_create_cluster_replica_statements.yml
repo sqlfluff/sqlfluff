@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ba593bbf1fa0ccc9eefa05a2a5384a80c662fc635660cb22a13c748688521334
+_hash: 463be35f1c6e42bf30ab2665e71ea802e4f444715047607ee668e52eb30b6136
 file:
 - statement:
     create_cluster_statement:
@@ -14,10 +14,10 @@ file:
     - keyword: REPLICAS
     - bracketed:
         start_bracket: (
-        raw: r1
+        code: r1
         bracketed:
           start_bracket: (
-          raw: size
+          code: size
           single_quote: "'1'"
           end_bracket: )
         end_bracket: )
@@ -31,17 +31,17 @@ file:
     - keyword: REPLICAS
     - bracketed:
       - start_bracket: (
-      - raw: r1
+      - code: r1
       - bracketed:
           start_bracket: (
-          raw: size
+          code: size
           single_quote: "'1'"
           end_bracket: )
       - comma: ','
-      - raw: r2
+      - code: r2
       - bracketed:
           start_bracket: (
-          raw: size
+          code: size
           single_quote: "'1'"
           end_bracket: )
       - end_bracket: )
@@ -55,7 +55,7 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: size_1
-    - raw: SIZE
+    - code: SIZE
     - single_quote: "'large'"
 - statement_terminator: ;
 - statement:
@@ -67,7 +67,7 @@ file:
       - naked_identifier: c1
       - dot: .
       - naked_identifier: r1
-    - raw: SIZE
+    - code: SIZE
     - raw: '='
     - single_quote: "'medium'"
 - statement_terminator: ;
@@ -80,11 +80,11 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: replica
-    - raw: AVAILABILITY
-    - raw: ZONE
+    - code: AVAILABILITY
+    - code: ZONE
     - single_quote: "'a'"
     - comma: ','
-    - raw: AVAILABILITY
-    - raw: ZONE
+    - code: AVAILABILITY
+    - code: ZONE
     - single_quote: "'b'"
 - statement_terminator: ;
