@@ -118,6 +118,15 @@ The dialect for `Exasol`_.
 
 .. _hive_dialect_ref:
 
+Greenplum
+---------
+
+The dialect for `Greenplum`_.
+
+.. _`Greenplum`: https://www.greenplum.org/
+
+.. _greens_dialect_ref:
+
 Hive
 ----
 
