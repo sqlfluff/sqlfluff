@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fba3a9ad0d049673ca3be918a13aaf02bd6e1cfde411d727ec673f140da6859
+_hash: 5849678931aab62be6c402719b44bf6c15d605858133f49b435e6cd5c6a69f57
 file:
   statement:
     create_scripting_lua_script:
@@ -20,23 +20,23 @@ file:
     - keyword: ROWCOUNT
     - keyword: AS
     - script_content:
-      - raw: local
-      - raw: _stmt
+      - code: local
+      - code: _stmt
       - raw: '='
       - raw: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
-      - raw: x
+      - code: x
       - raw: '='
       - numeric_literal: '1'
-      - raw: local
-      - raw: _stmt
+      - code: local
+      - code: _stmt
       - raw: '='
-      - raw: _stmt
+      - code: _stmt
       - range_operator: ..
       - raw: '[[ ) ]]'
-      - raw: local
-      - raw: _nsted
+      - code: local
+      - code: _nsted
       - raw: '='
       - raw: '[=[one ([[two]] one]=]'
-      - raw: return
+      - code: return
       - numeric_literal: '1'
   function_script_terminator: /
