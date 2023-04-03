@@ -247,3 +247,13 @@ CREATE TABLE with_constraints1 (
 CREATE TABLE with_constraints2 (
     col_1 boolean DEFAULT false NOT NULL
 );
+
+
+CREATE TABLE test_with_storage_param (
+    col_1 boolean
+) WITH (autovacuum_enabled=true);
+
+
+CREATE TABLE test_with_storage_params (
+    col_1 boolean
+) WITH (autovacuum_enabled=true, vacuum_truncate=false);
