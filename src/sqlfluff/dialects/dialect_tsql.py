@@ -5468,8 +5468,10 @@ class CreateExternalFileFormat(BaseSegment):
             ),
         ),
     )
+
+
 class CreateExternalTableStatementSegment(BaseSegment):
-    """A `CREATE EXTERNAL TABLE` statement
+    """A `CREATE EXTERNAL TABLE` statement.
 
     https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-transact-sql?view=sql-server-ver16&tabs=dedicated
     """
