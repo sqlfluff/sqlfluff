@@ -62,7 +62,6 @@ RESERVED_KEYWORDS = [
     "SOME",
     "TABLE",
     "THEN",
-    "TIME",
     "TO",
     "TRAILING",
     "UNION",
@@ -248,6 +247,7 @@ UNRESERVED_KEYWORDS = [
     "TEMP",
     "TEMPORARY",
     "TERMINATED",
+    "TIME"
     "TOUCH",
     "TRANSACTION",
     "TRANSACTIONS",
