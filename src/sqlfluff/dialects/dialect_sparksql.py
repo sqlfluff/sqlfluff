@@ -728,6 +728,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TINYINT",
         # TODO : not currently supported; add segment - see NumericLiteralSegment
         # "SHORT",
+        "LONG",
         "SMALLINT",
         "INT",
         "INTEGER",
@@ -1202,6 +1203,22 @@ class RemoveWidgetStatementSegment(BaseSegment):
         "REMOVE",
         "WIDGET",
         Ref("WidgetNameIdentifierSegment"),
+    )
+
+
+class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
+    """A `DROP DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-database.html
+    """
+
+    type = "drop_database_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1866,7 +1883,7 @@ class PivotClauseSegment(BaseSegment):
             Indent,
             Delimited(
                 Sequence(
-                    Ref("FunctionSegment"),
+                    Ref("BaseExpressionElementGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
@@ -2110,7 +2127,7 @@ class DescribeStatementSegment(BaseSegment):
         OneOf("DESCRIBE", "DESC"),
         OneOf(
             Sequence(
-                "DATABASE",
+                OneOf("DATABASE", "SCHEMA"),
                 Ref.keyword("EXTENDED", optional=True),
                 Ref("DatabaseReferenceSegment"),
             ),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 812f438105868e17820fc25d3e4b129bd7c83a3f0079fb30e5dea880498a1d56
+_hash: ac623c18e014b92b3b4fe3853fefff9fab178547864151bd583341e180cceb3b
 file:
   statement:
     create_scripting_lua_script:
@@ -21,6 +21,6 @@ file:
         end_bracket: )
     - keyword: AS
     - script_content:
-        raw: return
+        code: return
         single_quote: "'HELLO'"
   function_script_terminator: /

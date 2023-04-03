@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 33381b0b86302058a5674d19c7a48f20a5af530917b5185963a97a4d581aba83
+_hash: 30f7e598ee1ea2bb81c0e7000e562ff401d31fe6d8058dbf6031afe373fdc6fe
 file:
 - statement:
     comment_clause:
@@ -45,8 +45,8 @@ file:
         naked_identifier: my_aggregate
     - bracketed:
       - start_bracket: (
-      - raw: double
-      - raw: precision
+      - code: double
+      - code: precision
       - end_bracket: )
     - keyword: IS
     - quoted_literal: "'Computes sample variance'"
@@ -284,9 +284,9 @@ file:
         naked_identifier: my_proc
     - bracketed:
       - start_bracket: (
-      - raw: integer
+      - code: integer
       - comma: ','
-      - raw: integer
+      - code: integer
       - end_bracket: )
     - keyword: IS
     - quoted_literal: "'Runs a report'"
@@ -343,9 +343,9 @@ file:
         naked_identifier: my_routine
     - bracketed:
       - start_bracket: (
-      - raw: integer
+      - code: integer
       - comma: ','
-      - raw: integer
+      - code: integer
       - end_bracket: )
     - keyword: IS
     - quoted_literal: "'Runs a routine (which is a function or procedure)'"

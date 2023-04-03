@@ -529,6 +529,18 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
+        # Test a longer lint fail with --bench
+        # This tests the threshold rules clause
+        (
+            (
+                lint,
+                [
+                    "test/fixtures/linter/autofix/bigquery/004_templating/before.sql",
+                    "--bench",
+                ],
+            ),
+            1,
+        ),
     ],
 )
 def test__cli__command_lint_parse_with_retcode(command, ret_code):

@@ -154,6 +154,9 @@ bigquery_dialect.add(
             Ref("ArrayLiteralSegment"),
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
+            terminators=[
+                Ref("SemicolonSegment"),
+            ],
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
@@ -1322,11 +1325,10 @@ class DeclareStatementSegment(BaseSegment):
         "DECLARE",
         Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
-            Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                Ref("DefaultDeclareOptionsGrammar"),
+                Ref("DefaultDeclareOptionsGrammar", optional=True),
             ),
         ),
     )
@@ -1709,6 +1711,17 @@ class ParameterizedSegment(BaseSegment):
     match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))
 
 
+class PivotForClauseSegment(BaseSegment):
+    """The FOR part of a PIVOT expression.
+
+    Needed to avoid BaseExpressionElementGrammar swallowing up the IN part
+    """
+
+    type = "pivot_for_clause"
+    match_grammar = GreedyUntil("IN")
+    parse_grammar = Ref("BaseExpressionElementGrammar")
+
+
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
@@ -1726,7 +1739,7 @@ class FromPivotExpressionSegment(BaseSegment):
                 ),
             ),
             "FOR",
-            Ref("SingleIdentifierGrammar"),
+            Ref("PivotForClauseSegment"),
             "IN",
             Bracketed(
                 Delimited(

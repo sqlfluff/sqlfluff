@@ -2,7 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING, FrozenSet
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -20,8 +20,14 @@ class Matchable(ABC):
     @abstractmethod
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
-    ) -> Optional[List[str]]:
+    ) -> Optional[Tuple[FrozenSet[str], FrozenSet[str]]]:
         """Try to obtain a simple response from the matcher.
+
+        Returns:
+            None - if not simple.
+            Tuple of two sets of strings if simple. The first is a set of
+                uppercase raw strings which would match. The second is a set
+                of segment types that would match.
 
         NOTE: the crumbs kwarg is designed to be used by Ref to
         detect recursion.

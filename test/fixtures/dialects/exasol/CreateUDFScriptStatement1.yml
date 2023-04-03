@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46272d132a2fa57493194874d7f88c52519771bec51ef821e1c31bbb33d4afb4
+_hash: a1731e61d1110ed23395aab516655bdfc035804b79aa6e109dc032043c38700a
 file:
 - statement:
     create_udf_script:
@@ -35,44 +35,44 @@ file:
         keyword: DOUBLE
     - keyword: AS
     - script_content:
-      - raw: function
-      - raw: run
+      - code: function
+      - code: run
       - bracketed:
           start_bracket: (
-          raw: ctx
+          code: ctx
           end_bracket: )
-      - raw: if
-      - raw: ctx
+      - code: if
+      - code: ctx
       - raw: .
-      - raw: a
+      - code: a
       - raw: '='
       - raw: '='
-      - raw: nil
-      - raw: or
-      - raw: ctx
+      - code: nil
+      - code: or
+      - code: ctx
       - raw: .
-      - raw: b
+      - code: b
       - raw: '='
       - raw: '='
-      - raw: nil
-      - raw: then
-      - raw: return
-      - raw: 'NULL'
-      - raw: end
-      - raw: return
+      - code: nil
+      - code: then
+      - code: return
+      - code: 'NULL'
+      - code: end
+      - code: return
       - bracketed:
         - start_bracket: (
-        - raw: ctx
+        - code: ctx
         - raw: .
-        - raw: a
+        - code: a
         - raw: +
-        - raw: ctx
+        - code: ctx
         - raw: .
-        - raw: b
+        - code: b
         - end_bracket: )
       - raw: /
       - numeric_literal: '2'
-      - raw: end
+      - code: end
 - function_script_terminator: /
 - statement:
     create_udf_script:
@@ -104,47 +104,47 @@ file:
         keyword: DOUBLE
     - keyword: AS
     - script_content:
-      - raw: function
-      - raw: run
+      - code: function
+      - code: run
       - bracketed:
           start_bracket: (
-          raw: ctx
+          code: ctx
           end_bracket: )
-      - raw: if
-      - raw: ctx
+      - code: if
+      - code: ctx
       - raw: .
-      - raw: a
+      - code: a
       - raw: '='
       - raw: '='
-      - raw: nil
-      - raw: or
-      - raw: ctx
+      - code: nil
+      - code: or
+      - code: ctx
       - raw: .
-      - raw: b
+      - code: b
       - raw: '='
       - raw: '='
-      - raw: nil
-      - raw: then
-      - raw: return
-      - raw: 'NULL'
-      - raw: end
-      - raw: x
+      - code: nil
+      - code: then
+      - code: return
+      - code: 'NULL'
+      - code: end
+      - code: x
       - raw: '='
       - numeric_literal: '10'
       - raw: /
       - numeric_literal: '2'
-      - raw: return
+      - code: return
       - bracketed:
         - start_bracket: (
-        - raw: ctx
+        - code: ctx
         - raw: .
-        - raw: a
+        - code: a
         - raw: +
-        - raw: ctx
+        - code: ctx
         - raw: .
-        - raw: b
+        - code: b
         - end_bracket: )
       - raw: /
       - numeric_literal: '2'
-      - raw: end
+      - code: end
 - function_script_terminator: /

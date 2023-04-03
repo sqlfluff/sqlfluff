@@ -1,6 +1,6 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, List, Tuple, cast
+from typing import Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -30,24 +30,26 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceded it also do.
         """
-        simple_buff = []
+        simple_raws = set()
+        simple_types = set()
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
                 return None
-            simple_buff += simple
+            simple_raws.update(simple[0])
+            simple_types.update(simple[1])
 
             if not opt.is_optional():
                 # We found our first non-optional element!
-                return simple_buff
+                return frozenset(simple_raws), frozenset(simple_types)
         # If *all* elements are optional AND simple, I guess it's also simple.
-        return simple_buff
+        return frozenset(simple_raws), frozenset(simple_types)
 
     @match_wrapper()
     @allow_ephemeral
@@ -217,7 +219,7 @@ class Bracketed(Sequence):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None):
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.
