@@ -151,15 +151,15 @@ sparksql_dialect.insert_lexer_matchers(
     before="code",
 )
 sparksql_dialect.insert_lexer_matchers(
-     [
+    [
         RegexLexer(
             "file_literal",
             r"[a-zA-z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\))+([a-zA-Z0-9\-_\.]*(:|\?|=|&))*[a-zA-Z0-9\-_\.]*\.?[a-z]*",
             CodeSegment,
             segment_kwargs={"type": "file_literal"},
         ),
-     ],
-     before="newline",
+    ],
+    before="newline",
 )
 
 # Set the bare functions
@@ -394,8 +394,8 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
-    FileLiteralSegment=OneOf(
-        TypedParser("file_literal", ansi.LiteralSegment, type="file_literal"),
+    FileLiteralSegment=TypedParser(
+        "file_literal", ansi.LiteralSegment, type="file_literal"
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
@@ -2026,7 +2026,7 @@ class AddJarSegment(BaseSegment):
         AnyNumberOf(
             Ref("QuotedLiteralSegment"),
             Ref("FileLiteralSegment"),
-            ),
+        ),
     )
 
 
