@@ -1,11 +1,8 @@
-"""
-the Greenplum dialect
+"""the Greenplum dialect.
 
 http://www.greenplum.org/
 
 """
-
-from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -25,8 +22,6 @@ greenplum_dialect = postgres_dialect.copy_as("greenplum")
 greenplum_dialect.sets("reserved_keywords").update(
     ["DISTRIBUTED", "RANDOMLY", "REPLICATED"]
 )
-
-
 
 
 class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
@@ -121,7 +116,6 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                     "DEFAULT",
                 ),
             ),
-
         ),
         AnyNumberOf(
             Sequence(
@@ -162,7 +156,8 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                                     Ref("LiteralGrammar"),
                                     optional=True,
                                 ),
-                            ),optional=True,
+                            ),
+                            optional=True,
                         )
                     ),
                 ),
@@ -174,7 +169,13 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
             ),
             Sequence("TABLESPACE", Ref("TablespaceReferenceSegment")),
-
-            Sequence("DISTRIBUTED", OneOf( "RANDOMLY", "REPLICATED", Sequence("BY",Bracketed( Ref("ColumnReferenceSegment")))),
+            Sequence(
+                "DISTRIBUTED",
+                OneOf(
+                    "RANDOMLY",
+                    "REPLICATED",
+                    Sequence("BY", Bracketed(Ref("ColumnReferenceSegment"))),
+                ),
+            ),
         ),
-    ))
+    )
