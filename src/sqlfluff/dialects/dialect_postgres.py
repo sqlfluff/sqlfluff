@@ -174,7 +174,12 @@ postgres_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={"type": "double_quote"},
         ),
-        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+        RegexLexer(
+            "code",
+            r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
+            CodeSegment,
+            segment_kwargs={"type": "code"},
+        ),
     ]
 )
 
@@ -242,8 +247,8 @@ postgres_dialect.add(
         Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
     ),
     # Add a Full equivalent which also allow keywords
-    NakedIdentifierFullSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_]*",
+    NakedIdentifierFullSegment=TypedParser(
+        "code",
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
@@ -2059,6 +2064,37 @@ class AlterTableActionSegment(BaseSegment):
                 "NOTHING",
             ),
         ),
+    )
+
+
+class VersionIdentifierSegment(BaseSegment):
+    """A reference to an version."""
+
+    type = "version_identifier"
+    # match grammar (don't allow whitespace)
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
+        AnyNumberOf(
+            OneOf(
+                # Literals might follow literals if these literals
+                # begin with a "." e.g. 1.2.3.4
+                Ref("NumericLiteralSegment"),
+                Sequence(
+                    Ref("DotSegment"),
+                    OneOf(
+                        Ref("NumericLiteralSegment"),
+                        Ref("NakedIdentifierSegment"),
+                    ),
+                    allow_gaps=False,
+                ),
+            ),
+            allow_gaps=False,
+        ),
+        allow_gaps=False,
     )
 
 
