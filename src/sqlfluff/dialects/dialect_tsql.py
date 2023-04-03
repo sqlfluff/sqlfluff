@@ -5261,10 +5261,7 @@ class ExternalFileFormatDelimitedTextClause(BaseSegment):
             "FORMAT_OPTIONS",
             Bracketed(
                 Delimited(
-                    AnyNumberOf(
-                        Ref("ExternalFileFormatDelimitedTextFormatOptionClause"),
-                        min_times=1,
-                    ),
+                    Ref("ExternalFileFormatDelimitedTextFormatOptionClause"),
                 ),
             ),
             optional=True,
