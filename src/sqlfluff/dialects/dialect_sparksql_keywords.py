@@ -247,8 +247,7 @@ UNRESERVED_KEYWORDS = [
     "TEMP",
     "TEMPORARY",
     "TERMINATED",
-    "TIME"
-    "TOUCH",
+    "TIME" "TOUCH",
     "TRANSACTION",
     "TRANSACTIONS",
     "TRANSFORM",
