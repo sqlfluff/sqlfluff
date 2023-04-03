@@ -10,6 +10,48 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.3] - 2023-04-03
+
+## Highlights
+
+## What’s Changed
+
+* Enable configuring whether to require indent before THEN [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598) [@fredriv](https://github.com/fredriv)
+* Sequence Meta Handling [#4622](https://github.com/sqlfluff/sqlfluff/pull/4622) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for non-quoted file paths in SparkSQL [#4650](https://github.com/sqlfluff/sqlfluff/pull/4650) [@bmorck](https://github.com/bmorck)
+* Remove three RegexParsers [#4658](https://github.com/sqlfluff/sqlfluff/pull/4658) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Make parse test readout more helpful [#4657](https://github.com/sqlfluff/sqlfluff/pull/4657) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: support for `sqlcmd` commands `:r` and `:setvar` [#4653](https://github.com/sqlfluff/sqlfluff/pull/4653) [@keen85](https://github.com/keen85)
+* Update README with Databricks note [#4632](https://github.com/sqlfluff/sqlfluff/pull/4632) [@liamperritt](https://github.com/liamperritt)
+* Athena: Fix parsing error with aliases starting with underscore [#4636](https://github.com/sqlfluff/sqlfluff/pull/4636) [@maiarareinaldo](https://github.com/maiarareinaldo)
+* Snowflake: Stop ever-increasing indent in CREATE USER [#4638](https://github.com/sqlfluff/sqlfluff/pull/4638) [@roman-ef](https://github.com/roman-ef)
+* TSQL: `PERIOD FOR SYSTEM_TIME` (temporal tables) [#4654](https://github.com/sqlfluff/sqlfluff/pull/4654) [@keen85](https://github.com/keen85)
+* MySQL: SelectStatementSegment in CREATE/ALTER VIEW may be bracketed [#4655](https://github.com/sqlfluff/sqlfluff/pull/4655) [@yoichi](https://github.com/yoichi)
+* TSQL: `CREATE EXTERNAL DATA SOURCE` [#4634](https://github.com/sqlfluff/sqlfluff/pull/4634) [@keen85](https://github.com/keen85)
+* Safety valve on source fixes [#4640](https://github.com/sqlfluff/sqlfluff/pull/4640) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add SparkSQL support for LONG primitive type [#4639](https://github.com/sqlfluff/sqlfluff/pull/4639) [@bmorck](https://github.com/bmorck)
+* Fix PIVOT clauses for BigQuery and SparkSQL [#4630](https://github.com/sqlfluff/sqlfluff/pull/4630) [@tunetheweb](https://github.com/tunetheweb)
+* Correct BigQuery WINDOW parsing [#4629](https://github.com/sqlfluff/sqlfluff/pull/4629) [@tunetheweb](https://github.com/tunetheweb)
+* Add Databricks dialect support for Unity Catalog [#4568](https://github.com/sqlfluff/sqlfluff/pull/4568) [@liamperritt](https://github.com/liamperritt)
+* .simple() matching for TypedMatcher [#4612](https://github.com/sqlfluff/sqlfluff/pull/4612) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* --bench output with rule timings [#4601](https://github.com/sqlfluff/sqlfluff/pull/4601) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: Unnamed constraints [#4616](https://github.com/sqlfluff/sqlfluff/pull/4616) [@greg-finley](https://github.com/greg-finley)
+* TSQL: Create database scoped credential [#4615](https://github.com/sqlfluff/sqlfluff/pull/4615) [@greg-finley](https://github.com/greg-finley)
+* fix(dialect-clickhouse): Add materialized view statement [#4605](https://github.com/sqlfluff/sqlfluff/pull/4605) [@germainlefebvre4](https://github.com/germainlefebvre4)
+* Nicer formatted dbt errors [#4606](https://github.com/sqlfluff/sqlfluff/pull/4606) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* add parse lambda function Clickhouse [#4611](https://github.com/sqlfluff/sqlfluff/pull/4611) [@konnectr](https://github.com/konnectr)
+* Support `WITH ORDINALITY` clauses in Postgres [#4599](https://github.com/sqlfluff/sqlfluff/pull/4599) [@tunetheweb](https://github.com/tunetheweb)
+
+## New Contributors
+
+* [@germainlefebvre4](https://github.com/germainlefebvre4) made their first contribution in [#4605](https://github.com/sqlfluff/sqlfluff/pull/4605)
+* [@liamperritt](https://github.com/liamperritt) made their first contribution in [#4568](https://github.com/sqlfluff/sqlfluff/pull/4568)
+* [@bmorck](https://github.com/bmorck) made their first contribution in [#4639](https://github.com/sqlfluff/sqlfluff/pull/4639)
+* [@keen85](https://github.com/keen85) made their first contribution in [#4634](https://github.com/sqlfluff/sqlfluff/pull/4634)
+* [@roman-ef](https://github.com/roman-ef) made their first contribution in [#4638](https://github.com/sqlfluff/sqlfluff/pull/4638)
+* [@maiarareinaldo](https://github.com/maiarareinaldo) made their first contribution in [#4636](https://github.com/sqlfluff/sqlfluff/pull/4636)
+* [@fredriv](https://github.com/fredriv) made their first contribution in [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598)
+
 ## [2.0.2] - 2023-03-23
 
 ## Highlights
