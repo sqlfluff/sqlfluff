@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Indent,
     ImplicitIndent,
     Matchable,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -99,6 +100,9 @@ tsql_dialect.sets("bare_functions").update(
     ["system_user", "session_user", "current_user"]
 )
 
+tsql_dialect.sets("sqlcmd_operators").clear()
+tsql_dialect.sets("sqlcmd_operators").update(["r", "setvar"])
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -131,6 +135,13 @@ tsql_dialect.insert_lexer_matchers(
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
             segment_kwargs={"type": "hash_prefix"},
+        ),
+        RegexLexer(
+            "unquoted_relative_sql_file_path",
+            # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
+            r"[.\w\\/#-]+\.[sS][qQ][lL]",
+            CodeSegment,
+            segment_kwargs={"type": "unquoted_relative_sql_file_path"},
         ),
     ],
     before="back_quote",
@@ -247,6 +258,17 @@ tsql_dialect.add(
             type="collation",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
+    ),
+    SqlcmdOperatorSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("sqlcmd_operators"),
+            CodeSegment,
+            type="sqlcmd_operator",
+        )
+    ),
+    SqlcmdFilePathSegment=TypedParser(
+        "unquoted_relative_sql_file_path",
+        CodeSegment,
     ),
 )
 
@@ -529,6 +551,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
+            Ref("SqlcmdCommandSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -5160,5 +5183,37 @@ class PeriodSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 Ref("ColumnReferenceSegment"),
             ),
+        ),
+    )
+
+
+class SqlcmdCommandSegment(BaseSegment):
+    """A `sqlcmd` command.
+
+    Microsoft allows professional CI/CD deployment through so called 'SQL Database
+    Projects'.
+    There are propietary `sqlcmd Commands` that can be part of an SQL file.
+    https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16#sqlcmd-commands
+    """
+
+    type = "sqlcmd_command_segment"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("SqlcmdOperatorSegment"),  # `:r`
+                allow_gaps=False,
+            ),
+            Ref("SqlcmdFilePathSegment"),
+        ),
+        Sequence(
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("SqlcmdOperatorSegment"),  # `:setvar`
+                allow_gaps=False,
+            ),
+            Ref("ObjectReferenceSegment"),
+            Ref("CodeSegment"),
         ),
     )
