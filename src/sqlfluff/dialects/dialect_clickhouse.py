@@ -356,42 +356,35 @@ class TableEngineSegment(BaseSegment):
                         Ref("BracketedColumnReferenceListGrammar"),
                         Ref("ColumnReferenceSegment"),
                     ),
-                    optional=True,
                 ),
                 Sequence(
                     "PARTITION",
                     "BY",
                     Ref("ExpressionSegment"),
-                    optional=True,
                 ),
                 Sequence(
                     "PRIMARY",
                     "KEY",
                     Ref("ExpressionSegment"),
-                    optional=True,
                 ),
                 Sequence(
                     "SAMPLE",
                     "BY",
                     Ref("ExpressionSegment"),
-                    optional=True,
                 ),
                 Sequence(
                     "SETTINGS",
                     Delimited(
-                        AnyNumberOf(
-                            Sequence(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NumericLiteralSegment"),
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                                optional=True,
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
                             ),
-                        )
+                            optional=True,
+                        ),
                     ),
-                    optional=True,
                 ),
             ),
         ),
@@ -407,22 +400,15 @@ class DatabaseEngineFunctionSegment(BaseSegment):
     type = "engine_function"
     match_grammar: Matchable = Sequence(
         Sequence(
-            # Ref(
-            #     "FunctionNameSegment",
-            #     exclude=OneOf(
-            #         Ref("DatePartFunctionNameSegment"),
-            #         Ref("ValuesClauseSegment"),
-            #     ),
-            # ),
             OneOf(
-                "Atomic",
-                "MySQL",
-                "MaterializedMySQL",
-                "Lazy",
-                "PostgreSQL",
-                "MaterializedPostgreSQL",
-                "Replicated",
-                "SQLite",
+                "ATOMIC",
+                "MYSQL",
+                "MATERIALIZEDMYSQL",
+                "LAZY",
+                "POSTGRESQL",
+                "MATERIALIZEDPOSTGRESQL",
+                "REPLICATED",
+                "SQLITE",
             ),
             Bracketed(
                 Ref(
@@ -795,11 +781,9 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
             Ref("TableReferenceSegment"),
             Bracketed(
                 Delimited(
-                    OneOf(
-                        Ref("TableConstraintSegment"),
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("ColumnConstraintSegment"),
-                    ),
+                    Ref("TableConstraintSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("ColumnConstraintSegment"),
                 ),
                 optional=True,
             ),
