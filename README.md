@@ -36,6 +36,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Db2](https://www.ibm.com/analytics/db2)
 - [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
+- [Greenplum](https://greenplum.org/)
 - [Hive](https://hive.apache.org/)
 - [Materialize](https://materialize.com/)
 - [MySQL](https://www.mysql.com/)

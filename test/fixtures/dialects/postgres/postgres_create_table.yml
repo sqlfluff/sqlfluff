@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a76f4fb19b133a1000a4103a133ca8931376b9bc8fc7a4c14794785381e49093
+_hash: 2dd44090101b8062ac76859e45d0e246a9950d7ea475d1ee2f4b67bdd5618c58
 file:
 - statement:
     create_table_statement:
@@ -1495,5 +1495,54 @@ file:
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_with_storage_param
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col_1
+        data_type:
+          keyword: boolean
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        parameter: autovacuum_enabled
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'true'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_with_storage_params
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col_1
+        data_type:
+          keyword: boolean
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - parameter: autovacuum_enabled
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: vacuum_truncate
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
