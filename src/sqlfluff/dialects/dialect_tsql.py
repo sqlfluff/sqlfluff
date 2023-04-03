@@ -5206,11 +5206,9 @@ class OpenJsonSegment(BaseSegment):
         "OPENJSON",
         Bracketed(
             Delimited(
-                OneOf(
-                    Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
-                    Ref("ColumnReferenceSegment"),
-                    Ref("ParameterNameSegment"),
-                ),
+                Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
+                Ref("ColumnReferenceSegment"),
+                Ref("ParameterNameSegment"),
                 Ref("QuotedLiteralSegment"),  # path
             ),
         ),
