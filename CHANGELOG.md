@@ -14,6 +14,19 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a _bugfix_ and _dialect_ release:
+* A bugfix for nested templated indentation.
+* Configurable indentation before `THEN` in `CASE` statements
+  (see [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598)).
+* Performance improvements to `TypedParser`.
+* Rule timings now appear in the `--persist-timing` option for deeper
+  performance understanding.
+* Dialect improvements to TSQL, Athena, Snowflake, MySQL, SparkSQL
+  BigQuery, Databricks, Clickhouse & Postgres.
+
+We also saw a _huge number of first time contributors_ with 7 contributing
+in this release 🎉🏆🎉.
+
 ## What’s Changed
 
 * Enable configuring whether to require indent before THEN [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598) [@fredriv](https://github.com/fredriv)
