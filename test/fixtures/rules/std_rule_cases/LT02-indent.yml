@@ -1869,3 +1869,20 @@ test_jinja_nested_tracking:
                 (c, d, e)
         {% endif %}
     {% endfor %}
+
+test_configure_no_indent_before_then_4589:
+  # THEN can be configured to not be indented
+  pass_str: |
+    SELECT
+        a,
+        CASE
+            WHEN b >= 42 THEN
+                1
+            ELSE 0
+        END AS c
+    FROM some_table
+  configs:
+    core:
+      dialect: ansi
+    indentation:
+      indented_then: false
