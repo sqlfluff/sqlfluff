@@ -1850,3 +1850,22 @@ test_tsql_where_implicit_4559:
       dialect: tsql
     indentation:
       allow_implicit_indents: true
+
+test_jinja_nested_tracking:
+  # This tests the caching features of BlockTracker
+  # in the lexer. If that's not functioning properly
+  # the indentation of the nested jinja blocks in this
+  # query will likely fail.
+  pass_str: |
+    SELECT *
+    FROM
+    {% for action in ['a', 'b'] %}
+        {% if loop.first %}
+            {{action}}_var
+        {% else %}
+        JOIN
+            {{action}}_var
+            USING
+                (c, d, e)
+        {% endif %}
+    {% endfor %}

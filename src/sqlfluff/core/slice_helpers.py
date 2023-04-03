@@ -1,5 +1,13 @@
 """Helpers for handling slices."""
 
+from typing import Tuple
+
+
+def to_tuple(s: slice) -> Tuple[int, int]:
+    """Convert a slice into a tuple of (start, stop)."""
+    assert s.start is not None and s.stop is not None
+    return (s.start, s.stop)
+
 
 def slice_length(s: slice) -> int:
     """Get the length of a slice."""

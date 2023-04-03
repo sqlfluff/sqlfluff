@@ -284,6 +284,12 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             if segment.block_uuid:
                 grouped[segment.block_uuid].append(idx)
                 depths[segment.block_uuid].append(line.initial_indent_balance)
+                reflow_logger.debug(
+                    "  UUID: %s @ %s = %r",
+                    segment.block_uuid,
+                    idx,
+                    segment.pos_marker.source_str(),
+                )
 
     # Sort through the lines, so we do to *most* indented first.
     sorted_group_indices = sorted(
@@ -291,16 +297,10 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     )
     reflow_logger.debug("  Sorted Group UUIDs: %s", sorted_group_indices)
 
-    for group_uuid in sorted_group_indices:
+    for group_idx, group_uuid in enumerate(sorted_group_indices):
         reflow_logger.debug("  Evaluating Group UUID: %s", group_uuid)
 
         group_lines = grouped[group_uuid]
-        for idx in group_lines:
-            reflow_logger.debug(
-                "    Line %s: Initial Balance: %s",
-                idx,
-                lines[idx].initial_indent_balance,
-            )
 
         # Check for case 1.
         if len(set(lines[idx].initial_indent_balance for idx in group_lines)) == 1:
@@ -313,74 +313,208 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         options: List[Set[int]] = []
         for idx in group_lines:
             line = lines[idx]
+
             steps: Set[int] = {line.initial_indent_balance}
             # Run backward through the pre point.
             indent_balance = line.initial_indent_balance
-            for seg in elements[line.indent_points[0].idx].segments[::-1]:
+            first_point_idx = line.indent_points[0].idx
+            first_block = elements[first_point_idx + 1]
+
+            assert first_block.segments
+            first_segment = first_block.segments[0]
+            if first_segment.is_type("template_loop"):
+                # For template loops, don't count the line. They behave
+                # strangely.
+                continue
+
+            for seg in elements[first_point_idx].segments[::-1]:
                 if seg.is_type("indent"):
+                    # If it's the one straight away, after a block_end or
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    if cast(Indent, seg).block_uuid:
+                        continue
                     # Minus because we're going backward.
                     indent_balance -= cast(Indent, seg).indent_val
-                steps.add(indent_balance)
+                    steps.add(indent_balance)
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
-            for seg in elements[line.indent_points[-1].idx].segments:
+            last_point_idx = line.indent_points[-1].idx
+            for seg in elements[last_point_idx].segments:
                 if seg.is_type("indent"):
+                    # If it's the one straight away, after a block_start or
+                    # block_mid, skip it. We know this because it will have
+                    # block_uuid.
+                    if cast(Indent, seg).block_uuid:
+                        continue
                     # Positive because we're going forward.
                     indent_balance += cast(Indent, seg).indent_val
-                steps.add(indent_balance)
-            reflow_logger.debug("    Line %s: Options: %s", idx, steps)
+                    steps.add(indent_balance)
+
+            # NOTE: Edge case for consecutive blocks of the same type.
+            # If we're next to another block which is "inner" (i.e.) has
+            # already been handled. We can assume all options up to it's
+            # new indent are open for use.
+
+            _case_type = None
+            if first_segment.is_type("placeholder"):
+                _case_type = cast(TemplateSegment, first_segment).block_type
+
+            if _case_type in ("block_start", "block_mid"):
+                # Is following _line_ AND element also a block?
+                # i.e. nothing else between.
+                if first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1:
+                    seg = elements[first_point_idx + 3].segments[0]
+                    if seg.is_type("placeholder"):
+                        if cast(TemplateSegment, seg).block_type == "block_start":
+                            _inter_steps = list(
+                                range(
+                                    line.initial_indent_balance,
+                                    lines[idx + 1].initial_indent_balance,
+                                )
+                            )
+                            reflow_logger.debug(
+                                "      Precedes block. Adding Steps: %s", _inter_steps
+                            )
+                            steps.update(_inter_steps)
+
+            if _case_type in ("block_end", "block_mid"):
+                # Is preceding _line_ AND element also a block?
+                # i.e. nothing else between.
+                if first_point_idx - 1 == lines[idx - 1].indent_points[0].idx + 1:
+                    seg = elements[first_point_idx - 1].segments[0]
+                    if seg.is_type("placeholder"):
+                        if cast(TemplateSegment, seg).block_type == "block_end":
+                            _inter_steps = list(
+                                range(
+                                    line.initial_indent_balance,
+                                    lines[idx - 1].initial_indent_balance,
+                                )
+                            )
+                            reflow_logger.debug(
+                                "      Follows block. Adding Steps: %s", _inter_steps
+                            )
+                            steps.update(_inter_steps)
+
+            reflow_logger.debug(
+                "    Line %s: Initial Balance: %s Options: %s",
+                idx,
+                lines[idx].initial_indent_balance,
+                steps,
+            )
             options.append(steps)
 
         # We should also work out what all the indents are _between_
         # these options and make sure we don't go above that.
-        first_line_idx = group_lines[0]
-        last_line_idx = group_lines[-1]
-        intermediate_lines = [
-            line
-            for line in lines[first_line_idx + 1 : last_line_idx]
-            # Exclude lines which are in the group to avoid
-            # issues with loop markers.
-            if line not in [lines[idx] for idx in group_lines]
-        ]
-        reflow_logger.debug(
-            "    Intermediate Lines: %s",
-            [line.initial_indent_balance for line in intermediate_lines],
-        )
-        limit_indent = min(
-            # Minus one to reverse the effect that the block has
-            # already had.
-            line.initial_indent_balance - 1
-            for line in intermediate_lines
-        )
+
+        # Because there might be _outer_ loops, we look for spans
+        # between blocks in this group which don't contain any blocks
+        # from _outer_ loops. i.e. we can't just take all the lines from
+        # first to last.
+        last_group_line: Optional[int] = group_lines[0]  # last = previous.
+        net_balance = 0
+        balance_trough: Optional[int] = None
+        temp_balance_trough: Optional[int] = None
+        inner_lines = []
+        reflow_logger.debug("    Intermediate lines:")
+        # NOTE: +1 on the last range to make sure we _do_ process the last one.
+        for idx in range(group_lines[0] + 1, group_lines[-1] + 1):
+            for grp in sorted_group_indices[group_idx + 1 :]:
+                # found an "outer" group line, reset tracker.
+                if idx in grouped[grp]:
+                    last_group_line = None
+                    net_balance = 0
+                    temp_balance_trough = None  # Unset the buffer
+                    break
+
+            # Is it in this group?
+            if idx in group_lines:
+                # Stash the line indices of the inner lines.
+                if last_group_line:
+                    _inner_lines = list(range(last_group_line + 1, idx))
+                    reflow_logger.debug(
+                        "      Extending Intermediates with %s", _inner_lines
+                    )
+                    inner_lines.extend(_inner_lines)
+                # if we have a temp balance - crystallise it
+                if temp_balance_trough is not None:
+                    balance_trough = (
+                        temp_balance_trough
+                        if balance_trough is None
+                        else min(balance_trough, temp_balance_trough)
+                    )
+                    reflow_logger.debug(
+                        "      + Save Trough: %s (min = %s)",
+                        temp_balance_trough,
+                        balance_trough,
+                    )
+                    temp_balance_trough = None
+                last_group_line = idx
+                net_balance = 0
+            elif last_group_line:
+                # It's not a group line, but we're still tracking. Update with impulses.
+                is_subgroup_line = any(
+                    idx in grouped[grp] for grp in sorted_group_indices[:group_idx]
+                )
+                for ip in lines[idx].indent_points[:-1]:
+                    # Don't count the trough on group lines we've already covered.
+                    if "placeholder" in elements[ip.idx + 1].class_types:
+                        _block_type = cast(
+                            TemplateSegment, elements[ip.idx + 1].segments[0]
+                        ).block_type
+                        if _block_type in ("block_end", "block_mid"):
+                            reflow_logger.debug(
+                                "      Skipping trough before %r", _block_type
+                            )
+                            continue
+                    if ip.indent_trough < 0 and not is_subgroup_line:
+                        # NOTE: We set it temporarily here, because if we're going
+                        # to pass an outer template loop then we should discard it.
+                        # i.e. only count intervals within inner loops.
+                        _this_through = net_balance + ip.indent_trough
+                        temp_balance_trough = (
+                            _this_through
+                            if temp_balance_trough is None
+                            else min(temp_balance_trough, _this_through)
+                        )
+                        reflow_logger.debug(
+                            "      Stash Trough: %s (min = %s) @ %s",
+                            _this_through,
+                            temp_balance_trough,
+                            idx,
+                        )
+                    # NOTE: We update net_balance _after_ the clause above.
+                    net_balance += ip.indent_impulse
 
         # Evaluate options.
-        overlap = set.intersection(*options)
+        # NOTE: We don't use the _last_ option, because it tends to be trailing
+        # and have strange effects.
+        overlap = set.intersection(*options[:-1])
         reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
         # we'll effectively remove the effects of the indents between the elements.
-        overlap = {i for i in overlap if i <= limit_indent}
-        reflow_logger.debug("    Overlap: %s, Limit: %s", overlap, limit_indent)
+
+        best_indent = max(overlap)
+
         # Is there a mutually agreeable option?
-        if overlap:
-            # Go for the deeper option if there's flexibility, because this
-            # will usually involve moving the fewest options.
-            best_indent = max(overlap)
-            reflow_logger.debug(
-                "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
-            )
-        # If no overlap, it's case 3
-        else:
+        reflow_logger.debug("    Balance Trough: %s", balance_trough)
+        if balance_trough is not None and balance_trough <= 0:
             # Set the indent to the minimum of the existing ones.
             best_indent = min(lines[idx].initial_indent_balance for idx in group_lines)
-            reflow_logger.debug("    Case 3: Best: %s", best_indent)
+            reflow_logger.debug(
+                "    Case 3: Best: %s. Inner Lines: %s", best_indent, inner_lines
+            )
             # Remove one indent from all intermediate lines.
             # This is because we're effectively saying that these
             # placeholders shouldn't impact the indentation within them.
-            for idx in range(first_line_idx + 1, last_line_idx):
-                if idx not in group_lines:
-                    # MUTATION
-                    lines[idx].initial_indent_balance -= 1
+            for idx in inner_lines:
+                # MUTATION
+                lines[idx].initial_indent_balance -= 1
+        else:
+            reflow_logger.debug(
+                "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
+            )
 
         # Set all the lines to this indent
         for idx in group_lines:
