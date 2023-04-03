@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d0f7e2826bb710e0a8adaf01c0f6b58df93f5ab72b5441ecb904afcbbbaf479
+_hash: 211577430ed00b854e469e247c1c35a412aa5b87ea2de4e89d4c0b1d01032d50
 file:
 - statement:
     fetch_statement:
@@ -13,11 +13,11 @@ file:
         naked_identifier: c
     - keyword: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: timeout
-      - raw: '='
-      - single_quote: "'1s'"
-      - end_bracket: )
+        start_bracket: (
+        code: timeout
+        raw: '='
+        single_quote: "'1s'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     fetch_statement:
@@ -33,8 +33,8 @@ file:
         naked_identifier: c
     - keyword: CURSOR
     - keyword: FOR
-    - raw: SUBSCRIBE
-    - raw: fetch_during_ingest
+    - code: SUBSCRIBE
+    - code: fetch_during_ingest
 - statement_terminator: ;
 - statement:
     declare_statement:
@@ -43,12 +43,12 @@ file:
         naked_identifier: c
     - keyword: CURSOR
     - keyword: FOR
-    - raw: SUBSCRIBE
+    - code: SUBSCRIBE
     - bracketed:
       - start_bracket: (
-      - raw: SELECT
+      - code: SELECT
       - raw: '*'
-      - raw: FROM
-      - raw: t1
+      - code: FROM
+      - code: t1
       - end_bracket: )
 - statement_terminator: ;

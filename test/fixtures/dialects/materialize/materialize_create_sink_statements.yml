@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3c8ddc5e2d29bc641f89d24a14b14a3fdf1d6e695ceda407358e2d61b6321526
+_hash: 1fc428ea414b4ccb08c4c9649d3feed58070a02a1494226d32475fbd080cef7f
 file:
 - statement:
     create_sink_kafka_statement:
@@ -15,25 +15,25 @@ file:
     - object_reference:
         naked_identifier: quotes
     - keyword: INTO
-    - raw: KAFKA
-    - raw: CONNECTION
-    - raw: kafka_connection
+    - code: KAFKA
+    - code: CONNECTION
+    - code: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'quotes-sink'"
         end_bracket: )
-    - raw: FORMAT
-    - raw: JSON
-    - raw: ENVELOPE
-    - raw: DEBEZIUM
-    - raw: WITH
+    - code: FORMAT
+    - code: JSON
+    - code: ENVELOPE
+    - code: DEBEZIUM
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_sink_kafka_statement:
@@ -45,23 +45,23 @@ file:
     - object_reference:
         naked_identifier: frank_quotes
     - keyword: INTO
-    - raw: KAFKA
-    - raw: CONNECTION
-    - raw: kafka_connection
+    - code: KAFKA
+    - code: CONNECTION
+    - code: kafka_connection
     - bracketed:
         start_bracket: (
-        raw: TOPIC
+        code: TOPIC
         single_quote: "'frank-quotes-sink'"
         end_bracket: )
-    - raw: FORMAT
-    - raw: JSON
-    - raw: ENVELOPE
-    - raw: DEBEZIUM
-    - raw: WITH
+    - code: FORMAT
+    - code: JSON
+    - code: ENVELOPE
+    - code: DEBEZIUM
+    - code: WITH
     - bracketed:
-      - start_bracket: (
-      - raw: SIZE
-      - raw: '='
-      - single_quote: "'3xsmall'"
-      - end_bracket: )
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
 - statement_terminator: ;

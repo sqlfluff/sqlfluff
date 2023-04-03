@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecc9699f8a881f56b241c5099433e6d13173c8537e1aa113206c93ba08b6f4ba
+_hash: b6e77e8335e52d18ec1650ced762ac2d2a692cce2b782d0f0adadfdfe8854b59
 file:
 - statement:
     create_extension_statement:
@@ -16,9 +16,13 @@ file:
     - schema_reference:
         naked_identifier: schema1
     - keyword: VERSION
-    - identifier: '2.0'
+    - version_identifier:
+      - numeric_literal: '2.0'
+      - numeric_literal: '.1'
+      - numeric_literal: '.2'
     - keyword: FROM
-    - identifier: '1.0'
+    - version_identifier:
+        quoted_literal: "'1.0'"
 - statement_terminator: ;
 - statement:
     create_extension_statement:
@@ -34,9 +38,13 @@ file:
     - schema_reference:
         naked_identifier: schema1
     - keyword: VERSION
-    - identifier: '2.0'
+    - version_identifier:
+        numeric_literal: '1.2'
+        dot: .
+        naked_identifier: 3a4
     - keyword: FROM
-    - identifier: '1.0'
+    - version_identifier:
+        numeric_literal: '1.0'
 - statement_terminator: ;
 - statement:
     drop_extension_statement:

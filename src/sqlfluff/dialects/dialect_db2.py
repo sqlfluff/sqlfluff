@@ -87,7 +87,9 @@ db2_dialect.patch_lexer_matchers(
             segment_kwargs={"type": "double_quote"},
         ),
         # In Db2, a field could have a # pound/hash sign
-        RegexLexer("code", r"[0-9a-zA-Z_#]+", CodeSegment),
+        RegexLexer(
+            "code", r"[0-9a-zA-Z_#]+", CodeSegment, segment_kwargs={"type": "code"}
+        ),
     ]
 )
 
