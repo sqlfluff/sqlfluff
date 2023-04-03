@@ -1,6 +1,8 @@
 """Sequence and Bracketed Grammars."""
 
-from typing import Optional, Tuple, cast, Iterable, Type
+# NOTE: We rename the typing.Sequence here so it doesn't collide
+# with the grammar class that we're defining.
+from typing import Optional, Tuple, cast, Type, Sequence as _Sequence
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -27,7 +29,7 @@ from os import getenv
 
 
 def _all_remaining_metas(
-    remaining_elements: Iterable[MatchableType], parse_context: ParseContext
+    remaining_elements: _Sequence[MatchableType], parse_context: ParseContext
 ) -> Optional[Tuple[BaseSegment, ...]]:
     """Check the remaining elements, instantiate them if they're metas.
 
