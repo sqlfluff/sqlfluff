@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af169dbaf70811431a7c01120ab5baae8f5ad5efbff01f193b718b53d07d27a6
+_hash: 70cadc1549c0161178ee90989a721583de3c3d84a038e36ab0c299c2fbb0a25a
 file:
   statement:
     create_udf_script:
@@ -69,32 +69,32 @@ file:
           \    e.g.:\n    SELECT MYSCHEMA.MYPYTHONSCRIPT(\n            '[{\""
       - raw: '@lang'
       - double_quote: '":"'
-      - raw: de
+      - code: de
       - raw: '-'
-      - raw: DE
+      - code: DE
       - double_quote: '","'
       - raw: $
       - double_quote: '":"'
-      - raw: Krztxt
+      - code: Krztxt
       - double_quote: '"}, {"'
       - raw: '@lang'
       - double_quote: '":"'
-      - raw: en
+      - code: en
       - raw: '-'
-      - raw: GB
+      - code: GB
       - double_quote: '","'
       - raw: $
       - double_quote: '":"'
-      - raw: Shrttxt
+      - code: Shrttxt
       - double_quote: "\"}]',\n            '@lang',\n            '$'\n        );\n\
           \ ====================================================================*/\n\
           \"\"\""
-      - raw: def
-      - raw: run
+      - code: def
+      - code: run
       - bracketed:
           start_bracket: (
-          raw: ctx
+          code: ctx
           end_bracket: )
       - raw: ':'
-      - raw: pass
+      - code: pass
   function_script_terminator: /

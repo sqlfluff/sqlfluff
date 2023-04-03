@@ -1,0 +1,36 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a2d4e1bf9fa351097aede205a0244d067dc5a05213354eff1fdc94160fc227db
+file:
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: customer_cat
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+        naked_identifier: customer_cat
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+        naked_identifier: customer_cat
+    - keyword: COMMENT
+    - quoted_literal: "'This is customer catalog'"
+- statement_terminator: ;

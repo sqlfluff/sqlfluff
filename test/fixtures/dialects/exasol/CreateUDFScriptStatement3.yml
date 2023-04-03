@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7b362ba5c75e1cbb8085d85603dd790a88a88556769e7657142f83a9827c91e
+_hash: 30ca3566a9d1f58588b8995fd797b318f9ed602597266f8c1ca27ddcf6316191
 file:
   statement:
     create_udf_script:
@@ -25,12 +25,12 @@ file:
         keyword: INT
     - keyword: AS
     - script_content:
-      - raw: def
-      - raw: helloWorld
+      - code: def
+      - code: helloWorld
       - bracketed:
           start_bracket: (
           end_bracket: )
       - raw: ':'
-      - raw: return
+      - code: return
       - double_quote: '"Hello Python3 World!"'
   function_script_terminator: /

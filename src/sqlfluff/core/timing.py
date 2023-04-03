@@ -1,6 +1,6 @@
 """Timing summary class."""
 
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple, Set, Union
 from collections import defaultdict
 
 
@@ -37,4 +37,39 @@ class TimingSummary:
                     "max": max(vals[step]),
                     "avg": sum(vals[step]) / len(vals[step]),
                 }
+        return summary
+
+
+class RuleTimingSummary:
+    """An object for tracking the timing of rules across many files."""
+
+    def __init__(self) -> None:
+        self._timings: List[Tuple[str, str, float]] = []
+
+    def add(self, rule_timings: List[Tuple[str, str, float]]):
+        """Add a set of rule timings."""
+        # Add records to the main list.
+        self._timings.extend(rule_timings)
+
+    def summary(self, threshold=0.5) -> Dict[str, Dict[str, Union[float, str]]]:
+        """Generate a summary for display."""
+        keys: Set[Tuple[str, str]] = set()
+        vals: Dict[Tuple[str, str], List[float]] = defaultdict(list)
+
+        for code, name, time in self._timings:
+            vals[(code, name)].append(time)
+            keys.add((code, name))
+
+        summary: Dict[str, Dict[str, Union[float, str]]] = {}
+        for code, name in sorted(keys):
+            timings = vals[(code, name)]
+            # For brevity, if the total time taken is less than
+            # `threshold`, then don't display.
+            if sum(timings) < threshold:
+                continue
+            summary[f"{code}: {name}"] = {
+                "sum (n)": f"{sum(timings):.2f} ({len(timings)})",
+                "min": min(timings),
+                "max": max(timings),
+            }
         return summary

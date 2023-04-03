@@ -677,7 +677,9 @@ def lint(
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
-            click.echo(formatter.cli_table(timing_summary[step].items()))
+            click.echo(
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+            )
 
     if not nofail:
         if not non_human_output:
@@ -846,7 +848,9 @@ def _paths_fix(
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
-            click.echo(formatter.cli_table(timing_summary[step].items()))
+            click.echo(
+                formatter.cli_table(timing_summary[step].items(), cols=3, col_width=20)
+            )
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")

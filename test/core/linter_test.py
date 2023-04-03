@@ -766,7 +766,7 @@ def test_linted_file_ignore_masked_violations(
     lf = linter.LintedFile(
         path="",
         violations=violations,
-        time_dict={},
+        timings=None,
         tree=None,
         ignore_mask=ignore_mask,
         templated_file=TemplatedFile.from_string(""),
