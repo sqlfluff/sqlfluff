@@ -46,8 +46,7 @@ class MetaSegment(RawSegment):
         self.is_template = is_template
         self.block_uuid = block_uuid
 
-    @staticmethod
-    def _suffix():
+    def _suffix(self):
         """Return any extra output required at the end when logging.
 
         Meta classes have not much to say here so just stay blank.
@@ -108,6 +107,10 @@ class Indent(MetaSegment):
 
     type = "indent"
     indent_val = 1
+
+    def _suffix(self) -> str:
+        """If present, output the block uuid."""
+        return f"[Block: {self.block_uuid.hex[:6]!r}]" if self.block_uuid else ""
 
 
 class ImplicitIndent(Indent):
@@ -177,9 +180,13 @@ class TemplateSegment(MetaSegment):
             pos_marker=pos_marker, source_fixes=source_fixes, block_uuid=block_uuid
         )
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Also output what it's a placeholder for."""
-        return f"[Type: {self.block_type!r}, Raw: {self.source_str!r}]"
+        return (
+            f"[Type: {self.block_type!r}, Raw: {self.source_str!r}"
+            + (f", Block: {self.block_uuid.hex[:6]!r}" if self.block_uuid else "")
+            + "]"
+        )
 
     @classmethod
     def from_slice(

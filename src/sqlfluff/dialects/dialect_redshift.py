@@ -192,7 +192,12 @@ redshift_dialect.replace(
 redshift_dialect.patch_lexer_matchers(
     [
         # add optional leading # to code for temporary tables
-        RegexLexer("code", r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+        RegexLexer(
+            "code",
+            r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
+            CodeSegment,
+            segment_kwargs={"type": "code"},
+        ),
     ]
 )
 
