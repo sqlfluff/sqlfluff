@@ -5483,7 +5483,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Bracketed(
             Delimited(
-                AnyNumberOf(Ref("ColumnDefinitionSegment")),
+                Ref("ColumnDefinitionSegment"),
             ),
         ),
         "WITH",
@@ -5499,29 +5499,26 @@ class CreateExternalTableStatementSegment(BaseSegment):
                     "FILE_FORMAT",
                     Ref("EqualsSegment"),
                     Ref("ObjectReferenceSegment"),
-                    optional=True,
                 ),
-                AnyNumberOf(
-                    Sequence(
-                        "REJECT_TYPE",
-                        Ref("EqualsSegment"),
-                        OneOf("value", "percentage"),
-                    ),
-                    Sequence(
-                        "REJECT_VALUE",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "REJECT_SAMPLE_VALUE",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "REJECTED_ROW_LOCATION",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
+                Sequence(
+                    "REJECT_TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("value", "percentage"),
+                ),
+                Sequence(
+                    "REJECT_VALUE",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    "REJECT_SAMPLE_VALUE",
+                    Ref("EqualsSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    "REJECTED_ROW_LOCATION",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
                 ),
             ),
         ),
