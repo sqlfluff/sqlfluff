@@ -35,6 +35,7 @@ SELECT
     age,
     class,
     address,
+    time,
     c_age
 FROM person
     LATERAL VIEW OUTER EXPLODE(ARRAY()) tbl_name AS c_age;

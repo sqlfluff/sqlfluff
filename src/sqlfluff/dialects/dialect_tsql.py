@@ -15,8 +15,8 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
-    Indent,
     ImplicitIndent,
+    Indent,
     Matchable,
     MultiStringParser,
     Nothing,
@@ -102,6 +102,31 @@ tsql_dialect.sets("bare_functions").update(
 
 tsql_dialect.sets("sqlcmd_operators").clear()
 tsql_dialect.sets("sqlcmd_operators").update(["r", "setvar"])
+
+tsql_dialect.sets("file_compression").clear()
+tsql_dialect.sets("file_compression").update(
+    [
+        "'org.apache.hadoop.io.compress.GzipCodec'",
+        "'org.apache.hadoop.io.compress.DefaultCodec'",
+        "'org.apache.hadoop.io.compress.SnappyCodec'",
+    ]
+)
+
+tsql_dialect.sets("file_encoding").clear()
+tsql_dialect.sets("file_encoding").update(
+    [
+        "'UTF8'",
+        "'UTF16'",
+    ]
+)
+
+tsql_dialect.sets("serde_method").clear()
+tsql_dialect.sets("serde_method").update(
+    [
+        "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'",
+        "'org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe'",
+    ]
+)
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -269,6 +294,27 @@ tsql_dialect.add(
     SqlcmdFilePathSegment=TypedParser(
         "unquoted_relative_sql_file_path",
         CodeSegment,
+    ),
+    FileCompressionSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("file_compression"),
+            CodeSegment,
+            type="file_compression",
+        )
+    ),
+    FileEncodingSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("file_encoding"),
+            CodeSegment,
+            type="file_encoding",
+        )
+    ),
+    SerdeMethodSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("serde_method"),
+            CodeSegment,
+            type="serde_method",
+        )
     ),
 )
 
@@ -552,8 +598,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseScopedCredentialStatementSegment"),
             Ref("CreateExternalDataSourceStatementSegment"),
             Ref("SqlcmdCommandSegment"),
-            Ref("OpenJsonWithClauseSegment"),
-            Ref("OpenJsonSegment"),
+            Ref("CreateExternalFileFormat"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -5218,6 +5263,209 @@ class SqlcmdCommandSegment(BaseSegment):
             ),
             Ref("ObjectReferenceSegment"),
             Ref("CodeSegment"),
+        ),
+    )
+
+
+class ExternalFileFormatDelimitedTextFormatOptionClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` Delimited text `FORMAT_OPTIONS` clause."""
+
+    type = "external_file_delimited_text_format_options_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(
+                "FIELD_TERMINATOR", "STRING_DELIMITER", "DATE_FORMAT", "PARSER_VERSION"
+            ),
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "FIRST_ROW",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "USE_TYPE_DEFAULT",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "ENCODING",
+            Ref("EqualsSegment"),
+            Ref("FileEncodingSegment"),
+        ),
+    )
+
+
+class ExternalFileFormatDelimitedTextClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *Delimited text* clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delimited#syntax
+    """
+
+    type = "external_file_delimited_text_clause"
+
+    match_grammar = Delimited(
+        Sequence(
+            "FORMAT_TYPE",
+            Ref("EqualsSegment"),
+            "DELIMITEDTEXT",
+        ),
+        Sequence(
+            "FORMAT_OPTIONS",
+            Bracketed(
+                Delimited(
+                    Ref("ExternalFileFormatDelimitedTextFormatOptionClause"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("FileCompressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ExternalFileFormatRcClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *Record Columnar file format (RcFile)* clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=rc#syntax
+    """
+
+    type = "external_file_rc_clause"
+
+    match_grammar = Delimited(
+        Sequence(
+            "FORMAT_TYPE",
+            Ref("EqualsSegment"),
+            "RCFILE",
+        ),
+        Sequence(
+            "SERDE_METHOD",
+            Ref("EqualsSegment"),
+            Ref("SerdeMethodSegment"),
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("FileCompressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ExternalFileFormatOrcClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *Optimized Row Columnar (ORC)* format clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=orc#syntax
+    """
+
+    type = "external_file_orc_clause"
+
+    match_grammar = Delimited(
+        Sequence(
+            "FORMAT_TYPE",
+            Ref("EqualsSegment"),
+            "ORC",
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("FileCompressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ExternalFileFormatParquetClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *PARQUET* format clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=parquet#syntax
+    """
+
+    type = "external_file_parquet_clause"
+
+    match_grammar = Delimited(
+        Sequence(
+            "FORMAT_TYPE",
+            Ref("EqualsSegment"),
+            "PARQUET",
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("FileCompressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ExternalFileFormatJsonClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *JSON* format clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=json#syntax
+    """
+
+    type = "external_file_json_clause"
+
+    match_grammar = Delimited(
+        Sequence(
+            "FORMAT_TYPE",
+            Ref("EqualsSegment"),
+            "JSON",
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("FileCompressionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class ExternalFileFormatDeltaClause(BaseSegment):
+    """`CREATE EXTERNAL FILE FORMAT` *Delta Lake* format clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delta#syntax
+    """
+
+    type = "external_file_delta_clause"
+
+    match_grammar = Sequence(
+        "FORMAT_TYPE",
+        Ref("EqualsSegment"),
+        "DELTA",
+    )
+
+
+class CreateExternalFileFormat(BaseSegment):
+    """A statement to create an `EXTERNAL FILE FORMAT` object.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=sql-server-ver16&tabs=delta#syntax
+    """
+
+    type = "create_external_file_format"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "FILE",
+        "FORMAT",
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Bracketed(
+            OneOf(
+                Ref("ExternalFileFormatDelimitedTextClause"),
+                Ref("ExternalFileFormatRcClause"),
+                Ref("ExternalFileFormatOrcClause"),
+                Ref("ExternalFileFormatParquetClause"),
+                Ref("ExternalFileFormatJsonClause"),
+                Ref("ExternalFileFormatDeltaClause"),
+            ),
         ),
     )
 
