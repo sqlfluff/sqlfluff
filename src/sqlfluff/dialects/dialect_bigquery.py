@@ -1925,9 +1925,7 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Indent,
             Ref("BracketedColumnReferenceListGrammar", optional=True),
             Dedent,
-            Indent,
             Ref("ValuesClauseSegment", optional=True),
-            Dedent,
         ),
         Sequence("INSERT", "ROW"),
     )

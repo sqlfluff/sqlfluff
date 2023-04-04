@@ -1837,16 +1837,10 @@ class MergeInsertClauseSegment(BaseSegment):
     type = "merge_insert_clause"
     match_grammar = Sequence(
         "INSERT",
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        "VALUES",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    "DEFAULT",
-                    Ref("ExpressionSegment"),
-                ),
-            )
-        ),
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar"),
+        Dedent,
+        Ref("ValuesClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 
