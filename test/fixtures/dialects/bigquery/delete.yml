@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fe5d02ee53e337f806fc3921393afde1c4edc4c03d5c94e3a7fbfd5b21fd5d56
+_hash: d0d792ccee74c7d010d7bc94eb4b3b7ac9f5f7c052ce3eb4de5401307396aa62
 file:
 - statement:
     delete_statement:
       keyword: DELETE
-      object_reference:
+      table_reference:
       - naked_identifier: dataset
       - dot: .
       - naked_identifier: Inventory
@@ -24,7 +24,7 @@ file:
 - statement:
     delete_statement:
       keyword: DELETE
-      object_reference:
+      table_reference:
       - naked_identifier: dataset
       - dot: .
       - naked_identifier: Inventory
@@ -61,7 +61,7 @@ file:
 - statement:
     delete_statement:
       keyword: DELETE
-      object_reference:
+      table_reference:
       - naked_identifier: dataset
       - dot: .
       - naked_identifier: Inventory
@@ -102,4 +102,15 @@ file:
                   - dot: .
                   - naked_identifier: product
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        quoted_identifier: '`project_id.dataset_id.target_name`'
+    - where_clause:
+        keyword: WHERE
+        expression:
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
