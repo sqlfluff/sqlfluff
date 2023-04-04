@@ -5801,7 +5801,7 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     match_grammar = Sequence(
         "INSERT",
         Indent,
-        Ref("BracketedColumnReferenceListGrammar"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
         Dedent,
         Ref("ValuesClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
