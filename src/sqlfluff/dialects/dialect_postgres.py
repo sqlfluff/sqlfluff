@@ -612,7 +612,7 @@ class DateTimeLiteralGrammar(BaseSegment):
 
     type = "datetime_literal"
     match_grammar = Sequence(
-        Ref("DateTimeTypeIdentifier"),
+        Ref("DateTimeTypeIdentifier", optional=True),
         Ref("QuotedLiteralSegment"),
     )
 
