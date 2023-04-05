@@ -1945,7 +1945,7 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DELETE",
         Ref.keyword("FROM", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
