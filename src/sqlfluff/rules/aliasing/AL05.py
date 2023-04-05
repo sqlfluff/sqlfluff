@@ -87,7 +87,7 @@ class Rule_AL05(BaseRule):
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
-            if alias.from_expression_element and self.is_alias_required(
+            if alias.from_expression_element and self._is_alias_required(
                 alias.from_expression_element, context.dialect.name
             ):
                 continue
@@ -98,7 +98,7 @@ class Rule_AL05(BaseRule):
         return violations or None
 
     @classmethod
-    def is_alias_required(
+    def _is_alias_required(
         cls, from_expression_element: BaseSegment, dialect_name: str
     ) -> bool:
         """Given an alias, is it REQUIRED to be present?
