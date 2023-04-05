@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fdd85c59b24e91ef35e4ddf2d3e4bb3ff60efa127707cefe561182621c360ca
+_hash: 337e774718873b99a59ccc416f8dfd887b30f51835c7bc1af3b10649192a557d
 file:
-  statement:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -47,4 +47,21 @@ file:
             raw_comparison_operator: '='
         - quoted_literal: '"Table that expires seven days from now"'
         - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: expiration_timestamp
+          comparison_operator:
+            raw_comparison_operator: '='
+          null_literal: 'NULL'
+          end_bracket: )
+- statement_terminator: ;

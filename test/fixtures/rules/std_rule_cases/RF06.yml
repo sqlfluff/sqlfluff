@@ -380,3 +380,21 @@ test_fail_quoted_column_postgres_force_enable:
     rules:
       references.quoting:
         force_enable: true
+
+test_pass_prefer_quoted_keywords_athena:
+  pass_str: SELECT 1 AS "metadata"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: athena
+
+test_fail_prefer_quoted_keywords_athena:
+  fail_str: SELECT 1 AS metadata
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: athena

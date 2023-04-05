@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf69f6048a644afca395a0752a97e0e6780fb56107cf14f96e1ff0e2fe09cd20
+_hash: 2d927806faa8c9349e523b0471fd1654957ff55219f34e5aafa17bb1588c8352
 file:
 - statement:
     merge_statement:
@@ -81,25 +81,26 @@ file:
         - keyword: MATCHED
         - keyword: THEN
         - merge_insert_clause:
-          - keyword: INSERT
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - naked_identifier: U
-                - dot: .
-                - naked_identifier: name
-            - comma: ','
-            - expression:
-                column_reference:
-                - naked_identifier: U
-                - dot: .
-                - naked_identifier: salary
-            - comma: ','
-            - expression:
-                bare_function: CURRENT_DATE
-            - end_bracket: )
+            keyword: INSERT
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: U
+                  - dot: .
+                  - naked_identifier: name
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: U
+                  - dot: .
+                  - naked_identifier: salary
+              - comma: ','
+              - expression:
+                  bare_function: CURRENT_DATE
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -196,19 +197,20 @@ file:
         - keyword: MATCHED
         - keyword: THEN
         - merge_insert_clause:
-          - keyword: INSERT
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                numeric_literal: '3'
-            - end_bracket: )
+            keyword: INSERT
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
         merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
