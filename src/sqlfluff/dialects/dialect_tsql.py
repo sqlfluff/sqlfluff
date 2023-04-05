@@ -3733,6 +3733,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
+        Ref("OpenJsonSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
@@ -5467,6 +5468,55 @@ class CreateExternalFileFormat(BaseSegment):
                 Ref("ExternalFileFormatDeltaClause"),
             ),
         ),
+    )
+
+
+class OpenJsonWithClauseSegment(BaseSegment):
+    """A `WITH` clause of an `OPENJSON()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#with_clause
+    """
+
+    type = "openjson_with_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Ref("QuotedLiteralSegment", optional=True),  # column_path
+                    Sequence(
+                        "AS",
+                        "JSON",
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class OpenJsonSegment(BaseSegment):
+    """An `OPENJSON()` table-valued function.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver16#syntax
+    """
+
+    type = "openjson_segment"
+
+    match_grammar = Sequence(
+        "OPENJSON",
+        Bracketed(
+            Delimited(
+                Ref("QuotedLiteralSegmentOptWithN"),  # jsonExpression
+                Ref("ColumnReferenceSegment"),
+                Ref("ParameterNameSegment"),
+                Ref("QuotedLiteralSegment"),  # path
+            ),
+        ),
+        Ref("OpenJsonWithClauseSegment", optional=True),
     )
 
 
