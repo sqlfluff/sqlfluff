@@ -121,8 +121,8 @@ def benchmark(cmd, runs, from_file):
 
 
 @cli.command()
-@click.option("--new_version_num")
-def prepare_release(new_version_num):
+@click.argument("new_version_num")
+def release(new_version_num):
     """Change version number in the cfg files."""
     api = GhApi(
         owner=os.environ["GITHUB_REPOSITORY_OWNER"],
