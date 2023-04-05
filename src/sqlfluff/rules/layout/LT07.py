@@ -57,7 +57,6 @@ class Rule_LT07(BaseRule):
         """
         # We only trigger on start_bracket (open parenthesis)
         assert context.segment.is_type("with_compound_statement")
-        raw_stack_buff = list(context.raw_stack)
         # Look for the with keyword
         for seg in context.segment.segments:
             if seg.raw_upper == "WITH":
@@ -80,43 +79,48 @@ class Rule_LT07(BaseRule):
             .segment.children(sp.is_type("common_table_expression"))
             .iterate_segments()
         ):
+            cte_start_bracket = (
+                cte.children()
+                .last(sp.is_type("bracketed"))
+                .children()
+                .first(sp.is_type("start_bracket"))
+            )
             cte_end_bracket = (
                 cte.children()
                 .last(sp.is_type("bracketed"))
                 .children()
                 .last(sp.is_type("end_bracket"))
             )
-            if cte_end_bracket:
-                cte_end_brackets.add(cte_end_bracket[0])
-        for seg in context.segment.iter_segments(
-            expanding=["common_table_expression", "bracketed"], pass_through=True
-        ):
-            if seg not in cte_end_brackets:
-                if not seg.is_type("start_bracket"):
-                    raw_stack_buff.append(seg)
-                continue
-
-            if seg.pos_marker.line_no == seg_line_no:
-                # Skip if it's the one-line version. That's ok
-                continue
-
-            # Is it all whitespace before the bracket on this line?
-            assert seg.pos_marker
-
-            contains_non_whitespace = False
-            for elem in context.segment.raw_segments:
+            if cte_start_bracket and cte_end_bracket:
+                self.logger.debug(
+                    "Found CTE with brackets: %s & %s",
+                    cte_start_bracket,
+                    cte_end_bracket,
+                )
+                # Are they on the same line?
                 if (
-                    cast(PositionMarker, elem.pos_marker).line_no
-                    == seg.pos_marker.line_no
-                    and cast(PositionMarker, elem.pos_marker).line_pos
-                    <= seg.pos_marker.line_pos
+                    cte_start_bracket[0].pos_marker.line_no
+                    == cte_end_bracket[0].pos_marker.line_no
                 ):
-                    if elem is seg:
-                        break
-                    elif elem.is_type("newline"):
-                        contains_non_whitespace = False
-                    elif not elem.is_type("dedent") and not elem.is_type("whitespace"):
-                        contains_non_whitespace = True
+                    # Same line
+                    self.logger.debug("Skipping because on same line.")
+                    continue
+                # Otherwise add to the ones to check.
+                cte_end_brackets.add(cte_end_bracket[0])
+
+        for seg in cte_end_brackets:
+            contains_non_whitespace = False
+            idx = context.segment.raw_segments.index(seg)
+            self.logger.debug("End bracket %s has idx %s", seg, idx)
+            # Search backward through the raw segments from just before
+            # the location of the bracket.
+            for elem in context.segment.raw_segments[idx - 1 :: -1]:
+                if elem.is_type("newline"):
+                    break
+                elif not elem.is_type("indent", "whitespace"):
+                    self.logger.debug("Found non-whitespace: %s", elem)
+                    contains_non_whitespace = True
+                    break
 
             if contains_non_whitespace:
                 # We have to move it to a newline

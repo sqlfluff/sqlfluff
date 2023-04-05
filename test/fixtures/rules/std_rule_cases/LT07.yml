@@ -65,7 +65,6 @@ test_pass_with_clause_closing_misaligned_indentation_in_templated_block:
     {% endif %}
     select * from cte
 
-
 test_move_parenthesis_to_next_line_in_templated_block:
   fail_str: |
     with
@@ -83,3 +82,21 @@ test_move_parenthesis_to_next_line_in_templated_block:
     )
     {% endif %}
     select * from cte
+
+test_pass_templated_clauses:
+  pass_str: |
+    with
+
+    {% for tbl in ['a', 'b'] %}
+        {{ tbl }} as (
+            SELECT 1
+        ),
+    {% endfor %}
+
+    final as (
+        SELECT 1
+    )
+
+    select * from final
+    join a using (x)
+    join b using (x)
