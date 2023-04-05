@@ -1,7 +1,8 @@
 """Implementation of Rule LT03."""
 
-from typing import List
+from typing import List, Sequence
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
@@ -51,6 +52,58 @@ class Rule_LT03(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
     is_fix_compatible = True
 
+    def _seek_newline(self, segments: Sequence[BaseSegment], idx: int, dir: int):
+        """Seek in a direction, looking for newlines.
+
+        Args:
+            segments: A sequence of segments to seek within.
+            idx: The index of the "current" segment.
+            dir: The direction to seek in (+1 for forward, -1 for backward)
+        """
+        assert dir in (1, -1)
+        for segment in segments[idx + dir :: dir]:
+            if segment.is_type("newline"):
+                # It's definitely leading. No problems.
+                self.logger.debug(
+                    "Shortcut (dir = %s) OK. Found newline: %s", dir, segment
+                )
+                return True
+            elif not segment.is_type("whitespace", "indent", "comment"):
+                # We found something before it which suggests it's not leading.
+                # We should run the full reflow routine to check.
+                break
+        return False
+
+    def _check_trail_lead_shortcut(
+        self, segment: BaseSegment, parent: BaseSegment, line_position: str
+    ) -> bool:
+        """Check to see whether we should pass the rule and shortcut.
+
+        Args:
+            segment: The target segment.
+            parent: The parent segment (must contain `segment`).
+            line_position: The `line_position` config for the segment.
+        """
+        idx = parent.segments.index(segment)
+        # Shortcut #1: Leading.
+        if line_position == "leading":
+            if self._seek_newline(parent.segments, idx, dir=-1):
+                return True
+            # If we didn't find a newline before, if there's _also_ not a newline
+            # after, then we can also shortcut. i.e. it's a comma "mid line".
+            if not self._seek_newline(parent.segments, idx, dir=1):
+                return True
+
+        # Shortcut #2: Trailing.
+        elif line_position == "trailing":
+            if self._seek_newline(parent.segments, idx, dir=1):
+                return True
+            # If we didn't find a newline after, if there's _also_ not a newline
+            # before, then we can also shortcut. i.e. it's a comma "mid line".
+            if not self._seek_newline(parent.segments, idx, dir=-1):
+                return True
+        return False
+
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
@@ -61,6 +114,28 @@ class Rule_LT03(BaseRule):
         We only trigger if we have an operator FOLLOWED BY a newline
         before the next meaningful code segment.
         """
+        # NOTE: These shortcuts assume that any newlines will be direct
+        # siblings of the comma in question. This isn't _always_ the case
+        # but is true often enough to have meaningful upside from early
+        # detection.
+        if context.segment.is_type("comparison_operator"):
+            comparison_positioning = context.config.get(
+                "line_position", ["layout", "type", "comparison_operator"]
+            )
+            if self._check_trail_lead_shortcut(
+                context.segment, context.parent_stack[-1], comparison_positioning
+            ):
+                return [LintResult()]
+        elif context.segment.is_type("binary_operator"):
+            binary_positioning = context.config.get(
+                "line_position", ["layout", "type", "binary_operator"]
+            )
+            self.logger.warning("FOO")
+            if self._check_trail_lead_shortcut(
+                context.segment, context.parent_stack[-1], binary_positioning
+            ):
+                return [LintResult()]
+
         return (
             ReflowSequence.from_around_target(
                 context.segment,

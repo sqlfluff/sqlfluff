@@ -2,12 +2,14 @@
 
 from typing import List
 
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
 
+from sqlfluff.rules.layout.LT03 import Rule_LT03
 
-class Rule_LT04(BaseRule):
+
+class Rule_LT04(Rule_LT03):
     """Leading/Trailing comma enforcement.
 
     **Anti-pattern**
@@ -68,36 +70,10 @@ class Rule_LT04(BaseRule):
         # siblings of the comma in question. This isn't _always_ the case
         # but is true often enough to have meaningful upside from early
         # detection.
-        parent = context.parent_stack[-1]
-        idx = parent.segments.index(context.segment)
-
-        # Shortcut #1: Leading.
-        if comma_positioning == "leading":
-            for segment in parent.segments[idx - 1 :: -1]:
-                if segment.is_type("newline"):
-                    # It's definitely leading. No problems.
-                    self.logger.debug(
-                        "Shortcut Leading OK. Found preceding newline: %s", segment
-                    )
-                    return [LintResult()]
-                elif not segment.is_type("whitespace", "indent"):
-                    # We found something before it which suggests it's not leading.
-                    # We should run the full reflow routine to check.
-                    break
-
-        # Shortcut #2: Trailing.
-        elif comma_positioning == "trailing":
-            for segment in parent.segments[idx + 1 :]:
-                if segment.is_type("newline"):
-                    # It's definitely trailing. No problems.
-                    self.logger.debug(
-                        "Shortcut Trailing OK. Found following newline: %s", segment
-                    )
-                    return [LintResult()]
-                elif not segment.is_type("whitespace", "indent"):
-                    # We found something after it which suggests it's not trailing.
-                    # We should run the full reflow routine to check.
-                    break
+        if self._check_trail_lead_shortcut(
+            context.segment, context.parent_stack[-1], comma_positioning
+        ):
+            return [LintResult()]
 
         return (
             ReflowSequence.from_around_target(
