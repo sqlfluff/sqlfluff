@@ -272,7 +272,7 @@ need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/
 source .venv/bin/activate
 export GITHUB_REPOSITORY_OWNER=sqlfluff
 export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
-python util.py prepare-release --new_version_num=0.13.4 # Change to your release number
+python util.py release 2.0.3 # Change to your release number
 ```
 
 Below is the old list of release steps, but many are automated by the process
