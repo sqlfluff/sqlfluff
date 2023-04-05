@@ -278,7 +278,7 @@ class Dialect:
                     " is not supported and other syntax is being attempt in a"
                     " failed attempt to find a match for this syntax.\n"
                     "See this guide to help contribute keyword/dialect"
-                    " updates\n"
+                    " updates or raise and issue on GitHub:\n"
                     "https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords"  # noqa E501
                 )
                 # Keyword errors are common so avoid printing the whole, scary,
