@@ -586,27 +586,15 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
-    """A `CREATE DATABASE` statement.
+class OnClusterClauseSegment(BaseSegment):
+    """An `ON CLUSTER` clause used in `CREATE TABLE`."""
 
-    As specified in
-    https://clickhouse.com/docs/en/sql-reference/statements/create/database
-    """
-
-    type = "create_database_statement"
+    type = "on_cluster_clause"
 
     match_grammar = Sequence(
-        "CREATE",
-        "DATABASE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("DatabaseReferenceSegment"),
-        Ref("OnClusterClauseSegment", optional=True),
-        Ref("EngineSegment"),
-        Sequence(
-            "COMMENT",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        "ON",
+        "CLUSTER",
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -743,16 +731,11 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         AnySetOf(
-            Sequence(
-                "ON",
-                "CLUSTER",
-                Ref("ExpressionSegment"),
-                optional=True,
-            ),
+            Ref("OnClusterClauseSegment", optional=True),
             Ref("DatabaseEngineSegment", optional=True),
             Sequence(
                 "COMMENT",
-                Ref("ExpressionSegment"),
+                Ref("SingleIdentifierGrammar"),
                 optional=True,
             ),
             Sequence(
