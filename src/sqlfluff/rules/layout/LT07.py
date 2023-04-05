@@ -1,11 +1,8 @@
 """Implementation of Rule LT07."""
 
-from typing import cast
-
 from sqlfluff.core.parser import (
     IdentitySet,
     NewlineSegment,
-    PositionMarker,
 )
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -57,19 +54,6 @@ class Rule_LT07(BaseRule):
         """
         # We only trigger on start_bracket (open parenthesis)
         assert context.segment.is_type("with_compound_statement")
-        # Look for the with keyword
-        for seg in context.segment.segments:
-            if seg.raw_upper == "WITH":
-                seg_line_no = seg.pos_marker.line_no
-                break
-        else:  # pragma: no cover
-            # This *could* happen if the with statement is unparsable,
-            # in which case then the user will have to fix that first.
-            if any(s.is_type("unparsable") for s in context.segment.segments):
-                return LintResult()
-            # If it's parsable but we still didn't find a with, then
-            # we should raise that.
-            raise RuntimeError("Didn't find WITH keyword!")
 
         # Find the end brackets for the CTE *query* (i.e. ignore optional
         # list of CTE columns).
@@ -98,6 +82,11 @@ class Rule_LT07(BaseRule):
                     cte_end_bracket,
                 )
                 # Are they on the same line?
+                # NOTE: This assertion should be fairly safe because
+                # there aren't many reasons for an bracket to not yet
+                # be positioned.
+                assert cte_start_bracket[0].pos_marker
+                assert cte_end_bracket[0].pos_marker
                 if (
                     cte_start_bracket[0].pos_marker.line_no
                     == cte_end_bracket[0].pos_marker.line_no
