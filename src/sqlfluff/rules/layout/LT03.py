@@ -106,16 +106,14 @@ class Rule_LT03(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
-
-        We use the memory to keep track of whitespace up to now, and
-        whether the last code segment was an operator or not.
-        Anchor is our signal as to whether there's a problem.
-
-        We only trigger if we have an operator FOLLOWED BY a newline
-        before the next meaningful code segment.
+    
+        For the fixing routines we delegate to the reflow utils. However
+        for performance reasons we have some initial shortcuts to quickly
+        identify situations which are _ok_ to avoid the overhead of the
+        full reflow path.
         """
         # NOTE: These shortcuts assume that any newlines will be direct
-        # siblings of the comma in question. This isn't _always_ the case
+        # siblings of the operator in question. This isn't _always_ the case
         # but is true often enough to have meaningful upside from early
         # detection.
         if context.segment.is_type("comparison_operator"):
