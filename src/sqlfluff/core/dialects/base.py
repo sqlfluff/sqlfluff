@@ -268,7 +268,7 @@ class Dialect:
                         name, self.name
                     )
                 )
-        elif name.endswith("KeywordSegment"):
+        elif name.endswith("KeywordSegment"):  # pragma: no cover
             keyword = name[0:-14]
             keyword_tip = (
                 "\n\nThe syntax in the query is not (yet?) supported. Try to"
@@ -289,7 +289,7 @@ class Dialect:
                     )
                 )
             )
-        else:
+        else:  # pragma: no cover
             raise RuntimeError(
                 (
                     "Grammar refers to "
