@@ -130,7 +130,6 @@ class Rule_LT03(BaseRule):
             binary_positioning = context.config.get(
                 "line_position", ["layout", "type", "binary_operator"]
             )
-            self.logger.warning("FOO")
             if self._check_trail_lead_shortcut(
                 context.segment, context.parent_stack[-1], binary_positioning
             ):
