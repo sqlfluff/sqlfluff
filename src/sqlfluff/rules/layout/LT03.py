@@ -106,7 +106,7 @@ class Rule_LT03(BaseRule):
 
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
-    
+
         For the fixing routines we delegate to the reflow utils. However
         for performance reasons we have some initial shortcuts to quickly
         identify situations which are _ok_ to avoid the overhead of the
