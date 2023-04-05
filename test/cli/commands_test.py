@@ -502,7 +502,7 @@ def test__cli__command_lint_parse(command):
         # Format with --persist-timing
         (
             (
-                fix,
+                cli_format,
                 [
                     "--fixed-suffix",
                     "_fix",
