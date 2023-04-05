@@ -10,27 +10,41 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.3] - 2023-04-03
+## [2.0.3] - 2023-04-05
 
 ## Highlights
 
 This is primarily a _bugfix_ and _dialect_ release:
-* A bugfix for nested templated indentation.
+* Several bugfixes related to templating and indentation.
 * Configurable indentation before `THEN` in `CASE` statements
   (see [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598)).
-* Performance improvements to `TypedParser`.
+* Performance improvements to `TypedParser`, `LT03` & `LT04`.
 * Rule timings now appear in the `--persist-timing` option for deeper
   performance understanding.
 * The introduction of a Greenplum dialect.
 * Dialect improvements to TSQL, Athena, Snowflake, MySQL, SparkSQL
   BigQuery, Databricks, Clickhouse & Postgres.
 
-We also saw a _huge number of first time contributors_ with 7 contributing
+We also saw a _huge number of first time contributors_ with **9** contributing
 in this release 🎉🏆🎉.
 
 ## What’s Changed
 
-* Start of the Greenplum dialect implementation [#4661](https://github.com/sqlfluff/sqlfluff/pull/4661) [@JackWolverson](https://github.com/JackWolverson)
+* Better error message for missing keywords [#4676](https://github.com/sqlfluff/sqlfluff/pull/4676) [@tunetheweb](https://github.com/tunetheweb)
+* Add performance shortcuts to LT03 & LT04 [#4672](https://github.com/sqlfluff/sqlfluff/pull/4672) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Clickhouse: Add support for [LEFT] ARRAY JOIN [#4618](https://github.com/sqlfluff/sqlfluff/pull/4618) [@simpl1g](https://github.com/simpl1g)
+* Postgres - allow untyped OVERLAPS clauses [#4674](https://github.com/sqlfluff/sqlfluff/pull/4674) [@tunetheweb](https://github.com/tunetheweb)
+* Mark `is_alias_required` as a private class so it doesn't appear in docs [#4673](https://github.com/sqlfluff/sqlfluff/pull/4673) [@tunetheweb](https://github.com/tunetheweb)
+* Fix bug in templated with clauses LT07 [#4671](https://github.com/sqlfluff/sqlfluff/pull/4671) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: `OPENJSON()` [#4652](https://github.com/sqlfluff/sqlfluff/pull/4652) [@keen85](https://github.com/keen85)
+* fix(RF06/L059): allows configuring prefer_quoted_keywords to deconflict with L029 [#4396](https://github.com/sqlfluff/sqlfluff/pull/4396) [@timcosta](https://github.com/timcosta)
+* TSQL: `Create External Table` [#4642](https://github.com/sqlfluff/sqlfluff/pull/4642) [@aly76](https://github.com/aly76)
+* Consistent indentation in `MERGE` `INSERT` clause [#4666](https://github.com/sqlfluff/sqlfluff/pull/4666) [@dmohns](https://github.com/dmohns)
+* BigQuery: Fix null assignment in options segment [#4669](https://github.com/sqlfluff/sqlfluff/pull/4669) [@greg-finley](https://github.com/greg-finley)
+* BigQuery: Delete table reference [#4668](https://github.com/sqlfluff/sqlfluff/pull/4668) [@greg-finley](https://github.com/greg-finley)
+* TSQL: `CREATE EXTERNAL FILE FORMAT` [#4647](https://github.com/sqlfluff/sqlfluff/pull/4647) [@keen85](https://github.com/keen85)
+* Remove TIME as reserved keyword in SparkSQL [#4662](https://github.com/sqlfluff/sqlfluff/pull/4662) [@bmorck](https://github.com/bmorck)
+* Start of the Greenplum dialect implementation  [#4661](https://github.com/sqlfluff/sqlfluff/pull/4661) [@JackWolverson](https://github.com/JackWolverson)
 * Enable configuring whether to require indent before THEN [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598) [@fredriv](https://github.com/fredriv)
 * Sequence Meta Handling [#4622](https://github.com/sqlfluff/sqlfluff/pull/4622) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add support for non-quoted file paths in SparkSQL [#4650](https://github.com/sqlfluff/sqlfluff/pull/4650) [@bmorck](https://github.com/bmorck)
@@ -57,8 +71,8 @@ in this release 🎉🏆🎉.
 * add parse lambda function Clickhouse [#4611](https://github.com/sqlfluff/sqlfluff/pull/4611) [@konnectr](https://github.com/konnectr)
 * Support `WITH ORDINALITY` clauses in Postgres [#4599](https://github.com/sqlfluff/sqlfluff/pull/4599) [@tunetheweb](https://github.com/tunetheweb)
 
-## New Contributors
 
+## New Contributors
 * [@germainlefebvre4](https://github.com/germainlefebvre4) made their first contribution in [#4605](https://github.com/sqlfluff/sqlfluff/pull/4605)
 * [@liamperritt](https://github.com/liamperritt) made their first contribution in [#4568](https://github.com/sqlfluff/sqlfluff/pull/4568)
 * [@bmorck](https://github.com/bmorck) made their first contribution in [#4639](https://github.com/sqlfluff/sqlfluff/pull/4639)
@@ -66,6 +80,8 @@ in this release 🎉🏆🎉.
 * [@roman-ef](https://github.com/roman-ef) made their first contribution in [#4638](https://github.com/sqlfluff/sqlfluff/pull/4638)
 * [@maiarareinaldo](https://github.com/maiarareinaldo) made their first contribution in [#4636](https://github.com/sqlfluff/sqlfluff/pull/4636)
 * [@fredriv](https://github.com/fredriv) made their first contribution in [#4598](https://github.com/sqlfluff/sqlfluff/pull/4598)
+* [@aly76](https://github.com/aly76) made their first contribution in [#4642](https://github.com/sqlfluff/sqlfluff/pull/4642)
+* [@simpl1g](https://github.com/simpl1g) made their first contribution in [#4618](https://github.com/sqlfluff/sqlfluff/pull/4618)
 
 ## [2.0.2] - 2023-03-23
 
