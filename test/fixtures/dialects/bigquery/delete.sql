@@ -8,3 +8,7 @@ DELETE dataset.Inventory
 WHERE NOT EXISTS
   (SELECT * from dataset.NewArrivals
    WHERE Inventory.product = NewArrivals.product);
+
+DELETE FROM `project_id.dataset_id.target_name`
+WHERE TRUE
+;

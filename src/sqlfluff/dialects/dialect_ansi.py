@@ -2732,9 +2732,7 @@ class MergeInsertClauseSegment(BaseSegment):
         Indent,
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Dedent,
-        Indent,
         Ref("ValuesClauseSegment", optional=True),
-        Dedent,
     )
 
 

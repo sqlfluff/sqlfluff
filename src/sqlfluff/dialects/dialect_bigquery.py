@@ -1925,9 +1925,7 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Indent,
             Ref("BracketedColumnReferenceListGrammar", optional=True),
             Dedent,
-            Indent,
             Ref("ValuesClauseSegment", optional=True),
-            Dedent,
         ),
         Sequence("INSERT", "ROW"),
     )
@@ -1945,7 +1943,7 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DELETE",
         Ref.keyword("FROM", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("AliasExpressionSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )

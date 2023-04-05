@@ -77,6 +77,7 @@ class Rule_RF06(BaseRule):
     groups = ("all", "references")
     config_keywords = [
         "prefer_quoted_identifiers",
+        "prefer_quoted_keywords",
         "ignore_words",
         "ignore_words_regex",
         "force_enable",
@@ -93,6 +94,7 @@ class Rule_RF06(BaseRule):
         """Unnecessary quoted identifier."""
         # Config type hints
         self.prefer_quoted_identifiers: bool
+        self.prefer_quoted_keywords: bool
         self.ignore_words: str
         self.ignore_words_regex: str
         self.force_enable: bool
@@ -111,12 +113,22 @@ class Rule_RF06(BaseRule):
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return None
 
+        identifier_is_quoted = not regex.search(
+            r'^[^"\'].+[^"\']$', context.segment.raw
+        )
+
+        identifier_contents = context.segment.raw
+        if identifier_is_quoted:
+            identifier_contents = identifier_contents[1:-1]
+
+        identifier_is_keyword = identifier_contents.upper() in context.dialect.sets(
+            "reserved_keywords"
+        ) or identifier_contents.upper() in context.dialect.sets("unreserved_keywords")
+
         if self.prefer_quoted_identifiers:
             context_policy = "naked_identifier"
-            identifier_contents = context.segment.raw
         else:
             context_policy = "quoted_identifier"
-            identifier_contents = context.segment.raw[1:-1]
 
         # Get the ignore_words_list configuration.
         try:
@@ -135,6 +147,16 @@ class Rule_RF06(BaseRule):
             self.ignore_words_regex, identifier_contents
         ):
             return LintResult(memory=context.memory)
+
+        if self.prefer_quoted_keywords and identifier_is_keyword:
+            if not identifier_is_quoted:
+                return LintResult(
+                    context.segment,
+                    description=(
+                        f"Missing quoted keyword identifier {identifier_contents}."
+                    ),
+                )
+            return None
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
@@ -160,12 +182,9 @@ class Rule_RF06(BaseRule):
         # Now we only deal with NOT forced quoted identifiers configuration
         # (meaning prefer_quoted_identifiers=False).
 
-        # Extract contents of outer quotes.
-        quoted_identifier_contents = context.segment.raw[1:-1]
-
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
-        IdentifierSegment = cast(
+        NakedIdentifierSegment = cast(
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
 
@@ -174,14 +193,14 @@ class Rule_RF06(BaseRule):
         if (
             regex.fullmatch(
                 naked_identifier_parser.template,
-                quoted_identifier_contents,
+                identifier_contents,
                 regex.IGNORECASE,
             )
             is not None
         ) and (
             regex.fullmatch(
                 naked_identifier_parser.anti_template,
-                quoted_identifier_contents,
+                identifier_contents,
                 regex.IGNORECASE,
             )
             is None
@@ -192,8 +211,8 @@ class Rule_RF06(BaseRule):
                     LintFix.replace(
                         context.segment,
                         [
-                            IdentifierSegment(
-                                raw=quoted_identifier_contents,
+                            NakedIdentifierSegment(
+                                raw=identifier_contents,
                                 type="naked_identifier",
                             )
                         ],
