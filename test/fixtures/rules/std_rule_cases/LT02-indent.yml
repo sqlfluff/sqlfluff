@@ -1886,3 +1886,36 @@ test_configure_no_indent_before_then_4589:
       dialect: ansi
     indentation:
       indented_then: false
+
+test_bigquery_insert_statement_values_clause:
+  pass_str: |
+    INSERT dataset.inventory (product, quantity)
+    VALUES("top load washer", 10);
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_merge_statement_values_clause:
+  fail_str: |
+    MERGE dataset.detailedinventory AS t
+    USING dataset.inventory AS s
+        ON t.product = s.product
+    WHEN NOT MATCHED AND quantity < 20 THEN
+        INSERT (product, quantity, supply_constrained)
+            VALUES (product, quantity, TRUE)
+    WHEN NOT MATCHED THEN
+        INSERT (product, quantity, supply_constrained)
+            VALUES (product, quantity, FALSE);
+  fix_str: |
+    MERGE dataset.detailedinventory AS t
+    USING dataset.inventory AS s
+        ON t.product = s.product
+    WHEN NOT MATCHED AND quantity < 20 THEN
+        INSERT (product, quantity, supply_constrained)
+        VALUES (product, quantity, TRUE)
+    WHEN NOT MATCHED THEN
+        INSERT (product, quantity, supply_constrained)
+        VALUES (product, quantity, FALSE);
+  configs:
+    core:
+      dialect: bigquery
