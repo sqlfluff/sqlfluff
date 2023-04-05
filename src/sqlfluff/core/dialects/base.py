@@ -1,5 +1,6 @@
 """Defines the base dialect class."""
 
+import sys
 from typing import Set, Union, Type
 
 from sqlfluff.core.parser import (
@@ -269,17 +270,28 @@ class Dialect:
                 )
         else:  # pragma: no cover
             if name.endswith("KeywordSegment"):
+                keyword = name[0:-14]
                 keyword_tip = (
-                    " Perhaps specify the keyword? "
+                    "\n\nIt is possible that the keyword is just missing from"
+                    " the dialect definition code.\n"
+                    "More likely though, is that some syntax in the query"
+                    " is not supported and other syntax is being attempt in a"
+                    " failed attempt to find a match for this syntax.\n"
+                    "See this guide to help contribute keyword/dialect"
+                    " updates\n"
                     "https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords"  # noqa E501
                 )
+                # Keyword errors are common so avoid printing the whole, scary,
+                # traceback as not that useful and confusing to people.
+                sys.tracebacklimit = 0
             else:
+                keyword = name
                 keyword_tip = ""
             raise RuntimeError(
                 (
                     "Grammar refers to "
                     "{!r} which was not found in the {} dialect.{}".format(
-                        name, self.name, keyword_tip
+                        keyword, self.name, keyword_tip
                     )
                 )
             )
