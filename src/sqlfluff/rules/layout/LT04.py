@@ -56,15 +56,49 @@ class Rule_LT04(BaseRule):
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Enforce comma placement.
 
-        For leading commas we're looking for trailing commas, so
-        we look for newline segments. For trailing commas we're
-        looking for leading commas, so we look for the comma itself.
-
-        We also want to handle proper whitespace removal/addition. We remove
-        any trailing whitespace after the leading comma, when converting a
-        leading comma to a trailing comma. We add whitespace after the leading
-        comma when converting a trailing comma to a leading comma.
+        For the fixing routines we delegate to the reflow utils. However
+        for performance reasons we have some initial shortcuts to quickly
+        identify situations which are _ok_ to avoid the overhead of the
+        full reflow path.
         """
+        comma_positioning = context.config.get(
+            "line_position", ["layout", "type", "comma"]
+        )
+        # NOTE: These shortcuts assume that any newlines will be direct
+        # siblings of the comma in question. This isn't _always_ the case
+        # but is true often enough to have meaningful upside from early
+        # detection.
+        parent = context.parent_stack[-1]
+        idx = parent.segments.index(context.segment)
+
+        # Shortcut #1: Leading.
+        if comma_positioning == "leading":
+            for segment in parent.segments[idx - 1 :: -1]:
+                if segment.is_type("newline"):
+                    # It's definitely leading. No problems.
+                    self.logger.debug(
+                        "Shortcut Leading OK. Found preceding newline: %s", segment
+                    )
+                    return [LintResult()]
+                elif not segment.is_type("whitespace", "indent"):
+                    # We found something before it which suggests it's not leading.
+                    # We should run the full reflow routine to check.
+                    break
+
+        # Shortcut #2: Trailing.
+        elif comma_positioning == "trailing":
+            for segment in parent.segments[idx + 1 :]:
+                if segment.is_type("newline"):
+                    # It's definitely trailing. No problems.
+                    self.logger.debug(
+                        "Shortcut Trailing OK. Found following newline: %s", segment
+                    )
+                    return [LintResult()]
+                elif not segment.is_type("whitespace", "indent"):
+                    # We found something after it which suggests it's not trailing.
+                    # We should run the full reflow routine to check.
+                    break
+
         return (
             ReflowSequence.from_around_target(
                 context.segment,
