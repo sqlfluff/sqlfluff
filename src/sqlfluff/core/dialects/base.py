@@ -268,32 +268,33 @@ class Dialect:
                         name, self.name
                     )
                 )
-        else:  # pragma: no cover
-            if name.endswith("KeywordSegment"):
-                keyword = name[0:-14]
-                keyword_tip = (
-                    "\n\nIt is possible that the keyword is just missing from"
-                    " the dialect definition code.\n\n"
-                    "More likely though, is that some syntax in the query"
-                    " is not supported and other syntax is being attempt in a"
-                    " failed attempt to find a match for this syntax.\n\n"
-                    "Try to narrow down your query to a minimal, reproducible"
-                    "  case and raise an issue on GitHub.\n\n"
-                    "Or, even better, see this guide on how to help contribute"
-                    " keyword and/or dialect updates:\n"
-                    "https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords"  # noqa E501
+        elif name.endswith("KeywordSegment"):
+            keyword = name[0:-14]
+            keyword_tip = (
+                "\n\nThe syntax in the query is not (yet?) supported. Try to"
+                " narrow down your query to a minimal, reproducible case and"
+                " raise an issue on GitHub.\n\n"
+                "Or, even better, see this guide on how to help contribute"
+                " keyword and/or dialect updates:\n"
+                "https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords"  # noqa E501
+            )
+            # Keyword errors are common so avoid printing the whole, scary,
+            # traceback as not that useful and confusing to people.
+            sys.tracebacklimit = 0
+            raise RuntimeError(
+                (
+                    "Grammar refers to the "
+                    "{!r} keyword which was not found in the {} dialect.{}".format(
+                        keyword, self.name, keyword_tip
+                    )
                 )
-                # Keyword errors are common so avoid printing the whole, scary,
-                # traceback as not that useful and confusing to people.
-                sys.tracebacklimit = 0
-            else:
-                keyword = name
-                keyword_tip = ""
+            )
+        else:
             raise RuntimeError(
                 (
                     "Grammar refers to "
-                    "{!r} which was not found in the {} dialect.{}".format(
-                        keyword, self.name, keyword_tip
+                    "{!r} which was not found in the {} dialect.".format(
+                        name, self.name
                     )
                 )
             )
