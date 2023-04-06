@@ -1011,6 +1011,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseFromShareStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("ExecuteTaskClauseSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5770,6 +5771,24 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "UNSET",
         Delimited(Ref("ParameterNameSegment")),
+    )
+
+
+class ExecuteTaskClauseSegment(BaseSegment):
+    """Snowflake's EXECUTE TASK clause.
+
+    ```
+        EXECUTE TASK <name>
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-task
+    """
+
+    type = "execute_task_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "TASK",
+        Ref("ParameterNameSegment"),
     )
 
 
