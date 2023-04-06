@@ -1731,7 +1731,22 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                             "MASKING",
                             "POLICY",
                         ),
-                        # @TODO: Set/Unset TAG support
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "SET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                        ),
                     ),
                 ),
             ),
