@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 080c38f92135d2cb78f3a6761e9534c37edef3f1b171c83422947130f4251010
+_hash: 609ca8da28f7b8a1e747b166405e4155cea0353f3bc55919d5133379cca1cf29
 file:
 - statement:
     select_statement:
@@ -52,9 +52,9 @@ file:
       - keyword: MODEL
       - path_segment:
         - slash: /
-        - raw: model
+        - code: model
         - slash: /
-        - raw: path
+        - code: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -68,9 +68,9 @@ file:
         - naked_identifier: cluster_name
       - path_segment:
         - slash: /
-        - raw: model
+        - code: model
         - slash: /
-        - raw: path
+        - code: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -78,8 +78,7 @@ file:
       system_replica_segment:
       - keyword: DROP
       - keyword: REPLICA
-      - expression:
-          quoted_literal: "'replica_name'"
+      - quoted_identifier: "'replica_name'"
       - keyword: FROM
       - keyword: TABLE
       - table_reference:
@@ -91,8 +90,7 @@ file:
       system_replica_segment:
       - keyword: DROP
       - keyword: REPLICA
-      - expression:
-          quoted_literal: "'replica_name'"
+      - quoted_identifier: "'replica_name'"
       - keyword: FROM
       - keyword: TABLE
       - table_reference:
@@ -106,8 +104,7 @@ file:
       system_replica_segment:
       - keyword: DROP
       - keyword: REPLICA
-      - expression:
-          quoted_literal: "'replica_name'"
+      - quoted_identifier: "'replica_name'"
       - keyword: FROM
       - keyword: DATABASE
       - object_reference:
@@ -119,8 +116,7 @@ file:
       system_replica_segment:
       - keyword: DROP
       - keyword: REPLICA
-      - expression:
-          quoted_literal: "'replica_name'"
+      - quoted_identifier: "'replica_name'"
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -128,8 +124,7 @@ file:
       system_replica_segment:
       - keyword: DROP
       - keyword: REPLICA
-      - expression:
-          quoted_literal: "'replica_name'"
+      - quoted_identifier: "'replica_name'"
       - keyword: FROM
       - keyword: ZKPATH
       - path_segment:

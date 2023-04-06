@@ -888,49 +888,47 @@ class SystemReplicaSegment(BaseSegment):
 
     type = "system_replica_segment"
 
-    match_grammar = Sequence(
-        OneOf(
+    match_grammar = OneOf(
+        Sequence(
+            "SYNC",
+            "REPLICA",
+            Ref("OnClusterSegment", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence("STRICT", optional=True),
+        ),
+        Sequence(
+            "DROP",
+            "REPLICA",
+            Ref("SingleIdentifierGrammar"),
             Sequence(
-                "SYNC",
-                "REPLICA",
-                Ref("OnClusterSegment", optional=True),
-                Ref("TableReferenceSegment"),
-                Sequence("STRICT", optional=True),
-            ),
-            Sequence(
-                "DROP",
-                "REPLICA",
-                Ref("ExpressionSegment"),
-                Sequence(
-                    "FROM",
-                    OneOf(
-                        Sequence(
-                            "DATABASE",
-                            Ref("ObjectReferenceSegment"),
-                        ),
-                        Sequence(
-                            "TABLE",
-                            Ref("TableReferenceSegment"),
-                        ),
-                        Sequence(
-                            "ZKPATH",
-                            Ref("PathSegment"),
-                        ),
+                "FROM",
+                OneOf(
+                    Sequence(
+                        "DATABASE",
+                        Ref("ObjectReferenceSegment"),
                     ),
-                    optional=True,
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence(
+                        "ZKPATH",
+                        Ref("PathSegment"),
+                    ),
                 ),
+                optional=True,
             ),
-            Sequence(
-                "RESTART",
-                "REPLICA",
-                Ref("TableReferenceSegment"),
-            ),
-            Sequence(
-                "RESTORE",
-                "REPLICA",
-                Ref("TableReferenceSegment"),
-                Ref("OnClusterSegment", optional=True),
-            ),
+        ),
+        Sequence(
+            "RESTART",
+            "REPLICA",
+            Ref("TableReferenceSegment"),
+        ),
+        Sequence(
+            "RESTORE",
+            "REPLICA",
+            Ref("TableReferenceSegment"),
+            Ref("OnClusterSegment", optional=True),
         ),
     )
 
