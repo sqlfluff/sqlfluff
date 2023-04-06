@@ -1,5 +1,15 @@
 CREATE DATABASE db_name;
-CREATE DATABASE db_name COMMENT 'Comment';
+CREATE DATABASE db_name COMMENT 'SingleQuoted';
+CREATE DATABASE db_name COMMENT "DoubleQUoted";
+CREATE DATABASE db_name COMMENT 'SingleQuoted three words';
+CREATE DATABASE db_name COMMENT "DoubleQuoted three words";
+CREATE DATABASE db_name COMMENT 'Weird characters: !@#$%^&*()_+{}|:"<>?';
+CREATE DATABASE db_name ON CLUSTER cluster;
+CREATE DATABASE db_name ON CLUSTER "cluster";
+CREATE DATABASE db_name ON CLUSTER "underscore_cluster";
+CREATE DATABASE db_name ON CLUSTER 'cluster';
+CREATE DATABASE db_name ON CLUSTER 'underscore_cluster';
+
 CREATE DATABASE db_name ENGINE = Lazy() COMMENT 'Comment';
 
 CREATE DATABASE db_comment ENGINE = Lazy() COMMENT 'The temporary database';
@@ -32,7 +42,7 @@ CREATE DATABASE test_database ENGINE = PostgreSQL('postgres1:5432', 'test_databa
 
 -- https://clickhouse.com/docs/en/engines/database-engines/mysql
 CREATE DATABASE IF NOT EXISTS mysql_db ENGINE = MySQL('localhost:3306', 'test', 'my_user', 'user_password');
-CREATE DATABASE mysql_db ON CLUSTER clusterENGINE = MySQL('localhost:3306', 'test', 'my_user', 'user_password');
+CREATE DATABASE mysql_db ON CLUSTER cluster ENGINE = MySQL('localhost:3306', 'test', 'my_user', 'user_password');
 CREATE DATABASE mysql_db ENGINE = MySQL('localhost:3306', 'my_user', 'user_password');
 CREATE DATABASE mysql_db ENGINE = MySQL('localhost:3306', test, 'my_user', 'user_password');
 CREATE DATABASE mysql_db ENGINE = MySQL('localhost:3306', 'test', 'my_user', 'user_password');
