@@ -79,8 +79,8 @@ class Rule_CV03(BaseRule):
                                     # Not safe to fix
                                     self.logger.info(
                                         "Preventing deletion of %s, because source "
-                                        "position is the same as %s. Templated positions "
-                                        "are %s and %s.",
+                                        "position is the same as %s. Templated "
+                                        "positions are %s and %s.",
                                         last_content,
                                         seg,
                                         last_content.pos_marker.templated_position(),
