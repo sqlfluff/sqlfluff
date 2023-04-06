@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9807fdbeb3a8025069b187ca234e3a42b40ac4c1250900bd6b73abb75c721f41
+_hash: a661d921f72d807ed26fa97225e83c40b6e705e975a7fe0622e259a0999323e8
 file:
 - statement:
     alter_table_statement:
@@ -515,6 +515,41 @@ file:
       - keyword: unset
       - keyword: masking
       - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - keyword: SET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: my_tag
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tagged'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: my_tag
 - statement_terminator: ;
 - statement:
     alter_table_statement:
