@@ -34,12 +34,10 @@ and customize a rule set that best suites their organization.
 See the :ref:`config` section for more information on how to enable
 only :code:`core` rules by default.
 
-Specific Rules
---------------
+Rule Bundles
+------------
 
-.. automodule:: sqlfluff.rules.sphinx
-   :members:
-   :member-order: alphabetical
+.. include:: rules/ruletable.rst
 
 .. _inline_ignoring_errors:
 
