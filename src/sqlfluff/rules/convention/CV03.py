@@ -58,9 +58,43 @@ class Rule_CV03(BaseRule):
         if self.select_clause_trailing_comma == "forbid":
             # Is it a comma?
             if last_content.is_type("comma"):
+                # The last content is a comma. Before we try and remove it, we
+                # should check that it's safe. One edge case is that it's a trailing
+                # comma in a loop, but that if we try and remove it, we also break
+                # the previous examples. We should check that this comma doesn't
+                # share a source position with any other commas in the same select.
+
+                # If there isn't a source position, then it's safe to remove, it's
+                # a recent addition.
+                if not last_content.pos_marker:  # pragma: no cover
+                    fixes = [LintFix.delete(last_content)]
+                else:
+                    comma_pos = last_content.pos_marker.source_position()
+                    for seg in context.segment.segments:
+                        if seg.is_type("comma"):
+                            if not seg.pos_marker:  # pragma: no cover
+                                continue
+                            elif seg.pos_marker.source_position() == comma_pos:
+                                if seg is not last_content:
+                                    # Not safe to fix
+                                    self.logger.info(
+                                        "Preventing deletion of %s, because source "
+                                        "position is the same as %s. Templated "
+                                        "positions are %s and %s.",
+                                        last_content,
+                                        seg,
+                                        last_content.pos_marker.templated_position(),
+                                        seg.pos_marker.templated_position(),
+                                    )
+                                    fixes = []
+                                    break
+                    else:
+                        # No matching commas found. It's safe.
+                        fixes = [LintFix.delete(last_content)]
+
                 return LintResult(
                     anchor=last_content,
-                    fixes=[LintFix.delete(last_content)],
+                    fixes=fixes,
                     description="Trailing comma in select statement forbidden",
                 )
         elif self.select_clause_trailing_comma == "require":

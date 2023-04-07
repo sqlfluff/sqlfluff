@@ -33,7 +33,7 @@ jobs:
 
       - name: Prepare release
         run: |
-          python util.py prepare-release --new_version_num=${{ github.event.inputs.newVersionNumber }}
+          python util.py release ${{ github.event.inputs.newVersionNumber }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}

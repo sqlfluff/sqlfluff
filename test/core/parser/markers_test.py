@@ -33,11 +33,14 @@ def test_markers__setting_position_raw():
     pos = PositionMarker(slice(2, 5), slice(2, 5), templ)
     # Can we infer positions correctly?
     assert pos.working_loc == (1, 3)
+    # Check other marker properties work too (i.e. source properties)
+    assert pos.line_no == 1
+    assert pos.line_pos == 3  # i.e. 2 + 1 (for 1-indexed)
 
 
 def test_markers__setting_position_working():
     """Test that we can correctly set positions manually."""
     templ = TemplatedFile.from_string("foobar")
     pos = PositionMarker(slice(2, 5), slice(2, 5), templ, 4, 4)
-    # Can we NOT infer when we're told.
+    # Can we don't infer when we're explicitly told.
     assert pos.working_loc == (4, 4)

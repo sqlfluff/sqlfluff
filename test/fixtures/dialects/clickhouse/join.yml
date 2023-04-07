@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9352ebb9eaf7ee550822c86ff44a96f1908e4b446afa8a3f26aa5c41463b2340
+_hash: 691193ed2bf48b17d52586c0663c81b562d7f2c58769fcd4349b4cb2cdb06511
 file:
 - statement:
     select_statement:
@@ -1499,4 +1499,383 @@ file:
           - naked_identifier: ty1
           - comma: ','
           - naked_identifier: ty2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: arr
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: test1
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t2
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+              alias_expression:
+                keyword: AS
+                naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: LEFT
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+              alias_expression:
+                keyword: AS
+                naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: LEFT
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr
+                  - comma: ','
+                  - select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '3'
+                      - comma: ','
+                      - numeric_literal: '4'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr2
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: x
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: y
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr
+                  - comma: ','
+                  - select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '3'
+                      - comma: ','
+                      - numeric_literal: '4'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: arr2
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr
+              alias_expression:
+                keyword: AS
+                naked_identifier: x
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: arr2
+              alias_expression:
+                keyword: AS
+                naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: ch
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: cg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                end_bracket: )
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'1'"
+              - comma: ','
+              - quoted_literal: "'2'"
+              - end_square_bracket: ']'
+              alias_expression:
+                keyword: as
+                naked_identifier: cg
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: splitByChar
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "','"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'1,2'"
+                - end_bracket: )
+              alias_expression:
+                keyword: as
+                naked_identifier: ch
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        naked_identifier: x
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          array_join_clause:
+          - keyword: ARRAY
+          - keyword: JOIN
+          - select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  naked_identifier: t1
+                  dot: .
+                  star: '*'
 - statement_terminator: ;

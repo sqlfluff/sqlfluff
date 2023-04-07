@@ -161,6 +161,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "Defaults to ``False``."
         ),
     },
+    "prefer_quoted_keywords": {
+        "validation": [True, False],
+        "definition": (
+            "If ``True``, requires every keyword used as an identifier to be quoted. "
+            "Defaults to ``False``."
+        ),
+    },
     "blocked_words": {
         "definition": (
             "Optional, comma-separated list of blocked words which should not be used "

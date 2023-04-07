@@ -58,3 +58,12 @@ SELECT * FROM test1 CROSS JOIN test2;
 SELECT * FROM test1 as t1 FULL ALL JOIN test2 USING ty1,ty2;
 SELECT * FROM test1 as t1 FULL JOIN test2 USING ty1,ty2;
 SELECT * FROM test1 as t1 FULL ALL OUTER JOIN test2 USING ty1,ty2;
+-- ARRAY join
+SELECT col FROM (SELECT arr FROM test1) AS t2 ARRAY JOIN arr AS col;
+SELECT col FROM (SELECT [1, 2] AS arr) AS t1 LEFT ARRAY JOIN arr AS col;
+SELECT * FROM (SELECT [1, 2] AS arr) AS t1 ARRAY JOIN arr;
+SELECT * FROM (SELECT [1, 2] AS arr) AS t1 LEFT ARRAY JOIN arr;
+SELECT * FROM (SELECT [1, 2] AS arr, [3, 4] AS arr2) AS t1 ARRAY JOIN arr, arr2;
+SELECT x, y FROM (SELECT [1, 2] AS arr, [3, 4] AS arr2) AS t1 ARRAY JOIN arr AS x, arr2 AS y;
+SELECT *,ch,cg FROM (SELECT 1) ARRAY JOIN ['1','2'] as cg, splitByChar(',','1,2') as ch;
+SELECT * FROM (SELECT [1,2] x) AS t1 ARRAY JOIN t1.*;

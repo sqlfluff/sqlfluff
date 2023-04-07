@@ -612,7 +612,7 @@ class DateTimeLiteralGrammar(BaseSegment):
 
     type = "datetime_literal"
     match_grammar = Sequence(
-        Ref("DateTimeTypeIdentifier"),
+        Ref("DateTimeTypeIdentifier", optional=True),
         Ref("QuotedLiteralSegment"),
     )
 
@@ -1697,7 +1697,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence(
                     "WITH",
                     Bracketed(
-                        AnyNumberOf(
+                        Delimited(
                             Sequence(
                                 Ref("ParameterNameSegment"),
                                 Sequence(

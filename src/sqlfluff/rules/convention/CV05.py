@@ -52,7 +52,7 @@ class Rule_CV05(BaseRule):
 
         # Allow assignments in SET clauses
         if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
-            "set_clause_list", "execute_script_statement"
+            "set_clause_list", "execute_script_statement", "options_segment"
         ):
             return None
 

@@ -77,6 +77,15 @@ test_set_clause:
     UPDATE table1 SET col = NULL
     WHERE col = ""
 
+test_bigquery_set_options:
+  pass_str: |
+    ALTER TABLE table
+    SET OPTIONS (expiration_timestamp = NULL)
+    ;
+  configs:
+    core:
+      dialect: bigquery
+
 test_tsql_exec_clause:
   pass_str: |
     exec something

@@ -2,12 +2,14 @@
 
 from typing import List
 
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
 
+from sqlfluff.rules.layout.LT03 import Rule_LT03
 
-class Rule_LT04(BaseRule):
+
+class Rule_LT04(Rule_LT03):
     """Leading/Trailing comma enforcement.
 
     **Anti-pattern**
@@ -56,15 +58,23 @@ class Rule_LT04(BaseRule):
     def _eval(self, context: RuleContext) -> List[LintResult]:
         """Enforce comma placement.
 
-        For leading commas we're looking for trailing commas, so
-        we look for newline segments. For trailing commas we're
-        looking for leading commas, so we look for the comma itself.
-
-        We also want to handle proper whitespace removal/addition. We remove
-        any trailing whitespace after the leading comma, when converting a
-        leading comma to a trailing comma. We add whitespace after the leading
-        comma when converting a trailing comma to a leading comma.
+        For the fixing routines we delegate to the reflow utils. However
+        for performance reasons we have some initial shortcuts to quickly
+        identify situations which are _ok_ to avoid the overhead of the
+        full reflow path.
         """
+        comma_positioning = context.config.get(
+            "line_position", ["layout", "type", "comma"]
+        )
+        # NOTE: These shortcuts assume that any newlines will be direct
+        # siblings of the comma in question. This isn't _always_ the case
+        # but is true often enough to have meaningful upside from early
+        # detection.
+        if self._check_trail_lead_shortcut(
+            context.segment, context.parent_stack[-1], comma_positioning
+        ):
+            return [LintResult()]
+
         return (
             ReflowSequence.from_around_target(
                 context.segment,

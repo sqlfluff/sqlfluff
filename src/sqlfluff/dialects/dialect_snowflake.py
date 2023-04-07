@@ -1011,6 +1011,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseFromShareStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("ExecuteTaskClauseSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1730,7 +1731,22 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                             "MASKING",
                             "POLICY",
                         ),
-                        # @TODO: Set/Unset TAG support
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "SET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                        ),
                     ),
                 ),
             ),
@@ -5773,6 +5789,24 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     )
 
 
+class ExecuteTaskClauseSegment(BaseSegment):
+    """Snowflake's EXECUTE TASK clause.
+
+    ```
+        EXECUTE TASK <name>
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-task
+    """
+
+    type = "execute_task_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "TASK",
+        Ref("ParameterNameSegment"),
+    )
+
+
 ############################
 # MERGE
 ############################
@@ -5800,16 +5834,10 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
 
     match_grammar = Sequence(
         "INSERT",
+        Indent,
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        "VALUES",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    "DEFAULT",
-                    Ref("ExpressionSegment"),
-                ),
-            )
-        ),
+        Dedent,
+        Ref("ValuesClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 
