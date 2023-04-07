@@ -5,6 +5,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import os
+import sys
 import configparser
 from collections import defaultdict
 
@@ -13,10 +15,8 @@ from collections import defaultdict
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.append(os.path.abspath("./_ext"))
 
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
@@ -48,6 +48,8 @@ extensions = [
     "sphinx_click.ext",
     # Redirects
     "sphinx_reredirects",
+    # SQLFluff domain
+    "sqlfluff_domain",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -149,7 +151,7 @@ for plugin_rules in get_plugin_manager().hook.get_rules():
         rule_bundles[_bundle_name].append(rule)
 
 # Write them into the table. Bundle by bundle.
-with open("rules/ruletable.rst", "w") as f:
+with open("rules/ruletable.rst", "w", encoding="utf8") as f:
     f.write(autogen_header)
     f.write(table_header)
     for bundle in sorted(rule_bundles.keys()):
@@ -191,7 +193,7 @@ with open("rules/ruletable.rst", "w") as f:
 
 # Write each of the summary files.
 for bundle in sorted(rule_bundles.keys()):
-    with open(f"rules/bundles/{bundle}.rst", "w") as f:
+    with open(f"rules/bundles/{bundle}.rst", "w", encoding="utf8") as f:
         f.write(autogen_header)
         if "sql" in bundle:
             # This accounts for things like "TSQL"
@@ -202,8 +204,13 @@ for bundle in sorted(rule_bundles.keys()):
             f".. _bundle_{bundle}:\n\n"
             f"{header_name} bundle\n"
             f"{'=' * (len(bundle) + 7)}\n\n"
-            "Some random text"
         )
+        for rule in rule_bundles[bundle]:
+            f.write(
+                f".. sqlfluff:rule:: {rule.code} {rule.name}\n\n"
+            )
+            f.write("    " + rule.__doc__)
+            f.write("\n\n")
 
 
 def setup(app):
