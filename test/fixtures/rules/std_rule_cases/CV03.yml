@@ -30,3 +30,28 @@ test_forbid_fail:
     rules:
       convention.select_trailing_comma:
         select_clause_trailing_comma: forbid
+
+test_fail_templated:
+  # NOTE: Check no fix, because it's not safe.
+  fail_str: |
+    SELECT
+        {% for col in ['a', 'b', 'c'] %}
+            {{col}},
+        {% endfor %}
+    FROM tbl
+  fix_str: |
+    SELECT
+        {% for col in ['a', 'b', 'c'] %}
+            {{col}},
+        {% endfor %}
+    FROM tbl
+  violations_after_fix:
+  - code: CV03
+    description: Trailing comma in select statement forbidden
+    line_no: 3
+    line_pos: 16
+    name: "convention.select_trailing_comma"
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: forbid
