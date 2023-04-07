@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1df824dca4c17f32f634e4d7bc9e0d4ef4bf35a94d2847f357bce6ed98793baf
+_hash: 061abda8b3400566bb0513c62b6c2e1430cd0eb1a15e7021356bb0392ec1b5cd
 file:
 - statement:
     alter_table_statement:
@@ -14,7 +14,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -30,7 +31,8 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          naked_identifier: col_name
+          column_reference:
+            naked_identifier: col_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -45,13 +47,15 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
     - comma: ','
     - column_definition:
-        naked_identifier: col_name2
+        column_reference:
+          naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT
@@ -65,7 +69,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -84,7 +89,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -95,7 +101,8 @@ file:
     - keyword: FIRST
     - comma: ','
     - column_definition:
-        naked_identifier: col_name2
+        column_reference:
+          naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT
@@ -325,7 +332,8 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          naked_identifier: col_name1
+          column_reference:
+            naked_identifier: col_name1
           data_type:
             primitive_type:
               keyword: STRING
@@ -346,13 +354,15 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: col_c
+          column_reference:
+            naked_identifier: col_c
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: col_b
+          column_reference:
+            naked_identifier: col_b
           data_type:
             struct_type:
               keyword: STRUCT
@@ -378,7 +388,8 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: col_a
+          column_reference:
+            naked_identifier: col_a
           data_type:
             primitive_type:
               keyword: STRING

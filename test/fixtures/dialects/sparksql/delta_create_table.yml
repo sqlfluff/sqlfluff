@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa7337a921e487f7776e8da6a78aa388f08e3e68f24b66267800800b6e757ee9
+_hash: ec62c24a24d377c5348f32d3130c8378c743bec0eced1be87efb8b6aadea2238
 file:
 - statement:
     create_table_statement:
@@ -19,55 +19,65 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -82,55 +92,65 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -145,55 +165,65 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -206,55 +236,65 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -271,8 +311,10 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: people10m
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: LOCATION
     - quoted_literal: "'/delta/people10m'"
 - statement_terminator: ;
@@ -287,37 +329,43 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
@@ -348,19 +396,23 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:

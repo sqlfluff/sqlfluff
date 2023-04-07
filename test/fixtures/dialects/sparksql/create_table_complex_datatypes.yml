@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1811f635ec9ca83a5a5e53be4fd196d99221664219e955ca29ac13512c75b710
+_hash: 288f0de4e29861e82335ce715714ed4216679192c96d7f474f7b40c67f53686c
 file:
 - statement:
     create_table_statement:
@@ -14,7 +14,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -34,20 +35,23 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
-            keyword: MAP
-            start_angle_bracket: <
-            primitive_type:
-              keyword: STRING
-            comma: ','
-            data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - data_type:
               primitive_type:
                 keyword: BOOLEAN
-            end_angle_bracket: '>'
+          - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -67,7 +71,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -93,24 +98,27 @@ file:
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
-            keyword: MAP
-            start_angle_bracket: <
-            primitive_type:
-              keyword: STRING
-            comma: ','
-            data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - data_type:
               primitive_type:
                 keyword: BOOLEAN
-            end_angle_bracket: '>'
+          - end_angle_bracket: '>'
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -134,7 +142,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -149,26 +158,29 @@ file:
               - naked_identifier: c
               - colon: ':'
               - data_type:
-                  keyword: MAP
-                  start_angle_bracket: <
-                  primitive_type:
-                    keyword: STRING
-                  comma: ','
-                  data_type:
+                - keyword: MAP
+                - start_angle_bracket: <
+                - data_type:
+                    primitive_type:
+                      keyword: STRING
+                - comma: ','
+                - data_type:
                     primitive_type:
                       keyword: BOOLEAN
-                  end_angle_bracket: '>'
+                - end_angle_bracket: '>'
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: d
+          column_reference:
+            naked_identifier: d
           data_type:
-            keyword: MAP
-            start_angle_bracket: <
-            primitive_type:
-              keyword: STRING
-            comma: ','
-            data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - data_type:
               struct_type:
                 keyword: STRUCT
                 struct_type_schema:
@@ -182,20 +194,22 @@ file:
                 - naked_identifier: f
                 - colon: ':'
                 - data_type:
-                    keyword: MAP
-                    start_angle_bracket: <
-                    primitive_type:
-                      keyword: STRING
-                    comma: ','
-                    data_type:
+                  - keyword: MAP
+                  - start_angle_bracket: <
+                  - data_type:
+                      primitive_type:
+                        keyword: STRING
+                  - comma: ','
+                  - data_type:
                       primitive_type:
                         keyword: BOOLEAN
-                    end_angle_bracket: '>'
+                  - end_angle_bracket: '>'
                 - end_angle_bracket: '>'
-            end_angle_bracket: '>'
+          - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: g
+          column_reference:
+            naked_identifier: g
           data_type:
             array_type:
               keyword: ARRAY
@@ -214,15 +228,16 @@ file:
                   - naked_identifier: i
                   - colon: ':'
                   - data_type:
-                      keyword: MAP
-                      start_angle_bracket: <
-                      primitive_type:
-                        keyword: STRING
-                      comma: ','
-                      data_type:
+                    - keyword: MAP
+                    - start_angle_bracket: <
+                    - data_type:
+                        primitive_type:
+                          keyword: STRING
+                    - comma: ','
+                    - data_type:
                         primitive_type:
                           keyword: BOOLEAN
-                      end_angle_bracket: '>'
+                    - end_angle_bracket: '>'
                   - end_angle_bracket: '>'
               end_angle_bracket: '>'
       - end_bracket: )
@@ -236,7 +251,8 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: a
+          column_reference:
+            naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -256,20 +272,23 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          quoted_identifier: '`d`'
+          column_reference:
+            quoted_identifier: '`d`'
           data_type:
-            keyword: MAP
-            start_angle_bracket: <
-            primitive_type:
-              keyword: STRING
-            comma: ','
-            data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - data_type:
               primitive_type:
                 keyword: BOOLEAN
-            end_angle_bracket: '>'
+          - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          naked_identifier: e
+          column_reference:
+            naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY

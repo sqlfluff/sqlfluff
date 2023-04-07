@@ -536,16 +536,19 @@ sparksql_dialect.add(
             "PARTITION",
             Sequence("PARTITIONED", "BY"),
         ),
-        Ref.keyword("FIELD", optional=True),
-        OneOf(
-            Ref("ColumnDefinitionSegment"),
-            Sequence(
-                Ref("ColumnReferenceSegment"),
-                Ref("EqualsSegment", optional=True),
-                Ref("LiteralGrammar", optional=True),
-                Ref("CommentGrammar", optional=True),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ColumnDefinitionSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        Ref("LiteralGrammar", optional=True),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                    Ref("IcebergTransformationSegment", optional=True),
+                ),
             ),
-            Ref("IcebergTransformationSegment", optional=True),
         ),
     ),
     PartitionFieldGrammar=Sequence(
@@ -1043,8 +1046,15 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "DROP",
                 Ref("IfExistsGrammar", optional=True),
-                Ref("PartitionSpecGrammar"),
+                OneOf(
+                    Ref("PartitionSpecGrammar"),
+                    Ref("PartitionFieldGrammar"),
+                ),
                 Sequence("PURGE", optional=True),
+            ),
+            Sequence(
+                "Replace",
+                Ref("PartitionFieldGrammar"),
             ),
             # ALTER TABLE - REPAIR PARTITION
             Sequence("RECOVER", "PARTITIONS"),
@@ -1073,7 +1083,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("PartitionSpecGrammar", optional=True),
                 "SET",
                 "FILEFORMAT",
-                Ref("DataSourceFormatGrammar"),
+                Ref("DataSourceFormatSegment"),
             ),
             # ALTER TABLE - CHANGE FILE LOCATION
             Sequence(
@@ -1474,7 +1484,7 @@ class InsertOverwriteDirectorySegment(BaseSegment):
         "DIRECTORY",
         Ref("QuotedLiteralSegment", optional=True),
         "USING",
-        Ref("DataSourceFormatGrammar"),
+        Ref("DataSourceFormatSegment"),
         Ref("OptionsGrammar", optional=True),
         OneOf(
             AnyNumberOf(
