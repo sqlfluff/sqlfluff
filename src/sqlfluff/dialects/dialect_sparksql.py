@@ -516,7 +516,9 @@ sparksql_dialect.add(
         # NB: JDBC is part of DataSourceV2 but not included
         # there since there are no significant syntax changes
         "JDBC",
-        Ref("ObjectReferenceSegment"), # This allows for formats such as org.apache.spark.sql.jdbc
+        Ref(
+            "ObjectReferenceSegment"
+        ),  # This allows for formats such as org.apache.spark.sql.jdbc
     ),
     TimestampAsOfGrammar=Sequence(
         "TIMESTAMP",
@@ -1180,11 +1182,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("OptionsGrammar", optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
-        Sequence(
-            "AS",
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            optional=True
-        ),
+        Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
