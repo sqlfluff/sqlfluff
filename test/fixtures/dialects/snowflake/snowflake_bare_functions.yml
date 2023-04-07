@@ -3,27 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab003ddfbb797cb27d30cc9c29af599f03eeae608c276a8104bb77ed8b79fc78
+_hash: 9556db07ac8b85ebb8f7f4b21209d7179ca901f57472138ff9912cb63588e5df
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          bare_function: CURRENT_TIMESTAMP
+      - code: CURRENT_TIMESTAMP
       - comma: ','
-      - select_clause_element:
-          bare_function: CURRENT_TIME
+      - code: CURRENT_TIME
       - comma: ','
-      - select_clause_element:
-          bare_function: CURRENT_DATE
+      - code: CURRENT_DATE
       - comma: ','
-      - select_clause_element:
-          bare_function: CURRENT_USER
+      - code: CURRENT_USER
       - comma: ','
-      - select_clause_element:
-          bare_function: LOCALTIME
+      - code: LOCALTIME
       - comma: ','
-      - select_clause_element:
-          bare_function: LOCALTIMESTAMP
+      - code: LOCALTIMESTAMP
   statement_terminator: ;

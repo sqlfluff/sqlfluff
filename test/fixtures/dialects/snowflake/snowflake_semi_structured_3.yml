@@ -3,57 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d87ced2cb76bdc46947437b43aeacc28944904f5747df8f6bde8556a59c7527
+_hash: d36d7f2fb7bbee69fcc90d57fa84f4e7c95dd70c3742d564e6542bebd787d29a
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          expression:
-          - function:
-              function_name:
-                function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-                end_bracket: )
-          - array_accessor:
-              start_square_bracket: '['
-              expression:
-                quoted_literal: "'names'"
-              end_square_bracket: ']'
-          - array_accessor:
-              start_square_bracket: '['
-              numeric_literal: '0'
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            naked_identifier: first_name
+      - code: PARSE_JSON
+      - bracketed:
+        - start_bracket: (
+        - code: t
+        - raw: .
+        - code: metadata
+        - end_bracket: )
+      - start_square_bracket: '['
+      - single_quote: "'names'"
+      - end_square_bracket: ']'
+      - start_square_bracket: '['
+      - numeric_literal: '0'
+      - end_square_bracket: ']'
+      - code: AS
+      - code: first_name
       - comma: ','
-      - select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: metadata
-                end_bracket: )
-            semi_structured_expression:
-              colon: ':'
-              semi_structured_element: customer_id
-          alias_expression:
-            keyword: AS
-            naked_identifier: customer_id
+      - code: PARSE_JSON
+      - bracketed:
+        - start_bracket: (
+        - code: t
+        - raw: .
+        - code: metadata
+        - end_bracket: )
+      - raw: ':'
+      - code: customer_id
+      - code: AS
+      - code: customer_id
       from_clause:
         keyword: FROM
         from_expression:

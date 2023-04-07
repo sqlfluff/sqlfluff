@@ -3,23 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2411842892cde7247ba74e0ab69635007361306e0338e02178cde8bdcf303808
+_hash: 2027251ce0166d9e1ed91a14308fcf2a2268bbac4ca327127c9f73c06f46f4cc
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $1
+      - code: t
+      - raw: .
+      - raw: $1
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $2
+      - code: t
+      - raw: .
+      - raw: $2
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,17 +37,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $1
+      - code: t
+      - raw: .
+      - raw: $1
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $2
+      - code: t
+      - raw: .
+      - raw: $2
       from_clause:
         keyword: from
         from_expression:
@@ -76,17 +68,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $1
+      - code: t
+      - raw: .
+      - raw: $1
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $2
+      - code: t
+      - raw: .
+      - raw: $2
       from_clause:
         keyword: from
         from_expression:
@@ -111,17 +99,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $1
+      - code: t
+      - raw: .
+      - raw: $1
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $2
+      - code: t
+      - raw: .
+      - raw: $2
       from_clause:
         keyword: from
         from_expression:
@@ -141,17 +125,13 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $1
+      - code: t
+      - raw: .
+      - raw: $1
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: t
-            dot: .
-            column_index_identifier_segment: $2
+      - code: t
+      - raw: .
+      - raw: $2
       from_clause:
         keyword: from
         from_expression:

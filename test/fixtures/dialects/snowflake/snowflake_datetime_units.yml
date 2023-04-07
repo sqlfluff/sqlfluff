@@ -3,35 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f460493de140f638f4dd9eb1395cbaf4587a1ccb7526ce784a60fcc24dd8b5c2
+_hash: e9f8441751afba04257caf0baa36e3aed705a989684f6c7fac3109337e34e479
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: year
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: year
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -44,29 +36,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: y
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: y
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -79,29 +63,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -114,29 +90,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yyy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yyy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -149,29 +117,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yyyy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yyyy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -184,29 +144,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yr
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yr
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -219,29 +171,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: years
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: years
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -254,29 +198,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yrs
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yrs
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -289,29 +225,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: month
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: month
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -324,29 +252,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: mm
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: mm
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -359,29 +279,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: mon
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: mon
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -394,29 +306,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: mons
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: mons
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -429,29 +333,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: months
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: months
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -464,29 +360,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: day
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: day
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -499,29 +387,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: d
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: d
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -534,29 +414,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dd
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dd
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -569,29 +441,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: days
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: days
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -604,29 +468,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dayofmonth
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dayofmonth
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -639,29 +495,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dayofweek
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dayofweek
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -674,29 +522,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekday
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekday
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -709,29 +549,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dow
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dow
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -744,29 +576,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dw
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dw
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -779,29 +603,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dayofweekiso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dayofweekiso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -814,29 +630,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekday_iso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekday_iso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -849,29 +657,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dow_iso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dow_iso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -884,29 +684,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dw_iso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dw_iso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -919,29 +711,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dayofyear
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dayofyear
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -954,29 +738,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yearday
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yearday
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -989,29 +765,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: doy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: doy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1024,29 +792,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: dy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: dy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1059,29 +819,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: week
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: week
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1094,29 +846,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: w
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: w
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1129,29 +873,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: wk
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: wk
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1164,29 +900,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekofyear
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekofyear
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1199,29 +927,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: woy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: woy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1234,29 +954,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: wy
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: wy
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1269,29 +981,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekiso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekiso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1304,29 +1008,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: week_iso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: week_iso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1339,29 +1035,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekofyeariso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekofyeariso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1374,29 +1062,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: weekofyear_iso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: weekofyear_iso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1409,29 +1089,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: quarter
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: quarter
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1444,29 +1116,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: q
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: q
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1479,29 +1143,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: qtr
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: qtr
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1514,29 +1170,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: qtrs
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: qtrs
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1549,29 +1197,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: quarters
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: quarters
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1584,29 +1224,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yearofweek
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yearofweek
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1619,29 +1251,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: yearofweekiso
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: yearofweekiso
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1654,29 +1278,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: hour
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: hour
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1689,29 +1305,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: h
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: h
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1724,29 +1332,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: hh
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: hh
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1759,29 +1359,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: hr
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: hr
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1794,29 +1386,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: hours
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: hours
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1829,29 +1413,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: hrs
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: hrs
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1864,29 +1440,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: minute
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: minute
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1899,29 +1467,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: m
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: m
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1934,29 +1494,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: mi
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: mi
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -1969,29 +1521,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: min
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: min
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2004,29 +1548,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: minutes
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: minutes
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2039,29 +1575,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: mins
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: mins
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2074,29 +1602,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: second
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: second
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2109,29 +1629,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: s
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: s
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2144,29 +1656,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: sec
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: sec
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2179,29 +1683,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: seconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: seconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2214,29 +1710,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: secs
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: secs
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2249,29 +1737,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: millisecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: millisecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2284,29 +1764,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: ms
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: ms
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2319,29 +1791,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: msec
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: msec
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2354,29 +1818,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: milliseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: milliseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2389,29 +1845,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: microsecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: microsecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2424,29 +1872,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: us
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: us
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2459,29 +1899,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: usec
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: usec
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2494,29 +1926,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: microseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: microseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2529,29 +1953,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nanosecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nanosecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2564,29 +1980,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: ns
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: ns
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2599,29 +2007,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nsec
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nsec
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2634,29 +2034,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nanosec
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nanosec
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2669,29 +2061,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nsecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nsecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2704,29 +2088,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nanoseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nanoseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2739,29 +2115,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nanosecs
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nanosecs
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2774,29 +2142,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: nseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: nseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2809,29 +2169,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_second
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_second
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2844,29 +2196,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2879,29 +2223,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_seconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_seconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2914,29 +2250,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_millisecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_millisecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2949,29 +2277,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_milliseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_milliseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -2984,29 +2304,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_microsecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_microsecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3019,29 +2331,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_microseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_microseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3054,29 +2358,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_nanosecond
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_nanosecond
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3089,29 +2385,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: epoch_nanoseconds
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: epoch_nanoseconds
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3124,29 +2412,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: timezone_hour
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: timezone_hour
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3159,29 +2439,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: tzh
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: tzh
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3194,29 +2466,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: timezone_minute
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: timezone_minute
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -3229,29 +2493,21 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - naked_identifier: t1
-          - dot: .
-          - naked_identifier: field
+      - code: t1
+      - raw: .
+      - code: field
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: tzm
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: a
+      - code: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - code: tzm
+        - code: FROM
+        - code: t1
+        - raw: .
+        - code: sometime
+        - end_bracket: )
+      - code: AS
+      - code: a
       from_clause:
         keyword: FROM
         from_expression:

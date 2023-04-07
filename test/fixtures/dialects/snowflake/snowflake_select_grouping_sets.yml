@@ -3,19 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0cc7539cfacaea779991399a74316f23911acc1c6ea79a02f493c3a4a26fa793
+_hash: 160664f461f0e4e446f4365bba53a62753ce7e3c93a1d9adadc09b92b5d6518b
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: foo
+      - code: foo
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: bar
+      - code: bar
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,22 +37,15 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+      - code: count
+      - bracketed:
+          start_bracket: (
+          raw: '*'
+          end_bracket: )
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: medical_license
+      - code: medical_license
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: radio_license
+      - code: radio_license
       from_clause:
         keyword: from
         from_expression:
@@ -82,22 +71,15 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+      - code: count
+      - bracketed:
+          start_bracket: (
+          raw: '*'
+          end_bracket: )
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: medical_license
+      - code: medical_license
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: radio_license
+      - code: radio_license
       from_clause:
         keyword: from
         from_expression:

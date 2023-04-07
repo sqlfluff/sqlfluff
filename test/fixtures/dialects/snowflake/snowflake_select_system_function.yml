@@ -3,17 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb6efcc46b65c2eb21f79197c91cf98d9266e2d7bea96c0c050b8a99def62301
+_hash: 3da1091f6afecc07bd5901c9b843747fbdfbedee4e77482694833053e98e7e83
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
-        single_quote: "'['']'"
+        raw: SYSTEM$STREAM_HAS_DATA
+        bracketed:
+          start_bracket: (
+          single_quote: "'SCH.MY_STREAM'"
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
-        keyword: select
-        dollar_quote: $$abc$$
+        keyword: SELECT
+        raw: SYSTEM$USER_TASK_CANCEL_ONGOING_EXECUTIONS
+        bracketed:
+          start_bracket: (
+          single_quote: "'MY_TASK'"
+          end_bracket: )
 - statement_terminator: ;

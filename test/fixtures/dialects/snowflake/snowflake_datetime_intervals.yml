@@ -3,115 +3,85 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36aac154cc29a8174068e6e2c01eaa791f94c0af65b03ae16a94ff319675d85f
+_hash: cf09b3562f0608cda2293f69d4f3b3e70cf7d84a1e6e47f525d7a105699530bd
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: NANOSECONDS
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '1'
-            - comma: ','
-            - expression:
-                quoted_literal: "'2020-01-01'"
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: to_date
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'2018-04-15'"
-                end_bracket: )
-            binary_operator: +
-            keyword: INTERVAL
-            date_constructor_literal: "'1 year'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: to_time
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'04:15:29'"
-                end_bracket: )
-            binary_operator: +
-            keyword: INTERVAL
-            date_constructor_literal: "'3 hours, 18 minutes'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            bare_function: current_timestamp
-            binary_operator: +
-            keyword: INTERVAL
-            date_constructor_literal: "'1 year, 3 quarters, 4 months, 5 weeks, 6 days,\
-              \ 7 minutes, 8 seconds,\n                            1000 milliseconds,\
-              \ 4000000 microseconds, 5000000001 nanoseconds'"
-          alias_expression:
-            keyword: as
-            naked_identifier: complex_interval1
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: to_date
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'2025-01-17'"
-                end_bracket: )
-            binary_operator: +
-            keyword: INTERVAL
-            date_constructor_literal: "'1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,\n\
-              \                                1000 ms, 445343232 us, 898498273498\
-              \ ns'"
-          alias_expression:
-            keyword: as
-            naked_identifier: complex_interval2
+        code: DATEADD
+        bracketed:
+        - start_bracket: (
+        - code: NANOSECONDS
+        - comma: ','
+        - raw: '-'
+        - numeric_literal: '1'
+        - comma: ','
+        - single_quote: "'2020-01-01'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: name
+      - code: to_date
+      - bracketed:
+          start_bracket: (
+          single_quote: "'2018-04-15'"
+          end_bracket: )
+      - raw: +
+      - code: INTERVAL
+      - single_quote: "'1 year'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - code: to_time
+      - bracketed:
+          start_bracket: (
+          single_quote: "'04:15:29'"
+          end_bracket: )
+      - raw: +
+      - code: INTERVAL
+      - single_quote: "'3 hours, 18 minutes'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - code: current_timestamp
+      - raw: +
+      - code: INTERVAL
+      - single_quote: "'1 year, 3 quarters, 4 months, 5 weeks, 6 days, 7 minutes,\
+          \ 8 seconds,\n                            1000 milliseconds, 4000000 microseconds,\
+          \ 5000000001 nanoseconds'"
+      - code: as
+      - code: complex_interval1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - code: to_date
+      - bracketed:
+          start_bracket: (
+          single_quote: "'2025-01-17'"
+          end_bracket: )
+      - raw: +
+      - code: INTERVAL
+      - single_quote: "'1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,\n               \
+          \                 1000 ms, 445343232 us, 898498273498 ns'"
+      - code: as
+      - code: complex_interval2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - code: name
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: hire_date
+      - code: hire_date
       from_clause:
         keyword: from
         from_expression:
@@ -134,14 +104,11 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            column_reference:
-              naked_identifier: ts
-            binary_operator: +
-            keyword: INTERVAL
-            date_constructor_literal: "'4 seconds'"
+      - keyword: select
+      - code: ts
+      - raw: +
+      - code: INTERVAL
+      - single_quote: "'4 seconds'"
       from_clause:
         keyword: from
         from_expression:

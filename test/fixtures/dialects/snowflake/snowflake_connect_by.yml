@@ -3,23 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2ea3dbc494b78abe541194309260d24ae0a2a77bf63f9da74da0b73cdb74e19
+_hash: dd1fa3fd615de99e1fa7e73cfa9e70e50957db21eb1b9d8c3bd6cb89845c9075
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: employee_id
+      - code: employee_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: manager_id
+      - code: manager_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: title
+      - code: title
       from_clause:
         keyword: from
         from_expression:
@@ -55,31 +49,19 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: title
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
+      - code: sys_connect_by_path
+      - bracketed:
+          start_bracket: (
+          code: title
+          comma: ','
+          single_quote: "' -> '"
+          end_bracket: )
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: employee_id
+      - code: employee_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: manager_id
+      - code: manager_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: title
+      - code: title
       from_clause:
         keyword: from
         from_expression:
@@ -115,38 +97,23 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: description
+      - code: description
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: quantity
+      - code: quantity
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: component_id
+      - code: component_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: parent_component_id
+      - code: parent_component_id
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: component_id
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
-          alias_expression:
-            keyword: as
-            naked_identifier: path
+      - code: sys_connect_by_path
+      - bracketed:
+          start_bracket: (
+          code: component_id
+          comma: ','
+          single_quote: "' -> '"
+          end_bracket: )
+      - code: as
+      - code: path
       from_clause:
         keyword: from
         from_expression:
@@ -182,25 +149,16 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: employee_id
+      - code: employee_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: manager_id
+      - code: manager_id
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: title
+      - code: title
       - comma: ','
-      - select_clause_element:
-          keyword: connect_by_root
-          column_reference:
-            naked_identifier: title
-          alias_expression:
-            keyword: as
-            naked_identifier: root_title
+      - code: connect_by_root
+      - code: title
+      - code: as
+      - code: root_title
       from_clause:
         keyword: from
         from_expression:

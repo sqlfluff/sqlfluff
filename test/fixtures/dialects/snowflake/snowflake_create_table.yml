@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6253e281a173eaa117a9689da502e225a4e0257cbe8794d870bee5fc4ac9b19a
+_hash: 0ec40774f8f0fa41e96ce3540cbd0adbd201d0f2b87087172a0f0d548fb89115
 file:
 - statement:
     create_table_statement:
@@ -17,20 +17,13 @@ file:
     - keyword: as
     - select_statement:
         select_clause:
-          keyword: select
-          select_clause_element:
-            expression:
-              cast_expression:
-                column_reference:
-                  naked_identifier: VALUE
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: id
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: TEXT
-            alias_expression:
-              naked_identifier: id
+        - keyword: select
+        - code: VALUE
+        - raw: ':'
+        - code: id
+        - raw: '::'
+        - code: TEXT
+        - code: id
         from_clause:
           keyword: from
           from_expression:
@@ -173,16 +166,12 @@ file:
     - keyword: as
     - select_statement:
         select_clause:
-          keyword: select
-          select_clause_element:
-            expression:
-              column_reference:
-                naked_identifier: b
-              binary_operator: +
-              numeric_literal: '1'
-            alias_expression:
-              keyword: as
-              naked_identifier: c
+        - keyword: select
+        - code: b
+        - raw: +
+        - numeric_literal: '1'
+        - code: as
+        - code: c
         from_clause:
           keyword: from
           from_expression:
@@ -348,17 +337,11 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - select_clause_element:
-            column_reference:
-              naked_identifier: name
+        - code: name
         - comma: ','
-        - select_clause_element:
-            expression:
-            - column_reference:
-                naked_identifier: amount1
-            - binary_operator: +
-            - column_reference:
-                naked_identifier: amount2
+        - code: amount1
+        - raw: +
+        - code: amount2
         from_clause:
           keyword: from
           from_expression:
@@ -384,17 +367,11 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - select_clause_element:
-            column_reference:
-              naked_identifier: name
+        - code: name
         - comma: ','
-        - select_clause_element:
-            expression:
-            - column_reference:
-                naked_identifier: amount1
-            - binary_operator: +
-            - column_reference:
-                naked_identifier: amount2
+        - code: amount1
+        - raw: +
+        - code: amount2
         from_clause:
           keyword: from
           from_expression:
@@ -413,17 +390,11 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - select_clause_element:
-            column_reference:
-              naked_identifier: name
+        - code: name
         - comma: ','
-        - select_clause_element:
-            expression:
-            - column_reference:
-                naked_identifier: amount1
-            - binary_operator: +
-            - column_reference:
-                naked_identifier: amount2
+        - code: amount1
+        - raw: +
+        - code: amount2
         from_clause:
           keyword: from
           from_expression:
@@ -485,53 +456,29 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - select_clause_element:
-            expression:
-              cast_expression:
-                column_reference:
-                  column_index_identifier_segment: $1
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: o_custkey
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: number
+        - raw: $1
+        - raw: ':'
+        - code: o_custkey
+        - raw: '::'
+        - code: number
         - comma: ','
-        - select_clause_element:
-            expression:
-              cast_expression:
-                column_reference:
-                  column_index_identifier_segment: $1
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: o_orderdate
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: date
+        - raw: $1
+        - raw: ':'
+        - code: o_orderdate
+        - raw: '::'
+        - code: date
         - comma: ','
-        - select_clause_element:
-            expression:
-              cast_expression:
-                column_reference:
-                  column_index_identifier_segment: $1
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: o_orderstatus
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: text
+        - raw: $1
+        - raw: ':'
+        - code: o_orderstatus
+        - raw: '::'
+        - code: text
         - comma: ','
-        - select_clause_element:
-            expression:
-              cast_expression:
-                column_reference:
-                  column_index_identifier_segment: $1
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: o_totalprice
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: text
+        - raw: $1
+        - raw: ':'
+        - code: o_totalprice
+        - raw: '::'
+        - code: text
         from_clause:
           keyword: from
           from_expression:
@@ -591,21 +538,15 @@ file:
         select_statement:
           select_clause:
             keyword: select
-            select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: array_agg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: object_construct
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
-                  end_bracket: )
+            code: array_agg
+            bracketed:
+              start_bracket: (
+              code: object_construct
+              bracketed:
+                start_bracket: (
+                raw: '*'
+                end_bracket: )
+              end_bracket: )
           from_clause:
             keyword: from
             from_expression:

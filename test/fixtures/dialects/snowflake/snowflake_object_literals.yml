@@ -3,39 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 400fa940a29b0a3210e974e81d6373cb8dd89c4bbb6ff6b5ad8549c269279a90
+_hash: a8aa310179a527b74cc50c1d8d2fe6f2ca24e6af573df1d8ac8dfb88ce103907
 file:
   statement:
     select_statement:
       select_clause:
-        keyword: SELECT
-        select_clause_element:
-          object_literal:
-          - start_curly_bracket: '{'
-          - object_literal_element:
-              quoted_literal: "'a'"
-              colon: ':'
-              numeric_literal: '1'
-          - comma: ','
-          - object_literal_element:
-            - quoted_literal: "'b'"
-            - colon: ':'
-            - quoted_literal: "'foo'"
-          - comma: ','
-          - object_literal_element:
-              quoted_literal: "'c'"
-              colon: ':'
-              expression:
-              - numeric_literal: '4'
-              - binary_operator: +
-              - numeric_literal: '5'
-          - comma: ','
-          - object_literal_element:
-              quoted_literal: "'d'"
-              colon: ':'
-              column_reference:
-                naked_identifier: some_column_ref
-          - end_curly_bracket: '}'
+      - keyword: SELECT
+      - start_curly_bracket: '{'
+      - single_quote: "'a'"
+      - raw: ':'
+      - numeric_literal: '1'
+      - comma: ','
+      - single_quote: "'b'"
+      - raw: ':'
+      - single_quote: "'foo'"
+      - comma: ','
+      - single_quote: "'c'"
+      - raw: ':'
+      - numeric_literal: '4'
+      - raw: +
+      - numeric_literal: '5'
+      - comma: ','
+      - single_quote: "'d'"
+      - raw: ':'
+      - code: some_column_ref
+      - end_curly_bracket: '}'
       from_clause:
         keyword: FROM
         from_expression:

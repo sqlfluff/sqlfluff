@@ -3,52 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24b3b3cbfd9990418a4b456c5c443f94639d0ec00d3e329e739e28150c62a2c4
+_hash: 5905821575e0dd2c53f230f68590a0aacb6c8073a3f855ae9e19996f96442bed
 file:
   statement:
     select_statement:
       select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-          - function_name:
-              function_name_identifier: FIRST_VALUE
-          - bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: foo
-              end_bracket: )
-          - keyword: IGNORE
-          - keyword: NULLS
-          - over_clause:
-              keyword: over
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: buzz
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: bar
-                  frame_clause:
-                  - keyword: ROWS
-                  - keyword: BETWEEN
-                  - keyword: UNBOUNDED
-                  - keyword: PRECEDING
-                  - keyword: AND
-                  - keyword: CURRENT
-                  - keyword: ROW
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: bat
+      - keyword: SELECT
+      - code: FIRST_VALUE
+      - bracketed:
+          start_bracket: (
+          code: foo
+          end_bracket: )
+      - code: IGNORE
+      - code: NULLS
+      - code: over
+      - bracketed:
+        - start_bracket: (
+        - code: PARTITION
+        - code: BY
+        - code: buzz
+        - code: ORDER
+        - code: BY
+        - code: bar
+        - code: ROWS
+        - code: BETWEEN
+        - code: UNBOUNDED
+        - code: PRECEDING
+        - code: AND
+        - code: CURRENT
+        - code: ROW
+        - end_bracket: )
+      - code: AS
+      - code: bat
       from_clause:
         keyword: from
         from_expression:

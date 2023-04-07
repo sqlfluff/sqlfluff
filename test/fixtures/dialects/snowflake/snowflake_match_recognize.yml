@@ -3,16 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ea694be243e70ae116b2449b81f5fb611ed7909eb3d8d15f48196f9619094bc
+_hash: 53cba3c51442e02e63f6b62bd3521d2e8a54f5b579a3deb0eba79eba29bcfff9
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -183,25 +180,15 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: price_date
+      - code: price_date
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: match_number
+      - code: match_number
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: msq
+      - code: msq
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: price
+      - code: price
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: cl
+      - code: cl
       from_clause:
         keyword: from
         from_expression:
@@ -212,10 +199,7 @@ file:
                 select_statement:
                   select_clause:
                     keyword: select
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
+                    raw: '*'
                   from_clause:
                     keyword: from
                     from_expression:
@@ -321,10 +305,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -416,10 +397,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -522,25 +500,15 @@ file:
     select_statement:
       select_clause:
       - keyword: select
-      - select_clause_element:
-          column_reference:
-            naked_identifier: company
+      - code: company
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: price_date
+      - code: price_date
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: price
+      - code: price
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            quoted_identifier: '"FINAL FIRST(LT45.price)"'
+      - double_quote: '"FINAL FIRST(LT45.price)"'
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            quoted_identifier: '"FINAL LAST(LT45.price)"'
+      - double_quote: '"FINAL LAST(LT45.price)"'
       from_clause:
         keyword: from
         from_expression:
@@ -641,10 +609,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -841,10 +806,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -1037,10 +999,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -1219,10 +1178,7 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        raw: '*'
       from_clause:
         keyword: from
         from_expression:

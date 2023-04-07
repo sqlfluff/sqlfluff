@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebfa67a74f2c11ab6f7f3b464b9046dc119fef9e7938acc264322711dfc5c4d1
+_hash: f81584883d8d9892eaee34cb7cf59be453745b81fd016a8e90b2570bc7c6e36d
 file:
 - statement:
     delete_statement:
@@ -277,13 +277,10 @@ file:
           start_bracket: (
           select_statement:
             select_clause:
-              keyword: select
-              select_clause_element:
-                column_reference:
-                  naked_identifier: bicycle_id
-                alias_expression:
-                  keyword: as
-                  naked_identifier: bicycle_id
+            - keyword: select
+            - code: bicycle_id
+            - code: as
+            - code: bicycle_id
             from_clause:
               keyword: from
               from_expression:
@@ -321,13 +318,10 @@ file:
           start_bracket: (
           select_statement:
             select_clause:
-              keyword: select
-              select_clause_element:
-                column_reference:
-                  naked_identifier: bicycle_id
-                alias_expression:
-                  keyword: as
-                  naked_identifier: bicycle_id
+            - keyword: select
+            - code: bicycle_id
+            - code: as
+            - code: bicycle_id
             from_clause:
               keyword: from
               from_expression:

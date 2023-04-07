@@ -3,31 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f87666ca56011ac296f9d5713d781ea4d3579f504e59fcb6a1e6a3aa8ad5aec7
+_hash: cb475651f0933043d72b6b34aaa5ee13097eaa2effa6e7b0ba404f9814937999
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: name
+      - code: name
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: age
+      - code: age
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: record_count
+      - code: count
+      - bracketed:
+          start_bracket: (
+          raw: '*'
+          end_bracket: )
+      - code: AS
+      - code: record_count
       from_clause:
         keyword: FROM
         from_expression:
@@ -52,25 +44,17 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: name
+      - code: name
       - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: age
+      - code: age
       - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: record_count
+      - code: count
+      - bracketed:
+          start_bracket: (
+          raw: '*'
+          end_bracket: )
+      - code: AS
+      - code: record_count
       from_clause:
         keyword: FROM
         from_expression:

@@ -3,117 +3,75 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb6046b43b0d0fc5451fc777357451cd2ebbce591a7cc1d418c8e453eb99d68d
+_hash: 156f248e82d4c734084d5644d7507fa6749e708c86a74e96b066d5712c11b8be
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: ticket_id
+      - code: ticket_id
       - comma: ','
-      - select_clause_element:
-          expression:
-            column_reference:
-              naked_identifier: value
-            semi_structured_expression:
-              colon: ':'
-              semi_structured_element: value
-          alias_expression:
-            keyword: AS
-            naked_identifier: uncasted
+      - code: value
+      - raw: ':'
+      - code: value
+      - code: AS
+      - code: uncasted
       - comma: ','
-      - select_clause_element:
-          expression:
-            cast_expression:
-              column_reference:
-                naked_identifier: value
-              semi_structured_expression:
-                colon: ':'
-                semi_structured_element: id
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: bigint
-          alias_expression:
-            keyword: AS
-            naked_identifier: field_id
+      - code: value
+      - raw: ':'
+      - code: id
+      - raw: '::'
+      - code: bigint
+      - code: AS
+      - code: field_id
       - comma: ','
-      - select_clause_element:
-          expression:
-            cast_expression:
-              column_reference:
-                naked_identifier: value
-              semi_structured_expression:
-                colon: ':'
-                semi_structured_element: value
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: STRING
-          alias_expression:
-            keyword: AS
-            naked_identifier: field_val
+      - code: value
+      - raw: ':'
+      - code: value
+      - raw: '::'
+      - code: STRING
+      - code: AS
+      - code: field_val
       - comma: ','
-      - select_clause_element:
-          expression:
-            column_reference:
-              naked_identifier: value
-            semi_structured_expression:
-            - colon: ':'
-            - semi_structured_element: thing
-            - array_accessor:
-                start_square_bracket: '['
-                numeric_literal: '4'
-                end_square_bracket: ']'
-            - dot: .
-            - semi_structured_element: foo
-          alias_expression:
-            keyword: AS
-            naked_identifier: another_val
+      - code: value
+      - raw: ':'
+      - code: thing
+      - start_square_bracket: '['
+      - numeric_literal: '4'
+      - end_square_bracket: ']'
+      - raw: .
+      - code: foo
+      - code: AS
+      - code: another_val
       - comma: ','
-      - select_clause_element:
-          expression:
-            cast_expression:
-              column_reference:
-                naked_identifier: value
-              semi_structured_expression:
-              - colon: ':'
-              - semi_structured_element: thing
-              - array_accessor:
-                  start_square_bracket: '['
-                  numeric_literal: '4'
-                  end_square_bracket: ']'
-              - dot: .
-              - semi_structured_element: bar
-              - dot: .
-              - semi_structured_element: baz
-              - array_accessor:
-                  start_square_bracket: '['
-                  numeric_literal: '0'
-                  end_square_bracket: ']'
-              - dot: .
-              - semi_structured_element: foo
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: bigint
-          alias_expression:
-            keyword: AS
-            naked_identifier: another_val
+      - code: value
+      - raw: ':'
+      - code: thing
+      - start_square_bracket: '['
+      - numeric_literal: '4'
+      - end_square_bracket: ']'
+      - raw: .
+      - code: bar
+      - raw: .
+      - code: baz
+      - start_square_bracket: '['
+      - numeric_literal: '0'
+      - end_square_bracket: ']'
+      - raw: .
+      - code: foo
+      - raw: '::'
+      - code: bigint
+      - code: AS
+      - code: another_val
       - comma: ','
-      - select_clause_element:
-          expression:
-            column_reference:
-              naked_identifier: array_field
-            array_accessor:
-              start_square_bracket: '['
-              numeric_literal: '0'
-              end_square_bracket: ']'
-            semi_structured_expression:
-              dot: .
-              semi_structured_element: array_element_property
-          alias_expression:
-            keyword: as
-            naked_identifier: test_array_access
+      - code: array_field
+      - start_square_bracket: '['
+      - numeric_literal: '0'
+      - end_square_bracket: ']'
+      - raw: .
+      - code: array_element_property
+      - code: as
+      - code: test_array_access
       from_clause:
       - keyword: FROM
       - from_expression:
@@ -142,57 +100,41 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          expression:
-            cast_expression:
-              column_reference:
-                naked_identifier: value
-              semi_structured_expression:
-              - colon: ':'
-              - semi_structured_element: point
-              - colon: ':'
-              - semi_structured_element: from
-              - colon: ':'
-              - semi_structured_element: latitude
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: NUMBER
-                bracketed_arguments:
-                  bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '10'
-                  - comma: ','
-                  - numeric_literal: '6'
-                  - end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: lat
+      - code: value
+      - raw: ':'
+      - code: point
+      - raw: ':'
+      - keyword: from
+      - raw: ':'
+      - code: latitude
+      - raw: '::'
+      - code: NUMBER
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '10'
+        - comma: ','
+        - numeric_literal: '6'
+        - end_bracket: )
+      - code: AS
+      - code: lat
       - comma: ','
-      - select_clause_element:
-          expression:
-            cast_expression:
-              column_reference:
-                naked_identifier: value
-              semi_structured_expression:
-              - colon: ':'
-              - semi_structured_element: point
-              - colon: ':'
-              - semi_structured_element: from
-              - colon: ':'
-              - semi_structured_element: longitude
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: NUMBER
-                bracketed_arguments:
-                  bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '10'
-                  - comma: ','
-                  - numeric_literal: '6'
-                  - end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: lng
+      - code: value
+      - raw: ':'
+      - code: point
+      - raw: ':'
+      - keyword: from
+      - raw: ':'
+      - code: longitude
+      - raw: '::'
+      - code: NUMBER
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '10'
+        - comma: ','
+        - numeric_literal: '6'
+        - end_bracket: )
+      - code: AS
+      - code: lng
       from_clause:
         keyword: FROM
         from_expression:

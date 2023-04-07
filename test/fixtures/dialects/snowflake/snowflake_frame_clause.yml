@@ -3,57 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e1728a3d30a3a0255a6e7c3669cb5d0b83b21017da070cd60e71bc62ffb179c
+_hash: f0ea988b191e6beccebca06a02dec6bf4d73464180ef6d808cbcc1f3b0d3b4e3
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: a
+      - code: a
       - comma: ','
-      - select_clause_element:
-          function:
-          - function_name:
-              function_name_identifier: LAST_VALUE
-          - bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: foo
-              end_bracket: )
-          - keyword: IGNORE
-          - keyword: NULLS
-          - over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: bar
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: baz
-                  - keyword: ASC
-                  frame_clause:
-                  - keyword: ROWS
-                  - keyword: BETWEEN
-                  - variable: $my_var
-                  - keyword: PRECEDING
-                  - keyword: AND
-                  - keyword: CURRENT
-                  - keyword: ROW
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: vehicle_type_id_last_value
+      - code: LAST_VALUE
+      - bracketed:
+          start_bracket: (
+          code: foo
+          end_bracket: )
+      - code: IGNORE
+      - code: NULLS
+      - code: OVER
+      - bracketed:
+        - start_bracket: (
+        - code: PARTITION
+        - code: BY
+        - code: bar
+        - code: ORDER
+        - code: BY
+        - code: baz
+        - code: ASC
+        - code: ROWS
+        - code: BETWEEN
+        - raw: $my_var
+        - code: PRECEDING
+        - code: AND
+        - code: CURRENT
+        - code: ROW
+        - end_bracket: )
+      - code: AS
+      - code: vehicle_type_id_last_value
       from_clause:
         keyword: FROM
         from_expression:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 840a52361e794d5324d9d7859afb34f2a8552f2f8f6038f77fe60cc7169f8316
+_hash: dc76cf1295c1c87077a53c160fd23b46e659ba5c9dcc47baed821489549f1f69
 file:
 - statement:
     create_task_statement:
@@ -203,41 +203,25 @@ file:
         - select_statement:
             select_clause:
             - keyword: SELECT
-            - select_clause_element:
-                wildcard_expression:
-                  wildcard_identifier:
-                    star: '*'
+            - raw: '*'
             - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: sum
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: break
-                    end_bracket: )
-                  over_clause:
-                    keyword: OVER
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                            column_reference:
-                              naked_identifier: serial
-                        orderby_clause:
-                        - keyword: ORDER
-                        - keyword: BY
-                        - column_reference:
-                            naked_identifier: datetime
-                      end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  naked_identifier: session_id
+            - code: sum
+            - bracketed:
+                start_bracket: (
+                code: break
+                end_bracket: )
+            - code: OVER
+            - bracketed:
+              - start_bracket: (
+              - code: PARTITION
+              - code: BY
+              - code: serial
+              - code: ORDER
+              - code: BY
+              - code: datetime
+              - end_bracket: )
+            - code: AS
+            - code: session_id
             from_clause:
               keyword: FROM
               from_expression:
@@ -248,10 +232,7 @@ file:
                       select_statement:
                         select_clause:
                           keyword: SELECT
-                          select_clause_element:
-                            wildcard_expression:
-                              wildcard_identifier:
-                                star: '*'
+                          raw: '*'
                         from_clause:
                           keyword: FROM
                           from_expression:
@@ -316,46 +297,28 @@ file:
                     select_statement:
                       select_clause:
                       - keyword: SELECT
-                      - select_clause_element:
-                          wildcard_expression:
-                            wildcard_identifier:
-                              star: '*'
+                      - raw: '*'
                       - comma: ','
-                      - select_clause_element:
-                          expression:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: sum
-                                  bracketed:
-                                    start_bracket: (
-                                    expression:
-                                      column_reference:
-                                        naked_identifier: break
-                                    end_bracket: )
-                                  over_clause:
-                                    keyword: OVER
-                                    bracketed:
-                                      start_bracket: (
-                                      window_specification:
-                                        partitionby_clause:
-                                        - keyword: PARTITION
-                                        - keyword: BY
-                                        - expression:
-                                            column_reference:
-                                              naked_identifier: serial
-                                        orderby_clause:
-                                        - keyword: ORDER
-                                        - keyword: BY
-                                        - column_reference:
-                                            naked_identifier: datetime
-                                      end_bracket: )
-                              end_bracket: )
-                          alias_expression:
-                            keyword: AS
-                            naked_identifier: session_id
+                      - bracketed:
+                        - start_bracket: (
+                        - code: sum
+                        - bracketed:
+                            start_bracket: (
+                            code: break
+                            end_bracket: )
+                        - code: OVER
+                        - bracketed:
+                          - start_bracket: (
+                          - code: PARTITION
+                          - code: BY
+                          - code: serial
+                          - code: ORDER
+                          - code: BY
+                          - code: datetime
+                          - end_bracket: )
+                        - end_bracket: )
+                      - code: AS
+                      - code: session_id
                       from_clause:
                         keyword: FROM
                         from_expression:
@@ -366,10 +329,7 @@ file:
                                 select_statement:
                                   select_clause:
                                     keyword: SELECT
-                                    select_clause_element:
-                                      wildcard_expression:
-                                        wildcard_identifier:
-                                          star: '*'
+                                    raw: '*'
                                   from_clause:
                                     keyword: FROM
                                     from_expression:

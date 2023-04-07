@@ -3,15 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 239f6fcece51a5dbd7ce49cb7468efeb74f8a4d75d4daf47bd322281e85db407
+_hash: 6ef661f2c2a8770c04b9d7aaffc748879b73840c18d15b9e729464caf0df05c1
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: account
+        code: account
       from_clause:
         keyword: FROM
         from_expression:
@@ -48,16 +46,12 @@ file:
           select_statement:
             select_clause:
               keyword: select
-              select_clause_element:
-                numeric_literal: '1'
+              numeric_literal: '1'
           end_bracket: )
       select_statement:
         select_clause:
           keyword: select
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
+          raw: '*'
         from_clause:
           keyword: from
           from_expression:
