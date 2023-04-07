@@ -511,12 +511,6 @@ sparksql_dialect.add(
             Ref("QuotedLiteralSegment"),
         ),
     ),
-    DataSourceFormatGrammar=OneOf(
-        Ref("FileFormatGrammar"),
-        # NB: JDBC is part of DataSourceV2 but not included
-        # there since there are no significant syntax changes
-        "JDBC",
-    ),
     TimestampAsOfGrammar=Sequence(
         "TIMESTAMP",
         "AS",
@@ -542,7 +536,35 @@ sparksql_dialect.add(
             "PARTITION",
             Sequence("PARTITIONED", "BY"),
         ),
-        Bracketed(
+        Ref.keyword("FIELD", optional=True),
+        OneOf(
+            Ref("ColumnDefinitionSegment"),
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment", optional=True),
+                Ref("LiteralGrammar", optional=True),
+                Ref("CommentGrammar", optional=True),
+            ),
+            Ref("IcebergTransformationSegment", optional=True),
+        ),
+    ),
+    PartitionFieldGrammar=Sequence(
+        "PARTITION",
+        "FIELD",
+        Delimited(
+            OneOf(
+                Ref("ColumnDefinitionSegment"),
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    Ref("LiteralGrammar", optional=True),
+                    Ref("CommentGrammar", optional=True),
+                ),
+                Ref("IcebergTransformationSegment", optional=True),
+            ),
+        ),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
             Delimited(
                 OneOf(
                     Ref("ColumnDefinitionSegment"),
@@ -552,9 +574,12 @@ sparksql_dialect.add(
                         Ref("LiteralGrammar", optional=True),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("IcebergTransformationSegment", optional=True),
                 ),
             ),
+            optional=True,
         ),
+        Sequence("AS", Ref("NakedIdentifierSegment"), optional=True),
     ),
     # NB: Redefined from `NakedIdentifierSegment` which uses an anti-template to
     # not match keywords; however, SparkSQL allows keywords to be used in table
@@ -660,6 +685,60 @@ sparksql_dialect.add(
     WidgetDefaultGrammar=Sequence(
         "DEFAULT",
         Ref("QuotedLiteralSegment"),
+    ),
+    TableDefinitionSegment=Sequence(
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("STREAMING", optional=True),
+        Ref.keyword("LIVE", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            # Columns and comment syntax:
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("GeneratedColumnDefinitionSegment"),
+                        ),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                OneOf(
+                    Ref("FileReferenceSegment"),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("UsingClauseSegment", optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
+        Ref("OptionsGrammar", optional=True),
+        Ref("PartitionSpecGrammar", optional=True),
+        Ref("BucketSpecGrammar", optional=True),
+        Indent,
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
+        Dedent,
+        # Create AS syntax:
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
+        ),
     ),
 )
 
@@ -797,7 +876,7 @@ class DatatypeSegment(BaseSegment):
             "MAP",
             Bracketed(
                 Sequence(
-                    Ref("PrimitiveTypeSegment"),
+                    Ref("DatatypeSegment"),
                     Ref("CommaSegment"),
                     Ref("DatatypeSegment"),
                 ),
@@ -856,10 +935,18 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "TO",
                 Ref("PartitionSpecGrammar"),
             ),
+            # ALTER TABLE - RENAME TO 'column_identifier'
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
             # ALTER TABLE - ADD COLUMNS
             Sequence(
                 "ADD",
-                "COLUMNS",
+                OneOf("COLUMNS", "COLUMN"),
                 Indent,
                 OptionallyBracketed(
                     Delimited(
@@ -946,7 +1033,11 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 Ref("IfNotExistsGrammar", optional=True),
-                AnyNumberOf(Ref("PartitionSpecGrammar"), min_times=1),
+                AnyNumberOf(
+                    Ref("PartitionSpecGrammar"),
+                    Ref("PartitionFieldGrammar"),
+                    min_times=1,
+                ),
             ),
             # ALTER TABLE - DROP PARTITION
             Sequence(
@@ -1003,8 +1094,81 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Bracketed(Ref("ExpressionSegment"), optional=True),
                 Dedent,
             ),
+            # ALTER TABLE - ICEBERG WRITE ORDER / DISTRIBUTION
+            # https://iceberg.apache.org/docs/latest/spark-ddl/#alter-table--write-ordered-by
+            Sequence(
+                "WRITE",
+                AnyNumberOf(
+                    Sequence("DISTRIBUTED", "BY", "PARTITION", optional=True),
+                    Sequence(
+                        Ref.keyword("LOCALLY", optional=True),
+                        "ORDERED",
+                        "BY",
+                        Indent,
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                OneOf("ASC", "DESC", optional=True),
+                                # NB: This isn't really ANSI, and isn't supported in Mysql,
+                                # but is supported in enough other dialects for it to make
+                                # sense here for now.
+                                Sequence(
+                                    "NULLS", OneOf("FIRST", "LAST"), optional=True
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                        Dedent,
+                        optional=True,
+                    ),
+                    min_times=1,
+                    max_times_per_element=1,
+                ),
+            ),
+            # ALTER TABLE - ICEBERG SET IDENTIFIER FIELDS
+            Sequence(
+                "SET",
+                "IDENTIFIER",
+                "FIELDS",
+                Indent,
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Dedent,
+            ),
+            # ALTER TABLE - ICEBERG DROP IDENTIFIER FIELDS
+            Sequence(
+                "DROP",
+                "IDENTIFIER",
+                "FIELDS",
+                Indent,
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Dedent,
+            ),
         ),
         Dedent,
+    )
+
+
+class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    We override the ansi dialect column definition segment to allow for
+    iceberg syntax such as ADD COLUMN a.b"""
+
+    match_grammar: Matchable = Sequence(
+        Ref("ColumnReferenceSegment"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
     )
 
 
@@ -1082,61 +1246,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://docs.delta.io/latest/delta-batch.html#create-a-table
     """
 
-    match_grammar = Sequence(
-        "CREATE",
-        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        Ref.keyword("STREAMING", optional=True),
-        Ref.keyword("LIVE", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        OneOf(
-            Ref("FileReferenceSegment"),
-            Ref("TableReferenceSegment"),
-        ),
-        OneOf(
-            # Columns and comment syntax:
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        OneOf(
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("GeneratedColumnDefinitionSegment"),
-                        ),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                ),
-            ),
-            # Like Syntax
-            Sequence(
-                "LIKE",
-                OneOf(
-                    Ref("FileReferenceSegment"),
-                    Ref("TableReferenceSegment"),
-                ),
-            ),
-            optional=True,
-        ),
-        Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
-        Ref("RowFormatClauseSegment", optional=True),
-        Ref("StoredAsGrammar", optional=True),
-        Ref("OptionsGrammar", optional=True),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BucketSpecGrammar", optional=True),
-        Indent,
-        AnyNumberOf(
-            Ref("LocationGrammar", optional=True),
-            Ref("CommentGrammar", optional=True),
-            Ref("TablePropertiesGrammar", optional=True),
-        ),
-        Dedent,
-        # Create AS syntax:
-        Sequence(
-            Ref.keyword("AS", optional=True),
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            optional=True,
-        ),
-    )
+    match_grammar = Sequence("CREATE", Ref("TableDefinitionSegment"))
 
 
 class CreateHiveFormatTableStatementSegment(hive.CreateTableStatementSegment):
@@ -1206,6 +1316,16 @@ class CreateWidgetStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+class ReplaceTableStatementSegment(BaseSegment):
+    """A `REPLACE TABLE` statement using the iceberg table format.
+
+    https://iceberg.apache.org/docs/latest/spark-ddl/#replace-table--as-select
+    """
+
+    type = "replace_table_statement"
+    match_grammar = Sequence("REPLACE", Ref("TableDefinitionSegment"))
 
 
 class RemoveWidgetStatementSegment(BaseSegment):
@@ -2503,6 +2623,7 @@ class StatementSegment(ansi.StatementSegment):
             # Databricks - widgets
             Ref("CreateWidgetStatementSegment"),
             Ref("RemoveWidgetStatementSegment"),
+            Ref("ReplaceTableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -3156,3 +3277,55 @@ class SelectClauseSegment(BaseSegment):
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
+
+
+class UsingClauseSegment(BaseSegment):
+    """`USING` clause segment"""
+
+    type = "using_clause"
+    match_grammar = Sequence("USING", Ref("DataSourceFormatSegment"))
+
+
+class DataSourceFormatSegment(BaseSegment):
+    """data source format segment"""
+
+    type = "data_source_format"
+    match_grammar = OneOf(
+        Ref("FileFormatGrammar"),
+        # NB: JDBC is part of DataSourceV2 but not included
+        # there since there are no significant syntax changes
+        "JDBC",
+    )
+
+
+class IcebergTransformationSegment(BaseSegment):
+    """Transformation expressions to be used in creating hidden partitions
+    in the iceberg table format.
+
+    https://iceberg.apache.org/docs/latest/spark-ddl/#partitioned-by
+    """
+
+    type = "iceberg_transformation"
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(
+                "YEARS",
+                "MONTHS",
+                "DAYS",
+                "DATE",
+                "HOURS",
+                "DATE_HOUR",
+            ),
+            Bracketed(Ref("ColumnReferenceSegment")),
+        ),
+        Sequence(
+            OneOf("BUCKET", "TRUNCATE"),
+            Bracketed(
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    Ref("CommaSegment"),
+                    Ref("ColumnReferenceSegment"),
+                )
+            ),
+        ),
+    )
