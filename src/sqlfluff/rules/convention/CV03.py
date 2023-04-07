@@ -66,13 +66,13 @@ class Rule_CV03(BaseRule):
 
                 # If there isn't a source position, then it's safe to remove, it's
                 # a recent addition.
-                if not last_content.pos_marker:
+                if not last_content.pos_marker:  # pragma: no cover
                     fixes = [LintFix.delete(last_content)]
                 else:
                     comma_pos = last_content.pos_marker.source_position()
                     for seg in context.segment.segments:
                         if seg.is_type("comma"):
-                            if not seg.pos_marker:
+                            if not seg.pos_marker:  # pragma: no cover
                                 continue
                             elif seg.pos_marker.source_position() == comma_pos:
                                 if seg is not last_content:
