@@ -137,9 +137,9 @@ autogen_header = """..
 """
 
 table_header = """
-+--------------------------------+----------------------------------------+----------+--------------------+
-| Bundle                         | Rule Name                              | Code     | Aliases            |
-+================================+========================================+==========+====================+
++--------------------------------+--------------------------------------------------+------------------------------+--------------------+
+| Bundle                         | Rule Name                                        | Code                         | Aliases            |
++================================+==================================================+==============================+====================+
 """
 
 # Extract all the rules.
@@ -159,8 +159,10 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
         _bundle_name = f":ref:`bundle_{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
             aliases = ", ".join(rule.aliases[:3]) + ("," if len(rule.aliases) > 3 else "")
+            name_ref = f":sqlfluff:ref:`{rule.name}`"
+            code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
-                f"| {_bundle_name : <30} | {rule.name : <38} | {rule.code : <8} | {aliases : <18} |\n"
+                f"| {_bundle_name : <30} | {name_ref : <48} | {code_ref : <28} | {aliases : <18} |\n"
             )
 
             j = 3       
@@ -169,17 +171,17 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
                     break
                 aliases = ", ".join(rule.aliases[j:j+3]) + ("," if len(rule.aliases[j:]) > 3 else "")
                 f.write(
-                    f"|{' ' * 32}|{' ' * 40}|{' ' * 10}| {aliases : <18} |\n"
+                    f"|{' ' * 32}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n"
                 )
                 j += 3
 
             if idx + 1 < len(rule_bundles[bundle]):
                 f.write(
-                    f"|{' ' * 32}+{'-' * 40}+{'-' * 10}+{'-' * 20}+\n"
+                    f"|{' ' * 32}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
                 )
             else:
                 f.write(
-                    f"+{'-' * 32}+{'-' * 40}+{'-' * 10}+{'-' * 20}+\n"
+                    f"+{'-' * 32}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
                 )
             # Unset the bundle name so we don't repeat it.
             _bundle_name = ""
@@ -207,7 +209,8 @@ for bundle in sorted(rule_bundles.keys()):
         )
         for rule in rule_bundles[bundle]:
             f.write(
-                f".. sqlfluff:rule:: {rule.code} {rule.name}\n\n"
+                f".. sqlfluff:rule:: {rule.code}\n"
+                f"                   {rule.name}\n\n"
             )
             f.write("    " + rule.__doc__)
             f.write("\n\n")

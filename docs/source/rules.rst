@@ -43,6 +43,7 @@ Rule Bundles
 
 Inline Ignoring Errors
 -----------------------
+
 `SQLFluff` features inline error ignoring. For example, the following will
 ignore the lack of whitespace surrounding the ``*`` operator.
 

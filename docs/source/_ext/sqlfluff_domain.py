@@ -1,15 +1,12 @@
 """The sqlfluff domain for documenting rules.s"""
 
-import re
 
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
+from sphinx.roles import XRefRole
 from sphinx.util.docfields import GroupedField, TypedField
-
-def jinja_resource_anchor(method, path):
-    path = re.sub(r'[<>:/]', '-', path)
-    return method.lower() + '-' + path
+from sphinx.util.nodes import make_refnode
 
 
 class SQLFluffRule(ObjectDescription):
@@ -33,6 +30,7 @@ class SQLFluffRule(ObjectDescription):
         fullname = obj_type + code
         signode['type'] = self.obj_type
         signode['code'] = code
+        #signode['ids'].append(code)
         signode['name'] = name
         signode['fullname'] = fullname
         return (fullname, self.obj_type, sig)
@@ -43,20 +41,25 @@ class SQLFluffRule(ObjectDescription):
     def add_target_and_index(self, name_cls, sig, signode):
         #signode['ids'].append(signode["name"])
         #signode['ids'].append(signode["code"])
-        #signode['ids'].append(f'{sig}')
+        code, _, name = sig.partition(" ")
+        #signode['ids'].append("rule-" + code)
         # signode['ids'].append(jinja_resource_anchor(*name_cls[1:]))
         # self.env.domaindata['jinja'][self.method][sig] = (self.env.docname, '')
         #self.env.domaindata['sqlfluff'][self.method][sig] = (self.env.docname, '')
+        #self.env.note_
+        #fluff = self.env.get_domain('sqlfluff')
+        #fluff.data['rules'].append(
+        #    (self._toc_entry_name(signode), "rule-" + code, 'Rule', fluff.env.docname, "rule-" + code, 1))
+        signode['ids'].append('rule' + '-' + sig)
         fluff = self.env.get_domain('sqlfluff')
         fluff.add_rule(sig)
-        pass
 
-    def get_index_text(self, modname, name):
-        return ''
+    #def get_index_text(self, modname, name):
+    #    return ''
 
-    def _toc_entry_name(self, sig_node: addnodes.desc_signature) -> str:
-        # Borrowed from https://www.sphinx-doc.org/en/master/_modules/sphinx/domains/python.html
-        return "Rule " + sig_node['code']
+    #def _toc_entry_name(self, sig_node: addnodes.desc_signature) -> str:
+    #    # Borrowed from https://www.sphinx-doc.org/en/master/_modules/sphinx/domains/python.html
+    #    return "Rule " + sig_node['code']
 
 
 class RuleIndex(Index):
@@ -80,6 +83,10 @@ class SQLFluffDomain(Domain):
         'rule': ObjType('rule', 'rule', 'obj'),
     }
 
+    roles = {
+        'ref': XRefRole(),
+    }
+
     directives = {
         'rule': SQLFluffRule,
     }
@@ -88,13 +95,30 @@ class SQLFluffDomain(Domain):
         'rules': [],  # object list
     }
 
-    indices = [RuleIndex]
+    def get_full_qualified_name(self, node):
+        return f'rule.{node.arguments[0]}'
 
     def get_objects(self):
         yield from self.data['rules']
     
+    def resolve_xref(self, env, fromdocname, builder, typ, target, node,
+                     contnode):
+        match = [(docname, anchor)
+                 for _, sig, _, docname, anchor, _
+                 in self.get_objects() if sig == target]
+
+        if len(match) > 0:
+            todocname = match[0][0]
+            targ = match[0][1]
+
+            return make_refnode(builder, fromdocname, todocname, targ,
+                                contnode, targ)
+        else:
+            print(f'Failed to match xref: {target!r}')
+            return None
+    
     def add_rule(self, signature):
-        """Add a new rule to the domain."""
+        """Add a new recipe to the domain."""
         name = f'rule.{signature}'
         anchor = f'rule-{signature}'
 
