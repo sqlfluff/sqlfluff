@@ -9,18 +9,17 @@ from sphinx.util.nodes import make_refnode
 
 class SQLFluffRule(ObjectDescription):
 
-    obj_type = "rule"
-
     def handle_signature(self, sig, signode):
-        obj_type = self.obj_type.capitalize() + ' '
+        raw_obj_type = "code" if len(sig) ==4 else "rule"
+        obj_type = raw_obj_type.capitalize() + ' '
         signode += addnodes.desc_type(obj_type, obj_type)
         signode += addnodes.desc_name(sig, sig)
 
         fullname = obj_type + sig
-        signode['type'] = self.obj_type
+        signode['type'] = raw_obj_type
         signode['sig'] = sig
         signode['fullname'] = fullname
-        return (fullname, self.obj_type, sig)
+        return (fullname, raw_obj_type, sig)
 
     def needs_arglist(self):
         return False
