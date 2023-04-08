@@ -71,6 +71,7 @@ all rules on the given line.
 
    a.a*a.b AS bad_3  -- noqa
 
+.. _inline_ignoring_errors:
 
 Ignoring line ranges
 ^^^^^^^^^^^^^^^^^^^^
@@ -97,6 +98,10 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 Rule Bundles
 ------------
 
-.. include:: rules/ruletable.rst
+.. toctree::
+   :glob:
+   :hidden:
 
-.. _inline_ignoring_errors:
+   /rules/bundles/*
+
+.. include:: rules/ruletable.rst

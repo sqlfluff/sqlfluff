@@ -187,11 +187,6 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
             # Unset the bundle name so we don't repeat it.
             _bundle_name = ""
     f.write("\n\n")
-    # Write the toctree
-    f.write(".. toctree::\n   :hidden:\n\n")
-    for bundle in sorted(rule_bundles.keys()):
-        f.write(f"   /rules/bundles/{bundle}\n")
-    f.write("\n\n")
     
 
 # Write each of the summary files.
