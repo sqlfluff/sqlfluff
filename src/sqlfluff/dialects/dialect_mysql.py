@@ -1094,6 +1094,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("LoadDataSegment"),
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
+            Ref("ReturnStatementSegment"),
         ],
         remove=[
             # handle CREATE SCHEMA in CreateDatabaseStatementSegment
@@ -2645,4 +2646,17 @@ class AlterOptionSegment(BaseSegment):
                 OneOf("DEFAULT", Ref("NumericLiteralSegment")),
             ),
         ),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A RETURN statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/return.html
+    """
+
+    type = "return_statement"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment"),
     )
