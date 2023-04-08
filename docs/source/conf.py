@@ -208,7 +208,12 @@ for bundle in sorted(rule_bundles.keys()):
                 f".. sqlfluff:rule:: {rule.code}\n"
                 f"                   {rule.name}\n\n"
             )
-            f.write("    " + rule.__doc__)
+            # Separate off the heading so we can bold it.
+            heading, _, doc_body = rule.__doc__.partition("\n")
+            underline_char = '"'
+            f.write(f"    {heading}\n")
+            f.write(f"    {underline_char * len(heading)}\n\n")
+            f.write("    " + doc_body)
             f.write("\n\n")
 
 
