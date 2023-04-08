@@ -39,20 +39,14 @@ class SQLFluffRule(ObjectDescription):
         return False
 
     def add_target_and_index(self, name_cls, sig, signode):
-        #signode['ids'].append(signode["name"])
-        #signode['ids'].append(signode["code"])
-        code, _, name = sig.partition(" ")
-        #signode['ids'].append("rule-" + code)
-        # signode['ids'].append(jinja_resource_anchor(*name_cls[1:]))
-        # self.env.domaindata['jinja'][self.method][sig] = (self.env.docname, '')
-        #self.env.domaindata['sqlfluff'][self.method][sig] = (self.env.docname, '')
-        #self.env.note_
-        #fluff = self.env.get_domain('sqlfluff')
-        #fluff.data['rules'].append(
-        #    (self._toc_entry_name(signode), "rule-" + code, 'Rule', fluff.env.docname, "rule-" + code, 1))
-        signode['ids'].append('rule' + '-' + sig)
+        # Add an ID for permalinks
+        node_id = 'rule' + '-' + sig
+        signode['ids'].append(node_id)
+        # Add to domain for xref resolution
         fluff = self.env.get_domain('sqlfluff')
         fluff.add_rule(sig)
+        # Add to index
+        self.indexnode['entries'].append(('single', sig, node_id, '', None))
 
     #def get_index_text(self, modname, name):
     #    return ''
