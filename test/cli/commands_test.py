@@ -499,6 +499,20 @@ def test__cli__command_lint_parse(command):
             ),
             0,
         ),
+        # Format with --persist-timing
+        (
+            (
+                cli_format,
+                [
+                    "--fixed-suffix",
+                    "_fix",
+                    "test/fixtures/linter/whitespace_errors.sql",
+                    "--persist-timing",
+                    "test.csv",
+                ],
+            ),
+            0,
+        ),
         # Format (specifying rules)
         (
             (
