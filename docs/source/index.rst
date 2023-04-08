@@ -53,7 +53,7 @@ Contents
 ^^^^^^^^
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :includehidden:
    :caption: Documentation for SQLFluff:
 
