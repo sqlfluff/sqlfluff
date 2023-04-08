@@ -144,6 +144,7 @@ table_header = """
 
 # Extract all the rules.
 from sqlfluff.core.plugin.host import get_plugin_manager
+
 rule_bundles = defaultdict(list)
 for plugin_rules in get_plugin_manager().hook.get_rules():
     for rule in plugin_rules:
@@ -159,35 +160,33 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
         # Set the bundle name to the ref.
         _bundle_name = f":doc:`/rules/bundles/{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
-            aliases = ", ".join(rule.aliases[:3]) + ("," if len(rule.aliases) > 3 else "")
+            aliases = ", ".join(rule.aliases[:3]) + (
+                "," if len(rule.aliases) > 3 else ""
+            )
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
                 f"| {_bundle_name : <40} | {name_ref : <48} | {code_ref : <28} | {aliases : <18} |\n"
             )
 
-            j = 3       
+            j = 3
             while True:
                 if not rule.aliases[j:]:
                     break
-                aliases = ", ".join(rule.aliases[j:j+3]) + ("," if len(rule.aliases[j:]) > 3 else "")
-                f.write(
-                    f"|{' ' * 42}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n"
+                aliases = ", ".join(rule.aliases[j : j + 3]) + (
+                    "," if len(rule.aliases[j:]) > 3 else ""
                 )
+                f.write(f"|{' ' * 42}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n")
                 j += 3
 
             if idx + 1 < len(rule_bundles[bundle]):
-                f.write(
-                    f"|{' ' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
-                )
+                f.write(f"|{' ' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n")
             else:
-                f.write(
-                    f"+{'-' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
-                )
+                f.write(f"+{'-' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n")
             # Unset the bundle name so we don't repeat it.
             _bundle_name = ""
     f.write("\n\n")
-    
+
 
 # Write each of the summary files.
 for bundle in sorted(rule_bundles.keys()):
