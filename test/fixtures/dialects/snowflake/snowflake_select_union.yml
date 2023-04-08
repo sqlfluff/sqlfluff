@@ -3,20 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e2f01501def2c7eec8ebd2240b26fc0cd4133f8f207c3f82def24fa032db3de0
+_hash: c0de8d8aa9756ca2fc964d76a0fd7bda3b733e0c83020bafafc843249f959708
 file:
   statement:
     set_expression:
     - select_statement:
         select_clause:
           keyword: SELECT
-          numeric_literal: '1'
+          select_clause_element:
+            numeric_literal: '1'
     - set_operator:
         keyword: UNION
     - select_statement:
         select_clause:
           keyword: SELECT
-          numeric_literal: '2'
+          select_clause_element:
+            numeric_literal: '2'
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

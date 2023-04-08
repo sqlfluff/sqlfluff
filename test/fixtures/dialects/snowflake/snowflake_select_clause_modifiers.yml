@@ -3,25 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 630d3c528cb461b20a3c39a09b6966c4d97f1cba1250d83aa3a8757c8310d756
+_hash: 8258a3eb788c43beddbbe82c824dffe3e0ea9a0d6bd048ea3f6760a9ade2d1fe
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - raw: '*'
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       - comma: ','
-      - code: col1
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
       - comma: ','
-      - code: col2
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
       - comma: ','
-      - code: my_table
-      - raw: .
-      - code: col1
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: my_table
+          - dot: .
+          - naked_identifier: col1
       - comma: ','
-      - code: my_table
-      - raw: .
-      - raw: '*'
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: my_table
+              dot: .
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -36,7 +48,10 @@ file:
         keyword: SELECT
         select_clause_modifier:
           keyword: DISTINCT
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -51,7 +66,9 @@ file:
         keyword: SELECT
         select_clause_modifier:
           keyword: DISTINCT
-        code: col1
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
       from_clause:
         keyword: FROM
         from_expression:
@@ -63,12 +80,15 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
+        keyword: SELECT
+        select_clause_modifier:
           keyword: ALL
-      - code: my_table
-      - raw: .
-      - raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: my_table
+              dot: .
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -84,7 +104,10 @@ file:
         select_clause_modifier:
           keyword: TOP
           numeric_literal: '1'
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -100,7 +123,9 @@ file:
         select_clause_modifier:
           keyword: TOP
           numeric_literal: '2'
-        code: col1
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
       from_clause:
         keyword: FROM
         from_expression:
@@ -116,11 +141,16 @@ file:
       - select_clause_modifier:
           keyword: TOP
           numeric_literal: '3'
-      - code: col1
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
       - comma: ','
-      - code: my_table
-      - raw: .
-      - raw: '*'
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: my_table
+              dot: .
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -137,7 +167,9 @@ file:
         - keyword: ALL
         - keyword: TOP
         - numeric_literal: '10'
-        code: col1
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
       from_clause:
         keyword: FROM
         from_expression:
@@ -149,14 +181,16 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
+        keyword: SELECT
+        select_clause_modifier:
         - keyword: DISTINCT
         - keyword: TOP
         - numeric_literal: '20'
-      - code: my_table
-      - raw: .
-      - code: col1
+        select_clause_element:
+          column_reference:
+          - naked_identifier: my_table
+          - dot: .
+          - naked_identifier: col1
       from_clause:
         keyword: FROM
         from_expression:
@@ -173,7 +207,10 @@ file:
         - keyword: DISTINCT
         - keyword: TOP
         - numeric_literal: '30'
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -190,11 +227,16 @@ file:
         - keyword: DISTINCT
         - keyword: TOP
         - numeric_literal: '40'
-      - code: col1
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
       - comma: ','
-      - code: my_table
-      - raw: .
-      - raw: '*'
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: my_table
+              dot: .
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:

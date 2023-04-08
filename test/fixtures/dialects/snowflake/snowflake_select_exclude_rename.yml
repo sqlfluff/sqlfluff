@@ -3,26 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54be385e5b45232a12f4b1ef436e6dac7d65ddcf51028cbf14c9f425e5dae219
+_hash: ce51f7f9bc723be4c5e395ec41a9b20c7d1a314b704226037000c5e3693618cb
 file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - raw: '*'
-      - code: exclude
-      - code: col1
-      - code: rename
-      - bracketed:
-        - start_bracket: (
-        - code: col1
-        - code: as
-        - code: alias1
-        - comma: ','
-        - code: col2
-        - code: as
-        - code: alias2
-        - end_bracket: )
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_exclude_clause:
+              keyword: exclude
+              naked_identifier: col1
+            select_rename_clause:
+              keyword: rename
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - keyword: as
+              - naked_identifier: alias1
+              - comma: ','
+              - naked_identifier: col2
+              - keyword: as
+              - naked_identifier: alias2
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -34,19 +39,24 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - raw: '*'
-      - code: exclude
-      - bracketed:
-        - start_bracket: (
-        - code: col1
-        - comma: ','
-        - code: col2
-        - end_bracket: )
-      - code: rename
-      - code: col1
-      - code: as
-      - code: alias1
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_exclude_clause:
+              keyword: exclude
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - comma: ','
+              - naked_identifier: col2
+              - end_bracket: )
+            select_rename_clause:
+            - keyword: rename
+            - naked_identifier: col1
+            - keyword: as
+            - naked_identifier: alias1
       from_clause:
         keyword: from
         from_expression:
@@ -58,26 +68,31 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - raw: '*'
-      - code: exclude
-      - bracketed:
-        - start_bracket: (
-        - code: col1
-        - comma: ','
-        - code: col2
-        - end_bracket: )
-      - code: rename
-      - bracketed:
-        - start_bracket: (
-        - code: col1
-        - code: as
-        - code: alias1
-        - comma: ','
-        - code: col2
-        - code: as
-        - code: alias2
-        - end_bracket: )
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_exclude_clause:
+              keyword: exclude
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - comma: ','
+              - naked_identifier: col2
+              - end_bracket: )
+            select_rename_clause:
+              keyword: rename
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - keyword: as
+              - naked_identifier: alias1
+              - comma: ','
+              - naked_identifier: col2
+              - keyword: as
+              - naked_identifier: alias2
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:

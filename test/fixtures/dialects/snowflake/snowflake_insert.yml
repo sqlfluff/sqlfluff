@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 300fb32872a240ddba19bdac3b15eb2910a9dc32741929fd3b149da4c913dc6e
+_hash: a6ea753bffd94b5fd9c7c5829eca5a08b7a926134b1cf9510805c219aae77f38
 file:
 - statement:
     insert_statement:
@@ -123,7 +123,10 @@ file:
     - select_statement:
         select_clause:
           keyword: SELECT
-          raw: '*'
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
         from_clause:
           keyword: FROM
           from_expression:
@@ -211,11 +214,17 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - code: n1
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n1
         - comma: ','
-        - code: n2
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n2
         - comma: ','
-        - code: n3
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n3
         from_clause:
           keyword: from
           from_expression:
@@ -296,11 +305,17 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - code: n1
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n1
         - comma: ','
-        - code: n2
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n2
         - comma: ','
-        - code: n3
+        - select_clause_element:
+            column_reference:
+              naked_identifier: n3
         from_clause:
           keyword: from
           from_expression:
@@ -335,15 +350,20 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - numeric_literal: '1'
+        - select_clause_element:
+            numeric_literal: '1'
         - comma: ','
-        - numeric_literal: '50'
-        - code: as
-        - code: an_alias
+        - select_clause_element:
+            numeric_literal: '50'
+            alias_expression:
+              keyword: as
+              naked_identifier: an_alias
         - comma: ','
-        - numeric_literal: '10'
-        - raw: +
-        - numeric_literal: '20'
+        - select_clause_element:
+            expression:
+            - numeric_literal: '10'
+            - binary_operator: +
+            - numeric_literal: '20'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -367,17 +387,23 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - code: src1
-        - raw: .
-        - code: key
-        - code: as
-        - code: key
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: src1
+            - dot: .
+            - naked_identifier: key
+            alias_expression:
+              keyword: as
+              naked_identifier: key
         - comma: ','
-        - code: src1
-        - raw: .
-        - code: a
-        - code: as
-        - code: a
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: src1
+            - dot: .
+            - naked_identifier: a
+            alias_expression:
+              keyword: as
+              naked_identifier: a
         from_clause:
         - keyword: from
         - from_expression:
@@ -441,7 +467,9 @@ file:
     - select_statement:
         select_clause:
           keyword: select
-          code: n1
+          select_clause_element:
+            column_reference:
+              naked_identifier: n1
         from_clause:
           keyword: from
           from_expression:
@@ -486,7 +514,9 @@ file:
     - select_statement:
         select_clause:
           keyword: select
-          code: n1
+          select_clause_element:
+            column_reference:
+              naked_identifier: n1
         from_clause:
           keyword: from
           from_expression:
@@ -533,11 +563,17 @@ file:
     - select_statement:
         select_clause:
         - keyword: select
-        - code: a
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
         - comma: ','
-        - code: b
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
         - comma: ','
-        - code: c
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c
         from_clause:
           keyword: from
           from_expression:
@@ -558,9 +594,11 @@ file:
         start_bracket: (
         select_statement:
           select_clause:
-          - keyword: SELECT
-          - code: foo
-          - raw: .
-          - code: bar
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+              - naked_identifier: foo
+              - dot: .
+              - naked_identifier: bar
         end_bracket: )
 - statement_terminator: ;

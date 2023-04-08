@@ -3,15 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a63358cdc02cac52563935f1adf9e63bad1f2006347b7972dd00cfe5d354c9be
+_hash: 3f9c8b6970ebb41409ae39e02a303e32ba94bf4794e675c3e17f2f42d27a4884
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -31,9 +35,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -54,9 +62,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -76,9 +88,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -98,9 +114,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -122,9 +142,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -150,9 +174,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -179,9 +207,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -207,9 +239,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -236,9 +272,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -264,9 +304,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - code: a
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
       - comma: ','
-      - code: b
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:

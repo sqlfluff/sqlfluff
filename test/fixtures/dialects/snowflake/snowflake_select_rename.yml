@@ -3,17 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53de37de8c863feef72686d9167fa3646df4710c24b086919a19f76e5c08a129
+_hash: 87de1a02545a55820d8cdf2dbcd84308a29eb689f10d14667be31c8c55f41872
 file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - raw: '*'
-      - code: rename
-      - code: col1
-      - code: as
-      - code: alias
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_rename_clause:
+            - keyword: rename
+            - naked_identifier: col1
+            - keyword: as
+            - naked_identifier: alias
       from_clause:
         keyword: from
         from_expression:
@@ -26,14 +30,18 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        raw: '*'
-        code: rename
-        bracketed:
-        - start_bracket: (
-        - code: col1
-        - code: as
-        - code: alias
-        - end_bracket: )
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_rename_clause:
+              keyword: rename
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - keyword: as
+              - naked_identifier: alias
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -46,18 +54,22 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        raw: '*'
-        code: rename
-        bracketed:
-        - start_bracket: (
-        - code: col1
-        - code: as
-        - code: alias1
-        - comma: ','
-        - code: col2
-        - code: as
-        - code: alias2
-        - end_bracket: )
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_rename_clause:
+              keyword: rename
+              bracketed:
+              - start_bracket: (
+              - naked_identifier: col1
+              - keyword: as
+              - naked_identifier: alias1
+              - comma: ','
+              - naked_identifier: col2
+              - keyword: as
+              - naked_identifier: alias2
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:

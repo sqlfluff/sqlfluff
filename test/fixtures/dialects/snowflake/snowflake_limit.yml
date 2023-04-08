@@ -3,13 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c3855a6565448afb4a59544ace49aedf7c4d2caa4ef70a40316e00b5b3a2c06f
+_hash: 6847a028964c21715a4a2028dda8526e55c1486313a7de70e74b84c54a015d59
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -30,7 +32,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -53,7 +57,10 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -76,7 +83,10 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -99,7 +109,10 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        raw: '*'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -122,7 +135,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -143,7 +158,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -165,7 +182,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -187,7 +206,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -209,7 +230,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -231,7 +254,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -253,7 +278,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -276,7 +303,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -301,7 +330,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:
@@ -326,7 +357,9 @@ file:
     select_statement:
       select_clause:
         keyword: select
-        code: c1
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
       from_clause:
         keyword: from
         from_expression:

@@ -645,24 +645,6 @@ snowflake_dialect.replace(
         "FETCH",
         "OFFSET",
     ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            # Inherit from ansi but also allow for Snowflake System Functions
-            # https://docs.snowflake.com/en/sql-reference/functions-system
-            ansi.StatementSegment.match_grammar.copy(
-                before=[
-                    Sequence(
-                        Ref("SystemFunctionName"),
-                        Bracketed(Ref("QuotedLiteralSegment")),
-                    )
-                ]
-            ),
-            allow_trailing=True,
-        ),
-    ),
 )
 
 # Add all Snowflake keywords
@@ -1455,6 +1437,23 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Inherit from ansi but also allow for Snowflake System Functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions-system
+    """
+
+    match_grammar = ansi.SelectClauseElementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("SystemFunctionName"),
+                Bracketed(Ref("QuotedLiteralSegment")),
+            )
+        ],
+        before=Ref("WildcardExpressionSegment"),
     )
 
 

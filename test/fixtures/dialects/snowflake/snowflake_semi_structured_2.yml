@@ -3,31 +3,45 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2c00a3471e7a35db427ff7efa9c2ee3d67b3103ab209575622143d5a744a64f
+_hash: a720837903ff876f4ee7516d52de72abaa89209df48cac70b765bb2ab8a73073
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: select
-      - code: value
-      - raw: ':'
-      - code: data
-      - raw: ':'
-      - code: to
-      - raw: '::'
-      - code: string
-      - code: AS
-      - code: TO_PHONE_NUMBER
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: data
+              - colon: ':'
+              - semi_structured_element: to
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            naked_identifier: TO_PHONE_NUMBER
       - comma: ','
-      - code: value
-      - raw: ':'
-      - code: data
-      - raw: ':'
-      - keyword: from
-      - raw: '::'
-      - code: string
-      - code: AS
-      - code: FROM_PHONE_NUMBER
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: data
+              - colon: ':'
+              - semi_structured_element: from
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            naked_identifier: FROM_PHONE_NUMBER
       from_clause:
         keyword: FROM
         from_expression:
