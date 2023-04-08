@@ -17,6 +17,7 @@ pytest-cov
 pytest-xdist
 # MyPy
 mypy
+tox
 types-toml
 types-pkg_resources
 types-chardet

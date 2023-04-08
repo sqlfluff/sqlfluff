@@ -119,6 +119,18 @@ mode for you, as well as `requirements_dev.txt` and `plugins/sqlfluff-plugin-exa
 Additionally if a dbt virtual environment was specified, you will also have
 `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 
+#### Developing in Docker
+
+To build a simple interactive Docker container, run the following commands:
+```shell
+make create
+make run
+```
+This container installs all Python dependencies, and mounts the project directory into
+the container. It doesn't install SQLFluff, but does set the path such that SQLFluff
+needn't be installed. The nuts and bolts are in place such that git should work seamlessly
+inside the container.
+
 ### Wiki
 
 We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some

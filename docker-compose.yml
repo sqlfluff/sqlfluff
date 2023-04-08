@@ -1,0 +1,16 @@
+version: '3'
+services:
+  development:
+    build:
+      context: .
+      dockerfile: ./docker/development/Dockerfile
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
+    volumes:
+     - .:/app
+     - ~/.gitconfig:/etc/gitconfig
+     - ~/.ssh:/root/.ssh
+     - /run/host-services/ssh-auth.sock:/ssh-agent
+    stdin_open: true
+    tty: true
+    entrypoint: /bin/bash
