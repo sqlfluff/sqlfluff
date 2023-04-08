@@ -153,7 +153,6 @@ for plugin_rules in get_plugin_manager().hook.get_rules():
 
 # Write them into the table. Bundle by bundle.
 with open("rules/ruletable.rst", "w", encoding="utf8") as f:
-    f.write(":nosearch:\n\n")  # Don't allow searching of this file directly.
     f.write(autogen_header)
     f.write(table_header)
     for bundle in sorted(rule_bundles.keys()):
