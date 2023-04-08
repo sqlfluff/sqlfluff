@@ -34,13 +34,6 @@ and customize a rule set that best suites their organization.
 See the :ref:`config` section for more information on how to enable
 only :code:`core` rules by default.
 
-Rule Bundles
-------------
-
-.. include:: rules/ruletable.rst
-
-.. _inline_ignoring_errors:
-
 Inline Ignoring Errors
 -----------------------
 
@@ -100,3 +93,10 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+
+Rule Bundles
+------------
+
+.. include:: rules/ruletable.rst
+
+.. _inline_ignoring_errors:

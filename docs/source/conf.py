@@ -137,9 +137,9 @@ autogen_header = """..
 """
 
 table_header = """
-+--------------------------------+--------------------------------------------------+------------------------------+--------------------+
-| Bundle                         | Rule Name                                        | Code                         | Aliases            |
-+================================+==================================================+==============================+====================+
++------------------------------------------+--------------------------------------------------+------------------------------+--------------------+
+| Bundle                                   | Rule Name                                        | Code                         | Aliases            |
++==========================================+==================================================+==============================+====================+
 """
 
 # Extract all the rules.
@@ -156,13 +156,13 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
     f.write(table_header)
     for bundle in sorted(rule_bundles.keys()):
         # Set the bundle name to the ref.
-        _bundle_name = f":ref:`bundle_{bundle}`"
+        _bundle_name = f":doc:`/rules/bundles/{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
             aliases = ", ".join(rule.aliases[:3]) + ("," if len(rule.aliases) > 3 else "")
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
-                f"| {_bundle_name : <30} | {name_ref : <48} | {code_ref : <28} | {aliases : <18} |\n"
+                f"| {_bundle_name : <40} | {name_ref : <48} | {code_ref : <28} | {aliases : <18} |\n"
             )
 
             j = 3       
@@ -171,17 +171,17 @@ with open("rules/ruletable.rst", "w", encoding="utf8") as f:
                     break
                 aliases = ", ".join(rule.aliases[j:j+3]) + ("," if len(rule.aliases[j:]) > 3 else "")
                 f.write(
-                    f"|{' ' * 32}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n"
+                    f"|{' ' * 42}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n"
                 )
                 j += 3
 
             if idx + 1 < len(rule_bundles[bundle]):
                 f.write(
-                    f"|{' ' * 32}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
+                    f"|{' ' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
                 )
             else:
                 f.write(
-                    f"+{'-' * 32}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
+                    f"+{'-' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n"
                 )
             # Unset the bundle name so we don't repeat it.
             _bundle_name = ""
