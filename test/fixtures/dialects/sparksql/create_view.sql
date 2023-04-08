@@ -15,3 +15,12 @@ SELECT * from experienced_employee limit 2 ;
 -- Replace the implementation of `simple_udf`
 CREATE OR REPLACE VIEW experienced_employee_rep AS
 SELECT * from experienced_employee limit 2 ;
+
+CREATE TEMPORARY VIEW pulse_article_search_data
+    USING org.apache.spark.sql.jdbc
+    OPTIONS (
+  url "jdbc:postgresql:dbserver",
+  dbtable "schema.tablename",
+  user 'username',
+  password 'password'
+)
