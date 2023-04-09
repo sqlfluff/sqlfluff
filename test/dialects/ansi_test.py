@@ -201,7 +201,7 @@ def test__dialect__ansi_is_whitespace():
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             True,
-            (1, 5, 8, 11, 15, 17, 18, 20, 24, 25, 27, 30, 32, 33, 34, 35, 36, 37),
+            (1, 5, 8, 11, 15, 17, 18, 20, 24, 25, 27, 30, 32, 34, 35, 36, 37),
         ),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
