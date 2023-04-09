@@ -1434,6 +1434,18 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
+            "message": "LT02: Expected indent of 8 spaces.",
+            "start_column": 1,
+            "end_column": 1,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
+            "line": 3,
             "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
@@ -1516,6 +1528,8 @@ def test__cli__command_lint_serialize_github_annotation_native():
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=1::"
+            "LT02: Expected indent of 8 spaces. [layout.indent]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
