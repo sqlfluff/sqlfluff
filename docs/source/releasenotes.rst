@@ -91,9 +91,9 @@ To upgrade smoothly between versions, we recommend the following sequence:
    or (if you disagree with the changes) consider changing which rules
    you enable or their configuration accordingly. In particular you may notice:
 
-   * The indentation rule (:code:`L003` as was, now :sqlfluff:ref:`LT02`) has had
-     a significant rewrite, and while much more flexible and accurate, it is
-     also more specific. Note that :ref:`hangingindents` are no longer
+   * The indentation rule (:code:`L003` as was, now :sqlfluff:ref:`LT02`) has
+     had a significant rewrite, and while much more flexible and accurate, it
+     is also more specific. Note that :ref:`hangingindents` are no longer
      supported, and that while not enabled by default, many users may find
      the enabling :ref:`implicitindents` fits their organisation's style
      better.
