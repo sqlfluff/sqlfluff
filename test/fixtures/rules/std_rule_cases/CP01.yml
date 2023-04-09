@@ -122,11 +122,27 @@ test_pass_ignore_words_complex:
         capitalisation_policy: upper
         ignore_words_regex: (^Se|^Fr)
 
-test_pass_ignore_templated_code:
+test_pass_ignore_templated_code_true:
   pass_str: |
     {{ "select" }} a
     FROM foo
     WHERE 1
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_fail_ignore_templated_code_false:
+  fail_str: |
+    {{ "select" }} a
+    FROM foo
+    WHERE 1
+  fix_str: |
+    {{ "select" }} a
+    from foo
+    where 1
+  configs:
+    core:
+      ignore_templated_areas: false
 
 test_fail_snowflake_group_by_cube:
   fail_str: |
