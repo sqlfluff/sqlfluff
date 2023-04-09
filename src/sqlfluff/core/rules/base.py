@@ -665,6 +665,9 @@ class BaseRule(metaclass=RuleMetaclass):
     # template_safe_fixes to True.
     template_safe_fixes = False
 
+    # Config settings supported for this rule.
+    # See config_info.py for supported values.
+    config_keywords: List[str] = []
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     crawl_behaviour: BaseCrawler
@@ -694,7 +697,7 @@ class BaseRule(metaclass=RuleMetaclass):
     # a line to the docstring.
     is_fix_compatible = False
 
-    # Add comma seperated string to Base Rule to ensure that it uses the same
+    # Add comma separated string to Base Rule to ensure that it uses the same
     # Configuration that is defined in the Config.py file
     split_comma_separated_string = staticmethod(split_comma_separated_string)
 
@@ -710,18 +713,15 @@ class BaseRule(metaclass=RuleMetaclass):
         # of the rule in the logging.
         self.logger = RuleLoggingAdapter(rules_logger, {"code": code})
         # Validate that declared configuration options exist
-        try:
-            for keyword in self.config_keywords:
-                if keyword not in kwargs.keys():
-                    raise ValueError(
-                        (
-                            "Unrecognized config '{}' for Rule {}. If this "
-                            "is a new option, please add it to "
-                            "`default_config.cfg`"
-                        ).format(keyword, code)
-                    )
-        except AttributeError:
-            self.logger.info(f"No config_keywords defined for {code}")
+        for keyword in self.config_keywords:
+            if keyword not in kwargs.keys():
+                raise ValueError(
+                    (
+                        "Unrecognized config '{}' for Rule {}. If this "
+                        "is a new option, please add it to "
+                        "`default_config.cfg`"
+                    ).format(keyword, code)
+                )
 
     @classmethod
     def get_config_ref(cls):
