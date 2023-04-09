@@ -1,4 +1,4 @@
-"""The sqlfluff domain for documenting rules.s"""
+"""The sqlfluff domain for documenting rules."""
 
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
@@ -8,7 +8,24 @@ from sphinx.util.nodes import make_refnode
 
 
 class SQLFluffRule(ObjectDescription):
+    """SQLFluff rule directive for sphinx.
+
+    Rule directives can be used as shown below.
+
+    .. code-block:: rst
+
+        .. sqlfluff:rule:: AM01
+                        ambiguous.distinct
+
+            Write the documentation for the rule here.
+
+    """
+
     def handle_signature(self, sig, signode):
+        """Handle the initial signature of the node.
+
+        This formats the header of the section.
+        """
         raw_obj_type = "code" if len(sig) == 4 else "rule"
         obj_type = raw_obj_type.capitalize() + " "
         signode += addnodes.desc_type(obj_type, obj_type)
@@ -20,10 +37,8 @@ class SQLFluffRule(ObjectDescription):
         signode["fullname"] = fullname
         return (fullname, raw_obj_type, sig)
 
-    def needs_arglist(self):
-        return False
-
     def add_target_and_index(self, name_cls, sig, signode):
+        """Hook to add the permalink and index entries."""
         # Add an ID for permalinks
         node_id = "rule" + "-" + sig
         signode["ids"].append(node_id)
@@ -74,12 +89,20 @@ class SQLFluffDomain(Domain):
     }
 
     def get_full_qualified_name(self, node):
+        """Get the fully qualified name of the rule."""
         return f"rule.{node.arguments[0]}"
 
     def get_objects(self):
+        """Hook to get all the rules."""
         yield from self.data["rules"]
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        """Hook to resolve xrefs.
+
+        References can be made by code or by name, e.g.
+        - :sqlfluff:ref:`LT01`
+        - :sqlfluff:ref:`layout.spacing`
+        """
         match = [
             (docname, anchor)
             for _, sig, _, docname, anchor, _ in self.get_objects()
@@ -107,4 +130,5 @@ class SQLFluffDomain(Domain):
 
 
 def setup(app):
+    """Setup the domain."""
     app.add_domain(SQLFluffDomain)

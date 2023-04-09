@@ -3,6 +3,8 @@
 from collections import defaultdict
 from pathlib import Path
 
+from sqlfluff.core.plugin.host import get_plugin_manager
+
 base_path = Path(__file__).parent.absolute()
 
 ##########################################
@@ -16,15 +18,13 @@ autogen_header = """..
 
 """
 
-table_header = """
-+------------------------------------------+--------------------------------------------------+------------------------------+--------------------+
-| Bundle                                   | Rule Name                                        | Code                         | Aliases            |
-+==========================================+==================================================+==============================+====================+
+table_header = f"""
++{'-' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+
+|{'Bundle' : <42}|{'Rule Name' : <50}|{'Code' : <30}|{'Aliases' : <20}|
++{'=' * 42}+{'=' * 50}+{'=' * 30}+{'=' * 20}+
 """
 
 # Extract all the rules.
-from sqlfluff.core.plugin.host import get_plugin_manager
-
 print("Rule Docs Generation: Reading Rules...")
 rule_bundles = defaultdict(list)
 for plugin_rules in get_plugin_manager().hook.get_rules():
@@ -47,7 +47,8 @@ with open(base_path / "source/rules/ruletable.rst", "w", encoding="utf8") as f:
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
-                f"| {_bundle_name : <40} | {name_ref : <48} | {code_ref : <28} | {aliases : <18} |\n"
+                f"| {_bundle_name : <40} | {name_ref : <48} "
+                f"| {code_ref : <28} | {aliases : <18} |\n"
             )
 
             j = 3
@@ -72,7 +73,9 @@ with open(base_path / "source/rules/ruletable.rst", "w", encoding="utf8") as f:
 # Write each of the summary files.
 print("Rule Docs Generation: Writing Rule Bundles...")
 for bundle in sorted(rule_bundles.keys()):
-    with open(base_path / f"source/rules/bundles/{bundle}.rst", "w", encoding="utf8") as f:
+    with open(
+        base_path / f"source/rules/bundles/{bundle}.rst", "w", encoding="utf8"
+    ) as f:
         f.write(autogen_header)
         if "sql" in bundle:
             # This accounts for things like "TSQL"
