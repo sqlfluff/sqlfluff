@@ -1059,6 +1059,18 @@ SELECT 1
             ],
         ),
         (
+            # Tests Jinja "import" directive.
+            """{% import 'echo.sql' as echo %}
+
+SELECT 1
+""",
+            None,
+            [
+                ("templated", slice(0, 31, None), slice(0, 0, None)),
+                ("literal", slice(31, 42, None), slice(0, 11, None)),
+            ],
+        ),
+        (
             # Tests Jinja "from import" directive..
             """{% from 'echo.sql' import echo %}
 {% from 'echoecho.sql' import echoecho %}
@@ -1069,9 +1081,9 @@ SELECT
 """,
             None,
             [
-                ("block_start", slice(0, 33, None), slice(0, 0, None)),
+                ("templated", slice(0, 33, None), slice(0, 0, None)),
                 ("literal", slice(33, 34, None), slice(0, 1, None)),
-                ("block_start", slice(34, 75, None), slice(1, 1, None)),
+                ("templated", slice(34, 75, None), slice(1, 1, None)),
                 ("literal", slice(75, 88, None), slice(1, 14, None)),
                 ("templated", slice(88, 105, None), slice(14, 19, None)),
                 ("literal", slice(105, 111, None), slice(19, 25, None)),
