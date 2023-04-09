@@ -1011,6 +1011,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseFromShareStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("ExecuteTaskClauseSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1439,6 +1440,23 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Inherit from ansi but also allow for Snowflake System Functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions-system
+    """
+
+    match_grammar = ansi.SelectClauseElementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("SystemFunctionName"),
+                Bracketed(Ref("QuotedLiteralSegment")),
+            )
+        ],
+        before=Ref("WildcardExpressionSegment"),
+    )
+
+
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Snowflake."""
 
@@ -1730,7 +1748,22 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                             "MASKING",
                             "POLICY",
                         ),
-                        # @TODO: Set/Unset TAG support
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "SET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "TAG",
+                            Ref("TagReferenceSegment"),
+                        ),
                     ),
                 ),
             ),
@@ -5770,6 +5803,24 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "UNSET",
         Delimited(Ref("ParameterNameSegment")),
+    )
+
+
+class ExecuteTaskClauseSegment(BaseSegment):
+    """Snowflake's EXECUTE TASK clause.
+
+    ```
+        EXECUTE TASK <name>
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-task
+    """
+
+    type = "execute_task_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "TASK",
+        Ref("ParameterNameSegment"),
     )
 
 

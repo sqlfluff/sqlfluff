@@ -63,6 +63,11 @@ alter table empl_info modify
   , column empl_dob unset masking policy
 ;
 
+--- Set Tag
+ALTER TABLE my_table MODIFY COLUMN my_column SET TAG my_tag = 'tagged';
+
+--- Unset Tag
+ALTER TABLE my_table MODIFY COLUMN my_column UNSET TAG my_tag;
 
 -- Drop column
 ALTER TABLE empl_info DROP COLUMN my_column;

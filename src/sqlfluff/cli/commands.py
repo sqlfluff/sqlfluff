@@ -335,6 +335,16 @@ def lint_options(f: Callable) -> Callable:
         cls=DeprecatedOption,
         deprecated=["--disable_progress_bar"],
     )(f)
+    f = click.option(
+        "--persist-timing",
+        default=None,
+        help=(
+            "A filename to persist the timing information for a linting run to "
+            "in csv format for external analysis. NOTE: This feature should be "
+            "treated as beta, and the format of the csv file may change in "
+            "future releases without warning."
+        ),
+    )(f)
     return f
 
 
@@ -526,16 +536,6 @@ def dump_file_payload(filename: Optional[str], payload: str):
     is_flag=True,
     help="Perform the operation regardless of .sqlfluffignore configurations",
 )
-@click.option(
-    "--persist-timing",
-    default=None,
-    help=(
-        "A filename to persist the timing information for a linting run to "
-        "in csv format for external analysis. NOTE: This feature should be "
-        "treated as beta, and the format of the csv file may change in "
-        "future releases without warning."
-    ),
-)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: Tuple[str],
@@ -548,9 +548,9 @@ def lint(
     bench: bool = False,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
+    persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
-    persist_timing: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Lint SQL files via passing a list of files or using stdin.
@@ -759,6 +759,7 @@ def _paths_fix(
     bench,
     show_lint_violations,
     warn_force: bool = True,
+    persist_timing: Optional[str] = None,
 ):
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
@@ -862,6 +863,9 @@ def _paths_fix(
             for violation in violations:
                 click.echo(formatter.format_violation(violation))
 
+    if persist_timing:
+        result.persist_timing_records(persist_timing)
+
     sys.exit(exit_code)
 
 
@@ -911,6 +915,7 @@ def fix(
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
+    persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     show_lint_violations: bool = False,
@@ -962,6 +967,7 @@ def fix(
             fixed_suffix,
             bench,
             show_lint_violations,
+            persist_timing=persist_timing,
         )
 
 
@@ -983,6 +989,7 @@ def cli_format(
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
+    persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
@@ -1059,6 +1066,7 @@ def cli_format(
             bench=bench,
             show_lint_violations=False,
             warn_force=False,  # don't warn about being in force mode.
+            persist_timing=persist_timing,
         )
 
 
