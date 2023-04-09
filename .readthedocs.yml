@@ -15,7 +15,6 @@ formats: []
 # Optionally set the version of Python and requirements required to build your docs.
 # In our case we need both the docs requirements and the package itself.
 python:
-  version: 3.11
   install:
     - requirements: requirements.txt
     - requirements: docs/requirements.txt
