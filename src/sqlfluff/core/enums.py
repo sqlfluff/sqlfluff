@@ -12,6 +12,7 @@ class FormatType(Enum):
     yaml = "yaml"
     github_annotation = "github-annotation"
     github_annotation_native = "github-annotation-native"
+    none = "none"  # An option to return _no output_.
 
 
 class Color(Enum):
