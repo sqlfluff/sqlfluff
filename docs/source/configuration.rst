@@ -11,6 +11,9 @@ must be done via a file, because it otherwise gets slightly complicated.
 For details of what's available on the command line check out
 the :ref:`cliref`.
 
+Configuration files
+-------------------
+
 For file based configuration *SQLFluff* will look for the following
 files in order. Later files will (if found) will be used to overwrite
 any values read from earlier files.
@@ -80,10 +83,61 @@ For example, a snippet from a :code:`pyproject.toml` file:
 .. _`cfg file`: https://docs.python.org/3/library/configparser.html
 .. _`pyproject.toml file`: https://www.python.org/dev/peps/pep-0518/
 
+
+.. _starter_config:
+
+New Project Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When setting up a new project with SQLFluff, we recommend keeping your configuration
+file fairly minimal. The config file should act as a form of *documentation* for your
+team i.e. a record of what decisions you've made which govern how your format your
+SQL. By having a more concise config file, and only defining config settings
+where they differ from the defaults - you are more clearly stating to your team what
+choices you've made.
+
+*However*, there are also a few places where the *default* configuration is designed
+more for *existing projects*, rather than *fresh projects*, and so there is an
+opportunity to be a little stricter than you might otherwise be with an existing
+codebase.
+
+Here is a simple configuration file which would be suitable for a starter project:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = jinja
+    dialect = override_this_with_your_project_dialect
+    # The standard max_line_length is 80 in line with the convention of
+    # other tools and several style guides. Many projects however prefer
+    # something a little longer.
+    max_line_length = 120
+
+    [sqlfluff:indentation]
+    # While implicit indents are not enabled by default. Many of the
+    # SQLFluff maintainers do use them in their projects.
+    allow_implicit_indents = true
+
+    # The default configuration for capitalisation rules is "consistent"
+    # which will auto-detect the setting from the rest of the file. This
+    # is less desirable in a new project and you may find this (slightly
+    # more strict) setting more useful. 
+    [sqlfluff:rules:capitalisation.keywords]
+    capitalisation_policy = lower
+    [sqlfluff:rules:capitalisation.identifiers]
+    capitalisation_policy = lower
+    [sqlfluff:rules:capitalisation.functions]
+    extended_capitalisation_policy = lower
+    [sqlfluff:rules:capitalisation.literals]
+    capitalisation_policy = lower
+    [sqlfluff:rules:capitalisation.types]
+    extended_capitalisation_policy = lower
+
+
 .. _nesting:
 
 Nesting
--------
+^^^^^^^
 
 **SQLFluff** uses **nesting** in its configuration files, with files
 closer *overriding* (or *patching*, if you will) values from other files.
@@ -1015,6 +1069,30 @@ Default Configuration
 
 The default configuration is as follows, note the `Builtin Macro Blocks`_ in
 section *[sqlfluff:templater:jinja:macros]* as referred to above.
+
+.. note::
+
+    This shows the *entire* default config. **We do not recommend that users**
+    **copy this whole config as the starter config file for their project**.
+
+    This is for two reasons:
+    #. The config file should act as a form of *documentation* for your team.
+       A record of what decisions you've made which govern how your format your
+       sql. By having a more concise config file, and only defining config settings
+       where they differ from the defaults - you are more clearly stating to your
+       team what choices you've made.
+    #. As the project evolves, the structure of the config file may change
+       and we will attempt to make changes as backward compatible as possible.
+       If you have not overridden a config setting in your project, we can
+       easily update the default config to match your expected behaviour over time.
+       We may also find issues with the default config which we can also fix
+       in the background. *However*, the longer your local config file, the
+       more work it will be to update and migrate your config file between
+       major versions.
+
+    If you are starting a fresh project and are looking for a good *starter config*,
+    check out the :ref:`starter_config` section above.
+
 
 .. literalinclude:: ../../src/sqlfluff/core/default_config.cfg
    :language: cfg
