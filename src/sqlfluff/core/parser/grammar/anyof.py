@@ -194,8 +194,7 @@ class AnyNumberOf(BaseGrammar):
         n_matches = 0
 
         # Keep track of the number of times each option has been matched.
-        available_options = self._prune_options(segments, parse_context=parse_context)
-        available_option_counter = {str(o): 0 for o in available_options}
+        available_option_counter = {str(o): 0 for o in self._elements}
 
         while True:
             if self.max_times and n_matches >= self.max_times:
