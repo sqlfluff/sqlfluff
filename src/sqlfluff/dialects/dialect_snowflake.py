@@ -3464,7 +3464,7 @@ class CreateStatementSegment(BaseSegment):
         ),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
-        AnySetOf(
+        AnyNumberOf(
             Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
             Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             OneOf(
