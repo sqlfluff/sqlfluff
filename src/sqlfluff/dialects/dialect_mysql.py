@@ -27,6 +27,8 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    Indent,
+    Dedent,
 )
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
@@ -263,11 +265,13 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Ref("QuotedLiteralSegment"),
         ),
+        Dedent,
     )
 
 

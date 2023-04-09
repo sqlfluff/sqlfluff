@@ -1158,6 +1158,7 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Sequence(
@@ -1167,6 +1168,7 @@ class AliasExpressionSegment(BaseSegment):
             ),
             Ref("SingleQuotedIdentifierSegment"),
         ),
+        Dedent,
     )
 
 

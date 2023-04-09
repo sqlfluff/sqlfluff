@@ -3752,8 +3752,10 @@ class AsAliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         "AS",
         Ref("SingleIdentifierGrammar"),
+        Dedent,
     )
 
 
