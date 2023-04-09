@@ -3422,7 +3422,7 @@ class CreateStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         # Next set are Notification Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
-        AnySetOf(
+        AnyNumberOf(
             Sequence("TYPE", Ref("EqualsSegment"), "QUEUE"),
             Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             OneOf(
