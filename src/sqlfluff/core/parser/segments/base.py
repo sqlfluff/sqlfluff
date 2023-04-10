@@ -92,7 +92,7 @@ class PathStep:
     segment: "BaseSegment"
     idx: int
     len: int
-    code_idxs: Tuple[int]
+    code_idxs: Tuple[int, ...]
 
 
 @dataclass
