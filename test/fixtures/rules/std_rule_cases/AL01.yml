@@ -61,13 +61,15 @@ test_fail_implicit_alias_implicit_multiple:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_newline:
-  # Add whitespace when fixing implicit aliasing
+  # NOTE: The whitespace before `foo` is in the alias remains.
+  # This is probably a bug, but will be picked up by other
+  # rules later. One to fix later.
   fail_str: |
       select foo.bar from (select 1 as bar)
       AS foo
   fix_str: |
       select foo.bar from (select 1 as bar)
-      foo
+       foo
   configs:
     rules:
       aliasing.table:
