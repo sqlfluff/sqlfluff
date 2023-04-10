@@ -589,6 +589,32 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
+    """A `DROP TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("TEMPORARY", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Ref("OnCLusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
