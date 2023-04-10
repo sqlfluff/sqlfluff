@@ -6,7 +6,8 @@ from typing import Any, Dict, Tuple, NamedTuple, List, Union
 
 from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
 from sqlfluff.core.parser.segments.meta import TemplateSegment
-from sqlfluff.core.templaters import JinjaTemplater
+from sqlfluff.core.templaters import JinjaTemplater, TemplatedFile, RawFileSlice
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 from sqlfluff.core.parser.lexer import (
     StringLexer,
     LexMatch,
@@ -302,6 +303,107 @@ def test__parser__lexer_slicing_calls(case: _LexerSlicingCase):
 
     lexer = Lexer(config=config)
     lexing_segments, lexing_violations = lexer.lex(templated_file)
+
+    assert not lexing_violations, f"Found templater violations: {lexing_violations}"
+    assert case.expected_segments == [
+        (
+            seg.raw,
+            seg.source_str if isinstance(seg, TemplateSegment) else None,
+            seg.block_type if isinstance(seg, TemplateSegment) else None,
+            seg.type,
+        )
+        for seg in lexing_segments
+    ]
+
+
+class _LexerSlicingTemplateFileCase(NamedTuple):
+    name: str
+    # easy way to build inputs here is to call templater.process in
+    # test__parser__lexer_slicing_calls and adjust the output how you like:
+    file: TemplatedFile
+    # (
+    #     raw,
+    #     source_str (if TemplateSegment),
+    #     block_type (if TemplateSegment),
+    #     segment_type
+    # )
+    expected_segments: List[Tuple[str, Union[str, None], Union[str, None], str]]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        _LexerSlicingTemplateFileCase(
+            name="very simple test case",
+            file=TemplatedFile(
+                source_str="SELECT {# comment #}1;",
+                templated_str="SELECT 1;",
+                fname="test.sql",
+                sliced_file=[
+                    TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
+                    TemplatedFileSlice(
+                        "comment", slice(7, 20, None), slice(7, 7, None)
+                    ),
+                    TemplatedFileSlice(
+                        "literal", slice(20, 22, None), slice(7, 9, None)
+                    ),
+                ],
+                raw_sliced=[
+                    RawFileSlice("SELECT ", "literal", 0, None, 0),
+                    RawFileSlice("{# comment #}", "comment", 7, None, 0),
+                    RawFileSlice("1;", "literal", 20, None, 0),
+                ],
+            ),
+            expected_segments=[
+                ("SELECT", None, None, "raw"),
+                (" ", None, None, "whitespace"),
+                ("", "{# comment #}", "comment", "placeholder"),
+                ("1", None, None, "literal"),
+                (";", None, None, "raw"),
+                ("", None, None, "end_of_file"),
+            ],
+        ),
+        _LexerSlicingTemplateFileCase(
+            name="special zero length slice type is kept",
+            file=TemplatedFile(
+                source_str="SELECT 1;",
+                templated_str="SELECT 1;",
+                fname="test.sql",
+                sliced_file=[
+                    TemplatedFileSlice("literal", slice(0, 7, None), slice(0, 7, None)),
+                    # this is a special marker that the templater wants to show up
+                    # as a meta segment:
+                    TemplatedFileSlice(
+                        "special_type", slice(7, 7, None), slice(7, 7, None)
+                    ),
+                    TemplatedFileSlice("literal", slice(7, 9, None), slice(7, 9, None)),
+                ],
+                raw_sliced=[
+                    RawFileSlice("SELECT 1;", "literal", 0, None, 0),
+                ],
+            ),
+            expected_segments=[
+                ("SELECT", None, None, "raw"),
+                (" ", None, None, "whitespace"),
+                ("", "", "special_type", "placeholder"),
+                ("1", None, None, "literal"),
+                (";", None, None, "raw"),
+                ("", None, None, "end_of_file"),
+            ],
+        ),
+    ],
+    ids=lambda case: case.name,
+)
+def test__parser__lexer_slicing_from_template_file(case: _LexerSlicingTemplateFileCase):
+    """Test slicing using a provided TemplateFile.
+
+    Useful for testing special inputs without having to find a templater to trick
+    and yield the input you want to test.
+    """
+    config = FluffConfig(overrides={"dialect": "ansi"})
+
+    lexer = Lexer(config=config)
+    lexing_segments, lexing_violations = lexer.lex(case.file)
 
     assert not lexing_violations, f"Found templater violations: {lexing_violations}"
     assert case.expected_segments == [
