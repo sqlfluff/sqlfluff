@@ -322,6 +322,8 @@ class Rule_CV06(BaseRule):
             elif not segment.is_meta:
                 before_segment.append(segment)
             trigger_segment = segment
+        else:
+            return None  # File does not contain any statements
         self.logger.debug("Trigger on: %s", trigger_segment)
         self.logger.debug("Anchoring on: %s", anchor_segment)
 
