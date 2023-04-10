@@ -9,6 +9,9 @@ import os
 import sys
 import configparser
 
+# Import the sqlfluff plugin manager so we can enumerate rules.
+from sqlfluff.core.plugin.host import get_plugin_manager
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -109,6 +112,17 @@ redirects = {
     "indentation": "layout.html#configuring-indent-locations",
     "architecture": "internals.html#architecture",
 }
+
+# Add permalink redirects to each of the rules.
+# This means external tools (or the VSCode plugin) can always
+# link to e.g. "rules/CP01.html" and get redirected to the
+# docs for that rule.
+for plugin_rules in get_plugin_manager().hook.get_rules():
+    for rule in plugin_rules:
+        _bundle_name = rule.name.split(".")[0]
+        redirects[
+            f"rules/{rule.code}"
+        ] = f"bundles/{_bundle_name}.html#rule-{rule.code}"
 
 
 def ultimate_replace(app, docname, source):
