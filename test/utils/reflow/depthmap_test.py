@@ -103,6 +103,6 @@ def test_reflow_depthmap_order_by(default_config):
     print(order_stack_pos)
     print(desc_stack_pos)
     assert order_stack_pos == StackPosition(idx=0, len=9, type="start")
-    # NOTE: Unhelpfully, not an "end" but that's because there's a dedent
-    # there. We work around that in the rebreak logic.
-    assert desc_stack_pos == StackPosition(idx=7, len=9, type="")
+    # NOTE: Even though idx 7 is not the end, the _type_ of this location
+    # is still an "end" because the following elements are non-code.
+    assert desc_stack_pos == StackPosition(idx=7, len=9, type="end")
