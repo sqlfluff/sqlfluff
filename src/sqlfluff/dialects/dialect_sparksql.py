@@ -155,8 +155,9 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer(
             "file_literal",
             (
-                r"[a-zA-z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\))+"
-                r"([a-zA-Z0-9\-_\.]*(:|\?|=|&))*[a-zA-Z0-9\-_\.]*\.?[a-z]*"
+                r"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\)){2,}"
+                r"((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)"
+                r"|([a-zA-Z0-9\-_\.]*\.[a-z]+))"
             ),
             CodeSegment,
             segment_kwargs={"type": "file_literal"},
@@ -230,6 +231,8 @@ sparksql_dialect.replace(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -690,8 +693,9 @@ sparksql_dialect.add(
         Ref("QuotedLiteralSegment"),
     ),
     TableDefinitionSegment=Sequence(
-        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
         Ref("TemporaryGrammar", optional=True),
+        Ref.keyword("EXTERNAL", optional=True),
         Ref.keyword("STREAMING", optional=True),
         Ref.keyword("LIVE", optional=True),
         "TABLE",

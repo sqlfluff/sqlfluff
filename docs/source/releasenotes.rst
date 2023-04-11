@@ -32,7 +32,7 @@ Upgrading to 2.0 brings several important breaking changes:
   previously separate. One example of this is that the legacy rules
   :code:`L001`, :code:`L005`, :code:`L006`, :code:`L008`, :code:`L023`,
   :code:`L024`, :code:`L039`, :code:`L048` & :code:`L071` have been combined
-  simply into :class:`LT01 <sqlfluff.rules.sphinx.Rule_LT01>`.
+  simply into :sqlfluff:ref:`LT01`.
 
 Recommended upgrade steps
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -65,8 +65,7 @@ To upgrade smoothly between versions, we recommend the following sequence:
      *will still be understood* here (because they remain valid as aliases
      for those rules) - you may find that some rules no longer exist in
      isolation and so these references may be misleading. e.g. :code:`L005`
-     is now an alias for
-     :class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>` but
+     is now an alias for :sqlfluff:ref:`layout.spacing` but
      that rule is much more broad ranging than the original scope of
      :code:`L005`, which was only spacing around commas.
 
@@ -92,17 +91,15 @@ To upgrade smoothly between versions, we recommend the following sequence:
    or (if you disagree with the changes) consider changing which rules
    you enable or their configuration accordingly. In particular you may notice:
 
-   * The indentation rule (:code:`L003` as was, now
-     :class:`LT02, layout.indent <sqlfluff.rules.sphinx.Rule_LT02>`) has had
-     a significant rewrite, and while much more flexible and accurate, it is
-     also more specific. Note that :ref:`hangingindents` are no longer
+   * The indentation rule (:code:`L003` as was, now :sqlfluff:ref:`LT02`) has
+     had a significant rewrite, and while much more flexible and accurate, it
+     is also more specific. Note that :ref:`hangingindents` are no longer
      supported, and that while not enabled by default, many users may find
      the enabling :ref:`implicitindents` fits their organisation's style
      better.
 
-   * The spacing rule (
-     :class:`LT01, layout.spacing <sqlfluff.rules.sphinx.Rule_LT01>`) has a
-     much wider scope, and so may pick up spacing issues that were not
+   * The spacing rule (:sqlfluff:ref:`LT01`: :sqlfluff:ref:`layout.spacing`)
+     has a much wider scope, and so may pick up spacing issues that were not
      previously enforced. If you disagree with any of these, you can
      override the :code:`sqlfluff:layout` sections of the config with
      different (or just more liberal settings, like :code:`any`).

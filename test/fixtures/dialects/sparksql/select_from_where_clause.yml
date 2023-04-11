@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59a2bc011fdb7b3367b1d7ce3761037c884ce8298414f1fd7d7de2b2e5f349b8
+_hash: f80fb596f8f8960dbd91f35c34a72819d16df7ead3a4fab481a439cd14e54ddf
 file:
 - statement:
     select_statement:
@@ -255,3 +255,69 @@ file:
                 - keyword: 'NULL'
             end_bracket: )
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: person
+          - dot: .
+          - naked_identifier: id
+        - keyword: is
+        - keyword: distinct
+        - keyword: from
+        - column_reference:
+          - naked_identifier: person
+          - dot: .
+          - naked_identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: person
+          - dot: .
+          - naked_identifier: id
+        - keyword: is
+        - keyword: not
+        - keyword: distinct
+        - keyword: from
+        - column_reference:
+          - naked_identifier: person
+          - dot: .
+          - naked_identifier: age

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2ed614343bd296aa197103f38871d6b38b4d037a7fd30c5488f038b13222a8c
+_hash: f35ea61a75da1d28ffa1c28be81e4bc43811876a39dabddd26c01ed7530576b5
 file:
 - statement:
     create_table_statement:
@@ -295,3 +295,44 @@ file:
     - numeric_literal: '4'
     - keyword: BUCKETS
 - statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: age
+        end_bracket: )
