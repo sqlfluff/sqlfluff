@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93ae46885aa1d2a3a2dadfaf15930633e76855483852508af8b77a7d7b187d86
+_hash: 3c33cb37933f7f7c8f6d7e34ed3788b87248be615d88b29b6dcd5e297b8ccd6f
 file:
 - statement:
     create_statement:
@@ -21,20 +21,18 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: queue
-    - notification_integration_parameters:
-      - keyword: notification_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: gcp_pubsub
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcp_pubsub
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-    - notification_integration_parameters:
-        keyword: gcp_pubsub_subscription_name
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'projects/project-1234/subscriptions/sub2'"
+    - keyword: gcp_pubsub_subscription_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'projects/project-1234/subscriptions/sub2'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -51,19 +49,18 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: queue
-    - storage_notification_parameters:
-      - keyword: notification_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: azure_event_grid
-      - keyword: azure_storage_queue_primary_uri
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'https://myqueue.queue.core.windows.net/mystoragequeue'"
-      - keyword: azure_tenant_id
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'a123bcde-1234-5678-abc1-9abc12345678'"
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure_event_grid
+    - keyword: azure_storage_queue_primary_uri
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://myqueue.queue.core.windows.net/mystoragequeue'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123bcde-1234-5678-abc1-9abc12345678'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -80,24 +77,22 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: queue
-    - notification_integration_parameters:
-      - keyword: notification_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: aws_sns
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_sns
     - keyword: direction
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: outbound
-    - notification_integration_parameters:
-      - keyword: aws_sns_topic_arn
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'arn:aws:sns:us-east-2:111122223333:sns_topic'"
-      - keyword: aws_sns_role_arn
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'arn:aws:iam::111122223333:role/error_sns_role'"
+    - keyword: aws_sns_topic_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:sns:us-east-2:111122223333:sns_topic'"
+    - keyword: aws_sns_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::111122223333:role/error_sns_role'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -114,20 +109,18 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: outbound
-    - notification_integration_parameters:
-      - keyword: notification_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: gcp_pubsub
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcp_pubsub
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-    - notification_integration_parameters:
-        keyword: gcp_pubsub_topic_name
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'projects/sdm-prod/topics/mytopic'"
+    - keyword: gcp_pubsub_topic_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'projects/sdm-prod/topics/mytopic'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -144,22 +137,20 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: queue
-    - storage_notification_parameters:
-      - keyword: notification_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: azure_event_grid
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure_event_grid
     - keyword: direction
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: outbound
-    - storage_notification_parameters:
-      - keyword: azure_event_grid_topic_endpoint
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'https://myaccount.region-1.eventgrid.azure.net/api/events'"
-      - keyword: azure_tenant_id
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'mytenantid'"
+    - keyword: azure_event_grid_topic_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://myaccount.region-1.eventgrid.azure.net/api/events'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'mytenantid'"
 - statement_terminator: ;
