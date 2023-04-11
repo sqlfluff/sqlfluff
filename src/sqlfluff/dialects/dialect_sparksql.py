@@ -3169,15 +3169,15 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
     """
 
     type = "frame_clause"
-    #interval 6 days preceding
+    # interval 6 days preceding
     _frame_extent = OneOf(
         Sequence("CURRENT", "ROW"),
         Sequence(
             OneOf(
-                Ref("NumericLiteralSegment"), 
+                Ref("NumericLiteralSegment"),
                 "UNBOUNDED",
                 Ref("IntervalExpressionSegment"),
-                ),
+            ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
     )
