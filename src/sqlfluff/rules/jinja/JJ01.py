@@ -21,7 +21,7 @@ class Rule_JJ01(BaseRule):
     Jinja tags with either no whitespace or very long whitespace
     are hard to read.
 
-    .. code-block:: sql
+    .. code-block:: jinja
        :force:
 
         SELECT {{    a     }} from {{ref('foo')}}
@@ -31,7 +31,7 @@ class Rule_JJ01(BaseRule):
     A single whitespace surrounding Jinja tags, alternatively
     longer gaps containing newlines are acceptable.
 
-    .. code-block:: sql
+    .. code-block:: jinja
        :force:
 
         SELECT {{ a }} from {{ ref('foo') }};

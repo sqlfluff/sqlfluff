@@ -34,17 +34,9 @@ and customize a rule set that best suites their organization.
 See the :ref:`config` section for more information on how to enable
 only :code:`core` rules by default.
 
-Specific Rules
---------------
-
-.. automodule:: sqlfluff.rules.sphinx
-   :members:
-   :member-order: alphabetical
-
-.. _inline_ignoring_errors:
-
 Inline Ignoring Errors
 -----------------------
+
 `SQLFluff` features inline error ignoring. For example, the following will
 ignore the lack of whitespace surrounding the ``*`` operator.
 
@@ -79,6 +71,7 @@ all rules on the given line.
 
    a.a*a.b AS bad_3  -- noqa
 
+.. _inline_ignoring_errors:
 
 Ignoring line ranges
 ^^^^^^^^^^^^^^^^^^^^
@@ -101,3 +94,10 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
+
+Rule Index
+----------
+
+.. include:: partials/rule_table.rst
+
+.. include:: partials/rule_summaries.rst
