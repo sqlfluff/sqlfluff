@@ -3036,6 +3036,65 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
     )
 
 
+class DropOwnedStatementSegment(BaseSegment):
+    """A `DROP OWNED` statement.
+
+    https://www.postgresql.org/docs/15/sql-drop-owned.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6667
+    """
+
+    type = "drop_owned_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "OWNED",
+        "BY",
+        Delimited(
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                # must come last; CURRENT_USER isn't reserved:
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class ReassignOwnedStatementSegment(BaseSegment):
+    """A `REASSIGN OWNED` statement.
+
+    https://www.postgresql.org/docs/15/sql-reassign-owned.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6678
+    """
+
+    type = "reassign_owned_statement"
+
+    match_grammar = Sequence(
+        "REASSIGN",
+        "OWNED",
+        "BY",
+        Delimited(
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                # must come last; CURRENT_USER isn't reserved:
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+        "TO",
+        OneOf(
+            "CURRENT_ROLE",
+            "CURRENT_USER",
+            "SESSION_USER",
+            # must come last; CURRENT_USER isn't reserved:
+            Ref("RoleReferenceSegment"),
+        ),
+    )
+
+
 class CommentOnStatementSegment(BaseSegment):
     """`COMMENT ON` statement.
 
@@ -3555,6 +3614,8 @@ class StatementSegment(ansi.StatementSegment):
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
+            Ref("DropOwnedStatementSegment"),
+            Ref("ReassignOwnedStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
