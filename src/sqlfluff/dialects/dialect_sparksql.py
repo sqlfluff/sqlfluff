@@ -1121,11 +1121,15 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
-        Ref("RowFormatClauseSegment", optional=True),
-        Ref("StoredAsGrammar", optional=True),
-        Ref("OptionsGrammar", optional=True),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BucketSpecGrammar", optional=True),
+        AnyNumberOf(
+            Ref("RowFormatClauseSegment", optional=True),
+            Ref("StoredAsGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("OptionsGrammar", optional=True),
+            Ref("PartitionSpecGrammar", optional=True),
+            Ref("BucketSpecGrammar", optional=True),
+            max_times_per_element=1,
+        ),
         Indent,
         AnyNumberOf(
             Ref("LocationGrammar", optional=True),
@@ -2755,6 +2759,20 @@ class PropertyNameSegment(BaseSegment):
         ),
     )
 
+# class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+#     """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+    
+#     We override the ansi definition to allow for comment segments."""
+
+#     match_grammar: Matchable = Sequence(
+#         Ref("SingleIdentifierGrammar"),  # Column name
+#         Ref("DatatypeSegment"),  # Column type
+#         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+#         AnyNumberOf(
+#             Ref("ColumnConstraintSegment", optional=True),
+#         ),
+#         Ref("CommentGrammar", optional=True)
+#     )
 
 class GeneratedColumnDefinitionSegment(BaseSegment):
     """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
