@@ -34,12 +34,12 @@ for plugin_rules in get_plugin_manager().hook.get_rules():
 
 # Write them into the table. Bundle by bundle.
 print("Rule Docs Generation: Writing Rule Table...")
-with open(base_path / "source/rules/ruletable.rst", "w", encoding="utf8") as f:
+with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as f:
     f.write(autogen_header)
     f.write(table_header)
     for bundle in sorted(rule_bundles.keys()):
         # Set the bundle name to the ref.
-        _bundle_name = f":doc:`/rules/bundles/{bundle}`"
+        _bundle_name = f":ref:`bundle_{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
             aliases = ", ".join(rule.aliases[:3]) + (
                 "," if len(rule.aliases) > 3 else ""
@@ -71,21 +71,20 @@ with open(base_path / "source/rules/ruletable.rst", "w", encoding="utf8") as f:
 
 
 # Write each of the summary files.
-print("Rule Docs Generation: Writing Rule Bundles...")
-for bundle in sorted(rule_bundles.keys()):
-    with open(
-        base_path / f"source/rules/bundles/{bundle}.rst", "w", encoding="utf8"
-    ) as f:
-        f.write(autogen_header)
+print("Rule Docs Generation: Writing Rule Summaries...")
+with open(base_path / "source/partials/rule_summaries.rst", "w", encoding="utf8") as f:
+    f.write(autogen_header)
+    for bundle in sorted(rule_bundles.keys()):
         if "sql" in bundle:
             # This accounts for things like "TSQL"
             header_name = bundle.upper()
         else:
             header_name = bundle.capitalize()
+        # Write the bundle header.
         f.write(
             f".. _bundle_{bundle}:\n\n"
             f"{header_name} bundle\n"
-            f"{'=' * (len(bundle) + 7)}\n\n"
+            f"{'-' * (len(bundle) + 7)}\n\n"
         )
         for rule in rule_bundles[bundle]:
             f.write(

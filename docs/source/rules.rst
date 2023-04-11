@@ -95,14 +95,9 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
 
-Rule Bundles
-------------
+Rule Index
+----------
 
-.. toctree::
-   :glob:
-   :hidden:
+.. include:: partials/rule_table.rst
 
-   /rules/bundles/*
-
-
-.. include:: rules/ruletable.rst
+.. include:: partials/rule_summaries.rst

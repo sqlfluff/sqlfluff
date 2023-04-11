@@ -42,6 +42,11 @@ class SQLFluffRule(ObjectDescription):
         # Add an ID for permalinks
         node_id = "rule" + "-" + sig
         signode["ids"].append(node_id)
+        if len(sig) == 4:
+            # If it's a code, add support for legacy links too.
+            # Both of these formats have been used in the past.
+            signode["ids"].append(f"sqlfluff.rules.Rule_{sig}")
+            signode["ids"].append(f"sqlfluff.rules.sphinx.Rule_{sig}")
         # Add to domain for xref resolution
         fluff = self.env.get_domain("sqlfluff")
         fluff.add_rule(sig)
