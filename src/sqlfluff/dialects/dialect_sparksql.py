@@ -2759,9 +2759,10 @@ class PropertyNameSegment(BaseSegment):
         ),
     )
 
+
 # class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
 #     """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
-    
+
 #     We override the ansi definition to allow for comment segments."""
 
 #     match_grammar: Matchable = Sequence(
@@ -2773,6 +2774,7 @@ class PropertyNameSegment(BaseSegment):
 #         ),
 #         Ref("CommentGrammar", optional=True)
 #     )
+
 
 class GeneratedColumnDefinitionSegment(BaseSegment):
     """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.

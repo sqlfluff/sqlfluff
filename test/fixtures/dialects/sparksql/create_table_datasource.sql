@@ -39,3 +39,9 @@ CREATE TABLE student (id INT, student_name STRING, age INT)
 USING CSV
 PARTITIONED BY (age)
 CLUSTERED BY (id) INTO 4 BUCKETS;
+
+CREATE TABLE student (id INT, student_name STRING, age INT)
+USING CSV
+COMMENT "this is a comment"
+PARTITIONED BY (age)
+STORED AS PARQUET;
