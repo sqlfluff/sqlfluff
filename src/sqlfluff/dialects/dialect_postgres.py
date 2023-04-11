@@ -260,8 +260,7 @@ postgres_dialect.add(
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
     ExtendedTableReferenceGrammar=OneOf(
         Ref("TableReferenceSegment"),
-        Sequence("ONLY", Ref("TableReferenceSegment")),
-        Sequence("ONLY", Bracketed(Ref("TableReferenceSegment"))),
+        Sequence("ONLY", OptionallyBracketed(Ref("TableReferenceSegment"))),
         Sequence(Ref("TableReferenceSegment"), Ref("StarSegment")),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
@@ -768,9 +767,7 @@ class DefinitionParametersSegment(BaseSegment):
     type = "definition_parameters"
     match_grammar: Matchable = Bracketed(
         Delimited(
-            Sequence(
-                Ref("DefinitionParameterSegment"),
-            ),
+            Ref("DefinitionParameterSegment"),
         )
     )
 
