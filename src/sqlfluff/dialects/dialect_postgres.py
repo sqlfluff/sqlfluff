@@ -258,6 +258,12 @@ postgres_dialect.add(
         Ref("NakedIdentifierFullSegment"),
     ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
+    ExtendedTableReferenceGrammar=OneOf(
+        Ref("TableReferenceSegment"),
+        Sequence("ONLY", Ref("TableReferenceSegment")),
+        Sequence("ONLY", Bracketed(Ref("TableReferenceSegment"))),
+        Sequence(Ref("TableReferenceSegment"), Ref("StarSegment")),
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
 )
 
@@ -734,6 +740,39 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class DefinitionParameterSegment(BaseSegment):
+    """A single definition parameter.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6320
+    """
+
+    type = "definition_parameter"
+    match_grammar: Matchable = Sequence(
+        Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("EqualsSegment"),
+            Ref("LiteralGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DefinitionParametersSegment(BaseSegment):
+    """List of definition parameters.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6313
+    """
+
+    type = "definition_parameters"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("DefinitionParameterSegment"),
+            ),
+        )
+    )
 
 
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
@@ -2129,6 +2168,132 @@ class DropExtensionStatementSegment(BaseSegment):
         "EXTENSION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
+        Ref("CascadeRestrictGrammar", optional=True),
+    )
+
+
+class PublicationReferenceSegment(ObjectReferenceSegment):
+    """A reference to a publication."""
+
+    type = "publication_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
+class PublicationTableSegment(BaseSegment):
+    """Specification for a single table object in a publication."""
+
+    type = "publication_table"
+    match_grammar: Matchable = Sequence(
+        Ref("ExtendedTableReferenceGrammar"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence("WHERE", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class PublicationObjectsSegment(BaseSegment):
+    """Specification for one or more objects in a publication.
+
+    Unlike the underlying PG grammar which has one object per PublicationObjSpec and
+    so requires one to track the previous object type if it's a "continuation object
+    type", this grammar groups together the continuation objects, e.g.
+    "TABLE a, b, TABLE c, d" results in two segments: one containing references
+    "a, b", and the other contianing "c, d".
+
+    https://www.postgresql.org/docs/15/sql-createpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10435-L10530
+    """
+
+    type = "publication_objects"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "TABLE",
+            Delimited(
+                Ref("PublicationTableSegment"),
+                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+            ),
+        ),
+        Sequence(
+            "TABLES",
+            "IN",
+            "SCHEMA",
+            Delimited(
+                OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
+                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+            ),
+        ),
+    )
+
+
+class CreatePublicationStatementSegment(BaseSegment):
+    """A `CREATE PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-createpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10390-L10530
+    """
+
+    type = "create_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PUBLICATION",
+        Ref("PublicationReferenceSegment"),
+        OneOf(
+            Sequence("FOR", "ALL", "TABLES"),
+            Sequence("FOR", Delimited(Ref("PublicationObjectsSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Ref("DefinitionParametersSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterPublicationStatementSegment(BaseSegment):
+    """A `ALTER PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-alterpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10549
+    """
+
+    type = "alter_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PUBLICATION",
+        Ref("PublicationReferenceSegment"),
+        OneOf(
+            Sequence("SET", Ref("DefinitionParametersSegment")),
+            Sequence("ADD", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("SET", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("DROP", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("RENAME", "TO", Ref("PublicationReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropPublicationStatementSegment(BaseSegment):
+    """A `DROP PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-droppublication.html
+    """
+
+    type = "drop_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "PUBLICATION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("PublicationReferenceSegment")),
         Ref("CascadeRestrictGrammar", optional=True),
     )
 
@@ -3590,6 +3755,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("CreatePublicationStatementSegment"),
+            Ref("AlterPublicationStatementSegment"),
+            Ref("DropPublicationStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
