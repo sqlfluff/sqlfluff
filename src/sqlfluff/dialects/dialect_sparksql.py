@@ -954,7 +954,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 OptionallyBracketed(
                     Delimited(
                         Sequence(
-                            Ref("ColumnDefinitionSegment"),
+                            Ref("ColumnFieldDefinitionSegment"),
                             OneOf(
                                 "FIRST",
                                 Sequence(
@@ -1166,11 +1166,10 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     )
 
 
-class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
-    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-    We override the ansi dialect column definition segment to allow for
-    iceberg syntax such as ADD COLUMN a.b"""
+class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column field definition, e.g. for an ADD COLUMN clause
+    using the iceberg syntax. This allows for iceberg syntax such 
+    as ADD COLUMN a.b"""
 
     match_grammar: Matchable = Sequence(
         Ref("ColumnReferenceSegment"),  # Column name
@@ -1295,10 +1294,11 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             ),
             optional=True,
         ),
+        Sequence("USING", Ref("DataSourceFormatSegment"), optional=True),
+        Ref("OptionsGrammar", optional=True),
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
-        "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
+        Sequence("AS", OptionallyBracketed(Ref("SelectableGrammar")), optional=True),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
@@ -3303,6 +3303,9 @@ class DataSourceFormatSegment(BaseSegment):
         # NB: JDBC is part of DataSourceV2 but not included
         # there since there are no significant syntax changes
         "JDBC",
+        Ref(
+            "ObjectReferenceSegment"
+        ),  # This allows for formats such as org.apache.spark.sql.jdbc
     )
 
 

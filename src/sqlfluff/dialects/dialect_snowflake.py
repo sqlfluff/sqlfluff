@@ -1440,6 +1440,23 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """Inherit from ansi but also allow for Snowflake System Functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions-system
+    """
+
+    match_grammar = ansi.SelectClauseElementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref("SystemFunctionName"),
+                Bracketed(Ref("QuotedLiteralSegment")),
+            )
+        ],
+        before=Ref("WildcardExpressionSegment"),
+    )
+
+
 class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Snowflake."""
 

@@ -86,10 +86,11 @@ class Rule_CP01(BaseRule):
         if parent.get_type() == "function_name" and len(parent.segments) != 1:
             return [LintResult(memory=context.memory)]
 
-        return [self._handle_segment(context.segment, context.memory)]
+        return [self._handle_segment(context.segment, context)]
 
-    def _handle_segment(self, segment, memory) -> LintResult:
+    def _handle_segment(self, segment, context: RuleContext) -> LintResult:
         # NOTE: this mutates the memory field.
+        memory = context.memory
         self.logger.info("_handle_segment: %s, %s", segment, segment.get_type())
         # Config type hints
         self.ignore_words_regex: str
@@ -99,6 +100,7 @@ class Rule_CP01(BaseRule):
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
             ignore_words_list = self.ignore_words_list
+            ignore_templated_areas = self.ignore_templated_areas
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
@@ -106,7 +108,8 @@ class Rule_CP01(BaseRule):
                 cap_policy,
                 cap_policy_opts,
                 ignore_words_list,
-            ) = self._init_capitalisation_policy()
+                ignore_templated_areas,
+            ) = self._init_capitalisation_policy(context)
 
         # Skip if in ignore list
         if ignore_words_list and segment.raw.lower() in ignore_words_list:
@@ -118,8 +121,10 @@ class Rule_CP01(BaseRule):
         ):
             return LintResult(memory=memory)
 
-        # Skip if templated.
-        if segment.is_templated:
+        # Skip if templated.  If the user wants to ignore templated areas, we don't
+        # even want to look at them to avoid affecting flagging non-template areas
+        # that are inconsistent with the template areas.
+        if segment.is_templated and ignore_templated_areas:
             return LintResult(memory=memory)
 
         # Skip if empty.
@@ -250,7 +255,7 @@ class Rule_CP01(BaseRule):
         """
         return LintFix.replace(segment, [segment.edit(fixed_raw)])
 
-    def _init_capitalisation_policy(self):
+    def _init_capitalisation_policy(self, context: RuleContext):
         """Called first time rule is evaluated to fetch & cache the policy."""
         cap_policy_name = next(
             k for k in self.config_keywords if k.endswith("capitalisation_policy")
@@ -269,6 +274,7 @@ class Rule_CP01(BaseRule):
             )
         else:
             self.ignore_words_list = []
+        self.ignore_templated_areas = context.config.get("ignore_templated_areas")
         self.logger.debug(
             f"Selected '{cap_policy_name}': '{self.cap_policy}' from options "
             f"{self.cap_policy_opts}"
@@ -276,4 +282,5 @@ class Rule_CP01(BaseRule):
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
         ignore_words_list = self.ignore_words_list
-        return cap_policy, cap_policy_opts, ignore_words_list
+        ignore_templated_areas = self.ignore_templated_areas
+        return cap_policy, cap_policy_opts, ignore_words_list, ignore_templated_areas
