@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: edeee342ef226afa51902c974ae0074be18aba4aa6cf0819d12496f74da1c8ec
+_hash: 00bbbff73f8f9a420c42c4cdd5d98e0f36c435b97662e439e295403c96aae249
 file:
 - statement:
     select_statement:
@@ -1090,6 +1090,18 @@ file:
                       - naked_identifier: ignore_nulls
                       - dot: .
                       - naked_identifier: id
+                    frame_clause:
+                    - keyword: range
+                    - keyword: between
+                    - interval_expression:
+                        keyword: interval
+                        interval_literal:
+                          numeric_literal: '6'
+                          date_part: days
+                    - keyword: preceding
+                    - keyword: and
+                    - keyword: current
+                    - keyword: row
                   end_bracket: )
       orderby_clause:
       - keyword: ORDER

@@ -122,5 +122,5 @@ SELECT
     FIRST_VALUE(ignore_nulls.v) RESPECT NULLS OVER w AS v_first_value,
     LAST_VALUE(ignore_nulls.v) RESPECT NULLS OVER w AS v_last_value
 FROM test_ignore_null AS ignore_nulls
-    WINDOW w AS (ORDER BY ignore_nulls.id)
+    WINDOW w AS (ORDER BY ignore_nulls.id range between interval 6 days preceding and current row)
 ORDER BY ignore_nulls.id;
