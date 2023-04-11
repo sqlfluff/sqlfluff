@@ -155,8 +155,9 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer(
             "file_literal",
             (
-                r"[a-zA-z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\))+"
-                r"([a-zA-Z0-9\-_\.]*(:|\?|=|&))*[a-zA-Z0-9\-_\.]*\.?[a-z]*"
+                r"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(\/|\\)){2,}"
+                r"((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)"
+                r"|([a-zA-Z0-9\-_\.]*\.[a-z]+))"
             ),
             CodeSegment,
             segment_kwargs={"type": "file_literal"},

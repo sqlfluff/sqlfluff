@@ -28,3 +28,9 @@ SELECT
     name,
     age
 FROM person ORDER BY name ASC, age DESC;
+
+-- Sort rows using complex expression.
+SELECT
+    name,
+    age
+FROM person ORDER BY SUM(age)/SUM(age) DESC;
