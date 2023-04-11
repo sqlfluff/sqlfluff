@@ -2672,6 +2672,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
             Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 866be1b451584cabb0ddf9f4f7ed9716dae714a6269a8e7a13362581c86462ff
+_hash: 3781b2c7fa7852a6bacc84fcf93f6f238a6abfa73a337cf44715e85254912c67
 file:
 - statement:
     alter_table_statement:
@@ -365,6 +365,48 @@ file:
       - keyword: ALTER
       - column_reference:
           naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '2'
+        - binary_operator: +
+        - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - binary_operator: +
+            - numeric_literal: '2'
+            - binary_operator: +
+            - numeric_literal: '3'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
       - keyword: DROP
       - keyword: DEFAULT
 - statement_terminator: ;
@@ -516,6 +558,52 @@ file:
             start_bracket: (
             expression:
               quoted_literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '2'
+        - binary_operator: +
+        - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          naked_identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '1'
+            - binary_operator: +
+            - numeric_literal: '2'
+            - binary_operator: +
+            - numeric_literal: '3'
             end_bracket: )
 - statement_terminator: ;
 - statement:

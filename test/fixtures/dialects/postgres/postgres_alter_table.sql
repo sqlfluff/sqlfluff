@@ -33,6 +33,8 @@ ALTER TABLE mytable ALTER other_column SET DEFAULT other_value;
 ALTER TABLE mytable ALTER other_column SET DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE mytable ALTER other_column SET DEFAULT a_function(a_parameter);
 ALTER TABLE mytable ALTER other_column SET DEFAULT a_function('a_parameter');
+ALTER TABLE mytable ALTER other_column SET DEFAULT 1 + 2 + 3;
+ALTER TABLE mytable ALTER other_column SET DEFAULT (1 + 2 + 3);
 ALTER TABLE mytable ALTER other_column DROP DEFAULT;
 ALTER TABLE IF EXISTS mytable ALTER date_column SET DEFAULT NOW();
 ALTER TABLE IF EXISTS mytable ALTER int_column SET DEFAULT 1;
@@ -42,6 +44,8 @@ ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT other_value;
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT a_function(a_parameter);
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT a_function('a_parameter');
+ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT 1 + 2 + 3;
+ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT (1 + 2 + 3);
 ALTER TABLE IF EXISTS mytable ALTER other_column DROP DEFAULT;
 
 ALTER TABLE distributors RENAME COLUMN address TO city;
