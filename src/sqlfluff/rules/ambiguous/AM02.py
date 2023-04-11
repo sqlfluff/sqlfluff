@@ -44,6 +44,7 @@ class Rule_AM02(BaseRule):
     aliases = ("L033",)
     groups: Tuple[str, ...] = ("all", "core", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_operator"})
+    is_fix_compatible = True
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
