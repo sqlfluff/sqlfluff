@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2533ee6f925cd7b21d6150acbe56fdae6a2b46b2654f08c08bf26b7efa7d16d
+_hash: 5d856330a613894ea00025a26e34b8d9021766b487b251c89e1db9e02771cbc9
 file:
 - statement:
     create_view_statement:
@@ -139,3 +139,40 @@ file:
           keyword: limit
           numeric_literal: '2'
 - statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: pulse_article_search_data
+    - keyword: USING
+    - object_reference:
+      - naked_identifier: org
+      - dot: .
+      - naked_identifier: apache
+      - dot: .
+      - naked_identifier: spark
+      - dot: .
+      - naked_identifier: sql
+      - dot: .
+      - naked_identifier: jdbc
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: url
+      - quoted_literal: '"jdbc:postgresql:dbserver"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: dbtable
+      - quoted_literal: '"schema.tablename"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: user
+      - quoted_literal: "'username'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: password
+      - quoted_literal: "'password'"
+      - end_bracket: )

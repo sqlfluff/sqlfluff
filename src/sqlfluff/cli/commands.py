@@ -616,6 +616,8 @@ def lint(
         file_output = json.dumps(result.as_records())
     elif format == FormatType.yaml.value:
         file_output = yaml.dump(result.as_records(), sort_keys=False)
+    elif format == FormatType.none.value:
+        file_output = ""
     elif format == FormatType.github_annotation.value:
         if annotation_level == "error":
             annotation_level = "failure"
@@ -1109,6 +1111,7 @@ def quoted_presenter(dumper, data):
             FormatType.human.value,
             FormatType.json.value,
             FormatType.yaml.value,
+            FormatType.none.value,
         ],
         case_sensitive=False,
     ),
@@ -1239,6 +1242,8 @@ def parse(
             file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
         elif format == FormatType.json.value:
             file_output = json.dumps(parsed_strings_dict)
+        elif format == FormatType.none.value:
+            file_output = ""
 
         # Dump the output to stdout or to file as appropriate.
         dump_file_payload(write_output, file_output)
