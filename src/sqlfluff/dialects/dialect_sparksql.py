@@ -1168,7 +1168,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
 
 class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     """A column field definition, e.g. for an ADD COLUMN clause
-    using the iceberg syntax. This allows for iceberg syntax such 
+    using the iceberg syntax. This allows for iceberg syntax such
     as ADD COLUMN a.b"""
 
     match_grammar: Matchable = Sequence(
