@@ -434,16 +434,15 @@ def _handle_zero_length_slice(
         # Move on
         return
 
-    # We've got a zero slice. This could be a block, unrendered templates
-    # or unrendered code (either because of loops of consumption).
-    if not is_zero_slice(tfs.source_slice):
-        yield TemplateSegment.from_slice(
-            tfs.source_slice,
-            tfs.templated_slice,
-            tfs.slice_type,
-            templated_file,
-        )
-    return
+    # Always return the slice, even if the source slice was also zero length.  Some
+    # templaters might want to pass through totally zero length slices as a way of
+    # marking locations in the middle of templated output.
+    yield TemplateSegment.from_slice(
+        tfs.source_slice,
+        tfs.templated_slice,
+        tfs.slice_type,
+        templated_file,
+    )
 
 
 def _iter_segments(
