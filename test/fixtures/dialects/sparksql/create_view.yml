@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d856330a613894ea00025a26e34b8d9021766b487b251c89e1db9e02771cbc9
+_hash: 9707e977b1efba1e0a3ad720e525968b4b83816679c979340c02dbc037a3c47b
 file:
 - statement:
     create_view_statement:
@@ -147,16 +147,17 @@ file:
     - table_reference:
         naked_identifier: pulse_article_search_data
     - keyword: USING
-    - object_reference:
-      - naked_identifier: org
-      - dot: .
-      - naked_identifier: apache
-      - dot: .
-      - naked_identifier: spark
-      - dot: .
-      - naked_identifier: sql
-      - dot: .
-      - naked_identifier: jdbc
+    - data_source_format:
+        object_reference:
+        - naked_identifier: org
+        - dot: .
+        - naked_identifier: apache
+        - dot: .
+        - naked_identifier: spark
+        - dot: .
+        - naked_identifier: sql
+        - dot: .
+        - naked_identifier: jdbc
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (

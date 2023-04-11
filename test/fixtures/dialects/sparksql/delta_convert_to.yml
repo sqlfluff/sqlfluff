@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 483c3924b2a16b80fb4f5256bc0f6a6248663f0433a49f47899b24db1f2b73a7
+_hash: a3d34caef12a18197d02c733c3cce7611de20948b410c4900b9995a6c479b36c
 file:
 - statement:
     convert_to_delta_statement:
@@ -29,15 +29,13 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            naked_identifier: part
+          naked_identifier: part
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: part2
+          naked_identifier: part2
           data_type:
             primitive_type:
               keyword: int

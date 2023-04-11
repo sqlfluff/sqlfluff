@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 288f0de4e29861e82335ce715714ed4216679192c96d7f474f7b40c67f53686c
+_hash: 9630e84f8a1e62373243524752cc6eb7ab25f89c00d9d3c3b29fa70b2f564a4c
 file:
 - statement:
     create_table_statement:
@@ -14,8 +14,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            naked_identifier: a
+          naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -35,8 +34,7 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: d
+          naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -50,8 +48,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: e
+          naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -71,8 +68,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            naked_identifier: a
+          naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -98,8 +94,7 @@ file:
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: d
+          naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -117,8 +112,7 @@ file:
               quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: e
+          naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
@@ -142,8 +136,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            naked_identifier: a
+          naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -171,8 +164,7 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: d
+          naked_identifier: d
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -208,8 +200,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: g
+          naked_identifier: g
           data_type:
             array_type:
               keyword: ARRAY
@@ -251,8 +242,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            naked_identifier: a
+          naked_identifier: a
           data_type:
             struct_type:
               keyword: STRUCT
@@ -272,8 +262,7 @@ file:
               - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            quoted_identifier: '`d`'
+          quoted_identifier: '`d`'
           data_type:
           - keyword: MAP
           - start_angle_bracket: <
@@ -287,8 +276,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          column_reference:
-            naked_identifier: e
+          naked_identifier: e
           data_type:
             array_type:
               keyword: ARRAY
