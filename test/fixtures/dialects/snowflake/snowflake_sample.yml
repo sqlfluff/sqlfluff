@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 610f0f38ae8691ff03201c8adc2fed5bf086cb4cff72cbf2549432eceb3c23b8
+_hash: 8fbecdbf9ac58a9c95d293d289de060182d5029064ef777bf3ef52f139d59d91
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -26,3 +26,84 @@ file:
                 start_bracket: (
                 numeric_literal: '20'
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: sample_size
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: dummy_data
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SEQ4
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: row_number
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TABLE
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: GENERATOR
+                            bracketed:
+                              start_bracket: (
+                              snowflake_keyword_expression:
+                                parameter: rowcount
+                                parameter_assigner: =>
+                                numeric_literal: '1000'
+                              end_bracket: )
+                        end_bracket: )
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: row_number
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dummy_data
+              sample_expression:
+                keyword: SAMPLE
+                bracketed:
+                  start_bracket: (
+                  variable: $sample_size
+                  keyword: ROWS
+                  end_bracket: )
+- statement_terminator: ;

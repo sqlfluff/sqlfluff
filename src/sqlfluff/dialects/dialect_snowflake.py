@@ -1320,7 +1320,10 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     match_grammar = Sequence(
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),
-        Bracketed(Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)),
+        Bracketed(
+            OneOf(Ref("NumericLiteralSegment"), Ref("ReferencedVariableNameSegment")),
+            Ref.keyword("ROWS", optional=True),
+        ),
         Sequence(
             OneOf("REPEATABLE", "SEED"),
             Bracketed(Ref("NumericLiteralSegment")),
