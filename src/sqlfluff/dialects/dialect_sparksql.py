@@ -693,7 +693,7 @@ sparksql_dialect.add(
         Ref("QuotedLiteralSegment"),
     ),
     TableDefinitionSegment=Sequence(
-OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
         Ref("TemporaryGrammar", optional=True),
         Ref.keyword("EXTERNAL", optional=True),
         Ref.keyword("STREAMING", optional=True),
