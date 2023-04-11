@@ -230,6 +230,8 @@ sparksql_dialect.replace(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
