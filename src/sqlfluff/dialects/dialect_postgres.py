@@ -2165,7 +2165,7 @@ class DropExtensionStatementSegment(BaseSegment):
         "EXTENSION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
-        Ref("CascadeRestrictGrammar", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2291,7 +2291,7 @@ class DropPublicationStatementSegment(BaseSegment):
         "PUBLICATION",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("PublicationReferenceSegment")),
-        Ref("CascadeRestrictGrammar", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
