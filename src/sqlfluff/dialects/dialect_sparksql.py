@@ -1119,9 +1119,9 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 OneOf("ASC", "DESC", optional=True),
-                                # NB: This isn't really ANSI, and isn't supported in Mysql,
-                                # but is supported in enough other dialects for it to make
-                                # sense here for now.
+                                # NB: This isn't really ANSI, and isn't supported 
+                                # in Mysql,but is supported in enough other dialects 
+                                # for it to make sense here for now.
                                 Sequence(
                                     "NULLS", OneOf("FIRST", "LAST"), optional=True
                                 ),
@@ -1167,9 +1167,11 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
 
 
 class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
-    """A column field definition, e.g. for an ADD COLUMN clause
-    using the iceberg syntax. This allows for iceberg syntax such
-    as ADD COLUMN a.b"""
+    """A column field definition, e.g. for CREATE TABLE or ALTER TABLE.
+    
+    This supports the iceberg syntax and allows for iceberg syntax such
+    as ADD COLUMN a.b.
+    """
 
     match_grammar: Matchable = Sequence(
         Ref("ColumnReferenceSegment"),  # Column name
@@ -3288,14 +3290,14 @@ class SelectClauseSegment(BaseSegment):
 
 
 class UsingClauseSegment(BaseSegment):
-    """`USING` clause segment"""
+    """`USING` clause segment."""
 
     type = "using_clause"
     match_grammar = Sequence("USING", Ref("DataSourceFormatSegment"))
 
 
 class DataSourceFormatSegment(BaseSegment):
-    """data source format segment"""
+    """Data source format segment."""
 
     type = "data_source_format"
     match_grammar = OneOf(
@@ -3310,9 +3312,10 @@ class DataSourceFormatSegment(BaseSegment):
 
 
 class IcebergTransformationSegment(BaseSegment):
-    """Transformation expressions to be used in creating hidden partitions
+    """A Transformation expressions used in PARTITIONED BY.
+    
+    This segment is to be used in creating hidden partitions
     in the iceberg table format.
-
     https://iceberg.apache.org/docs/latest/spark-ddl/#partitioned-by
     """
 
