@@ -58,7 +58,7 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
-    # Exclude the partials folder, which is made up of files indended
+    # Exclude the partials folder, which is made up of files intended
     # to be included in others.
     "partials",
 ]
