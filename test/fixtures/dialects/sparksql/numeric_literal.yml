@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72d4e1b192aea1c4eaf970bf27f493e205d6c131d1e6e09bd636f9f51e4a5245
+_hash: edc4b7056da719202ae59ad2deca1f0e2877a1e651f6505e096f027eb87914dc
 file:
   statement:
     select_statement:
@@ -26,9 +26,8 @@ file:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: '2147483648'
+        - sign_indicator: '-'
+        - numeric_literal: '2147483648'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
@@ -46,17 +45,15 @@ file:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 32y
+        - sign_indicator: '-'
+        - numeric_literal: 32y
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 32Y
+        - sign_indicator: '-'
+        - numeric_literal: 32Y
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
@@ -80,25 +77,22 @@ file:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: '0.1234567'
+        - sign_indicator: '-'
+        - numeric_literal: '0.1234567'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: '.1234567'
+        - sign_indicator: '-'
+        - numeric_literal: '.1234567'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: '123.'
+        - sign_indicator: '-'
+        - numeric_literal: '123.'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
@@ -140,17 +134,15 @@ file:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 5bd
+        - sign_indicator: '-'
+        - numeric_literal: 5bd
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 5BD
+        - sign_indicator: '-'
+        - numeric_literal: 5BD
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
@@ -168,66 +160,58 @@ file:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: .1234567e+2bd
+        - sign_indicator: '-'
+        - numeric_literal: .1234567e+2bd
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: .1234567E+2BD
+        - sign_indicator: '-'
+        - numeric_literal: .1234567E+2BD
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: +
-            numeric_literal: '3.e+3'
+        - sign_indicator: +
+        - numeric_literal: '3.e+3'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: +
-            numeric_literal: '3.E+3'
+        - sign_indicator: +
+        - numeric_literal: '3.E+3'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 3.E-3D
+        - sign_indicator: '-'
+        - numeric_literal: 3.E-3D
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-            sign_indicator: '-'
-            numeric_literal: 3.e-3d
+        - sign_indicator: '-'
+        - numeric_literal: 3.e-3d
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-          - sign_indicator: '-'
-          - sign_indicator: +
-          - sign_indicator: '-'
-          - numeric_literal: '1'
+        - sign_indicator: '-'
+        - sign_indicator: +
+        - sign_indicator: '-'
+        - numeric_literal: '1'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
             raw_comparison_operator: '>'
-        - numeric_literal:
-          - sign_indicator: '-'
-          - sign_indicator: +
-          - sign_indicator: '-'
-          - numeric_literal: '1'
+        - sign_indicator: '-'
+        - sign_indicator: +
+        - sign_indicator: '-'
+        - numeric_literal: '1'

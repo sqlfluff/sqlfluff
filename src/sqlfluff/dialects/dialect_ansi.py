@@ -1906,7 +1906,6 @@ ansi_dialect.add(
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
     Expression_A_Grammar=Sequence(
         OneOf(
-            Ref("Expression_C_Grammar"),
             Sequence(
                 OneOf(
                     Ref("SignedSegmentGrammar"),
@@ -1915,29 +1914,28 @@ ansi_dialect.add(
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
-                Ref("Expression_C_Grammar"),
+                Ref("Expression_A_Grammar"),
             ),
+            Ref("Expression_C_Grammar"),
         ),
         AnyNumberOf(
             OneOf(
+                # We need to add a lot more here...
                 Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("NOT", optional=True),
-                            Ref("LikeGrammar"),
-                        ),
-                        Sequence(
-                            Ref("BinaryOperatorGrammar"),
-                            Ref.keyword("NOT", optional=True),
-                        ),
-                        # We need to add a lot more here...
+                    Sequence(
+                        Ref.keyword("NOT", optional=True),
+                        Ref("LikeGrammar"),
                     ),
-                    Ref("Expression_C_Grammar"),
+                    Ref("Expression_A_Grammar"),
                     Sequence(
                         Ref.keyword("ESCAPE"),
-                        Ref("Expression_C_Grammar"),
+                        Ref("Expression_A_Grammar"),
                         optional=True,
                     ),
+                ),
+                Sequence(
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("Expression_A_Grammar"),
                 ),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
@@ -1966,12 +1964,6 @@ ansi_dialect.add(
                 Ref("NotNullGrammar"),
                 Ref("CollateGrammar"),
                 Sequence(
-                    # e.g. NOT EXISTS, but other expressions could be met as
-                    # well by inverting the condition with the NOT operator
-                    "NOT",
-                    Ref("Expression_C_Grammar"),
-                ),
-                Sequence(
                     Ref.keyword("NOT", optional=True),
                     "BETWEEN",
                     Ref("Expression_B_Grammar"),
@@ -1999,7 +1991,7 @@ ansi_dialect.add(
                     Ref("StringBinaryOperatorGrammar"),
                     Ref("ComparisonOperatorGrammar"),
                 ),
-                Ref("Expression_C_Grammar"),
+                Ref("Expression_B_Grammar"),
             ),
         ),
     ),

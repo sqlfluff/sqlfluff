@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3234ccf1239d9a4ac328425fb89d43b5c71d92627652c2db63246ce3f1717cdc
+_hash: 38b9a8afe5e461553af63ae22ccb6cf280fac46c730acea7b563f7eb8841fe68
 file:
 - statement:
     select_statement:
@@ -39,9 +39,8 @@ file:
                   naked_identifier: day
             - comma: ','
             - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '2'
+                sign_indicator: '-'
+                numeric_literal: '2'
             - comma: ','
             - expression:
                 bare_function: current_date

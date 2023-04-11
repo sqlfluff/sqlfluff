@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a7cb6b0f38f546f67eb9e65afe4e6128acc32f236820b9b88d2a3300ce1b3fe
+_hash: 9fc9c1e7a38cead6a2bec55e94ddb299601ef3c33bbbe1b8cdbd64d7fd97e1f9
 file:
 - statement:
     values_clause:
@@ -75,9 +75,8 @@ file:
           interval_expression:
             keyword: interval
             expression:
-              numeric_literal:
-                sign_indicator: '-'
-                numeric_literal: '5'
+              sign_indicator: '-'
+              numeric_literal: '5'
             date_part: day
       - end_bracket: )
 - statement_terminator: ;
