@@ -1119,8 +1119,8 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 OneOf("ASC", "DESC", optional=True),
-                                # NB: This isn't really ANSI, and isn't supported 
-                                # in Mysql,but is supported in enough other dialects 
+                                # NB: This isn't really ANSI, and isn't supported
+                                # in Mysql,but is supported in enough other dialects
                                 # for it to make sense here for now.
                                 Sequence(
                                     "NULLS", OneOf("FIRST", "LAST"), optional=True
@@ -1168,7 +1168,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
 
 class ColumnFieldDefinitionSegment(ansi.ColumnDefinitionSegment):
     """A column field definition, e.g. for CREATE TABLE or ALTER TABLE.
-    
+
     This supports the iceberg syntax and allows for iceberg syntax such
     as ADD COLUMN a.b.
     """
@@ -3313,7 +3313,7 @@ class DataSourceFormatSegment(BaseSegment):
 
 class IcebergTransformationSegment(BaseSegment):
     """A Transformation expressions used in PARTITIONED BY.
-    
+
     This segment is to be used in creating hidden partitions
     in the iceberg table format.
     https://iceberg.apache.org/docs/latest/spark-ddl/#partitioned-by
