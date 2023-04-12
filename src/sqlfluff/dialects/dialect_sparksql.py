@@ -1825,7 +1825,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("ExpressionSegment"),
                     Ref("CubeRollupClauseSegment"),
                     Ref("GroupingSetsClauseSegment"),
-                    min_times=1
+                    min_times=1,
                 )
             ),
             Sequence(
@@ -1836,7 +1836,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                         Ref("NumericLiteralSegment"),
                         # Can `GROUP BY coalesce(col, 1)`
                         Ref("ExpressionSegment"),
-                        min_times=1
+                        min_times=1,
                     ),
                 ),
                 Ref("WithCubeRollupClauseSegment"),
