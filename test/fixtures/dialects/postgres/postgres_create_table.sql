@@ -17,9 +17,9 @@ CREATE TABLE distributors (
      name   varchar(40) NOT NULL CHECK (name <> '')
 );
 
---CREATE TABLE array_int (
---    vector  int[][]
---);
+CREATE TABLE array_int (
+   vector  int[][]
+);
 
 --CREATE TABLE films (
 --    code        char(5),
@@ -226,12 +226,19 @@ CREATE TABLE users (
     other_id INTEGER REFERENCES groups (group_id) MATCH SIMPLE
 );
 
-CREATE TABLE orders
-(
-id bigint NOT NULL DEFAULT NEXTVAL('orders_id_seq'::regclass),
-constraint_collate_constraints text UNIQUE COLLATE numeric NOT NULL PRIMARY KEY,
-constraints_collate text NOT NULL UNIQUE COLLATE numeric,
-collate_constraints text COLLATE numeric NOT NULL UNIQUE
+CREATE TABLE orders (
+    id bigint NOT NULL DEFAULT NEXTVAL('orders_id_seq'::regclass),
+    constraint_collate_constraints text UNIQUE COLLATE numeric NOT NULL PRIMARY KEY,
+    constraints_collate text NOT NULL UNIQUE COLLATE numeric,
+    collate_constraints text COLLATE numeric NOT NULL UNIQUE,
+    nulls_distinct text UNIQUE NULLS DISTINCT,
+    nulls_not_distinct text UNIQUE NULLS NOT DISTINCT,
+    everything text UNIQUE NULLS DISTINCT WITH (arg1=3, arg5='str')
+        USING INDEX TABLESPACE tblspace COLLATE numeric
+);
+
+CREATE TABLE primary_key_options (
+    everything int PRIMARY KEY WITH (arg1=3, arg5='str') USING INDEX TABLESPACE tblspace NOT NULL
 );
 
 

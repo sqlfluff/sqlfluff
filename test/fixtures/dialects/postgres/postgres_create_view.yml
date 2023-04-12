@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d8742acb927b6adcc3e21676374283245b2728799fab3748bfb7389c5db4897
+_hash: 80226c3fc2d057dac32c44b6c636966e669971a1cb6dbbffb2c994b817e8a3a3
 file:
 - statement:
     create_view_statement:
@@ -205,10 +205,12 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-        start_bracket: (
-        parameter: security_invoker
-        end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: security_invoker
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -223,10 +225,12 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-        start_bracket: (
-        parameter: security_barrier
-        end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: security_barrier
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -241,13 +245,15 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-      - start_bracket: (
-      - parameter: security_invoker
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - parameter: BOOLEAN
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: security_invoker
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: BOOLEAN
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -262,13 +268,15 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-      - start_bracket: (
-      - parameter: security_barrier
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - parameter: BOOLEAN
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: security_barrier
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: BOOLEAN
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -283,13 +291,15 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-      - start_bracket: (
-      - parameter: check_option
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - parameter: local
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: check_option
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: local
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -313,13 +323,15 @@ file:
     - table_reference:
         naked_identifier: foo
     - keyword: with
-    - bracketed:
-      - start_bracket: (
-      - parameter: check_option
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - parameter: cascaded
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: check_option
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: cascaded
+          end_bracket: )
     - keyword: as
     - select_statement:
         select_clause:
@@ -335,6 +347,65 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: OTHER_VIEW
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: opt1
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt2
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '5'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt3
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt4
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt5
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '6'
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt6
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: opt7
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: ASC
+        - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     create_view_statement:

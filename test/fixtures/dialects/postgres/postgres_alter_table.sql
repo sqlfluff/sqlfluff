@@ -136,6 +136,40 @@ ALTER TABLE public.history ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.history_id_seq
 );
 
+-- Test adding columns with UNIQUE and PRIMARY KEY constraints
+
+ALTER TABLE tbl
+    ADD COLUMN nulls_distinct text UNIQUE NULLS DISTINCT,
+    ADD COLUMN nulls_not_distinct text UNIQUE NULLS NOT DISTINCT,
+    ADD everything text UNIQUE NULLS DISTINCT WITH (arg1=3, arg5='str') USING INDEX TABLESPACE spc;
+
+ALTER TABLE tbl
+    ADD pk text
+        DEFAULT 'hello'
+        PRIMARY KEY WITH (arg1=3, arg5='str') USING INDEX TABLESPACE tblspace NOT NULL;
+
+ALTER TABLE tbl
+    ADD CONSTRAINT foo1 UNIQUE (fld, col),
+    ADD CONSTRAINT foo2 UNIQUE NULLS DISTINCT (fld),
+    ADD CONSTRAINT foo3 UNIQUE NULLS NOT DISTINCT (fld),
+    ADD CONSTRAINT everything UNIQUE NULLS DISTINCT (fld, col)
+        INCLUDE (two, three)
+        WITH (arg1=3, arg5='str')
+        USING INDEX TABLESPACE tblspc,
+    ADD CONSTRAINT pk PRIMARY KEY (fld, col)
+        INCLUDE (four)
+        WITH (ff=auto, gg=stuff)
+        USING INDEX TABLESPACE tblspc;
+
+-- Test SET/RESET actions on both table and column
+
+ALTER TABLE foo SET (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC);
+ALTER TABLE foo RESET (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC);
+ALTER TABLE foo ALTER COLUMN baz
+    SET (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC);
+ALTER TABLE foo ALTER COLUMN baz
+    RESET (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC);
+
 -- Test out EXCLUDE constraints, as well as other more advanced index parameters on constraints
 
 -- from https://www.postgresql.org/docs/15/rangetypes.html: basic usage (adapted for ALTER TABLE)
