@@ -86,11 +86,13 @@ class PathStep:
         segment (:obj:`BaseSegment`): The segment in the chain.
         idx (int): The index of the target within its `segment`.
         len (int): The number of children `segment` has.
+        code_idxs (:obj:`tuple` of int): The indices which contain code.
     """
 
     segment: "BaseSegment"
     idx: int
     len: int
+    code_idxs: Tuple[int, ...]
 
 
 @dataclass
@@ -458,9 +460,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
     ) -> List[Tuple["RawSegment", List[PathStep]]]:
         """Returns a list of raw segments in this segment with the ancestors."""
         buffer = []
+        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
         for idx, seg in enumerate(self.segments):
             # If it's a raw, yield it with this segment as the parent
-            new_step = [PathStep(self, idx, len(self.segments))]
+            new_step = [PathStep(self, idx, len(self.segments), code_idxs)]
             if seg.is_type("raw"):
                 buffer.append((seg, new_step))
             # If it's not, recurse - prepending self to the ancestor stack
@@ -1150,9 +1153,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not self.segments:
             return []
 
+        # Check code idxs
+        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
         # Check through each of the child segments
         for idx, seg in enumerate(self.segments):
-            step = PathStep(self, idx, len(self.segments))
+            step = PathStep(self, idx, len(self.segments), code_idxs)
             # Have we found the target?
             if seg is other:
                 return [step]

@@ -1758,12 +1758,14 @@ class UnpivotAliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SingleQuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
+        Dedent,
     )
 
 

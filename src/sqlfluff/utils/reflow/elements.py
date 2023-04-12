@@ -5,6 +5,7 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
+from sqlfluff.core.parser import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     RawSegment,
@@ -76,6 +77,14 @@ class ReflowElement:
     def raw(self) -> str:
         """Get the current raw representation."""
         return "".join(seg.raw for seg in self.segments)
+
+    @property
+    def pos_marker(self) -> Optional[PositionMarker]:
+        """Get the first position marker of the element."""
+        for seg in self.segments:
+            if seg.pos_marker:
+                return seg.pos_marker
+        return None
 
     def num_newlines(self) -> int:
         """Return the number of newlines in this element.
@@ -628,7 +637,7 @@ class ReflowPoint(ReflowElement):
             prev_block, next_block, strip_newlines
         )
 
-        reflow_logger.debug("Respacing: %s", self)
+        reflow_logger.debug("* Respacing: %r @ %s", self.raw, self.pos_marker)
 
         # The buffer is used to create the new reflow point to return
         segment_buffer, last_whitespace, new_results = process_spacing(
@@ -662,7 +671,13 @@ class ReflowPoint(ReflowElement):
             if last_whitespace:
                 ws_idx = self.segments.index(last_whitespace)
                 if ws_idx > 0:
-                    prev_seg = self.segments[ws_idx - 1]
+                    # NOTE: Iterate by index so that we don't slice the full range.
+                    for prev_seg_idx in range(ws_idx - 1, -1, -1):
+                        prev_seg = self.segments[prev_seg_idx]
+                        # Skip past any indents
+                        if not prev_seg.is_type("indent"):
+                            break
+
                     if (
                         prev_seg.is_type("newline")
                         # Not just unequal. Must be actively _before_.

@@ -61,7 +61,8 @@ test_fail_implicit_alias_implicit_multiple:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_newline:
-  # Add whitespace when fixing implicit aliasing
+  # NOTE: Even when removing by a newline, we should still remove any duplicate
+  # whitespace.
   fail_str: |
       select foo.bar from (select 1 as bar)
       AS foo
