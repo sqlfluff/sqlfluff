@@ -14,6 +14,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a _bugfix_ and _dialect_ release:
+* Several bugfixes related to templating and indentation.
+* Performance improvements to the parser.
+* The `--persist-timing` option is now also available on `sqlfluff fix`.
+* A refresh to getting started and rule documentation.
+* Dialect improvements to SparkSQL, MySQL & Snowflake.
+
+Thanks also to [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+and [@Thashin](https://github.com/Thashin) who made their first contributions
+in this release. In particular, [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+made **seven** contributions in their first month! 🎉🎉🎉
+
 ## What’s Changed
 
 * Fix #4680 [#4707](https://github.com/sqlfluff/sqlfluff/pull/4707) [@alanmcruickshank](https://github.com/alanmcruickshank)
