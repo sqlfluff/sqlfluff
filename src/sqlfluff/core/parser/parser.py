@@ -4,7 +4,6 @@ from typing import Optional, Sequence, TYPE_CHECKING
 
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
-import sys
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
@@ -36,16 +35,7 @@ class Parser:
         root_segment = self.RootSegment(segments=segments, fname=fname)
         # Call .parse() on that segment
 
-        # Temporarily increase the Python recursion limit to 10,000.  This helps
-        # deal with recursion errors when parsing recursive segments like expressions.
-        old_limit = sys.getrecursionlimit()
-        sys.setrecursionlimit(max(old_limit, 10000))
-        try:
-            with RootParseContext.from_config(
-                config=self.config, recurse=recurse
-            ) as ctx:
-                parsed = root_segment.parse(parse_context=ctx)
-        finally:
-            sys.setrecursionlimit(old_limit)
+        with RootParseContext.from_config(config=self.config, recurse=recurse) as ctx:
+            parsed = root_segment.parse(parse_context=ctx)
 
         return parsed
