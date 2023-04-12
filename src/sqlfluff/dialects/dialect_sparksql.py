@@ -1710,6 +1710,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Dedent,
     )
 
+
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
@@ -1727,6 +1728,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         "SEPARATOR",
     )
     parse_grammar = ansi.OrderByClauseSegment.parse_grammar
+
 
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
