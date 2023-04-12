@@ -3348,6 +3348,7 @@ class IcebergTransformationSegment(BaseSegment):
         ),
     )
 
+
 class FrameClauseSegment(ansi.FrameClauseSegment):
     """A frame clause for window functions.
 
