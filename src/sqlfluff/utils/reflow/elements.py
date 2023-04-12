@@ -671,11 +671,12 @@ class ReflowPoint(ReflowElement):
             if last_whitespace:
                 ws_idx = self.segments.index(last_whitespace)
                 if ws_idx > 0:
-                    for prev_seg in self.segments[ws_idx - 1 :: -1]:
+                    # NOTE: Iterate by index so that we don't slice the full range.
+                    for prev_seg_idx in range(ws_idx - 1, None, -1):
+                        prev_seg = self.segments[prev_seg_idx]
                         # Skip past any indents
-                        if prev_seg.is_type("indent"):
-                            continue
-                        break
+                        if not prev_seg.is_type("indent"):
+                            break
 
                     if (
                         prev_seg.is_type("newline")
