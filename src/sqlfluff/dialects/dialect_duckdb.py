@@ -6,11 +6,11 @@ https://duckdb.org/docs/
 from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
     Delimited,
+    ImplicitIndent,
     Indent,
     Matchable,
     OneOf,
@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 
@@ -111,7 +112,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 "ALL",

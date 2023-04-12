@@ -30,8 +30,8 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     GreedyUntil,
-    Indent,
     ImplicitIndent,
+    Indent,
     KeywordSegment,
     Matchable,
     MultiStringParser,
@@ -2256,7 +2256,7 @@ class GroupByClauseSegment(BaseSegment):
     parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),

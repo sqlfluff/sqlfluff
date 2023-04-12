@@ -4,34 +4,36 @@ https://docs.exasol.com
 https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
-    OptionallyBracketed,
-    BaseFileSegment,
+    CodeSegment,
+    CommentSegment,
     Dedent,
     Delimited,
     GreedyUntil,
+    ImplicitIndent,
     Indent,
+    MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
+    OptionallyBracketed,
     Ref,
+    RegexLexer,
+    RegexParser,
     Sequence,
     StartsWith,
-    RegexLexer,
     StringLexer,
-    CodeSegment,
-    CommentSegment,
-    TypedParser,
-    SymbolSegment,
     StringParser,
-    RegexParser,
-    NewlineSegment,
-    MultiStringParser,
+    SymbolSegment,
+    TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
@@ -39,7 +41,6 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -582,7 +583,7 @@ class GroupByClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "GROUP",
         "BY",
-        Indent,
+        ImplicitIndent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
