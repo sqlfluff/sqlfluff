@@ -419,9 +419,7 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
-    SignedSegmentGrammar=AnyNumberOf(
-        Ref("PositiveSegment"), Ref("NegativeSegment"), min_times=1
-    ),
+    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
@@ -1191,7 +1189,7 @@ class ShorthandCastSegment(BaseSegment):
 
 
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """A numeric literal with one or more + or - signs preceding.
+    """A numeric literal with one + or - sign preceding.
 
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
@@ -1908,7 +1906,10 @@ ansi_dialect.add(
         OneOf(
             Sequence(
                 OneOf(
-                    Ref("SignedSegmentGrammar"),
+                    Ref(
+                        "SignedSegmentGrammar",
+                        exclude=Sequence(Ref("QualifiedNumericLiteralSegment")),
+                    ),
                     Ref("TildeSegment"),
                     Ref("NotOperatorGrammar"),
                     "PRIOR",
@@ -1980,7 +1981,10 @@ ansi_dialect.add(
         OneOf(
             Ref("Expression_C_Grammar"),
             Sequence(
-                Ref("SignedSegmentGrammar"),
+                Ref(
+                    "SignedSegmentGrammar",
+                    exclude=Sequence(Ref("QualifiedNumericLiteralSegment")),
+                ),
                 Ref("Expression_B_Grammar"),
             ),
         ),

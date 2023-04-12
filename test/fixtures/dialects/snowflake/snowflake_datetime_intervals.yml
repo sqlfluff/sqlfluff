@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6554076ea2841204db5e13c5ed2f9d9b4ac889f3f45c667db6ca19f229aaac2
+_hash: 36aac154cc29a8174068e6e2c01eaa791f94c0af65b03ae16a94ff319675d85f
 file:
 - statement:
     select_statement:
@@ -18,8 +18,9 @@ file:
             - date_part: NANOSECONDS
             - comma: ','
             - expression:
-                sign_indicator: '-'
-                numeric_literal: '1'
+                numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '1'
             - comma: ','
             - expression:
                 quoted_literal: "'2020-01-01'"
