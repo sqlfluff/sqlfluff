@@ -1815,22 +1815,33 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "GROUP",
         "BY",
         Indent,
-        Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
+        OneOf(
+            Delimited(
+                AnyNumberOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                    Ref("CubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
+                    min_times=1
+                )
             ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            Sequence(
+                Delimited(
+                    AnyNumberOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                        min_times=1
+                    ),
+                ),
+                Ref("WithCubeRollupClauseSegment"),
+            ),
         ),
-        # TODO: New Rule
-        #  Warn if CubeRollupClauseSegment and
-        #  WithCubeRollupClauseSegment used in same query
-        Ref("WithCubeRollupClauseSegment", optional=True),
         Dedent,
     )
 
