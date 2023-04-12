@@ -1481,6 +1481,7 @@ class DistributeByClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence("DISTRIBUTE", "BY"),
         terminator=OneOf(
+            "SORT",
             "LIMIT",
             "HAVING",
             # For window functions
@@ -1508,6 +1509,7 @@ class DistributeByClauseSegment(BaseSegment):
                 "WINDOW",
                 "LIMIT",
                 Ref("FrameClauseUnitGrammar"),
+                Ref.keyword("SORT"),
             ),
         ),
         Dedent,
@@ -1708,6 +1710,23 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Dedent,
     )
 
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = OneOf(  # type: ignore
+        "CLUSTER",
+        "DISTRIBUTE",
+        "SORT",
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    )
+    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
 
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
