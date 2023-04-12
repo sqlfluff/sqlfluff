@@ -1909,7 +1909,7 @@ ansi_dialect.add(
             Sequence(
                 OneOf(
                     Ref("SignedSegmentGrammar"),
-                    # Ref('TildeSegment'),
+                    Ref("TildeSegment"),
                     Ref("NotOperatorGrammar"),
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)

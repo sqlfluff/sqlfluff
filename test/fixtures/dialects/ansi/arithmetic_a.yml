@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e29689406be873dc9abb02b3e8397768197ba907f21d6e6a79c6e40dd80782d
+_hash: 8d3fb94d2dc2c269f5f4c4ab04e7064b2e561014f21bdde272493da49afea1ef
 file:
 - statement:
     select_statement:
@@ -37,6 +37,36 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - bracketed:
+              start_bracket: (
+              expression:
+              - tilde: '~'
+              - numeric_literal: '2'
+              - binary_operator: '*'
+              - numeric_literal: '3'
+              end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+          - numeric_literal: '4'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '6'
+          - binary_operator: +
+          - numeric_literal: '13'
+          alias_expression:
+            keyword: as
+            naked_identifier: val
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
           numeric_literal:
             sign_indicator: '-'
             numeric_literal: '1'
@@ -51,6 +81,71 @@ file:
           - numeric_literal: '1'
           - binary_operator: +
           - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            tilde: '~'
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - sign_indicator: '-'
+          - numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '4'
+          - binary_operator:
+              ampersand: '&'
+          - tilde: '~'
+          - numeric_literal: '8'
+          - binary_operator:
+              pipe: '|'
+          - numeric_literal: '16'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '8'
+            binary_operator: +
+            tilde: '~'
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '3'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '8'
+          - binary_operator:
+              pipe: '|'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
+          - numeric_literal: '4'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -135,6 +230,26 @@ file:
           - sign_indicator: '-'
           - sign_indicator: '-'
           - sign_indicator: '-'
+          - function:
+              function_name:
+                function_name_identifier: func
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
           - function:
               function_name:
                 function_name_identifier: func
@@ -257,5 +372,17 @@ file:
           - keyword: LIKE
           - sign_indicator: '-'
           - sign_indicator: '-'
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'abc'"
+          - keyword: LIKE
+          - tilde: '~'
+          - tilde: '~'
           - numeric_literal: '5'
 - statement_terminator: ;
