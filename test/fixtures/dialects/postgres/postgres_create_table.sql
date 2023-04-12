@@ -257,3 +257,41 @@ CREATE TABLE test_with_storage_param (
 CREATE TABLE test_with_storage_params (
     col_1 boolean
 ) WITH (autovacuum_enabled=true, vacuum_truncate=false);
+
+-- Test out EXCLUDE constraints, as well as other more advanced index parameters on constraints
+
+-- from https://www.postgresql.org/docs/15/rangetypes.html: basic usage
+CREATE TABLE reservation (
+    during tsrange,
+    EXCLUDE USING gist (during WITH &&)
+);
+CREATE TABLE room_reservation (
+    room text,
+    during tsrange,
+    EXCLUDE USING gist (room WITH =, during WITH &&)
+);
+
+-- all the gnarly options: not every option is valid, but this will parse successfully on PG 15.
+CREATE TABLE no_using (
+    field text,
+    EXCLUDE (field WITH =) NOT DEFERRABLE INITIALLY IMMEDIATE NO INHERIT
+);
+CREATE TABLE many_options (
+    field text,
+    EXCLUDE USING gist (
+        one WITH =,
+        nulls_opclass nulls WITH =,
+        nulls_last NULLS LAST WITH =,
+        two COLLATE "en-US" opclass
+            (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC)
+            ASC NULLS FIRST WITH =,
+        (two + 5) WITH =,
+        myfunc(a, b) WITH =,
+        myfunc_opclass(a, b) fop (opt=1, foo=2) WITH =,
+        only_opclass opclass WITH =,
+        desc_order DESC WITH =
+    ) INCLUDE (a, b) WITH (idx_num = 5, idx_str = 'idx_value', idx_kw=DESC)
+        USING INDEX TABLESPACE tblspc
+        WHERE (field != 'def')
+        DEFERRABLE INITIALLY DEFERRED
+);

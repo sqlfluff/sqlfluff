@@ -257,6 +257,20 @@ postgres_dialect.add(
         Ref("QuotedIdentifierSegment"),
         Ref("NakedIdentifierFullSegment"),
     ),
+    DefinitionArgumentValueGrammar=OneOf(
+        # This comes from def_arg:
+        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6331
+        # TODO: this list is incomplete
+        Ref("NumericLiteralSegment"),
+        Ref("QuotedLiteralSegment"),
+        # This is a gross simplification of the grammar, which seems overly
+        # permissive for the actual use cases here.  Grammar says this matches
+        # reserved keywords.  Plus also unreserved keywords and IDENT:  func_type -->
+        #     Typename --> SimpleTypename --> GenericType --> type_function_name -->
+        #     { unreserved_keyword | type_func_name_keyword | IDENT }
+        # We'll just match any alphanumeric string here to keep it simple.
+        Ref("ParameterNameSegment"),
+    ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
     ExtendedTableReferenceGrammar=OneOf(
         Ref("TableReferenceSegment"),
@@ -741,6 +755,19 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     match_grammar = Ref.keyword("ARRAY")
 
 
+class IndexAccessMethodSegment(BaseSegment):
+    """Index access method (e.g. `USING gist`)."""
+
+    type = "index_access_method"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+class OperatorClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operator class."""
+
+    type = "operator_class_reference"
+
+
 class DefinitionParameterSegment(BaseSegment):
     """A single definition parameter.
 
@@ -752,7 +779,8 @@ class DefinitionParameterSegment(BaseSegment):
         Ref("ParameterNameSegment"),
         Sequence(
             Ref("EqualsSegment"),
-            Ref("LiteralGrammar"),
+            # could also contain ParameterNameSegment:
+            Ref("DefinitionArgumentValueGrammar"),
             optional=True,
         ),
     )
@@ -768,6 +796,46 @@ class DefinitionParametersSegment(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(
             Ref("DefinitionParameterSegment"),
+        )
+    )
+
+
+class RelationOptionSegment(BaseSegment):
+    """Relation option element from reloptions.
+
+    It is very similar to DefinitionParameterSegment except that it allows qualified
+    names (e.g. namespace.attr = 5).
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L3016-L3035
+    """
+
+    type = "relation_option"
+    match_grammar: Matchable = Sequence(
+        Ref("ParameterNameSegment"),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref("EqualsSegment"),
+            # could also contain ParameterNameSegment:
+            Ref("DefinitionArgumentValueGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class RelationOptionsSegment(BaseSegment):
+    """List of relation options.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L3003-L3014
+    """
+
+    type = "relation_options"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("RelationOptionSegment"),
         )
     )
 
@@ -2006,11 +2074,7 @@ class AlterTableActionSegment(BaseSegment):
                 ),
             ),
         ),
-        Sequence(
-            "ADD",
-            Ref("TableConstraintSegment"),
-            Sequence("NOT", "VALID", optional=True),
-        ),
+        Sequence("ADD", Ref("TableConstraintSegment")),
         Sequence("ADD", Ref("TableConstraintUsingIndexSegment")),
         Sequence(
             "ALTER",
@@ -2929,18 +2993,10 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             ),
             Sequence(
                 "EXCLUDE",
-                Sequence("USING", Ref("FunctionSegment"), optional=True),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ExcludeElementSegment"),
-                            "WITH",
-                            Ref("ComparisonOperatorGrammar"),
-                        )
-                    )
-                ),
+                Sequence("USING", Ref("IndexAccessMethodSegment"), optional=True),
+                Bracketed(Delimited(Ref("ExclusionConstraintElementSegment"))),
                 Ref("IndexParametersSegment", optional=True),
-                Sequence("WHERE", Ref("ExpressionSegment")),
+                Sequence("WHERE", Bracketed(Ref("ExpressionSegment")), optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
@@ -2952,12 +3008,14 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
             ),
-            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+        ),
+        AnyNumberOf(
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE")),
             OneOf(
-                Sequence("INITIALLY", "DEFERRED"),
-                Sequence("INITIALLY", "IMMEDIATE"),
-                optional=True,
+                Sequence("INITIALLY", "DEFERRED"), Sequence("INITIALLY", "IMMEDIATE")
             ),
+            Sequence("NOT", "VALID"),
+            Sequence("NO", "INHERIT"),
         ),
     )
 
@@ -2998,19 +3056,7 @@ class IndexParametersSegment(BaseSegment):
 
     match_grammar = Sequence(
         Sequence("INCLUDE", Ref("BracketedColumnReferenceListGrammar"), optional=True),
-        Sequence(
-            "WITH",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
-                )
-            ),
-            optional=True,
-        ),
+        Sequence("WITH", Ref("DefinitionParametersSegment"), optional=True),
         Sequence(
             "USING",
             "INDEX",
@@ -3038,17 +3084,61 @@ class ReferentialActionSegment(BaseSegment):
     )
 
 
-class ExcludeElementSegment(BaseSegment):
-    """Exclude element segment.
+class IndexElementOptionsSegment(BaseSegment):
+    """Index element options segment.
 
-    As found in https://www.postgresql.org/docs/13/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8057
     """
 
+    type = "index_element_options"
     match_grammar = Sequence(
-        OneOf(Ref("ColumnReferenceSegment"), Bracketed(Ref("ExpressionSegment"))),
-        Ref("ParameterNameSegment", optional=True),
+        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
+        Sequence(
+            Ref(
+                "OperatorClassReferenceSegment",
+                exclude=Sequence("NULLS", OneOf("FIRST", "LAST")),
+            ),
+            Ref("RelationOptionsSegment", optional=True),  # args for opclass
+            optional=True,
+        ),
         OneOf("ASC", "DESC", optional=True),
         Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+    )
+
+
+class IndexElementSegment(BaseSegment):
+    """Index element segment.
+
+    As found in https://www.postgresql.org/docs/15/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8089
+    """
+
+    type = "index_element"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ColumnReferenceSegment"),
+            # TODO: This is still not perfect.  This corresponds to
+            # func_expr_windowless in the grammar and we don't currently
+            # implement everything it provides.
+            Ref("FunctionSegment"),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+        Ref("IndexElementOptionsSegment", optional=True),
+    )
+
+
+class ExclusionConstraintElementSegment(BaseSegment):
+    """Exclusion constraint element segment.
+
+    As found in https://www.postgresql.org/docs/15/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L4277
+    """
+
+    type = "exclusion_constraint_element"
+    match_grammar = Sequence(
+        Ref("IndexElementSegment"),
+        "WITH",
+        Ref("ComparisonOperatorGrammar"),
     )
 
 

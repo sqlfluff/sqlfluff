@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7de98561d58869c1d81ef7d786e9638e59c5c65507f96ed495eba88dae55f85
+_hash: 724121d584f2bedb2ddd9b3547b7ebd0b625cf0aba85c5c5159ee7bd094e98a0
 file:
 - statement:
     create_publication_statement:
@@ -300,10 +300,10 @@ file:
             quoted_literal: "'insert,update'"
         - comma: ','
         - definition_parameter:
-            parameter: publish_via_partition_root
-            comparison_operator:
+          - parameter: publish_via_partition_root
+          - comparison_operator:
               raw_comparison_operator: '='
-            boolean_literal: 'TRUE'
+          - parameter: 'TRUE'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -327,10 +327,10 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish_via_partition_root
-            comparison_operator:
+          - parameter: publish_via_partition_root
+          - comparison_operator:
               raw_comparison_operator: '='
-            boolean_literal: 'TRUE'
+          - parameter: 'TRUE'
           end_bracket: )
 - statement_terminator: ;
 - statement:

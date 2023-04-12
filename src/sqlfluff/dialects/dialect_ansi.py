@@ -1069,6 +1069,12 @@ class IndexReferenceSegment(ObjectReferenceSegment):
     type = "index_reference"
 
 
+class CollationReferenceSegment(ObjectReferenceSegment):
+    """A reference to a collation."""
+
+    type = "collation_reference"
+
+
 class RoleReferenceSegment(ObjectReferenceSegment):
     """A reference to a role, user, or account."""
 
