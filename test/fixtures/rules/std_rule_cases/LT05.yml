@@ -142,6 +142,17 @@ test_compute_line_length_before_template_expansion_2:
     SELECT user_id
     FROM
         `{{bi_ecommerce_orders_bi_ecommerce_orders}}` AS {{table_alias_table_alias_table_alias_table_alias_table_alias_table_alias}}
+  fix_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders_bi_ecommerce_orders}}`
+            AS {{table_alias_table_alias_table_alias_table_alias_table_alias_table_alias}}
+  violations_after_fix:
+    # Even after fixing, the final line is still too long.
+    - description: Line is too long (86 > 80).
+      line_no: 4
+      line_pos: 9
+      name: layout.long_lines
   configs:
     core:
       dialect: bigquery
@@ -625,9 +636,8 @@ test_long_functions_and_aliases:
             partition by col3, col4
             order by col5 rows between unbounded preceding and current row
         ) as my_relatively_long_alias,
-        my_other_function(
-            col6, col7 + col8, arg4
-        ) as my_other_relatively_long_alias,
+        my_other_function(col6, col7 + col8, arg4)
+            as my_other_relatively_long_alias,
         my_expression_function(col6, col7 + col8, arg4)
         = col9 + col10 as another_relatively_long_alias
     FROM my_table

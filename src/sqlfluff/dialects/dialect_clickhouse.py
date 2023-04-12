@@ -240,6 +240,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Sequence(
@@ -254,6 +255,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 "KEYS",
             ),
         ),
+        Dedent,
     )
 
 

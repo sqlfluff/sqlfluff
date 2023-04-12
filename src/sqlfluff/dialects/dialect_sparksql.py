@@ -3347,3 +3347,29 @@ class IcebergTransformationSegment(BaseSegment):
             ),
         ),
     )
+
+class FrameClauseSegment(ansi.FrameClauseSegment):
+    """A frame clause for window functions.
+
+    This overrides the ansi dialect frame clause segment as the sparksql
+    frame clause allows for a more expressive frame syntax.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-window.html
+    """
+
+    type = "frame_clause"
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                "UNBOUNDED",
+                Ref("IntervalExpressionSegment"),
+            ),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )

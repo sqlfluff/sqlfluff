@@ -112,3 +112,15 @@ SELECT
 FROM test_ignore_null AS ignore_nulls
     WINDOW w AS (ORDER BY ignore_nulls.id)
 ORDER BY ignore_nulls.id;
+
+SELECT
+    ignore_nulls.id,
+    ignore_nulls.v,
+    LEAD(ignore_nulls.v, 0) RESPECT NULLS OVER w AS v_lead,
+    LAG(ignore_nulls.v, 0) RESPECT NULLS OVER w AS v_lag,
+    NTH_VALUE(ignore_nulls.v, 2) RESPECT NULLS OVER w AS v_nth_value,
+    FIRST_VALUE(ignore_nulls.v) RESPECT NULLS OVER w AS v_first_value,
+    LAST_VALUE(ignore_nulls.v) RESPECT NULLS OVER w AS v_last_value
+FROM test_ignore_null AS ignore_nulls
+    WINDOW w AS (ORDER BY ignore_nulls.id range between interval 6 days preceding and current row)
+ORDER BY ignore_nulls.id;

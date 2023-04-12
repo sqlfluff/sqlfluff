@@ -363,7 +363,10 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             if _case_type in ("block_start", "block_mid"):
                 # Is following _line_ AND element also a block?
                 # i.e. nothing else between.
-                if first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1:
+                if (
+                    idx + 1 < len(lines)
+                    and first_point_idx + 3 == lines[idx + 1].indent_points[0].idx + 1
+                ):
                     seg = elements[first_point_idx + 3].segments[0]
                     if seg.is_type("placeholder"):
                         if cast(TemplateSegment, seg).block_type == "block_start":
