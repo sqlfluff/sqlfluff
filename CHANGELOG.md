@@ -10,6 +10,48 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.4] - 2023-04-12
+
+## Highlights
+
+## What’s Changed
+
+* Fix #4680 [#4707](https://github.com/sqlfluff/sqlfluff/pull/4707) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Indent Aliases [#4706](https://github.com/sqlfluff/sqlfluff/pull/4706) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Improve window frame bounds [#4722](https://github.com/sqlfluff/sqlfluff/pull/4722) [@bmorck](https://github.com/bmorck)
+* Add support for PG CREATE/ALTER/DROP PUBLICATION stmts [#4716](https://github.com/sqlfluff/sqlfluff/pull/4716) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Create external table support [#4692](https://github.com/sqlfluff/sqlfluff/pull/4692) [@bmorck](https://github.com/bmorck)
+* SparkSQL: Fix file literal lexing [#4718](https://github.com/sqlfluff/sqlfluff/pull/4718) [@bmorck](https://github.com/bmorck)
+* Add PG DROP/REASSIGN OWNED statements [#4720](https://github.com/sqlfluff/sqlfluff/pull/4720) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Add distinct to comparison operator [#4719](https://github.com/sqlfluff/sqlfluff/pull/4719) [@bmorck](https://github.com/bmorck)
+* Rethink Rule Docs [#4695](https://github.com/sqlfluff/sqlfluff/pull/4695) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Performance: Reduce calls to _prune_options [#4705](https://github.com/sqlfluff/sqlfluff/pull/4705) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Add ReferencedVariableNameSegment to sample function [#4712](https://github.com/sqlfluff/sqlfluff/pull/4712) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Mark AM02 as fix compatible [#4714](https://github.com/sqlfluff/sqlfluff/pull/4714) [@yoichi](https://github.com/yoichi)
+* Fix LT01 spacing check in templated areas [#4698](https://github.com/sqlfluff/sqlfluff/pull/4698) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Don't do newline conversion on write [#4703](https://github.com/sqlfluff/sqlfluff/pull/4703) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: CREATE/ALTER VIEW may take UNION [#4713](https://github.com/sqlfluff/sqlfluff/pull/4713) [@yoichi](https://github.com/yoichi)
+* Preserve zero-length template segments [#4708](https://github.com/sqlfluff/sqlfluff/pull/4708) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* CV06: don't flag files that don't have code [#4709](https://github.com/sqlfluff/sqlfluff/pull/4709) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add a no-output option [#4704](https://github.com/sqlfluff/sqlfluff/pull/4704) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Jinja templater: treat "import" and "from" as templated [#4696](https://github.com/sqlfluff/sqlfluff/pull/4696) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Capitalization rules ignore templated code only if configured to [#4697](https://github.com/sqlfluff/sqlfluff/pull/4697) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Update getting started docs [#4700](https://github.com/sqlfluff/sqlfluff/pull/4700) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add a default for config_keywords and remove noisy error. [#4701](https://github.com/sqlfluff/sqlfluff/pull/4701) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake Select System Functions [#4687](https://github.com/sqlfluff/sqlfluff/pull/4687) [@Thashin](https://github.com/Thashin)
+* SparkSQL: Add using and options clause to create view statement [#4691](https://github.com/sqlfluff/sqlfluff/pull/4691) [@bmorck](https://github.com/bmorck)
+* MySQL: Add RETURN Statement [#4693](https://github.com/sqlfluff/sqlfluff/pull/4693) [@yoichi](https://github.com/yoichi)
+* Safety valve for fixes in CV03 [#4685](https://github.com/sqlfluff/sqlfluff/pull/4685) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow persist timing on `fix` too. [#4679](https://github.com/sqlfluff/sqlfluff/pull/4679) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix{dialect-snowflake}:Alter Table Column Set/Unset Tag [#4682](https://github.com/sqlfluff/sqlfluff/pull/4682) [@Thashin](https://github.com/Thashin)
+* fix{dialect-snowflake}:Execute Task [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683) [@Thashin](https://github.com/Thashin)
+* Make version number an argument not an option in release script. [#4677](https://github.com/sqlfluff/sqlfluff/pull/4677) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@Thashin](https://github.com/Thashin) made their first contribution in [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683)
+* [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack) made their first contribution in [#4697](https://github.com/sqlfluff/sqlfluff/pull/4697)
+
 ## [2.0.3] - 2023-04-05
 
 ## Highlights
