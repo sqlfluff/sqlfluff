@@ -1529,6 +1529,8 @@ class HintFunctionSegment(BaseSegment):
                 AnyNumberOf(
                     Ref("SingleIdentifierGrammar"),
                     Ref("NumericLiteralSegment"),
+                    Ref("TableReferenceSegment"),
+                    Ref("ColumnReferenceSegment"),
                     min_times=1,
                 ),
             ),
@@ -1884,10 +1886,11 @@ class LateralViewClauseSegment(BaseSegment):
         # for when it is required and not allowed.
         Ref("SingleIdentifierGrammar", optional=True),
         Sequence(
-            "AS",
+            Ref.keyword("AS", optional=True),
             Delimited(
                 Ref("SingleIdentifierGrammar"),
             ),
+            optional=True,
         ),
         Dedent,
     )
