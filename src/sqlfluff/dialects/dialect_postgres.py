@@ -4125,6 +4125,8 @@ class SetStatementSegment(BaseSegment):
     """Set Statement.
 
     As specified in https://www.postgresql.org/docs/14/sql-set.html
+    Also: https://www.postgresql.org/docs/15/sql-set-role.html (still a VariableSetStmt)
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1584
     """
 
     type = "set_statement"
@@ -4145,6 +4147,7 @@ class SetStatementSegment(BaseSegment):
                 "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
+            Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
         ),
     )
 
@@ -4358,12 +4361,13 @@ class ResetStatementSegment(BaseSegment):
     """A `RESET` statement.
 
     As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    Also, RESET ROLE from: https://www.postgresql.org/docs/15/sql-set-role.html
     """
 
     type = "reset_statement"
     match_grammar = Sequence(
         "RESET",
-        OneOf("ALL", Ref("ParameterNameSegment")),
+        OneOf("ALL", "ROLE", Ref("ParameterNameSegment")),
     )
 
 
