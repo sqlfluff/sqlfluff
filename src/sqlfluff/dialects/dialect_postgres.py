@@ -688,6 +688,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                         Sequence(
                             OneOf(
                                 "CHAR",
+                                # CHAR VARYING is not documented, but it's
+                                # in the real grammar:
+                                # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L14262
+                                Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
                                 "VARCHAR",
