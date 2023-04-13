@@ -62,6 +62,16 @@ class Rule_CV05(BaseRule):
         ):
             return None
 
+        # If the operator is in an EXCLUDE constraint (PostgreSQL feature), the SQL
+        # could look like: EXCLUDE (field WITH =).  In that case, we can exit early
+        # to avoid an assertion failure due to no segment following the operator.
+        # Note that if the EXCLUDE is based on an expression, we will still be
+        # checking that expression because it will be under a different child segment.
+        if context.parent_stack and context.parent_stack[-1].is_type(
+            "exclusion_constraint_element"
+        ):
+            return None
+
         # We only care about equality operators.
         if context.segment.raw not in ("=", "!=", "<>"):
             return None

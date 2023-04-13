@@ -4345,7 +4345,7 @@ class CreateSchemaStatementSegment(BaseSegment):
         Ref("SchemaReferenceSegment"),
         Sequence(
             "AUTHORIZATION",
-            Ref("SingleIdentifierGrammar"),
+            Ref("RoleReferenceSegment"),
             optional=True,
         ),
         Ref(

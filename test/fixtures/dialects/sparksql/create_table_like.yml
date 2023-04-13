@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a9441c495d439f8c047af003862b6a20eefe224ba3cd7d57e9efffa9e4f43bb
+_hash: 0e80c3cac8e3f8c1f6caf134e0df5bbbbe78906073995922778be82d8ff71f76
 file:
 - statement:
     create_table_statement:
@@ -17,8 +17,10 @@ file:
     - keyword: LIKE
     - table_reference:
         naked_identifier: source_table_identifier
-    - keyword: USING
-    - keyword: PARQUET
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: PARQUET
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -67,8 +69,10 @@ file:
     - keyword: LIKE
     - table_reference:
         naked_identifier: student
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
 - statement_terminator: ;
 - statement:
     create_table_statement:

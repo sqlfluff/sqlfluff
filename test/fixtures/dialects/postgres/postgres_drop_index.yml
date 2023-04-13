@@ -1,0 +1,172 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a8bfaf3bfd8572b31cd437d25ca9449d13350a5be6765b90320af9bf1047a214
+file:
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '"abc"'
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        quoted_identifier: '"def"'
+    - comma: ','
+    - index_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+    - comma: ','
+    - index_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+    - comma: ','
+    - index_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+    - comma: ','
+    - index_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+    - comma: ','
+    - index_reference:
+        naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - index_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - index_reference:
+        naked_identifier: abc
+    - comma: ','
+    - index_reference:
+        naked_identifier: def
+    - keyword: CASCADE
+- statement_terminator: ;

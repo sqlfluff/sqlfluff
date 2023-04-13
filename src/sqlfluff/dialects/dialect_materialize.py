@@ -24,13 +24,13 @@ from sqlfluff.dialects.dialect_materialize_keywords import (
 postgres_dialect = load_raw_dialect("postgres")
 
 materialize_dialect = postgres_dialect.copy_as("materialize")
-materialize_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in materialize_unreserved_keywords.split("\n")]
+materialize_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", materialize_unreserved_keywords
 )
 
 materialize_dialect.sets("reserved_keywords").clear()
-materialize_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in materialize_reserved_keywords.split("\n")]
+materialize_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", materialize_reserved_keywords
 )
 
 

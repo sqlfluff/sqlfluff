@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a90e3937826e06152bd3b304e9fdb8584d462c1ef71ea388d62ba57cc5fd3ce7
+_hash: 7dd7fa95cac9b0cf5224a8f2a0d007882f19ee2e7424f1339a6b0611e55df7b9
 file:
 - statement:
     with_compound_statement:
@@ -558,4 +558,111 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: search_graph
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: tbl
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: a
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+          - keyword: RETURNING
+          - star: '*'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: tbl
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          update_statement:
+          - keyword: UPDATE
+          - table_reference:
+              naked_identifier: a
+          - set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: b
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '5'
+          - keyword: RETURNING
+          - star: '*'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: tbl
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          delete_statement:
+          - keyword: DELETE
+          - keyword: FROM
+          - table_reference:
+              naked_identifier: a
+          - keyword: RETURNING
+          - star: '*'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
 - statement_terminator: ;
