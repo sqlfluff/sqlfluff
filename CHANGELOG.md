@@ -10,24 +10,41 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.4] - 2023-04-12
+## [2.0.4] - 2023-04-13
 
 ## Highlights
 
 This is primarily a _bugfix_ and _dialect_ release:
-* Several bugfixes related to templating and indentation.
+* Several bugfixes related to templating and indentation, in particular some
+  improvements to the indentation of aliases and window functions.
 * Performance improvements to the parser.
 * The `--persist-timing` option is now also available on `sqlfluff fix`.
 * A refresh to getting started and rule documentation.
-* Dialect improvements to SparkSQL, MySQL & Snowflake.
+* Dialect improvements to PostgreSQL, Athena, SparkSQL, MySQL & Snowflake.
 
 Thanks also to [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
 and [@Thashin](https://github.com/Thashin) who made their first contributions
 in this release. In particular, [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
-made **seven** contributions in their first month! 🎉🎉🎉
+made **eighteen** contributions in their first month! 🎉🎉🎉
 
 ## What’s Changed
 
+* Suggested started config file [#4702](https://github.com/sqlfluff/sqlfluff/pull/4702) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Indents on window functions [#4560](https://github.com/sqlfluff/sqlfluff/pull/4560) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Fix Group By Clause [#4732](https://github.com/sqlfluff/sqlfluff/pull/4732) [@bmorck](https://github.com/bmorck)
+* Improve support for EXCLUDE table constraints in PG [#4725](https://github.com/sqlfluff/sqlfluff/pull/4725) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for dropping multiple indexes in PG [#4737](https://github.com/sqlfluff/sqlfluff/pull/4737) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Recognize "on" value and integers for PG SET statement [#4740](https://github.com/sqlfluff/sqlfluff/pull/4740) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Improve interval expressions on MySQL [#4746](https://github.com/sqlfluff/sqlfluff/pull/4746) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Keep out zero length keywords [#4723](https://github.com/sqlfluff/sqlfluff/pull/4723) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add PG support for CREATE SCHEMA AUTHORIZATION [#4735](https://github.com/sqlfluff/sqlfluff/pull/4735) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for dropping multiple views with PostgreSQL [#4736](https://github.com/sqlfluff/sqlfluff/pull/4736) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add CHAR VARYING data type for PG [#4738](https://github.com/sqlfluff/sqlfluff/pull/4738) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* fix(athena): map type matching failed, array type only contains a datatype [#4739](https://github.com/sqlfluff/sqlfluff/pull/4739) [@timcosta](https://github.com/timcosta)
+* Allow DML queries to be selectable in CTEs on PG [#4741](https://github.com/sqlfluff/sqlfluff/pull/4741) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add the CREATE/DROP CAST statements to ANSI and PG [#4744](https://github.com/sqlfluff/sqlfluff/pull/4744) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for PG SET ROLE / RESET ROLE [#4734](https://github.com/sqlfluff/sqlfluff/pull/4734) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Support Spark Iceberg DDL [#4690](https://github.com/sqlfluff/sqlfluff/pull/4690) [@bmorck](https://github.com/bmorck)
 * Fix #4680 [#4707](https://github.com/sqlfluff/sqlfluff/pull/4707) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Indent Aliases [#4706](https://github.com/sqlfluff/sqlfluff/pull/4706) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * SparkSQL: Improve window frame bounds [#4722](https://github.com/sqlfluff/sqlfluff/pull/4722) [@bmorck](https://github.com/bmorck)
@@ -59,8 +76,8 @@ made **seven** contributions in their first month! 🎉🎉🎉
 * fix{dialect-snowflake}:Execute Task [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683) [@Thashin](https://github.com/Thashin)
 * Make version number an argument not an option in release script. [#4677](https://github.com/sqlfluff/sqlfluff/pull/4677) [@alanmcruickshank](https://github.com/alanmcruickshank)
 
-## New Contributors
 
+## New Contributors
 * [@Thashin](https://github.com/Thashin) made their first contribution in [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683)
 * [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack) made their first contribution in [#4697](https://github.com/sqlfluff/sqlfluff/pull/4697)
 
