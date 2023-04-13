@@ -1509,7 +1509,7 @@ class DistributeByClauseSegment(BaseSegment):
                 "WINDOW",
                 "LIMIT",
                 Ref("FrameClauseUnitGrammar"),
-                Ref.keyword("SORT"),
+                "SORT",
             ),
         ),
         Dedent,
