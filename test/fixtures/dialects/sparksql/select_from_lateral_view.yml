@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94c99652c496c70d7c7e0e9b7935c4fbcedd4050f4f183e3d053c201df81734f
+_hash: 34f23d4c7afcdc323487d4e2ab4b5569cff274159a3fb975871040e659dc898e
 file:
 - statement:
     select_statement:
@@ -89,8 +89,8 @@ file:
                           numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: d_age
 - statement_terminator: ;
 - statement:
@@ -140,8 +140,8 @@ file:
                           numeric_literal: '60'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c_age
           - lateral_view_clause:
             - keyword: LATERAL
@@ -164,8 +164,8 @@ file:
                           numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: d_age
       groupby_clause:
       - keyword: GROUP

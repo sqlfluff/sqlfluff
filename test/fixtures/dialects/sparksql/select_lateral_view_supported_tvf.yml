@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e7f432152de53650fe235215a7338c1af40eacb4bcc797767c4e8943ffda0c0
+_hash: 0174a44ebf919b68b3717938814bd471de9b0122e36ec569fd4c553d9fd48707
 file:
 - statement:
     select_statement:
@@ -96,8 +96,8 @@ file:
                           numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c2
 - statement_terminator: ;
 - statement:
@@ -143,8 +143,8 @@ file:
                           numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c2
 - statement_terminator: ;
 - statement:
@@ -298,8 +298,8 @@ file:
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
       - comma: ','
       - from_expression:
@@ -371,8 +371,8 @@ file:
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
       - comma: ','
       - from_expression:
@@ -472,8 +472,8 @@ file:
                           numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
 - statement_terminator: ;
 - statement:
@@ -519,8 +519,8 @@ file:
                           numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
 - statement_terminator: ;
 - statement:
@@ -588,8 +588,8 @@ file:
                 - expression:
                     numeric_literal: '3'
                 - end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
       - comma: ','
       - from_expression:
@@ -657,8 +657,8 @@ file:
                 - expression:
                     quoted_literal: "'b'"
                 - end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
       - comma: ','
       - from_expression:
@@ -720,7 +720,7 @@ file:
                 - expression:
                     quoted_literal: "'HOST'"
                 - end_bracket: )
-            - naked_identifier: AS
             - alias_expression:
+                keyword: AS
                 naked_identifier: c1
 - statement_terminator: ;
