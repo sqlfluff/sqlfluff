@@ -96,13 +96,13 @@ mysql_dialect.insert_lexer_matchers(
 # Set Keywords
 # Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
 # Just add MySQL unreserved keywords.
-mysql_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
+mysql_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", mysql_unreserved_keywords
 )
 
 mysql_dialect.sets("reserved_keywords").clear()
-mysql_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
+mysql_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", mysql_reserved_keywords
 )
 
 # Remove these reserved keywords to avoid issue in interval.sql

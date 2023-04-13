@@ -262,12 +262,11 @@ ansi_dialect.sets("datetime_units").update(
 ansi_dialect.sets("date_part_function_name").update(["DATEADD"])
 
 # Set Keywords
-ansi_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in ansi_unreserved_keywords.split("\n")]
+ansi_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", ansi_unreserved_keywords
 )
-
-ansi_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in ansi_reserved_keywords.split("\n")]
+ansi_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", ansi_reserved_keywords
 )
 
 # Bracket pairs (a set of tuples).

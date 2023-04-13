@@ -35,13 +35,13 @@ redshift_dialect = postgres_dialect.copy_as("redshift")
 
 # Set Keywords
 redshift_dialect.sets("unreserved_keywords").clear()
-redshift_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in redshift_unreserved_keywords.split("\n")]
+redshift_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", redshift_unreserved_keywords
 )
 
 redshift_dialect.sets("reserved_keywords").clear()
-redshift_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in redshift_reserved_keywords.split("\n")]
+redshift_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", redshift_reserved_keywords
 )
 
 redshift_dialect.sets("bare_functions").clear()
