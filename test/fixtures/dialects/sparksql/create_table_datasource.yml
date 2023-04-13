@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b186d6c408318e1726d9c4a07c3e32b57b5454f99b23c694e5cd78e2b44e9a86
+_hash: 50ba3daf8fbee551483efd319027afab8246365b1f64835f1d92b8d5e25bd25d
 file:
 - statement:
     create_table_statement:
@@ -26,8 +26,10 @@ file:
               keyword: COMMENT
               quoted_literal: '"col_comment1"'
         end_bracket: )
-    - keyword: USING
-    - keyword: PARQUET
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: PARQUET
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -142,8 +144,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -151,8 +155,10 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: student_copy
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: AS
     - select_statement:
         select_clause:
@@ -225,8 +231,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: COMMENT
     - quoted_literal: "'this is a comment'"
     - keyword: TBLPROPERTIES
@@ -265,8 +273,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -284,6 +294,48 @@ file:
     - keyword: INTO
     - numeric_literal: '4'
     - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: age
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -311,8 +363,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: COMMENT
     - quoted_literal: '"this is a comment"'
     - keyword: PARTITIONED

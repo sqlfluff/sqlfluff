@@ -176,7 +176,7 @@ postgres_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "code",
-            r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
+            r"[a-zA-Z_][0-9a-zA-Z_$]*",
             CodeSegment,
             segment_kwargs={"type": "code"},
         ),
@@ -252,13 +252,39 @@ postgres_dialect.add(
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
+    PropertiesNakedIdentifierSegment=TypedParser(  # allows reserved keywords
+        "code",
+        CodeSegment,
+        type="properties_naked_identifier",
+    ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("NakedIdentifierFullSegment"),
     ),
+    DefinitionArgumentValueGrammar=OneOf(
+        # This comes from def_arg:
+        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6331
+        # TODO: this list is incomplete
+        Ref("LiteralGrammar"),
+        # This is a gross simplification of the grammar, which seems overly
+        # permissive for the actual use cases here.  Grammar says this matches
+        # reserved keywords.  Plus also unreserved keywords and IDENT:  func_type -->
+        #     Typename --> SimpleTypename --> GenericType --> type_function_name -->
+        #     { unreserved_keyword | type_func_name_keyword | IDENT }
+        # We'll just match any normal code/keyword string here to keep it simple.
+        Ref("PropertiesNakedIdentifierSegment"),
+    ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
+    ExtendedTableReferenceGrammar=OneOf(
+        Ref("TableReferenceSegment"),
+        Sequence("ONLY", OptionallyBracketed(Ref("TableReferenceSegment"))),
+        Sequence(Ref("TableReferenceSegment"), Ref("StarSegment")),
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    OnKeywordAsIdentifierSegment=StringParser(
+        "ON", ansi.IdentifierSegment, type="naked_identifier"
+    ),
 )
 
 postgres_dialect.replace(
@@ -482,6 +508,18 @@ postgres_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
+    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        # moved from NonWithNonSelectableGrammar:
+        Ref("UpdateStatementSegment"),
+        Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    ),
+    NonWithNonSelectableGrammar=OneOf(),
 )
 
 
@@ -671,6 +709,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                         Sequence(
                             OneOf(
                                 "CHAR",
+                                # CHAR VARYING is not documented, but it's
+                                # in the real grammar:
+                                # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L14262
+                                Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
                                 "VARCHAR",
@@ -734,6 +776,144 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class IndexAccessMethodSegment(BaseSegment):
+    """Index access method (e.g. `USING gist`)."""
+
+    type = "index_access_method"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+class OperatorClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operator class."""
+
+    type = "operator_class_reference"
+
+
+class DefinitionParameterSegment(BaseSegment):
+    """A single definition parameter.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6320
+    """
+
+    type = "definition_parameter"
+    match_grammar: Matchable = Sequence(
+        Ref("PropertiesNakedIdentifierSegment"),
+        Sequence(
+            Ref("EqualsSegment"),
+            # could also contain ParameterNameSegment:
+            Ref("DefinitionArgumentValueGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DefinitionParametersSegment(BaseSegment):
+    """List of definition parameters.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6313
+    """
+
+    type = "definition_parameters"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("DefinitionParameterSegment"),
+        )
+    )
+
+
+class CreateCastStatementSegment(ansi.CreateCastStatementSegment):
+    """A `CREATE CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-createcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8951
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "WITH",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            ),
+            Sequence("WITHOUT", "FUNCTION"),
+            Sequence("WITH", "INOUT"),
+        ),
+        OneOf(
+            Sequence("AS", "ASSIGNMENT", optional=True),
+            Sequence("AS", "IMPLICIT", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class DropCastStatementSegment(ansi.DropCastStatementSegment):
+    """A `DROP CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8995
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAST",
+        Sequence("IF", "EXISTS", optional=True),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class RelationOptionSegment(BaseSegment):
+    """Relation option element from reloptions.
+
+    It is very similar to DefinitionParameterSegment except that it allows qualified
+    names (e.g. namespace.attr = 5).
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L3016-L3035
+    """
+
+    type = "relation_option"
+    match_grammar: Matchable = Sequence(
+        Ref("PropertiesNakedIdentifierSegment"),
+        Sequence(
+            Ref("DotSegment"),
+            Ref("PropertiesNakedIdentifierSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref("EqualsSegment"),
+            # could also contain ParameterNameSegment:
+            Ref("DefinitionArgumentValueGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class RelationOptionsSegment(BaseSegment):
+    """List of relation options.
+
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L3003-L3014
+    """
+
+    type = "relation_options"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("RelationOptionSegment"),
+        )
+    )
 
 
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
@@ -1475,21 +1655,24 @@ class AlterRoleStatementSegment(BaseSegment):
                 Sequence(
                     "IN",
                     "DATABASE",
-                    Ref("ObjectReferenceSegment"),
+                    Ref("DatabaseReferenceSegment"),
                     optional=True,
                 ),
                 OneOf(
                     Sequence(
                         "SET",
-                        Ref("ObjectReferenceSegment"),
+                        Ref("ParameterNameSegment"),
                         OneOf(
                             Sequence(
                                 OneOf("TO", Ref("EqualsSegment")),
                                 OneOf(
-                                    Ref("QuotedLiteralSegment"),
                                     "DEFAULT",
-                                    "ON",
-                                    "OFF",
+                                    Delimited(
+                                        Ref("LiteralGrammar"),
+                                        Ref("NakedIdentifierSegment"),
+                                        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                                        Ref("OnKeywordAsIdentifierSegment"),
+                                    ),
                                 ),
                             ),
                             Sequence(
@@ -1498,7 +1681,7 @@ class AlterRoleStatementSegment(BaseSegment):
                             ),
                         ),
                     ),
-                    Sequence("RESET", OneOf(Ref("QuotedLiteralSegment"), "ALL")),
+                    Sequence("RESET", OneOf(Ref("ParameterNameSegment"), "ALL")),
                 ),
                 optional=True,
             ),
@@ -1569,6 +1752,29 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
+        ),
+    )
+
+
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://www.postgresql.org/docs/15/sql-createschema.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1493
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                # schema name defaults to role if not provided
+                Ref("SchemaReferenceSegment", optional=True),
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("SchemaReferenceSegment"),
         ),
     )
 
@@ -1970,11 +2176,7 @@ class AlterTableActionSegment(BaseSegment):
                 ),
             ),
         ),
-        Sequence(
-            "ADD",
-            Ref("TableConstraintSegment"),
-            Sequence("NOT", "VALID", optional=True),
-        ),
+        Sequence("ADD", Ref("TableConstraintSegment")),
         Sequence("ADD", Ref("TableConstraintUsingIndexSegment")),
         Sequence(
             "ALTER",
@@ -2072,29 +2274,9 @@ class VersionIdentifierSegment(BaseSegment):
 
     type = "version_identifier"
     # match grammar (don't allow whitespace)
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("NumericLiteralSegment"),
-            Ref("NakedIdentifierSegment"),
-        ),
-        AnyNumberOf(
-            OneOf(
-                # Literals might follow literals if these literals
-                # begin with a "." e.g. 1.2.3.4
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("DotSegment"),
-                    OneOf(
-                        Ref("NumericLiteralSegment"),
-                        Ref("NakedIdentifierSegment"),
-                    ),
-                    allow_gaps=False,
-                ),
-            ),
-            allow_gaps=False,
-        ),
-        allow_gaps=False,
+    match_grammar: Matchable = OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NakedIdentifierSegment"),
     )
 
 
@@ -2129,7 +2311,133 @@ class DropExtensionStatementSegment(BaseSegment):
         "EXTENSION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
-        Ref("CascadeRestrictGrammar", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class PublicationReferenceSegment(ObjectReferenceSegment):
+    """A reference to a publication."""
+
+    type = "publication_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
+
+
+class PublicationTableSegment(BaseSegment):
+    """Specification for a single table object in a publication."""
+
+    type = "publication_table"
+    match_grammar: Matchable = Sequence(
+        Ref("ExtendedTableReferenceGrammar"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence("WHERE", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class PublicationObjectsSegment(BaseSegment):
+    """Specification for one or more objects in a publication.
+
+    Unlike the underlying PG grammar which has one object per PublicationObjSpec and
+    so requires one to track the previous object type if it's a "continuation object
+    type", this grammar groups together the continuation objects, e.g.
+    "TABLE a, b, TABLE c, d" results in two segments: one containing references
+    "a, b", and the other contianing "c, d".
+
+    https://www.postgresql.org/docs/15/sql-createpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10435-L10530
+    """
+
+    type = "publication_objects"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "TABLE",
+            Delimited(
+                Ref("PublicationTableSegment"),
+                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+            ),
+        ),
+        Sequence(
+            "TABLES",
+            "IN",
+            "SCHEMA",
+            Delimited(
+                OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
+                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+            ),
+        ),
+    )
+
+
+class CreatePublicationStatementSegment(BaseSegment):
+    """A `CREATE PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-createpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10390-L10530
+    """
+
+    type = "create_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PUBLICATION",
+        Ref("PublicationReferenceSegment"),
+        OneOf(
+            Sequence("FOR", "ALL", "TABLES"),
+            Sequence("FOR", Delimited(Ref("PublicationObjectsSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            Ref("DefinitionParametersSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterPublicationStatementSegment(BaseSegment):
+    """A `ALTER PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-alterpublication.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10549
+    """
+
+    type = "alter_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PUBLICATION",
+        Ref("PublicationReferenceSegment"),
+        OneOf(
+            Sequence("SET", Ref("DefinitionParametersSegment")),
+            Sequence("ADD", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("SET", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("DROP", Delimited(Ref("PublicationObjectsSegment"))),
+            Sequence("RENAME", "TO", Ref("PublicationReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    # must come last; CURRENT_USER isn't reserved:
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class DropPublicationStatementSegment(BaseSegment):
+    """A `DROP PUBLICATION` statement.
+
+    https://www.postgresql.org/docs/15/sql-droppublication.html
+    """
+
+    type = "drop_publication_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "PUBLICATION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("PublicationReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2473,6 +2781,22 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropview.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6698-L6719
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
@@ -2767,18 +3091,10 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             ),
             Sequence(
                 "EXCLUDE",
-                Sequence("USING", Ref("FunctionSegment"), optional=True),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ExcludeElementSegment"),
-                            "WITH",
-                            Ref("ComparisonOperatorGrammar"),
-                        )
-                    )
-                ),
+                Sequence("USING", Ref("IndexAccessMethodSegment"), optional=True),
+                Bracketed(Delimited(Ref("ExclusionConstraintElementSegment"))),
                 Ref("IndexParametersSegment", optional=True),
-                Sequence("WHERE", Ref("ExpressionSegment")),
+                Sequence("WHERE", Bracketed(Ref("ExpressionSegment")), optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
@@ -2790,12 +3106,14 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                     "ReferenceDefinitionGrammar"
                 ),  # REFERENCES reftable [ ( refcolumn) ]
             ),
-            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+        ),
+        AnyNumberOf(
+            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE")),
             OneOf(
-                Sequence("INITIALLY", "DEFERRED"),
-                Sequence("INITIALLY", "IMMEDIATE"),
-                optional=True,
+                Sequence("INITIALLY", "DEFERRED"), Sequence("INITIALLY", "IMMEDIATE")
             ),
+            Sequence("NOT", "VALID"),
+            Sequence("NO", "INHERIT"),
         ),
     )
 
@@ -2836,19 +3154,7 @@ class IndexParametersSegment(BaseSegment):
 
     match_grammar = Sequence(
         Sequence("INCLUDE", Ref("BracketedColumnReferenceListGrammar"), optional=True),
-        Sequence(
-            "WITH",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
-                )
-            ),
-            optional=True,
-        ),
+        Sequence("WITH", Ref("DefinitionParametersSegment"), optional=True),
         Sequence(
             "USING",
             "INDEX",
@@ -2876,17 +3182,61 @@ class ReferentialActionSegment(BaseSegment):
     )
 
 
-class ExcludeElementSegment(BaseSegment):
-    """Exclude element segment.
+class IndexElementOptionsSegment(BaseSegment):
+    """Index element options segment.
 
-    As found in https://www.postgresql.org/docs/13/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8057
     """
 
+    type = "index_element_options"
     match_grammar = Sequence(
-        OneOf(Ref("ColumnReferenceSegment"), Bracketed(Ref("ExpressionSegment"))),
-        Ref("ParameterNameSegment", optional=True),
+        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
+        Sequence(
+            Ref(
+                "OperatorClassReferenceSegment",
+                exclude=Sequence("NULLS", OneOf("FIRST", "LAST")),
+            ),
+            Ref("RelationOptionsSegment", optional=True),  # args for opclass
+            optional=True,
+        ),
         OneOf("ASC", "DESC", optional=True),
         Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+    )
+
+
+class IndexElementSegment(BaseSegment):
+    """Index element segment.
+
+    As found in https://www.postgresql.org/docs/15/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8089
+    """
+
+    type = "index_element"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("ColumnReferenceSegment"),
+            # TODO: This is still not perfect.  This corresponds to
+            # func_expr_windowless in the grammar and we don't currently
+            # implement everything it provides.
+            Ref("FunctionSegment"),
+            Bracketed(Ref("ExpressionSegment")),
+        ),
+        Ref("IndexElementOptionsSegment", optional=True),
+    )
+
+
+class ExclusionConstraintElementSegment(BaseSegment):
+    """Exclusion constraint element segment.
+
+    As found in https://www.postgresql.org/docs/15/sql-altertable.html.
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L4277
+    """
+
+    type = "exclusion_constraint_element"
+    match_grammar = Sequence(
+        Ref("IndexElementSegment"),
+        "WITH",
+        Ref("ComparisonOperatorGrammar"),
     )
 
 
@@ -3033,6 +3383,65 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
             terminator=OneOf("RESTRICT", "CASCADE"),
         ),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropOwnedStatementSegment(BaseSegment):
+    """A `DROP OWNED` statement.
+
+    https://www.postgresql.org/docs/15/sql-drop-owned.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6667
+    """
+
+    type = "drop_owned_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "OWNED",
+        "BY",
+        Delimited(
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                # must come last; CURRENT_USER isn't reserved:
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class ReassignOwnedStatementSegment(BaseSegment):
+    """A `REASSIGN OWNED` statement.
+
+    https://www.postgresql.org/docs/15/sql-reassign-owned.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6678
+    """
+
+    type = "reassign_owned_statement"
+
+    match_grammar = Sequence(
+        "REASSIGN",
+        "OWNED",
+        "BY",
+        Delimited(
+            OneOf(
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+                # must come last; CURRENT_USER isn't reserved:
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+        "TO",
+        OneOf(
+            "CURRENT_ROLE",
+            "CURRENT_USER",
+            "SESSION_USER",
+            # must come last; CURRENT_USER isn't reserved:
+            Ref("RoleReferenceSegment"),
+        ),
     )
 
 
@@ -3383,6 +3792,24 @@ class ReindexStatementSegment(BaseSegment):
     )
 
 
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropindex.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6698-L6719
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6808-L6829
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("IndexReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class FrameClauseSegment(ansi.FrameClauseSegment):
     """A frame clause for window functions.
 
@@ -3555,6 +3982,8 @@ class StatementSegment(ansi.StatementSegment):
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
+            Ref("DropOwnedStatementSegment"),
+            Ref("ReassignOwnedStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
@@ -3590,6 +4019,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("CreatePublicationStatementSegment"),
+            Ref("AlterPublicationStatementSegment"),
+            Ref("DropPublicationStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
@@ -3752,8 +4184,10 @@ class AsAliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         "AS",
         Ref("SingleIdentifierGrammar"),
+        Dedent,
     )
 
 
@@ -3897,6 +4331,8 @@ class SetStatementSegment(BaseSegment):
     """Set Statement.
 
     As specified in https://www.postgresql.org/docs/14/sql-set.html
+    Also: https://www.postgresql.org/docs/15/sql-set-role.html (still a VariableSetStmt)
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1584
     """
 
     type = "set_statement"
@@ -3909,14 +4345,20 @@ class SetStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
                 OneOf("TO", Ref("EqualsSegment")),
                 OneOf(
-                    Delimited(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                     "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
                 ),
             ),
             Sequence(
                 "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
+            Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
         ),
     )
 
@@ -4130,12 +4572,13 @@ class ResetStatementSegment(BaseSegment):
     """A `RESET` statement.
 
     As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    Also, RESET ROLE from: https://www.postgresql.org/docs/15/sql-set-role.html
     """
 
     type = "reset_statement"
     match_grammar = Sequence(
         "RESET",
-        OneOf("ALL", Ref("ParameterNameSegment")),
+        OneOf("ALL", "ROLE", Ref("ParameterNameSegment")),
     )
 
 
