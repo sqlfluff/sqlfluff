@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d7f4c9e745eb55092ee89e214b0b6bb98cd3060558a344da5d8e73b8ccb5c3c3
+_hash: f35ea61a75da1d28ffa1c28be81e4bc43811876a39dabddd26c01ed7530576b5
 file:
 - statement:
     create_table_statement:
@@ -26,8 +26,10 @@ file:
               keyword: COMMENT
               quoted_literal: '"col_comment1"'
         end_bracket: )
-    - keyword: USING
-    - keyword: PARQUET
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: PARQUET
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -142,8 +144,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -151,8 +155,10 @@ file:
     - keyword: TABLE
     - table_reference:
         naked_identifier: student_copy
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: AS
     - select_statement:
         select_clause:
@@ -225,8 +231,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: COMMENT
     - quoted_literal: "'this is a comment'"
     - keyword: TBLPROPERTIES
@@ -265,8 +273,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -315,8 +325,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: iceberg
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:

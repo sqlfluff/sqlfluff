@@ -262,12 +262,11 @@ ansi_dialect.sets("datetime_units").update(
 ansi_dialect.sets("date_part_function_name").update(["DATEADD"])
 
 # Set Keywords
-ansi_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in ansi_unreserved_keywords.split("\n")]
+ansi_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", ansi_unreserved_keywords
 )
-
-ansi_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in ansi_reserved_keywords.split("\n")]
+ansi_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", ansi_reserved_keywords
 )
 
 # Bracket pairs (a set of tuples).
@@ -1164,6 +1163,7 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar: Matchable = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Sequence(
@@ -1173,6 +1173,7 @@ class AliasExpressionSegment(BaseSegment):
             ),
             Ref("SingleQuotedIdentifierSegment"),
         ),
+        Dedent,
     )
 
 
@@ -3446,6 +3447,60 @@ class SetClauseSegment(BaseSegment):
     )
 
 
+class CreateCastStatementSegment(BaseSegment):
+    """A `CREATE CAST` statement.
+
+    https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_63_user_defined_cast_definition
+    """
+
+    type = "create_cast_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        "WITH",
+        Ref.keyword("SPECIFIC", optional=True),
+        OneOf(
+            "ROUTINE",
+            "FUNCTION",
+            "PROCEDURE",
+            Sequence(
+                OneOf("INSTANCE", "STATIC", "CONSTRUCTOR", optional=True),
+                "METHOD",
+            ),
+        ),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar", optional=True),
+        Sequence("FOR", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("AS", "ASSIGNMENT", optional=True),
+    )
+
+
+class DropCastStatementSegment(BaseSegment):
+    """A `DROP CAST` statement.
+
+    https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_64_drop_user_defined_cast_statement
+    """
+
+    type = "drop_cast_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
@@ -3667,6 +3722,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("CreateCastStatementSegment"),
+        Ref("DropCastStatementSegment"),
         Ref("CreateFunctionStatementSegment"),
         Ref("DropFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),

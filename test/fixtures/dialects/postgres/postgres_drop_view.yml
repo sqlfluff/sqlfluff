@@ -1,0 +1,154 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 36b7a96e8518c113ef9d614a8b704ce02aa976d1b69949a8e9f68c287ded1420
+file:
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"abc"'
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        quoted_identifier: '"def"'
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        naked_identifier: def
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        naked_identifier: def
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        naked_identifier: def
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        naked_identifier: def
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: abc
+    - comma: ','
+    - table_reference:
+        naked_identifier: def
+    - comma: ','
+    - table_reference:
+        naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;

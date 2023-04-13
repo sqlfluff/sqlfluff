@@ -199,7 +199,7 @@ def identify_rebreak_spans(
                     # NOTE: This feels a little hacky, but it's because of a limitation
                     # in detecting the "end" and "solo" markers effectively in larger
                     # sections.
-                    final_idx = end_idx - 2
+                    final_idx = end_idx - 2  # pragma: no cover
                 elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
                     final_idx = end_idx
 
