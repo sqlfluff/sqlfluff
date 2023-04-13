@@ -565,44 +565,30 @@ class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
     numbers on either side of the slice segment are optional.
     """
 
-    match_grammar = Sequence(
-        AnyNumberOf(
-            Bracketed(
-                Sequence(
-                    OneOf(
-                        OneOf(
-                            Ref("QualifiedNumericLiteralSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence(
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                                optional=True,
-                            ),
-                            Ref("SliceSegment"),
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                            ),
-                        ),
-                        Sequence(
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                            ),
-                            Ref("SliceSegment"),
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                    ),
+    match_grammar = Bracketed(
+        OneOf(
+            OneOf(
+                Ref("QualifiedNumericLiteralSegment"),
+                Ref("NumericLiteralSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
                 ),
-                bracket_type="square",
-            )
-        )
+                Ref("SliceSegment"),
+                OneOf(
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        bracket_type="square",
     )
 
 
