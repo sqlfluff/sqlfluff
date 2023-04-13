@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ddd990903aaf070992fc87aca63aac0b651b984d60136b2975d2b98d7df5b4c
+_hash: 985f29f0b5b895f3e2b840714cec791c128deb41151edccecb3ee1d61c9fda4e
 file:
 - statement:
     select_statement:
@@ -96,11 +96,11 @@ file:
                 quoted_literal: "'1992-12-31 23:59:59.000002'"
             - comma: ','
             - expression:
-                keyword: INTERVAL
-                date_constructor_literal: "'1.999999'"
-            - expression:
-                column_reference:
-                  naked_identifier: SECOND_MICROSECOND
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    quoted_literal: "'1.999999'"
+                  date_part: SECOND_MICROSECOND
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -117,11 +117,11 @@ file:
                 quoted_literal: "'2100-12-31 23:59:59'"
             - comma: ','
             - expression:
-                keyword: INTERVAL
-                date_constructor_literal: "'1:1'"
-            - expression:
-                column_reference:
-                  naked_identifier: MINUTE_SECOND
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    quoted_literal: "'1:1'"
+                  date_part: MINUTE_SECOND
             - end_bracket: )
 - statement_terminator: ;
 - statement:

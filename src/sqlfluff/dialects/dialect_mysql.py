@@ -105,15 +105,35 @@ mysql_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", mysql_reserved_keywords
 )
 
-# Remove these reserved keywords to avoid issue in interval.sql
-# TODO - resolve this properly
-mysql_dialect.sets("reserved_keywords").difference_update(
-    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+# Set the datetime units
+mysql_dialect.sets("datetime_units").clear()
+mysql_dialect.sets("datetime_units").update(
+    [
+        # https://github.com/mysql/mysql-server/blob/1bfe02bdad6604d54913c62614bde57a055c8332/sql/sql_yacc.yy#L12321-L12345
+        # interval:
+        "DAY_HOUR",
+        "DAY_MICROSECOND",
+        "DAY_MINUTE",
+        "DAY_SECOND",
+        "HOUR_MICROSECOND",
+        "HOUR_MINUTE",
+        "HOUR_SECOND",
+        "MINUTE_MICROSECOND",
+        "MINUTE_SECOND",
+        "SECOND_MICROSECOND",
+        "YEAR_MONTH",
+        # interval_time_stamp
+        "DAY",
+        "WEEK",
+        "HOUR",
+        "MINUTE",
+        "MONTH",
+        "QUARTER",
+        "SECOND",
+        "MICROSECOND",
+        "YEAR",
+    ]
 )
-
-# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
-# TODO - resolve this properly
-mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
 mysql_dialect.replace(
@@ -164,8 +184,6 @@ mysql_dialect.replace(
             "DATE",
             "TIME",
             "TIMESTAMP",
-            "DATETIME",
-            "INTERVAL",
             optional=True,
         ),
         OneOf(
@@ -827,15 +845,8 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        OneOf(
-            # The Numeric Version
-            Sequence(
-                Ref("ExpressionSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
-            ),
-            # The String version
-            Ref("QuotedLiteralSegment"),
-        ),
+        Ref("ExpressionSegment"),
+        Ref("DatetimeUnitSegment"),
     )
 
 
@@ -2172,7 +2183,7 @@ class PurgeBinaryLogsStatementSegment(BaseSegment):
             Sequence(
                 "BEFORE",
                 OneOf(
-                    Ref("DateTimeLiteralGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
