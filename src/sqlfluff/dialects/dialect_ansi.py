@@ -1066,6 +1066,12 @@ class IndexReferenceSegment(ObjectReferenceSegment):
     type = "index_reference"
 
 
+class CollationReferenceSegment(ObjectReferenceSegment):
+    """A reference to a collation."""
+
+    type = "collation_reference"
+
+
 class RoleReferenceSegment(ObjectReferenceSegment):
     """A reference to a role, user, or account."""
 
@@ -1274,6 +1280,7 @@ class OverClauseSegment(BaseSegment):
 
     type = "over_clause"
     match_grammar: Matchable = Sequence(
+        Indent,
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         "OVER",
         OneOf(
@@ -1282,6 +1289,7 @@ class OverClauseSegment(BaseSegment):
                 Ref("WindowSpecificationSegment", optional=True),
             ),
         ),
+        Dedent,
     )
 
 
@@ -3150,11 +3158,10 @@ class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement."""
 
     type = "drop_index_statement"
-    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    # DROP INDEX <Index name> [IF EXISTS] {RESTRICT | CASCADE}
     match_grammar: Matchable = Sequence(
         "DROP",
         "INDEX",
-        Ref.keyword("CONCURRENTLY", optional=True),
         Ref("IfExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),

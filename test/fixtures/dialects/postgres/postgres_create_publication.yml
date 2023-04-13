@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7de98561d58869c1d81ef7d786e9638e59c5c65507f96ed495eba88dae55f85
+_hash: dfab8d08af80c56bc6be0c0658fedcccb5142a9c490c88f6198973e7ef322b5e
 file:
 - statement:
     create_publication_statement:
@@ -294,13 +294,13 @@ file:
         bracketed:
         - start_bracket: (
         - definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'insert,update'"
         - comma: ','
         - definition_parameter:
-            parameter: publish_via_partition_root
+            properties_naked_identifier: publish_via_partition_root
             comparison_operator:
               raw_comparison_operator: '='
             boolean_literal: 'TRUE'
@@ -327,7 +327,7 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish_via_partition_root
+            properties_naked_identifier: publish_via_partition_root
             comparison_operator:
               raw_comparison_operator: '='
             boolean_literal: 'TRUE'
@@ -354,7 +354,7 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'insert,update'"
@@ -371,7 +371,7 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'insert,update'"
@@ -443,7 +443,7 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'insert'"

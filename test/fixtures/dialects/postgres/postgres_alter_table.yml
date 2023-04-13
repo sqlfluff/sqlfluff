@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3781b2c7fa7852a6bacc84fcf93f6f238a6abfa73a337cf44715e85254912c67
+_hash: 83fd9204753baac8a3193865390a5c936be34fda8f7c3d40ff3813f98df7df52
 file:
 - statement:
     alter_table_statement:
@@ -883,8 +883,8 @@ file:
     - table_reference:
         naked_identifier: distributors
     - alter_table_action_segment:
-      - keyword: ADD
-      - table_constraint:
+        keyword: ADD
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             naked_identifier: distfk
@@ -903,8 +903,8 @@ file:
             column_reference:
               naked_identifier: address
             end_bracket: )
-      - keyword: NOT
-      - keyword: VALID
+        - keyword: NOT
+        - keyword: VALID
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1367,4 +1367,344 @@ file:
             - dot: .
             - naked_identifier: history_id_seq
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: reservation
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: EXCLUDE
+        - keyword: USING
+        - index_access_method:
+            naked_identifier: gist
+        - bracketed:
+            start_bracket: (
+            exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: during
+              keyword: WITH
+              comparison_operator:
+              - ampersand: '&'
+              - ampersand: '&'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: room_reservation
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: cons
+        - keyword: EXCLUDE
+        - keyword: USING
+        - index_access_method:
+            naked_identifier: gist
+        - bracketed:
+          - start_bracket: (
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: room
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: during
+              keyword: WITH
+              comparison_operator:
+              - ampersand: '&'
+              - ampersand: '&'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: no_using
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: EXCLUDE
+        - bracketed:
+            start_bracket: (
+            exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: field
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+            end_bracket: )
+        - keyword: NOT
+        - keyword: DEFERRABLE
+        - keyword: INITIALLY
+        - keyword: IMMEDIATE
+        - keyword: 'NO'
+        - keyword: INHERIT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: many_options
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: EXCLUDE
+        - keyword: USING
+        - index_access_method:
+            naked_identifier: gist
+        - bracketed:
+          - start_bracket: (
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: one
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: nulls_opclass
+                index_element_options:
+                  operator_class_reference:
+                    naked_identifier: nulls
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: nulls_last
+                index_element_options:
+                - keyword: NULLS
+                - keyword: LAST
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: two
+                index_element_options:
+                - keyword: COLLATE
+                - collation_reference:
+                    quoted_identifier: '"en-US"'
+                - operator_class_reference:
+                    naked_identifier: opclass
+                - relation_options:
+                    bracketed:
+                    - start_bracket: (
+                    - relation_option:
+                        properties_naked_identifier: opt1
+                    - comma: ','
+                    - relation_option:
+                        properties_naked_identifier: opt2
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '5'
+                    - comma: ','
+                    - relation_option:
+                        properties_naked_identifier: opt3
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'str'"
+                    - comma: ','
+                    - relation_option:
+                      - properties_naked_identifier: ns
+                      - dot: .
+                      - properties_naked_identifier: opt4
+                    - comma: ','
+                    - relation_option:
+                      - properties_naked_identifier: ns
+                      - dot: .
+                      - properties_naked_identifier: opt5
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - numeric_literal: '6'
+                    - comma: ','
+                    - relation_option:
+                      - properties_naked_identifier: ns
+                      - dot: .
+                      - properties_naked_identifier: opt6
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - quoted_literal: "'str'"
+                    - comma: ','
+                    - relation_option:
+                      - properties_naked_identifier: opt7
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - properties_naked_identifier: ASC
+                    - end_bracket: )
+                - keyword: ASC
+                - keyword: NULLS
+                - keyword: FIRST
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: two
+                    binary_operator: +
+                    numeric_literal: '5'
+                  end_bracket: )
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                function:
+                  function_name:
+                    function_name_identifier: myfunc
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: a
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - end_bracket: )
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                function:
+                  function_name:
+                    function_name_identifier: myfunc_opclass
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: a
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - end_bracket: )
+                index_element_options:
+                  operator_class_reference:
+                    naked_identifier: fop
+                  relation_options:
+                    bracketed:
+                    - start_bracket: (
+                    - relation_option:
+                        properties_naked_identifier: opt
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '1'
+                    - comma: ','
+                    - relation_option:
+                        properties_naked_identifier: foo
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        numeric_literal: '2'
+                    - end_bracket: )
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: only_opclass
+                index_element_options:
+                  operator_class_reference:
+                    naked_identifier: opclass
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - comma: ','
+          - exclusion_constraint_element:
+              index_element:
+                column_reference:
+                  naked_identifier: desc_order
+                index_element_options:
+                  keyword: DESC
+              keyword: WITH
+              comparison_operator:
+                raw_comparison_operator: '='
+          - end_bracket: )
+        - index_parameters:
+          - keyword: INCLUDE
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: a
+            - comma: ','
+            - column_reference:
+                naked_identifier: b
+            - end_bracket: )
+          - keyword: WITH
+          - definition_parameters:
+              bracketed:
+              - start_bracket: (
+              - definition_parameter:
+                  properties_naked_identifier: idx_num
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '5'
+              - comma: ','
+              - definition_parameter:
+                  properties_naked_identifier: idx_str
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'idx_value'"
+              - comma: ','
+              - definition_parameter:
+                - properties_naked_identifier: idx_kw
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - properties_naked_identifier: DESC
+              - end_bracket: )
+          - keyword: USING
+          - keyword: INDEX
+          - keyword: TABLESPACE
+          - tablespace_reference:
+              naked_identifier: tblspc
+        - keyword: WHERE
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: field
+              comparison_operator:
+              - raw_comparison_operator: '!'
+              - raw_comparison_operator: '='
+              quoted_literal: "'def'"
+            end_bracket: )
+        - keyword: DEFERRABLE
+        - keyword: NOT
+        - keyword: VALID
+        - keyword: INITIALLY
+        - keyword: DEFERRED
 - statement_terminator: ;
