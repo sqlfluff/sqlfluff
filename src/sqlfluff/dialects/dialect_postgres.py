@@ -567,11 +567,11 @@ class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
 
     match_grammar = Bracketed(
         OneOf(
-            OneOf(
-                Ref("QualifiedNumericLiteralSegment"),
-                Ref("NumericLiteralSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            # These three are for a single element access: [n]
+            Ref("QualifiedNumericLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+            # This is for slice access: [n:m], [:m], [n:], and [:]
             Sequence(
                 OneOf(
                     Ref("QualifiedNumericLiteralSegment"),
