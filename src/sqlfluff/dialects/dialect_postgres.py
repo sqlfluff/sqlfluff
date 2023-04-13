@@ -772,6 +772,59 @@ class DefinitionParametersSegment(BaseSegment):
     )
 
 
+class CreateCastStatementSegment(ansi.CreateCastStatementSegment):
+    """A `CREATE CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-createcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8951
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "WITH",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            ),
+            Sequence("WITHOUT", "FUNCTION"),
+            Sequence("WITH", "INOUT"),
+        ),
+        OneOf(
+            Sequence("AS", "ASSIGNMENT", optional=True),
+            Sequence("AS", "IMPLICIT", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class DropCastStatementSegment(ansi.DropCastStatementSegment):
+    """A `DROP CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8995
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAST",
+        Sequence("IF", "EXISTS", optional=True),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
     """A `CREATE FUNCTION` statement.
 
