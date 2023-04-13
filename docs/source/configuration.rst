@@ -106,7 +106,6 @@ project:
 
 .. literalinclude:: partials/starter_config.cfg
    :language: cfg
-   :linenos:
 
 
 .. _nesting:
@@ -1073,4 +1072,3 @@ section *[sqlfluff:templater:jinja:macros]* as referred to above.
 
 .. literalinclude:: ../../src/sqlfluff/core/default_config.cfg
    :language: cfg
-   :linenos:
