@@ -3442,6 +3442,60 @@ class SetClauseSegment(BaseSegment):
     )
 
 
+class CreateCastStatementSegment(BaseSegment):
+    """A `CREATE CAST` statement.
+
+    https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_63_user_defined_cast_definition
+    """
+
+    type = "create_cast_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        "WITH",
+        Ref.keyword("SPECIFIC", optional=True),
+        OneOf(
+            "ROUTINE",
+            "FUNCTION",
+            "PROCEDURE",
+            Sequence(
+                OneOf("INSTANCE", "STATIC", "CONSTRUCTOR", optional=True),
+                "METHOD",
+            ),
+        ),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar", optional=True),
+        Sequence("FOR", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("AS", "ASSIGNMENT", optional=True),
+    )
+
+
+class DropCastStatementSegment(BaseSegment):
+    """A `DROP CAST` statement.
+
+    https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_64_drop_user_defined_cast_statement
+    """
+
+    type = "drop_cast_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
@@ -3663,6 +3717,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
+        Ref("CreateCastStatementSegment"),
+        Ref("DropCastStatementSegment"),
         Ref("CreateFunctionStatementSegment"),
         Ref("DropFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
