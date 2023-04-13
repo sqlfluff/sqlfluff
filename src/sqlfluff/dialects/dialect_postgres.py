@@ -3718,6 +3718,24 @@ class ReindexStatementSegment(BaseSegment):
     )
 
 
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropindex.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6698-L6719
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6808-L6829
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("IndexReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class FrameClauseSegment(ansi.FrameClauseSegment):
     """A frame clause for window functions.
 
