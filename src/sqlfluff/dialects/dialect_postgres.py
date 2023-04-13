@@ -487,6 +487,18 @@ postgres_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
+    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        # moved from NonWithNonSelectableGrammar:
+        Ref("UpdateStatementSegment"),
+        Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    ),
+    NonWithNonSelectableGrammar=OneOf(),
 )
 
 
