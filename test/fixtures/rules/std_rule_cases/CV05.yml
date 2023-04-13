@@ -105,3 +105,10 @@ test_tsql_alternate_alias_syntax:
   configs:
     core:
       dialect: tsql
+
+test_exclude_constraint:
+  pass_str: |
+    alter table abc add constraint xyz exclude (field WITH =);
+  configs:
+    core:
+      dialect: postgres
