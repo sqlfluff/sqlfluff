@@ -1815,8 +1815,8 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         "GROUP",
         "BY",
         Indent,
-        Delimited(
-            OneOf(
+        OneOf(
+            Delimited(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
@@ -1825,12 +1825,19 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
             ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            Sequence(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"), Ref("GroupingSetsClauseSegment")
+                ),
+            ),
         ),
-        # TODO: New Rule
-        #  Warn if CubeRollupClauseSegment and
-        #  WithCubeRollupClauseSegment used in same query
-        Ref("WithCubeRollupClauseSegment", optional=True),
         Dedent,
     )
 
