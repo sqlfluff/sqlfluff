@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2d55ad5ee705b8170c77854e66b327f5c2ee32c6bde3af3880c7d580bd9a8a8
+_hash: ad0c20e9dfd8115654ccb945b29b1cd0953917992860daa62a51dcded6c41f62
 file:
 - statement:
     create_statement:
@@ -16,15 +16,14 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: s3
-      - keyword: storage_aws_role_arn
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -50,15 +49,14 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: s3
-      - keyword: storage_aws_role_arn
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -84,11 +82,10 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: gcs
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcs
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -114,20 +111,18 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: azure
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'true'
-    - storage_integration_parameters:
-        keyword: azure_tenant_id
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'<tenant_id>'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<tenant_id>'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -151,15 +146,14 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: s3
-      - keyword: storage_aws_role_arn
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -194,11 +188,10 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: gcs
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcs
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -233,20 +226,18 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: external_stage
-    - storage_integration_parameters:
-      - keyword: storage_provider
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - keyword: azure
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
     - boolean_literal: 'false'
-    - storage_integration_parameters:
-        keyword: azure_tenant_id
-        comparison_operator:
-          raw_comparison_operator: '='
-        quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='

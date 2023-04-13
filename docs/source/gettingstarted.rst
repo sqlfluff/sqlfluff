@@ -85,6 +85,7 @@ file.
     == [test.sql] FAIL
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
+                           | [layout.select_targets]
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates. [structure.column_order]
     L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
@@ -126,13 +127,21 @@ error (violation of *LT01*) no longer shows up.
 
     $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
-    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
-                           | and aggregates.
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
-    L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
+                           | [layout.select_targets]
+    L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
+                           | and aggregates. [structure.column_order]
+    L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
+                           | [layout.indent]
+    L:   1 | P:  13 | LT01 | Expected only single space before 'AS' keyword. Found '
+                           | '. [layout.spacing]
+    L:   2 | P:   1 | LT02 | Expected indent of 4 spaces.
+                           | [layout.indent]
+    L:   2 | P:   9 | LT02 | Expected line break and no indent before 'from'.
+                           | [layout.indent]
     L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
+                           | [capitalisation.keywords]
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -149,10 +158,16 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
     $ sqlfluff fix test.sql --rules LT02,LT12,CP01 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
-    L:   2 | P:   1 | LT02 | Expected 1 indentations, found 0 [compared to line 01]
+    L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
+                           | [layout.indent]
+    L:   2 | P:   1 | LT02 | Expected indent of 4 spaces.
+                           | [layout.indent]
+    L:   2 | P:   9 | LT02 | Expected line break and no indent before 'FROM'.
+                           | [layout.indent]
     L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
+                           | [capitalisation.keywords]
     ==== fixing violations ====
-    2 fixable linting violations found
+    4 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
 
 ...at this point you'll have to confirm that you want to make the
@@ -171,17 +186,17 @@ now different.
 
 .. code-block:: sql
 
-    SELECT a + b  AS foo,
-        c AS bar FROM my_table
+    SELECT
+        a + b  AS foo,
+        c AS bar
+    FROM my_table
 
 In particular:
 
-* The second line has been indented to reflect being inside the
+* The two columns have been indented to reflect being inside the
   :code:`SELECT` statement.
 * The :code:`FROM` keyword has been capitalised to match the
   other keywords.
-* A final newline character has been added at the end of the
-  file (which may not be obvious in the snippet above).
 
 We could also fix *all* of the fixable errors by not
 specifying :code:`--rules`.
@@ -192,12 +207,11 @@ specifying :code:`--rules`.
     ==== finding violations ====
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
-                           | and aggregates.
-    L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
-                           | only one select target.
-    L:   1 | P:  13 | LT01 | Unnecessary whitespace found.
+                           | and aggregates. [structure.column_order]
+    L:   2 | P:  10 | LT01 | Expected only single space before 'AS' keyword. Found '
+                           | '. [layout.spacing]
     ==== fixing violations ====
-    3 fixable linting violations found
+    2 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n] ...
     Attempting fixes...
     Persisting Changes...
@@ -264,6 +278,8 @@ file has been fixed accordingly.
     from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.
+Note that in our example here we've only set a few configuration values
+and any other configuration settings remain as per the default config.
 To see how these options apply to specific rules check out the
 "Configuration" section within each rule's documentation in :ref:`ruleref`.
 

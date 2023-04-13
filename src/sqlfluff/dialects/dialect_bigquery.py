@@ -248,13 +248,13 @@ bigquery_dialect.replace(
 
 # Set Keywords
 bigquery_dialect.sets("unreserved_keywords").clear()
-bigquery_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in bigquery_unreserved_keywords.split("\n")]
+bigquery_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", bigquery_unreserved_keywords
 )
 
 bigquery_dialect.sets("reserved_keywords").clear()
-bigquery_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in bigquery_reserved_keywords.split("\n")]
+bigquery_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", bigquery_reserved_keywords
 )
 
 # Add additional datetime units
@@ -1758,12 +1758,14 @@ class UnpivotAliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SingleQuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
+        Dedent,
     )
 
 

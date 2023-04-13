@@ -27,6 +27,8 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    Indent,
+    Dedent,
 )
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
@@ -94,24 +96,44 @@ mysql_dialect.insert_lexer_matchers(
 # Set Keywords
 # Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
 # Just add MySQL unreserved keywords.
-mysql_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
+mysql_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", mysql_unreserved_keywords
 )
 
 mysql_dialect.sets("reserved_keywords").clear()
-mysql_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
+mysql_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", mysql_reserved_keywords
 )
 
-# Remove these reserved keywords to avoid issue in interval.sql
-# TODO - resolve this properly
-mysql_dialect.sets("reserved_keywords").difference_update(
-    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+# Set the datetime units
+mysql_dialect.sets("datetime_units").clear()
+mysql_dialect.sets("datetime_units").update(
+    [
+        # https://github.com/mysql/mysql-server/blob/1bfe02bdad6604d54913c62614bde57a055c8332/sql/sql_yacc.yy#L12321-L12345
+        # interval:
+        "DAY_HOUR",
+        "DAY_MICROSECOND",
+        "DAY_MINUTE",
+        "DAY_SECOND",
+        "HOUR_MICROSECOND",
+        "HOUR_MINUTE",
+        "HOUR_SECOND",
+        "MINUTE_MICROSECOND",
+        "MINUTE_SECOND",
+        "SECOND_MICROSECOND",
+        "YEAR_MONTH",
+        # interval_time_stamp
+        "DAY",
+        "WEEK",
+        "HOUR",
+        "MINUTE",
+        "MONTH",
+        "QUARTER",
+        "SECOND",
+        "MICROSECOND",
+        "YEAR",
+    ]
 )
-
-# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
-# TODO - resolve this properly
-mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
 mysql_dialect.replace(
@@ -162,8 +184,6 @@ mysql_dialect.replace(
             "DATE",
             "TIME",
             "TIMESTAMP",
-            "DATETIME",
-            "INTERVAL",
             optional=True,
         ),
         OneOf(
@@ -263,11 +283,13 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
     match_grammar = Sequence(
+        Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Ref("QuotedLiteralSegment"),
         ),
+        Dedent,
     )
 
 
@@ -823,15 +845,8 @@ class IntervalExpressionSegment(BaseSegment):
     type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
-        OneOf(
-            # The Numeric Version
-            Sequence(
-                Ref("ExpressionSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
-            ),
-            # The String version
-            Ref("QuotedLiteralSegment"),
-        ),
+        Ref("ExpressionSegment"),
+        Ref("DatetimeUnitSegment"),
     )
 
 
@@ -1345,7 +1360,12 @@ class AlterViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(Ref("SelectStatementSegment")),
+        OptionallyBracketed(
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Ref("SetExpressionSegment"),
+            )
+        ),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -1373,7 +1393,12 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(Ref("SelectStatementSegment")),
+        OptionallyBracketed(
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Ref("SetExpressionSegment"),
+            )
+        ),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -2158,7 +2183,7 @@ class PurgeBinaryLogsStatementSegment(BaseSegment):
             Sequence(
                 "BEFORE",
                 OneOf(
-                    Ref("DateTimeLiteralGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),

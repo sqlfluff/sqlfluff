@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e966e9d3dfde5f1921fb58fdf6dbe47e1c53e66e733dfb9f1c2baf27f619c448
+_hash: 41363cce6c6ddbe60469ac35341d52b0ca93d33eb94c4e5d5b4254701f896f46
 file:
 - statement:
     set_statement:
@@ -81,4 +81,24 @@ file:
     - keyword: SET
     - keyword: SCHEMA
     - quoted_literal: "'public'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: '"my role"'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: NONE
 - statement_terminator: ;

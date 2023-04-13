@@ -158,7 +158,7 @@ class AnyNumberOf(BaseGrammar):
 
         # If we've pruned all the options, return unmatched (with some logging).
         if not available_options:
-            return MatchResult.from_unmatched(segments)
+            return MatchResult.from_unmatched(segments), None
 
         with parse_context.deeper_match() as ctx:
             match, matched_option = self._longest_trimmed_match(
@@ -194,8 +194,7 @@ class AnyNumberOf(BaseGrammar):
         n_matches = 0
 
         # Keep track of the number of times each option has been matched.
-        available_options = self._prune_options(segments, parse_context=parse_context)
-        available_option_counter = {str(o): 0 for o in available_options}
+        option_counter = {elem.cache_key(): 0 for elem in self._elements}
 
         while True:
             if self.max_times and n_matches >= self.max_times:
@@ -228,17 +227,18 @@ class AnyNumberOf(BaseGrammar):
             )
 
             # Increment counter for matched option.
-            if matched_option and (str(matched_option) in available_option_counter):
-                available_option_counter[str(matched_option)] += 1
-                # Check if we have matched an option too many times.
-                if (
-                    self.max_times_per_element
-                    and available_option_counter[str(matched_option)]
-                    > self.max_times_per_element
-                ):
-                    return MatchResult(
-                        matched_segments.matched_segments, unmatched_segments
-                    )
+            if matched_option:
+                matched_key = matched_option.cache_key()
+                if matched_option.cache_key() in option_counter:
+                    option_counter[matched_key] += 1
+                    # Check if we have matched an option too many times.
+                    if (
+                        self.max_times_per_element
+                        and option_counter[matched_key] > self.max_times_per_element
+                    ):
+                        return MatchResult(
+                            matched_segments.matched_segments, unmatched_segments
+                        )
 
             if match:
                 matched_segments += pre_seg + match.matched_segments

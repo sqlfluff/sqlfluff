@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a8213f99ac055ca79dfbb03234fe69f0b5fa26eb3a4d979791979787e5e74fcd
+_hash: 3bb1e638499d52434c20d168ce195274b3a557ac2b38cf7244b16d97e841d3aa
 file:
 - statement:
     create_view_statement:
@@ -185,4 +185,25 @@ file:
       - keyword: CASCADED
       - keyword: CHECK
       - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v2
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+      - set_operator:
+          keyword: UNION
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '2'
 - statement_terminator: ;

@@ -5,6 +5,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import os
+import sys
 import configparser
 
 # -- Path setup --------------------------------------------------------------
@@ -12,10 +14,8 @@ import configparser
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+
+sys.path.append(os.path.abspath("./_ext"))
 
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
@@ -26,7 +26,7 @@ stable_version = config.get("sqlfluff_docs", "stable_version")
 # -- Project information -----------------------------------------------------
 
 project = "SQLFluff"
-copyright = "2019, Alan Cruickshank"
+copyright = "2023, Alan Cruickshank"
 author = "Alan Cruickshank"
 
 # The full version, including alpha/beta/rc tags
@@ -47,6 +47,8 @@ extensions = [
     "sphinx_click.ext",
     # Redirects
     "sphinx_reredirects",
+    # SQLFluff domain
+    "sqlfluff_domain",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,7 +57,11 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = [
+    # Exclude the partials folder, which is made up of files intended
+    # to be included in others.
+    "partials",
+]
 
 # Master doc
 master_doc = "index"

@@ -39,3 +39,19 @@ WITH RECURSIVE search_graph(id, link, data, depth) AS (
     WHERE g.id = sg.link
 ) CYCLE id SET is_cycle USING path
 SELECT * FROM search_graph;
+
+-- test that DML queries are also selectable
+WITH tbl AS (
+    INSERT INTO a VALUES (5) RETURNING *
+)
+SELECT * FROM tbl;
+
+WITH tbl AS (
+    UPDATE a SET b = 5 RETURNING *
+)
+SELECT * FROM tbl;
+
+WITH tbl AS (
+    DELETE FROM a RETURNING *
+)
+SELECT * FROM tbl;

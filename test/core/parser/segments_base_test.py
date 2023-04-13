@@ -128,15 +128,17 @@ def test__parser__base_segments_path_to(raw_seg_list):
     test_seg_b = DummySegment([test_seg_a])
     # With a direct parent/child relationship we only get
     # one element of path.
-    assert test_seg_b.path_to(test_seg_a) == [PathStep(test_seg_b, 0, 1)]
+    # NOTE: All the dummy segments return True for .is_code()
+    # so that means the do appear in code_idxs.
+    assert test_seg_b.path_to(test_seg_a) == [PathStep(test_seg_b, 0, 1, (0,))]
     # With a three segment chain - we get two path elements.
     assert test_seg_b.path_to(raw_seg_list[0]) == [
-        PathStep(test_seg_b, 0, 1),
-        PathStep(test_seg_a, 0, 2),
+        PathStep(test_seg_b, 0, 1, (0,)),
+        PathStep(test_seg_a, 0, 2, (0, 1)),
     ]
     assert test_seg_b.path_to(raw_seg_list[1]) == [
-        PathStep(test_seg_b, 0, 1),
-        PathStep(test_seg_a, 1, 2),
+        PathStep(test_seg_b, 0, 1, (0,)),
+        PathStep(test_seg_a, 1, 2, (0, 1)),
     ]
 
 
@@ -250,7 +252,10 @@ def test__parser__raw_segments_with_ancestors(raw_seg_list):
     assert test_seg.raw_segments_with_ancestors == [
         (
             raw_seg_list[0],
-            [PathStep(test_seg, 0, 2), PathStep(test_seg.segments[0], 0, 1)],
+            [
+                PathStep(test_seg, 0, 2, (0, 1)),
+                PathStep(test_seg.segments[0], 0, 1, (0,)),
+            ],
         ),
-        (raw_seg_list[1], [PathStep(test_seg, 1, 2)]),
+        (raw_seg_list[1], [PathStep(test_seg, 1, 2, (0, 1))]),
     ]

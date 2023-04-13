@@ -649,13 +649,13 @@ snowflake_dialect.replace(
 
 # Add all Snowflake keywords
 snowflake_dialect.sets("unreserved_keywords").clear()
-snowflake_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in snowflake_unreserved_keywords.split("\n")]
+snowflake_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", snowflake_unreserved_keywords
 )
 
 snowflake_dialect.sets("reserved_keywords").clear()
-snowflake_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in snowflake_reserved_keywords.split("\n")]
+snowflake_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", snowflake_reserved_keywords
 )
 
 # Add datetime units and their aliases from
@@ -1320,7 +1320,10 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     match_grammar = Sequence(
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),
-        Bracketed(Ref("NumericLiteralSegment"), Ref.keyword("ROWS", optional=True)),
+        Bracketed(
+            OneOf(Ref("NumericLiteralSegment"), Ref("ReferencedVariableNameSegment")),
+            Ref.keyword("ROWS", optional=True),
+        ),
         Sequence(
             OneOf("REPEATABLE", "SEED"),
             Bracketed(Ref("NumericLiteralSegment")),
@@ -3425,10 +3428,50 @@ class CreateStatementSegment(BaseSegment):
         AnySetOf(
             Sequence("TYPE", Ref("EqualsSegment"), "QUEUE"),
             Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "NOTIFICATION_PROVIDER",
+                Ref("EqualsSegment"),
+                OneOf("AWS_SNS", "AZURE_EVENT_GRID", "GCP_PUBSUB"),
+            ),
+            # AWS specific params:
+            Sequence(
+                "AWS_SNS_TOPIC_ARN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "AWS_SNS_ROLE_ARN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # Azure specific params:
+            Sequence(
+                "AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
             OneOf(
-                Ref("S3NotificationIntegrationParameters"),
-                Ref("GCSNotificationIntegrationParameters"),
-                Ref("AzureNotificationIntegrationParameters"),
+                Sequence(
+                    "AZURE_STORAGE_QUEUE_PRIMARY_URI",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "AZURE_EVENT_GRID_TOPIC_ENDPOINT",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            # GCP specific params:
+            OneOf(
+                Sequence(
+                    "GCP_PUBSUB_SUBSCRIPTION_NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "GCP_PUBSUB_TOPIC_NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             Sequence(
                 "DIRECTION",
@@ -3467,10 +3510,23 @@ class CreateStatementSegment(BaseSegment):
         AnySetOf(
             Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
             Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            OneOf(
-                Ref("S3StorageIntegrationParameters"),
-                Ref("GCSStorageIntegrationParameters"),
-                Ref("AzureStorageIntegrationParameters"),
+            Sequence(
+                "STORAGE_PROVIDER", Ref("EqualsSegment"), OneOf("S3", "AZURE", "GCS")
+            ),
+            # Azure specific params:
+            Sequence(
+                "AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            # AWS specific params:
+            Sequence(
+                "STORAGE_AWS_ROLE_ARN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "STORAGE_AWS_OBJECT_ACL",
+                Ref("EqualsSegment"),
+                StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
             ),
             Sequence(
                 "STORAGE_ALLOWED_LOCATIONS",
@@ -4727,132 +4783,6 @@ class StorageLocation(BaseSegment):
         Ref("S3Path"),
         Ref("GCSPath"),
         Ref("AzureBlobStoragePath"),
-    )
-
-
-class S3StorageIntegrationParameters(BaseSegment):
-    """Parameters for an S3 Storage Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
-    """
-
-    name = "s3_storage_integration_parameters"
-    type = "storage_integration_parameters"
-
-    match_grammar = AnySetOf(
-        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "S3"),
-        Sequence(
-            "STORAGE_AWS_ROLE_ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
-        ),
-        Sequence(
-            "STORAGE_AWS_OBJECT_ACL",
-            Ref("EqualsSegment"),
-            StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
-        ),
-    )
-
-
-class GCSStorageIntegrationParameters(BaseSegment):
-    """Parameters for a GCS Storage Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
-    """
-
-    name = "gcs_storage_integration_parameters"
-    type = "storage_integration_parameters"
-
-    match_grammar = Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "GCS")
-
-
-class AzureStorageIntegrationParameters(BaseSegment):
-    """Parameters for an Azure Storage Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
-    """
-
-    name = "azure_storage_integration_parameters"
-    type = "storage_integration_parameters"
-
-    match_grammar = AnySetOf(
-        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "AZURE"),
-        Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-    )
-
-
-class S3NotificationIntegrationParameters(BaseSegment):
-    """Parameters for an S3 Notification Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
-    """
-
-    name = "s3_notification_integration_parameters"
-    type = "notification_integration_parameters"
-
-    match_grammar = AnySetOf(
-        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "AWS_SNS"),
-        Sequence(
-            "AWS_SNS_TOPIC_ARN",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-        ),
-        Sequence(
-            "AWS_SNS_ROLE_ARN",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-        ),
-    )
-
-
-class GCSNotificationIntegrationParameters(BaseSegment):
-    """Parameters for a GCS Notification Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
-    """
-
-    name = "gcs_notification_integration_parameters"
-    type = "notification_integration_parameters"
-
-    match_grammar = AnySetOf(
-        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "GCP_PUBSUB"),
-        OneOf(
-            Sequence(
-                "GCP_PUBSUB_SUBSCRIPTION_NAME",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-            Sequence(
-                "GCP_PUBSUB_TOPIC_NAME",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-        ),
-    )
-
-
-class AzureNotificationIntegrationParameters(BaseSegment):
-    """Parameters for an Azure Notification Integration in Snowflake.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-notification-integration.html
-    """
-
-    name = "azure_notification_integration_parameters"
-    type = "storage_notification_parameters"
-
-    match_grammar = AnySetOf(
-        Sequence("NOTIFICATION_PROVIDER", Ref("EqualsSegment"), "AZURE_EVENT_GRID"),
-        Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
-        OneOf(
-            Sequence(
-                "AZURE_STORAGE_QUEUE_PRIMARY_URI",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-            Sequence(
-                "AZURE_EVENT_GRID_TOPIC_ENDPOINT",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-            ),
-        ),
     )
 
 

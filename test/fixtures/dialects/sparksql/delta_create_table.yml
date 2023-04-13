@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa7337a921e487f7776e8da6a78aa388f08e3e68f24b66267800800b6e757ee9
+_hash: 0383611d0a30333c17e59452d7179e43e5fa4775f31282d3dc3bf41a19bf53ad
 file:
 - statement:
     create_table_statement:
@@ -66,8 +66,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -129,8 +131,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -192,8 +196,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -253,8 +259,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -271,8 +279,10 @@ file:
       - naked_identifier: default
       - dot: .
       - naked_identifier: people10m
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: LOCATION
     - quoted_literal: "'/delta/people10m'"
 - statement_terminator: ;
@@ -359,8 +369,10 @@ file:
             primitive_type:
               keyword: INT
       - end_bracket: )
-    - keyword: USING
-    - keyword: DELTA
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
