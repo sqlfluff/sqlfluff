@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e966e9d3dfde5f1921fb58fdf6dbe47e1c53e66e733dfb9f1c2baf27f619c448
+_hash: eeb927bc6ed80a98f7a7e71634660b0fc2fa87ca3bea01e401356d9e27610536
 file:
 - statement:
     set_statement:
@@ -41,6 +41,28 @@ file:
     - naked_identifier: postgres
     - comma: ','
     - quoted_literal: "'dmy'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: 'on'
+    - comma: ','
+    - naked_identifier: 'off'
+    - comma: ','
+    - naked_identifier: auto
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comma: ','
+    - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     set_statement:
