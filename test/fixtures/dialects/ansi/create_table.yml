@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4d508e6a17455867f424bf23fbf6c04cd8ec300f8aa8b13b6920ee8199a9944b
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: pk
+          data_type:
+            data_type_identifier: int
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+          naked_identifier: quoted_name
+          data_type:
+            quoted_identifier: '"custom udt"'
+      - comma: ','
+      - column_definition:
+          naked_identifier: qualified_name
+          data_type:
+            naked_identifier: sch
+            dot: .
+            data_type_identifier: qualified
+      - comma: ','
+      - column_definition:
+          naked_identifier: quoted_qualified
+          data_type:
+            quoted_identifier: '"my schema"'
+            dot: .
+            data_type_identifier: qualified
+      - comma: ','
+      - column_definition:
+          naked_identifier: more_quoted
+          data_type:
+          - quoted_identifier: '"my schema"'
+          - dot: .
+          - quoted_identifier: '"custom udt"'
+      - comma: ','
+      - column_definition:
+          naked_identifier: quoted_udt
+          data_type:
+            naked_identifier: sch
+            dot: .
+            quoted_identifier: '"custom udt"'
+      - end_bracket: )
+  statement_terminator: ;

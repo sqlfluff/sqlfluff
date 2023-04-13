@@ -359,12 +359,15 @@ ansi_dialect.add(
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Z0-9_]*",
-            CodeSegment,
-            type="data_type_identifier",
-            anti_template=r"^(NOT)$",
-            # TODO - this is a stopgap until we implement explicit data types
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^(NOT)$",
+                # TODO - this is a stopgap until we implement explicit data types
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
         ),
     ),
     # Ansi Intervals
