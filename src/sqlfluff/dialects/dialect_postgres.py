@@ -2172,29 +2172,9 @@ class VersionIdentifierSegment(BaseSegment):
 
     type = "version_identifier"
     # match grammar (don't allow whitespace)
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("NumericLiteralSegment"),
-            Ref("NakedIdentifierSegment"),
-        ),
-        AnyNumberOf(
-            OneOf(
-                # Literals might follow literals if these literals
-                # begin with a "." e.g. 1.2.3.4
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("DotSegment"),
-                    OneOf(
-                        Ref("NumericLiteralSegment"),
-                        Ref("NakedIdentifierSegment"),
-                    ),
-                    allow_gaps=False,
-                ),
-            ),
-            allow_gaps=False,
-        ),
-        allow_gaps=False,
+    match_grammar: Matchable = OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NakedIdentifierSegment"),
     )
 
 
