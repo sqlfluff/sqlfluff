@@ -1495,7 +1495,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_SCHEMA.html
-    TODO: support optional SCHEMA_ELEMENT
+    TODO: support optional SCHEMA_ELEMENT (should mostly be provided by ansi)
     """
 
     type = "create_schema_statement"
@@ -1508,13 +1508,13 @@ class CreateSchemaStatementSegment(BaseSegment):
                 Ref("SchemaReferenceSegment"),
                 Sequence(
                     "AUTHORIZATION",
-                    Ref("ObjectReferenceSegment"),
+                    Ref("RoleReferenceSegment"),
                     optional=True,
                 ),
             ),
             Sequence(
                 "AUTHORIZATION",
-                Ref("ObjectReferenceSegment"),
+                Ref("RoleReferenceSegment"),
             ),
         ),
         Ref("QuotaGrammar", optional=True),
