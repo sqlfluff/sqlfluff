@@ -515,9 +515,6 @@ class ReflowSequence:
                 new_point = point
             # Otherwise apply the new fixes
             else:
-                reflow_logger.debug(
-                    "    Filter %r allows fixes for point: %s", filter, new_lint_results
-                )
                 lint_results = new_lint_results
 
             if pre and (not new_elements or new_elements[-1] != pre):

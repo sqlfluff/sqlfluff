@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1df824dca4c17f32f634e4d7bc9e0d4ef4bf35a94d2847f357bce6ed98793baf
+_hash: 209c3612244aa11fa9c18b0eea34c906d0f38105c9ae65330fa8867fdf2d23dd
 file:
 - statement:
     alter_table_statement:
@@ -14,7 +14,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -30,7 +31,8 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          naked_identifier: col_name
+          column_reference:
+            naked_identifier: col_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -45,13 +47,15 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
     - comma: ','
     - column_definition:
-        naked_identifier: col_name2
+        column_reference:
+          naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT
@@ -65,7 +69,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -84,7 +89,8 @@ file:
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        naked_identifier: col_name
+        column_reference:
+          naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -95,7 +101,8 @@ file:
     - keyword: FIRST
     - comma: ','
     - column_definition:
-        naked_identifier: col_name2
+        column_reference:
+          naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT

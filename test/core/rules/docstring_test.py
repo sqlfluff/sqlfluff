@@ -1,12 +1,13 @@
 """Test rules docstring."""
 import pytest
+import re
 
 from sqlfluff import lint
 from sqlfluff.core.plugin.host import get_plugin_manager
 
-KEYWORD_ANTI = "    **Anti-pattern**"
-KEYWORD_BEST = "    **Best practice**"
-KEYWORD_CODE_BLOCK = "\n    .. code-block:: sql\n"
+KEYWORD_ANTI = re.compile(r"    \*\*Anti-pattern\*\*")
+KEYWORD_BEST = re.compile(r"    \*\*Best practice\*\*")
+KEYWORD_CODE_BLOCK = re.compile(r"\n    \.\. code-block:: (sql|jinja)\n")
 
 
 @pytest.mark.parametrize(
@@ -22,7 +23,7 @@ def test_content_count(content, min_count):
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if rule._check_docstring is True:
-                assert rule.__doc__.count(content) >= min_count, (
+                assert len(content.findall(rule.__doc__)) >= min_count, (
                     f"{rule.__name__} content {content} does not occur at least "
                     f"{min_count} times"
                 )
@@ -33,9 +34,9 @@ def test_keyword_anti_before_best():
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if rule._check_docstring is True:
-                assert rule.__doc__.index(KEYWORD_ANTI) < rule.__doc__.index(
-                    KEYWORD_BEST
-                ), (
+                best_pos = KEYWORD_BEST.search(rule.__doc__).start()
+                anti_pos = KEYWORD_ANTI.search(rule.__doc__).start()
+                assert anti_pos < best_pos, (
                     f"{rule.__name__} keyword {KEYWORD_BEST} appears before "
                     f"{KEYWORD_ANTI}"
                 )

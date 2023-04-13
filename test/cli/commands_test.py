@@ -336,6 +336,8 @@ def test__cli__command_render_stdin():
         # Check basic parsing, with the yaml output
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
+        # Check parsing with no output (used mostly for testing)
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
         # Check the profiler and benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
@@ -1213,7 +1215,7 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
     assert result["filepath"] == "stdin"
 
 
-@pytest.mark.parametrize("serialize", ["yaml", "json"])
+@pytest.mark.parametrize("serialize", ["yaml", "json", "none"])
 @pytest.mark.parametrize(
     "sql,expected,exit_code",
     [
@@ -1268,6 +1270,8 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
         assert json.loads(result.output) == expected
     elif serialize == "yaml":
         assert yaml.safe_load(result.output) == expected
+    elif serialize == "none":
+        assert result.output == ""
     else:
         raise Exception
 
@@ -1320,7 +1324,7 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
 
 @pytest.mark.parametrize(
     "serialize",
-    ["human", "yaml", "json", "github-annotation", "github-annotation-native"],
+    ["human", "yaml", "json", "github-annotation", "github-annotation-native", "none"],
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
@@ -1353,7 +1357,8 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         ret_code=1,
     )
 
-    if write_file:
+    # NOTE: The "none" serializer doesn't write a file even if specified.
+    if write_file and serialize != "none":
         with open(target_file, "r") as payload_file:
             result_payload = payload_file.read()
     else:
@@ -1368,6 +1373,8 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
 
     if serialize == "human":
         assert payload_length == 23 if write_file else 32
+    elif serialize == "none":
+        assert payload_length == 1  # There will be a single newline.
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
@@ -1418,6 +1425,18 @@ def test__cli__command_lint_serialize_github_annotation():
             "than one referenced table/view.",
             "start_column": 5,
             "end_column": 5,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
+            "line": 3,
+            "message": "LT02: Expected indent of 8 spaces.",
+            "start_column": 1,
+            "end_column": 1,
             "title": "SQLFluff",
         },
         {
@@ -1509,6 +1528,8 @@ def test__cli__command_lint_serialize_github_annotation_native():
             f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=1::"
+            "LT02: Expected indent of 8 spaces. [layout.indent]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
             "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"

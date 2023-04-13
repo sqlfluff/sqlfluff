@@ -33,7 +33,8 @@ CREATE TABLE distributors (
 
 CREATE TABLE distributors (
     did     integer CHECK (did > 100),
-    name    varchar(40)
+    name    varchar(40),
+    long_varying char varying(100)
 );
 
 CREATE TABLE distributors (

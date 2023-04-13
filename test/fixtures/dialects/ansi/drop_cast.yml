@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9ab44c21d3a8f7594f50924ffe73aaf87716721475787ac5558e197378caf83c
+file:
+- statement:
+    drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: udt_1
+      - keyword: AS
+      - data_type:
+          data_type_identifier: udt_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          naked_identifier: sch
+          dot: .
+          data_type_identifier: udt_1
+      - keyword: AS
+      - data_type:
+          naked_identifier: sch
+          dot: .
+          data_type_identifier: udt_2
+      - end_bracket: )
+- statement_terminator: ;

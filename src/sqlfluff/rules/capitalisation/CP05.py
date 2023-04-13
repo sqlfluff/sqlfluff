@@ -83,7 +83,7 @@ class Rule_CP05(Rule_CP01):
                     "symbol", "identifier", "quoted_literal"
                 ) or not seg.is_type("raw"):
                     continue
-                res = self._handle_segment(seg, context.memory)
+                res = self._handle_segment(seg, context)
                 if res:
                     results.append(res)
 
@@ -94,7 +94,7 @@ class Rule_CP05(Rule_CP01):
             "primitive_type", "datetime_type_identifier", "data_type"
         ):
             results.append(
-                self._handle_segment(context.segment, context.memory)
+                self._handle_segment(context.segment, context)
             )  # pragma: no cover
 
         return results

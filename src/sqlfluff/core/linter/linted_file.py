@@ -590,6 +590,7 @@ class LintedFile(NamedTuple):
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding=encoding,
+            newline="",  # NOTE: No newline conversion. Write as read.
             prefix=basename,
             dir=dirname,
             suffix=os.path.splitext(output_path)[1],

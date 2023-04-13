@@ -523,7 +523,8 @@ class JinjaAnalyzer:
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
         # {{ open("somefile).read() }}. Thus, treat it as templated code.
-        if tag_name == "include":
+        # It's a similar situation with {% import %} and {% from ... import %}.
+        if tag_name in ["include", "import", "from"]:
             block_type = "templated"
         elif tag_name.startswith("end"):
             block_type = "block_end"

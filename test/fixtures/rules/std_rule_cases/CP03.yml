@@ -54,11 +54,27 @@ test_pass_ignore_word:
       capitalisation.functions:
         ignore_words: min
 
-test_pass_ignore_templated_code:
+test_pass_ignore_templated_code_true:
   pass_str: |
     SELECT
         {{ "greatest(a, b)" }},
         GREATEST(i, j)
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_fail_ignore_templated_code_false:
+  fail_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        GREATEST(i, j)
+  fix_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        greatest(i, j)
+  configs:
+    core:
+      ignore_templated_areas: false
 
 test_pass_func_name_templated_literal_mix:
   # Issue 3022. This was actually a bug in BaseSegment.iter_patches().

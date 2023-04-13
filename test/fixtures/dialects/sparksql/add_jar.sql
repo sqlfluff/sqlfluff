@@ -20,5 +20,7 @@ ADD JAR /path/to/some.jar;
 
 ADD JAR path/to/some.jar;
 
+ADD JAR ivy://path/to/some.jar;
+
 -- NB: Non-quoted paths do not currently support whitespaces
 -- e.g. /path to/some.jar

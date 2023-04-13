@@ -494,3 +494,25 @@ test_fail_templated_fix_crosses_block_boundary:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+test_pass_empty_file:
+  pass_str: ""
+
+test_pass_empty_file_with_require_final_semicolon:
+  pass_str: ""
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_file_with_only_comments:
+  pass_str: |
+    -- just an empty file
+
+test_pass_file_with_only_comments_with_require_final_semicolon:
+  pass_str: |
+    -- just an empty file
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true

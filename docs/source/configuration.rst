@@ -230,7 +230,7 @@ For example:
 Rule specific configurations are set in rule specific subsections.
 
 For example, enforce that keywords are upper case by configuring the rule
-:class:`CP01 <sqlfluff.core.rules.Rule_CP01>`:
+:sqlfluff:ref:`CP01`:
 
 .. code-block:: cfg
 
@@ -303,8 +303,8 @@ active for a given file.
        rollout of new rules because we manage by exception.
 
 
-For example, to disable the rules :class:`LT08 <sqlfluff.core.rules.Rule_LT08>`
-and :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
+For example, to disable the rules :sqlfluff:ref:`LT08`
+and :sqlfluff:ref:`RF02`:
 
 .. code-block:: cfg
 
@@ -313,7 +313,7 @@ and :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
 
 To enable individual rules, configure :code:`rules`, respectively.
 
-For example, to enable :class:`RF02 <sqlfluff.core.rules.Rule_RF02>`:
+For example, to enable :sqlfluff:ref:`RF02`:
 
 .. code-block:: cfg
 

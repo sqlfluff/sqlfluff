@@ -258,12 +258,31 @@ class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
 
     type = "array_type_schema"
     match_grammar = Bracketed(
-        Delimited(
-            Sequence(
-                Ref("DatatypeSegment"),
-                Ref("CommentGrammar", optional=True),
-            ),
-            bracket_pairs_set="angle_bracket_pairs",
+        Ref("DatatypeSegment"),
+        bracket_pairs_set="angle_bracket_pairs",
+        bracket_type="angle",
+    )
+
+
+class MapTypeSegment(BaseSegment):
+    """Expression to construct a MAP datatype."""
+
+    type = "map_type"
+    match_grammar = Sequence(
+        "MAP",
+        Ref("MapTypeSchemaSegment", optional=True),
+    )
+
+
+class MapTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a MAP datatype."""
+
+    type = "map_type_schema"
+    match_grammar = Bracketed(
+        Sequence(
+            Ref("PrimitiveTypeSegment"),
+            Ref("CommaSegment"),
+            Ref("DatatypeSegment"),
         ),
         bracket_pairs_set="angle_bracket_pairs",
         bracket_type="angle",
@@ -346,22 +365,7 @@ class DatatypeSegment(BaseSegment):
         Ref("PrimitiveTypeSegment"),
         Ref("StructTypeSegment"),
         Ref("ArrayTypeSegment"),
-        Sequence(
-            "MAP",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("CommaSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("CommentGrammar", optional=True),
-                    ),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
-            ),
-        ),
+        Ref("MapTypeSegment"),
         Sequence(
             "ROW",
             Bracketed(

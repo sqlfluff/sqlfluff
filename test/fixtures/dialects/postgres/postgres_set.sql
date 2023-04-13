@@ -8,3 +8,6 @@ SET TIME ZONE LOCAL;
 SET TIME ZONE DEFAULT;
 SET SCHEMA  'my_schema';
 SET SCHEMA  'public';
+SET ROLE my_role;
+SET ROLE "my role";
+SET ROLE NONE;
