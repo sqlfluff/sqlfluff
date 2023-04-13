@@ -1609,6 +1609,29 @@ class ExplainOptionSegment(BaseSegment):
     )
 
 
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://www.postgresql.org/docs/15/sql-createschema.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1493
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                # schema name defaults to role if not provided
+                Ref("SchemaReferenceSegment", optional=True),
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("SchemaReferenceSegment"),
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
