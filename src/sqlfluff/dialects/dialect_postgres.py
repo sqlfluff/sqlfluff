@@ -176,7 +176,7 @@ postgres_dialect.patch_lexer_matchers(
         ),
         RegexLexer(
             "code",
-            r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
+            r"[a-zA-Z_][0-9a-zA-Z_$]*",
             CodeSegment,
             segment_kwargs={"type": "code"},
         ),
@@ -252,6 +252,11 @@ postgres_dialect.add(
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
+    PropertiesNakedIdentifierSegment=TypedParser(  # allows reserved keywords
+        "code",
+        CodeSegment,
+        type="properties_naked_identifier",
+    ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -261,15 +266,14 @@ postgres_dialect.add(
         # This comes from def_arg:
         # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6331
         # TODO: this list is incomplete
-        Ref("NumericLiteralSegment"),
-        Ref("QuotedLiteralSegment"),
+        Ref("LiteralGrammar"),
         # This is a gross simplification of the grammar, which seems overly
         # permissive for the actual use cases here.  Grammar says this matches
         # reserved keywords.  Plus also unreserved keywords and IDENT:  func_type -->
         #     Typename --> SimpleTypename --> GenericType --> type_function_name -->
         #     { unreserved_keyword | type_func_name_keyword | IDENT }
-        # We'll just match any alphanumeric string here to keep it simple.
-        Ref("ParameterNameSegment"),
+        # We'll just match any normal code/keyword string here to keep it simple.
+        Ref("PropertiesNakedIdentifierSegment"),
     ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
     ExtendedTableReferenceGrammar=OneOf(
@@ -776,7 +780,7 @@ class DefinitionParameterSegment(BaseSegment):
 
     type = "definition_parameter"
     match_grammar: Matchable = Sequence(
-        Ref("ParameterNameSegment"),
+        Ref("PropertiesNakedIdentifierSegment"),
         Sequence(
             Ref("EqualsSegment"),
             # could also contain ParameterNameSegment:
@@ -811,10 +815,10 @@ class RelationOptionSegment(BaseSegment):
 
     type = "relation_option"
     match_grammar: Matchable = Sequence(
-        Ref("ParameterNameSegment"),
+        Ref("PropertiesNakedIdentifierSegment"),
         Sequence(
             Ref("DotSegment"),
-            Ref("ParameterNameSegment"),
+            Ref("PropertiesNakedIdentifierSegment"),
             optional=True,
         ),
         Sequence(

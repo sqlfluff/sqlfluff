@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c59f07219a6e009579d19a134e7e7844b556f3bacbbd7e074d6578f3de6df88
+_hash: feddb7943aff9899ec8f8f957815d60dc45b5d9c0ed5adc73d79792d519ef4ff
 file:
 - statement:
     create_table_statement:
@@ -383,7 +383,7 @@ file:
               bracketed:
                 start_bracket: (
                 definition_parameter:
-                  parameter: fillfactor
+                  properties_naked_identifier: fillfactor
                   comparison_operator:
                     raw_comparison_operator: '='
                   numeric_literal: '70'
@@ -1720,46 +1720,46 @@ file:
                     bracketed:
                     - start_bracket: (
                     - relation_option:
-                        parameter: opt1
+                        properties_naked_identifier: opt1
                     - comma: ','
                     - relation_option:
-                        parameter: opt2
+                        properties_naked_identifier: opt2
                         comparison_operator:
                           raw_comparison_operator: '='
                         numeric_literal: '5'
                     - comma: ','
                     - relation_option:
-                        parameter: opt3
+                        properties_naked_identifier: opt3
                         comparison_operator:
                           raw_comparison_operator: '='
                         quoted_literal: "'str'"
                     - comma: ','
                     - relation_option:
-                      - parameter: ns
+                      - properties_naked_identifier: ns
                       - dot: .
-                      - parameter: opt4
+                      - properties_naked_identifier: opt4
                     - comma: ','
                     - relation_option:
-                      - parameter: ns
+                      - properties_naked_identifier: ns
                       - dot: .
-                      - parameter: opt5
+                      - properties_naked_identifier: opt5
                       - comparison_operator:
                           raw_comparison_operator: '='
                       - numeric_literal: '6'
                     - comma: ','
                     - relation_option:
-                      - parameter: ns
+                      - properties_naked_identifier: ns
                       - dot: .
-                      - parameter: opt6
+                      - properties_naked_identifier: opt6
                       - comparison_operator:
                           raw_comparison_operator: '='
                       - quoted_literal: "'str'"
                     - comma: ','
                     - relation_option:
-                      - parameter: opt7
+                      - properties_naked_identifier: opt7
                       - comparison_operator:
                           raw_comparison_operator: '='
-                      - parameter: ASC
+                      - properties_naked_identifier: ASC
                     - end_bracket: )
                 - keyword: ASC
                 - keyword: NULLS
@@ -1823,13 +1823,13 @@ file:
                     bracketed:
                     - start_bracket: (
                     - relation_option:
-                        parameter: opt
+                        properties_naked_identifier: opt
                         comparison_operator:
                           raw_comparison_operator: '='
                         numeric_literal: '1'
                     - comma: ','
                     - relation_option:
-                        parameter: foo
+                        properties_naked_identifier: foo
                         comparison_operator:
                           raw_comparison_operator: '='
                         numeric_literal: '2'
@@ -1874,22 +1874,22 @@ file:
               bracketed:
               - start_bracket: (
               - definition_parameter:
-                  parameter: idx_num
+                  properties_naked_identifier: idx_num
                   comparison_operator:
                     raw_comparison_operator: '='
                   numeric_literal: '5'
               - comma: ','
               - definition_parameter:
-                  parameter: idx_str
+                  properties_naked_identifier: idx_str
                   comparison_operator:
                     raw_comparison_operator: '='
                   quoted_literal: "'idx_value'"
               - comma: ','
               - definition_parameter:
-                - parameter: idx_kw
+                - properties_naked_identifier: idx_kw
                 - comparison_operator:
                     raw_comparison_operator: '='
-                - parameter: DESC
+                - properties_naked_identifier: DESC
               - end_bracket: )
           - keyword: USING
           - keyword: INDEX
