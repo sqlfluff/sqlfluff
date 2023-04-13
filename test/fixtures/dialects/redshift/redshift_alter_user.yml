@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 716360cf5074e9649b480c59a6dd51b0f9edb1dfe792ca9c77e57098faa33d35
+_hash: f5ee1ab7a9f0253825805dba5756a115c6d7f90029c64bc8c51bcdc7464624b3
 file:
 - statement:
     alter_role_statement:
@@ -40,14 +40,13 @@ file:
     - keyword: nocreatedb
 - statement_terminator: ;
 - statement:
-    alter_user_statement:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
         quoted_identifier: '"dbuser"'
     - keyword: reset
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -307,14 +306,13 @@ file:
     - keyword: timeout
 - statement_terminator: ;
 - statement:
-    alter_user_statement:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
         naked_identifier: dbuser
     - keyword: set
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
     - keyword: to
     - numeric_literal: '100'
 - statement_terminator: ;
@@ -338,8 +336,7 @@ file:
     - role_reference:
         naked_identifier: dbuser
     - keyword: set
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'hi'"
@@ -365,8 +362,7 @@ file:
     - role_reference:
         naked_identifier: dbuser
     - keyword: set
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
     - keyword: to
     - keyword: default
 - statement_terminator: ;
@@ -390,8 +386,7 @@ file:
     - role_reference:
         naked_identifier: dbuser
     - keyword: set
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: default
@@ -411,14 +406,13 @@ file:
     - keyword: default
 - statement_terminator: ;
 - statement:
-    alter_user_statement:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
         naked_identifier: dbuser
     - keyword: reset
-    - object_reference:
-        naked_identifier: var
+    - parameter: var
 - statement_terminator: ;
 - statement:
     alter_user_statement:

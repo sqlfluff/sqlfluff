@@ -264,6 +264,9 @@ postgres_dialect.add(
         Sequence(Ref("TableReferenceSegment"), Ref("StarSegment")),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    OnKeywordAsIdentifierSegment=StringParser(
+        "ON", ansi.IdentifierSegment, type="naked_identifier"
+    ),
 )
 
 postgres_dialect.replace(
@@ -1580,21 +1583,24 @@ class AlterRoleStatementSegment(BaseSegment):
                 Sequence(
                     "IN",
                     "DATABASE",
-                    Ref("ObjectReferenceSegment"),
+                    Ref("DatabaseReferenceSegment"),
                     optional=True,
                 ),
                 OneOf(
                     Sequence(
                         "SET",
-                        Ref("ObjectReferenceSegment"),
+                        Ref("ParameterNameSegment"),
                         OneOf(
                             Sequence(
                                 OneOf("TO", Ref("EqualsSegment")),
                                 OneOf(
-                                    Ref("QuotedLiteralSegment"),
                                     "DEFAULT",
-                                    "ON",
-                                    "OFF",
+                                    Delimited(
+                                        Ref("LiteralGrammar"),
+                                        Ref("NakedIdentifierSegment"),
+                                        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                                        Ref("OnKeywordAsIdentifierSegment"),
+                                    ),
                                 ),
                             ),
                             Sequence(
@@ -1603,7 +1609,7 @@ class AlterRoleStatementSegment(BaseSegment):
                             ),
                         ),
                     ),
-                    Sequence("RESET", OneOf(Ref("QuotedLiteralSegment"), "ALL")),
+                    Sequence("RESET", OneOf(Ref("ParameterNameSegment"), "ALL")),
                 ),
                 optional=True,
             ),
@@ -4247,8 +4253,13 @@ class SetStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
                 OneOf("TO", Ref("EqualsSegment")),
                 OneOf(
-                    Delimited(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                     "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
                 ),
             ),
             Sequence(
