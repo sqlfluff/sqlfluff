@@ -3125,7 +3125,6 @@ class DropIndexStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "INDEX",
-        Ref.keyword("CONCURRENTLY", optional=True),
         Ref("IfExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
