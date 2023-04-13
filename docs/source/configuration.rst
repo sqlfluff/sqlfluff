@@ -104,35 +104,9 @@ be with an existing codebase.
 Here is a simple configuration file which would be suitable for a starter
 project:
 
-.. code-block:: cfg
-
-    [sqlfluff]
-    templater = jinja
-    dialect = override_this_with_your_project_dialect
-    # The standard max_line_length is 80 in line with the convention of
-    # other tools and several style guides. Many projects however prefer
-    # something a little longer.
-    max_line_length = 120
-
-    [sqlfluff:indentation]
-    # While implicit indents are not enabled by default. Many of the
-    # SQLFluff maintainers do use them in their projects.
-    allow_implicit_indents = true
-
-    # The default configuration for capitalisation rules is "consistent"
-    # which will auto-detect the setting from the rest of the file. This
-    # is less desirable in a new project and you may find this (slightly
-    # more strict) setting more useful.
-    [sqlfluff:rules:capitalisation.keywords]
-    capitalisation_policy = lower
-    [sqlfluff:rules:capitalisation.identifiers]
-    capitalisation_policy = lower
-    [sqlfluff:rules:capitalisation.functions]
-    extended_capitalisation_policy = lower
-    [sqlfluff:rules:capitalisation.literals]
-    capitalisation_policy = lower
-    [sqlfluff:rules:capitalisation.types]
-    extended_capitalisation_policy = lower
+.. literalinclude:: partials/starter_config.cfg
+   :language: cfg
+   :linenos:
 
 
 .. _nesting:
