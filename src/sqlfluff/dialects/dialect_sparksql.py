@@ -1817,29 +1817,25 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Indent,
         OneOf(
             Delimited(
-                AnyNumberOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+            ),
+            Sequence(
+                Delimited(
                     Ref("ColumnReferenceSegment"),
                     # Can `GROUP BY 1`
                     Ref("NumericLiteralSegment"),
                     # Can `GROUP BY coalesce(col, 1)`
                     Ref("ExpressionSegment"),
-                    Ref("CubeRollupClauseSegment"),
-                    Ref("GroupingSetsClauseSegment"),
-                    min_times=1,
-                )
-            ),
-            Sequence(
-                Delimited(
-                    AnyNumberOf(
-                        Ref("ColumnReferenceSegment"),
-                        # Can `GROUP BY 1`
-                        Ref("NumericLiteralSegment"),
-                        # Can `GROUP BY coalesce(col, 1)`
-                        Ref("ExpressionSegment"),
-                        min_times=1,
-                    ),
                 ),
-                Ref("WithCubeRollupClauseSegment"),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"), Ref("GroupingSetsClauseSegment")
+                ),
             ),
         ),
         Dedent,
