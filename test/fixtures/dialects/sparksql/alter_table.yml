@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47c08b741747f2d549c6f21ef99b0c776b6d47865d93bbc022ec7feb7f0a851c
+_hash: c679500066519765699ca6c686706ac93d11997dd1e5ce0f3d09ecb47289e11c
 file:
 - statement:
     alter_table_statement:
@@ -56,13 +56,15 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: LastName
+          column_reference:
+            naked_identifier: LastName
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: DOB
+          column_reference:
+            naked_identifier: DOB
           data_type:
             primitive_type:
               keyword: TIMESTAMP
@@ -304,7 +306,8 @@ file:
         naked_identifier: Loc_Orc
     - keyword: SET
     - keyword: FILEFORMAT
-    - keyword: ORC
+    - data_source_format:
+        keyword: ORC
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -329,7 +332,8 @@ file:
       - end_bracket: )
     - keyword: SET
     - keyword: FILEFORMAT
-    - keyword: PARQUET
+    - data_source_format:
+        keyword: PARQUET
 - statement_terminator: ;
 - statement:
     alter_table_statement:

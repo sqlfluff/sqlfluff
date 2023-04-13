@@ -649,13 +649,13 @@ snowflake_dialect.replace(
 
 # Add all Snowflake keywords
 snowflake_dialect.sets("unreserved_keywords").clear()
-snowflake_dialect.sets("unreserved_keywords").update(
-    [n.strip().upper() for n in snowflake_unreserved_keywords.split("\n")]
+snowflake_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", snowflake_unreserved_keywords
 )
 
 snowflake_dialect.sets("reserved_keywords").clear()
-snowflake_dialect.sets("reserved_keywords").update(
-    [n.strip().upper() for n in snowflake_reserved_keywords.split("\n")]
+snowflake_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", snowflake_reserved_keywords
 )
 
 # Add datetime units and their aliases from

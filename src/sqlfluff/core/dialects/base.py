@@ -101,6 +101,14 @@ class Dialect:
             self._sets[label] = set()
         return self._sets[label]
 
+    def update_keywords_set_from_multiline_string(
+        self, set_label: str, values: str
+    ) -> None:
+        """Special function to update a keywords set from a multi-line string."""
+        self.sets(set_label).update(
+            [n.strip().upper() for n in values.strip().split("\n")]
+        )
+
     def copy_as(self, name):
         """Copy this dialect and create a new one with a different name.
 

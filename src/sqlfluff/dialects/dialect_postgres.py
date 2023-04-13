@@ -487,6 +487,18 @@ postgres_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    # PostgreSQL supports the non-standard "RETURNING" keyword, and therefore the
+    # INSERT/UPDATE/DELETE statements can also be used in subqueries.
+    NonWithSelectableGrammar=OneOf(
+        Ref("SetExpressionSegment"),
+        OptionallyBracketed(Ref("SelectStatementSegment")),
+        Ref("NonSetSelectableGrammar"),
+        # moved from NonWithNonSelectableGrammar:
+        Ref("UpdateStatementSegment"),
+        Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
+    ),
+    NonWithNonSelectableGrammar=OneOf(),
 )
 
 
@@ -676,6 +688,10 @@ class DatatypeSegment(ansi.DatatypeSegment):
                         Sequence(
                             OneOf(
                                 "CHAR",
+                                # CHAR VARYING is not documented, but it's
+                                # in the real grammar:
+                                # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L14262
+                                Sequence("CHAR", "VARYING"),
                                 "CHARACTER",
                                 Sequence("CHARACTER", "VARYING"),
                                 "VARCHAR",
@@ -769,6 +785,59 @@ class DefinitionParametersSegment(BaseSegment):
         Delimited(
             Ref("DefinitionParameterSegment"),
         )
+    )
+
+
+class CreateCastStatementSegment(ansi.CreateCastStatementSegment):
+    """A `CREATE CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-createcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8951
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAST",
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "WITH",
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            ),
+            Sequence("WITHOUT", "FUNCTION"),
+            Sequence("WITH", "INOUT"),
+        ),
+        OneOf(
+            Sequence("AS", "ASSIGNMENT", optional=True),
+            Sequence("AS", "IMPLICIT", optional=True),
+            optional=True,
+        ),
+    )
+
+
+class DropCastStatementSegment(ansi.DropCastStatementSegment):
+    """A `DROP CAST` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropcast.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L8995
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAST",
+        Sequence("IF", "EXISTS", optional=True),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1605,6 +1674,29 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
+        ),
+    )
+
+
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://www.postgresql.org/docs/15/sql-createschema.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1493
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            Sequence(
+                # schema name defaults to role if not provided
+                Ref("SchemaReferenceSegment", optional=True),
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("SchemaReferenceSegment"),
         ),
     )
 
@@ -2632,6 +2724,22 @@ class AlterViewStatementSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ParameterNameSegment"))),
             ),
         ),
+    )
+
+
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropview.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L6698-L6719
+    """
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -4125,6 +4233,8 @@ class SetStatementSegment(BaseSegment):
     """Set Statement.
 
     As specified in https://www.postgresql.org/docs/14/sql-set.html
+    Also: https://www.postgresql.org/docs/15/sql-set-role.html (still a VariableSetStmt)
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1584
     """
 
     type = "set_statement"
@@ -4145,6 +4255,7 @@ class SetStatementSegment(BaseSegment):
                 "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
+            Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
         ),
     )
 
@@ -4358,12 +4469,13 @@ class ResetStatementSegment(BaseSegment):
     """A `RESET` statement.
 
     As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    Also, RESET ROLE from: https://www.postgresql.org/docs/15/sql-set-role.html
     """
 
     type = "reset_statement"
     match_grammar = Sequence(
         "RESET",
-        OneOf("ALL", Ref("ParameterNameSegment")),
+        OneOf("ALL", "ROLE", Ref("ParameterNameSegment")),
     )
 
 
