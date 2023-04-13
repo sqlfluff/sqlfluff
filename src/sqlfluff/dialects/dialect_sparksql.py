@@ -35,6 +35,7 @@ from sqlfluff.core.parser import (
     Matchable,
     MultiStringParser,
     StringLexer,
+    AnySetOf,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -1121,14 +1122,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
-        AnyNumberOf(
+        AnySetOf(
             Ref("RowFormatClauseSegment", optional=True),
             Ref("StoredAsGrammar", optional=True),
             Ref("CommentGrammar", optional=True),
             Ref("OptionsGrammar", optional=True),
             Ref("PartitionSpecGrammar", optional=True),
             Ref("BucketSpecGrammar", optional=True),
-            max_times_per_element=1,
         ),
         Indent,
         AnyNumberOf(
@@ -2758,22 +2758,6 @@ class PropertyNameSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
         ),
     )
-
-
-# class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
-#     """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
-
-#     We override the ansi definition to allow for comment segments."""
-
-#     match_grammar: Matchable = Sequence(
-#         Ref("SingleIdentifierGrammar"),  # Column name
-#         Ref("DatatypeSegment"),  # Column type
-#         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
-#         AnyNumberOf(
-#             Ref("ColumnConstraintSegment", optional=True),
-#         ),
-#         Ref("CommentGrammar", optional=True)
-#     )
 
 
 class GeneratedColumnDefinitionSegment(BaseSegment):
