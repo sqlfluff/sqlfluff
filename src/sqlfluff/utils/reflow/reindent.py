@@ -1862,7 +1862,10 @@ def _fix_long_line_with_integer_targets(
     for e_idx in target_breaks:
         e = cast(ReflowPoint, elements[e_idx])
         indent_stats = _indent_stats_cache[e_idx]
-        if indent_stats.trough < 0:
+        # NOTE: We check against the _impulse_ here rather than the
+        # _trough_ because if we're about to step back up again then
+        # it should still be indented.
+        if indent_stats.impulse < 0:
             new_indent = outer_indent
             # NOTE: If we're about to insert a dedent before a
             # comma or semicolon ... don't. They are a bit special

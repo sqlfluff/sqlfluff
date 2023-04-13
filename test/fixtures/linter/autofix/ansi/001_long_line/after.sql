@@ -1,17 +1,19 @@
 WITH all_upstream_matches AS (
     SELECT
-        ROW_NUMBER() OVER (
-            PARTITION BY
-                low_business_type,
-                low_size_label,
-                low_gender_label,
-                low_age_label
-            ORDER BY
-                business_type DESC,
-                size_label DESC,
-                gender_label DESC,
-                age_label DESC
-        ) AS rownum,
+        ROW_NUMBER()
+            OVER (
+                PARTITION BY
+                    low_business_type,
+                    low_size_label,
+                    low_gender_label,
+                    low_age_label
+                ORDER BY
+                    business_type DESC,
+                    size_label DESC,
+                    gender_label DESC,
+                    age_label DESC
+            )
+            AS rownum,
         business_type
     FROM
         acceptable_buckets
