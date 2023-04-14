@@ -586,44 +586,30 @@ class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
     numbers on either side of the slice segment are optional.
     """
 
-    match_grammar = Sequence(
-        AnyNumberOf(
-            Bracketed(
-                Sequence(
-                    OneOf(
-                        OneOf(
-                            Ref("QualifiedNumericLiteralSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence(
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                                optional=True,
-                            ),
-                            Ref("SliceSegment"),
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                            ),
-                        ),
-                        Sequence(
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                            ),
-                            Ref("SliceSegment"),
-                            OneOf(
-                                Ref("QualifiedNumericLiteralSegment"),
-                                Ref("NumericLiteralSegment"),
-                                optional=True,
-                            ),
-                        ),
-                    ),
+    match_grammar = Bracketed(
+        OneOf(
+            # These three are for a single element access: [n]
+            Ref("QualifiedNumericLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+            # This is for slice access: [n:m], [:m], [n:], and [:]
+            Sequence(
+                OneOf(
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
                 ),
-                bracket_type="square",
-            )
-        )
+                Ref("SliceSegment"),
+                OneOf(
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+        bracket_type="square",
     )
 
 
@@ -2944,6 +2930,61 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     )
 
 
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement.
+
+    https://www.postgresql.org/docs/15/sql-vacuum.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
+    """
+
+    type = "vacuum_statement"
+    match_grammar = Sequence(
+        "VACUUM",
+        OneOf(
+            Sequence(
+                Ref.keyword("FULL", optional=True),
+                Ref.keyword("FREEZE", optional=True),
+                Ref.keyword("VERBOSE", optional=True),
+                OneOf("ANALYZE", "ANALYSE", optional=True),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            "FULL",
+                            "FREEZE",
+                            "VERBOSE",
+                            "ANALYZE",
+                            "ANALYSE",
+                            "DISABLE_PAGE_SKIPPING",
+                            "SKIP_LOCKED",
+                            "INDEX_CLEANUP",
+                            "PROCESS_TOAST",
+                            "TRUNCATE",
+                            "PARALLEL",
+                        ),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                            Ref("OnKeywordAsIdentifierSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
@@ -2996,6 +3037,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
             Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
@@ -4000,6 +4042,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RefreshMaterializedViewStatementSegment"),
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
+            Ref("VacuumStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateViewStatementSegment"),
             Ref("AlterViewStatementSegment"),
