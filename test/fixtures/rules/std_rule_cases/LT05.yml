@@ -698,3 +698,14 @@ test_trailing_semicolon_moves:
       line_no: 5
       line_pos: 5
       name: layout.long_lines
+
+test_pass_window_function:
+  # Test that we don't flag too eagerly on window functions.
+  pass_str: |
+    select
+        col,
+        rank() over (
+            partition by a, b, c
+            order by d desc
+        ) as rnk
+    from foo
