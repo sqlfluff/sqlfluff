@@ -46,7 +46,7 @@ have python or pip already installed see :ref:`gettingstartedref`.
     L:   1 | P:  27 | LT01 | Unnecessary trailing whitespace at end of file.
                            | [layout.spacing]
     L:   1 | P:  27 | LT12 | Files must end with a single trailing newline.
-                           | [layout.end-of-file]
+                           | [layout.end_of_file]
     All Finished 📜 🎉!
 
 Contents
