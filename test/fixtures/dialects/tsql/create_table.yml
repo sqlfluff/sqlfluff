@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccc658e26d6da19c548f74249a88d58ab89cef1a54e3c532b04b3e8f49134ecc
+_hash: cfcae343a1e7dffe16887fb99acfec87e64823d1dbbe32c94bd4a971757073cb
 file:
   batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -52,3 +52,53 @@ file:
                     numeric_literal: '3'
                 - end_bracket: )
         - end_bracket: )
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: foo
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: pk
+            data_type:
+              data_type_identifier: int
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+            naked_identifier: quoted_name
+            data_type:
+              quoted_identifier: '[custom udt]'
+        - comma: ','
+        - column_definition:
+            naked_identifier: qualified_name
+            data_type:
+              naked_identifier: sch
+              dot: .
+              data_type_identifier: qualified
+        - comma: ','
+        - column_definition:
+            naked_identifier: quoted_qualified
+            data_type:
+              quoted_identifier: '"my schema"'
+              dot: .
+              data_type_identifier: qualified
+        - comma: ','
+        - column_definition:
+            naked_identifier: more_quoted
+            data_type:
+            - quoted_identifier: '"my schema"'
+            - dot: .
+            - quoted_identifier: '"custom udt"'
+        - comma: ','
+        - column_definition:
+            naked_identifier: quoted_udt
+            data_type:
+              naked_identifier: sch
+              dot: .
+              quoted_identifier: '[custom udt]'
+        - end_bracket: )
+      - statement_terminator: ;

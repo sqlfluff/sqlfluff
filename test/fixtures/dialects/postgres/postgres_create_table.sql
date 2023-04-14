@@ -282,6 +282,26 @@ CREATE TABLE test_with_storage_params (
     col_1 boolean
 ) WITH (autovacuum_enabled=true, vacuum_truncate=false);
 
+CREATE TABLE tbl (
+    -- All forms of character data types listed at:
+    -- https://www.postgresql.org/docs/current/datatype-character.html
+    col_char_varying_unlimited character varying,
+    col_char_varying_limited character varying(50),
+    col_varchar_unlimited varchar,
+    col_varchar_limited varchar(50),
+
+    col_character_default character,
+    col_character_specified character(50),
+    col_char_default char,
+    col_char_specified character(50),
+
+    col_text text,
+
+    -- some types you'll find in pg_catalog
+    col_system_char "char", -- this is NOT the same as unquoted char
+    col_name name
+);
+
 -- Test out EXCLUDE constraints, as well as other more advanced index parameters on constraints
 
 -- from https://www.postgresql.org/docs/15/rangetypes.html: basic usage

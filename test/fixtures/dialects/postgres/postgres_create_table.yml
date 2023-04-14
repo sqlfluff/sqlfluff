@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0f1e932efa5705fdd8ee168866dd60ef3e97179a68611aacd27a81295b36f3d
+_hash: 018c70d55089f99a37e106fa0831d6f42012e7b23f5a4ddfdc15b230df2d45a8
 file:
 - statement:
     create_table_statement:
@@ -1835,6 +1835,92 @@ file:
               raw_comparison_operator: '='
             boolean_literal: 'false'
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_char_varying_unlimited
+      - data_type:
+        - keyword: character
+        - keyword: varying
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_char_varying_limited
+      - data_type:
+        - keyword: character
+        - keyword: varying
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_varchar_unlimited
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_varchar_limited
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_character_default
+      - data_type:
+          keyword: character
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_character_specified
+      - data_type:
+          keyword: character
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_char_default
+      - data_type:
+          keyword: char
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_char_specified
+      - data_type:
+          keyword: character
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_text
+      - data_type:
+          keyword: text
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_system_char
+      - data_type:
+          quoted_identifier: '"char"'
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name
+      - data_type:
+          data_type_identifier: name
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

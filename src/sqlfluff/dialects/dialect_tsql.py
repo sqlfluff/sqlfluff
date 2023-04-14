@@ -387,13 +387,18 @@ tsql_dialect.replace(
     ),
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-            CodeSegment,
-            type="data_type_identifier",
-            # anti_template=r"^(NOT)$",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
-            # TODO - this is a stopgap until we implement explicit data types
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+                CodeSegment,
+                type="data_type_identifier",
+                # anti_template=r"^(NOT)$",
+                anti_template=r"^("
+                + r"|".join(dialect.sets("reserved_keywords"))
+                + r")$",
+                # TODO - this is a stopgap until we implement explicit data types
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
         ),
     ),
     PrimaryKeyGrammar=Sequence(
