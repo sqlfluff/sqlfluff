@@ -53,7 +53,7 @@ with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as
             )
 
             j = 1
-            
+
             while True:
                 if not rule.aliases[j:]:
                     break
