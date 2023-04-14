@@ -10,6 +10,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.5] - 2023-04-14
+
+## Highlights
+
+## What’s Changed
+
+* Recognize quoted data types [#4747](https://github.com/sqlfluff/sqlfluff/pull/4747) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+
+## New Contributors
+
+
+
 ## [2.0.4] - 2023-04-14
 
 ## Highlights
