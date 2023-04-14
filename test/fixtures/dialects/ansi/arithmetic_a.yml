@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b23bf006872ce2d785654df4060aa4534863987d9fc2e15d59bee0d96523d7d0
+_hash: 68162fcf003cf96cc1361038a52f8a6da37d5bee87037883ce33a4f2c011cf6f
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -31,3 +31,365 @@ file:
           alias_expression:
             keyword: as
             naked_identifier: val
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - bracketed:
+              start_bracket: (
+              expression:
+              - tilde: '~'
+              - numeric_literal: '2'
+              - binary_operator: '*'
+              - numeric_literal: '3'
+              end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+          - numeric_literal: '4'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '6'
+          - binary_operator: +
+          - numeric_literal: '13'
+          alias_expression:
+            keyword: as
+            naked_identifier: val
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            tilde: '~'
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '4'
+          - binary_operator:
+              ampersand: '&'
+          - tilde: '~'
+          - numeric_literal: '8'
+          - binary_operator:
+              pipe: '|'
+          - numeric_literal: '16'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '8'
+            binary_operator: +
+            tilde: '~'
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '3'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '8'
+          - binary_operator:
+              pipe: '|'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
+          - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '1'
+            binary_operator: '*'
+            sign_indicator: '-'
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - sign_indicator: +
+          - sign_indicator: +
+          - bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - function:
+              function_name:
+                function_name_identifier: func
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
+          - function:
+              function_name:
+                function_name_identifier: func
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '1'
+            binary_operator: '*'
+            sign_indicator: +
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - numeric_literal:
+              sign_indicator: +
+              numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '*'
+          - sign_indicator: +
+          - numeric_literal:
+              sign_indicator: +
+              numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            boolean_literal: 'FALSE'
+            binary_operator: AND
+            keyword: NOT
+            bracketed:
+              start_bracket: (
+              expression:
+                boolean_literal: 'TRUE'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - boolean_literal: 'FALSE'
+          - binary_operator: AND
+          - keyword: NOT
+          - keyword: NOT
+          - keyword: NOT
+          - bracketed:
+              start_bracket: (
+              expression:
+                boolean_literal: 'TRUE'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            boolean_literal: 'FALSE'
+            binary_operator: AND
+            keyword: NOT
+            bracketed:
+              start_bracket: (
+              expression:
+                boolean_literal: 'TRUE'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            boolean_literal: 'FALSE'
+            binary_operator: AND
+            keyword: NOT
+            function:
+              function_name:
+                function_name_identifier: func
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'abc'"
+            keyword: LIKE
+            sign_indicator: '-'
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'abc'"
+          - keyword: LIKE
+          - tilde: '~'
+          - tilde: '~'
+          - numeric_literal: '5'
+- statement_terminator: ;

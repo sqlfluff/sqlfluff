@@ -42,4 +42,10 @@ CLUSTERED BY (id) INTO 4 BUCKETS;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS student (id INT, student_name STRING, age INT)
 USING iceberg
+PARTITIONED BY (age);
+
+CREATE TABLE student (id INT, student_name STRING, age INT)
+USING CSV
+COMMENT "this is a comment"
 PARTITIONED BY (age)
+STORED AS PARQUET;

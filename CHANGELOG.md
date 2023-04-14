@@ -10,6 +10,82 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.4] - 2023-04-14
+
+## Highlights
+
+This is primarily a _bugfix_ and _dialect_ release:
+* Several bugfixes related to templating and indentation, in particular some
+  improvements to the indentation of aliases and window functions.
+* Performance improvements to the parser.
+* The `--persist-timing` option is now also available on `sqlfluff fix`.
+* A refresh to getting started and rule documentation.
+* Dialect improvements to PostgreSQL, Athena, SparkSQL, MySQL & Snowflake.
+
+Thanks also to [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+and [@Thashin](https://github.com/Thashin) who made their first contributions
+in this release. In particular, [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+made **twenty one** contributions in their first month! 🎉🎉🎉
+
+## What’s Changed
+
+* SparkSQL: Improvements to lateral view, hints, sort by [#4731](https://github.com/sqlfluff/sqlfluff/pull/4731) [@bmorck](https://github.com/bmorck)
+* Add ExpressionSegment to CREATE TABLE ... DEFAULT / Fix multiple parse issues in Expression_A_Grammar [#4717](https://github.com/sqlfluff/sqlfluff/pull/4717) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for the PG VACUUM statement [#4742](https://github.com/sqlfluff/sqlfluff/pull/4742) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Simplify and fix PG array accessor segment & support expressions [#4748](https://github.com/sqlfluff/sqlfluff/pull/4748) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Allow for any ordering of create table clauses [#4721](https://github.com/sqlfluff/sqlfluff/pull/4721) [@bmorck](https://github.com/bmorck)
+* Suggested started config file [#4702](https://github.com/sqlfluff/sqlfluff/pull/4702) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Indents on window functions [#4560](https://github.com/sqlfluff/sqlfluff/pull/4560) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Fix Group By Clause [#4732](https://github.com/sqlfluff/sqlfluff/pull/4732) [@bmorck](https://github.com/bmorck)
+* Improve support for EXCLUDE table constraints in PG [#4725](https://github.com/sqlfluff/sqlfluff/pull/4725) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for dropping multiple indexes in PG [#4737](https://github.com/sqlfluff/sqlfluff/pull/4737) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Recognize "on" value and integers for PG SET statement [#4740](https://github.com/sqlfluff/sqlfluff/pull/4740) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Improve interval expressions on MySQL [#4746](https://github.com/sqlfluff/sqlfluff/pull/4746) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Keep out zero length keywords [#4723](https://github.com/sqlfluff/sqlfluff/pull/4723) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add PG support for CREATE SCHEMA AUTHORIZATION [#4735](https://github.com/sqlfluff/sqlfluff/pull/4735) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for dropping multiple views with PostgreSQL [#4736](https://github.com/sqlfluff/sqlfluff/pull/4736) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add CHAR VARYING data type for PG [#4738](https://github.com/sqlfluff/sqlfluff/pull/4738) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* fix(athena): map type matching failed, array type only contains a datatype [#4739](https://github.com/sqlfluff/sqlfluff/pull/4739) [@timcosta](https://github.com/timcosta)
+* Allow DML queries to be selectable in CTEs on PG [#4741](https://github.com/sqlfluff/sqlfluff/pull/4741) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add the CREATE/DROP CAST statements to ANSI and PG [#4744](https://github.com/sqlfluff/sqlfluff/pull/4744) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for PG SET ROLE / RESET ROLE [#4734](https://github.com/sqlfluff/sqlfluff/pull/4734) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Support Spark Iceberg DDL [#4690](https://github.com/sqlfluff/sqlfluff/pull/4690) [@bmorck](https://github.com/bmorck)
+* Fix #4680 [#4707](https://github.com/sqlfluff/sqlfluff/pull/4707) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Indent Aliases [#4706](https://github.com/sqlfluff/sqlfluff/pull/4706) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Improve window frame bounds [#4722](https://github.com/sqlfluff/sqlfluff/pull/4722) [@bmorck](https://github.com/bmorck)
+* Add support for PG CREATE/ALTER/DROP PUBLICATION stmts [#4716](https://github.com/sqlfluff/sqlfluff/pull/4716) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Create external table support [#4692](https://github.com/sqlfluff/sqlfluff/pull/4692) [@bmorck](https://github.com/bmorck)
+* SparkSQL: Fix file literal lexing [#4718](https://github.com/sqlfluff/sqlfluff/pull/4718) [@bmorck](https://github.com/bmorck)
+* Add PG DROP/REASSIGN OWNED statements [#4720](https://github.com/sqlfluff/sqlfluff/pull/4720) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Add distinct to comparison operator [#4719](https://github.com/sqlfluff/sqlfluff/pull/4719) [@bmorck](https://github.com/bmorck)
+* Rethink Rule Docs [#4695](https://github.com/sqlfluff/sqlfluff/pull/4695) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Performance: Reduce calls to _prune_options [#4705](https://github.com/sqlfluff/sqlfluff/pull/4705) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Add ReferencedVariableNameSegment to sample function [#4712](https://github.com/sqlfluff/sqlfluff/pull/4712) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Mark AM02 as fix compatible [#4714](https://github.com/sqlfluff/sqlfluff/pull/4714) [@yoichi](https://github.com/yoichi)
+* Fix LT01 spacing check in templated areas [#4698](https://github.com/sqlfluff/sqlfluff/pull/4698) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Don't do newline conversion on write [#4703](https://github.com/sqlfluff/sqlfluff/pull/4703) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: CREATE/ALTER VIEW may take UNION [#4713](https://github.com/sqlfluff/sqlfluff/pull/4713) [@yoichi](https://github.com/yoichi)
+* Preserve zero-length template segments [#4708](https://github.com/sqlfluff/sqlfluff/pull/4708) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* CV06: don't flag files that don't have code [#4709](https://github.com/sqlfluff/sqlfluff/pull/4709) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add a no-output option [#4704](https://github.com/sqlfluff/sqlfluff/pull/4704) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Jinja templater: treat "import" and "from" as templated [#4696](https://github.com/sqlfluff/sqlfluff/pull/4696) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Capitalization rules ignore templated code only if configured to [#4697](https://github.com/sqlfluff/sqlfluff/pull/4697) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Update getting started docs [#4700](https://github.com/sqlfluff/sqlfluff/pull/4700) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add a default for config_keywords and remove noisy error. [#4701](https://github.com/sqlfluff/sqlfluff/pull/4701) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake Select System Functions [#4687](https://github.com/sqlfluff/sqlfluff/pull/4687) [@Thashin](https://github.com/Thashin)
+* SparkSQL: Add using and options clause to create view statement [#4691](https://github.com/sqlfluff/sqlfluff/pull/4691) [@bmorck](https://github.com/bmorck)
+* MySQL: Add RETURN Statement [#4693](https://github.com/sqlfluff/sqlfluff/pull/4693) [@yoichi](https://github.com/yoichi)
+* Safety valve for fixes in CV03 [#4685](https://github.com/sqlfluff/sqlfluff/pull/4685) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow persist timing on `fix` too. [#4679](https://github.com/sqlfluff/sqlfluff/pull/4679) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix{dialect-snowflake}:Alter Table Column Set/Unset Tag [#4682](https://github.com/sqlfluff/sqlfluff/pull/4682) [@Thashin](https://github.com/Thashin)
+* fix{dialect-snowflake}:Execute Task [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683) [@Thashin](https://github.com/Thashin)
+* Make version number an argument not an option in release script. [#4677](https://github.com/sqlfluff/sqlfluff/pull/4677) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+
+## New Contributors
+* [@Thashin](https://github.com/Thashin) made their first contribution in [#4683](https://github.com/sqlfluff/sqlfluff/pull/4683)
+* [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack) made their first contribution in [#4697](https://github.com/sqlfluff/sqlfluff/pull/4697)
+
 ## [2.0.3] - 2023-04-05
 
 ## Highlights

@@ -256,6 +256,22 @@ CREATE TABLE with_constraints2 (
     col_1 boolean DEFAULT false NOT NULL
 );
 
+-- default constraint expression
+CREATE TABLE with_constraints3 (
+    col_1 int DEFAULT (1 + 2) * (3 + 4) NOT NULL
+);
+CREATE TABLE with_constraints33 (
+    col_1 int DEFAULT 1 + 2 * 3 + 4 NOT NULL
+);
+CREATE TABLE with_constraints4 (
+    col_1 int DEFAULT (1 + 2 * 3 + 4) NOT NULL
+);
+CREATE TABLE with_constraints5 (
+    col_1 bool DEFAULT (1 NOT IN (3, 4)) NOT NULL
+);
+CREATE TABLE with_constraints6 (
+    col_1 bool NOT NULL DEFAULT (5 NOT IN (5, 6))
+);
 
 CREATE TABLE test_with_storage_param (
     col_1 boolean

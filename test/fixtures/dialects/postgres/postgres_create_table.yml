@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 770c189d27b3c6228a5088d2dc75e4fe3f517fb07a4ec1046b0b06510d3b1d05
+_hash: a0f1e932efa5705fdd8ee168866dd60ef3e97179a68611aacd27a81295b36f3d
 file:
 - statement:
     create_table_statement:
@@ -1621,6 +1621,165 @@ file:
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints3
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+          - bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: +
+              - numeric_literal: '2'
+              end_bracket: )
+          - binary_operator: '*'
+          - bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '3'
+              - binary_operator: +
+              - numeric_literal: '4'
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints33
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+          - binary_operator: '*'
+          - numeric_literal: '3'
+          - binary_operator: +
+          - numeric_literal: '4'
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints4
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: +
+              - numeric_literal: '2'
+              - binary_operator: '*'
+              - numeric_literal: '3'
+              - binary_operator: +
+              - numeric_literal: '4'
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints5
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: bool
+      - column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '1'
+              - keyword: NOT
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '3'
+                - comma: ','
+                - numeric_literal: '4'
+                - end_bracket: )
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: with_constraints6
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_1
+      - data_type:
+          keyword: bool
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - numeric_literal: '5'
+              - keyword: NOT
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '6'
+                - end_bracket: )
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

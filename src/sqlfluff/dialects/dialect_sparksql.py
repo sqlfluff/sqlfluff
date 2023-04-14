@@ -35,6 +35,7 @@ from sqlfluff.core.parser import (
     Matchable,
     MultiStringParser,
     StringLexer,
+    AnySetOf,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -728,11 +729,15 @@ sparksql_dialect.add(
             optional=True,
         ),
         Ref("UsingClauseSegment", optional=True),
-        Ref("RowFormatClauseSegment", optional=True),
-        Ref("StoredAsGrammar", optional=True),
-        Ref("OptionsGrammar", optional=True),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BucketSpecGrammar", optional=True),
+        AnySetOf(
+            Ref("RowFormatClauseSegment"),
+            Ref("StoredAsGrammar"),
+            Ref("CommentGrammar"),
+            Ref("OptionsGrammar"),
+            Ref("PartitionSpecGrammar"),
+            Ref("BucketSpecGrammar"),
+            optional=True,
+        ),
         Indent,
         AnyNumberOf(
             Ref("LocationGrammar", optional=True),
@@ -1609,6 +1614,7 @@ class DistributeByClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence("DISTRIBUTE", "BY"),
         terminator=OneOf(
+            "SORT",
             "LIMIT",
             "HAVING",
             # For window functions
@@ -1636,6 +1642,7 @@ class DistributeByClauseSegment(BaseSegment):
                 "WINDOW",
                 "LIMIT",
                 Ref("FrameClauseUnitGrammar"),
+                "SORT",
             ),
         ),
         Dedent,
@@ -1657,6 +1664,8 @@ class HintFunctionSegment(BaseSegment):
                 AnyNumberOf(
                     Ref("SingleIdentifierGrammar"),
                     Ref("NumericLiteralSegment"),
+                    Ref("TableReferenceSegment"),
+                    Ref("ColumnReferenceSegment"),
                     min_times=1,
                 ),
             ),
@@ -1842,6 +1851,25 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     )
 
 
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = OneOf(  # type: ignore
+        "CLUSTER",
+        "DISTRIBUTE",
+        "SORT",
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    )
+    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
+
+
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
 
@@ -2013,17 +2041,9 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        # NB: AliasExpressionSegment is not used here for table
-        # or column alias because `AS` is optional within it
-        # (and in most scenarios). Here it's explicitly defined
-        # for when it is required and not allowed.
+        # This allows for a table name to precede the alias expression.
         Ref("SingleIdentifierGrammar", optional=True),
-        Sequence(
-            "AS",
-            Delimited(
-                Ref("SingleIdentifierGrammar"),
-            ),
-        ),
+        Ref("AliasExpressionSegment", optional=True),
         Dedent,
     )
 
