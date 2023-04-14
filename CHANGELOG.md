@@ -14,12 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a relatively swift bugfix to refine some of the changes made to
+widow function indentation in `2.0.4`. In addition there are two dialect
+refinements also made since that release.
+
 ## What’s Changed
 
+* Refactor PG segments to reuse new common segments [#4726](https://github.com/sqlfluff/sqlfluff/pull/4726) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
 * Recognize quoted data types [#4747](https://github.com/sqlfluff/sqlfluff/pull/4747) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
-
-## New Contributors
-
 
 
 ## [2.0.4] - 2023-04-14
