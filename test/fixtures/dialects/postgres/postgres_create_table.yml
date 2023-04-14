@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bffb06d82bf192d13bd76c238b555f234010961378dc18f0378a13f9d69d8162
+_hash: 018c70d55089f99a37e106fa0831d6f42012e7b23f5a4ddfdc15b230df2d45a8
 file:
 - statement:
     create_table_statement:
@@ -68,6 +68,24 @@ file:
               quoted_literal: "''"
             end_bracket: )
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: array_int
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: vector
+        data_type:
+        - keyword: int
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -401,13 +419,15 @@ file:
                 end_bracket: )
       - end_bracket: )
     - keyword: WITH
-    - bracketed:
-        start_bracket: (
-        parameter: fillfactor
-        comparison_operator:
-          raw_comparison_operator: '='
-        numeric_literal: '70'
-        end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: fillfactor
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '70'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1430,6 +1450,99 @@ file:
         - keyword: 'NULL'
       - column_constraint_segment:
           keyword: UNIQUE
+      - comma: ','
+      - column_reference:
+          naked_identifier: nulls_distinct
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: NULLS
+        - keyword: DISTINCT
+      - comma: ','
+      - column_reference:
+          naked_identifier: nulls_not_distinct
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: NULLS
+        - keyword: NOT
+        - keyword: DISTINCT
+      - comma: ','
+      - column_reference:
+          naked_identifier: everything
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: NULLS
+        - keyword: DISTINCT
+        - keyword: WITH
+        - definition_parameters:
+            bracketed:
+            - start_bracket: (
+            - definition_parameter:
+                properties_naked_identifier: arg1
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '3'
+            - comma: ','
+            - definition_parameter:
+                properties_naked_identifier: arg5
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'str'"
+            - end_bracket: )
+        - keyword: USING
+        - keyword: INDEX
+        - keyword: TABLESPACE
+        - tablespace_reference:
+            naked_identifier: tblspace
+      - keyword: COLLATE
+      - object_reference:
+          naked_identifier: numeric
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: primary_key_options
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: everything
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - keyword: WITH
+        - definition_parameters:
+            bracketed:
+            - start_bracket: (
+            - definition_parameter:
+                properties_naked_identifier: arg1
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '3'
+            - comma: ','
+            - definition_parameter:
+                properties_naked_identifier: arg5
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'str'"
+            - end_bracket: )
+        - keyword: USING
+        - keyword: INDEX
+        - keyword: TABLESPACE
+        - tablespace_reference:
+            naked_identifier: tblspace
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1683,13 +1796,15 @@ file:
           keyword: boolean
         end_bracket: )
     - keyword: WITH
-    - bracketed:
-        start_bracket: (
-        parameter: autovacuum_enabled
-        comparison_operator:
-          raw_comparison_operator: '='
-        boolean_literal: 'true'
-        end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: autovacuum_enabled
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1705,18 +1820,21 @@ file:
           keyword: boolean
         end_bracket: )
     - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - parameter: autovacuum_enabled
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - boolean_literal: 'true'
-      - comma: ','
-      - parameter: vacuum_truncate
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - boolean_literal: 'false'
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: autovacuum_enabled
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: vacuum_truncate
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'false'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

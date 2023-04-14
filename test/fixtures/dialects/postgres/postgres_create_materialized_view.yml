@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 241ca7aedfaff431b1ffae209bc65103e8caf6896b36324a8d4fb38b27c4bfb4
+_hash: dfaeec3bfd6fd9a2a771d1e41fc2fe9a05ee677f498f73a239f3b1c87f8fc24a
 file:
 - statement:
     create_materialized_view_statement:
@@ -429,29 +429,34 @@ file:
         naked_identifier: my_mat_view
     - keyword: USING
     - parameter: heap
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: prop_a
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prob_b
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'some_value'"
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_c
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'FALSE'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_d
+        - end_bracket: )
     - keyword: TABLESPACE
     - tablespace_reference:
         naked_identifier: pg_default
-    - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - parameter: prop_a
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '1'
-      - comma: ','
-      - parameter: prob_b
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'some_value'"
-      - comma: ','
-      - parameter: prop_c
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - boolean_literal: 'FALSE'
-      - comma: ','
-      - parameter: prop_d
-      - end_bracket: )
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -524,29 +529,34 @@ file:
         naked_identifier: my_mat_view
     - keyword: USING
     - parameter: heap
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: prop_a
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prob_b
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'some_value'"
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_c
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'FALSE'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_d
+        - end_bracket: )
     - keyword: TABLESPACE
     - tablespace_reference:
         naked_identifier: pg_default
-    - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - parameter: prop_a
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '1'
-      - comma: ','
-      - parameter: prob_b
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - quoted_literal: "'some_value'"
-      - comma: ','
-      - parameter: prop_c
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - boolean_literal: 'FALSE'
-      - comma: ','
-      - parameter: prop_d
-      - end_bracket: )
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -683,12 +693,82 @@ file:
     - table_reference:
         naked_identifier: my_mat_view
     - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - parameter: left
-      - dot: .
-      - parameter: right
-      - end_bracket: )
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: left
+          - dot: .
+          - properties_naked_identifier: right
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: opt1
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt2
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '5'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt3
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt4
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt5
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '6'
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt6
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: opt7
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: ASC
+        - end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
