@@ -35,6 +35,7 @@ from sqlfluff.core.parser import (
     Matchable,
     MultiStringParser,
     StringLexer,
+    AnySetOf,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -728,11 +729,15 @@ sparksql_dialect.add(
             optional=True,
         ),
         Ref("UsingClauseSegment", optional=True),
-        Ref("RowFormatClauseSegment", optional=True),
-        Ref("StoredAsGrammar", optional=True),
-        Ref("OptionsGrammar", optional=True),
-        Ref("PartitionSpecGrammar", optional=True),
-        Ref("BucketSpecGrammar", optional=True),
+        AnySetOf(
+            Ref("RowFormatClauseSegment"),
+            Ref("StoredAsGrammar"),
+            Ref("CommentGrammar"),
+            Ref("OptionsGrammar"),
+            Ref("PartitionSpecGrammar"),
+            Ref("BucketSpecGrammar"),
+            optional=True,
+        ),
         Indent,
         AnyNumberOf(
             Ref("LocationGrammar", optional=True),
