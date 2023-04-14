@@ -31,6 +31,9 @@ create view foo with (security_barrier=BOOLEAN) as select 1;
 create view foo with (check_option=local) as select * from OTHER_VIEW;
 create view foo with (check_option=cascaded) as select * from OTHER_VIEW;
 
+create view foo with (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC)
+    as select 1;
+
 create view foo as select * from OTHER_VIEW with local check option;
 create view foo as select * from OTHER_VIEW with cascaded check option;
 
