@@ -492,17 +492,16 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
         # Evaluate options.
         # NOTE: We don't use the _last_ option, because it tends to be trailing
         # and have strange effects.
+        reflow_logger.debug("    Options: %s", options)
         overlap = set.intersection(*options[:-1])
         reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
         # we'll effectively remove the effects of the indents between the elements.
 
-        best_indent = max(overlap)
-
         # Is there a mutually agreeable option?
         reflow_logger.debug("    Balance Trough: %s", balance_trough)
-        if balance_trough is not None and balance_trough <= 0:
+        if not overlap or (balance_trough is not None and balance_trough <= 0):
             # Set the indent to the minimum of the existing ones.
             best_indent = min(lines[idx].initial_indent_balance for idx in group_lines)
             reflow_logger.debug(
@@ -515,6 +514,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                 # MUTATION
                 lines[idx].initial_indent_balance -= 1
         else:
+            best_indent = max(overlap)
             reflow_logger.debug(
                 "    Case 2: Best: %s, Overlap: %s", best_indent, overlap
             )
