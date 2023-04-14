@@ -272,24 +272,25 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
     for idx, line in enumerate(lines):
         if line.is_all_templates(elements):
             # We can't assume they're all a single block.
-            # But if they _start_ with a block, we should
-            # respect the indent of that block.
-            segment = cast(
-                MetaSegment, elements[line.indent_points[-1].idx - 1].segments[0]
-            )
-            assert segment.is_type("placeholder", "template_loop")
-            # If it's not got a block uuid, it's not a block, so it
-            # should just be indented as usual. No need to revise.
-            # e.g. comments or variables
-            if segment.block_uuid:
-                grouped[segment.block_uuid].append(idx)
-                depths[segment.block_uuid].append(line.initial_indent_balance)
-                reflow_logger.debug(
-                    "  UUID: %s @ %s = %r",
-                    segment.block_uuid,
-                    idx,
-                    segment.pos_marker.source_str(),
-                )
+            # So handle all blocks on the line.
+            for i in range(line.indent_points[0].idx, line.indent_points[-1].idx):
+                if isinstance(elements[i], ReflowPoint):
+                    continue
+                # We already checked that it's all templates.
+                segment = cast(MetaSegment, elements[i].segments[0])
+                assert segment.is_type("placeholder", "template_loop")
+                # If it's not got a block uuid, it's not a block, so it
+                # should just be indented as usual. No need to revise.
+                # e.g. comments or variables
+                if segment.block_uuid:
+                    grouped[segment.block_uuid].append(idx)
+                    depths[segment.block_uuid].append(line.initial_indent_balance)
+                    reflow_logger.debug(
+                        "  UUID: %s @ %s = %r",
+                        segment.block_uuid,
+                        idx,
+                        segment.pos_marker.source_str(),
+                    )
 
     # Sort through the lines, so we do to *most* indented first.
     sorted_group_indices = sorted(
