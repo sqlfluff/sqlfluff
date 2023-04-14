@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.4] - 2023-04-13
+## [2.0.4] - 2023-04-14
 
 ## Highlights
 
@@ -25,10 +25,15 @@ This is primarily a _bugfix_ and _dialect_ release:
 Thanks also to [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
 and [@Thashin](https://github.com/Thashin) who made their first contributions
 in this release. In particular, [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
-made **eighteen** contributions in their first month! 🎉🎉🎉
+made **twenty one** contributions in their first month! 🎉🎉🎉
 
 ## What’s Changed
 
+* SparkSQL: Improvements to lateral view, hints, sort by [#4731](https://github.com/sqlfluff/sqlfluff/pull/4731) [@bmorck](https://github.com/bmorck)
+* Add ExpressionSegment to CREATE TABLE ... DEFAULT / Fix multiple parse issues in Expression_A_Grammar [#4717](https://github.com/sqlfluff/sqlfluff/pull/4717) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Add support for the PG VACUUM statement [#4742](https://github.com/sqlfluff/sqlfluff/pull/4742) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Simplify and fix PG array accessor segment & support expressions [#4748](https://github.com/sqlfluff/sqlfluff/pull/4748) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SparkSQL: Allow for any ordering of create table clauses [#4721](https://github.com/sqlfluff/sqlfluff/pull/4721) [@bmorck](https://github.com/bmorck)
 * Suggested started config file [#4702](https://github.com/sqlfluff/sqlfluff/pull/4702) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Indents on window functions [#4560](https://github.com/sqlfluff/sqlfluff/pull/4560) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * SparkSQL: Fix Group By Clause [#4732](https://github.com/sqlfluff/sqlfluff/pull/4732) [@bmorck](https://github.com/bmorck)
