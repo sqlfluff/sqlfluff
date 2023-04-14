@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 178acfd014cf9b8b0815c26e4b85e0121265e0f2aa05a2f1146a3c8f60f91449
+_hash: 0174a44ebf919b68b3717938814bd471de9b0122e36ec569fd4c553d9fd48707
 file:
 - statement:
     select_statement:
@@ -96,8 +96,9 @@ file:
                           numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -142,8 +143,9 @@ file:
                           numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -249,8 +251,8 @@ file:
           - dot: .
           - naked_identifier: b
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -296,10 +298,15 @@ file:
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -317,8 +324,8 @@ file:
           - dot: .
           - naked_identifier: b
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -364,10 +371,15 @@ file:
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -460,8 +472,9 @@ file:
                           numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -506,8 +519,9 @@ file:
                           numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -548,8 +562,8 @@ file:
           - dot: .
           - naked_identifier: b
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -574,10 +588,15 @@ file:
                 - expression:
                     numeric_literal: '3'
                 - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -615,8 +634,8 @@ file:
           - dot: .
           - naked_identifier: b
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -638,10 +657,15 @@ file:
                 - expression:
                     quoted_literal: "'b'"
                 - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -696,6 +720,7 @@ file:
                 - expression:
                     quoted_literal: "'HOST'"
                 - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c1
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0869a907d27f2854738d222ae3e5632ae9deb9ff5d1ad52b04419a7f0bc8fb7
+_hash: d78f6bf54923eefc7cbef2aa7bc87808e6b13b9c1a099957863705d933ed049b
 file:
 - statement:
     alter_publication_statement:
@@ -108,13 +108,13 @@ file:
         bracketed:
         - start_bracket: (
         - definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'insert,update'"
         - comma: ','
         - definition_parameter:
-            parameter: publish_via_partition_root
+            properties_naked_identifier: publish_via_partition_root
             comparison_operator:
               raw_comparison_operator: '='
             boolean_literal: 'TRUE'
@@ -183,7 +183,7 @@ file:
         bracketed:
           start_bracket: (
           definition_parameter:
-            parameter: publish
+            properties_naked_identifier: publish
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'update, delete'"

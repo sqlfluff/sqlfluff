@@ -48,6 +48,9 @@ test_pass_newline_£:
 test_pass_sign_indicators:
   pass_str: SELECT 1, +2, -4
 
+test_pass_tilde:
+  pass_str: SELECT ~1
+
 # -------------------
 
 fail_simple:

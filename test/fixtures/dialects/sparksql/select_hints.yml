@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e4ecf246343b39a5fee5592a9c83fbe965bf86696b864abfde617fc031dc779
+_hash: 17d210004cf1b2cc4a9861681dd50739ed79ac4a0172ae16ad8a18fd885c03cd
 file:
 - statement:
     select_statement:
@@ -834,6 +834,69 @@ file:
               - naked_identifier: t2
               - end_bracket: )
           - end_hint: '*/'
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t2
+          - dot: .
+          - naked_identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t1
+                - dot: .
+                - naked_identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: t2
+                - dot: .
+                - naked_identifier: key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+            start_hint: /*+
+            hint_function:
+              function_name:
+                function_name_identifier: BROADCAST
+              bracketed:
+                start_bracket: (
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: t1
+                end_bracket: )
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
           - naked_identifier: t1

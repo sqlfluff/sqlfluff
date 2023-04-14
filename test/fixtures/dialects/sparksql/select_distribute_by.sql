@@ -50,3 +50,12 @@ FROM person
 GROUP BY age
 HAVING COUNT(age) > 1
 DISTRIBUTE BY age;
+
+SELECT
+    age,
+    name
+FROM person
+GROUP BY age
+HAVING COUNT(age) > 1
+DISTRIBUTE BY age
+SORT BY age;

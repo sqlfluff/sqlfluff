@@ -33,6 +33,8 @@ ALTER TABLE mytable ALTER other_column SET DEFAULT other_value;
 ALTER TABLE mytable ALTER other_column SET DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE mytable ALTER other_column SET DEFAULT a_function(a_parameter);
 ALTER TABLE mytable ALTER other_column SET DEFAULT a_function('a_parameter');
+ALTER TABLE mytable ALTER other_column SET DEFAULT 1 + 2 + 3;
+ALTER TABLE mytable ALTER other_column SET DEFAULT (1 + 2 + 3);
 ALTER TABLE mytable ALTER other_column DROP DEFAULT;
 ALTER TABLE IF EXISTS mytable ALTER date_column SET DEFAULT NOW();
 ALTER TABLE IF EXISTS mytable ALTER int_column SET DEFAULT 1;
@@ -42,6 +44,8 @@ ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT other_value;
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT a_function(a_parameter);
 ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT a_function('a_parameter');
+ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT 1 + 2 + 3;
+ALTER TABLE IF EXISTS mytable ALTER other_column SET DEFAULT (1 + 2 + 3);
 ALTER TABLE IF EXISTS mytable ALTER other_column DROP DEFAULT;
 
 ALTER TABLE distributors RENAME COLUMN address TO city;
@@ -136,3 +140,28 @@ ALTER TABLE public.history ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.history_id_seq
 );
 
+-- Test out EXCLUDE constraints, as well as other more advanced index parameters on constraints
+
+-- from https://www.postgresql.org/docs/15/rangetypes.html: basic usage (adapted for ALTER TABLE)
+ALTER TABLE reservation ADD EXCLUDE USING gist (during WITH &&);
+ALTER TABLE room_reservation ADD CONSTRAINT cons EXCLUDE USING gist (room WITH =, during WITH &&);
+
+-- all the gnarly options: not every option is valid, but this will parse successfully on PG 15.
+ALTER TABLE no_using ADD EXCLUDE (field WITH =) NOT DEFERRABLE INITIALLY IMMEDIATE NO INHERIT;
+ALTER TABLE many_options ADD EXCLUDE
+    USING gist (
+        one WITH =,
+        nulls_opclass nulls WITH =,
+        nulls_last NULLS LAST WITH =,
+        two COLLATE "en-US" opclass
+            (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC)
+            ASC NULLS FIRST WITH =,
+        (two + 5) WITH =,
+        myfunc(a, b) WITH =,
+        myfunc_opclass(a, b) fop (opt=1, foo=2) WITH =,
+        only_opclass opclass WITH =,
+        desc_order DESC WITH =
+    ) INCLUDE (a, b) WITH (idx_num = 5, idx_str = 'idx_value', idx_kw=DESC)
+        USING INDEX TABLESPACE tblspc
+        WHERE (field != 'def')
+        DEFERRABLE NOT VALID INITIALLY DEFERRED;

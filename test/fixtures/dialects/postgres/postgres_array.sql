@@ -53,4 +53,10 @@ SELECT SUM(CASE
         ELSE 0
         END
     ) * (MAX(ARRAY[id, vertical]))[2]
-FROM direction_with_vertical_change
+FROM direction_with_vertical_change;
+
+-- More advanced cases with expressions and missing slice start/end when accessing
+
+SELECT a[:], b[:1], c[2:], d[2:3];
+
+SELECT a[1+2:3+4], b[5+6];
