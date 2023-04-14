@@ -2959,7 +2959,7 @@ class VacuumStatementSegment(BaseSegment):
                 Ref.keyword("FULL", optional=True),
                 Ref.keyword("FREEZE", optional=True),
                 Ref.keyword("VERBOSE", optional=True),
-                OneOf(Ref.keyword("ANALYZE"), Ref.keyword("ANALYSE"), optional=True),
+                OneOf("ANALYZE", "ANALYSE", optional=True),
             ),
             Bracketed(
                 Delimited(
