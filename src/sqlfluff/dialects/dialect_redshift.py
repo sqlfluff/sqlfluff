@@ -1952,13 +1952,12 @@ class AnalyzeCompressionStatementSegment(BaseSegment):
     )
 
 
-class VacuumStatementSegment(BaseSegment):
+class VacuumStatementSegment(postgres.VacuumStatementSegment):
     """A `VACUUM` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_VACUUM_command.html
     """
 
-    type = "vacuum_statement"
     match_grammar = Sequence(
         "VACUUM",
         OneOf(
@@ -2014,7 +2013,6 @@ class StatementSegment(postgres.StatementSegment):
             Ref("FetchStatementSegment"),
             Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
-            Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("CreateRlsPolicyStatementSegment"),

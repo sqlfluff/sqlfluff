@@ -2930,6 +2930,61 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     )
 
 
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement.
+
+    https://www.postgresql.org/docs/15/sql-vacuum.html
+    https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L11658
+    """
+
+    type = "vacuum_statement"
+    match_grammar = Sequence(
+        "VACUUM",
+        OneOf(
+            Sequence(
+                Ref.keyword("FULL", optional=True),
+                Ref.keyword("FREEZE", optional=True),
+                Ref.keyword("VERBOSE", optional=True),
+                OneOf("ANALYZE", "ANALYSE", optional=True),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            "FULL",
+                            "FREEZE",
+                            "VERBOSE",
+                            "ANALYZE",
+                            "ANALYSE",
+                            "DISABLE_PAGE_SKIPPING",
+                            "SKIP_LOCKED",
+                            "INDEX_CLEANUP",
+                            "PROCESS_TOAST",
+                            "TRUNCATE",
+                            "PARALLEL",
+                        ),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
+                            Ref("OnKeywordAsIdentifierSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
@@ -3986,6 +4041,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RefreshMaterializedViewStatementSegment"),
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
+            Ref("VacuumStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateViewStatementSegment"),
             Ref("AlterViewStatementSegment"),
