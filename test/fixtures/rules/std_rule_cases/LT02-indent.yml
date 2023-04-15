@@ -1941,3 +1941,34 @@ test_fail_issue_4680:
         {% else %}
         col1 > 0
       {% endif %}
+
+test_pass_issue_4582:
+  # https://github.com/sqlfluff/sqlfluff/issues/4582
+  pass_str: |
+    select a.col
+
+    /*
+    Multi
+    line
+    comment 1
+    */
+    from a
+
+    /*
+    Multi
+    line
+    comment 2
+    */
+    inner join b
+        on a.id = b.id;
+
+
+
+    select a.col
+
+    /* Single line comment 1 */
+    from a
+
+    /* Single line comment 2 */
+    inner join b
+        on a.id = b.id
