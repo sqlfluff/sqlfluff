@@ -615,6 +615,49 @@ class DropTableStatementSegment(ansi.DropTableStatementSegment):
     )
 
 
+class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
+    """A `DROP DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_database_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        # Ref("OnCLusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class DropDictionaryStatementSegment(BaseSegment):
+    """A `DROP DICTIONARY` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_dictionary_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DICTIONARY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -623,5 +666,6 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("CreateTableStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
+            Ref("DropDictionaryStatementSegment"),
         ]
     )
