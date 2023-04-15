@@ -341,24 +341,9 @@ class ReflowPoint(ReflowElement):
                 trough = running_sum
         return IndentStats(running_sum, trough, tuple(implicit_indents))
 
-    def get_indent_impulse(
-        self,
-        allow_implicit_indents: bool = False,
-        following_class_types: Set[str] = set(),
-    ) -> IndentStats:
-        """Get the change in intended indent balance from this point.
-
-        NOTE: The reason we check `following_class_types` is because
-        bracketed expressions behave a little differently and are an
-        exception to the normal implicit indent rules. For implicit
-        indents which precede bracketed expressions, the implicit indent
-        is treated as a normal indent.
-        """
-
-        if allow_implicit_indents and "start_bracket" not in following_class_types:
-            return self._stats
-        else:
-            return IndentStats(self._stats.impulse, self._stats.trough, ())
+    def get_indent_impulse(self) -> IndentStats:
+        """Get the change in intended indent balance from this point."""
+        return self._stats
 
     def indent_to(
         self,

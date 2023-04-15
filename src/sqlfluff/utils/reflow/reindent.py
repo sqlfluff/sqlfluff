@@ -679,8 +679,21 @@ def _crawl_indent_points(
             following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
-                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
+                elem.get_indent_impulse(),
             )
+
+            # If don't allow implicit indents we should remove them here.
+            # Also, if we do - we should check for brackets.
+            # NOTE: The reason we check `following_class_types` is because
+            # bracketed expressions behave a little differently and are an
+            # exception to the normal implicit indent rules. For implicit
+            # indents which precede bracketed expressions, the implicit indent
+            # is treated as a normal indent.
+            if not allow_implicit_indents or "start_bracket" in following_class_types:
+                # Blank indent stats if not using them
+                indent_stats = IndentStats(
+                    indent_stats.impulse, indent_stats.trough, ()
+                )
 
             # Was there a cache?
             if cached_indent_stats:
@@ -1614,7 +1627,7 @@ def _match_indents(
         # it's positive or negative.
         # NOTE: Here we don't actually pass in the forward types because
         # we don't need them for the output. It doesn't make a difference.
-        indent_stats = e.get_indent_impulse(allow_implicit_indents, set())
+        indent_stats = e.get_indent_impulse()
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
@@ -1803,7 +1816,6 @@ def _fix_long_line_with_integer_targets(
     line_length_limit: int,
     inner_indent: str,
     outer_indent: str,
-    allow_implicit_indents: bool,
 ) -> List[LintResult]:
     """Work out fixes for splitting a long line at locations like indents.
 
@@ -1822,9 +1834,7 @@ def _fix_long_line_with_integer_targets(
         # indent (otherwise they'll be over indented).
         # The `desired_indent` above is for the "uphill" side.
         following_class_types = elements[e_idx + 1].class_types
-        indent_stats = e.get_indent_impulse(
-            allow_implicit_indents, following_class_types
-        )
+        indent_stats = e.get_indent_impulse()
         # Cache them for later
         _indent_stats_cache[e_idx] = indent_stats
 
@@ -2105,7 +2115,6 @@ def lint_line_length(
                         line_length_limit,
                         desired_indent,
                         current_indent,
-                        allow_implicit_indents=allow_implicit_indents,
                     )
                 else:
                     line_results = _fix_long_line_with_fractional_targets(
