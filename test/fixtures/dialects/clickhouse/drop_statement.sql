@@ -24,6 +24,6 @@ DROP USER IF EXISTS user_name;
 DROP USER user_name ON CLUSTER cluster_name;
 
 -- -- drop role
--- DROP ROLE role_name;
--- DROP ROLE IF EXISTS role_name;
--- DROP ROLE role_name ON CLUSTER cluster_name;
+DROP ROLE role_name;
+DROP ROLE IF EXISTS role_name;
+DROP ROLE role_name ON CLUSTER cluster_name;

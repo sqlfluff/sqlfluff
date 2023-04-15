@@ -682,6 +682,30 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
     )
 
 
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_user_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnCLusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
