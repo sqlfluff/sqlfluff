@@ -815,6 +815,7 @@ def _map_line_buffers(
     # First build up the buffer of lines.
     lines = []
     point_buffer = []
+    _previous_points = {}
     # Buffers to keep track of indents which are untaken on the way
     # up but taken on the way down. We track them explicitly so we
     # can force them later.
@@ -835,6 +836,7 @@ def _map_line_buffers(
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
         point_buffer.append(indent_point)
+        _previous_points[indent_point.idx] = indent_point
 
         if not indent_point.is_line_break:
             # If it's not a line break, we should still check whether it's
@@ -903,10 +905,30 @@ def _map_line_buffers(
 
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
-                    # on the same line. Otherwise it is - append it to the buffer
-                    # to sort later.
-                    if not any(ip.idx == loc for ip in point_buffer):
-                        imbalanced_locs.append(loc)
+                    # on the same line.
+                    if any(ip.idx == loc for ip in point_buffer):
+                        continue
+
+                    # If the only elements between current point and the end of the
+                    # reference line are comments, then don't trigger, it's a misplaced
+                    # indent.
+                    # First find the end of the reference line.
+                    for j in range(loc, indent_point.idx):
+                        _pt = _previous_points.get(j, None)
+                        if not _pt:
+                            continue
+                        if _pt.is_line_break:
+                            break
+                    # Then check if all comments.
+                    if all(
+                        "comment" in elements[k].class_types
+                        for k in range(_pt.idx + 1, indent_point.idx, 2)
+                    ):
+                        # It is all comments. Ignore it.
+                        continue
+
+                    # Otherwise it is - append it to the buffer to sort later.
+                    imbalanced_locs.append(loc)
 
         # Remove any which are now no longer relevant from the working buffer.
         for k in list(untaken_indent_locs.keys()):
@@ -1125,6 +1147,22 @@ def _lint_line_untaken_positive_indents(
     closing_trough = last_ip.initial_indent_balance + (
         last_ip.indent_trough or last_ip.indent_impulse
     )
+
+    # Edge case: Adjust closing trough for trailing indents
+    # after comments disrupting closing trough.
+    _bal = 0
+    for elem in elements[last_ip.idx + 1 :]:
+        if not isinstance(elem, ReflowPoint):
+            if "comment" not in elem.class_types:
+                break
+            continue
+        # Otherwise it's a point
+        stats = elem.get_indent_impulse()
+        # If it's positive, stop. We likely won't find enough negative to come.
+        if stats.impulse > 0:
+            break
+        closing_trough = _bal + stats.trough
+        _bal += stats.impulse
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
