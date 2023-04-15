@@ -4,7 +4,6 @@ Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
-from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (

@@ -1,5 +1,4 @@
 """The Hive dialect."""
-from typing import Optional
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
