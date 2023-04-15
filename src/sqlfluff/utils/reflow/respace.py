@@ -120,6 +120,11 @@ def process_spacing(
         # If it's a newline, react accordingly.
         # NOTE: This should only trigger on literal newlines.
         elif seg.is_type("newline", "end_of_file"):
+            if seg.pos_marker and not seg.pos_marker.is_literal():
+                last_whitespace = []
+                reflow_logger.debug("    Skipping templated newline: %s", seg)
+                continue
+
             # Are we stripping newlines?
             if strip_newlines and seg.is_type("newline"):
                 reflow_logger.debug("    Stripping newline: %s", seg)
