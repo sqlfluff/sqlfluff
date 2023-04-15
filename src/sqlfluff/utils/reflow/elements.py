@@ -267,7 +267,7 @@ class ReflowPoint(ReflowElement):
     _stats: IndentStats = field(init=False)
 
     def __init__(self, segments: Tuple[RawSegment, ...]):
-        """Override the init method to calculate indent stats"""
+        """Override the init method to calculate indent stats."""
         object.__setattr__(self, "segments", segments)
         object.__setattr__(self, "_stats", self._generate_indent_stats(segments))
 

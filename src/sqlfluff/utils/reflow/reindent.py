@@ -920,6 +920,7 @@ def _map_line_buffers(
                             continue
                         if _pt.is_line_break:
                             break
+                    assert _pt
                     # Then check if all comments.
                     if all(
                         "comment" in elements[k].class_types
