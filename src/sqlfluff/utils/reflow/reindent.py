@@ -920,7 +920,9 @@ def _deduce_line_current_indent(
     consumed from the source as by potential templating tags.
     """
     indent_seg = None
-    if last_line_break_idx:
+    if not elements[0].segments:
+        return ""
+    elif last_line_break_idx:
         indent_seg = cast(
             ReflowPoint, elements[last_line_break_idx]
         )._get_indent_segment()
