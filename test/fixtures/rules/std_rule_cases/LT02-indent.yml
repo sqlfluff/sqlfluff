@@ -1942,6 +1942,30 @@ test_fail_issue_4680:
         col1 > 0
       {% endif %}
 
+test_fail_issue_4745:
+  fail_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+    {{ b }}_fill_{{ a }} as (
+        select *
+        from data
+    ),
+    {% endfor %}{% endfor %}
+
+    select 1
+  fix_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+        {{ b }}_fill_{{ a }} as (
+            select *
+            from data
+        ),
+    {% endfor %}{% endfor %}
+
+    select 1
+
 test_pass_issue_4582:
   # https://github.com/sqlfluff/sqlfluff/issues/4582
   pass_str: |

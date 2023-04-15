@@ -41,8 +41,9 @@ with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as
         # Set the bundle name to the ref.
         _bundle_name = f":ref:`bundle_{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
-            aliases = ", ".join(rule.aliases[:3]) + (
-                "," if len(rule.aliases) > 3 else ""
+            step = 1  # The number of aliases per line.
+            aliases = ", ".join(rule.aliases[:step]) + (
+                "," if len(rule.aliases) > step else ""
             )
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
@@ -51,15 +52,16 @@ with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as
                 f"| {code_ref : <28} | {aliases : <18} |\n"
             )
 
-            j = 3
+            j = 1
+
             while True:
                 if not rule.aliases[j:]:
                     break
-                aliases = ", ".join(rule.aliases[j : j + 3]) + (
-                    "," if len(rule.aliases[j:]) > 3 else ""
+                aliases = ", ".join(rule.aliases[j : j + step]) + (
+                    "," if len(rule.aliases[j:]) > step else ""
                 )
                 f.write(f"|{' ' * 42}|{' ' * 50}|{' ' * 30}| {aliases : <18} |\n")
-                j += 3
+                j += step
 
             if idx + 1 < len(rule_bundles[bundle]):
                 f.write(f"|{' ' * 42}+{'-' * 50}+{'-' * 30}+{'-' * 20}+\n")

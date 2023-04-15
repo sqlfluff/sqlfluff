@@ -95,7 +95,7 @@ lint_result = [
         "line_no": 1,
         "line_pos": 41,
         "description": "Files must end with a single trailing newline.",
-        "name": "layout.end-of-file",
+        "name": "layout.end_of_file",
     },
 ]
 

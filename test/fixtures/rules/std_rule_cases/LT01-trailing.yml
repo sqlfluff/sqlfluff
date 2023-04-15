@@ -21,3 +21,20 @@ test_pass_trailing_whitespace_before_template_code:
 test_fail_trailing_whitespace_and_whitespace_control:
   fail_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n"
   fix_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1,\n    2,\n"
+
+test_pass_macro_trailing:
+  pass_str: |
+    {% macro foo(bar) %}
+        {{bar}}
+    {% endmacro %}
+
+    with base as (
+        select
+            a,
+            b,
+            {{ foo(1) }} as c
+        from tblb
+    )
+
+    select *
+    from tbl
