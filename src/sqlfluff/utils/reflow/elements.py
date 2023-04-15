@@ -2,7 +2,7 @@
 
 from itertools import chain
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
 from sqlfluff.core.parser import PositionMarker
@@ -247,7 +247,7 @@ class IndentStats:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class ReflowPoint(ReflowElement):
     """Class for keeping track of editable elements in reflow.
 
@@ -263,6 +263,13 @@ class ReflowPoint(ReflowElement):
     side, so that any operations on it usually have that configuration
     passed in as required.
     """
+
+    _stats: IndentStats = field(init=False)
+
+    def __init__(self, segments: Tuple[RawSegment, ...]):
+        """Override the init method to calculate indent stats"""
+        object.__setattr__(self, "segments", segments)
+        object.__setattr__(self, "_stats", self._generate_indent_stats(segments))
 
     def _get_indent_segment(self) -> Optional[RawSegment]:
         """Get the current indent segment (if there).
@@ -308,6 +315,32 @@ class ReflowPoint(ReflowElement):
             return consumed_whitespace.split("\n")[-1]
         return seg.raw if seg else ""
 
+    @staticmethod
+    def _generate_indent_stats(
+        segments: Sequence[RawSegment],
+    ) -> IndentStats:
+        """Generate the change in intended indent balance.
+
+        This is the main logic which powers .get_indent_impulse()
+        """
+        trough = 0
+        running_sum = 0
+        implicit_indents = []
+        for seg in segments:
+            if seg.is_type("indent"):
+                indent_seg = cast(Indent, seg)
+                running_sum += indent_seg.indent_val
+                # Do we need to add a new implicit indent?
+                if indent_seg.is_implicit:
+                    implicit_indents.append(running_sum)
+                # NOTE: We don't check for removal of implicit indents
+                # because it's unlikely that one would be opened, and then
+                # closed within the same point. That would probably be the
+                # sign of a bug in the dialect.
+            if running_sum < trough:
+                trough = running_sum
+        return IndentStats(running_sum, trough, tuple(implicit_indents))
+
     def get_indent_impulse(
         self,
         allow_implicit_indents: bool = False,
@@ -320,33 +353,12 @@ class ReflowPoint(ReflowElement):
         exception to the normal implicit indent rules. For implicit
         indents which precede bracketed expressions, the implicit indent
         is treated as a normal indent.
-
-        Returns:
-            :obj:`tuple` of :obj:`int`: The first value is the raw
-                impulse. The second is the deepest trough in the indent
-                through the values to allow wiping of buffers.
         """
-        trough = 0
-        running_sum = 0
-        implicit_indents = []
-        for seg in self.segments:
-            if seg.is_type("indent"):
-                indent_seg = cast(Indent, seg)
-                running_sum += indent_seg.indent_val
-                # Do we need to add a new implicit indent?
-                if (
-                    allow_implicit_indents
-                    and indent_seg.is_implicit
-                    and "start_bracket" not in following_class_types
-                ):
-                    implicit_indents.append(running_sum)
-                # NOTE: We don't check for removal of implicit indents
-                # because it's unlikely that one would be opened, and then
-                # closed within the same point. That would probably be the
-                # sign of a bug in the dialect.
-            if running_sum < trough:
-                trough = running_sum
-        return IndentStats(running_sum, trough, tuple(implicit_indents))
+
+        if allow_implicit_indents and "start_bracket" not in following_class_types:
+            return self._stats
+        else:
+            return IndentStats(self._stats.impulse, self._stats.trough, ())
 
     def indent_to(
         self,
