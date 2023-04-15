@@ -430,7 +430,6 @@ tsql_dialect.replace(
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
-        "LIMIT",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",

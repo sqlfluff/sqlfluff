@@ -157,33 +157,27 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    TableDistributeByGrammar=StartsWith(
-        Sequence(
-            "DISTRIBUTE",
-            "BY",
-            Delimited(
-                Ref("ColumnReferenceSegment"),
+    TableDistributeByGrammar=Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminator=OneOf(
+                Ref("TablePartitionByGrammar"),
+                Ref("DelimiterGrammar"),
             ),
         ),
-        terminator=OneOf(
-            Ref("TablePartitionByGrammar"),
-            Ref("DelimiterGrammar"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
     ),
-    TablePartitionByGrammar=StartsWith(
-        Sequence(
-            "PARTITION",
-            "BY",
-            Delimited(
-                Ref("ColumnReferenceSegment"),
+    TablePartitionByGrammar=Sequence(
+        "PARTITION",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminator=OneOf(
+                Ref("TableDistributeByGrammar"),
+                Ref("DelimiterGrammar"),
             ),
         ),
-        terminator=OneOf(
-            Ref("TableDistributeByGrammar"),
-            Ref("DelimiterGrammar"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
     EscapedIdentifierSegment=TypedParser(
@@ -404,15 +398,7 @@ class WithInvalidUniquePKSegment(BaseSegment):
     """`WITH INVALID UNIQUE` or `WITH INVALID PRIMARY KEY` clause within `SELECT`."""
 
     type = "with_invalid_unique_pk_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            "INVALID",
-            OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
-        ),
-        terminator="FROM",
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref.keyword("WITH", optional=True),
         "INVALID",
         OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
@@ -424,13 +410,7 @@ class WithInvalidForeignKeySegment(BaseSegment):
     """`WITH INVALID FOREIGN KEY` clause within `SELECT`."""
 
     type = "with_invalid_foreign_key_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref.keyword("WITH", optional=True), "INVALID", Ref("ForeignKeyGrammar")
-        ),
-        terminator=Ref("FromClauseTerminatorGrammar"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref.keyword("WITH", optional=True),
         "INVALID",
         Ref("ForeignKeyGrammar"),
@@ -448,8 +428,7 @@ class IntoTableSegment(BaseSegment):
     """`INTO TABLE` clause within `SELECT`."""
 
     type = "into_table_clause"
-    match_grammar = StartsWith(Sequence("INTO", "TABLE"), terminator="FROM")
-    parse_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
+    match_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
 
 
 class TableExpressionSegment(BaseSegment):
@@ -525,22 +504,7 @@ class ConnectByClauseSegment(BaseSegment):
     """`CONNECT BY` clause within a select statement."""
 
     type = "connect_by_clause"
-    match_grammar = StartsWith(
-        OneOf(
-            Sequence("CONNECT", "BY"),
-            Sequence("START", "WITH"),
-        ),
-        terminator=OneOf(
-            "PREFERRING",
-            Sequence("GROUP", "BY"),
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         Sequence(
             "CONNECT",
             "BY",
@@ -568,18 +532,7 @@ class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -610,17 +563,7 @@ class CubeRollupClauseSegment(BaseSegment):
     """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
 
     type = "cube_rollup_clause"
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("CUBE", "ROLLUP"),
         Bracketed(
             Ref("GroupingExpressionList"),
@@ -632,17 +575,7 @@ class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
     type = "grouping_sets_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -671,15 +604,7 @@ class QualifyClauseSegment(BaseSegment):
     """`QUALIFY` clause within `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
-        "QUALIFY",
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence("QUALIFY", Ref("ExpressionSegment"))
+    match_grammar = Sequence("QUALIFY", Ref("ExpressionSegment"))
 
 
 class LimitClauseSegment(BaseSegment):
@@ -1192,11 +1117,7 @@ class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = StartsWith(
-        OneOf("CONSTRAINT", "NOT", "NULL", "PRIMARY", "FOREIGN"),
-        terminator=OneOf("COMMENT", Ref("CommaSegment"), Ref("EndBracketSegment")),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
             Ref(
@@ -1225,11 +1146,7 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = StartsWith(
-        OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
-        terminator=OneOf(Ref("CommaSegment"), "DISTRIBUTE", "PARTITION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
             Ref(
@@ -1773,11 +1690,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_matched_clause"
-    match_grammar = StartsWith(
-        Sequence("WHEN", "MATCHED", "THEN", OneOf("UPDATE", "DELETE")),
-        terminator=Ref("MergeNotMatchedClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHEN",
         "MATCHED",
         "THEN",
@@ -1792,16 +1705,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_not_matched_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            "WHEN",
-            "NOT",
-            "MATCHED",
-            "THEN",
-        ),
-        terminator=Ref("MergeMatchedClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHEN",
         "NOT",
         "MATCHED",
@@ -2015,11 +1919,7 @@ class ImportFromExportIntoDbSrcSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a external database source (EXA,ORA,JDBC)."""
 
     type = "import_export_dbsrc"
-    match_grammar = StartsWith(
-        OneOf("EXA", "ORA", "JDBC"),
-        terminator=OneOf(Ref("ImportErrorsClauseSegment"), Ref("RejectClauseSegment")),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             "EXA",
             "ORA",
@@ -2070,11 +1970,7 @@ class ImportFromExportIntoFileSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a file source (FBV,CSV)."""
 
     type = "import_file"
-    match_grammar = StartsWith(
-        OneOf("CSV", "FBV", "LOCAL"),
-        terminator=Ref("ImportErrorsClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             Sequence(
                 OneOf(
@@ -2908,18 +2804,7 @@ class PreferringClauseSegment(BaseSegment):
     """
 
     type = "preferring_clause"
-    match_grammar = StartsWith(
-        "PREFERRING",
-        terminator=OneOf(
-            "LIMIT",
-            Sequence("GROUP", "BY"),
-            Sequence("ORDER", "BY"),
-            "HAVING",
-            "QUALIFY",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PREFERRING",
         OptionallyBracketed(Ref("PreferringPreferenceTermSegment")),
         Ref("PartitionClauseSegment", optional=True),
@@ -3395,16 +3280,7 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("LUA", optional=True),
-            "SCRIPT",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("LUA", optional=True),
@@ -3440,24 +3316,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf(
-                "JAVA",
-                "PYTHON",
-                "LUA",
-                "R",
-                Ref("SingleIdentifierGrammar"),
-                optional=True,
-            ),
-            OneOf("SCALAR", "SET"),
-            "SCRIPT",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf(

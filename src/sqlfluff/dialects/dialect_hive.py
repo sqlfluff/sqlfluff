@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     RegexParser,
     Matchable,
-    StartsWith,
     Indent,
     Dedent,
 )
@@ -947,21 +946,6 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
     )
 
 
-class PartitionClauseSegment(ansi.PartitionClauseSegment):
-    """Overriding SetExpressionSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi.PartitionClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
-        before=Ref("FrameClauseUnitGrammar"),
-    )
-    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
-
-
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
@@ -978,18 +962,13 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         Ref("FrameClauseUnitGrammar"),
         "SEPARATOR",
     )
-    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
 
 
 class ClusterByClauseSegment(ansi.OrderByClauseSegment):
     """A `CLUSTER BY` clause like in `SELECT`."""
 
     type = "clusterby_clause"
-    match_grammar: Matchable = StartsWith(
-        Sequence("CLUSTER", "BY"),
-        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "CLUSTER",
         "BY",
         Indent,
@@ -1011,20 +990,7 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
     """A `DISTRIBUTE BY` clause like in `SELECT`."""
 
     type = "distributeby_clause"
-    match_grammar: Matchable = StartsWith(
-        Sequence("DISTRIBUTE", "BY"),
-        terminator=OneOf(
-            "SORT",
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DISTRIBUTE",
         "BY",
         Indent,
@@ -1037,7 +1003,14 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
                 ),
             ),
             terminator=OneOf(
-                Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar"), Ref.keyword("SORT")
+                "SORT",
+                "LIMIT",
+                "HAVING",
+                "QUALIFY",
+                # For window functions
+                "WINDOW",
+                Ref("FrameClauseUnitGrammar"),
+                "SEPARATOR",
             ),
         ),
         Dedent,
@@ -1048,11 +1021,7 @@ class SortByClauseSegment(ansi.OrderByClauseSegment):
     """A `SORT BY` clause like in `SELECT`."""
 
     type = "sortby_clause"
-    match_grammar: Matchable = StartsWith(
-        Sequence("SORT", "BY"),
-        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "SORT",
         "BY",
         Indent,

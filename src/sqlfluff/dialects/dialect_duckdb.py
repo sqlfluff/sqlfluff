@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
-    StartsWith,
 )
 
 postgres_dialect = load_raw_dialect("postgres")
@@ -72,12 +71,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
-    match_grammar: Matchable = StartsWith(
-        Sequence("ORDER", "BY"),
-        terminator=Ref("OrderByClauseTerminators"),
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
         Indent,
@@ -93,7 +87,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
             allow_trailing=True,
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminator=Ref("OrderByClauseTerminators"),
         ),
         Dedent,
     )
@@ -102,13 +96,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
-    match_grammar: Matchable = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=Ref("GroupByClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
         Indent,

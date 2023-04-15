@@ -696,8 +696,7 @@ class FromUpdateClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT` but terminated by SET."""
 
     type = "from_in_update_clause"
-    match_grammar = StartsWith("FROM", terminator=Ref.keyword("SET"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "FROM",
         Delimited(
             # Optional old school delimited joins
@@ -745,12 +744,7 @@ class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
-        "QUALIFY",
-        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "QUALIFY",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
