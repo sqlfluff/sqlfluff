@@ -498,7 +498,9 @@ ansi_dialect.add(
             Ref("SelectClauseElementSegment"),
             allow_trailing=True,
         ),
-        Dedent,
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
     ),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
@@ -2468,6 +2470,9 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
     parse_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
