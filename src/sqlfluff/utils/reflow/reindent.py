@@ -1824,19 +1824,6 @@ def _fix_long_line_with_integer_targets(
     This is a helper function within .lint_line_length().
     """
     line_results = []
-    # Create a stash of indent_stats. We're going to need them
-    # twice, so we generate them one for later use.
-    _indent_stats_cache: Dict[int, IndentStats] = {}
-    for e_idx in target_breaks:
-        # Generate indent stats for it.
-        e = cast(ReflowPoint, elements[e_idx])
-        # We need to check for negative sections so they get the right
-        # indent (otherwise they'll be over indented).
-        # The `desired_indent` above is for the "uphill" side.
-        following_class_types = elements[e_idx + 1].class_types
-        indent_stats = e.get_indent_impulse()
-        # Cache them for later
-        _indent_stats_cache[e_idx] = indent_stats
 
     # If we can get to the uphill indent of later break, and still be within
     # the line limit, then we can skip everything before it.
@@ -1855,9 +1842,8 @@ def _fix_long_line_with_integer_targets(
             # If we're past the line length limit, stop looking.
             break
 
-        # Fetch cached indent stats
-        indent_stats = _indent_stats_cache[e_idx]
-        if indent_stats.trough < 0:
+        e = cast(ReflowPoint, elements[e_idx])
+        if e.get_indent_impulse().trough < 0:
             # It's negative. Skip onward.
             continue
 
@@ -1871,7 +1857,7 @@ def _fix_long_line_with_integer_targets(
 
     for e_idx in target_breaks:
         e = cast(ReflowPoint, elements[e_idx])
-        indent_stats = _indent_stats_cache[e_idx]
+        indent_stats = e.get_indent_impulse()
         # NOTE: We check against the _impulse_ here rather than the
         # _trough_ because if we're about to step back up again then
         # it should still be indented.
