@@ -19,9 +19,9 @@ DROP DICTIONARY IF EXISTS dict_name;
 DROP DICTIONARY dict_name SYNC;
 
 -- -- drop user
--- DROP USER user_name;
--- DROP USER IF EXISTS user_name;
--- DROP USER name ON CLUSTER cluster_name;
+DROP USER user_name;
+DROP USER IF EXISTS user_name;
+DROP USER user_name ON CLUSTER cluster_name;
 
 -- -- drop role
 -- DROP ROLE role_name;
