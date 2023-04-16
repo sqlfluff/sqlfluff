@@ -269,13 +269,13 @@ class DatatypeSegment(ansi.DatatypeSegment):
 
 
 class TableEndClauseSegment(BaseSegment):
-    """Support WITHOUT ROWID at end of tables.
+    """Support Table Options at end of tables.
 
-    https://www.sqlite.org/withoutrowid.html
+    https://www.sqlite.org/syntax/table-options.html
     """
 
     type = "table_end_clause_segment"
-    match_grammar: Matchable = Sequence("WITHOUT", "ROWID")
+    match_grammar: Matchable = Delimited(Sequence("WITHOUT", "ROWID"), "STRICT")
 
 
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
