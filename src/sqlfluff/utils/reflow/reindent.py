@@ -920,7 +920,9 @@ def _deduce_line_current_indent(
     consumed from the source as by potential templating tags.
     """
     indent_seg = None
-    if last_line_break_idx:
+    if not elements[0].segments:
+        return ""
+    elif last_line_break_idx:
         indent_seg = cast(
             ReflowPoint, elements[last_line_break_idx]
         )._get_indent_segment()
@@ -1003,19 +1005,30 @@ def _lint_line_starting_indent(
     if current_indent == desired_starting_indent:
         return []
 
-    # Edge case: Multiline comments. If the previous line was a multiline
-    # comment and this line starts with a multiline comment, then we should
-    # only lint the indent if it's _too small_. Otherwise we risk destroying
-    # indentation which the logic here is not smart enough to handle.
-    if (
-        initial_point_idx > 0
-        and initial_point_idx < len(elements) - 1
-        and "block_comment" in elements[initial_point_idx - 1].class_types
-        and "block_comment" in elements[initial_point_idx + 1].class_types
-    ):
-        if len(current_indent) > len(desired_starting_indent):
-            reflow_logger.debug("    Indent is bigger than required. OK.")
-            return []
+    if initial_point_idx > 0 and initial_point_idx < len(elements) - 1:
+        # Edge case: Lone comments. Normally comments are anchored to the line
+        # _after_ where they come. However, if the existing location _matches_
+        # the _preceding line_, then we will allow it. It's not the "expected"
+        # location but it is allowable.
+        if "comment" in elements[initial_point_idx + 1].class_types:
+            last_indent = _deduce_line_current_indent(
+                elements, indent_points[0].last_line_break_idx
+            )
+            if len(current_indent) == len(last_indent):
+                reflow_logger.debug("    Indent matches previous line. OK.")
+                return []
+
+        # Edge case: Multiline comments. If the previous line was a multiline
+        # comment and this line starts with a multiline comment, then we should
+        # only lint the indent if it's _too small_. Otherwise we risk destroying
+        # indentation which the logic here is not smart enough to handle.
+        if (
+            "block_comment" in elements[initial_point_idx - 1].class_types
+            and "block_comment" in elements[initial_point_idx + 1].class_types
+        ):
+            if len(current_indent) > len(desired_starting_indent):
+                reflow_logger.debug("    Indent is bigger than required. OK.")
+                return []
 
     reflow_logger.debug(
         "    Correcting indent @ line %s. Existing indent: %r -> %r",
