@@ -622,6 +622,7 @@ class SetStatementSegment(BaseSegment):
 
     https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Commands
     """
+
     type = "set_statement"
 
     match_grammar = Sequence(
