@@ -346,12 +346,22 @@ test_pass_indented_from_with_comment:
     -- Comment
     JOIN t2 USING (user_id)
 
-test_fail_indented_from_with_comment_fix:
-  fail_str: |
+test_fail_indented_from_with_comment_alternate:
+  # This shows the alternative position of comments being allowed.
+  pass_str: |
     SELECT *
     FROM
         t1
         -- Comment
+    JOIN t2 USING (user_id)
+
+test_fail_indented_from_with_comment_fix:
+  # This shows the fix still returns to the primary location.
+  fail_str: |
+    SELECT *
+    FROM
+        t1
+            -- Comment
     JOIN t2 USING (user_id)
   fix_str: |
     SELECT *
@@ -1965,6 +1975,25 @@ test_fail_issue_4745:
     {% endfor %}{% endfor %}
 
     select 1
+
+test_pass_trailing_comment_1:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        -- comment
+    from foo
+
+test_pass_trailing_comment_2:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        /* comment
+        with
+        more
+        lines */
+    from foo
 
 test_pass_issue_4582:
   # https://github.com/sqlfluff/sqlfluff/issues/4582

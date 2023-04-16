@@ -1390,12 +1390,7 @@ class PartitionClauseSegment(BaseSegment):
     """A `PARTITION BY` for window functions."""
 
     type = "partitionby_clause"
-    match_grammar: Matchable = StartsWith(
-        "PARTITION",
-        terminator=OneOf(Sequence("ORDER", "BY"), Ref("FrameClauseUnitGrammar")),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "PARTITION",
         "BY",
         Indent,
@@ -1443,6 +1438,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
             ),
@@ -1805,12 +1801,7 @@ class FromClauseSegment(BaseSegment):
     """
 
     type = "from_clause"
-    match_grammar: Matchable = StartsWith(
-        "FROM",
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "FROM",
         Delimited(
             Ref("FromExpressionSegment"),
@@ -2228,12 +2219,7 @@ class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
 
     type = "where_clause"
-    match_grammar: Matchable = StartsWith(
-        "WHERE",
-        terminator=Ref("WhereClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "WHERE",
         # NOTE: The indent here is implicit to allow
         # constructions like:
@@ -2253,11 +2239,7 @@ class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
     type = "orderby_clause"
-    match_grammar: Matchable = StartsWith(
-        Sequence("ORDER", "BY"),
-        terminator=Ref("OrderByClauseTerminators"),
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
         Indent,
@@ -2287,13 +2269,7 @@ class GroupByClauseSegment(BaseSegment):
 
     type = "groupby_clause"
 
-    match_grammar: Matchable = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=Ref("GroupByClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -2315,12 +2291,7 @@ class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`."""
 
     type = "having_clause"
-    match_grammar: Matchable = StartsWith(
-        "HAVING",
-        terminator=Ref("HavingClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "HAVING",
         ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),
