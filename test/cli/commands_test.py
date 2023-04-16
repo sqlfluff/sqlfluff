@@ -557,6 +557,17 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
+        # Test that setting --quiet without --force raises and error.
+        (
+            (
+                fix,
+                [
+                    "--quiet",
+                    "test/fixtures/cli/fail_many.sql",
+                ],
+            ),
+            2,
+        ),
     ],
 )
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
@@ -1891,7 +1902,7 @@ Aborting...
 
 
 def test__cli__fix_multiple_errors_no_show_errors():
-    """Basic checking of lint functionality."""
+    """Test the fix output."""
     result = invoke_assert_code(
         ret_code=1,
         args=[
@@ -1910,8 +1921,29 @@ def test__cli__fix_multiple_errors_no_show_errors():
     assert result.output.replace("\\", "/").startswith(multiple_expected_output)
 
 
+def test__cli__fix_multiple_errors_quiet():
+    """Test the fix --quiet option."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            fix,
+            [
+                "--disable-progress-bar",
+                "test/fixtures/linter/multiple_sql_errors.sql",
+                "--force",
+                "--quiet",
+                "-x",
+                "_fix"
+            ],
+        ],
+    )
+    assert result.output.replace("\\", "/").startswith(
+        "== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"
+    )
+
+
 def test__cli__fix_multiple_errors_show_errors():
-    """Basic checking of lint functionality."""
+    """Test the fix --show-lint-violations option."""
     result = invoke_assert_code(
         ret_code=1,
         args=[
