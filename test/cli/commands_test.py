@@ -1933,7 +1933,7 @@ def test__cli__fix_multiple_errors_quiet():
                 "--force",
                 "--quiet",
                 "-x",
-                "_fix"
+                "_fix",
             ],
         ],
     )

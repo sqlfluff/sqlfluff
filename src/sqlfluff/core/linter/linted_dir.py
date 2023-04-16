@@ -120,7 +120,7 @@ class LintedDir:
                 result: Union[bool, str]
                 if buffer[file.path] is True:
                     result = "FIXED"
-                else:
+                else:  # pragma: no cover
                     result = buffer[file.path]
             else:  # pragma: no cover TODO?
                 buffer[file.path] = True
