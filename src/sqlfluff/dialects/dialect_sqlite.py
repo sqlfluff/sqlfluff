@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Nothing,
     AnyNumberOf,
     Anything,
-    StartsWith,
     Dedent,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
