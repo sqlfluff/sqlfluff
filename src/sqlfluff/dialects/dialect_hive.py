@@ -617,6 +617,37 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
+class SetStatementSegment(BaseSegment):
+    """A `SET` statement.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Commands
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            # set -v
+            Sequence(
+                StringParser("-", SymbolSegment, type="option_indicator"),
+                StringParser("v", CodeSegment, type="option"),
+            ),
+            # set key = value
+            Sequence(
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonSegment")),
+                    allow_gaps=False,
+                ),
+                Ref("RawEqualsSegment"),
+                Ref("LiteralGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -625,6 +656,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("MsckTableStatementSegment"),
+            Ref("SetStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
