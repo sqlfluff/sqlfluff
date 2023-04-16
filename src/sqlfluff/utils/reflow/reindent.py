@@ -680,8 +680,21 @@ def _crawl_indent_points(
             following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
-                elem.get_indent_impulse(allow_implicit_indents, following_class_types),
+                elem.get_indent_impulse(),
             )
+
+            # If don't allow implicit indents we should remove them here.
+            # Also, if we do - we should check for brackets.
+            # NOTE: The reason we check `following_class_types` is because
+            # bracketed expressions behave a little differently and are an
+            # exception to the normal implicit indent rules. For implicit
+            # indents which precede bracketed expressions, the implicit indent
+            # is treated as a normal indent.
+            if not allow_implicit_indents or "start_bracket" in following_class_types:
+                # Blank indent stats if not using them
+                indent_stats = IndentStats(
+                    indent_stats.impulse, indent_stats.trough, ()
+                )
 
             # Was there a cache?
             if cached_indent_stats:
@@ -803,6 +816,7 @@ def _map_line_buffers(
     # First build up the buffer of lines.
     lines = []
     point_buffer = []
+    _previous_points = {}
     # Buffers to keep track of indents which are untaken on the way
     # up but taken on the way down. We track them explicitly so we
     # can force them later.
@@ -823,6 +837,7 @@ def _map_line_buffers(
         # We evaluate all the points in a line at the same time, so
         # we first build up a buffer.
         point_buffer.append(indent_point)
+        _previous_points[indent_point.idx] = indent_point
 
         if not indent_point.is_line_break:
             # If it's not a line break, we should still check whether it's
@@ -891,10 +906,31 @@ def _map_line_buffers(
 
                     # If the location was in the line we're just closing. That's
                     # not a problem because it's an untaken indent which is closed
-                    # on the same line. Otherwise it is - append it to the buffer
-                    # to sort later.
-                    if not any(ip.idx == loc for ip in point_buffer):
-                        imbalanced_locs.append(loc)
+                    # on the same line.
+                    if any(ip.idx == loc for ip in point_buffer):
+                        continue
+
+                    # If the only elements between current point and the end of the
+                    # reference line are comments, then don't trigger, it's a misplaced
+                    # indent.
+                    # First find the end of the reference line.
+                    for j in range(loc, indent_point.idx):
+                        _pt = _previous_points.get(j, None)
+                        if not _pt:
+                            continue
+                        if _pt.is_line_break:
+                            break
+                    assert _pt
+                    # Then check if all comments.
+                    if all(
+                        "comment" in elements[k].class_types
+                        for k in range(_pt.idx + 1, indent_point.idx, 2)
+                    ):
+                        # It is all comments. Ignore it.
+                        continue
+
+                    # Otherwise it is - append it to the buffer to sort later.
+                    imbalanced_locs.append(loc)
 
         # Remove any which are now no longer relevant from the working buffer.
         for k in list(untaken_indent_locs.keys()):
@@ -1126,6 +1162,22 @@ def _lint_line_untaken_positive_indents(
     closing_trough = last_ip.initial_indent_balance + (
         last_ip.indent_trough or last_ip.indent_impulse
     )
+
+    # Edge case: Adjust closing trough for trailing indents
+    # after comments disrupting closing trough.
+    _bal = 0
+    for elem in elements[last_ip.idx + 1 :]:
+        if not isinstance(elem, ReflowPoint):
+            if "comment" not in elem.class_types:
+                break
+            continue
+        # Otherwise it's a point
+        stats = elem.get_indent_impulse()
+        # If it's positive, stop. We likely won't find enough negative to come.
+        if stats.impulse > 0:  # pragma: no cover
+            break
+        closing_trough = _bal + stats.trough
+        _bal += stats.impulse
 
     # On the way up we're looking for whether the ending balance
     # was an untaken indent or not. If it *was* untaken, there's
@@ -1628,7 +1680,7 @@ def _match_indents(
         # it's positive or negative.
         # NOTE: Here we don't actually pass in the forward types because
         # we don't need them for the output. It doesn't make a difference.
-        indent_stats = e.get_indent_impulse(allow_implicit_indents, set())
+        indent_stats = e.get_indent_impulse()
         e_idx = newline_idx - len(line_elements) + idx + 1
         # Save any implicit indents.
         if indent_stats.implicit_indents:
@@ -1817,7 +1869,6 @@ def _fix_long_line_with_integer_targets(
     line_length_limit: int,
     inner_indent: str,
     outer_indent: str,
-    allow_implicit_indents: bool,
 ) -> List[LintResult]:
     """Work out fixes for splitting a long line at locations like indents.
 
@@ -1826,21 +1877,6 @@ def _fix_long_line_with_integer_targets(
     This is a helper function within .lint_line_length().
     """
     line_results = []
-    # Create a stash of indent_stats. We're going to need them
-    # twice, so we generate them one for later use.
-    _indent_stats_cache: Dict[int, IndentStats] = {}
-    for e_idx in target_breaks:
-        # Generate indent stats for it.
-        e = cast(ReflowPoint, elements[e_idx])
-        # We need to check for negative sections so they get the right
-        # indent (otherwise they'll be over indented).
-        # The `desired_indent` above is for the "uphill" side.
-        following_class_types = elements[e_idx + 1].class_types
-        indent_stats = e.get_indent_impulse(
-            allow_implicit_indents, following_class_types
-        )
-        # Cache them for later
-        _indent_stats_cache[e_idx] = indent_stats
 
     # If we can get to the uphill indent of later break, and still be within
     # the line limit, then we can skip everything before it.
@@ -1859,9 +1895,8 @@ def _fix_long_line_with_integer_targets(
             # If we're past the line length limit, stop looking.
             break
 
-        # Fetch cached indent stats
-        indent_stats = _indent_stats_cache[e_idx]
-        if indent_stats.trough < 0:
+        e = cast(ReflowPoint, elements[e_idx])
+        if e.get_indent_impulse().trough < 0:
             # It's negative. Skip onward.
             continue
 
@@ -1875,7 +1910,7 @@ def _fix_long_line_with_integer_targets(
 
     for e_idx in target_breaks:
         e = cast(ReflowPoint, elements[e_idx])
-        indent_stats = _indent_stats_cache[e_idx]
+        indent_stats = e.get_indent_impulse()
         # NOTE: We check against the _impulse_ here rather than the
         # _trough_ because if we're about to step back up again then
         # it should still be indented.
@@ -2119,7 +2154,6 @@ def lint_line_length(
                         line_length_limit,
                         desired_indent,
                         current_indent,
-                        allow_implicit_indents=allow_implicit_indents,
                     )
                 else:
                     line_results = _fix_long_line_with_fractional_targets(
