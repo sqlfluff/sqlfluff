@@ -1174,7 +1174,7 @@ def _lint_line_untaken_positive_indents(
         # Otherwise it's a point
         stats = elem.get_indent_impulse()
         # If it's positive, stop. We likely won't find enough negative to come.
-        if stats.impulse > 0:
+        if stats.impulse > 0:  # pragma: no cover
             break
         closing_trough = _bal + stats.trough
         _bal += stats.impulse
