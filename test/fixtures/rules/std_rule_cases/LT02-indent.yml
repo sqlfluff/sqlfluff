@@ -1987,7 +1987,6 @@ test_pass_issue_4582:
         on a.id = b.id;
 
 
-
     select a.col
 
     /* Single line comment 1 */
