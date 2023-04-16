@@ -700,7 +700,7 @@ def do_fixes(
         click.echo("Persisting Changes...")
     res = result.persist_changes(formatter=formatter, **kwargs)
     if all(res.values()):
-        if formatter.verbosity >= 0:
+        if formatter and formatter.verbosity >= 0:
             click.echo("Done. Please check your files to confirm.")
         return True
     # If some failed then return false
