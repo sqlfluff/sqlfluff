@@ -92,6 +92,14 @@ sqlite_dialect.replace(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    PostFunctionGrammar=Ref("FilterClauseGrammar"),
+    IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
