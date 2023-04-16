@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c209d12094922d427621030eedd44fc62ddf5d14b674f093b04220a29b5d32e6
+_hash: 653c3331eb481f4fe465aa9aa63fb4d83bf7515eb19bd756bd6d0dfde3ba0184
 file:
 - batch:
     statement:
@@ -310,7 +310,7 @@ file:
                   end_bracket: )
             column_constraint_segment:
               keyword: collate
-              object_reference:
+              collation_reference:
                 naked_identifier: Latin1_General_BIN
         - end_bracket: )
 - go_statement:

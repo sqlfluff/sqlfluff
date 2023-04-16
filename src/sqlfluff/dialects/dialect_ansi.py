@@ -1074,6 +1074,20 @@ class CollationReferenceSegment(ObjectReferenceSegment):
     """A reference to a collation."""
 
     type = "collation_reference"
+    # Some dialects like PostgreSQL want an identifier only, and quoted
+    # literals aren't allowed.  Other dialects like Snowflake only accept
+    # a quoted string literal.  We'll be a little overly-permissive and
+    # accept either... it shouldn't be too greedy since this segment generally
+    # occurs only in a Sequence after the "COLLATE" keyword.
+    match_grammar: Matchable = OneOf(
+        Ref("QuotedLiteralSegment"),
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminator=Ref("ObjectReferenceTerminatorGrammar"),
+            allow_gaps=False,
+        ),
+    )
 
 
 class RoleReferenceSegment(ObjectReferenceSegment):

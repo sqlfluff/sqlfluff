@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a3cf1b2d4e056df9b2f63b93f99b8927e62cb596d91f695a4775e1e7a8ba08a
+_hash: 5d0dbcc43a689f9226f66b080216e263fb9711d557ce16897b279cff342bf6d7
 file:
 - statement:
     alter_database_statement:
@@ -18,7 +18,8 @@ file:
       - naked_identifier: utf8mb4
     - alter_option_segment:
         keyword: COLLATE
-        naked_identifier: utf8mb4_0900_ai_ci
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
     - alter_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
@@ -41,7 +42,8 @@ file:
         keyword: COLLATE
         comparison_operator:
           raw_comparison_operator: '='
-        naked_identifier: utf8mb4_0900_ai_ci
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
     - alter_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
@@ -62,7 +64,8 @@ file:
       - naked_identifier: utf8mb4
     - alter_option_segment:
         keyword: COLLATE
-        naked_identifier: utf8mb4_0900_ai_ci
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
     - alter_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
