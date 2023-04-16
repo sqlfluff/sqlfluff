@@ -4,7 +4,6 @@ Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
-from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -828,12 +827,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
     """
 
-    match_grammar: Matchable = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=Ref("GroupByClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -1093,6 +1087,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("ChangesClauseSegment"),
                 Ref("JoinLikeClauseGrammar"),
@@ -1398,16 +1393,7 @@ class QualifyClauseSegment(BaseSegment):
     """
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
-        "QUALIFY",
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "FETCH",
-            "OFFSET",
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "QUALIFY",
         Indent,
         OneOf(
@@ -6277,8 +6263,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
     """
 
-    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ORDER",
         "BY",
         Indent,

@@ -794,13 +794,7 @@ class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
-        "QUALIFY",
-        terminator=OneOf("WINDOW", Sequence("ORDER", "BY"), "LIMIT"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "QUALIFY",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
@@ -1566,19 +1560,7 @@ class ClusterByClauseSegment(BaseSegment):
 
     type = "cluster_by_clause"
 
-    match_grammar = StartsWith(
-        Sequence("CLUSTER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CLUSTER",
         "BY",
         Indent,
@@ -1593,9 +1575,12 @@ class ClusterByClauseSegment(BaseSegment):
                 ),
             ),
             terminator=OneOf(
-                "WINDOW",
                 "LIMIT",
+                "HAVING",
+                # For window functions
+                "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
+                "SEPARATOR",
             ),
         ),
         Dedent,
@@ -1611,20 +1596,7 @@ class DistributeByClauseSegment(BaseSegment):
 
     type = "distribute_by_clause"
 
-    match_grammar = StartsWith(
-        Sequence("DISTRIBUTE", "BY"),
-        terminator=OneOf(
-            "SORT",
-            "LIMIT",
-            "HAVING",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DISTRIBUTE",
         "BY",
         Indent,
@@ -1639,10 +1611,13 @@ class DistributeByClauseSegment(BaseSegment):
                 ),
             ),
             terminator=OneOf(
-                "WINDOW",
-                "LIMIT",
-                Ref("FrameClauseUnitGrammar"),
                 "SORT",
+                "LIMIT",
+                "HAVING",
+                # For window functions
+                "WINDOW",
+                Ref("FrameClauseUnitGrammar"),
+                "SEPARATOR",
             ),
         ),
         Dedent,
@@ -1814,13 +1789,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
 
-    match_grammar = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=Ref("GroupByClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -1892,17 +1861,7 @@ class CubeRollupClauseSegment(BaseSegment):
 
     type = "cube_rollup_clause"
 
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("CUBE", "ROLLUP"),
         Bracketed(
             Ref("GroupingExpressionList"),
@@ -1915,17 +1874,7 @@ class GroupingSetsClauseSegment(BaseSegment):
 
     type = "grouping_sets_clause"
 
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -1960,19 +1909,7 @@ class SortByClauseSegment(BaseSegment):
 
     type = "sort_by_clause"
 
-    match_grammar = StartsWith(
-        Sequence("SORT", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SORT",
         "BY",
         Indent,
@@ -1993,7 +1930,12 @@ class SortByClauseSegment(BaseSegment):
             ),
             terminator=OneOf(
                 "LIMIT",
+                "HAVING",
+                "QUALIFY",
+                # For window functions
+                "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
+                "SEPARATOR",
             ),
         ),
         Dedent,
@@ -2882,7 +2824,10 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref(
             "AliasExpressionSegment",
-            exclude=Ref("SamplingExpressionSegment"),
+            exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("SamplingExpressionSegment"),
+            ),
             optional=True,
         ),
         Ref("SamplingExpressionSegment", optional=True),

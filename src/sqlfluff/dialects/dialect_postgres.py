@@ -1462,18 +1462,7 @@ class CubeRollupClauseSegment(BaseSegment):
     """
 
     type = "cube_rollup_clause"
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("CUBE", "ROLLUP"),
         Bracketed(
             Ref("GroupingExpressionList"),
@@ -1488,18 +1477,7 @@ class GroupingSetsClauseSegment(BaseSegment):
     """
 
     type = "grouping_sets_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -1528,19 +1506,7 @@ class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUP",
         "BY",
         Indent,

@@ -28,7 +28,6 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -332,13 +331,7 @@ class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
-        "QUALIFY",
-        terminator=OneOf("WINDOW", "ORDER", "LIMIT"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "QUALIFY",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
@@ -518,10 +511,7 @@ class ForInStatementSegment(BaseSegment):
     """
 
     type = "for_in_statement"
-    match_grammar = StartsWith(
-        "FOR", terminator=Sequence("END", "FOR"), include_terminator=True
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "FOR",
         Ref("SingleIdentifierGrammar"),
         "IN",
@@ -563,10 +553,7 @@ class RepeatStatementSegment(BaseSegment):
     """
 
     type = "repeat_statement"
-    match_grammar = StartsWith(
-        "REPEAT", terminator=Sequence("END", "REPEAT"), include_terminator=True
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "REPEAT",
         Indent,
         Ref("RepeatStatementsSegment"),
@@ -604,10 +591,7 @@ class IfStatementSegment(BaseSegment):
     """
 
     type = "if_statement"
-    match_grammar = StartsWith(
-        "IF", terminator=Sequence("END", "IF"), include_terminator=True
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "IF",
         Ref("ExpressionSegment"),
         "THEN",
@@ -662,10 +646,7 @@ class LoopStatementSegment(BaseSegment):
     """
 
     type = "loop_statement"
-    match_grammar = StartsWith(
-        "LOOP", terminator=Sequence("END", "LOOP"), include_terminator=True
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "LOOP",
         Indent,
         Ref("LoopStatementsSegment"),
@@ -698,10 +679,7 @@ class WhileStatementSegment(BaseSegment):
     """
 
     type = "while_statement"
-    match_grammar = StartsWith(
-        "WHILE", terminator=Sequence("END", "WHILE"), include_terminator=True
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHILE",
         Ref("ExpressionSegment"),
         "DO",
@@ -1375,12 +1353,7 @@ class PartitionBySegment(BaseSegment):
     """PARTITION BY partition_expression."""
 
     type = "partition_by_segment"
-    match_grammar = StartsWith(
-        "PARTITION",
-        terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterGrammar")),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PARTITION",
         "BY",
         Ref("ExpressionSegment"),
@@ -1391,12 +1364,7 @@ class ClusterBySegment(BaseSegment):
     """CLUSTER BY clustering_column_list."""
 
     type = "cluster_by_segment"
-    match_grammar = StartsWith(
-        "CLUSTER",
-        terminator=OneOf("OPTIONS", "AS", Ref("DelimiterGrammar")),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CLUSTER",
         "BY",
         Delimited(Ref("ExpressionSegment")),
