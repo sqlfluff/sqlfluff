@@ -605,6 +605,7 @@ ansi_dialect.add(
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
+    IgnoreRespectNullsGrammar=Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     JoinTypeKeywordsGrammar=OneOf(
         "CROSS",
@@ -1264,7 +1265,7 @@ ansi_dialect.add(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+        Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
     ),
     PostFunctionGrammar=OneOf(
@@ -1284,7 +1285,7 @@ class OverClauseSegment(BaseSegment):
     type = "over_clause"
     match_grammar: Matchable = Sequence(
         Indent,
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        Ref("IgnoreRespectNullsGrammar", optional=True),
         "OVER",
         OneOf(
             Ref("SingleIdentifierGrammar"),  # Window name
