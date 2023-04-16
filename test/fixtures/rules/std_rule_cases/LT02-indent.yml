@@ -1943,7 +1943,14 @@ test_fail_issue_4680:
       {% endif %}
 
 test_implicit_indent_when:
-  pass_str: |
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+                THEN col2 + 1
+        END AS col2
+    FROM table1
+  fix_str: |
     SELECT
         col1,
         CASE WHEN col2 = 1
@@ -1956,7 +1963,16 @@ test_implicit_indent_when:
       indented_then: false
 
 test_implicit_indent_nested_when:
-  pass_str: |
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN CASE WHEN col2 = 2
+                    THEN col2 + 1
+            END
+        END AS col2
+    FROM table1
+  fix_str: |
     SELECT
         col1,
         CASE WHEN col2 = 1
