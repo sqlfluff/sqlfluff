@@ -94,7 +94,7 @@ class OutputStreamFormatter:
     ):
         self._output_stream = output_stream
         self.plain_output = self.should_produce_plain_output(nocolor)
-        self._verbosity = verbosity
+        self.verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
 
@@ -116,13 +116,13 @@ class OutputStreamFormatter:
         """Format the config of a `Linter`."""
         text_buffer = StringIO()
         # Only show version information if verbosity is high enough
-        if self._verbosity > 0:
+        if self.verbosity > 0:
             text_buffer.write("==== sqlfluff ====\n")
             config_content = [
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
                 ("implementation", get_python_implementation()),
-                ("verbosity", self._verbosity),
+                ("verbosity", self.verbosity),
             ]
             if linter.dialect:
                 config_content.append(("dialect", linter.dialect.name))
@@ -138,7 +138,7 @@ class OutputStreamFormatter:
                         col_width=41,
                     )
                 )
-            if self._verbosity > 1:
+            if self.verbosity > 1:
                 text_buffer.write("\n== Raw Config:\n")
                 text_buffer.write(self.format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
@@ -150,7 +150,7 @@ class OutputStreamFormatter:
     def dispatch_persist_filename(self, filename, result):
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
-        if self._verbosity >= 2 or result != "SKIP":
+        if self.verbosity >= 2 or result != "SKIP":
             self._dispatch(self.format_filename(filename=filename, success=result))
 
     def _format_path(self, path: str) -> str:
@@ -159,14 +159,14 @@ class OutputStreamFormatter:
 
     def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""
-        if self._verbosity > 0:
+        if self.verbosity > 0:
             self._dispatch(self._format_path(path))
 
     def dispatch_template_header(
         self, fname: str, linter_config: FluffConfig, file_config: FluffConfig
     ) -> None:
         """Dispatch the header displayed before templating."""
-        if self._verbosity > 1:
+        if self.verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="TEMPLATING"))
             # This is where we output config diffs if they exist.
             if file_config:
@@ -182,12 +182,12 @@ class OutputStreamFormatter:
 
     def dispatch_parse_header(self, fname: str) -> None:
         """Dispatch the header displayed before parsing."""
-        if self._verbosity > 1:
+        if self.verbosity > 1:
             self._dispatch(self.format_filename(filename=fname, success="PARSING"))
 
     def dispatch_lint_header(self, fname: str, rules: List[str]) -> None:
         """Dispatch the header displayed before linting."""
-        if self._verbosity > 1:
+        if self.verbosity > 1:
             self._dispatch(
                 self.format_filename(
                     filename=fname, success=f"LINTING ({', '.join(rules)})"
@@ -202,7 +202,7 @@ class OutputStreamFormatter:
 
     def dispatch_processing_header(self, processes: int) -> None:
         """Dispatch the header displayed before linting."""
-        if self._verbosity > 0:
+        if self.verbosity > 0:
             self._dispatch(  # pragma: no cover
                 f"{self.colorize('effective configured processes: ', Color.lightgrey)} "
                 f"{processes}"
@@ -228,7 +228,7 @@ class OutputStreamFormatter:
         show = fails + warns > 0
 
         # Only print the filename if it's either a failure or verbosity > 1
-        if self._verbosity > 0 or show:
+        if self.verbosity > 0 or show:
             text_buffer.write(self.format_filename(fname, success=fails == 0))
             text_buffer.write("\n")
 
@@ -253,6 +253,8 @@ class OutputStreamFormatter:
         self, fname: str, linted_file: LintedFile, only_fixable: bool
     ) -> None:
         """Dispatch any violations found in a file."""
+        if self.verbosity < 0:
+            return
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
@@ -392,10 +394,13 @@ class OutputStreamFormatter:
         if isinstance(success, str):
             status_string = success
         else:
-            status_string = self.colorize(
-                success_text if success else "FAIL",
-                Color.green if success else Color.red,
-            )
+            status_string = success_text if success else "FAIL"
+
+        if status_string in ("PASS", "FIXED", success_text):
+            status_string = self.colorize(status_string, Color.green)
+        elif status_string in ("FAIL", "ERROR"):
+            status_string = self.colorize(status_string, Color.red)
+
         return f"== [{self.colorize(filename, Color.lightgrey)}] {status_string}"
 
     def format_violation(
