@@ -337,3 +337,16 @@ test_pass_derived_query_requires_alias_3:
         )
         SELECT * FROM foo
     ) AS a
+
+test_pass_redshift_semi_structured_op:
+  # Redshift _requires_ aliasing when doing semi-structured operations.
+  # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unnest
+  # The logic here should be that if references _overlap_ (i.e. some
+  # aliases refer to other tables in the same FROM clause).
+  pass_str: |
+    SELECT tt.resource_id
+    FROM top_table AS tt
+    , tt.nested_column AS co
+  configs:
+    core:
+      dialect: redshift
