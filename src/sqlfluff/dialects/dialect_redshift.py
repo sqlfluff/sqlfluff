@@ -682,7 +682,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
         Sequence(

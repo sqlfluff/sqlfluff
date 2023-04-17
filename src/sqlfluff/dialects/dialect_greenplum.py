@@ -61,7 +61,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
                                             "COLLATE",
-                                            Ref("ObjectReferenceSegment"),
+                                            Ref("CollationReferenceSegment"),
                                         ),
                                     ),
                                 ),
@@ -135,7 +135,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                                 AnyNumberOf(
                                     Sequence(
                                         "COLLATE",
-                                        Ref("QuotedLiteralSegment"),
+                                        Ref("CollationReferenceSegment"),
                                         optional=True,
                                     ),
                                     Ref("ParameterNameSegment", optional=True),
