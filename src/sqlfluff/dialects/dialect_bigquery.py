@@ -824,7 +824,10 @@ class NormalizeFunctionNameSegment(BaseSegment):
 
 
 class FunctionNameSegment(ansi.FunctionNameSegment):
-    """Function name, including any prefix bits, e.g. project, schema or SAFE keyword."""
+    """Describes the name of a function.
+
+    This includes any prefix bits, e.g. project, schema or SAFE keyword.to
+    """
 
     match_grammar: Matchable = Sequence(
         # Project name, schema identifier, etc.
