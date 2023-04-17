@@ -5736,7 +5736,7 @@ class ExecuteTaskClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "TASK",
-        Ref("ParameterNameSegment"),
+        Ref("SchemaReferenceSegment"),
     )
 
 
