@@ -83,6 +83,28 @@ class Rule_AL05(BaseRule):
         query: AL05Query = cast(AL05Query, crawler.query_tree)
         self._analyze_table_aliases(query, context.dialect)
 
+        if context.dialect.name == "redshift":
+            # Redshift supports un-nesting using aliases.
+            # Detect that situation and ignore.
+            # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unnest
+
+            # Do any references refer to aliases in the same list?
+            references = set()
+            aliases = set()
+
+            for alias in query.aliases:
+                aliases.add(alias.ref_str)
+                for seg in alias.object_reference.segments:
+                    if seg.is_type("identifier"):
+                        references.add(seg.raw)
+
+            # If there's any overlap between aliases and reference
+            if aliases.intersection(references):
+                self.logger.debug(
+                    "Overlapping references found. Assuming redshift semi-structured."
+                )
+                return None
+
         alias: AliasInfo
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
