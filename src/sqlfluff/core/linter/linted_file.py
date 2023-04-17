@@ -575,7 +575,7 @@ class LintedFile(NamedTuple):
                     self.path, fname, write_buff, self.encoding
                 )
                 result_label = "FIXED"
-            else:
+            else:  # pragma: no cover
                 result_label = "FAIL"
         else:
             result_label = "SKIP"
