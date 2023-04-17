@@ -92,6 +92,14 @@ sqlite_dialect.replace(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    PostFunctionGrammar=Ref("FilterClauseGrammar"),
+    IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
@@ -146,81 +154,15 @@ sqlite_dialect.replace(
         ),
         Ref("IndexColumnDefinitionSegment"),
     ),
-    Expression_A_Grammar=Sequence(
-        OneOf(
-            Ref("Expression_C_Grammar"),
-            Sequence(
-                OneOf(
-                    Ref("SignedSegmentGrammar"),
-                    # Ref('TildeSegment'),
-                    Ref("NotOperatorGrammar"),
-                    # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
-                ),
-                Ref("Expression_C_Grammar"),
-            ),
+    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
+    #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
+    Expression_A_Unary_Operator_Grammar=OneOf(
+        Ref(
+            "SignedSegmentGrammar",
+            exclude=Sequence(Ref("QualifiedNumericLiteralSegment")),
         ),
-        AnyNumberOf(
-            OneOf(
-                Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("NOT", optional=True),
-                            Ref("LikeGrammar"),
-                        ),
-                        Sequence(
-                            Ref("BinaryOperatorGrammar"),
-                            Ref.keyword("NOT", optional=True),
-                        ),
-                        # We need to add a lot more here...
-                    ),
-                    Ref("Expression_C_Grammar"),
-                    Sequence(
-                        Ref.keyword("ESCAPE"),
-                        Ref("Expression_C_Grammar"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref("Expression_A_Grammar"),
-                            ),
-                            Ref("SelectableGrammar"),
-                            ephemeral_name="InExpression",
-                        )
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Ref("FunctionSegment"),  # E.g. UNNEST()
-                ),
-                Sequence(
-                    "IS",
-                    Ref.keyword("NOT", optional=True),
-                    Ref("IsClauseGrammar"),
-                ),
-                Ref("IsNullGrammar"),
-                Ref("NotNullGrammar"),
-                Ref("CollateGrammar"),
-                Sequence(
-                    # e.g. NOT EXISTS, but other expressions could be met as
-                    # well by inverting the condition with the NOT operator
-                    "NOT",
-                    Ref("Expression_C_Grammar"),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "BETWEEN",
-                    Ref("Expression_B_Grammar"),
-                    "AND",
-                    Ref("Expression_A_Grammar"),
-                ),
-            )
-        ),
+        Ref("TildeSegment"),
+        Ref("NotOperatorGrammar"),
     ),
 )
 
@@ -269,13 +211,13 @@ class DatatypeSegment(ansi.DatatypeSegment):
 
 
 class TableEndClauseSegment(BaseSegment):
-    """Support WITHOUT ROWID at end of tables.
+    """Support Table Options at end of tables.
 
-    https://www.sqlite.org/withoutrowid.html
+    https://www.sqlite.org/syntax/table-options.html
     """
 
     type = "table_end_clause_segment"
-    match_grammar: Matchable = Sequence("WITHOUT", "ROWID")
+    match_grammar: Matchable = Delimited(Sequence("WITHOUT", "ROWID"), "STRICT")
 
 
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
