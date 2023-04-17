@@ -1149,6 +1149,8 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: Optional[int] = None,
+        apply_fixes: bool = False,
+        fixed_file_suffix: str = "",
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1203,6 +1205,12 @@ class Linter:
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
+
+            if apply_fixes:
+                # If we're applying fixes, then do that here.
+                linted_file.persist_tree(
+                    suffix=fixed_file_suffix, formatter=self.formatter
+                )
 
             # Progress bar for files is rendered only when there is more than one file.
             # Additionally, as it's updated after each loop, we need to get file name
