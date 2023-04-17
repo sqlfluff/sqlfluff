@@ -793,6 +793,7 @@ def _paths_fix(
             # than waiting until the end.
             apply_fixes=force,
             fixed_file_suffix=fixed_suffix,
+            fix_even_unparsable=fix_even_unparsable,
         )
 
     if not fix_even_unparsable:

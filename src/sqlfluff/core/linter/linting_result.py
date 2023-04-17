@@ -18,9 +18,6 @@ from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 
 from sqlfluff.core.errors import (
     CheckTuple,
-    SQLLintError,
-    SQLParseError,
-    SQLTemplaterError,
 )
 
 from sqlfluff.core.timing import TimingSummary, RuleTimingSummary
@@ -28,6 +25,7 @@ from sqlfluff.core.timing import TimingSummary, RuleTimingSummary
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 
 
 class LintingResult:
@@ -258,37 +256,29 @@ class LintingResult:
             )
         return self.paths[0].tree
 
-    TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
-
     def count_tmp_prs_errors(self) -> Tuple[int, int]:
         """Count templating or parse errors before and after filtering."""
         total_errors = self.num_violations(
-            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False, filter_warning=False
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
         )
         num_filtered_errors = 0
         for linted_dir in self.paths:
             for linted_file in linted_dir.files:
                 num_filtered_errors += linted_file.num_violations(
-                    types=self.TMP_PRS_ERROR_TYPES
+                    types=TMP_PRS_ERROR_TYPES
                 )
         return total_errors, num_filtered_errors
 
     def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
         """Discard lint fixes for files with templating or parse errors."""
         total_errors = self.num_violations(
-            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False, filter_warning=False
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
         )
         if total_errors:
             for linted_dir in self.paths:
                 for linted_file in linted_dir.files:
-                    num_errors = linted_file.num_violations(
-                        types=self.TMP_PRS_ERROR_TYPES,
-                        filter_ignore=False,
-                        filter_warning=False,
-                    )
-                    if num_errors:
-                        # File has errors. Discard all the SQLLintError fixes:
-                        # they are potentially unsafe.
-                        for violation in linted_file.violations:
-                            if isinstance(violation, SQLLintError):
-                                violation.fixes = []
+                    linted_file.discard_fixes_if_tmp_or_prs_errors()

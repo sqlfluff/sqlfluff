@@ -28,6 +28,8 @@ from typing import (
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
     CheckTuple,
 )
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
@@ -39,6 +41,8 @@ from sqlfluff.core.linter.common import NoQaDirective
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
 
 
 @dataclass
@@ -581,6 +585,20 @@ class LintedFile(NamedTuple):
             formatter.dispatch_persist_filename(filename=self.path, result=result_label)
 
         return success
+
+    def discard_fixes_if_tmp_or_prs_errors(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        num_errors = self.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
+        )
+        if num_errors:
+            # File has errors. Discard all the SQLLintError fixes:
+            # they are potentially unsafe.
+            for violation in self.violations:
+                if isinstance(violation, SQLLintError):
+                    violation.fixes = []
 
     @staticmethod
     def _safe_create_replace_file(
