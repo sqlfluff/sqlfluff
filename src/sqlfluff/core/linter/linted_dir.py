@@ -106,7 +106,7 @@ class LintedDir:
         )
 
     def persist_changes(
-        self, formatter: Any = None, fixed_file_suffix: str = "", **kwargs
+        self, formatter: Any = None, fixed_file_suffix: str = ""
     ) -> Dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 
@@ -115,7 +115,7 @@ class LintedDir:
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
-            if file.num_violations(fixable=True, **kwargs) > 0:
+            if file.num_violations(fixable=True) > 0:
                 buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
                 result: Union[bool, str]
                 if buffer[file.path] is True:

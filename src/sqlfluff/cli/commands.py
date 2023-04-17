@@ -693,12 +693,16 @@ def lint(
 
 
 def do_fixes(
-    result: LintingResult, formatter: Optional[OutputStreamFormatter] = None, **kwargs
+    result: LintingResult,
+    formatter: Optional[OutputStreamFormatter] = None,
+    fixed_file_suffix: str = "",
 ):
     """Actually do the fixes."""
     if formatter and formatter.verbosity >= 0:
         click.echo("Persisting Changes...")
-    res = result.persist_changes(formatter=formatter, **kwargs)
+    res = result.persist_changes(
+        formatter=formatter, fixed_file_suffix=fixed_file_suffix
+    )
     if all(res.values()):
         if formatter and formatter.verbosity >= 0:
             click.echo("Done. Please check your files to confirm.")
@@ -801,7 +805,6 @@ def _paths_fix(
             success = do_fixes(
                 result,
                 formatter,
-                types=SQLLintError,
                 fixed_file_suffix=fixed_suffix,
             )
             if not success:
@@ -818,7 +821,6 @@ def _paths_fix(
                 success = do_fixes(
                     result,
                     formatter,
-                    types=SQLLintError,
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:

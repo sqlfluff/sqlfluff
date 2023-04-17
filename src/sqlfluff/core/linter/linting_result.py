@@ -237,11 +237,13 @@ class LintingResult:
             if violations
         ]
 
-    def persist_changes(self, formatter, **kwargs) -> dict:
+    def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:
         """Run all the fixes for all the files and return a dict."""
         return self.combine_dicts(
             *(
-                path.persist_changes(formatter=formatter, **kwargs)
+                path.persist_changes(
+                    formatter=formatter, fixed_file_suffix=fixed_file_suffix
+                )
                 for path in self.paths
             )
         )
