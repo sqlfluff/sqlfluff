@@ -787,13 +787,11 @@ def _paths_fix(
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
-    if result.num_violations(types=SQLLintError, fixable=True) > 0:
+    num_fixable = result.num_violations(types=SQLLintError, fixable=True)
+    if num_fixable > 0:
         if formatter.verbosity >= 0:
             click.echo("==== fixing violations ====")
-            click.echo(
-                f"{result.num_violations(types=SQLLintError, fixable=True)} "
-                "fixable linting violations found"
-            )
+        click.echo(f"{num_fixable} " "fixable linting violations found")
         if force:
             if warn_force and formatter.verbosity >= 0:
                 click.echo(
@@ -815,7 +813,8 @@ def _paths_fix(
             c = click.getchar().lower()
             click.echo("...")
             if c in ("y", "\r", "\n"):
-                click.echo("Attempting fixes...")
+                if formatter.verbosity >= 0:
+                    click.echo("Attempting fixes...")
                 success = do_fixes(
                     result,
                     formatter,
@@ -950,10 +949,9 @@ def fix(
     # some quick checks
     fixing_stdin = ("-",) == paths
     if quiet:
-        if not force or kwargs["verbose"]:
+        if kwargs["verbose"]:
             click.echo(
-                "ERROR: The --quiet flag can only be used if --force is also set "
-                "and --verbose is not set.",
+                "ERROR: The --quiet flag can only be used if --verbose is not set.",
             )
             sys.exit(EXIT_ERROR)
         kwargs["verbose"] = -1

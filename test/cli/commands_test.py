@@ -557,12 +557,13 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
-        # Test that setting --quiet without --force raises and error.
+        # Test that setting --quiet with --verbose raises an error.
         (
             (
                 fix,
                 [
                     "--quiet",
+                    "--verbose",
                     "test/fixtures/cli/fail_many.sql",
                 ],
             ),
@@ -1921,8 +1922,8 @@ def test__cli__fix_multiple_errors_no_show_errors():
     assert result.output.replace("\\", "/").startswith(multiple_expected_output)
 
 
-def test__cli__fix_multiple_errors_quiet():
-    """Test the fix --quiet option."""
+def test__cli__fix_multiple_errors_quiet_force():
+    """Test the fix --quiet option with --force."""
     result = invoke_assert_code(
         ret_code=0,
         args=[
@@ -1937,8 +1938,36 @@ def test__cli__fix_multiple_errors_quiet():
             ],
         ],
     )
-    assert result.output.replace("\\", "/").startswith(
-        "== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"
+    normalised_output = result.output.replace("\\", "/")
+    assert normalised_output.startswith(
+        """1 fixable linting violations found
+== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"""
+    )
+
+
+def test__cli__fix_multiple_errors_quiet_no_force():
+    """Test the fix --quiet option without --force."""
+    result = invoke_assert_code(
+        ret_code=0,
+        args=[
+            fix,
+            [
+                "--disable-progress-bar",
+                "test/fixtures/linter/multiple_sql_errors.sql",
+                "--quiet",
+                "-x",
+                "_fix",
+            ],
+            # Test with the confirmation step.
+            "y",
+        ],
+    )
+    normalised_output = result.output.replace("\\", "/")
+    assert normalised_output.startswith(
+        """1 fixable linting violations found
+Are you sure you wish to attempt to fix these? [Y/n] ...
+== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
+All Finished"""
     )
 
 
