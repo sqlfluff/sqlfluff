@@ -115,19 +115,9 @@ class LintedDir:
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
-            if file.num_violations(fixable=True) > 0:
-                buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
-                result: Union[bool, str]
-                if buffer[file.path] is True:
-                    result = "FIXED"
-                else:  # pragma: no cover
-                    result = buffer[file.path]
-            else:  # pragma: no cover TODO?
-                buffer[file.path] = True
-                result = "SKIP"
-
-            if formatter:
-                formatter.dispatch_persist_filename(filename=file.path, result=result)
+            buffer[file.path] = file.persist_tree(
+                suffix=fixed_file_suffix, formatter=formatter
+            )
         return buffer
 
     @property
