@@ -823,6 +823,42 @@ class NormalizeFunctionNameSegment(BaseSegment):
     )
 
 
+class SafePrefixSegment(BaseSegment):
+    """SAFE prefix to a function name.
+
+    BigQuery Function names can be prefixed by the keyword SAFE to
+    return NULL instead of error.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
+    """
+
+    type = "safe_prefix"
+    match_grammar: Matchable = Sequence("SAFE", Ref("DotSegment"), allow_gaps=False)
+
+
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    match_grammar: Matchable = Sequence(
+        # BigQuery Function names can be prefixed by the keyword SAFE to
+        # return NULL instead of error.
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
+        Ref("SafePrefixSegment", optional=True),
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -833,10 +869,6 @@ class FunctionSegment(ansi.FunctionSegment):
     """
 
     match_grammar = Sequence(
-        # BigQuery Function names can be prefixed by the keyword SAFE to
-        # return NULL instead of error.
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
-        Sequence("SAFE", Ref("DotSegment"), optional=True),
         OneOf(
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone

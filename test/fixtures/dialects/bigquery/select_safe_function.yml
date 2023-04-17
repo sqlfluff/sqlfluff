@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a66cbb9b8d7674401c007061994343386589e0a5e08deecc11397949a96efde1
+_hash: c327efdefc75a67358bfe575fc204aafa358fb0c29e1d53fc54bcfeb8b0f5f8d
 file:
   statement:
     select_statement:
@@ -17,9 +17,10 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            keyword: SAFE
-            dot: .
             function_name:
+              safe_prefix:
+                keyword: SAFE
+                dot: .
               function_name_identifier: SUBSTR
             bracketed:
             - start_bracket: (
@@ -40,9 +41,10 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            keyword: SAFE
-            dot: .
             function_name:
+              safe_prefix:
+                keyword: SAFE
+                dot: .
               function_name_identifier: DATEADD
             bracketed:
             - start_bracket: (
@@ -59,9 +61,10 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-            keyword: SAFE
-            dot: .
             function_name:
+              safe_prefix:
+                keyword: SAFE
+                dot: .
               function_name_identifier: MY_FUNCTION
             bracketed:
               start_bracket: (
