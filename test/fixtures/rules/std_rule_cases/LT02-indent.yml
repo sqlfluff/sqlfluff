@@ -2024,3 +2024,23 @@ test_pass_issue_4582:
     /* Single line comment 2 */
     inner join b
         on a.id = b.id
+
+test_pass_issue_4540:
+  # https://github.com/sqlfluff/sqlfluff/issues/4540
+  pass_str: |
+    with cte as (
+        select a
+        from b
+        qualify row_number() over (
+            partition by a
+        ) = 1
+    )
+
+    select a
+    from cte
+    qualify row_number() over (
+        partition by a
+    ) = 1;
+  configs:
+    core:
+      dialect: snowflake
