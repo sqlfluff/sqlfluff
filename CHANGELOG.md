@@ -10,6 +10,33 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.6] - 2023-04-18
+
+## Highlights
+
+## What’s Changed
+
+* Fix #4603 indent after Jinja 'do' directive [#4778](https://github.com/sqlfluff/sqlfluff/pull/4778) [@fredriv](https://github.com/fredriv)
+* Snowflake Execute Task with Schema [#4771](https://github.com/sqlfluff/sqlfluff/pull/4771) [@Thashin](https://github.com/Thashin)
+* SQLite: Support CreateTrigger [#4767](https://github.com/sqlfluff/sqlfluff/pull/4767) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix #2865 (AL05 exception for Redshift Semi-structured) [#4775](https://github.com/sqlfluff/sqlfluff/pull/4775) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4540: Untaken indents evaluation order. [#4768](https://github.com/sqlfluff/sqlfluff/pull/4768) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Use the new CollationReferenceSegment everywhere [#4770](https://github.com/sqlfluff/sqlfluff/pull/4770) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SQLite: Fix multiple parse issues in Expression_A_Grammar [#4769](https://github.com/sqlfluff/sqlfluff/pull/4769) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* SQLite: Remove refs to RESPECT and QUALIFY [#4765](https://github.com/sqlfluff/sqlfluff/pull/4765) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SQLite: Support STRICT [#4766](https://github.com/sqlfluff/sqlfluff/pull/4766) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Support hive set syntax [#4763](https://github.com/sqlfluff/sqlfluff/pull/4763) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #4582: Comments after end of line [#4760](https://github.com/sqlfluff/sqlfluff/pull/4760) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow comment match with preceding line [#4758](https://github.com/sqlfluff/sqlfluff/pull/4758) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove the majority of greedy matchers [#4761](https://github.com/sqlfluff/sqlfluff/pull/4761) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix #4745: (max() error in reindent) [#4752](https://github.com/sqlfluff/sqlfluff/pull/4752) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix issue with macros triggering LT01 [#4757](https://github.com/sqlfluff/sqlfluff/pull/4757) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* end-of-file > end_of_file [#4753](https://github.com/sqlfluff/sqlfluff/pull/4753) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+
+
 ## [2.0.5] - 2023-04-14
 
 ## Highlights
