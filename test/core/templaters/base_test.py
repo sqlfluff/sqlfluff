@@ -37,7 +37,7 @@ def test__templater_raw():
 
 
 SIMPLE_SOURCE_STR = "01234\n6789{{foo}}fo\nbarss"
-SIMPLE_TEMPLATED_STR = "01234\n6789x\nfo\nbarfss"
+SIMPLE_TEMPLATED_STR = "01234\n6789x\nfo\nbarss"
 SIMPLE_SLICED_FILE = [
     TemplatedFileSlice(*args)
     for args in [
@@ -142,24 +142,32 @@ def test__templated_file_get_line_pos_of_char_pos(
 
 
 @pytest.mark.parametrize(
-    "templated_position,inclusive,file_slices,sliced_idx_start,sliced_idx_stop",
+    "templated_position,inclusive,file_slices,raw_slices,sliced_idx_start,sliced_idx_stop",
     [
-        (100, True, COMPLEX_SLICED_FILE, 10, 11),
-        (13, True, COMPLEX_SLICED_FILE, 0, 3),
-        (28, True, COMPLEX_SLICED_FILE, 2, 5),
+        (100, True, COMPLEX_SLICED_FILE, COMPLEX_RAW_SLICED_FILE, 10, 11),
+        (13, True, COMPLEX_SLICED_FILE, COMPLEX_RAW_SLICED_FILE, 0, 3),
+        (28, True, COMPLEX_SLICED_FILE, COMPLEX_RAW_SLICED_FILE, 2, 5),
         # Check end slicing.
-        (12, True, SIMPLE_SLICED_FILE, 1, 3),
-        (20, True, SIMPLE_SLICED_FILE, 2, 3),
+        (12, True, SIMPLE_SLICED_FILE, SIMPLE_RAW_SLICED_FILE, 1, 3),
+        (20, True, SIMPLE_SLICED_FILE, SIMPLE_RAW_SLICED_FILE, 2, 3),
         # Check inclusivity
-        (13, False, COMPLEX_SLICED_FILE, 0, 1),
+        (13, False, COMPLEX_SLICED_FILE, COMPLEX_RAW_SLICED_FILE, 0, 1),
     ],
 )
 def test__templated_file_find_slice_indices_of_templated_pos(
-    templated_position, inclusive, file_slices, sliced_idx_start, sliced_idx_stop
+    templated_position,
+    inclusive,
+    file_slices,
+    raw_slices,
+    sliced_idx_start,
+    sliced_idx_stop,
 ):
     """Test TemplatedFile._find_slice_indices_of_templated_pos."""
     file = TemplatedFile(
-        source_str="Dummy String", sliced_file=file_slices, fname="test"
+        source_str="Dummy String",
+        sliced_file=file_slices,
+        raw_sliced=raw_slices,
+        fname="test",
     )
     res_start, res_stop = file._find_slice_indices_of_templated_pos(
         templated_position, inclusive=inclusive
