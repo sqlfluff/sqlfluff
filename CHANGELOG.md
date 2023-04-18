@@ -14,6 +14,15 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a _bugfix_ and _dialect_ release:
+* Bugfixes to comment and templated section indentation.
+* Performance improvements to parsing.
+* Bugfix to macros triggering LT01.
+* Renaming `layout.end-of-file` to `layout.end_of_file` in line
+  with other rules.
+* Dialect improvements to SparkSQL, Hive & Snowflake.
+
+
 ## What’s Changed
 
 * Fix #4603 indent after Jinja 'do' directive [#4778](https://github.com/sqlfluff/sqlfluff/pull/4778) [@fredriv](https://github.com/fredriv)
