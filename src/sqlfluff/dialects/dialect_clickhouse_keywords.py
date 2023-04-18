@@ -122,6 +122,7 @@ UNRESERVED_KEYWORDS = [
     "PRIMARY",
     "PROJECTION",
     "QUARTER",
+    "QUOTA",
     "RANGE",
     "RELOAD",
     "REMOVE",

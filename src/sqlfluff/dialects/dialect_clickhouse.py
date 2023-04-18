@@ -706,6 +706,30 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     )
 
 
+class DropQuotaStatementSegment(BaseSegment):
+    """A `DROP QUOTA` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_quota_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "QUOTA",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnCLusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -715,5 +739,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
+            Ref("DropQuotaStatementSegment"),
         ]
     )
