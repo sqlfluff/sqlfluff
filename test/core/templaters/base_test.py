@@ -134,7 +134,6 @@ def test__templated_file_get_line_pos_of_char_pos(
         templated_str=templated_str,
         sliced_file=file_slices,
         fname="test",
-        check_consistency=False,
     )
     res_line_no, res_line_pos = file.get_line_pos_of_char_pos(in_charpos)
     assert res_line_no == out_line_no
@@ -288,15 +287,20 @@ def test__templated_file_templated_slice_to_source_slice(
     in_slice, out_slice, is_literal, file_slices, raw_slices
 ):
     """Test TemplatedFile.templated_slice_to_source_slice."""
+    raw_sliced = [
+        rs if isinstance(rs, RawFileSlice) else RawFileSlice(*rs) for rs in raw_slices
+    ]
+    # Construct the source_str from the raw slices. We're not testing
+    # correct construction in these tests - we're testing what we can
+    # do with it once constructed.
+    source_str = ""
+    for raw_slice in raw_sliced:
+        source_str += raw_slice.raw
     file = TemplatedFile(
-        source_str="Dummy String",
+        source_str=source_str,
         sliced_file=file_slices,
-        raw_sliced=[
-            rs if isinstance(rs, RawFileSlice) else RawFileSlice(*rs)
-            for rs in raw_slices
-        ],
+        raw_sliced=raw_sliced,
         fname="test",
-        check_consistency=False,
     )
     source_slice = file.templated_slice_to_source_slice(in_slice)
     literal_test = file.is_source_slice_literal(source_slice)
@@ -309,28 +313,26 @@ def test__templated_file_templated_slice_to_source_slice(
         # Comment example
         (
             TemplatedFile(
-                source_str="a" * 20,
+                source_str=("a" * 10) + "{# b #}" + ("a" * 10),
                 fname="test",
                 raw_sliced=[
                     RawFileSlice("a" * 10, "literal", 0),
                     RawFileSlice("{# b #}", "comment", 10),
                     RawFileSlice("a" * 10, "literal", 17),
                 ],
-                check_consistency=False,
             ),
             [RawFileSlice("{# b #}", "comment", 10)],
         ),
         # Template tags aren't source only.
         (
             TemplatedFile(
-                source_str="aaabbbaaa",
+                source_str=r"aaa{{ b }}aaa",
                 fname="test",
                 raw_sliced=[
                     RawFileSlice("aaa", "literal", 0),
                     RawFileSlice("{{ b }}", "templated", 3),
-                    RawFileSlice("aaa", "literal", 6),
+                    RawFileSlice("aaa", "literal", 10),
                 ],
-                check_consistency=False,
             ),
             [],
         ),

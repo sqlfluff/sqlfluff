@@ -120,7 +120,6 @@ class TemplatedFile:
         templated_str: Optional[str] = None,
         sliced_file: Optional[List[TemplatedFileSlice]] = None,
         raw_sliced: Optional[List[RawFileSlice]] = None,
-        check_consistency=True,
     ):
         """Initialise the TemplatedFile.
 
@@ -157,50 +156,48 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
-        # NOTE: The "check_consistency" flag should always be True when using
-        # SQLFluff in real life. This flag was only added because some legacy
-        # templater tests in test/core/templaters/jinja_test.py use hardcoded
-        # test data with issues that will trigger errors here. It would be cool
-        # to fix that data someday. I (Barry H.) started looking into it, but
-        # it was much trickier than I expected, because bits of the same data
-        # are shared across multiple tests.
-        if check_consistency:
-            # Sanity check raw string and slices.
-            pos = 0
-            rfs: RawFileSlice
-            for idx, rfs in enumerate(self.raw_sliced):
-                assert rfs.source_idx == pos
-                pos += len(rfs.raw)
-            assert pos == len(self.source_str)
+        # Consistency check raw string and slices.
+        pos = 0
+        rfs: RawFileSlice
+        for rfs in self.raw_sliced:
+            assert rfs.source_idx == pos, (
+                "TemplatedFile. Consistency fail on running source length"
+                f": {pos} != {rfs.source_idx}"
+            )
+            pos += len(rfs.raw)
+        assert pos == len(self.source_str), (
+            "TemplatedFile. Consistency fail on total source length"
+            f": {pos} != {len(self.source_str)}"
+        )
 
-            # Sanity check templated string and slices.
-            previous_slice = None
-            tfs: Optional[TemplatedFileSlice] = None
-            for idx, tfs in enumerate(self.sliced_file):
-                if previous_slice:
-                    if tfs.templated_slice.start != previous_slice.templated_slice.stop:
-                        raise SQLFluffSkipFile(  # pragma: no cover
-                            "Templated slices found to be non-contiguous. "
-                            f"{tfs.templated_slice} (starting"
-                            f" {self.templated_str[tfs.templated_slice]!r})"
-                            f" does not follow {previous_slice.templated_slice} "
-                            "(starting "
-                            f"{self.templated_str[previous_slice.templated_slice]!r}"
-                            ")"
-                        )
-                else:
-                    if tfs.templated_slice.start != 0:
-                        raise SQLFluffSkipFile(  # pragma: no cover
-                            "First Templated slice not started at index 0 "
-                            f"(found slice {tfs.templated_slice})"
-                        )
-                previous_slice = tfs
-            if self.sliced_file and templated_str is not None:
-                if tfs.templated_slice.stop != len(templated_str):
+        # Consistency check templated string and slices.
+        previous_slice = None
+        tfs: Optional[TemplatedFileSlice] = None
+        for tfs in self.sliced_file:
+            if previous_slice:
+                if tfs.templated_slice.start != previous_slice.templated_slice.stop:
                     raise SQLFluffSkipFile(  # pragma: no cover
-                        "Length of templated file mismatch with final slice: "
-                        f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                        "Templated slices found to be non-contiguous. "
+                        f"{tfs.templated_slice} (starting"
+                        f" {self.templated_str[tfs.templated_slice]!r})"
+                        f" does not follow {previous_slice.templated_slice} "
+                        "(starting "
+                        f"{self.templated_str[previous_slice.templated_slice]!r}"
+                        ")"
                     )
+            else:
+                if tfs.templated_slice.start != 0:
+                    raise SQLFluffSkipFile(  # pragma: no cover
+                        "First Templated slice not started at index 0 "
+                        f"(found slice {tfs.templated_slice})"
+                    )
+            previous_slice = tfs
+        if self.sliced_file and templated_str is not None:
+            if tfs.templated_slice.stop != len(templated_str):
+                raise SQLFluffSkipFile(  # pragma: no cover
+                    "Length of templated file mismatch with final slice: "
+                    f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                )
 
     @classmethod
     def from_string(cls, raw):
