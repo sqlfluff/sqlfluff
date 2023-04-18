@@ -455,7 +455,6 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            templater_logger.warning("FOO: %s", elem)
             if elem.is_source_only_slice():
                 ret_buff.append(elem)
         return ret_buff
