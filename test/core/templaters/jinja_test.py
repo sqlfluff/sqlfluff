@@ -1102,7 +1102,7 @@ SELECT
             None,
             [
                 ("templated", slice(0, 13, None), slice(0, 0, None)),
-                ('literal', slice(13, 15, None), slice(0, 2, None)),
+                ("literal", slice(13, 15, None), slice(0, 2, None)),
                 ("block_start", slice(15, 28, None), slice(2, 2, None)),
                 ("literal", slice(28, 42, None), slice(2, 16, None)),
                 ("block_end", slice(42, 53, None), slice(16, 16, None)),
