@@ -117,22 +117,53 @@ COMPLEX_RAW_SLICED_FILE = [
 
 
 @pytest.mark.parametrize(
-    "source_str,templated_str,file_slices,in_charpos,out_line_no,out_line_pos",
+    "source_str,templated_str,file_slices,raw_slices,in_charpos,out_line_no,out_line_pos",
     [
         # Simple examples
-        (SIMPLE_SOURCE_STR, SIMPLE_TEMPLATED_STR, SIMPLE_SLICED_FILE, 0, 1, 1),
-        (SIMPLE_SOURCE_STR, SIMPLE_TEMPLATED_STR, SIMPLE_SLICED_FILE, 20, 3, 1),
-        (SIMPLE_SOURCE_STR, SIMPLE_TEMPLATED_STR, SIMPLE_SLICED_FILE, 24, 3, 5),
+        (
+            SIMPLE_SOURCE_STR,
+            SIMPLE_TEMPLATED_STR,
+            SIMPLE_SLICED_FILE,
+            SIMPLE_RAW_SLICED_FILE,
+            0,
+            1,
+            1,
+        ),
+        (
+            SIMPLE_SOURCE_STR,
+            SIMPLE_TEMPLATED_STR,
+            SIMPLE_SLICED_FILE,
+            SIMPLE_RAW_SLICED_FILE,
+            20,
+            3,
+            1,
+        ),
+        (
+            SIMPLE_SOURCE_STR,
+            SIMPLE_TEMPLATED_STR,
+            SIMPLE_SLICED_FILE,
+            SIMPLE_RAW_SLICED_FILE,
+            24,
+            3,
+            5,
+        ),
     ],
 )
 def test__templated_file_get_line_pos_of_char_pos(
-    source_str, templated_str, file_slices, in_charpos, out_line_no, out_line_pos
+    source_str,
+    templated_str,
+    file_slices,
+    raw_slices,
+    in_charpos,
+    out_line_no,
+    out_line_pos,
 ):
     """Test TemplatedFile.get_line_pos_of_char_pos."""
     file = TemplatedFile(
         source_str=source_str,
         templated_str=templated_str,
         sliced_file=file_slices,
+        raw_sliced=raw_slices,
         fname="test",
     )
     res_line_no, res_line_pos = file.get_line_pos_of_char_pos(in_charpos)
@@ -162,8 +193,11 @@ def test__templated_file_find_slice_indices_of_templated_pos(
     sliced_idx_stop,
 ):
     """Test TemplatedFile._find_slice_indices_of_templated_pos."""
+    source_str = ""
+    for raw_slice in raw_slices:
+        source_str += raw_slice.raw
     file = TemplatedFile(
-        source_str="Dummy String",
+        source_str=source_str,
         sliced_file=file_slices,
         raw_sliced=raw_slices,
         fname="test",
