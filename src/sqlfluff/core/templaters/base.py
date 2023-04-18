@@ -144,6 +144,9 @@ class TemplatedFile:
                     "literal", slice(0, len(source_str)), slice(0, len(source_str))
                 )
             ]
+            assert (
+                raw_sliced is None
+            ), "Templated file was not sliced, but not has raw slices."
             self.raw_sliced: List[RawFileSlice] = [
                 RawFileSlice(source_str, "literal", 0)
             ]
@@ -452,6 +455,7 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
+            templater_logger.warning("FOO: %s", elem)
             if elem.is_source_only_slice():
                 ret_buff.append(elem)
         return ret_buff

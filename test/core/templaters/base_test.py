@@ -349,6 +349,11 @@ def test__templated_file_templated_slice_to_source_slice(
             TemplatedFile(
                 source_str=("a" * 10) + "{# b #}" + ("a" * 10),
                 fname="test",
+                sliced_file=[
+                    TemplatedFileSlice("literal", slice(0, 10), slice(0, 10)),
+                    TemplatedFileSlice("templated", slice(10, 17), slice(10, 10)),
+                    TemplatedFileSlice("literal", slice(17, 27), slice(10, 20)),
+                ],
                 raw_sliced=[
                     RawFileSlice("a" * 10, "literal", 0),
                     RawFileSlice("{# b #}", "comment", 10),
@@ -362,6 +367,11 @@ def test__templated_file_templated_slice_to_source_slice(
             TemplatedFile(
                 source_str=r"aaa{{ b }}aaa",
                 fname="test",
+                sliced_file=[
+                    TemplatedFileSlice("literal", slice(0, 3), slice(0, 3)),
+                    TemplatedFileSlice("templated", slice(3, 10), slice(3, 6)),
+                    TemplatedFileSlice("literal", slice(10, 13), slice(6, 9)),
+                ],
                 raw_sliced=[
                     RawFileSlice("aaa", "literal", 0),
                     RawFileSlice("{{ b }}", "templated", 3),
