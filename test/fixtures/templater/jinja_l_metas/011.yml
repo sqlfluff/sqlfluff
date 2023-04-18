@@ -1,0 +1,7 @@
+file:
+  - placeholder: '{% macro test_macro() %}'
+  - indent: ''
+  - placeholder: "\n    SELECT 2;\n"
+  - dedent: ''
+  - placeholder: '{% endmacro %}'
+  - end_of_file: ''

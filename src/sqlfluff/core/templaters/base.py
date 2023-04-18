@@ -134,20 +134,25 @@ class TemplatedFile:
         # If no fname, we assume this is from a string or stdin.
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
-        # TODO: Enable error handling.
-        if (
-            not sliced_file
-        ) and self.templated_str != self.source_str:  # pragma: no cover
-            raise ValueError("Cannot instantiate a templated file unsliced!")
-        # If we get here and we don't have sliced files, then it's raw, so create them.
-        self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
-            TemplatedFileSlice(
-                "literal", slice(0, len(source_str)), slice(0, len(source_str))
-            )
-        ]
-        self.raw_sliced: List[RawFileSlice] = raw_sliced or [
-            RawFileSlice(source_str, "literal", 0)
-        ]
+        self.sliced_file: List[TemplatedFileSlice]
+        if sliced_file is None:
+            if self.templated_str != self.source_str:  # pragma: no cover
+                raise ValueError("Cannot instantiate a templated file unsliced!")
+            # If we get here and we don't have sliced files,
+            # then it's raw, so create them.
+            self.sliced_file = [
+                TemplatedFileSlice(
+                    "literal", slice(0, len(source_str)), slice(0, len(source_str))
+                )
+            ]
+            self.raw_sliced: List[RawFileSlice] = [
+                RawFileSlice(source_str, "literal", 0)
+            ]
+        else:
+            self.sliced_file = sliced_file
+            assert raw_sliced is not None, "Templated file was sliced, but not raw."
+            self.raw_sliced = raw_sliced
+
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
@@ -203,8 +208,8 @@ class TemplatedFile:
         return cls(source_str=raw, fname="<string>")
 
     def __bool__(self):
-        """Return true if there's a templated file."""
-        return bool(self.templated_str)
+        """Return true if there's a templated or source file."""
+        return bool(self.templated_str) or bool(self.source_str)
 
     def __repr__(self):  # pragma: no cover TODO?
         return "<TemplatedFile>"
