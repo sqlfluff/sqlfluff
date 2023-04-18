@@ -114,7 +114,7 @@ class Rule_RF06(BaseRule):
             return None
 
         identifier_is_quoted = not regex.search(
-            r'^[^"\'].+[^"\']$', context.segment.raw
+            r'^[^"\'[].+[^"\'\]]$', context.segment.raw
         )
 
         identifier_contents = context.segment.raw
