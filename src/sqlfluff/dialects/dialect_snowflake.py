@@ -2912,7 +2912,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """
 
     match_grammar = AnySetOf(
-        Sequence("COLLATE", Ref("QuotedLiteralSegment")),
+        Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             "DEFAULT",
             OneOf(

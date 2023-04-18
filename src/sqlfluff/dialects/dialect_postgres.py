@@ -1766,7 +1766,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
                                             "COLLATE",
-                                            Ref("ObjectReferenceSegment"),
+                                            Ref("CollationReferenceSegment"),
                                         ),
                                     ),
                                 ),
@@ -1840,7 +1840,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(
                                     Sequence(
                                         "COLLATE",
-                                        Ref("QuotedLiteralSegment"),
+                                        Ref("CollationReferenceSegment"),
                                         optional=True,
                                     ),
                                     Ref("ParameterNameSegment", optional=True),
@@ -2027,7 +2027,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("IfNotExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
-            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
         Sequence(
@@ -2046,7 +2046,9 @@ class AlterTableActionSegment(BaseSegment):
                     Sequence("SET", "DATA", optional=True),
                     "TYPE",
                     Ref("DatatypeSegment"),
-                    Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+                    Sequence(
+                        "COLLATE", Ref("CollationReferenceSegment"), optional=True
+                    ),
                     Sequence("USING", OneOf(Ref("ExpressionSegment")), optional=True),
                 ),
                 Sequence(
@@ -4148,7 +4150,7 @@ class ConflictTargetSegment(BaseSegment):
                         ),
                         Sequence(
                             "COLLATE",
-                            Ref("QuotedLiteralSegment"),
+                            Ref("CollationReferenceSegment"),
                             optional=True,
                         ),
                         Ref("OperationClassReferenceSegment", optional=True),
@@ -4314,7 +4316,7 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
-        Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
         Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
         AnyNumberOf(
             Sequence(
@@ -4949,7 +4951,7 @@ class AlterTypeStatementSegment(BaseSegment):
                     Ref("DatatypeSegment"),
                     Sequence(
                         "COLLATE",
-                        Ref("QuotedLiteralSegment"),
+                        Ref("CollationReferenceSegment"),
                         optional=True,
                     ),
                     Ref("CascadeRestrictGrammar", optional=True),
@@ -4963,7 +4965,7 @@ class AlterTypeStatementSegment(BaseSegment):
                     Ref("DatatypeSegment"),
                     Sequence(
                         "COLLATE",
-                        Ref("QuotedLiteralSegment"),
+                        Ref("CollationReferenceSegment"),
                         optional=True,
                     ),
                     Ref("CascadeRestrictGrammar", optional=True),

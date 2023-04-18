@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 674327298cc2e1ec4d6325ddb6a906d3af04bf5cc8dfb35b51693ee84ccf9a51
+_hash: 12537be730d551297489fb91ede9e13b1067815a7a5b1a94924a28445c14838a
 file:
   batch:
   - statement:
@@ -224,7 +224,7 @@ file:
               data_type_identifier: CHAR
           - column_constraint_segment:
               keyword: COLLATE
-              object_reference:
+              collation_reference:
                 naked_identifier: latin1_general_bin
           - column_constraint_segment:
             - keyword: NOT
@@ -273,7 +273,7 @@ file:
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
-              object_reference:
+              collation_reference:
                 naked_identifier: latin1_general_bin
           - column_constraint_segment:
             - keyword: NOT
@@ -291,7 +291,7 @@ file:
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
-              object_reference:
+              collation_reference:
                 naked_identifier: latin1_general_bin
           - column_constraint_segment:
             - keyword: NOT
@@ -323,7 +323,7 @@ file:
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
-              object_reference:
+              collation_reference:
                 naked_identifier: latin1_general_bin
           - column_constraint_segment:
             - keyword: NOT
