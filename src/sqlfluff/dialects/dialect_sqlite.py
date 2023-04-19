@@ -17,7 +17,7 @@ from sqlfluff.core.parser import (
     Nothing,
     AnyNumberOf,
     Anything,
-    StartsWith,
+    Dedent,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import (
@@ -309,25 +309,6 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     )
 
 
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement."""
-
-    type = "select_clause"
-    match_grammar: Matchable = StartsWith(
-        "SELECT",
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
-
-
 class TableConstraintSegment(ansi.TableConstraintSegment):
     """Overriding TableConstraintSegment to allow for additional segment parsing."""
 
@@ -432,12 +413,108 @@ class PragmaStatementSegment(BaseSegment):
     )
 
 
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    https://www.sqlite.org/lang_createtrigger.html
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "TRIGGER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF"), optional=True),
+        OneOf(
+            "DELETE",
+            "INSERT",
+            Sequence(
+                "UPDATE",
+                Sequence(
+                    "OF",
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW", optional=True),
+        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        "BEGIN",
+        Delimited(
+            Ref("UpdateStatementSegment"),
+            Ref("InsertStatementSegment"),
+            Ref("DeleteStatementSegment"),
+            Ref("SelectableGrammar"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+        "END",
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
+    """
+
+    type = "select_clause"
+    match_grammar = Ref("SelectClauseSegmentGrammar")
+
+
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    Replaces (without overriding) ANSI to remove Greedy Matcher
+    """
+
+    type = "select_statement"
+
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    Replaces (without overriding) ANSI to remove Greedy Matcher
+    """
+
+    type = "select_statement"
+    # Remove the Limit and Window statements from ANSI
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-
-    parse_grammar: Matchable = OneOf(
+    match_grammar = OneOf(
         Ref("AlterTableStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("CreateTableStatementSegment"),
@@ -456,3 +533,5 @@ class StatementSegment(ansi.StatementSegment):
         Ref("UpdateStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
+
+    parse_grammar = match_grammar

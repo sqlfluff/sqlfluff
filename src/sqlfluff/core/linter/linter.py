@@ -189,7 +189,7 @@ class Linter:
                 getattr(elem, "indent_val", 0)
                 for elem in cast(Tuple[BaseSegment, ...], tokens)
             )
-            if indent_balance != 0:
+            if indent_balance != 0:  # pragma: no cover
                 linter_logger.debug(
                     "Indent balance test failed for %r. Template indents will not be "
                     "linted for this file.",
@@ -207,7 +207,7 @@ class Linter:
                 if token.indent_val != 0:
                     # Don't allow it if we're not linting templating block indents.
                     if not templating_blocks_indent:
-                        continue
+                        continue  # pragma: no cover
             new_tokens.append(token)
 
         # Return new buffer

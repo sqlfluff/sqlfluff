@@ -530,7 +530,7 @@ class JinjaAnalyzer:
         # a block, but its behavior is basically syntactic sugar for
         # {{ open("somefile).read() }}. Thus, treat it as templated code.
         # It's a similar situation with {% import %} and {% from ... import %}.
-        if tag_name in ["include", "import", "from"]:
+        if tag_name in ["include", "import", "from", "do"]:
             block_type = "templated"
         elif tag_name.startswith("end"):
             block_type = "block_end"

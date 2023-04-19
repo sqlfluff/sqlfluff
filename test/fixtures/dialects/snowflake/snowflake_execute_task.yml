@@ -3,11 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0059fba6a20ac46c320a7282d451301142de29d00a8cdf9b5aaeef45fbc4b4c4
+_hash: dd10bd2ab1e3898dc8e3124691d2007bbdc93d92d1a00b098cbfd5e3e10430a2
 file:
-  statement:
+- statement:
     execute_task_clause:
     - keyword: EXECUTE
     - keyword: TASK
-    - parameter: my_task
-  statement_terminator: ;
+    - object_reference:
+        naked_identifier: my_task
+- statement_terminator: ;
+- statement:
+    execute_task_clause:
+    - keyword: EXECUTE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: my_task
+- statement_terminator: ;

@@ -1097,6 +1097,23 @@ SELECT
             ],
         ),
         (
+            # Tests Jinja "do" directive. Should be treated as a
+            # templated instead of block - issue 4603.
+            """{% do true %}
+
+{% if true %}
+    select 1
+{% endif %}""",
+            None,
+            [
+                ("templated", slice(0, 13, None), slice(0, 0, None)),
+                ("literal", slice(13, 15, None), slice(0, 2, None)),
+                ("block_start", slice(15, 28, None), slice(2, 2, None)),
+                ("literal", slice(28, 42, None), slice(2, 16, None)),
+                ("block_end", slice(42, 53, None), slice(16, 16, None)),
+            ],
+        ),
+        (
             # Tests issue 2541, a bug where the {%- endfor %} was causing
             # IndexError: list index out of range.
             """{% for x in ['A', 'B'] %}
