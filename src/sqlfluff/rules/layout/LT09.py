@@ -4,7 +4,7 @@ from typing import List, NamedTuple, Optional, Sequence
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment, Indent
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -213,6 +213,7 @@ class Rule_LT09(BaseRule):
     def _eval_single_select_target_element(
         self, select_targets_info, context: RuleContext
     ):
+        """There's a single select target. Move to one line."""
         select_clause = FunctionalContext(context).segment
         parent_stack = context.parent_stack
 
@@ -251,6 +252,7 @@ class Rule_LT09(BaseRule):
         # Prepare the select clause which will be inserted
         insert_buff = [
             WhitespaceSegment(),
+            Indent(),  # Reinsert the preceding indent
             select_children[select_targets_info.first_select_target_idx],
         ]
 
@@ -269,7 +271,17 @@ class Rule_LT09(BaseRule):
             LintFix.delete(
                 select_children[select_targets_info.first_select_target_idx],
             ),
+            # Also delete the indent before it, that's also getting moved.
+            LintFix.delete(
+                select_children[select_targets_info.first_select_target_idx - 1]
+            ),
         ]
+        # Delete any preceding whitespace too.
+        for i in range(select_targets_info.first_select_target_idx - 2, 0, -1):
+            if select_children[i].is_type("whitespace"):
+                fixes.append(LintFix.delete(select_children[i]))
+            else:
+                break
 
         # If we have a modifier to move:
         if modifier:
@@ -277,14 +289,14 @@ class Rule_LT09(BaseRule):
             insert_buff = [WhitespaceSegment(), modifier[0]] + insert_buff
 
             modifier_idx = select_children.index(modifier.get())
-            # Delete the whitespace after it (which is two after, thanks to indent)
+            # Delete the whitespace after it
             if (
-                len(select_children) > modifier_idx + 1
-                and select_children[modifier_idx + 2].is_whitespace
+                len(select_children) > modifier_idx
+                and select_children[modifier_idx + 1].is_whitespace
             ):
                 fixes += [
                     LintFix.delete(
-                        select_children[modifier_idx + 2],
+                        select_children[modifier_idx + 1],
                     ),
                 ]
 
@@ -301,7 +313,8 @@ class Rule_LT09(BaseRule):
         else:
             # Set the position marker for removing the preceding
             # whitespace and newline, which we'll use below.
-            start_idx = select_targets_info.first_select_target_idx
+            # We offset by one because of the indent.
+            start_idx = select_targets_info.first_select_target_idx - 1
 
         if parent_stack and parent_stack[-1].is_type("select_statement"):
             select_stmt = parent_stack[-1]
@@ -408,7 +421,8 @@ class Rule_LT09(BaseRule):
                     # if see non-whitespace
                     to_delete = select_children.reversed().select(
                         loop_while=sp.is_type("whitespace"),
-                        start_seg=select_children[select_clause_idx - 1],
+                        # We offset by 2 because of the indent.
+                        start_seg=select_children[select_clause_idx - 2],
                     )
                     if to_delete:
                         fixes += _fixes_for_move_after_select_clause(
