@@ -57,9 +57,12 @@ class Rule_AM08(BaseRule):
             if seg.pos_marker > segment.pos_marker and seg.is_type("whitespace")
         ]
 
-        # Return a LintResult with anchor and edits for the deletions
+        # Create a list of LintFix objects for the deletions
+        fixes = [LintFix("delete", deletion) for deletion in deletions]
+
+        # Return a LintResult with anchor, memory, and fixes
         return LintResult(
             anchor=segment,
             memory=context.memory,
-            edits=deletions,
+            fixes=fixes,
         )
