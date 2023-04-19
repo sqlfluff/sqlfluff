@@ -36,7 +36,7 @@ def assert_reflow_structure(sequence, StartClass, raw_elems):
             [
                 ["select"],
                 # NOTE: The empty strings are indents and dedents
-                ["", " "],
+                [" ", ""],
                 ["1"],
                 [" "],
                 ["+"],
@@ -155,7 +155,7 @@ def test_reflow_sequence_from_segments(
                 # We'll hit the edge of the file so start with a point.
                 ["     "],
                 ["SELECT"],
-                ["", " "],
+                [" ", ""],
                 ["1"],
             ],
         ),
@@ -208,7 +208,7 @@ def test_reflow_sequence_from_around_target_non_raw(default_config, caplog):
         [
             ["     "],
             ["SELECT"],
-            ["", " "],
+            [" ", ""],
             ["1"],
             # dedent - ws
             ["", "     "],
