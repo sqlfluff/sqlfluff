@@ -3,7 +3,7 @@ create view another_view comment = 'a great description' as select col_1, col_2 
 
 CREATE VIEW basic_view AS SELECT col1, col2 FROM src_table;
 
-CREATE VIEW view_with_comments
+CREATE TEMPORARY VIEW view_with_comments
 COMMENT = 'my comment' AS SELECT col1, col2 FROM src_table;
 
 CREATE OR REPLACE VIEW view_with_replace_and_comment
