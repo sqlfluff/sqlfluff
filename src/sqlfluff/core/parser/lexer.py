@@ -447,7 +447,6 @@ def _handle_zero_length_slice(
 
 def _iter_segments(
     lexed_elements: List[TemplateElement],
-    templated_file_slices: List[TemplatedFileSlice],
     templated_file: TemplatedFile,
     add_indents: bool = True,
 ) -> Iterator[RawSegment]:
@@ -455,6 +454,7 @@ def _iter_segments(
     tfs_idx = 0
     # We keep a map of previous block locations in case they re-occur.
     block_stack = BlockTracker()
+    templated_file_slices = templated_file.sliced_file
 
     # Now work out source slices, and add in template placeholders.
     for idx, element in enumerate(lexed_elements):
@@ -771,9 +771,7 @@ class Lexer:
         add_indents = self.config.get("template_blocks_indent", "indentation")
         # Delegate to _iter_segments
         segment_buffer: List[RawSegment] = list(
-            _iter_segments(
-                elements, templated_file.sliced_file, templated_file, add_indents
-            )
+            _iter_segments(elements, templated_file, add_indents)
         )
 
         # Add an end of file marker
