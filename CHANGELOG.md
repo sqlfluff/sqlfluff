@@ -10,21 +10,30 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.0.6] - 2023-04-18
+## [2.0.6] - 2023-04-19
 
 ## Highlights
 
-This is primarily a _bugfix_ and _dialect_ release:
+* Introduction of a `--quiet` option for the CLI for situations
+  where less output is useful.
+* When using the `--force` option is used for `sqlfluff fix` each
+  file is fixed during the linting process rather than at the end.
 * Bugfixes to comment and templated section indentation.
 * Performance improvements to parsing.
 * Bugfix to macros triggering LT01.
 * Renaming `layout.end-of-file` to `layout.end_of_file` in line
   with other rules.
-* Dialect improvements to SparkSQL, Hive & Snowflake.
+* Dialect improvements to SparkSQL, BigQuery, Hive & Snowflake.
 
 
 ## What’s Changed
 
+* Snowflake: Support Temporary View [#4789](https://github.com/sqlfluff/sqlfluff/pull/4789) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Inroduce `SAFE` prefix segment [#4773](https://github.com/sqlfluff/sqlfluff/pull/4773) [@dmohns](https://github.com/dmohns)
+* Fix #4660: Better handling of empty files. [#4780](https://github.com/sqlfluff/sqlfluff/pull/4780) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #3538: (Fix files as we go) [#4777](https://github.com/sqlfluff/sqlfluff/pull/4777) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix #2855: (Tech debt: check consistency in TemplatedFile init) [#4776](https://github.com/sqlfluff/sqlfluff/pull/4776) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add a --quiet option for fix [#4764](https://github.com/sqlfluff/sqlfluff/pull/4764) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix #4603 indent after Jinja 'do' directive [#4778](https://github.com/sqlfluff/sqlfluff/pull/4778) [@fredriv](https://github.com/fredriv)
 * Snowflake Execute Task with Schema [#4771](https://github.com/sqlfluff/sqlfluff/pull/4771) [@Thashin](https://github.com/Thashin)
 * SQLite: Support CreateTrigger [#4767](https://github.com/sqlfluff/sqlfluff/pull/4767) [@WittierDinosaur](https://github.com/WittierDinosaur)
@@ -41,9 +50,6 @@ This is primarily a _bugfix_ and _dialect_ release:
 * Fix #4745: (max() error in reindent) [#4752](https://github.com/sqlfluff/sqlfluff/pull/4752) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix issue with macros triggering LT01 [#4757](https://github.com/sqlfluff/sqlfluff/pull/4757) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * end-of-file > end_of_file [#4753](https://github.com/sqlfluff/sqlfluff/pull/4753) [@alanmcruickshank](https://github.com/alanmcruickshank)
-
-## New Contributors
-
 
 
 ## [2.0.5] - 2023-04-14
