@@ -494,7 +494,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
         fname="test",
         config=FluffConfig(overrides={"dialect": "ansi"}),
     )
-    assert templated_file
+    assert templated_file is not None
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
     # Build and check the list of source strings referenced by "sliced_file".

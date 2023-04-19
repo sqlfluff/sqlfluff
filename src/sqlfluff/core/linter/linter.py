@@ -382,7 +382,7 @@ class Linter:
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file:
+        if rendered.templated_file is not None:
             tokens, lvs, config = cls._lex_templated_file(
                 rendered.templated_file, rendered.config
             )
@@ -851,7 +851,7 @@ class Linter:
             templated_file = None
             templater_violations = []
 
-        if not templated_file:
+        if templated_file is None:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
 
         # Record time

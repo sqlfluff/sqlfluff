@@ -207,10 +207,6 @@ class TemplatedFile:
         """Create TemplatedFile from a string."""
         return cls(source_str=raw, fname="<string>")
 
-    def __bool__(self):
-        """Return true if there's a templated or source file."""
-        return bool(self.templated_str) or bool(self.source_str)
-
     def __repr__(self):  # pragma: no cover TODO?
         return "<TemplatedFile>"
 
