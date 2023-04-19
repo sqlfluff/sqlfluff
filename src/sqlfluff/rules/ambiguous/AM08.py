@@ -47,11 +47,10 @@ class Rule_AM08(BaseRule):
         """Non operational ORDER BY clauses."""
 
         # We only care about ORDER BY clauses.
-        assert context.segment.all(sp.is_type("orderby_clause"))
+        assert context.is_type("orderby_clause")
     
         # Ignore Windowing clauses
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
         
-        #if segment.children(sp.is_type("orderby_clause")):
         return LintResult(memory=context.memory)

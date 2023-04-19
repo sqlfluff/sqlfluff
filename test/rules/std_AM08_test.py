@@ -12,7 +12,6 @@ def test__rules__std_AM08_raised() -> None:
     ORDER BY 1, 2;
     """
     result = sqlfluff.lint(sql)
-    print([r['code'] for r in result])
     results_AM08 = [r for r in result if r["code"] == "AM08"]
     print(results_AM08)
     # assert len(results_AM06) == 2
