@@ -3,7 +3,7 @@ import sqlfluff
 
 
 def test__rules__std_AM08_raised() -> None:
-    """Test case for multiple AM08 errors raised with 'consistent' setting."""
+    """Test case for AM08 errors raised"""
     sql = """
     SELECT
         LAST_VALUE(foo) OVER (PARTITION BY bar ORDER BY baz) as boo,
@@ -21,7 +21,7 @@ def test__rules__std_AM08_raised() -> None:
     )
 
 def test__rules__std_AM08_fix() -> None:
-    """Test case for multiple AM08 errors raised with 'consistent' setting."""
+    """Test case for AM08 errors fixed."""
     sql = """
     SELECT
         foo,
@@ -31,9 +31,4 @@ def test__rules__std_AM08_fix() -> None:
     """
 
     result = sqlfluff.fix(sql)
-    assert result == """
-    SELECT
-        foo,
-        bar,
-    FROM foo;
-    """
+    assert result == 'SELECT\n    foo,\n    bar\nFROM foo;\n'
