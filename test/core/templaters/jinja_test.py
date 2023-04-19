@@ -494,7 +494,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
         fname="test",
         config=FluffConfig(overrides={"dialect": "ansi"}),
     )
-    assert templated_file
+    assert templated_file is not None
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
     # Build and check the list of source strings referenced by "sliced_file".
@@ -625,13 +625,16 @@ def test__templater_jinja_error_macro_path_does_not_exist():
 def test__templater_jinja_lint_empty():
     """Check that parsing a file which renders to an empty string.
 
-    No exception should be raised, but the parsed tree should be None.
+    No exception should be raised, and we should get a single templated element.
     """
     lntr = Linter(dialect="ansi")
     parsed = lntr.parse_string(in_str='{{ "" }}')
     assert parsed.templated_file.source_str == '{{ "" }}'
     assert parsed.templated_file.templated_str == ""
-    assert parsed.tree is None
+    # Get the types of the segments
+    print(f"Segments: {parsed.tree.raw_segments}")
+    seg_types = [seg.get_type() for seg in parsed.tree.raw_segments]
+    assert seg_types == ["placeholder", "end_of_file"]
 
 
 def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
@@ -691,6 +694,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_l_metas/007", False, True),
         ("jinja_l_metas/008", False, True),
         ("jinja_l_metas/009", False, True),
+        ("jinja_l_metas/010", False, True),
+        ("jinja_l_metas/011", False, True),
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),

@@ -105,3 +105,27 @@ test_pass_placeholder_spacing:
         {% endif %}
         AND TRUE
     ;
+
+fail_bigquery_whitespaces_in_function_reference:
+  fail_str: SELECT dataset    .    AddFourAndDivide(5, 10)
+  fix_str: SELECT dataset.AddFourAndDivide(5, 10)
+  configs:
+    core:
+      dialect: bigquery
+
+pass_bigquery_safe_prefix_function:
+  # SAFE prefix to function calls should not fail
+  pass_str: SELECT SAFE.STRING(JSON '1')
+  configs:
+    core:
+      dialect: bigquery
+
+fail_bigquery_safe_prefix_function:
+  # Check that additional whitespaces introduced by
+  # https://github.com/sqlfluff/sqlfluff/issues/4645
+  # get fixed.
+  fail_str: SELECT SAFE . STRING(JSON '1')
+  fix_str: SELECT SAFE.STRING(JSON '1')
+  configs:
+    core:
+      dialect: bigquery

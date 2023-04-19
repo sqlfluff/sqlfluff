@@ -3764,6 +3764,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "SECURE",
             "RECURSIVE",
         ),
+        Ref("TemporaryGrammar", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
