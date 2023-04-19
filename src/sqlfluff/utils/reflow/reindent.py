@@ -884,53 +884,54 @@ def _map_line_buffers(
             )
             # There might be many indents at this point, but if any match, then
             # we should still force an indent
-            if any(i in indent_point.untaken_indents for i in passing_indents):
-                for i in passing_indents:
-                    # If we don't have the location of the untaken indent, then
-                    # skip it for now. TODO: Check this isn't a bug when this happens.
-                    # It seems very rare for now.
-                    if i not in untaken_indent_locs:
+
+            # NOTE: We work _inward_ to check which have been taken.
+            for i in reversed(passing_indents):
+                # Was this outer one untaken?
+                if i not in untaken_indent_locs:
+                    # No? Stop the loop. If we've a corresponding indent for
+                    # this dedent, we shouldn't use the same location to force
+                    # untaken indents at inner levels.
+                    break
+
+                loc = untaken_indent_locs[i]
+
+                # First check for bracket special case. It's less about whether
+                # the section _ends_ with a lone bracket, and more about whether
+                # the _starting point_ is a bracket which closes a line. If it
+                # is, then skip this location. (Special case 2).
+                # NOTE: We can safely "look ahead" here because we know all files
+                # end with an IndentBlock, and we know here that `loc` refers to
+                # an IndentPoint.
+                if "start_bracket" in elements[loc + 1].class_types:
+                    continue
+
+                # If the location was in the line we're just closing. That's
+                # not a problem because it's an untaken indent which is closed
+                # on the same line.
+                if any(ip.idx == loc for ip in point_buffer):
+                    continue
+
+                # If the only elements between current point and the end of the
+                # reference line are comments, then don't trigger, it's a misplaced
+                # indent.
+                # First find the end of the reference line.
+                for j in range(loc, indent_point.idx):
+                    _pt = _previous_points.get(j, None)
+                    if not _pt:
                         continue
+                    if _pt.is_line_break:
+                        break
+                assert _pt
+                # Then check if all comments.
+                if all(
+                    "comment" in elements[k].class_types
+                    for k in range(_pt.idx + 1, indent_point.idx, 2)
+                ):
+                    # It is all comments. Ignore it.
+                    continue
 
-                    loc = untaken_indent_locs[i]
-
-                    # First check for bracket special case. It's less about whether
-                    # the section _ends_ with a lone bracket, and more about whether
-                    # the _starting point_ is a bracket which closes a line. If it
-                    # is, then skip this location. (Special case 2).
-                    # NOTE: We can safely "look ahead" here because we know all files
-                    # end with an IndentBlock, and we know here that `loc` refers to
-                    # an IndentPoint.
-                    if "start_bracket" in elements[loc + 1].class_types:
-                        continue
-
-                    # If the location was in the line we're just closing. That's
-                    # not a problem because it's an untaken indent which is closed
-                    # on the same line.
-                    if any(ip.idx == loc for ip in point_buffer):
-                        continue
-
-                    # If the only elements between current point and the end of the
-                    # reference line are comments, then don't trigger, it's a misplaced
-                    # indent.
-                    # First find the end of the reference line.
-                    for j in range(loc, indent_point.idx):
-                        _pt = _previous_points.get(j, None)
-                        if not _pt:
-                            continue
-                        if _pt.is_line_break:
-                            break
-                    assert _pt
-                    # Then check if all comments.
-                    if all(
-                        "comment" in elements[k].class_types
-                        for k in range(_pt.idx + 1, indent_point.idx, 2)
-                    ):
-                        # It is all comments. Ignore it.
-                        continue
-
-                    # Otherwise it is - append it to the buffer to sort later.
-                    imbalanced_locs.append(loc)
+                imbalanced_locs.append(loc)
 
         # Remove any which are now no longer relevant from the working buffer.
         for k in list(untaken_indent_locs.keys()):
