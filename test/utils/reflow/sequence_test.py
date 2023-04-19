@@ -221,23 +221,31 @@ def test_reflow_sequence_from_around_target_non_raw(default_config, caplog):
 @pytest.mark.parametrize(
     "raw_sql,filter,delete_indices,edit_indices",
     [
-        ("SELECT      \n   4", "all", [2], []),
-        ("SELECT \n 4, \n 6", "all", [2, 7], []),
-        ("SELECT \n 4, \n 6  ", "all", [2, 7, 12], []),
-        ("SELECT \n 4, 5,  6   ,    7 \n 6  ", "newline", [2, 16, 21], []),
+        ("SELECT      \n   4", "all", [1], []),
+        ("SELECT \n 4, \n 6", "all", [1, 7], []),
+        ("SELECT \n 4, \n 6  ", "all", [1, 7, 12], []),
+        ("SELECT \n 4, 5,  6   ,    7 \n 6  ", "newline", [1, 16, 21], []),
         ("SELECT \n 4, 5,  6   ,    7 \n 6  ", "inline", [12], [10, 14]),
-        ("SELECT \n 4, 5,  6    ,    7 \n 6  ", "all", [2, 12, 16, 21], [10, 14]),
+        ("SELECT \n 4, 5,  6    ,    7 \n 6  ", "all", [1, 12, 16, 21], [10, 14]),
     ],
 )
 def test_reflow_sequence_respace_filter(
     raw_sql, filter, delete_indices, edit_indices, default_config, caplog
 ):
-    """Test iteration of trailing whitespace fixes."""
+    """Test iteration of trailing whitespace fixes.
+
+    NOTE: The indices in this test are influenced by the placement of
+    meta segments by the parser. If the meta segments move, the indices
+    will change.
+    """
     root = parse_ansi_string(raw_sql, default_config)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         sequence = ReflowSequence.from_root(root, config=default_config)
-    fixes = sequence.respace(filter=filter).get_fixes()
+        fixes = sequence.respace(filter=filter).get_fixes()
 
+    print("Raw Segments:")
+    for idx, seg in enumerate(root.raw_segments):
+        print(f"    {idx}:\t{seg}")
     # assert deletes
     assert [fix for fix in fixes if fix.edit_type == "delete"] == [
         LintFix("delete", root.raw_segments[idx]) for idx in delete_indices
