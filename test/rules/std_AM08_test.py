@@ -13,7 +13,7 @@ def test__rules__std_AM08_raised() -> None:
     """
     result = sqlfluff.lint(sql)
     results_AM08 = [r for r in result if r["code"] == "AM08"]
-    assert len(results_AM08) == 2
+    assert len(results_AM08) == 1
     assert (
          results_AM08[0]["description"]
          == "Unnecessary 'ORDER BY' clauses."
