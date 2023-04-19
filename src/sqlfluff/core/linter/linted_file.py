@@ -28,6 +28,8 @@ from typing import (
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
     CheckTuple,
 )
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
@@ -39,6 +41,8 @@ from sqlfluff.core.linter.common import NoQaDirective
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
 
 
 @dataclass
@@ -556,18 +560,45 @@ class LintedFile(NamedTuple):
                 str_buff += raw_source_string[source_slice]
         return str_buff
 
-    def persist_tree(self, suffix: str = "") -> bool:
+    def persist_tree(self, suffix: str = "", formatter: Any = None) -> bool:
         """Persist changes to the given path."""
-        write_buff, success = self.fix_string()
+        if self.num_violations(fixable=True) > 0:
+            write_buff, success = self.fix_string()
 
-        if success:
-            fname = self.path
-            # If there is a suffix specified, then use it.s
-            if suffix:
-                root, ext = os.path.splitext(fname)
-                fname = root + suffix + ext
-            self._safe_create_replace_file(self.path, fname, write_buff, self.encoding)
+            if success:
+                fname = self.path
+                # If there is a suffix specified, then use it.s
+                if suffix:
+                    root, ext = os.path.splitext(fname)
+                    fname = root + suffix + ext
+                self._safe_create_replace_file(
+                    self.path, fname, write_buff, self.encoding
+                )
+                result_label = "FIXED"
+            else:  # pragma: no cover
+                result_label = "FAIL"
+        else:
+            result_label = "SKIP"
+            success = True
+
+        if formatter:
+            formatter.dispatch_persist_filename(filename=self.path, result=result_label)
+
         return success
+
+    def discard_fixes_if_tmp_or_prs_errors(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        num_errors = self.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
+        )
+        if num_errors:
+            # File has errors. Discard all the SQLLintError fixes:
+            # they are potentially unsafe.
+            for violation in self.violations:
+                if isinstance(violation, SQLLintError):
+                    violation.fixes = []
 
     @staticmethod
     def _safe_create_replace_file(

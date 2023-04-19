@@ -1940,8 +1940,8 @@ def test__cli__fix_multiple_errors_quiet_force():
     )
     normalised_output = result.output.replace("\\", "/")
     assert normalised_output.startswith(
-        """1 fixable linting violations found
-== [test/fixtures/linter/multiple_sql_errors.sql] FIXED"""
+        """== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
+1 fixable linting violations found"""
     )
 
 
