@@ -52,7 +52,10 @@ class Rule_AM08(BaseRule):
             return LintResult(memory=context.memory)
 
         # Create a list of segments to be deleted
-        deletions = [segment] + segment.trailing_whitespace(raw_segments=context.raw_stack)
+        deletions = [segment] + [
+            seg for seg in context.raw_stack
+            if seg.pos_marker > segment.pos_marker and seg.is_type("whitespace")
+        ]
 
         # Return a LintResult with anchor and edits for the deletions
         return LintResult(
