@@ -1,7 +1,7 @@
 """Implementation of Rule AM08."""
 from typing import Optional, List, Tuple
 
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, LintFix
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
