@@ -845,7 +845,10 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
         ),
-        allow_gaps=False,
+        # BigQuery allows whitespaces between the `.` of a function refrence or
+        # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
+        # make the distinction from `ansi.FunctionNameSegment` clear.
+        allow_gaps=True,
     )
 
 
