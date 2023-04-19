@@ -13,9 +13,8 @@ def test__rules__std_AM08_raised() -> None:
     """
     result = sqlfluff.lint(sql)
     results_AM08 = [r for r in result if r["code"] == "AM08"]
-    print(results_AM08)
-    # assert len(results_AM06) == 2
-    # assert (
-    #     results_AM06[0]["description"]
-    #     == "Inconsistent column references in 'GROUP BY/ORDER BY' clauses."
-    # )
+    assert len(results_AM08) == 2
+    assert (
+         results_AM08[0]["description"]
+         == "Unnecessary 'ORDER BY' clauses."
+    )
