@@ -45,12 +45,18 @@ class Rule_AM08(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Non operational ORDER BY clauses."""
+        segment = context.segment
 
-        # We only care about ORDER BY clauses.
-        assert context.segment.is_type("orderby_clause")
-    
         # Ignore Windowing clauses
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
-        
-        return LintResult(memory=context.memory)
+
+        # Create a list of segments to be deleted
+        deletions = [segment] + segment.trailing_whitespace()
+
+        # Return a LintResult with anchor and edits for the deletions
+        return LintResult(
+            anchor=segment,
+            memory=context.memory,
+            edits=deletions,
+        )
