@@ -117,7 +117,11 @@ class LintedDir:
         for file in self.files:
             if file.num_violations(fixable=True, **kwargs) > 0:
                 buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
-                result = buffer[file.path]
+                result: Union[bool, str]
+                if buffer[file.path] is True:
+                    result = "FIXED"
+                else:  # pragma: no cover
+                    result = buffer[file.path]
             else:  # pragma: no cover TODO?
                 buffer[file.path] = True
                 result = "SKIP"

@@ -44,6 +44,7 @@ from sqlfluff.core import (
     dialect_selector,
     dialect_readout,
 )
+from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
@@ -691,12 +692,16 @@ def lint(
         sys.exit(EXIT_SUCCESS)
 
 
-def do_fixes(lnt, result, formatter=None, **kwargs):
+def do_fixes(
+    result: LintingResult, formatter: Optional[OutputStreamFormatter] = None, **kwargs
+):
     """Actually do the fixes."""
-    click.echo("Persisting Changes...")
+    if formatter and formatter.verbosity >= 0:
+        click.echo("Persisting Changes...")
     res = result.persist_changes(formatter=formatter, **kwargs)
     if all(res.values()):
-        click.echo("Done. Please check your files to confirm.")
+        if formatter and formatter.verbosity >= 0:
+            click.echo("Done. Please check your files to confirm.")
         return True
     # If some failed then return false
     click.echo(
@@ -708,7 +713,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter, formatter, fix_even_unparsable):
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable):
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -751,7 +756,7 @@ def _stdin_fix(linter, formatter, fix_even_unparsable):
 
 
 def _paths_fix(
-    linter,
+    linter: Linter,
     formatter,
     paths,
     processes,
@@ -765,11 +770,12 @@ def _paths_fix(
 ):
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
-    click.echo("==== finding fixable violations ====")
+    if formatter.verbosity >= 0:
+        click.echo("==== finding fixable violations ====")
     exit_code = EXIT_SUCCESS
 
     with PathAndUserErrorHandler(formatter):
-        result = linter.lint_paths(
+        result: LintingResult = linter.lint_paths(
             paths,
             fix=True,
             ignore_non_existent_files=False,
@@ -781,20 +787,18 @@ def _paths_fix(
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
-    if result.num_violations(types=SQLLintError, fixable=True) > 0:
-        click.echo("==== fixing violations ====")
-        click.echo(
-            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable "
-            "linting violations found"
-        )
+    num_fixable = result.num_violations(types=SQLLintError, fixable=True)
+    if num_fixable > 0:
+        if formatter.verbosity >= 0:
+            click.echo("==== fixing violations ====")
+        click.echo(f"{num_fixable} " "fixable linting violations found")
         if force:
-            if warn_force:
+            if warn_force and formatter.verbosity >= 0:
                 click.echo(
                     f"{formatter.colorize('FORCE MODE', Color.red)}: "
                     "Attempting fixes..."
                 )
             success = do_fixes(
-                linter,
                 result,
                 formatter,
                 types=SQLLintError,
@@ -809,9 +813,9 @@ def _paths_fix(
             c = click.getchar().lower()
             click.echo("...")
             if c in ("y", "\r", "\n"):
-                click.echo("Attempting fixes...")
+                if formatter.verbosity >= 0:
+                    click.echo("Attempting fixes...")
                 success = do_fixes(
-                    linter,
                     result,
                     formatter,
                     types=SQLLintError,
@@ -829,8 +833,9 @@ def _paths_fix(
                 click.echo("Aborting...")
                 exit_code = EXIT_FAIL
     else:
-        click.echo("==== no fixable linting violations found ====")
-        formatter.completion_message()
+        if formatter.verbosity >= 0:
+            click.echo("==== no fixable linting violations found ====")
+            formatter.completion_message()
 
     error_types = [
         (
@@ -841,7 +846,7 @@ def _paths_fix(
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
         num_violations = result.num_violations(**num_violations_kwargs)
-        if num_violations > 0:
+        if num_violations > 0 and formatter.verbosity >= 0:
             click.echo(message_format.format(num_violations))
             exit_code = max(exit_code, error_level)
 
@@ -880,8 +885,18 @@ def _paths_fix(
     "--force",
     is_flag=True,
     help=(
-        "skip the confirmation prompt and go straight to applying "
+        "Skip the confirmation prompt and go straight to applying "
         "fixes. **Use this with caution.**"
+    ),
+)
+@click.option(
+    "-q",
+    "--quiet",
+    is_flag=True,
+    help=(
+        "Reduces the amount of output to stdout to a minimal level. "
+        "This is effectively the opposite of -v. NOTE: It will only "
+        "take effect if -f/--force is also set."
     ),
 )
 @click.option(
@@ -913,6 +928,7 @@ def fix(
     force: bool,
     paths: Tuple[str],
     bench: bool = False,
+    quiet: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
     processes: Optional[int] = None,
@@ -932,6 +948,13 @@ def fix(
     """
     # some quick checks
     fixing_stdin = ("-",) == paths
+    if quiet:
+        if kwargs["verbose"]:
+            click.echo(
+                "ERROR: The --quiet flag can only be used if --verbose is not set.",
+            )
+            sys.exit(EXIT_ERROR)
+        kwargs["verbose"] = -1
 
     config = get_config(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
