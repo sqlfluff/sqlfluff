@@ -3,7 +3,7 @@ import sqlfluff
 
 
 def test__rules__std_AM08_raised() -> None:
-    """Test case for multiple AM06 errors raised with 'consistent' setting."""
+    """Test case for multiple AM08 errors raised with 'consistent' setting."""
     sql = """
     SELECT
         foo,
@@ -13,8 +13,8 @@ def test__rules__std_AM08_raised() -> None:
     """
     result = sqlfluff.lint(sql)
     print([r['code'] for r in result])
-    results_AM06 = [r for r in result if r["code"] == "AM06"]
-    print(results_AM06)
+    results_AM08 = [r for r in result if r["code"] == "AM08"]
+    print(results_AM08)
     # assert len(results_AM06) == 2
     # assert (
     #     results_AM06[0]["description"]

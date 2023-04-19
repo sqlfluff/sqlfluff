@@ -24,6 +24,7 @@ def test__rules__std_AM06_raised() -> None:
         1, 2;
     """
     result = sqlfluff.lint(sql)
+    print([r['code'] for r in result])
 
     results_AM06 = [r for r in result if r["code"] == "AM06"]
     assert len(results_AM06) == 2
