@@ -823,6 +823,35 @@ class NormalizeFunctionNameSegment(BaseSegment):
     )
 
 
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """Describes the name of a function.
+
+    This includes any prefix bits, e.g. project, schema or the SAFE keyword.
+    """
+
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                # BigQuery Function names can be prefixed by the keyword SAFE to
+                # return NULL instead of error.
+                # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
+                OneOf("SAFE", Ref("SingleIdentifierGrammar")),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        # BigQuery allows whitespaces between the `.` of a function refrence or
+        # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
+        # make the distinction from `ansi.FunctionNameSegment` clear.
+        allow_gaps=True,
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -833,10 +862,6 @@ class FunctionSegment(ansi.FunctionSegment):
     """
 
     match_grammar = Sequence(
-        # BigQuery Function names can be prefixed by the keyword SAFE to
-        # return NULL instead of error.
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
-        Sequence("SAFE", Ref("DotSegment"), optional=True),
         OneOf(
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
