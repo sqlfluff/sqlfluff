@@ -359,12 +359,15 @@ ansi_dialect.add(
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Z0-9_]*",
-            CodeSegment,
-            type="data_type_identifier",
-            anti_template=r"^(NOT)$",
-            # TODO - this is a stopgap until we implement explicit data types
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z][A-Z0-9_]*",
+                CodeSegment,
+                type="data_type_identifier",
+                anti_template=r"^(NOT)$",
+                # TODO - this is a stopgap until we implement explicit data types
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
         ),
     ),
     # Ansi Intervals
@@ -602,6 +605,7 @@ ansi_dialect.add(
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
+    IgnoreRespectNullsGrammar=Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     JoinTypeKeywordsGrammar=OneOf(
         "CROSS",
@@ -1070,6 +1074,20 @@ class CollationReferenceSegment(ObjectReferenceSegment):
     """A reference to a collation."""
 
     type = "collation_reference"
+    # Some dialects like PostgreSQL want an identifier only, and quoted
+    # literals aren't allowed.  Other dialects like Snowflake only accept
+    # a quoted string literal.  We'll be a little overly-permissive and
+    # accept either... it shouldn't be too greedy since this segment generally
+    # occurs only in a Sequence after the "COLLATE" keyword.
+    match_grammar: Matchable = OneOf(
+        Ref("QuotedLiteralSegment"),
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminator=Ref("ObjectReferenceTerminatorGrammar"),
+            allow_gaps=False,
+        ),
+    )
 
 
 class RoleReferenceSegment(ObjectReferenceSegment):
@@ -1261,7 +1279,7 @@ ansi_dialect.add(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+        Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
     ),
     PostFunctionGrammar=OneOf(
@@ -1281,7 +1299,7 @@ class OverClauseSegment(BaseSegment):
     type = "over_clause"
     match_grammar: Matchable = Sequence(
         Indent,
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        Ref("IgnoreRespectNullsGrammar", optional=True),
         "OVER",
         OneOf(
             Ref("SingleIdentifierGrammar"),  # Window name
@@ -1387,12 +1405,7 @@ class PartitionClauseSegment(BaseSegment):
     """A `PARTITION BY` for window functions."""
 
     type = "partitionby_clause"
-    match_grammar: Matchable = StartsWith(
-        "PARTITION",
-        terminator=OneOf(Sequence("ORDER", "BY"), Ref("FrameClauseUnitGrammar")),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "PARTITION",
         "BY",
         Indent,
@@ -1440,6 +1453,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
             ),
@@ -1802,12 +1816,7 @@ class FromClauseSegment(BaseSegment):
     """
 
     type = "from_clause"
-    match_grammar: Matchable = StartsWith(
-        "FROM",
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "FROM",
         Delimited(
             Ref("FromExpressionSegment"),
@@ -2229,12 +2238,7 @@ class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
 
     type = "where_clause"
-    match_grammar: Matchable = StartsWith(
-        "WHERE",
-        terminator=Ref("WhereClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "WHERE",
         # NOTE: The indent here is implicit to allow
         # constructions like:
@@ -2254,11 +2258,7 @@ class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
     type = "orderby_clause"
-    match_grammar: Matchable = StartsWith(
-        Sequence("ORDER", "BY"),
-        terminator=Ref("OrderByClauseTerminators"),
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "ORDER",
         "BY",
         Indent,
@@ -2288,13 +2288,7 @@ class GroupByClauseSegment(BaseSegment):
 
     type = "groupby_clause"
 
-    match_grammar: Matchable = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=Ref("GroupByClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -2316,12 +2310,7 @@ class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`."""
 
     type = "having_clause"
-    match_grammar: Matchable = StartsWith(
-        "HAVING",
-        terminator=Ref("HavingClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "HAVING",
         ImplicitIndent,
         OptionallyBracketed(Ref("ExpressionSegment")),

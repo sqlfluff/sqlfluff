@@ -102,8 +102,10 @@ class Rule_LT12(BaseRule):
 
     """
 
-    name = "layout.end-of-file"
-    aliases = ("L009",)
+    name = "layout.end_of_file"
+    # Between 2.0.0 and 2.0.4 we supported had a kebab-case name for this rule
+    # so the old name remains here as an alias to enable backward compatibility.
+    aliases = ("L009", "layout.end-of-file")
     groups = ("all", "core", "layout")
 
     targets_templated = True

@@ -1462,18 +1462,7 @@ class CubeRollupClauseSegment(BaseSegment):
     """
 
     type = "cube_rollup_clause"
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("CUBE", "ROLLUP"),
         Bracketed(
             Ref("GroupingExpressionList"),
@@ -1488,18 +1477,7 @@ class GroupingSetsClauseSegment(BaseSegment):
     """
 
     type = "grouping_sets_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUPING",
         "SETS",
         Bracketed(
@@ -1528,19 +1506,7 @@ class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            "WINDOW",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -1800,7 +1766,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
                                             "COLLATE",
-                                            Ref("ObjectReferenceSegment"),
+                                            Ref("CollationReferenceSegment"),
                                         ),
                                     ),
                                 ),
@@ -1874,7 +1840,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(
                                     Sequence(
                                         "COLLATE",
-                                        Ref("QuotedLiteralSegment"),
+                                        Ref("CollationReferenceSegment"),
                                         optional=True,
                                     ),
                                     Ref("ParameterNameSegment", optional=True),
@@ -1886,21 +1852,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             Sequence("USING", Ref("ParameterNameSegment")),
             OneOf(
-                Sequence(
-                    "WITH",
-                    Bracketed(
-                        Delimited(
-                            Sequence(
-                                Ref("ParameterNameSegment"),
-                                Sequence(
-                                    Ref("EqualsSegment"),
-                                    Ref("LiteralGrammar"),
-                                    optional=True,
-                                ),
-                            )
-                        )
-                    ),
-                ),
+                Sequence("WITH", Ref("RelationOptionsSegment")),
                 Sequence("WITHOUT", "OIDS"),
             ),
             Sequence(
@@ -2075,7 +2027,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("IfNotExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
-            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
         Sequence(
@@ -2094,7 +2046,9 @@ class AlterTableActionSegment(BaseSegment):
                     Sequence("SET", "DATA", optional=True),
                     "TYPE",
                     Ref("DatatypeSegment"),
-                    Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+                    Sequence(
+                        "COLLATE", Ref("CollationReferenceSegment"), optional=True
+                    ),
                     Sequence("USING", OneOf(Ref("ExpressionSegment")), optional=True),
                 ),
                 Sequence(
@@ -2141,22 +2095,10 @@ class AlterTableActionSegment(BaseSegment):
                     Ref("IfExistsGrammar", optional=True),
                 ),
                 Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
-                Sequence(
-                    "SET",
-                    Bracketed(
-                        Delimited(
-                            Sequence(
-                                Ref("ParameterNameSegment"),
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                            ),
-                        )
-                    ),
-                ),
-                Sequence(
-                    "RESET",
-                    Bracketed(Delimited(Ref("ParameterNameSegment"))),
-                ),
+                Sequence("SET", Ref("RelationOptionsSegment")),
+                # Documentation says you can only provide keys in RESET options, but the
+                # actual grammar lets you pass in values too.
+                Sequence("RESET", Ref("RelationOptionsSegment")),
                 Sequence(
                     "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
                 ),
@@ -2211,22 +2153,10 @@ class AlterTableActionSegment(BaseSegment):
         Sequence("SET", "WITHOUT", OneOf("CLUSTER", "OIDS")),
         Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
         Sequence("SET", OneOf("LOGGED", "UNLOGGED")),
-        Sequence(
-            "SET",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
-                )
-            ),
-        ),
-        Sequence(
-            "RESET",
-            Bracketed(Delimited(Ref("ParameterNameSegment"))),
-        ),
+        Sequence("SET", Ref("RelationOptionsSegment")),
+        # Documentation says you can only provide keys in RESET options, but the
+        # actual grammar lets you pass in values too.
+        Sequence("RESET", Ref("RelationOptionsSegment")),
         Sequence(
             Ref.keyword("NO", optional=True), "INHERIT", Ref("TableReferenceSegment")
         ),
@@ -2443,30 +2373,9 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        AnyNumberOf(
-            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
-            Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
-            Sequence(
-                "WITH",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Sequence(
-                                Ref("DotSegment"),
-                                Ref("ParameterNameSegment"),
-                                optional=True,
-                            ),
-                            Sequence(
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                                optional=True,
-                            ),
-                        ),
-                    )
-                ),
-            ),
-        ),
+        Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
+        Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
@@ -2668,22 +2577,7 @@ class CreateViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence(
-            "WITH",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Sequence(
-                            Ref("EqualsSegment"),
-                            OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
-                            optional=True,
-                        ),
-                    )
-                )
-            ),
-            optional=True,
-        ),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
@@ -3050,8 +2944,35 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                     AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True
                 ),
             ),
-            "UNIQUE",
-            Ref("PrimaryKeyGrammar"),
+            Sequence(
+                "UNIQUE",
+                Sequence(
+                    "NULLS",
+                    Ref.keyword("NOT", optional=True),
+                    "DISTINCT",
+                    optional=True,
+                ),
+                Sequence("WITH", Ref("DefinitionParametersSegment"), optional=True),
+                Sequence(
+                    "USING",
+                    "INDEX",
+                    "TABLESPACE",
+                    Ref("TablespaceReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "PRIMARY",
+                "KEY",
+                Sequence("WITH", Ref("DefinitionParametersSegment"), optional=True),
+                Sequence(
+                    "USING",
+                    "INDEX",
+                    "TABLESPACE",
+                    Ref("TablespaceReferenceSegment"),
+                    optional=True,
+                ),
+            ),
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
@@ -3122,6 +3043,12 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
             ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
+                Sequence(
+                    "NULLS",
+                    Ref.keyword("NOT", optional=True),
+                    "DISTINCT",
+                    optional=True,
+                ),
                 Ref("BracketedColumnReferenceListGrammar"),
                 Ref("IndexParametersSegment", optional=True),
             ),
@@ -3231,6 +3158,7 @@ class IndexElementOptionsSegment(BaseSegment):
     """
 
     type = "index_element_options"
+
     match_grammar = Sequence(
         Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
         Sequence(
@@ -3615,105 +3543,25 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref.keyword("UNIQUE", optional=True),
-        Ref("OrReplaceGrammar", optional=True),
         "INDEX",
         Ref.keyword("CONCURRENTLY", optional=True),
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment", optional=True),
+        Sequence(
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("IndexReferenceSegment"),
+            optional=True,
+        ),
         "ON",
         Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
-            Sequence("USING", Ref("FunctionSegment"), optional=True),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        OneOf(
-                            Ref("ColumnReferenceSegment"),
-                            OptionallyBracketed(Ref("FunctionSegment")),
-                            Bracketed(Ref("ExpressionSegment")),
-                        ),
-                        Sequence(
-                            "COLLATE",
-                            OneOf(
-                                Ref("LiteralGrammar"),
-                                Ref("QuotedIdentifierSegment"),
-                            ),
-                            optional=True,
-                        ),
-                        Ref("CreateIndexOpClassSegment", optional=True),
-                        OneOf("ASC", "DESC", optional=True),
-                        OneOf(
-                            Sequence("NULLS", "FIRST"),
-                            Sequence("NULLS", "LAST"),
-                            optional=True,
-                        ),
-                    ),
-                )
-            ),
-        ),
+        Sequence("USING", Ref("IndexAccessMethodSegment"), optional=True),
+        Bracketed(Delimited(Ref("IndexElementSegment"))),
         Sequence(
-            "INCLUDE",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            optional=True,
+            "INCLUDE", Bracketed(Delimited(Ref("IndexElementSegment"))), optional=True
         ),
-        Sequence(
-            "NULLS",
-            Ref.keyword("NOT", optional=True),
-            "DISTINCT",
-            optional=True,
-        ),
-        Sequence(
-            "WITH",
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("LiteralGrammar"),
-                    ),
-                )
-            ),
-            optional=True,
-        ),
-        Sequence("TABLESPACE", Ref("TableReferenceSegment"), optional=True),
+        Sequence("NULLS", Ref.keyword("NOT", optional=True), "DISTINCT", optional=True),
+        Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
+        Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
         Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
-    )
-
-
-class CreateIndexOpClassSegment(BaseSegment):
-    """The Operator class segment in CREATE INDEX.
-
-    The NULLS keyword downstream is non-reserved and can be caught
-    by the parameter name in this clause.
-    Consequently we're excluding the NULLS keyword from matching.
-    Technically Postgres allows a operator class named NULLS, but this would require
-    us to implement lookahead for NULLS, so this is currently excluded.
-    """
-
-    type = "create_index_op_class_segment"
-
-    # Technically Postgres can have a NULLS Opclass name, however this is less realistic
-    # and working around it can allow us not to look ahead.
-    exclude_nulls_from_parameter_name = RegexParser(
-        r'[A-Z_][A-Z0-9_$]*|"[^"]*"',
-        CodeSegment,
-        type="parameter",
-        anti_template="^(NULLS)$",
-    )
-
-    match_grammar = Sequence(
-        exclude_nulls_from_parameter_name,
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("ParameterNameSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("LiteralGrammar"),
-                ),
-            ),
-            optional=True,
-        ),
     )
 
 
@@ -4302,7 +4150,7 @@ class ConflictTargetSegment(BaseSegment):
                         ),
                         Sequence(
                             "COLLATE",
-                            Ref("QuotedLiteralSegment"),
+                            Ref("CollationReferenceSegment"),
                             optional=True,
                         ),
                         Ref("OperationClassReferenceSegment", optional=True),
@@ -4468,7 +4316,7 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
-        Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
         Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
         AnyNumberOf(
             Sequence(
@@ -5103,7 +4951,7 @@ class AlterTypeStatementSegment(BaseSegment):
                     Ref("DatatypeSegment"),
                     Sequence(
                         "COLLATE",
-                        Ref("QuotedLiteralSegment"),
+                        Ref("CollationReferenceSegment"),
                         optional=True,
                     ),
                     Ref("CascadeRestrictGrammar", optional=True),
@@ -5117,7 +4965,7 @@ class AlterTypeStatementSegment(BaseSegment):
                     Ref("DatatypeSegment"),
                     Sequence(
                         "COLLATE",
-                        Ref("QuotedLiteralSegment"),
+                        Ref("CollationReferenceSegment"),
                         optional=True,
                     ),
                     Ref("CascadeRestrictGrammar", optional=True),

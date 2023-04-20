@@ -346,12 +346,22 @@ test_pass_indented_from_with_comment:
     -- Comment
     JOIN t2 USING (user_id)
 
-test_fail_indented_from_with_comment_fix:
-  fail_str: |
+test_fail_indented_from_with_comment_alternate:
+  # This shows the alternative position of comments being allowed.
+  pass_str: |
     SELECT *
     FROM
         t1
         -- Comment
+    JOIN t2 USING (user_id)
+
+test_fail_indented_from_with_comment_fix:
+  # This shows the fix still returns to the primary location.
+  fail_str: |
+    SELECT *
+    FROM
+        t1
+            -- Comment
     JOIN t2 USING (user_id)
   fix_str: |
     SELECT *
@@ -1986,3 +1996,96 @@ test_implicit_indent_nested_when:
       allow_implicit_indents: true
       indented_then: false
       indented_then_contents: false
+
+test_fail_issue_4745:
+  fail_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+    {{ b }}_fill_{{ a }} as (
+        select *
+        from data
+    ),
+    {% endfor %}{% endfor %}
+
+    select 1
+  fix_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+        {{ b }}_fill_{{ a }} as (
+            select *
+            from data
+        ),
+    {% endfor %}{% endfor %}
+
+    select 1
+
+test_pass_trailing_comment_1:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        -- comment
+    from foo
+
+test_pass_trailing_comment_2:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        /* comment
+        with
+        more
+        lines */
+    from foo
+
+test_pass_issue_4582:
+  # https://github.com/sqlfluff/sqlfluff/issues/4582
+  pass_str: |
+    select a.col
+
+    /*
+    Multi
+    line
+    comment 1
+    */
+    from a
+
+    /*
+    Multi
+    line
+    comment 2
+    */
+    inner join b
+        on a.id = b.id;
+
+
+    select a.col
+
+    /* Single line comment 1 */
+    from a
+
+    /* Single line comment 2 */
+    inner join b
+        on a.id = b.id
+
+test_pass_issue_4540:
+  # https://github.com/sqlfluff/sqlfluff/issues/4540
+  pass_str: |
+    with cte as (
+        select a
+        from b
+        qualify row_number() over (
+            partition by a
+        ) = 1
+    )
+
+    select a
+    from cte
+    qualify row_number() over (
+        partition by a
+    ) = 1;
+  configs:
+    core:
+      dialect: snowflake

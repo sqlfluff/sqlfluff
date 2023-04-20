@@ -100,8 +100,8 @@ WITH NO DATA;
 
 CREATE MATERIALIZED VIEW my_mat_view
 USING heap
-TABLESPACE pg_default
 WITH (prop_a = 1, prob_b = 'some_value', prop_c = FALSE, prop_d)
+TABLESPACE pg_default
 AS
 (
     SELECT
@@ -116,8 +116,8 @@ WITH DATA;
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS my_mat_view
 USING heap
-TABLESPACE pg_default
 WITH (prop_a = 1, prob_b = 'some_value', prop_c = FALSE, prop_d)
+TABLESPACE pg_default
 AS
 (
     SELECT
@@ -148,6 +148,12 @@ WITH DATA;
 
 CREATE MATERIALIZED VIEW my_mat_view
 WITH (left.right)
+AS
+SELECT a
+FROM my_table;
+
+CREATE MATERIALIZED VIEW my_mat_view
+WITH (opt1, opt2=5, opt3='str', ns.opt4, ns.opt5=6, ns.opt6='str', opt7=ASC)
 AS
 SELECT a
 FROM my_table;

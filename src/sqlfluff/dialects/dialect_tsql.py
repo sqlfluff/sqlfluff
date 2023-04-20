@@ -275,15 +275,6 @@ tsql_dialect.add(
         Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
         Ref("ParameterNameSegment"),
     ),
-    CollationSegment=SegmentGenerator(
-        # Generate the anti template from the set of reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Za-z0-9_]*[A-Za-z0-9_]",
-            CodeSegment,
-            type="collation",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
-        )
-    ),
     SqlcmdOperatorSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             dialect.sets("sqlcmd_operators"),
@@ -387,13 +378,18 @@ tsql_dialect.replace(
     ),
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-            CodeSegment,
-            type="data_type_identifier",
-            # anti_template=r"^(NOT)$",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
-            # TODO - this is a stopgap until we implement explicit data types
+        lambda dialect: OneOf(
+            RegexParser(
+                r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+                CodeSegment,
+                type="data_type_identifier",
+                # anti_template=r"^(NOT)$",
+                anti_template=r"^("
+                + r"|".join(dialect.sets("reserved_keywords"))
+                + r")$",
+                # TODO - this is a stopgap until we implement explicit data types
+            ),
+            Ref("SingleIdentifierGrammar", exclude=Ref("NakedIdentifierSegment")),
         ),
     ),
     PrimaryKeyGrammar=Sequence(
@@ -425,7 +421,6 @@ tsql_dialect.replace(
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
-        "LIMIT",
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
@@ -550,7 +545,7 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
-    CollateGrammar=Sequence("COLLATE", Ref("CollationSegment")),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationReferenceSegment")),
 )
 
 
@@ -2146,7 +2141,7 @@ class ColumnConstraintSegment(BaseSegment):
         OneOf(
             "FILESTREAM",
             Sequence(
-                "COLLATE", Ref("ObjectReferenceSegment")
+                "COLLATE", Ref("CollationReferenceSegment")
             ),  # [COLLATE collation_name]
             "SPARSE",
             Sequence(

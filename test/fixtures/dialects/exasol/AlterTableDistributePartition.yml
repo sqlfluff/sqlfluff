@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 143f272ccdb4017c7171fe3e38109963c67a2871f50313aad6815ea0c0c4a379
+_hash: 70378d3650e57431fc47fb48dc6e68eae04241f3a5e101bc929d22134e967574
 file:
 - statement:
     alter_table_statement:
@@ -60,12 +60,13 @@ file:
         - column_reference:
             naked_identifier: order_date
         - comma: ','
+        - keyword: DISTRIBUTE
+        - keyword: BY
         - column_reference:
-            naked_identifier: DISTRIBUTE
-        - code: BY
-        - code: shop_id
+            naked_identifier: shop_id
         - comma: ','
-        - code: branch_no
+        - column_reference:
+            naked_identifier: branch_no
 - statement_terminator: ;
 - statement:
     alter_table_statement:

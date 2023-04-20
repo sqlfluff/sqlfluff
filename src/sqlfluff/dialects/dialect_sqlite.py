@@ -17,7 +17,7 @@ from sqlfluff.core.parser import (
     Nothing,
     AnyNumberOf,
     Anything,
-    StartsWith,
+    Dedent,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import (
@@ -92,6 +92,14 @@ sqlite_dialect.replace(
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    PostFunctionGrammar=Ref("FilterClauseGrammar"),
+    IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
@@ -146,81 +154,15 @@ sqlite_dialect.replace(
         ),
         Ref("IndexColumnDefinitionSegment"),
     ),
-    Expression_A_Grammar=Sequence(
-        OneOf(
-            Ref("Expression_C_Grammar"),
-            Sequence(
-                OneOf(
-                    Ref("SignedSegmentGrammar"),
-                    # Ref('TildeSegment'),
-                    Ref("NotOperatorGrammar"),
-                    # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
-                ),
-                Ref("Expression_C_Grammar"),
-            ),
+    # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
+    #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
+    Expression_A_Unary_Operator_Grammar=OneOf(
+        Ref(
+            "SignedSegmentGrammar",
+            exclude=Sequence(Ref("QualifiedNumericLiteralSegment")),
         ),
-        AnyNumberOf(
-            OneOf(
-                Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("NOT", optional=True),
-                            Ref("LikeGrammar"),
-                        ),
-                        Sequence(
-                            Ref("BinaryOperatorGrammar"),
-                            Ref.keyword("NOT", optional=True),
-                        ),
-                        # We need to add a lot more here...
-                    ),
-                    Ref("Expression_C_Grammar"),
-                    Sequence(
-                        Ref.keyword("ESCAPE"),
-                        Ref("Expression_C_Grammar"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref("Expression_A_Grammar"),
-                            ),
-                            Ref("SelectableGrammar"),
-                            ephemeral_name="InExpression",
-                        )
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Ref("FunctionSegment"),  # E.g. UNNEST()
-                ),
-                Sequence(
-                    "IS",
-                    Ref.keyword("NOT", optional=True),
-                    Ref("IsClauseGrammar"),
-                ),
-                Ref("IsNullGrammar"),
-                Ref("NotNullGrammar"),
-                Ref("CollateGrammar"),
-                Sequence(
-                    # e.g. NOT EXISTS, but other expressions could be met as
-                    # well by inverting the condition with the NOT operator
-                    "NOT",
-                    Ref("Expression_C_Grammar"),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "BETWEEN",
-                    Ref("Expression_B_Grammar"),
-                    "AND",
-                    Ref("Expression_A_Grammar"),
-                ),
-            )
-        ),
+        Ref("TildeSegment"),
+        Ref("NotOperatorGrammar"),
     ),
 )
 
@@ -269,13 +211,13 @@ class DatatypeSegment(ansi.DatatypeSegment):
 
 
 class TableEndClauseSegment(BaseSegment):
-    """Support WITHOUT ROWID at end of tables.
+    """Support Table Options at end of tables.
 
-    https://www.sqlite.org/withoutrowid.html
+    https://www.sqlite.org/syntax/table-options.html
     """
 
     type = "table_end_clause_segment"
-    match_grammar: Matchable = Sequence("WITHOUT", "ROWID")
+    match_grammar: Matchable = Delimited(Sequence("WITHOUT", "ROWID"), "STRICT")
 
 
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
@@ -365,25 +307,6 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             ),
         ],
     )
-
-
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement."""
-
-    type = "select_clause"
-    match_grammar: Matchable = StartsWith(
-        "SELECT",
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
 class TableConstraintSegment(ansi.TableConstraintSegment):
@@ -490,12 +413,108 @@ class PragmaStatementSegment(BaseSegment):
     )
 
 
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
+    """Create Trigger Statement.
+
+    https://www.sqlite.org/lang_createtrigger.html
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "TRIGGER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF"), optional=True),
+        OneOf(
+            "DELETE",
+            "INSERT",
+            Sequence(
+                "UPDATE",
+                Sequence(
+                    "OF",
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("FOR", "EACH", "ROW", optional=True),
+        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        "BEGIN",
+        Delimited(
+            Ref("UpdateStatementSegment"),
+            Ref("InsertStatementSegment"),
+            Ref("DeleteStatementSegment"),
+            Ref("SelectableGrammar"),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+        "END",
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
+    """
+
+    type = "select_clause"
+    match_grammar = Ref("SelectClauseSegmentGrammar")
+
+
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    Replaces (without overriding) ANSI to remove Greedy Matcher
+    """
+
+    type = "select_statement"
+
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    Replaces (without overriding) ANSI to remove Greedy Matcher
+    """
+
+    type = "select_statement"
+    # Remove the Limit and Window statements from ANSI
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-
-    parse_grammar: Matchable = OneOf(
+    match_grammar = OneOf(
         Ref("AlterTableStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("CreateTableStatementSegment"),
@@ -514,3 +533,5 @@ class StatementSegment(ansi.StatementSegment):
         Ref("UpdateStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
+
+    parse_grammar = match_grammar

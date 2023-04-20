@@ -79,6 +79,12 @@ class JinjaTracer:
         trace_entries: List[regex.Match] = list(
             regex.finditer(r"\0", trace_template_output)
         )
+        # If the file has no templated entries, we should just iterate
+        # through the raw slices to add all the placeholders.
+        if not trace_entries:
+            for raw_idx, _ in enumerate(self.raw_sliced):
+                self.record_trace(0, raw_idx)
+
         for match_idx, match in enumerate(trace_entries):
             pos1 = match.span()[0]
             try:
@@ -524,7 +530,7 @@ class JinjaAnalyzer:
         # a block, but its behavior is basically syntactic sugar for
         # {{ open("somefile).read() }}. Thus, treat it as templated code.
         # It's a similar situation with {% import %} and {% from ... import %}.
-        if tag_name in ["include", "import", "from"]:
+        if tag_name in ["include", "import", "from", "do"]:
             block_type = "templated"
         elif tag_name.startswith("end"):
             block_type = "block_end"

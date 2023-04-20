@@ -42,8 +42,8 @@ file:
                       - dot: .
                       - naked_identifier: SNAPSHOT_DAILY
                   dedent: ''
-            - newline: "\n"
-            - whitespace: '    '
+              - newline: "\n"
+              - whitespace: '    '
             - where_clause:
                 keyword: WHERE
                 indent: ''

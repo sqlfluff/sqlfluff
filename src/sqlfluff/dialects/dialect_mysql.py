@@ -608,12 +608,7 @@ class DeleteUsingClauseSegment(BaseSegment):
     """A `USING` clause froma `DELETE` Statement`."""
 
     type = "using_clause"
-    match_grammar = StartsWith(
-        "USING",
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "USING",
         Delimited(
             Ref("FromExpressionSegment"),
@@ -664,7 +659,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     match_grammar: Matchable = OneOf(
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
-        Sequence("COLLATE", Ref("NakedIdentifierSegment")),
+        Sequence("COLLATE", Ref("CollationReferenceSegment")),
     )
 
 
@@ -2610,7 +2605,7 @@ class CreateOptionSegment(BaseSegment):
             Sequence(
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                Ref("CollationReferenceSegment"),
             ),
             Sequence(
                 "ENCRYPTION",
@@ -2656,7 +2651,7 @@ class AlterOptionSegment(BaseSegment):
                 Ref.keyword("DEFAULT", optional=True),
                 "COLLATE",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                Ref("CollationReferenceSegment"),
             ),
             Sequence(
                 Ref.keyword("DEFAULT", optional=True),

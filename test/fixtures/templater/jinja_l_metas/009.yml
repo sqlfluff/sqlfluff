@@ -19,19 +19,19 @@ file:
     - newline: "\n"
     - dedent: ""
     - from_clause:
-        keyword: FROM
-        whitespace: ' '
-        from_expression:
+      - keyword: FROM
+      - whitespace: ' '
+      - from_expression:
           indent: ""
           from_expression_element:
             table_expression:
               table_reference:
                 naked_identifier: a
           dedent: ""
-    - newline: "\n"
-    - dedent: ""
-    - placeholder: '{% endif %}'
-    - newline: "\n"
+      - newline: "\n"
+      - dedent: ""
+      - placeholder: '{% endif %}'
+      - newline: "\n"
     - limit_clause:
         keyword: LIMIT
         indent: ""
