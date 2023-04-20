@@ -14,6 +14,10 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a bugfix release to resolve two regressions included in 2.0.6
+related to implicit indents. This also includes a bugfix for config
+file on osx, contributed by first time contributor [@jpuris](https://github.com/jpuris) 🎉.
+
 ## What’s Changed
 
 * Fix regression in implicit indents [#4798](https://github.com/sqlfluff/sqlfluff/pull/4798) [@alanmcruickshank](https://github.com/alanmcruickshank)
