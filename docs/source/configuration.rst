@@ -127,8 +127,8 @@ steps overriding those from earlier:
 0. *[...and this one doesn't really count]* There's a default config as
    part of the SQLFluff package. You can find this below, in the
    :ref:`defaultconfig` section.
-1. It will look in the user's os-specific app config directory. On OSX this is
-   `~/Library/Preferences/sqlfluff`, Unix is `~/.config/sqlfluff`, Windows is
+1. It will look in the user's os-specific app config directory.
+   On macOS and Unix this is `~/.config/sqlfluff`, Windows is
    `<home>\\AppData\\Local\\sqlfluff\\sqlfluff`, for any of the filenames
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
