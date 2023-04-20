@@ -106,6 +106,36 @@ test_pass_placeholder_spacing:
         AND TRUE
     ;
 
+fail_bigquery_simple_whitespaces_in_object_reference:
+  # BigQuery allows spaces in object references.
+  # This tests that queries with spaces in object refereces prase and
+  # fix to the canonical object reference without spaces/.
+  fail_str: SELECT * FROM project    .    dataset    .    table
+  fix_str: SELECT * FROM project.dataset.table
+  configs:
+    core:
+      dialect: bigquery
+
+fail_bigquery_complex_whitespaces_in_object_reference:
+  # BigQuery allows spaces in object references.
+  # This tests that queries with spaces in object refereces prase and
+  # fix to the canonical object reference without spaces/.
+  fail_str: |-
+    SELECT * FROM project
+         .
+
+
+
+             dataset    .
+
+
+
+             table
+  fix_str: SELECT * FROM project.dataset.table
+  configs:
+    core:
+      dialect: bigquery
+
 fail_bigquery_whitespaces_in_function_reference:
   fail_str: SELECT dataset    .    AddFourAndDivide(5, 10)
   fix_str: SELECT dataset.AddFourAndDivide(5, 10)

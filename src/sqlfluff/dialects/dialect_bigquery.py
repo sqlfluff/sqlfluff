@@ -1266,7 +1266,10 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
-        allow_gaps=False,
+        # BigQuery allows whitespaces between the `.` of a table refrencex.
+        # Keeping the explicit `allow_gaps=True` here to
+        # make the distinction to other dialects clear.
+        allow_gaps=True,
     )
 
     def iter_raw_references(self):
