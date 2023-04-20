@@ -2054,3 +2054,20 @@ test_pass_closed_bracketed_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_fix_unclosed_bracketed_implicit:
+  fail_str: |
+    select *
+    from a
+    where (b = a
+        and c = d)
+  fix_str: |
+    select *
+    from a
+    where (
+        b = a
+        and c = d
+    )
+  configs:
+    indentation:
+      allow_implicit_indents: true
