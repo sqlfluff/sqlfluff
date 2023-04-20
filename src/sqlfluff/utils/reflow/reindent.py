@@ -711,7 +711,7 @@ def _crawl_indent_points(
                             and elem_j.depth_info.stack_depth == depth
                         ):
                             break
-                    else:
+                    else:  # pragma: no cover
                         unclosed_bracket = True
 
                 if unclosed_bracket or not allow_implicit_indents:
