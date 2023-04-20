@@ -677,24 +677,47 @@ def _crawl_indent_points(
             # because files should always have a trailing IndentBlock containing
             # an "end_of_file" marker, and so the final IndentPoint should always
             # have _something_ after it.
-            following_class_types = elements[idx + 1].class_types
             indent_stats = IndentStats.from_combination(
                 cached_indent_stats,
                 elem.get_indent_impulse(),
             )
-
             # If don't allow implicit indents we should remove them here.
             # Also, if we do - we should check for brackets.
-            # NOTE: The reason we check `following_class_types` is because
+            # NOTE: The reason we check following class_types is because
             # bracketed expressions behave a little differently and are an
             # exception to the normal implicit indent rules. For implicit
             # indents which precede bracketed expressions, the implicit indent
-            # is treated as a normal indent.
-            if not allow_implicit_indents or "start_bracket" in following_class_types:
-                # Blank indent stats if not using them
-                indent_stats = IndentStats(
-                    indent_stats.impulse, indent_stats.trough, ()
-                )
+            # is treated as a normal indent. In this case the start_bracket
+            # must be the start of the bracketed section which isn't closed
+            # on the same line - if it _is_ closed then we keep the implicit
+            # indents.
+            if indent_stats.implicit_indents:
+                if not allow_implicit_indents:
+                    # Blank indent stats if not using them
+                    indent_stats = IndentStats(
+                        indent_stats.impulse, indent_stats.trough, ()
+                    )
+                elif "start_bracket" in elements[idx + 1].class_types:
+                    # Is it closed in the line? Iterate forward to find out.
+                    closed = False
+                    # get the stack depth
+                    next_elem = cast(ReflowBlock, elements[idx + 1])
+                    depth = next_elem.depth_info.stack_depth
+                    for j, elem_j in enumerate(elements[idx + 1 :], idx + 1):
+                        if isinstance(elem_j, ReflowPoint):
+                            if elem_j.num_newlines() > 0:
+                                break
+                        else:
+                            if (
+                                "end_bracket" in elem_j.class_types
+                                and elem_j.depth_info.stack_depth == depth
+                            ):
+                                closed = True
+                                break
+                    if not closed:
+                        indent_stats = IndentStats(
+                            indent_stats.impulse, indent_stats.trough, ()
+                        )
 
             # Was there a cache?
             if cached_indent_stats:
