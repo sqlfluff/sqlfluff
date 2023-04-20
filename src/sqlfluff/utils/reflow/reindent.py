@@ -843,7 +843,9 @@ def _map_line_buffers(
             # If it's not a line break, we should still check whether it's
             # a positive untaken to keep track of them.
             # ...unless it's implicit.
-            indent_stats = elements[indent_point.idx].get_indent_impulse()
+            indent_stats = cast(
+                ReflowPoint, elements[indent_point.idx]
+            ).get_indent_impulse()
             if indent_point.indent_impulse > indent_point.indent_trough and not (
                 allow_implicit_indents and indent_stats.implicit_indents
             ):
