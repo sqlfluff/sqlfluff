@@ -2071,3 +2071,14 @@ test_fix_unclosed_bracketed_implicit:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_implicit_where:
+  pass_str: |
+    SELECT a
+    FROM b
+    WHERE c = d
+        AND e = f
+    ;
+  configs:
+    indentation:
+      allow_implicit_indents: true
