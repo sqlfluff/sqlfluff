@@ -692,32 +692,33 @@ def _crawl_indent_points(
             # on the same line - if it _is_ closed then we keep the implicit
             # indents.
             if indent_stats.implicit_indents:
-                if not allow_implicit_indents:
+                unclosed_bracket = False
+                if (
+                    allow_implicit_indents
+                    and "start_bracket" in elements[idx + 1].class_types
+                ):
+                    # Is it closed in the line? Iterate forward to find out.
+                    # get the stack depth
+                    next_elem = cast(ReflowBlock, elements[idx + 1])
+                    depth = next_elem.depth_info.stack_depth
+                    for elem_j in elements[idx + 1 :]:
+                        if isinstance(elem_j, ReflowPoint):
+                            if elem_j.num_newlines() > 0:
+                                unclosed_bracket = True
+                                break
+                        elif (
+                            "end_bracket" in elem_j.class_types
+                            and elem_j.depth_info.stack_depth == depth
+                        ):
+                            break
+                    else:
+                        unclosed_bracket = True
+
+                if unclosed_bracket or not allow_implicit_indents:
                     # Blank indent stats if not using them
                     indent_stats = IndentStats(
                         indent_stats.impulse, indent_stats.trough, ()
                     )
-                elif "start_bracket" in elements[idx + 1].class_types:
-                    # Is it closed in the line? Iterate forward to find out.
-                    closed = False
-                    # get the stack depth
-                    next_elem = cast(ReflowBlock, elements[idx + 1])
-                    depth = next_elem.depth_info.stack_depth
-                    for j, elem_j in enumerate(elements[idx + 1 :], idx + 1):
-                        if isinstance(elem_j, ReflowPoint):
-                            if elem_j.num_newlines() > 0:
-                                break
-                        else:
-                            if (
-                                "end_bracket" in elem_j.class_types
-                                and elem_j.depth_info.stack_depth == depth
-                            ):
-                                closed = True
-                                break
-                    if not closed:
-                        indent_stats = IndentStats(
-                            indent_stats.impulse, indent_stats.trough, ()
-                        )
 
             # Was there a cache?
             if cached_indent_stats:
