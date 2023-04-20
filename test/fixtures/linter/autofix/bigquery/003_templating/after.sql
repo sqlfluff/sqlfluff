@@ -15,13 +15,12 @@ SELECT
     {% endfor %}
 FROM
 {% for action in considered_actions %}
-    {% if loop.first %}
-        {{action}}_raw_effect_sizes
-    {% else %}
+        {% if loop.first %}
+        {{action}}_raw_effect_sizes    {% else %}
     JOIN
         {{action}}_raw_effect_sizes
-        USING
+            USING
             ({{corr_states}})
-    {% endif %}
-{% endfor %}
+{% endif %}
+        {% endfor %}
 CROSS JOIN action_states

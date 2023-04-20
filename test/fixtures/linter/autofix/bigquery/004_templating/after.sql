@@ -49,15 +49,14 @@ new_raw_effect_sizes AS (
         {% endfor %}
     FROM
     {% for action in considered_actions %}
-        {% if loop.first %}
-            {{action}}_raw_effect_sizes
-        {% else %}
+                {% if loop.first %}
+            {{action}}_raw_effect_sizes    {% else %}
         JOIN
             {{action}}_raw_effect_sizes
-            USING
+                USING
                 ({{corr_states}})
-        {% endif %}
-    {% endfor %}
+    {% endif %}
+            {% endfor %}
 ),
 
 imputed_effect_sizes AS (
