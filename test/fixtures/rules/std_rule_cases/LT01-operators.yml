@@ -124,11 +124,7 @@ fail_bigquery_complex_whitespaces_in_object_reference:
     SELECT * FROM project
          .
 
-
-
              dataset    .
-
-
 
              table
   fix_str: SELECT * FROM project.dataset.table
