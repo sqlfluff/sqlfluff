@@ -10,6 +10,20 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.0.7] - 2023-04-20
+
+## Highlights
+
+## What’s Changed
+
+* Fix regression in implicit indents [#4798](https://github.com/sqlfluff/sqlfluff/pull/4798) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix bug with brackets and implicit indents [#4797](https://github.com/sqlfluff/sqlfluff/pull/4797) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix: correct macos/osx config file location [#4795](https://github.com/sqlfluff/sqlfluff/pull/4795) [@jpuris](https://github.com/jpuris)
+
+## New Contributors
+
+* [@jpuris](https://github.com/jpuris) made their first contribution in [#4795](https://github.com/sqlfluff/sqlfluff/pull/4795)
+
 ## [2.0.6] - 2023-04-19
 
 ## Highlights
