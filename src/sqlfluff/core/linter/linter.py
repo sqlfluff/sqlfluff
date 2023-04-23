@@ -48,7 +48,11 @@ from sqlfluff.core.linter.common import (
     NoQaDirective,
     RenderedFile,
 )
-from sqlfluff.core.linter.linted_file import LintedFile, FileTimings
+from sqlfluff.core.linter.linted_file import (
+    LintedFile,
+    FileTimings,
+    TMP_PRS_ERROR_TYPES,
+)
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linting_result import LintingResult
 
@@ -382,7 +386,7 @@ class Linter:
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file:
+        if rendered.templated_file is not None:
             tokens, lvs, config = cls._lex_templated_file(
                 rendered.templated_file, rendered.config
             )
@@ -851,7 +855,7 @@ class Linter:
             templated_file = None
             templater_violations = []
 
-        if not templated_file:
+        if templated_file is None:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
 
         # Record time
@@ -1149,6 +1153,9 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: Optional[int] = None,
+        apply_fixes: bool = False,
+        fixed_file_suffix: str = "",
+        fix_even_unparsable: bool = False,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1203,6 +1210,18 @@ class Linter:
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
+
+            # If we're applying fixes, then do that here.
+            if apply_fixes:
+                num_tmp_prs_errors = linted_file.num_violations(
+                    types=TMP_PRS_ERROR_TYPES,
+                    filter_ignore=False,
+                    filter_warning=False,
+                )
+                if fix_even_unparsable or num_tmp_prs_errors == 0:
+                    linted_file.persist_tree(
+                        suffix=fixed_file_suffix, formatter=self.formatter
+                    )
 
             # Progress bar for files is rendered only when there is more than one file.
             # Additionally, as it's updated after each loop, we need to get file name

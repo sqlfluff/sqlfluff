@@ -693,12 +693,16 @@ def lint(
 
 
 def do_fixes(
-    result: LintingResult, formatter: Optional[OutputStreamFormatter] = None, **kwargs
+    result: LintingResult,
+    formatter: Optional[OutputStreamFormatter] = None,
+    fixed_file_suffix: str = "",
 ):
     """Actually do the fixes."""
     if formatter and formatter.verbosity >= 0:
         click.echo("Persisting Changes...")
-    res = result.persist_changes(formatter=formatter, **kwargs)
+    res = result.persist_changes(
+        formatter=formatter, fixed_file_suffix=fixed_file_suffix
+    )
     if all(res.values()):
         if formatter and formatter.verbosity >= 0:
             click.echo("Done. Please check your files to confirm.")
@@ -774,12 +778,22 @@ def _paths_fix(
         click.echo("==== finding fixable violations ====")
     exit_code = EXIT_SUCCESS
 
+    if force and warn_force and formatter.verbosity >= 0:
+        click.echo(
+            f"{formatter.colorize('FORCE MODE', Color.red)}: " "Attempting fixes..."
+        )
+
     with PathAndUserErrorHandler(formatter):
         result: LintingResult = linter.lint_paths(
             paths,
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
+            # If --force is set, then apply the changes as we go rather
+            # than waiting until the end.
+            apply_fixes=force,
+            fixed_file_suffix=fixed_suffix,
+            fix_even_unparsable=fix_even_unparsable,
         )
 
     if not fix_even_unparsable:
@@ -788,25 +802,14 @@ def _paths_fix(
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
     num_fixable = result.num_violations(types=SQLLintError, fixable=True)
+
     if num_fixable > 0:
-        if formatter.verbosity >= 0:
+        if not force and formatter.verbosity >= 0:
             click.echo("==== fixing violations ====")
+
         click.echo(f"{num_fixable} " "fixable linting violations found")
-        if force:
-            if warn_force and formatter.verbosity >= 0:
-                click.echo(
-                    f"{formatter.colorize('FORCE MODE', Color.red)}: "
-                    "Attempting fixes..."
-                )
-            success = do_fixes(
-                result,
-                formatter,
-                types=SQLLintError,
-                fixed_file_suffix=fixed_suffix,
-            )
-            if not success:
-                sys.exit(EXIT_FAIL)  # pragma: no cover
-        else:
+
+        if not force:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
             )
@@ -818,7 +821,6 @@ def _paths_fix(
                 success = do_fixes(
                     result,
                     formatter,
-                    types=SQLLintError,
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:
@@ -886,7 +888,9 @@ def _paths_fix(
     is_flag=True,
     help=(
         "Skip the confirmation prompt and go straight to applying "
-        "fixes. **Use this with caution.**"
+        "fixes. Fixes will also be applied file by file, during the "
+        "linting process, rather than waiting until all files are "
+        "linted before fixing. **Use this with caution.**"
     ),
 )
 @click.option(

@@ -2044,3 +2044,41 @@ test_pass_issue_4540:
   configs:
     core:
       dialect: snowflake
+
+test_pass_closed_bracketed_implicit:
+  pass_str: |
+    select *
+    from a
+    where (b = a)
+        and (c = d)
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_fix_unclosed_bracketed_implicit:
+  fail_str: |
+    select *
+    from a
+    where (b = a
+        and c = d)
+  fix_str: |
+    select *
+    from a
+    where (
+        b = a
+        and c = d
+    )
+  configs:
+    indentation:
+      allow_implicit_indents: true
+
+test_pass_implicit_where:
+  pass_str: |
+    SELECT a
+    FROM b
+    WHERE c = d
+        AND e = f
+    ;
+  configs:
+    indentation:
+      allow_implicit_indents: true

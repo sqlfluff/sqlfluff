@@ -79,6 +79,12 @@ class JinjaTracer:
         trace_entries: List[regex.Match] = list(
             regex.finditer(r"\0", trace_template_output)
         )
+        # If the file has no templated entries, we should just iterate
+        # through the raw slices to add all the placeholders.
+        if not trace_entries:
+            for raw_idx, _ in enumerate(self.raw_sliced):
+                self.record_trace(0, raw_idx)
+
         for match_idx, match in enumerate(trace_entries):
             pos1 = match.span()[0]
             try:
