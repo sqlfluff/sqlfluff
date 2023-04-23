@@ -33,6 +33,18 @@ oracle_dialect.sets("reserved_keywords").update(
     ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT"]
 )
 
+oracle_dialect.sets("bare_functions").clear()
+oracle_dialect.sets("bare_functions").update(
+    [
+        "current_date",
+        "current_timestamp",
+        "dbtimezone",
+        "localtimestamp",
+        "sessiontimestamp",
+        "sysdate",
+        "systimestamp",
+    ]
+)
 
 oracle_dialect.insert_lexer_matchers(
     [
