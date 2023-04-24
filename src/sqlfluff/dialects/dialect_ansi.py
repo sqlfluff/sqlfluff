@@ -1900,10 +1900,8 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             "CASE",
             ImplicitIndent,
-            Sequence(
-                AnyNumberOf(Ref("WhenClauseSegment")),
-                Ref("ElseClauseSegment", optional=True),
-            ),
+            AnyNumberOf(Ref("WhenClauseSegment")),
+            Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
         ),
@@ -1911,10 +1909,8 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             Ref("ExpressionSegment"),
             ImplicitIndent,
-            Sequence(
-                AnyNumberOf(Ref("WhenClauseSegment")),
-                Ref("ElseClauseSegment", optional=True),
-            ),
+            AnyNumberOf(Ref("WhenClauseSegment")),
+            Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
         ),
