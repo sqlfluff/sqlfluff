@@ -10,6 +10,15 @@ test_fail_column_reference:
   fix_str: |
     SELECT 123 AS foo;
 
+test_fail_column_reference_tsql:
+  fail_str: |
+    SELECT 123 AS [foo];
+  fix_str: |
+    SELECT 123 AS foo;
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_table_reference:
   pass_str: |
     SELECT foo
@@ -22,6 +31,17 @@ test_fail_table_reference:
   fix_str: |
     SELECT foo
     FROM bar;
+
+test_fail_table_reference_tsql:
+  fail_str: |
+    SELECT foo
+    FROM [bar];
+  fix_str: |
+    SELECT foo
+    FROM bar;
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_multiple_references:
   pass_str: |
@@ -36,22 +56,64 @@ test_fail_multiple_references:
     SELECT foo
     FROM bar.baz;
 
+test_fail_multiple_references_tsql:
+  fail_str: |
+    SELECT foo
+    FROM [bar].[baz];
+  fix_str: |
+    SELECT foo
+    FROM bar.baz;
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_whitespace:
   pass_str: |
     SELECT 123 AS "I cannot be unquoted"
+
+test_pass_whitespace_tsql:
+  pass_str: |
+    SELECT 123 AS [I cannot be unquoted]
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_special_symbols:
   pass_str: |
     SELECT 123 AS "I-c@nn0t-be~un-quoted"
 
+test_pass_special_symbols_tsql:
+  pass_str: |
+    SELECT 123 AS [I-c@nn0t-be~un-quoted]
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_reserved_keyword:
   pass_str: |
     SELECT 123 AS "SELECT"
+
+test_pass_reserved_keyword_tsql:
+  pass_str: |
+    SELECT 123 AS [SELECT]
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_column_reference_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "foo";
   configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_column_reference_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         prefer_quoted_identifiers: true
@@ -73,11 +135,33 @@ test_pass_table_reference_prefer_quoted_ansi:
       references.quoting:
         prefer_quoted_identifiers: true
 
+test_pass_table_reference_prefer_quoted_tsql:
+  pass_str: |
+    SELECT [foo]
+    FROM [bar];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
 test_fail_table_reference_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar;
   configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_table_reference_prefer_quoted_tsql:
+  fail_str: |
+    SELECT [foo]
+    FROM bar;
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         prefer_quoted_identifiers: true
@@ -91,11 +175,33 @@ test_pass_multiple_references_prefer_quoted_ansi:
       references.quoting:
         prefer_quoted_identifiers: true
 
+test_pass_multiple_references_prefer_quoted_tsql:
+  pass_str: |
+    SELECT [foo]
+    FROM [bar].[baz];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
 test_fail_multiple_references_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar.baz;
   configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_multiple_references_prefer_quoted_tsql:
+  fail_str: |
+    SELECT [foo]
+    FROM bar.baz;
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         prefer_quoted_identifiers: true
@@ -108,6 +214,16 @@ test_pass_whitespace_prefer_quoted_ansi:
       references.quoting:
         prefer_quoted_identifiers: true
 
+test_pass_whitespace_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [I cannot be unquoted]
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
 test_pass_special_symbols_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "I-c@nn0t-be~un-quoted"
@@ -116,10 +232,30 @@ test_pass_special_symbols_prefer_quoted_ansi:
       references.quoting:
         prefer_quoted_identifiers: true
 
+test_pass_special_symbols_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [I-c@nn0t-be~un-quoted]
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
 test_pass_reserved_keyword_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "SELECT"
   configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_reserved_keyword_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [SELECT]
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         prefer_quoted_identifiers: true
@@ -270,10 +406,30 @@ test_pass_ignore_lists:
       references.quoting:
         ignore_words: foo
 
+test_pass_ignore_lists_tsql:
+  pass_str:
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words: foo
+
 test_pass_ignore_lists_mixed_case:
   pass_str:
     SELECT 123 AS "Foo";
   configs:
+    rules:
+      references.quoting:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case_tsql:
+  pass_str:
+    SELECT 123 AS [Foo];
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         ignore_words: foo
@@ -286,6 +442,16 @@ test_pass_ignore_words_regex:
       references.quoting:
         ignore_words_regex: ^fo
 
+test_pass_ignore_words_regex_tsql:
+  pass_str:
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words_regex: ^fo
+
 test_pass_ignore_words_regex_mixed_case:
   pass_str:
     SELECT 123 AS "Foo";
@@ -294,10 +460,30 @@ test_pass_ignore_words_regex_mixed_case:
       references.quoting:
         ignore_words_regex: ^Fo
 
+test_pass_ignore_words_regex_mixed_case_tsql:
+  pass_str:
+    SELECT 123 AS [Foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words_regex: ^Fo
+
 test_pass_ignore_if:
   pass_str:
     DROP TABLE IF EXISTS "example";
   configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_ignore_if_tsql:
+  pass_str:
+    DROP TABLE IF EXISTS [example];
+  configs:
+    core:
+      dialect: tsql
     rules:
       references.quoting:
         prefer_quoted_identifiers: true
@@ -334,6 +520,17 @@ test_fail_quoted_column_ansi:
   fix_str: |
     SELECT d.date
     FROM d
+
+test_fail_quoted_column_tsql:
+  fail_str: |
+    SELECT d.[date]
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_quoted_column_snowflake:
   # The rule is disabled by default in Snowflake.
