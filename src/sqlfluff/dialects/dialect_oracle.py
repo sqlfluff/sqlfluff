@@ -62,6 +62,19 @@ oracle_dialect.add(
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
 )
 
+oracle_dialect.replace(
+    # https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DROP-TABLE.html
+    DropBehaviorGrammar=Sequence(
+        Sequence(
+            "CASCADE",
+            "CONSTRAINTS",
+            optional=True,
+        ),
+        Ref.keyword("PURGE", optional=True),
+        optional=True,
+    ),
+)
+
 
 class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
