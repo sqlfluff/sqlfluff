@@ -1,4 +1,4 @@
-"""Module used to filters within the jinja template."""
+"""Module used to test filters within the jinja template."""
 
 import datetime
 
