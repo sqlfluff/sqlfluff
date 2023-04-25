@@ -704,6 +704,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
         # Load all the macros
         ("jinja_q_multiple_path_macros/jinja", True, False),
+        ("jinja_s_filters_in_library/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):

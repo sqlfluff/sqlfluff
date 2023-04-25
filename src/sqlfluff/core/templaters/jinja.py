@@ -306,7 +306,11 @@ class JinjaTemplater(PythonTemplater):
         if config:
             # first make libraries available in the context
             # so they can be used by the macros too
-            live_context.update(self._extract_libraries_from_config(config=config))
+            libraries = self._extract_libraries_from_config(config=config)
+            live_context.update(libraries)
+
+            if libraries.get("SQLFLUFF_JINJA_FILTERS"):
+                env.filters.update(libraries.get("SQLFLUFF_JINJA_FILTERS"))
 
             if self._apply_dbt_builtins(config):
                 # This feels a bit wrong defining these here, they should probably
