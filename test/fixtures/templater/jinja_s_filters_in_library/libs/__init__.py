@@ -1,3 +1,5 @@
+"""Module used to filters within the jinja template."""
+
 import datetime
 
 
