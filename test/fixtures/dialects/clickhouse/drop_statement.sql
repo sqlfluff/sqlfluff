@@ -40,3 +40,11 @@ DROP QUOTA quota_name ON CLUSTER cluster_name;
 DROP setting_name PROFILE profile_name;
 DROP setting_name PROFILE IF EXISTS profile_name;
 DROP setting_name PROFILE profile_name ON CLUSTER cluster_name;
+DROP setting_name1,setting_name2 PROFILE profile_name;
+
+-- DROP VIEW
+DROP VIEW view_name;
+DROP VIEW db.view_name;
+DROP VIEW IF EXISTS view_name;
+DROP VIEW view_name ON CLUSTER cluster;
+DROP VIEW view_name SYNC;

@@ -604,7 +604,7 @@ class DropTableStatementSegment(ansi.DropTableStatementSegment):
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
@@ -629,7 +629,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
@@ -672,7 +672,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "USER",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
@@ -696,7 +696,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
@@ -720,7 +720,7 @@ class DropQuotaStatementSegment(BaseSegment):
         "QUOTA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
@@ -748,13 +748,38 @@ class DropSettingProfileStatementSegment(BaseSegment):
         "PROFILE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnCLusterClauseSegment", optional=True),
+        # Ref("OnClusterClauseSegment", optional=True),
         Sequence(
             "ON",
             "CLUSTER",
             Ref("SingleIdentifierGrammar"),
             optional=True,
         ),
+    )
+
+
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
     )
 
 
