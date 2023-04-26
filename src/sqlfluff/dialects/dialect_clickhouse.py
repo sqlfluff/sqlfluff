@@ -783,6 +783,30 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
     )
 
 
+class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
+    """A `DROP FUNCTION` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 

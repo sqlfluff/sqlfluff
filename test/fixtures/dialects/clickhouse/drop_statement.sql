@@ -48,3 +48,8 @@ DROP VIEW db.view_name;
 DROP VIEW IF EXISTS view_name;
 DROP VIEW view_name ON CLUSTER cluster;
 DROP VIEW view_name SYNC;
+
+-- DROP FUNCTION
+DROP FUNCTION function_name;
+DROP FUNCTION IF EXISTS function_name;
+DROP FUNCTION function_name on CLUSTER cluster;
