@@ -702,7 +702,7 @@ class InsertStatementSegment(BaseSegment):
             ),
             Sequence(
                 "INTO",
-                "TABLE",
+                Ref.keyword("TABLE", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("PartitionSpecGrammar", optional=True),
                 OneOf(
