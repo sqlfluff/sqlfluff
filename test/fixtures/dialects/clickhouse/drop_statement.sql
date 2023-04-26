@@ -35,3 +35,8 @@ DROP ROLE role_name ON CLUSTER cluster_name;
 DROP QUOTA quota_name;
 DROP QUOTA IF EXISTS quota_name;
 DROP QUOTA quota_name ON CLUSTER cluster_name;
+
+-- DROP SETTINGS PROFILE
+DROP setting_name PROFILE profile_name;
+DROP setting_name PROFILE IF EXISTS profile_name;
+DROP setting_name PROFILE profile_name ON CLUSTER cluster_name;

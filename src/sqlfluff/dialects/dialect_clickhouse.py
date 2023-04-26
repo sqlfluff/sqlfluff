@@ -730,6 +730,34 @@ class DropQuotaStatementSegment(BaseSegment):
     )
 
 
+class DropSettingProfileStatementSegment(BaseSegment):
+    """A `DROP setting PROFILE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_setting_profile_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Delimited(
+            Ref("NakedIdentifierSegment"),
+            min_delimiters=0,
+        ),
+        "PROFILE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnCLusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -740,5 +768,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
+            Ref("DropSettingProfileStatementSegment"),
         ]
     )

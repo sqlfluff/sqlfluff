@@ -120,6 +120,7 @@ UNRESERVED_KEYWORDS = [
     "POPULATE",
     "PREWHERE",
     "PRIMARY",
+    "PROFILE",
     "PROJECTION",
     "QUARTER",
     "QUOTA",
