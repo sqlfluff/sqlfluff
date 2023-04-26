@@ -2516,6 +2516,27 @@ class FromClauseSegment(ansi.FromClauseSegment):
     )
 
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://crate.io/docs/sql-99/en/latest/chapters/18.html#create-view-statement
+    # https://dev.mysql.com/doc/refman/8.0/en/create-view.html
+    # https://www.postgresql.org/docs/12/sql-createview.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
 class CreateExternalFunctionStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL FUNCTION` segment.
 
