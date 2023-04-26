@@ -404,9 +404,7 @@ ansi_dialect.add(
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
-        Ref("SingleQuotedIdentifierSegment"),
+        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
     ),
     BooleanLiteralGrammar=OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
     # We specifically define a group of arithmetic operators to make it easier to
