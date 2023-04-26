@@ -1377,7 +1377,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
+        insert=[
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+        ],
     )
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
@@ -1392,7 +1396,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Sequence("ON", "CONFLICT"), Ref("WithCheckOptionSegment")],
+        insert=[
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+        ],
     )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
