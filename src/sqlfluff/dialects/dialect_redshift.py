@@ -202,6 +202,9 @@ redshift_dialect.patch_lexer_matchers(
 )
 
 
+redshift_dialect.delete_lexer_matchers(["hash"])
+
+
 # Inherit from the Postgres ObjectReferenceSegment this way so we can inherit
 # other segment types from it.
 class ObjectReferenceSegment(postgres.ObjectReferenceSegment):

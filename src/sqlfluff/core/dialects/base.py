@@ -344,6 +344,21 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
+    def delete_lexer_matchers(self, lexer_patch):
+        """Given a list of lexer names, delete them."""
+
+        if not self.lexer_matchers:  # pragma: no cover
+            raise ValueError("Lexer struct must be defined before it can be patched!")
+
+        buff = []
+        patch_set = set(lexer_patch)
+
+        for elem in self.lexer_matchers:
+            if elem.name not in patch_set:
+                buff.append(elem)
+
+        self.lexer_matchers = buff
+
     def insert_lexer_matchers(self, lexer_patch, before):
         """Insert new records into an existing lexer struct.
 
