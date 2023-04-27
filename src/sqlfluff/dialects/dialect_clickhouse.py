@@ -589,6 +589,224 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
+    """A `DROP TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("TEMPORARY", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
+    """A `DROP DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_database_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class DropDictionaryStatementSegment(BaseSegment):
+    """A `DROP DICTIONARY` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_dictionary_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "DICTIONARY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_user_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_user_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DropQuotaStatementSegment(BaseSegment):
+    """A `DROP QUOTA` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_quota_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "QUOTA",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DropSettingProfileStatementSegment(BaseSegment):
+    """A `DROP setting PROFILE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_setting_profile_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Delimited(
+            Ref("NakedIdentifierSegment"),
+            min_delimiters=0,
+        ),
+        "PROFILE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
+    """A `DROP VIEW` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref.keyword("SYNC", optional=True),
+    )
+
+
+class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
+    """A `DROP FUNCTION` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/drop/
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        # Ref("OnClusterClauseSegment", optional=True),
+        Sequence(
+            "ON",
+            "CLUSTER",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -597,5 +815,8 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("CreateTableStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
+            Ref("DropDictionaryStatementSegment"),
+            Ref("DropQuotaStatementSegment"),
+            Ref("DropSettingProfileStatementSegment"),
         ]
     )
