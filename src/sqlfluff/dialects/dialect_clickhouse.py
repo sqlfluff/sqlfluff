@@ -330,7 +330,7 @@ class TableEngineFunctionSegment(BaseSegment):
 class OnClusterClauseSegment(BaseSegment):
     """A `ON CLUSTER` clause."""
 
-    type = "on_cluster"
+    type = "on_cluster_clause"
     match_grammar = Sequence(
         "ON",
         "CLUSTER",
@@ -583,18 +583,6 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("ColumnTTLSegment"),
             ),
         )
-    )
-
-
-class OnClusterClauseSegment(BaseSegment):
-    """An `ON CLUSTER` clause used in `CREATE TABLE`."""
-
-    type = "on_cluster_clause"
-
-    match_grammar = Sequence(
-        "ON",
-        "CLUSTER",
-        Ref("SingleIdentifierGrammar"),
     )
 
 
