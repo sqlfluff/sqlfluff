@@ -346,7 +346,6 @@ class Dialect:
 
     def delete_lexer_matchers(self, lexer_patch):
         """Given a list of lexer names, delete them."""
-
         if not self.lexer_matchers:  # pragma: no cover
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
