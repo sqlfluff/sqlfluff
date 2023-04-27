@@ -327,7 +327,7 @@ class EngineFunctionSegment(BaseSegment):
     )
 
 
-class OnClusterSegment(BaseSegment):
+class OnClusterClauseSegment(BaseSegment):
     """A `ON CLUSTER` clause."""
 
     type = "on_cluster"
@@ -519,12 +519,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         OneOf(
             # CREATE TABLE (...):
             Sequence(
@@ -585,12 +580,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         OneOf(
             Sequence(
                 "TO",
@@ -623,13 +613,7 @@ class DropTableStatementSegment(ansi.DropTableStatementSegment):
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -648,13 +632,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -691,13 +669,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "USER",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        )
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -715,13 +687,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -739,13 +705,7 @@ class DropQuotaStatementSegment(BaseSegment):
         "QUOTA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -767,13 +727,7 @@ class DropSettingProfileStatementSegment(BaseSegment):
         "PROFILE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -791,13 +745,7 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -816,14 +764,9 @@ class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
+
 
 class SystemMergesSegment(BaseSegment):
     """A `SYSTEM ... MERGES` statement.
@@ -899,7 +842,7 @@ class SystemReplicaSegment(BaseSegment):
         Sequence(
             "SYNC",
             "REPLICA",
-            Ref("OnClusterSegment", optional=True),
+            Ref("OnClusterClauseSegment", optional=True),
             Ref("TableReferenceSegment"),
             Sequence("STRICT", optional=True),
         ),
@@ -935,7 +878,7 @@ class SystemReplicaSegment(BaseSegment):
             "RESTORE",
             "REPLICA",
             Ref("TableReferenceSegment"),
-            Ref("OnClusterSegment", optional=True),
+            Ref("OnClusterClauseSegment", optional=True),
         ),
     )
 
@@ -1053,12 +996,12 @@ class SystemModelSegment(BaseSegment):
         OneOf(
             Sequence(
                 "MODELS",
-                Ref("OnClusterSegment", optional=True),
+                Ref("OnClusterClauseSegment", optional=True),
             ),
             Sequence(
                 "MODEL",
                 AnySetOf(
-                    Ref("OnClusterSegment", optional=True),
+                    Ref("OnClusterClauseSegment", optional=True),
                     Ref("PathSegment"),
                 ),
             ),
