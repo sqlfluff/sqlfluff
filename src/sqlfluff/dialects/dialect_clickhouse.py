@@ -297,6 +297,17 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
+class OnClusterClauseSegment(BaseSegment):
+    """A `ON CLUSTER` clause."""
+
+    type = "on_cluster_clause"
+    match_grammar = Sequence(
+        "ON",
+        "CLUSTER",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class TableEngineFunctionSegment(BaseSegment):
     """A ClickHouse `ENGINE` clause function.
 
@@ -324,17 +335,6 @@ class TableEngineFunctionSegment(BaseSegment):
                 optional=True,
             ),
         ),
-    )
-
-
-class OnClusterClauseSegment(BaseSegment):
-    """A `ON CLUSTER` clause."""
-
-    type = "on_cluster_clause"
-    match_grammar = Sequence(
-        "ON",
-        "CLUSTER",
-        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -583,6 +583,62 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("ColumnTTLSegment"),
             ),
         )
+    )
+
+
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/database
+    """
+
+    type = "create_database_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        AnySetOf(
+            Ref("OnClusterClauseSegment", optional=True),
+            Ref("DatabaseEngineSegment", optional=True),
+            Sequence(
+                "COMMENT",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "SETTINGS",
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        AnyNumberOf(
+            "TABLE",
+            "OVERRIDE",
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("ColumnConstraintSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
 
 
