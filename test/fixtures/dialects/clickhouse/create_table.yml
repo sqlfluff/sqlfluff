@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70f6acdf665d02008e12fa18131d686ca8a206117c271538b8d1c82b9154e116
+_hash: d3e1886c27601f75fa70b5bfb1f2c9f7a11130c0ab56c659cfa75ccd887948d6
 file:
 - statement:
     create_table_statement:
@@ -527,28 +527,22 @@ file:
     - keyword: EXISTS
     - table_reference:
         naked_identifier: all_hits
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - expression:
-        function:
-          function_name:
-            function_name_identifier: cluster
-          bracketed:
-          - start_bracket: (
-          - expression:
-              column_reference:
-                naked_identifier: p
-          - expression:
-              column_reference:
-                naked_identifier: Date
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: i
-          - expression:
-              column_reference:
-                naked_identifier: Int32
-          - end_bracket: )
+    - on_cluster:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: p
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - column_definition:
+          naked_identifier: i
+          data_type:
+            data_type_identifier: Int32
+      - end_bracket: )
     - engine:
         keyword: ENGINE
         comparison_operator:
