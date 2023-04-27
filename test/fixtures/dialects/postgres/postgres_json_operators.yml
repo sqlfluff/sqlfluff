@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48a081d4a74ecbf99ac89dadf074297fb904014b8f2b684a8e5b927ccc7cc7a0
+_hash: 3f5ee3e7d0d2a932c1f54eac4faef3c79a4d3a02df6a0c37e9e9bd0cc9267b0e
 file:
 - statement:
     select_statement:
@@ -18,7 +18,12 @@ file:
             - expression:
                 column_reference:
                   naked_identifier: doc
-                binary_operator: '#>>'
+                json_operator:
+                - hash: '#'
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - comparison_operator:
+                    raw_comparison_operator: '>'
                 quoted_literal: "'{fields}'"
             - comma: ','
             - expression:
@@ -39,7 +44,12 @@ file:
         expression:
         - column_reference:
             naked_identifier: doc
-        - binary_operator: ->>
+        - json_operator:
+          - binary_operator: '-'
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - comparison_operator:
+              raw_comparison_operator: '>'
         - quoted_literal: "'some_field'"
         - comparison_operator:
             raw_comparison_operator: '='
@@ -56,7 +66,10 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: ->
+            json_operator:
+              binary_operator: '-'
+              comparison_operator:
+                raw_comparison_operator: '>'
             numeric_literal: '2'
 - statement_terminator: ;
 - statement:
@@ -70,7 +83,10 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: ->
+            json_operator:
+              binary_operator: '-'
+              comparison_operator:
+                raw_comparison_operator: '>'
             quoted_literal: "'a'"
 - statement_terminator: ;
 - statement:
@@ -84,7 +100,12 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: ->>
+            json_operator:
+            - binary_operator: '-'
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             numeric_literal: '2'
 - statement_terminator: ;
 - statement:
@@ -98,7 +119,12 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: ->>
+            json_operator:
+            - binary_operator: '-'
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             quoted_literal: "'b'"
 - statement_terminator: ;
 - statement:
@@ -112,7 +138,10 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: '#>'
+            json_operator:
+              hash: '#'
+              comparison_operator:
+                raw_comparison_operator: '>'
             quoted_literal: "'{a,b}'"
 - statement_terminator: ;
 - statement:
@@ -126,6 +155,11 @@ file:
               casting_operator: '::'
               data_type:
                 keyword: json
-            binary_operator: '#>>'
+            json_operator:
+            - hash: '#'
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             quoted_literal: "'{a,2}'"
 - statement_terminator: ;

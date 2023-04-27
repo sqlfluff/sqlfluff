@@ -45,6 +45,7 @@ postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
+        StringLexer("hash", "#", CodeSegment),
     ],
     before="equals",
 )
@@ -103,12 +104,6 @@ postgres_dialect.insert_lexer_matchers(
             r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
             segment_kwargs={"type": "unicode_double_quote"},
-        ),
-        RegexLexer(
-            "json_operator",
-            r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
-            SymbolSegment,
-            segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
         # https://www.postgresql.org/docs/current/sql-syntax-lexical.html
@@ -230,9 +225,6 @@ postgres_dialect.sets("date_part_function_name").clear()
 postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
-    JsonOperatorSegment=TypedParser(
-        "json_operator", SymbolSegment, type="binary_operator"
-    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -282,9 +274,31 @@ postgres_dialect.add(
         Sequence(Ref("TableReferenceSegment"), Ref("StarSegment")),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    AtSegment=StringParser("@", SymbolSegment, type="at"),
+    HashSegment=StringParser("#", SymbolSegment, type="hash"),
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", ansi.IdentifierSegment, type="naked_identifier"
     ),
+    PostgisOperatorGrammar=OneOf(
+        Ref("IntersectsSegment"),
+        Ref("NDIntersectsSegment"),
+        Ref("OverlapsLeftSegment"),
+        Ref("OverlapsBelowSegment"),
+        Ref("OverlapsRightSegment"),
+        Ref("OverlapsAboveSegment"),
+        Ref("StrictlyLeftSegment"),
+        Ref("StrictlyBelowSegment"),
+        Ref("StrictlyRightSegment"),
+        Ref("StrictlyAboveSegment"),
+        Ref("ContainedSegment"),
+        Ref("ContainsSegment"),
+        Ref("SameSegment"),
+        Ref("DistanceSegment"),
+        Ref("ClosestSegment"),
+        Ref("BoxDistanceSegment"),
+        Ref("NDDistanceSegment"),
+        Ref("NDBoxDistanceSegment"),
+    )
 )
 
 postgres_dialect.replace(
@@ -304,6 +318,7 @@ postgres_dialect.replace(
         Ref("NotExtendRightSegment"),
         Ref("NotExtendLeftSegment"),
         Ref("AdjacentSegment"),
+        Ref("PostgisOperatorGrammar"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -521,6 +536,153 @@ postgres_dialect.replace(
     ),
     NonWithNonSelectableGrammar=OneOf(),
 )
+
+
+class JsonOperatorSegment(BaseSegment):
+    """A JSON operator."""
+
+    type = "json_operator"
+
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(
+                Ref("MinusSegment"),
+                Ref("HashSegment"),
+            ),
+            Ref("GreaterThanSegment"),
+            Ref("GreaterThanSegment", optional=True),
+            allow_gaps=False
+        ),
+        Sequence(
+            Ref("AtSegment"),
+            Ref("GreaterThanSegment"),
+            allow_gaps=False
+        ),
+        Sequence(
+            Ref("LessThanSegment"),
+            Ref("AtSegment"),
+            allow_gaps=False,
+        ),
+        Sequence(
+            Ref("ParameterSegment"),
+            OneOf(
+                Ref("PipeSegment"),
+                Ref("AmpersandSegment"),
+            ),
+            allow_gaps=False,
+        ),
+        Sequence(
+            Ref("HashSegment"),
+            Ref("MinusSegment"),
+        )
+    )
+
+class IntersectsSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Intersects."""
+
+    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False)
+
+
+class NDIntersectsSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis N-D Intersects."""
+
+    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False)
+
+
+class OverlapsLeftSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Overlaps Left."""
+
+    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("LessThanSegment"), allow_gaps=False)
+
+
+class OverlapsBelowSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Overlaps Below."""
+
+    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("LessThanSegment"), Ref("PipeSegment"), allow_gaps=False)
+
+
+class OverlapsRightSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Overlaps Right."""
+
+    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class OverlapsAboveSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Overlaps Above."""
+
+    match_grammar = Sequence(Ref("PipeSegment"), Ref("AmpersandSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class StrictlyLeftSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Strictly Left."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False)
+
+
+class StrictlyBelowSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Strictly Below."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("PipeSegment"), allow_gaps=False)
+
+
+class StrictlyRightSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Strictly Right."""
+
+    match_grammar = Sequence(Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class StrictlyAboveSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Strcitly Above."""
+
+    match_grammar = Sequence(Ref("PipeSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class ContainedSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Contained."""
+
+    match_grammar = Ref("AtSegment")
+
+
+class ContainsSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Contains."""
+
+    match_grammar = Ref("TildeSegment")
+
+
+class SameSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Same."""
+
+    match_grammar = Sequence(Ref("TildeSegment"), Ref("EqualsSegment"), allow_gaps=False)
+
+
+class DistanceSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Distance."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("MinusSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class ClosestSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Distance."""
+
+    match_grammar = Sequence(Ref("PipeSegment"), Ref("EqualsSegment"), Ref("PipeSegment"), allow_gaps=False)
+
+
+class BoxDistanceSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Distance."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("HashSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class NDDistanceSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Distance."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("MinusSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+
+
+class NDBoxDistanceSegment(ansi.CompositeComparisonOperatorSegment):
+    """Postgis Distance."""
+
+    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("HashSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
 
 
 # Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
