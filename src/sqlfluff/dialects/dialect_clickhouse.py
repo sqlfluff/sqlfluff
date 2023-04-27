@@ -588,6 +588,7 @@ class ColumnConstraintSegment(BaseSegment):
 
 class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/create/database
     """
@@ -762,6 +763,7 @@ class DropTableStatementSegment(ansi.DropTableStatementSegment):
 
 class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     """A `DROP DATABASE` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -786,6 +788,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
 
 class DropDictionaryStatementSegment(BaseSegment):
     """A `DROP DICTIONARY` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -803,6 +806,7 @@ class DropDictionaryStatementSegment(BaseSegment):
 
 class DropUserStatementSegment(ansi.DropUserStatementSegment):
     """A `DROP USER` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -826,6 +830,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
 
 class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     """A `DROP ROLE` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -849,6 +854,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
 
 class DropQuotaStatementSegment(BaseSegment):
     """A `DROP QUOTA` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -872,6 +878,7 @@ class DropQuotaStatementSegment(BaseSegment):
 
 class DropSettingProfileStatementSegment(BaseSegment):
     """A `DROP setting PROFILE` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -899,6 +906,7 @@ class DropSettingProfileStatementSegment(BaseSegment):
 
 class DropViewStatementSegment(ansi.DropViewStatementSegment):
     """A `DROP VIEW` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
@@ -923,6 +931,7 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
 
 class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
     """A `DROP FUNCTION` statement.
+
     As specified in
     https://clickhouse.com/docs/en/sql-reference/statements/drop/
     """
