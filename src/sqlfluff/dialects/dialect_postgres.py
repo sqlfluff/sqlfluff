@@ -298,7 +298,7 @@ postgres_dialect.add(
         Ref("BoxDistanceSegment"),
         Ref("NDDistanceSegment"),
         Ref("NDBoxDistanceSegment"),
-    )
+    ),
 )
 
 postgres_dialect.replace(
@@ -551,13 +551,9 @@ class JsonOperatorSegment(BaseSegment):
             ),
             Ref("GreaterThanSegment"),
             Ref("GreaterThanSegment", optional=True),
-            allow_gaps=False
+            allow_gaps=False,
         ),
-        Sequence(
-            Ref("AtSegment"),
-            Ref("GreaterThanSegment"),
-            allow_gaps=False
-        ),
+        Sequence(Ref("AtSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
         Sequence(
             Ref("LessThanSegment"),
             Ref("AtSegment"),
@@ -574,67 +570,103 @@ class JsonOperatorSegment(BaseSegment):
         Sequence(
             Ref("HashSegment"),
             Ref("MinusSegment"),
-        )
+        ),
     )
+
 
 class IntersectsSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Intersects."""
 
-    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False
+    )
 
 
 class NDIntersectsSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis N-D Intersects."""
 
-    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"),
+        Ref("AmpersandSegment"),
+        Ref("AmpersandSegment"),
+        allow_gaps=False,
+    )
 
 
 class OverlapsLeftSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Overlaps Left."""
 
-    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("LessThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
 
 
 class OverlapsBelowSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Overlaps Below."""
 
-    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("LessThanSegment"), Ref("PipeSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"),
+        Ref("LessThanSegment"),
+        Ref("PipeSegment"),
+        allow_gaps=False,
+    )
 
 
 class OverlapsRightSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Overlaps Right."""
 
-    match_grammar = Sequence(Ref("AmpersandSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 class OverlapsAboveSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Overlaps Above."""
 
-    match_grammar = Sequence(Ref("PipeSegment"), Ref("AmpersandSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("PipeSegment"),
+        Ref("AmpersandSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 class StrictlyLeftSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Strictly Left."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+    )
 
 
 class StrictlyBelowSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Strictly Below."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("PipeSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("PipeSegment"),
+        allow_gaps=False,
+    )
 
 
 class StrictlyRightSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Strictly Right."""
 
-    match_grammar = Sequence(Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+    )
 
 
 class StrictlyAboveSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Strcitly Above."""
 
-    match_grammar = Sequence(Ref("PipeSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("PipeSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 class ContainedSegment(ansi.CompositeComparisonOperatorSegment):
@@ -652,37 +684,65 @@ class ContainsSegment(ansi.CompositeComparisonOperatorSegment):
 class SameSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Same."""
 
-    match_grammar = Sequence(Ref("TildeSegment"), Ref("EqualsSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("TildeSegment"), Ref("EqualsSegment"), allow_gaps=False
+    )
 
 
 class DistanceSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Distance."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("MinusSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"),
+        Ref("MinusSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 class ClosestSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Distance."""
 
-    match_grammar = Sequence(Ref("PipeSegment"), Ref("EqualsSegment"), Ref("PipeSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("PipeSegment"), Ref("EqualsSegment"), Ref("PipeSegment"), allow_gaps=False
+    )
 
 
 class BoxDistanceSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Distance."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("HashSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"),
+        Ref("HashSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 class NDDistanceSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Distance."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("MinusSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("MinusSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 class NDBoxDistanceSegment(ansi.CompositeComparisonOperatorSegment):
     """Postgis Distance."""
 
-    match_grammar = Sequence(Ref("LessThanSegment"), Ref("LessThanSegment"), Ref("HashSegment"), Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False)
+    match_grammar = Sequence(
+        Ref("LessThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("HashSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("GreaterThanSegment"),
+        allow_gaps=False,
+    )
 
 
 # Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
