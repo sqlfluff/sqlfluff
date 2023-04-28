@@ -66,7 +66,7 @@ class DbtConfigArgs:
     target: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
-    vars: Dict = None
+    vars: Optional[Dict] = None
 
 
 class DbtTemplater(JinjaTemplater):
@@ -103,7 +103,7 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 vars=self._get_cli_vars(),
-                threads=self._get_threads(),
+                threads=1,
             ),
             None,
         )
@@ -114,7 +114,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target=self._get_target(),
                 vars=self._get_cli_vars(),
-                threads=self._get_threads(),
+                threads=1,
             )
         )
         register_adapter(self.dbt_config)
@@ -243,10 +243,7 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "context")
         )
 
-        return cli_vars if cli_vars else dict()
-
-    def _get_threads(self) -> int:
-        return 1
+        return cli_vars if cli_vars else {}
 
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
