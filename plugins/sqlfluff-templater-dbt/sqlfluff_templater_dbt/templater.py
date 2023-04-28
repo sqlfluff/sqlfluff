@@ -66,7 +66,7 @@ class DbtConfigArgs:
     target: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
-    vars: dict = None
+    vars: Dict = None
 
 
 class DbtTemplater(JinjaTemplater):
@@ -105,7 +105,7 @@ class DbtTemplater(JinjaTemplater):
                 vars=self._get_cli_vars(),
                 threads=self._get_threads(),
             ),
-            user_config=None,
+            None,
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
