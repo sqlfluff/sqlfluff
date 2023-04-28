@@ -98,6 +98,7 @@ class DbtTemplater(JinjaTemplater):
     def dbt_config(self):
         """Loads the dbt config."""
         flags.set_from_args(
+            "",
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
@@ -107,7 +108,6 @@ class DbtTemplater(JinjaTemplater):
             ),
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
-            "",
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
