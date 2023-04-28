@@ -243,7 +243,7 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "context")
         )
 
-        return str(cli_vars) if cli_vars else "{}"
+        return str(cli_vars) if cli_vars else None
 
     def _get_threads(self) -> int:
         threads = self.sqlfluff_config.get_section("processes")
