@@ -374,7 +374,7 @@ class DbtTemplater(JinjaTemplater):
             return None, [
                 SQLTemplaterError(
                     "dbt tried to connect to the database and failed: you could use "
-                    "'execute' to skip the database calls. See"
+                    "'execute' to skip the database calls. See "
                     "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
                     f"Error: {e.msg}",
                     fatal=True,

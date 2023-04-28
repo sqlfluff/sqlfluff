@@ -1952,6 +1952,51 @@ test_fail_issue_4680:
         col1 > 0
       {% endif %}
 
+test_implicit_indent_when:
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+                THEN col2 + 1
+        END AS col2
+    FROM table1
+  fix_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN col2 + 1
+        END AS col2
+    FROM table1
+  configs:
+    indentation:
+      allow_implicit_indents: true
+      indented_then: false
+
+test_implicit_indent_nested_when:
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN CASE WHEN col2 = 2
+                    THEN col2 + 1
+            END
+        END AS col2
+    FROM table1
+  fix_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN CASE WHEN col2 = 2
+                THEN col2 + 1
+            END
+        END AS col2
+    FROM table1
+  configs:
+    indentation:
+      allow_implicit_indents: true
+      indented_then: false
+      indented_then_contents: false
+
 test_fail_issue_4745:
   fail_str: |
     with
