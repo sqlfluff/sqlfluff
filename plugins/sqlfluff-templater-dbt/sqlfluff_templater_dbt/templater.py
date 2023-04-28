@@ -65,7 +65,7 @@ class DbtConfigArgs:
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
     target: Optional[str] = None
-    single_threaded: bool = False
+    threads: int = 1
     vars: str = ""
 
 
@@ -103,6 +103,7 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 vars=self._get_cli_vars(),
+                threads=self._get_threads(),
             ),
             user_config=None,
         )
@@ -113,6 +114,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target=self._get_target(),
                 vars=self._get_cli_vars(),
+                threads=self._get_threads(),
             )
         )
         register_adapter(self.dbt_config)
@@ -242,6 +244,10 @@ class DbtTemplater(JinjaTemplater):
         )
 
         return str(cli_vars) if cli_vars else "{}"
+
+    def _get_threads(self) -> int:
+        threads = int(self.sqlfluff_config.get_section("processes")) or 1
+        return threads
 
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
