@@ -246,8 +246,7 @@ class DbtTemplater(JinjaTemplater):
         return cli_vars if cli_vars else dict()
 
     def _get_threads(self) -> int:
-        threads = self.sqlfluff_config.get_section("processes")
-        return int(threads) if threads else 1
+        return 1
 
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
