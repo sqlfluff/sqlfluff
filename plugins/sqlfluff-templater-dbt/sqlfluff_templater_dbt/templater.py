@@ -66,7 +66,7 @@ class DbtConfigArgs:
     profile: Optional[str] = None
     target: Optional[str] = None
     threads: int = 1
-    vars: str = ""
+    vars: dict = None
 
 
 class DbtTemplater(JinjaTemplater):
@@ -243,7 +243,7 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "context")
         )
 
-        return str(cli_vars) if cli_vars else None
+        return cli_vars if cli_vars else dict()
 
     def _get_threads(self) -> int:
         threads = self.sqlfluff_config.get_section("processes")
