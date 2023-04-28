@@ -66,7 +66,7 @@ class DbtConfigArgs:
     target: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
-    vars: dict = None
+    vars: Dict = None
 
 
 class DbtTemplater(JinjaTemplater):
