@@ -10,7 +10,6 @@ from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 from dataclasses import dataclass
 
 from dbt.version import get_installed_version
-from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
