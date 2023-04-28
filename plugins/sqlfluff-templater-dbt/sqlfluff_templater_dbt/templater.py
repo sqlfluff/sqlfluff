@@ -107,6 +107,7 @@ class DbtTemplater(JinjaTemplater):
             ),
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
+            "",
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
