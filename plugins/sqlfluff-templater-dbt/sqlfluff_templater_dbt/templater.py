@@ -238,7 +238,7 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "target")
         )
 
-    def _get_cli_vars(self) -> str:
+    def _get_cli_vars(self) -> dict:
         cli_vars = self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "context")
         )
