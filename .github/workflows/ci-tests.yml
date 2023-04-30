@@ -72,7 +72,7 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dbt-tests-cov:
-    name: dbt 1.4 Plugin Tests
+    name: dbt 1.5 Plugin Tests
     permissions:
       contents: read
       pull-requests: write
