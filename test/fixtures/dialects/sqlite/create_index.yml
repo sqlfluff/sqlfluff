@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 89f707d226c8e01b98f90d63009e2aa2603dbdebbf5187f6257efdea1cd3ab4f
+_hash: 42ff8ffbd151fb9e46fbdc962aa6479bceaf758ac2bdb4827d6f88e167e0ae88
 file:
 - statement:
     create_index_statement:
@@ -78,4 +78,106 @@ file:
           - column_reference:
               naked_identifier: y
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: team_leader
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: person
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: team_id
+        end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: is_team_leader
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: ex1
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tab1
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: a
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: b
+      - end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: a
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '5'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '6'
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: po_parent
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: purchaseorder
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: parent_po
+        end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: parent_po
+        - keyword: IS
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: ex2
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tab2
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: b
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: c
+      - end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: c
+        - keyword: IS
+        - keyword: NOT
+        - keyword: 'NULL'
 - statement_terminator: ;
