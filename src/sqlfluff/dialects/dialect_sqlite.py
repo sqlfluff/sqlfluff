@@ -537,7 +537,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                 ),
             )
         ),
-        Ref("WhereClauseSegment", optional=True)
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
