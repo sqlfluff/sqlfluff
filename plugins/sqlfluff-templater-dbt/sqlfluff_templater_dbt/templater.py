@@ -10,7 +10,6 @@ from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 from dataclasses import dataclass
 
 from dbt.version import get_installed_version
-from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -65,8 +64,9 @@ class DbtConfigArgs:
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
     target: Optional[str] = None
+    threads: int = 1
     single_threaded: bool = False
-    vars: str = ""
+    vars: Optional[Dict] = None
 
 
 class DbtTemplater(JinjaTemplater):
@@ -97,21 +97,15 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        # Here, we read flags.PROFILE_DIR directly, prior to calling
-        # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-        # to a lowercase version of the value, and the profile wouldn't be
-        # found if the directory name contained uppercase letters. This fix
-        # was suggested and described here:
-        # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-        user_config = read_user_config(flags.PROFILES_DIR)
         flags.set_from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 vars=self._get_cli_vars(),
+                threads=1,
             ),
-            user_config,
+            None,
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
@@ -120,6 +114,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target=self._get_target(),
                 vars=self._get_cli_vars(),
+                threads=1,
             )
         )
         register_adapter(self.dbt_config)
@@ -243,12 +238,12 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "target")
         )
 
-    def _get_cli_vars(self) -> str:
+    def _get_cli_vars(self) -> dict:
         cli_vars = self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "context")
         )
 
-        return str(cli_vars) if cli_vars else "{}"
+        return cli_vars if cli_vars else {}
 
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
