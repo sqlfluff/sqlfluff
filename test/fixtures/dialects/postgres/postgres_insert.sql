@@ -59,3 +59,8 @@ SELECT FROM megatable AS mt
     WHERE mt.megacolumn = tmp.megacolumn
 )
 ON CONFLICT DO NOTHING;
+
+INSERT INTO abc (foo, bar)
+SELECT foo, bar FROM baz
+RETURNING quux
+;
