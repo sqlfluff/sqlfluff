@@ -448,7 +448,7 @@ For example, if passed the following *.sql* file:
 Jinja templater
 ^^^^^^^^^^^^^^^
 
-The Jinja template uses Jinja2_ to render templates.
+The Jinja templater uses Jinja2_ to render templates.
 
 .. _Jinja2: https://jinja.palletsprojects.com/
 
