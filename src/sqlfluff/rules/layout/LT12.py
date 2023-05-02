@@ -124,6 +124,10 @@ class Rule_LT12(BaseRule):
         # We only care about the final segment of the parse tree.
         parent_stack, segment = get_last_segment(FunctionalContext(context).segment)
         self.logger.debug("Found last segment as: %s", segment)
+        if not segment:
+            # NOTE: Edge case. If the file is totally empty, we won't find a final
+            # segment. In this case return without error.
+            return None
 
         trailing_newlines = Segments(*get_trailing_newlines(context.segment))
         trailing_literal_newlines = trailing_newlines
