@@ -390,6 +390,22 @@ Also, SQLFluff has an integration to use :code:`dbt` as a templater.
 
 - `dbt templater`_ (via plugin which is covered in a different section).
 
+.. note::
+
+    Templaters may not be able to generate a rendered SQL that cover
+    the entire raw file.
+
+    For example, if the raw SQL uses a :code:`{% if condition %}` block,
+    the rendered version of the template will only include either the
+    :code:`{% then %}` or the :code:`{% else %}` block (depending on the
+    provided configuration for the templater), but not both.
+
+    In this case, because SQLFluff linting can only operate on the output
+    of the templater, some areas of the raw SQL will never be seen by the
+    linter and will not be covered by lint rules.
+
+    This is functionality we hope to support in future.
+
 Generic Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
