@@ -455,13 +455,13 @@ options:
     load_macros_from_path = my_macros
     library_path = sqlfluff_libs
 
-   [sqlfluff:templater:jinja:context]
-   my_list = ['a', 'b', 'c']
-   MY_LIST = ("d", "e", "f")
-   my_where_dict = {"field_1": 1, "field_2": 2}
+    [sqlfluff:templater:jinja:context]
+    my_list = ['a', 'b', 'c']
+    MY_LIST = ("d", "e", "f")
+    my_where_dict = {"field_1": 1, "field_2": 2}
 
-   [sqlfluff:templater:jinja:macros]
-   a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
+    [sqlfluff:templater:jinja:macros]
+    a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
 
 Complex Jinja Variable Templating
 """""""""""""""""""""""""""""""""
@@ -543,7 +543,7 @@ this introduces the idea of config *blocks* which could be selectively
 overwritten by other configuration files downstream as required.
 
 Jinja Macro Templating (from file)
-""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""
 
 In addition to macros specified in the config file, macros can also be
 loaded from files or folders. This is specified in the config file:
