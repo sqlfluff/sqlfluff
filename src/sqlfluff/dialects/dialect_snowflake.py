@@ -3586,6 +3586,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence("WITH", optional=True),
             AnyNumberOf(
                 Ref("WarehouseObjectPropertiesSegment"),
+                Ref("CommentEqualsClauseSegment"),
                 Ref("WarehouseObjectParamsSegment"),
             ),
             Ref("TagBracketedEqualsSegment", optional=True),
