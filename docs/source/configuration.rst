@@ -454,11 +454,29 @@ The Jinja template uses Jinja2_ to render templates.
 
 There are multiple, complementary ways of configuring the Jinja templater.
 
-- Reading variables and Jinja macros from config, see
-  `Complex Jinja Variable Templating`_ and
-  `Jinja Macro Templating (from config)`_
-- Loading macros from a path, see `Jinja Macro Templating (from file)`_
-- Using a library, see `Library Templating`_
+- Reading variables and Jinja macros directly from the SQLFLuff config file
+- Loading macros from a path
+- Using a library
+
+.. list-table:: Overview of Jinja templater's configuration options
+   :header-rows: 1
+
+   * - Configuration
+     - Variables
+     - Macros
+     - Documentation
+   * - Config file
+     - ✅
+     - ✅
+     - `Complex Jinja Variable Templating`_ and `Jinja Macro Templating (from config)`_
+   * - Macro Path
+     - ❌
+     - ✅
+     - `Jinja Macro Templating (from file)`_
+   * - Library
+     - ✅
+     - ✅
+     - `Library Templating`_
 
 For example, a snippet from a :code:`.sqlfluff` file that uses all config
 options:
