@@ -164,6 +164,10 @@ sqlite_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
+    IsClauseGrammar=OneOf(
+        "NULL",
+        Ref("BooleanLiteralGrammar"),
+    ),
 )
 
 
@@ -508,6 +512,32 @@ class SelectStatementSegment(BaseSegment):
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
         ]
+    )
+
+
+class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
+    """A `CREATE INDEX` statement.
+
+    As per https://www.sqlite.org/lang_createindex.html
+    """
+
+    type = "create_index_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref.keyword("UNIQUE", optional=True),
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
+        ),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
