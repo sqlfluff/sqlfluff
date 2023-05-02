@@ -438,7 +438,9 @@ The Jinja template uses Jinja2_ to render templates.
 
 There are multiple, complementary ways of configuring the Jinja templater.
 
-- Reading variables and Jinja macros from config, see `Complex Jinja Variable Templating`_ and `Jinja Macro Templating (from config)`_
+- Reading variables and Jinja macros from config, see
+  `Complex Jinja Variable Templating`_ and
+  `Jinja Macro Templating (from config)`_
 - Loading macros from a path, see `Jinja Macro Templating (from file)`_
 - Using a library, see `Library Templating`_
 
