@@ -374,9 +374,11 @@ This is achieved by the following set of operations:
 2. SQLFluff applies the lint and fix operations to the rendered file
 3. SQLFluff backports the rule violations to the templated section of the SQL.
 
-SQLFluff may not have access to the fully operational templater.
-But instead uses a set of user-provided dummy values to render the template,
-see below.
+SQLFluff does not automatically have access to the same environment used in
+production template setup.
+This means it is necessary to either provide that environment or provide dummy
+values to effectively render the template and generate valid SQL.
+Refer to the templater sections below for details.
 
 SQLFluff natively supports the following templating engines
 
