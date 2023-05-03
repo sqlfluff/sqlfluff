@@ -14,6 +14,16 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release brings support for dbt 1.5+. Some internals of dbt mean
+that SQFluff versions prior to this release may experience errors with
+dbt versions post 1.5. In addition to that there are some dialect and
+templating improvements bundled too:
+* Support for custom Jinja filters.
+* An additional configurable indent behaviour within `CASE WHEN` clauses.
+* Additional support for bracket quoted literals in TSQL and RF06.
+* Dialect improvements to Snowflake, Hive, Redshift, Postgres,
+  Clickhouse, Oracle and SQLite
+
 ## What’s Changed
 
 * Add support for Jinja filters [#4810](https://github.com/sqlfluff/sqlfluff/pull/4810) [@dmohns](https://github.com/dmohns)
