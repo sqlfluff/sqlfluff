@@ -10,6 +10,30 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.1.0] - 2023-05-03
+
+## Highlights
+
+## What’s Changed
+
+* Add support for Jinja filters [#4810](https://github.com/sqlfluff/sqlfluff/pull/4810) [@dmohns](https://github.com/dmohns)
+* Postgres: Allow INSERT RETURNING [#4820](https://github.com/sqlfluff/sqlfluff/pull/4820) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SQLite: Support partial index [#4833](https://github.com/sqlfluff/sqlfluff/pull/4833) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Make SQLFluff compatible with DBT 1.5 [#4828](https://github.com/sqlfluff/sqlfluff/pull/4828) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake dialect: Add support for comment clause in the create warehouse statement [#4823](https://github.com/sqlfluff/sqlfluff/pull/4823) [@moreaupascal56](https://github.com/moreaupascal56)
+* fix(dialect-clickhouse): Support DROP statements [#4821](https://github.com/sqlfluff/sqlfluff/pull/4821) [@germainlefebvre4](https://github.com/germainlefebvre4)
+* Hive: INSERT INTO without TABLE keyword [#4819](https://github.com/sqlfluff/sqlfluff/pull/4819) [@greg-finley](https://github.com/greg-finley)
+* Fix: Small typo in error message [#4814](https://github.com/sqlfluff/sqlfluff/pull/4814) [@JavierMonton](https://github.com/JavierMonton)
+* Redshift: Support with no schema binding [#4813](https://github.com/sqlfluff/sqlfluff/pull/4813) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Detect tsql square bracket quotes for RF06 #4724 [#4781](https://github.com/sqlfluff/sqlfluff/pull/4781) [@daviewales](https://github.com/daviewales)
+* Apply implicit indents to `WHEN` blocks and introduce `indented_then_contents` [#4755](https://github.com/sqlfluff/sqlfluff/pull/4755) [@borchero](https://github.com/borchero)
+* Oracle: Update Drop Behaviour [#4803](https://github.com/sqlfluff/sqlfluff/pull/4803) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Oracle: Update bare functions [#4804](https://github.com/sqlfluff/sqlfluff/pull/4804) [@WittierDinosaur](https://github.com/WittierDinosaur)
+
+## New Contributors
+
+* [@daviewales](https://github.com/daviewales) made their first contribution in [#4781](https://github.com/sqlfluff/sqlfluff/pull/4781)
+
 ## [2.0.7] - 2023-04-20
 
 ## Highlights
