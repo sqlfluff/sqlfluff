@@ -106,7 +106,8 @@ class ReflowSequence:
     def _validate_reflow_sequence(elements: ReflowSequenceType):
         # An empty set of elements _is_ allowed as an edge case.
         if not elements:
-            return
+            # Return early if so
+            return None
         # Check odds and evens
         OddType = elements[0].__class__
         EvenType = ReflowPoint if OddType is ReflowBlock else ReflowBlock
