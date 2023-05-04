@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d41b1c6f7c9e285362e2e75bbca5f6286c324a06946c837e5531684758e73b4c
+_hash: 0a94ff2d639e165e4e4981d3ea0e3d4f2750a07ed4f2c0bb2d145d5166d2c62f
 file:
   statement:
     create_table_statement:
@@ -33,12 +33,15 @@ file:
             keyword: UNIQUE
       - comma: ','
       - column_definition:
-          naked_identifier: password
-          data_type:
+        - naked_identifier: password
+        - data_type:
             data_type_identifier: TEXT
-          column_constraint_segment:
+        - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: COLLATE
+          - keyword: NOCASE
       - comma: ','
       - column_definition:
         - naked_identifier: email
