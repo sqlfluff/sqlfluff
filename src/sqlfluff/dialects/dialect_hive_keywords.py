@@ -204,6 +204,7 @@ UNRESERVED_KEYWORDS = [
     "INPATH",
     "INPUTDRIVER",
     "INPUTFORMAT",
+    "IREGEXP",  # Impala dialect
     "ITEMS",
     "JAR",
     "KEYS",
