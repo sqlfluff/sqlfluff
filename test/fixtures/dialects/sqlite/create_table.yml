@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a94ff2d639e165e4e4981d3ea0e3d4f2750a07ed4f2c0bb2d145d5166d2c62f
+_hash: 8aa612e64befa74ee94085376570eed5f55511432f801989f14dc97de88dd851
 file:
   statement:
     create_table_statement:
@@ -40,8 +40,9 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint_segment:
-          - keyword: COLLATE
-          - keyword: NOCASE
+            keyword: COLLATE
+            collation_reference:
+              naked_identifier: NOCASE
       - comma: ','
       - column_definition:
         - naked_identifier: email
