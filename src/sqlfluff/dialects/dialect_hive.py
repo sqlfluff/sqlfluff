@@ -219,6 +219,9 @@ hive_dialect.replace(
             ),
         ]
     ),
+    LikeGrammar=OneOf(
+        "LIKE", "RLIKE", "ILIKE", "REGEXP", "IREGEXP"
+    ),  # Impala dialect uses REGEXP and IREGEXP
 )
 
 
