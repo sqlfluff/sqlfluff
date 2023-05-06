@@ -2818,6 +2818,9 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("AutoIncrementGrammar"),
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
+            Sequence(
+                "COLLATE", Ref("CollationReferenceSegment")
+            ),  # https://www.sqlite.org/datatype3.html#collation
         ),
     )
 
