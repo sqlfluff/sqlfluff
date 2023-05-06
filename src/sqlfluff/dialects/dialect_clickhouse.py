@@ -30,6 +30,13 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+clickhouse_dialect.replace(
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+    ),
+)
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
@@ -108,6 +115,7 @@ clickhouse_dialect.add(
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
+
 clickhouse_dialect.replace(
     BinaryOperatorGrammar=OneOf(
         Ref("ArithmeticBinaryOperatorGrammar"),
@@ -319,6 +327,17 @@ class EngineFunctionSegment(BaseSegment):
     )
 
 
+class OnClusterClauseSegment(BaseSegment):
+    """A `ON CLUSTER` clause."""
+
+    type = "on_cluster"
+    match_grammar = Sequence(
+        "ON",
+        "CLUSTER",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class EngineSegment(BaseSegment):
     """An `ENGINE` used in `CREATE TABLE`."""
 
@@ -500,12 +519,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         OneOf(
             # CREATE TABLE (...):
             Sequence(
@@ -566,12 +580,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         OneOf(
             Sequence(
                 "TO",
@@ -604,13 +613,7 @@ class DropTableStatementSegment(ansi.DropTableStatementSegment):
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -629,13 +632,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -672,13 +669,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "USER",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -696,13 +687,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -720,13 +705,7 @@ class DropQuotaStatementSegment(BaseSegment):
         "QUOTA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -748,13 +727,7 @@ class DropSettingProfileStatementSegment(BaseSegment):
         "PROFILE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -772,13 +745,7 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -797,12 +764,305 @@ class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
+class SystemMergesSegment(BaseSegment):
+    """A `SYSTEM ... MERGES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_merges_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "MERGES",
+        OneOf(
+            Sequence(
+                "ON",
+                "VOLUME",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class SystemTTLMergesSegment(BaseSegment):
+    """A `SYSTEM ... TTL MERGES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_ttl_merges_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "TTL",
+        "MERGES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemMovesSegment(BaseSegment):
+    """A `SYSTEM ... MOVES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_moves_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "MOVES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemReplicaSegment(BaseSegment):
+    """A `SYSTEM ... REPLICA` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_replica_segment"
+
+    match_grammar = OneOf(
         Sequence(
-            "ON",
-            "CLUSTER",
+            "SYNC",
+            "REPLICA",
+            Ref("OnClusterClauseSegment", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence("STRICT", optional=True),
+        ),
+        Sequence(
+            "DROP",
+            "REPLICA",
             Ref("SingleIdentifierGrammar"),
-            optional=True,
+            Sequence(
+                "FROM",
+                OneOf(
+                    Sequence(
+                        "DATABASE",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence(
+                        "ZKPATH",
+                        Ref("PathSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "RESTART",
+            "REPLICA",
+            Ref("TableReferenceSegment"),
+        ),
+        Sequence(
+            "RESTORE",
+            "REPLICA",
+            Ref("TableReferenceSegment"),
+            Ref("OnClusterClauseSegment", optional=True),
+        ),
+    )
+
+
+class SystemFilesystemSegment(BaseSegment):
+    """A `SYSTEM ... FILESYSTEM` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_filesystem_segment"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FILESYSTEM",
+        "CACHE",
+    )
+
+
+class SystemReplicatedSegment(BaseSegment):
+    """A `SYSTEM ... REPLICATED` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_replicated_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "REPLICATED",
+        "SENDS",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemReplicationSegment(BaseSegment):
+    """A `SYSTEM ... REPLICATION` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_replication_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "REPLICATION",
+        "QUEUES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemFetchesSegment(BaseSegment):
+    """A `SYSTEM ... FETCHES` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_fetches_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            "START",
+            "STOP",
+        ),
+        "FETCHES",
+        Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class SystemDistributedSegment(BaseSegment):
+    """A `SYSTEM ... DISTRIBUTED` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_distributed_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                OneOf(
+                    "START",
+                    "STOP",
+                ),
+                "DISTRIBUTED",
+                "SENDS",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "FLUSH",
+                "DISTRIBUTED",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+        # Ref("TableReferenceSegment"),
+    )
+
+
+class SystemModelSegment(BaseSegment):
+    """A `SYSTEM ... MODEL` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_model_segment"
+
+    match_grammar = Sequence(
+        "RELOAD",
+        OneOf(
+            Sequence(
+                "MODELS",
+                Ref("OnClusterClauseSegment", optional=True),
+            ),
+            Sequence(
+                "MODEL",
+                AnySetOf(
+                    Ref("OnClusterClauseSegment", optional=True),
+                    Ref("PathSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class SystemFileSegment(BaseSegment):
+    """A `SYSTEM ... FILE` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_file_segment"
+
+    match_grammar = Sequence(
+        "SYNC",
+        "FILE",
+        "CACHE",
+    )
+
+
+class SystemUnfreezeSegment(BaseSegment):
+    """A `SYSTEM ... UNFREEZE` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_unfreeze_segment"
+
+    match_grammar = Sequence(
+        "UNFREEZE",
+        "WITH",
+        "NAME",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class SystemStatementSegment(BaseSegment):
+    """A `SYSTEM ...` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/system
+    """
+
+    type = "system_statement"
+
+    match_grammar: Matchable = Sequence(
+        "SYSTEM",
+        OneOf(
+            Ref("SystemMergesSegment"),
+            Ref("SystemTTLMergesSegment"),
+            Ref("SystemMovesSegment"),
+            Ref("SystemReplicaSegment"),
+            Ref("SystemReplicatedSegment"),
+            Ref("SystemReplicationSegment"),
+            Ref("SystemFetchesSegment"),
+            Ref("SystemDistributedSegment"),
+            Ref("SystemFileSegment"),
+            Ref("SystemFilesystemSegment"),
+            Ref("SystemUnfreezeSegment"),
+            Ref("SystemModelSegment"),
         ),
     )
 
@@ -818,5 +1078,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),
             Ref("DropSettingProfileStatementSegment"),
+            Ref("SystemStatementSegment"),
         ]
     )

@@ -4061,3 +4061,20 @@ class LocalAliasSegment(BaseSegment):
 
     type = "local_alias_segment"
     match_grammar: Matchable = Nothing()
+
+
+class PathSegment(BaseSegment):
+    """A reference to a path."""
+
+    type = "path_segment"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("SlashSegment"),
+            Delimited(
+                Ref("CodeSegment"),
+                delimiter=Ref("SlashSegment"),
+                allow_gaps=False,
+            ),
+        ),
+        Ref("QuotedLiteralSegment"),
+    )
