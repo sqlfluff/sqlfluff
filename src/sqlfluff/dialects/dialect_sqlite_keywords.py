@@ -201,4 +201,7 @@ UNRESERVED_KEYWORDS = [
     "RESTART",
     "RESET",
     "STRICT",
+    "BINARY",
+    "NOCASE",
+    "RTRIM",
 ]
