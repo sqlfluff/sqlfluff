@@ -5577,3 +5577,23 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE ROLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-role-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
