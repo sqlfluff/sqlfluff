@@ -354,7 +354,9 @@ tsql_dialect.replace(
             Ref("SystemVariableSegment"),
         ],
     ),
-    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
+    ParameterNameSegment=RegexParser(
+        r"@[A-Za-z0-9_@#$]+", CodeSegment, type="parameter"
+    ),  # https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver16#rules-for-regular-identifiers # noqa E501
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 499e9012f5cb95c4d85b318e244cf97db07a0782422e2f77aa327eb635e1e8a9
+_hash: 48d649aa25b9d50b652cb712da0a2490044a6cf160428406cc0ba564fe4cf6cc
 file:
 - batch:
     statement:
@@ -72,7 +72,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                system_variable: '@@ROWCOUNT'
+                parameter: '@@ROWCOUNT'
               keyword: as
               data_type:
                 data_type_identifier: char

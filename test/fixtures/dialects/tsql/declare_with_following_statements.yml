@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 965bf0479aba3f070f232c24f5cd5972ded3a634a9f5752eead4702eb1548291
+_hash: f0d40459fb95595a506165df9e71531d51fddcb6e9e2c5c5f45593c74dd302a2
 file:
   batch:
     create_procedure_statement:
@@ -105,6 +105,20 @@ file:
                   raw_comparison_operator: '='
                 expression:
                   bare_function: CURRENT_TIMESTAMP
+                statement_terminator: ;
+          - statement:
+              declare_segment:
+                keyword: DECLARE
+                parameter: '@@var2'
+                data_type:
+                  data_type_identifier: int
+                statement_terminator: ;
+          - statement:
+              declare_segment:
+                keyword: DECLARE
+                parameter: '@#var3'
+                data_type:
+                  data_type_identifier: int
                 statement_terminator: ;
           - statement:
               set_segment:
