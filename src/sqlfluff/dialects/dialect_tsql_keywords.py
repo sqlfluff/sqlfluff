@@ -324,6 +324,7 @@ UNRESERVED_KEYWORDS = [
     "HASH",
     "HEAP",  # Azure Synapse Analytics specific
     "HIDDEN",
+    "HIGH",
     "HINT",
     "HISTORY_RETENTION_PERIOD",
     "HISTORY_TABLE",
@@ -363,6 +364,7 @@ UNRESERVED_KEYWORDS = [
     "LOG",
     "LOGIN",
     "LOOP",
+    "LOW",
     "MASKED",
     "MATCHED",
     "MAX_DURATION",
@@ -385,6 +387,7 @@ UNRESERVED_KEYWORDS = [
     "NOEXPAND",
     "NOLOCK",
     "NONE",
+    "NORMAL",
     "NOWAIT",
     "NTILE",
     "NUMERIC_ROUNDABORT",

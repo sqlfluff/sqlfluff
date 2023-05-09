@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a5423cf8242fc1fc58c65ffccfd6dd113b24a15010966fc3d6007a77dd35486
+_hash: 47d4898afe32a0c40fb4ec93ac0dc776d568a5b3ff6b43a91ae50a04a1314209
 file:
   batch:
     create_procedure_statement:
@@ -40,8 +40,67 @@ file:
             - quoted_identifier: '[PowerPlan_BASE]'
           - statement_terminator: ;
       - statement:
+          declare_segment:
+            keyword: DECLARE
+            parameter: '@deadlock_var'
+            data_type:
+              data_type_identifier: NCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '3'
+                  end_bracket: )
+            statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            parameter: '@deadlock_var'
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "N'LOW'"
+            statement_terminator: ;
+      - statement:
           begin_end_block:
           - keyword: BEGIN
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - keyword: 'ON'
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: LOW
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: NORMAL
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: HIGH
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - parameter: '@deadlock_var'
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - numeric_literal: '10'
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '5'
           - statement:
               select_statement:
                 select_clause:
