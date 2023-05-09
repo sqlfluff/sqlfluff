@@ -2439,6 +2439,14 @@ class SetStatementSegment(BaseSegment):
                     OneOf(
                         "ON",
                         "OFF",
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        Ref("ParameterNameSegment"),
+                        OneOf(
+                            Ref("NumericLiteralSegment"),
+                            Ref("QualifiedNumericLiteralSegment"),
+                        ),
                         Sequence(
                             Ref("EqualsSegment"),
                             Ref("ExpressionSegment"),
