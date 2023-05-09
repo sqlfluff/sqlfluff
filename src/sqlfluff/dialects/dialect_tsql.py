@@ -2439,18 +2439,17 @@ class SetStatementSegment(BaseSegment):
                     OneOf(
                         "ON",
                         "OFF",
-                        "LOW",
-                        "NORMAL",
-                        "HIGH",
-                        Ref("ParameterNameSegment"),
-                        OneOf(
-                            Ref("NumericLiteralSegment"),
-                            Ref("QualifiedNumericLiteralSegment"),
-                        ),
                         Sequence(
                             Ref("EqualsSegment"),
                             Ref("ExpressionSegment"),
                         ),
+                        # The below for https://learn.microsoft.com/en-us/sql/t-sql/statements/set-deadlock-priority-transact-sql?view=sql-server-ver16 # noqa
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        Ref("ParameterNameSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Ref("QualifiedNumericLiteralSegment"),
                     ),
                 ),
                 Sequence(
