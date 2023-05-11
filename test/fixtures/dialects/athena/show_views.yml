@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59496d4b7b6bbc49b3072b6ee2d0297bb752c8709360603f7d23ef8d4e4b9f21
+_hash: 4713819d65a5ffe038d5eb39a83d2efd8419ccb3651897fb07d3278595833f26
 file:
 - statement:
     show_statement:
@@ -15,7 +15,7 @@ file:
     - keyword: SHOW
     - keyword: VIEWS
     - keyword: IN
-    - table_reference:
+    - database_reference:
         naked_identifier: sampledb
 - statement_terminator: ;
 - statement:
@@ -23,17 +23,15 @@ file:
     - keyword: SHOW
     - keyword: VIEWS
     - keyword: LIKE
-    - expression:
-        quoted_literal: "'regex*'"
+    - quoted_literal: "'regex*'"
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: VIEWS
     - keyword: IN
-    - table_reference:
+    - database_reference:
         naked_identifier: sampledb
     - keyword: LIKE
-    - expression:
-        quoted_literal: "'regex*'"
+    - quoted_literal: "'regex*'"
 - statement_terminator: ;

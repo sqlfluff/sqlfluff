@@ -662,13 +662,13 @@ class ShowStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "TABLES",
-                Sequence("IN", Ref("TableReferenceSegment"), optional=True),
-                Ref("ExpressionSegment", optional=True),
+                Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
+                Ref("QuotedLiteralSegment", optional=True),
             ),
             Sequence(
                 "VIEWS",
-                Sequence("IN", Ref("TableReferenceSegment"), optional=True),
-                Sequence("LIKE", Ref("ExpressionSegment"), optional=True),
+                Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
+                Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
             ),
         ),
     )
