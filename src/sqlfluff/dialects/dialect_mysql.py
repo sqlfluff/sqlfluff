@@ -804,6 +804,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     """A `CREATE INDEX` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-index.html
+    https://mariadb.com/kb/en/create-index/
     """
 
     match_grammar = Sequence(
@@ -820,7 +821,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
             Sequence(
                 "ALGORITHM",
                 Ref("EqualsSegment", optional=True),
-                OneOf("DEFAULT", "INPLACE", "COPY"),
+                OneOf("DEFAULT", "INPLACE", "COPY", "NOCOPY", "INSTANT"),
             ),
             Sequence(
                 "LOCK",

@@ -785,4 +785,6 @@ ZONE
 mysql_unreserved_keywords += """NOW
 SHARED
 INPLACE
+NOCOPY
+INSTANT
 """

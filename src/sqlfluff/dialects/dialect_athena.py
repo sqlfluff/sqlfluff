@@ -396,6 +396,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UnloadStatementSegment"),
             Ref("PrepareStatementSegment"),
             Ref("ExecuteStatementSegment"),
+            Ref("ShowStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -689,6 +690,34 @@ class CubeRollupClauseSegment(BaseSegment):
     )
 
 
+class ShowStatementSegment(BaseSegment):
+    """A `show` execute statement.
+
+    Full Apache Hive `SHOW` reference:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-Show
+
+    Athena supported subset:
+    https://docs.aws.amazon.com/athena/latest/ug/ddl-reference.html
+    """
+
+    type = "show_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            Sequence(
+                "TABLES",
+                Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
+                Ref("QuotedLiteralSegment", optional=True),
+            ),
+            Sequence(
+                "VIEWS",
+                Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
+                Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+        ),
+    )
+
+
 class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
@@ -700,8 +729,7 @@ class GroupingSetsClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Ref("ColumnReferenceSegment"),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                Bracketed(),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
         ),
     )
