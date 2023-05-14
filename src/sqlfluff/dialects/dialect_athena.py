@@ -690,6 +690,23 @@ class CubeRollupClauseSegment(BaseSegment):
     )
 
 
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+            ),
+        ),
+    )
+
+
 class ShowStatementSegment(BaseSegment):
     """A `show` execute statement.
 
@@ -713,23 +730,6 @@ class ShowStatementSegment(BaseSegment):
                 "VIEWS",
                 Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
                 Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
-            ),
-        ),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment"),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
         ),
     )
