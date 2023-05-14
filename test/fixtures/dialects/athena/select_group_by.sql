@@ -27,7 +27,7 @@ select
 from agg.aggregate_total
 group by grouping sets ((as_of_date, channel), (as_of_date), ());
 
---"weird" cases
+-- "weird" cases
 select
     as_of_date,
     channel,
