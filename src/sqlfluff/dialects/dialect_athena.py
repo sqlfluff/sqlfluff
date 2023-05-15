@@ -8,8 +8,10 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    Dedent,
     Delimited,
-    TypedParser,
+    Indent,
+    Matchable,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -20,6 +22,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -482,7 +485,7 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 class MsckRepairTableStatementSegment(BaseSegment):
-    """An `MSCK REPAIR TABLE`statement.
+    """An `MSCK REPAIR TABLE` statement.
 
     The `MSCK REPAIR TABLE` command scans a file system such as Amazon S3 for
     Hive compatible partitions that were added to the file system after the
@@ -641,6 +644,64 @@ class IntervalExpressionSegment(BaseSegment):
                 ),
                 Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """A `GROUP BY` clause like in `SELECT`.
+
+    https://docs.aws.amazon.com/athena/latest/ug/select.html#:~:text=%5B-,GROUP,-BY%20%5B%20ALL%20%7C%20DISTINCT%20%5D%20grouping_expressions
+    """
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Ref("ColumnReferenceSegment"),
+                Ref("NumericLiteralSegment"),  # Can `GROUP BY 1`
+                Ref("ExpressionSegment"),  # Can `GROUP BY coalesce(col, 1)`
+            ),
+            terminator=OneOf(
+                Sequence("ORDER", "BY"),
+                "LIMIT",
+                "OFFSET",
+                "HAVING",
+                Ref("SetOperatorSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class CubeRollupClauseSegment(BaseSegment):
+    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause."""
+
+    type = "cube_rollup_clause"
+
+    match_grammar = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    )
+
+
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
             ),
         ),
     )
