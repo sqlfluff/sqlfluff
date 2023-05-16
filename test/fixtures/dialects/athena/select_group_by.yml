@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0fb78435323e34099c631a7e13cf7fb6c088c68910db4cac0f1e8b5545501634
+_hash: 9b8fae46b9fb9ea33dca4e27833096beb65584fdcafbd9a522ba396d41bc376c
 file:
 - statement:
     select_statement:
@@ -225,6 +225,10 @@ file:
             naked_identifier: channel
       - comma: ','
       - select_clause_element:
+          column_reference:
+            naked_identifier: platform
+      - comma: ','
+      - select_clause_element:
           function:
             function_name:
               function_name_identifier: sum
@@ -249,6 +253,9 @@ file:
       groupby_clause:
       - keyword: group
       - keyword: by
+      - column_reference:
+          naked_identifier: as_of_date
+      - comma: ','
       - grouping_sets_clause:
         - keyword: grouping
         - keyword: sets
@@ -257,17 +264,11 @@ file:
           - bracketed:
             - start_bracket: (
             - column_reference:
-                naked_identifier: as_of_date
+                naked_identifier: platform
             - comma: ','
             - column_reference:
                 naked_identifier: channel
             - end_bracket: )
-          - comma: ','
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                naked_identifier: as_of_date
-              end_bracket: )
           - comma: ','
           - column_reference:
               naked_identifier: channel
