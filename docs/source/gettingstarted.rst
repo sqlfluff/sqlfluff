@@ -43,7 +43,7 @@ If however, you do have python installed but not :code:`pip`, then
 the best instructions for what to do next are `on the python website`_.
 
 .. _`instructions for all platforms here`: https://wiki.python.org/moin/BeginnersGuide/Download
-.. _`on the python website`: https://pip.pypa.io/en/stable/installing/
+.. _`on the python website`: https://pip.pypa.io/en/stable/installation/
 
 Installing SQLFluff
 -------------------
