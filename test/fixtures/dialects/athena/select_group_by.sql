@@ -31,6 +31,7 @@ group by grouping sets ((as_of_date, channel), (as_of_date), ());
 select
     as_of_date,
     channel,
+    platform,
     sum(total_count) as cnt
 from agg.aggregate_total
-group by grouping sets ((as_of_date, channel), (as_of_date), channel, ());
+group by as_of_date, grouping sets ((platform, channel), channel, ());
