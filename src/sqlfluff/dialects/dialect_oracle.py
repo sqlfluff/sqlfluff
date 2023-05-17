@@ -34,7 +34,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE","EDITIONING","NONEDITIONABLE"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE"]
 )
 
 
@@ -374,7 +374,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         ),
         OneOf(
             "EDITIONING",
-            Sequence("EDITIONABLE",Ref.keyword("EDITIONING", optional=True)),
+            Sequence("EDITIONABLE", Ref.keyword("EDITIONING", optional=True)),
             "NONEDITIONABLE",
             optional=True
         ),
