@@ -30,7 +30,11 @@ oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(
-    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT"]
+    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT", "FORCE"]
+)
+
+oracle_dialect.sets("unreserved_keywords").update(
+    ["EDITIONABLE","EDITIONING","NONEDITIONABLE"]
 )
 
 
@@ -353,4 +357,33 @@ class TableReferenceSegment(ObjectReferenceSegment):
             BracketedSegment,
         ),
         allow_gaps=False,
+    )
+
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-VIEW.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence(
+            Ref.keyword("NO", optional=True),
+            "FORCE",
+            optional=True
+        ),
+        OneOf(
+            "EDITIONING",
+            Sequence("EDITIONABLE",Ref.keyword("EDITIONING", optional=True)),
+            "NONEDITIONABLE",
+            optional=True
+        ),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        ansi.OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
