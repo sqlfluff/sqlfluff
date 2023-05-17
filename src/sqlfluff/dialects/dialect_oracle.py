@@ -359,6 +359,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
         allow_gaps=False,
     )
 
+
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement."""
 
@@ -367,16 +368,12 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        Sequence(
-            Ref.keyword("NO", optional=True),
-            "FORCE",
-            optional=True
-        ),
+        Sequence(Ref.keyword("NO", optional=True), "FORCE", optional=True),
         OneOf(
             "EDITIONING",
             Sequence("EDITIONABLE", Ref.keyword("EDITIONING", optional=True)),
             "NONEDITIONABLE",
-            optional=True
+            optional=True,
         ),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
