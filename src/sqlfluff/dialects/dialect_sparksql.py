@@ -398,6 +398,10 @@ sparksql_dialect.replace(
         Ref("JoinLikeClauseGrammar"),
         ansi.BracketedSegment,
     ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("StarSegment"),
+    ),
 )
 
 sparksql_dialect.add(
