@@ -661,9 +661,44 @@ class ShowStatementSegment(BaseSegment):
         "SHOW",
         OneOf(
             Sequence(
+                "COLUMNS",
+                OneOf("FROM", "IN"),
+                OneOf(
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"), Ref("TableReferenceSegment")
+                    ),
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        Sequence(
+                            OneOf("FROM", "IN"),
+                            Ref("DatabaseReferenceSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "CREATE",
+                OneOf("TABLE", "VIEW"),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASES", "SCHEMAS"),
+                Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "PARTITIONS",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
                 "TABLES",
                 Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
                 Ref("QuotedLiteralSegment", optional=True),
+            ),
+            Sequence(
+                "TBLPROPERTIES",
+                Ref("TableReferenceSegment"),
+                Bracketed(Ref("QuotedLiteralSegment"), optional=True),
             ),
             Sequence(
                 "VIEWS",
