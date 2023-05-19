@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    OptionallyBracketed,
 )
 
 postgres_dialect = load_raw_dialect("postgres")
@@ -172,7 +173,91 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 OneOf(
                     "RANDOMLY",
                     "REPLICATED",
-                    Sequence("BY", Bracketed(Ref("ColumnReferenceSegment"))),
+                    Sequence(
+                        "BY",
+                        Bracketed(
+                            Delimited(
+                                Ref("ColumnReferenceSegment")
+                            )
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
+
+class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
+    """A `CREATE TABLE` statement.
+
+    As specified in
+    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+    This is overriden from Postgres to add the `DISTRIBUTED` clause.
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar"),
+            ),
+            "UNLOGGED",
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+                optional=True,
+            ),
+            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+            Sequence(
+                "WITH",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Sequence(
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                                optional=True,
+                            ),
+                        )
+                    )
+                ),
+            ),
+            Sequence(
+                "ON",
+                "COMMIT",
+                OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
+                optional=True,
+            ),
+            Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
+        ),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Ref("WithDataClauseSegment", optional=True),
+        Sequence(
+            "DISTRIBUTED",
+            OneOf(
+                "RANDOMLY",
+                "REPLICATED",
+                Sequence(
+                    "BY",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment")
+                        )
+                    )
                 ),
             ),
         ),
