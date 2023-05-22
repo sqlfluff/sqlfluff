@@ -186,6 +186,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
         ),
     )
 
+
 class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
     """A `CREATE TABLE` statement.
 
