@@ -846,6 +846,7 @@ class TypedStructLiteralSegment(BaseSegment):
         Ref("StructLiteralSegment"),
     )
 
+
 class EmptyStructLiteralBracketsSegment(BaseSegment):
     """An empty struct literal segment - `()`.
 
