@@ -50,3 +50,8 @@ SELECT
     some_other_field
   ) AS col
 FROM table;
+
+-- Empty STRUCT within TO_JSON
+SELECT
+  TO_JSON(STRUCT()) AS col
+FROM table;

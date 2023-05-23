@@ -846,6 +846,28 @@ class TypedStructLiteralSegment(BaseSegment):
         Ref("StructLiteralSegment"),
     )
 
+class EmptyStructLiteralBracketsSegment(BaseSegment):
+    """An empty array literal segment.
+
+    e.g. ()
+
+    NOTE: This rarely exists without a preceding type
+    and exists mostly for structural & layout reasons.
+    """
+
+    type = "struct_literal"
+    match_grammar: Matchable = Bracketed(
+    )
+
+
+class EmptyStructLiteralSegment(BaseSegment):
+    """An empty array literal segment (e.g. STRUCT())."""
+
+    type = "typed_struct_literal"
+    match_grammar: Matchable = Sequence(
+        Ref("StructTypeSegment"),
+        Ref("EmptyStructLiteralBracketsSegment"),
+    )
 
 class ObjectLiteralSegment(BaseSegment):
     """An object literal segment."""
@@ -1281,6 +1303,7 @@ ansi_dialect.add(
         ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
+        Ref("EmptyStructLiteralSegment")
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
