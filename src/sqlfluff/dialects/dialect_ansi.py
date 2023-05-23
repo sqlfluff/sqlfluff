@@ -847,9 +847,9 @@ class TypedStructLiteralSegment(BaseSegment):
     )
 
 class EmptyStructLiteralBracketsSegment(BaseSegment):
-    """An empty struct literal segment - `()`
+    """An empty struct literal segment - `()`.
 
-    NOTE: This is only used to set the right type so spacing rules are applied correctly.
+    NOTE: This is only to set the right type so spacing rules are applied correctly.
     """
 
     type = "struct_literal"
@@ -865,6 +865,7 @@ class EmptyStructLiteralSegment(BaseSegment):
         Ref("StructTypeSegment"),
         Ref("EmptyStructLiteralBracketsSegment"),
     )
+
 
 class ObjectLiteralSegment(BaseSegment):
     """An object literal segment."""
