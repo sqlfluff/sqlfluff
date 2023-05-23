@@ -1301,7 +1301,7 @@ ansi_dialect.add(
         ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
-        Ref("EmptyStructLiteralSegment")
+        Ref("EmptyStructLiteralSegment"),
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
