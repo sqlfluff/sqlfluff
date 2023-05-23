@@ -854,8 +854,7 @@ class EmptyStructLiteralBracketsSegment(BaseSegment):
     """
 
     type = "struct_literal"
-    match_grammar: Matchable = Bracketed(
-    )
+    match_grammar: Matchable = Bracketed()
 
 
 class EmptyStructLiteralSegment(BaseSegment):
