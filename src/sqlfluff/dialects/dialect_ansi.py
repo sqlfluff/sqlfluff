@@ -847,12 +847,9 @@ class TypedStructLiteralSegment(BaseSegment):
     )
 
 class EmptyStructLiteralBracketsSegment(BaseSegment):
-    """An empty array literal segment.
+    """An empty struct literal segment - `()`
 
-    e.g. ()
-
-    NOTE: This rarely exists without a preceding type
-    and exists mostly for structural & layout reasons.
+    NOTE: This is only used to set the right type so spacing rules are applied correctly.
     """
 
     type = "struct_literal"
@@ -861,7 +858,7 @@ class EmptyStructLiteralBracketsSegment(BaseSegment):
 
 
 class EmptyStructLiteralSegment(BaseSegment):
-    """An empty array literal segment (e.g. STRUCT())."""
+    """An empty array literal segment - `STRUCT()`."""
 
     type = "typed_struct_literal"
     match_grammar: Matchable = Sequence(
