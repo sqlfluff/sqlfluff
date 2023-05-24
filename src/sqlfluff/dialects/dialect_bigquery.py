@@ -775,6 +775,21 @@ class ExtractFunctionNameSegment(BaseSegment):
     )
 
 
+class ArrayFunctionNameSegment(BaseSegment):
+    """ARRAY function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "ARRAY",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
 class DatePartWeekSegment(BaseSegment):
     """WEEK(<WEEKDAY>) in EXTRACT, DATE_DIFF, DATE_TRUNC, LAST_DAY.
 
@@ -1082,7 +1097,7 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """
 
     match_grammar = Sequence(
-        "ARRAY",
+        Ref("ArrayFunctionNameSegment"),
         Bracketed(
             Ref("SelectableGrammar"),
         ),
