@@ -314,6 +314,14 @@ test_pass_bigquery_specific_arrays_2:
     core:
       dialect: bigquery
 
+test_pass_bigquery_array_function:
+  # Test spacing of Array Generator function brackets
+  pass_str: |
+    SELECT ARRAY(SELECT 1 FROM table1);
+  configs:
+    core:
+      dialect: bigquery
+
 test_pass_bigquery_specific_structs:
   # Test spacing of complex STRUCT brackets
   pass_str: |
