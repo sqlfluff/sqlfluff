@@ -146,7 +146,18 @@ postgres_dialect.insert_lexer_matchers(
             "meta_command",
             r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
-        )
+        ),
+        RegexLexer(
+            # pg_stat_statements which is an official postgres extension used for
+            # storing the query logs replaces the actual literals used in the
+            # query with $n where n is integer value. This grammar is for parsing
+            # those literals.
+            # ref: https://www.postgresql.org/docs/current/pgstatstatements.html
+            "dollar_numeric_literal",
+            r"\$\d+",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "dollar_numeric_literal"},
+        ),
     ],
     before="code",  # Final thing to search for - as psql specific
 )
@@ -284,6 +295,9 @@ postgres_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", ansi.IdentifierSegment, type="naked_identifier"
+    ),
+    DollarNumericLiteralSegment=TypedParser(
+        "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
     ),
 )
 
@@ -471,6 +485,7 @@ postgres_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("DollarNumericLiteralSegment"),
             Ref("PsqlVariableGrammar"),
         ],
         before=Ref("ArrayLiteralSegment"),

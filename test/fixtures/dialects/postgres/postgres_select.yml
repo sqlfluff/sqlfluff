@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3234ccf1239d9a4ac328425fb89d43b5c71d92627652c2db63246ce3f1717cdc
+_hash: 348309b797f6429b65e4a5f06569e534d325fefae4c392fe07f6d38a3f7c7a16
 file:
 - statement:
     select_statement:
@@ -840,4 +840,70 @@ file:
                 start_bracket: (
                 numeric_literal: '10'
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: mytable
+                  for_clause:
+                  - keyword: FOR
+                  - keyword: UPDATE
+                end_bracket: )
+            alias_expression:
+              naked_identifier: ss
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          dollar_numeric_literal: $1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: i
+            binary_operator: +
+            dollar_numeric_literal: $1
+      into_clause:
+        keyword: INTO
+        table_reference:
+          naked_identifier: j
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
 - statement_terminator: ;

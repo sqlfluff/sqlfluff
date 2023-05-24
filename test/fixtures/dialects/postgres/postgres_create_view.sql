@@ -62,3 +62,6 @@ SELECT "group_id",
        "path_nodes" || "group_id"
 FROM "grouping_managementgroup", "grouping_node"
 WHERE "parent_id" = "node_id";
+
+-- use of collation as non-reserved keyword
+create view foo as select col1 as collation from OTHER_VIEW;
