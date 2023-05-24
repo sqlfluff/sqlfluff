@@ -162,15 +162,3 @@ test_pass_typless_structs_dont_trigger_rule:
     rules:
       capitalisation.types:
         extended_capitalisation_policy: upper
-
-test_pass_empty_structs_in_function_dont_trigger_rule:
-  pass_str: |
-    SELECT
-        TO_JSON(STRUCT()) AS col
-    FROM table
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      capitalisation.types:
-        extended_capitalisation_policy: upper

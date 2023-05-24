@@ -350,6 +350,20 @@ test_pass_bigquery_specific_struct_access:
     core:
       dialect: bigquery
 
+test_pass_bigquery_struct_function_no_spaces:
+  # Test struct function does not flag for missing spaces
+  # e.g. doesn't flag `STRUCT()` as should be `STRUCT ()`
+  pass_str: |
+    SELECT
+      TO_JSON(STRUCT()),
+      TO_JSON(STRUCT(1, 2, 3)),
+      STRUCT(1, 2, 3)
+    FROM
+      table1
+  configs:
+    core:
+      dialect: bigquery
+
 test_postgres_datatype:
   # https://github.com/sqlfluff/sqlfluff/issues/4521
   # https://github.com/sqlfluff/sqlfluff/issues/4565
