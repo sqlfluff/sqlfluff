@@ -13,6 +13,7 @@ from dbt.version import get_installed_version
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
+from dbt.cli.resolvers import default_profiles_dir
 
 try:
     from dbt.exceptions import (
@@ -182,8 +183,8 @@ class DbtTemplater(JinjaTemplater):
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
 
-        The default is `~/.dbt` in 0.17 but we use the
-        PROFILES_DIR variable from the dbt library to
+        The default is `~/.dbt` but we use the
+        default_profiles_dir from the dbt library to
         support a change of default in the future, as well
         as to support the same overwriting mechanism as
         dbt (currently an environment variable).
@@ -193,7 +194,7 @@ class DbtTemplater(JinjaTemplater):
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
-                or flags.PROFILES_DIR
+                or (os.getenv("DBT_PROFILES_DIR") or default_profiles_dir())
             )
         )
 
