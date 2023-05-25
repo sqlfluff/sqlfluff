@@ -10,6 +10,39 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.1.1] - 2023-05-25
+
+## Highlights
+
+## What’s Changed
+
+* profiles dir env var or default [#4886](https://github.com/sqlfluff/sqlfluff/pull/4886) [@JasonGluck](https://github.com/JasonGluck)
+* Bigquery: Allow empty `struct` in `TO_JSON` [#4879](https://github.com/sqlfluff/sqlfluff/pull/4879) [@dimitris-flyr](https://github.com/dimitris-flyr)
+* Set type of ARRAY function for BigQuery [#4880](https://github.com/sqlfluff/sqlfluff/pull/4880) [@tunetheweb](https://github.com/tunetheweb)
+* Full athena SHOW coverage [#4876](https://github.com/sqlfluff/sqlfluff/pull/4876) [@dogversioning](https://github.com/dogversioning)
+* Sparksql add star support in multiparameter functions [#4874](https://github.com/sqlfluff/sqlfluff/pull/4874) [@spex66](https://github.com/spex66)
+* Oracle create view with EDITIONING & FORCE [#4872](https://github.com/sqlfluff/sqlfluff/pull/4872) [@ulixius9](https://github.com/ulixius9)
+* Fixes pip installation link on Getting Started [#4867](https://github.com/sqlfluff/sqlfluff/pull/4867) [@segoldma](https://github.com/segoldma)
+* Athena: add "weird" test cases for `group by` [#4869](https://github.com/sqlfluff/sqlfluff/pull/4869) [@KulykDmytro](https://github.com/KulykDmytro)
+* Athena: add support for `CUBE` `ROLLUP` `GROUPING SETS` [#4862](https://github.com/sqlfluff/sqlfluff/pull/4862) [@KulykDmytro](https://github.com/KulykDmytro)
+* Add show tables/views to athena [#4854](https://github.com/sqlfluff/sqlfluff/pull/4854) [@dogversioning](https://github.com/dogversioning)
+* Adding support for NOCOPY and INSTANT algorithm on CREATE INDEX on MySQL dialect [#4865](https://github.com/sqlfluff/sqlfluff/pull/4865) [@wfelipew](https://github.com/wfelipew)
+* Add link to Trino keywords (Athena v3) [#4858](https://github.com/sqlfluff/sqlfluff/pull/4858) [@KulykDmytro](https://github.com/KulykDmytro)
+* TSQL: Create Role Authorization [#4852](https://github.com/sqlfluff/sqlfluff/pull/4852) [@greg-finley](https://github.com/greg-finley)
+* TSQL: DEADLOCK_PRIORITY [#4853](https://github.com/sqlfluff/sqlfluff/pull/4853) [@greg-finley](https://github.com/greg-finley)
+* fix(dialect-clickhouse): Support SYSTEM queries [#4625](https://github.com/sqlfluff/sqlfluff/pull/4625) [@germainlefebvre4](https://github.com/germainlefebvre4)
+* Fix #4807: LT02 & LT12 issues with empty files. [#4834](https://github.com/sqlfluff/sqlfluff/pull/4834) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Sqlite: COLLATE column constraint [#4845](https://github.com/sqlfluff/sqlfluff/pull/4845) [@greg-finley](https://github.com/greg-finley)
+* Hive: Support REGEXP and IREGEXP [#4846](https://github.com/sqlfluff/sqlfluff/pull/4846) [@greg-finley](https://github.com/greg-finley)
+
+## New Contributors
+
+* [@dogversioning](https://github.com/dogversioning) made their first contribution in [#4854](https://github.com/sqlfluff/sqlfluff/pull/4854)
+* [@segoldma](https://github.com/segoldma) made their first contribution in [#4867](https://github.com/sqlfluff/sqlfluff/pull/4867)
+* [@spex66](https://github.com/spex66) made their first contribution in [#4874](https://github.com/sqlfluff/sqlfluff/pull/4874)
+* [@dimitris-flyr](https://github.com/dimitris-flyr) made their first contribution in [#4879](https://github.com/sqlfluff/sqlfluff/pull/4879)
+* [@JasonGluck](https://github.com/JasonGluck) made their first contribution in [#4886](https://github.com/sqlfluff/sqlfluff/pull/4886)
+
 ## [2.1.0] - 2023-05-03
 
 ## Highlights
