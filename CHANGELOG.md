@@ -14,6 +14,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This releases fixes a compatability issue with the latest version of dbt. It also ships various dialect improvements.
+
 ## What’s Changed
 
 * profiles dir env var or default [#4886](https://github.com/sqlfluff/sqlfluff/pull/4886) [@JasonGluck](https://github.com/JasonGluck)
