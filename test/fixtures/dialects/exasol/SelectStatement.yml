@@ -307,9 +307,9 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 import_statement:
                 - keyword: IMPORT
@@ -339,7 +339,7 @@ file:
                       - naked_identifier: sys
                       - dot: .
                       - naked_identifier: dual
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -721,9 +721,9 @@ file:
       from_clause:
         keyword: FROM
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: VALUES
@@ -735,7 +735,7 @@ file:
                 - comma: ','
                 - expression:
                     numeric_literal: '3'
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
