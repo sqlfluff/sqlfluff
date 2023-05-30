@@ -2330,6 +2330,23 @@ class CubeFunctionNameSegment(BaseSegment):
     )
 
 
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+            )
+        ),
+    )
+
+
 class GroupingExpressionList(BaseSegment):
     """A `GROUP BY` clause expression list like in `ROLLUP`."""
 
@@ -2342,7 +2359,6 @@ class GroupingExpressionList(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY ROLLUP(1)`
                 Ref("NumericLiteralSegment"),
-                Bracketed(Delimited(Ref("ExpressionSegment"))),
                 # Can `GROUP BY ROLLUP(coalesce(col, 1))`
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses

@@ -1463,25 +1463,6 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause.
-
-    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
-    """
-
-    type = "grouping_sets_clause"
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-            )
-        ),
-    )
-
-
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 

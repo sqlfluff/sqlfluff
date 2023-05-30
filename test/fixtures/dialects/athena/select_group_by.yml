@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 274d7767bd674e40045347edd28106eee8b7f749869675c7f3cb4a33a8895ae1
+_hash: 9aed1b6efba79544aa99b991348947c642d95d7cc2ed7f826c6467d6a07cdfc0
 file:
 - statement:
     select_statement:
@@ -146,13 +146,14 @@ file:
         - keyword: grouping
         - keyword: sets
         - bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: as_of_date
-          - comma: ','
-          - column_reference:
-              naked_identifier: channel
-          - end_bracket: )
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: as_of_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: channel
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -195,26 +196,30 @@ file:
         - keyword: grouping
         - keyword: sets
         - bracketed:
-          - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: as_of_date
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: as_of_date
+                - comma: ','
+                - column_reference:
+                    naked_identifier: channel
+                - end_bracket: )
             - comma: ','
-            - column_reference:
-                naked_identifier: channel
-            - end_bracket: )
-          - comma: ','
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                naked_identifier: as_of_date
-              end_bracket: )
-          - comma: ','
-          - bracketed:
-              start_bracket: (
-              end_bracket: )
-          - end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: as_of_date
+                  end_bracket: )
+            - comma: ','
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -264,21 +269,23 @@ file:
         - keyword: grouping
         - keyword: sets
         - bracketed:
-          - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: platform
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: platform
+                - comma: ','
+                - column_reference:
+                    naked_identifier: channel
+                - end_bracket: )
             - comma: ','
             - column_reference:
                 naked_identifier: channel
-            - end_bracket: )
-          - comma: ','
-          - column_reference:
-              naked_identifier: channel
-          - comma: ','
-          - bracketed:
-              start_bracket: (
-              end_bracket: )
-          - end_bracket: )
+            - comma: ','
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84fea05ce8c31c2361788b2665273cf3042afdaf12fdbb14a9e780e93adebbd4
+_hash: 3d5d968e7d844c55009ca239a2fb955cdb6893cd017f6437298dfc312a058a44
 file:
 - statement:
     select_statement:
@@ -264,30 +264,31 @@ file:
         - bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
                     naked_identifier: city
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     naked_identifier: car_model
-              - end_bracket: )
+                - end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: car_model
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
@@ -345,30 +346,31 @@ file:
         - bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
                     naked_identifier: city
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     naked_identifier: car_model
-              - end_bracket: )
+                - end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: car_model
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
@@ -427,30 +429,31 @@ file:
         - bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
                     naked_identifier: city
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     naked_identifier: car_model
-              - end_bracket: )
+                - end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: car_model
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (

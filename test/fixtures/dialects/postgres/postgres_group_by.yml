@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7828c0e567a10d1faeae8930e64a77aff0bbd9d06833601eeaef1b7b500a355
+_hash: ed5d05314a08558ed07e904fbd7b0b38340e9de069f01cc73ed04813413f29d2
 file:
 - statement:
     select_statement:
@@ -111,30 +111,31 @@ file:
         - bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: region
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
                     naked_identifier: region
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     naked_identifier: city
-              - end_bracket: )
+                - end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
@@ -247,19 +248,21 @@ file:
           bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: region
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -368,18 +371,20 @@ file:
           bracketed:
             start_bracket: (
             grouping_expression_list:
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: region
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: city
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
             end_bracket: )
 - statement_terminator: ;
