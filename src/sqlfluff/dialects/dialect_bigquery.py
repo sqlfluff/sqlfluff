@@ -790,21 +790,6 @@ class ArrayFunctionNameSegment(BaseSegment):
     )
 
 
-class RollupFunctionNameSegment(BaseSegment):
-    """ROLLUP function name segment.
-
-    Need to be able to specify this as type `function_name_identifier`
-    within a `function_name` so that linting rules identify it properly.
-    """
-
-    type = "function_name"
-    match_grammar: Matchable = StringParser(
-        "ROLLUP",
-        CodeSegment,
-        type="function_name_identifier",
-    )
-
-
 class DatePartWeekSegment(BaseSegment):
     """WEEK(<WEEKDAY>) in EXTRACT, DATE_DIFF, DATE_TRUNC, LAST_DAY.
 
@@ -2223,60 +2208,5 @@ class RaiseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("ExpressionSegment"),
             optional=True,
-        ),
-    )
-
-
-class GroupByRollupColumns(BaseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
-
-    type = "groupbyrollup_columns"
-
-    match_grammar: Matchable = Sequence(
-        Indent,
-        Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY ROLLUP(1)`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY ROLLUP(coalesce(col, 1))`
-                Ref("ExpressionSegment"),
-            ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
-        ),
-        Dedent,
-    )
-
-
-class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """A `GROUP BY` clause like in `SELECT`."""
-
-    type = "groupby_clause"
-
-    match_grammar: Matchable = Sequence(
-        "GROUP",
-        "BY",
-        OneOf(
-            Sequence(
-                Ref("RollupFunctionNameSegment"),
-                Bracketed(Ref("GroupByRollupColumns")),
-            ),
-            # We could replace this next with GroupByRollupColumns (renaming
-            # that to a more generic name), to avoid repeating this, but
-            # would rather keep similar to other dialects GROUP BY clauses.
-            Sequence(
-                Indent,
-                Delimited(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        # Can `GROUP BY ROLLUP(1)`
-                        Ref("NumericLiteralSegment"),
-                        # Can `GROUP BY ROLLUP(coalesce(col, 1))`
-                        Ref("ExpressionSegment"),
-                    ),
-                    terminator=Ref("GroupByClauseTerminatorGrammar"),
-                ),
-                Dedent,
-            ),
         ),
     )

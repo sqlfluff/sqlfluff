@@ -1843,6 +1843,21 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     parse_grammar = ansi.OrderByClauseSegment.parse_grammar
 
 
+class CubeFunctionNameSegment(BaseSegment):
+    """CUBE function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CUBE",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
 
@@ -1866,7 +1881,7 @@ class CubeRollupClauseSegment(BaseSegment):
     type = "cube_rollup_clause"
 
     match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
+        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
         Bracketed(
             Ref("GroupingExpressionList"),
         ),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9b8fae46b9fb9ea33dca4e27833096beb65584fdcafbd9a522ba396d41bc376c
+_hash: 274d7767bd674e40045347edd28106eee8b7f749869675c7f3cb4a33a8895ae1
 file:
 - statement:
     select_statement:
@@ -43,15 +43,17 @@ file:
       - keyword: group
       - keyword: by
       - cube_rollup_clause:
-          keyword: cube
+          function_name:
+            function_name_identifier: cube
           bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: as_of_date
-          - comma: ','
-          - column_reference:
-              naked_identifier: channel
-          - end_bracket: )
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: as_of_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: channel
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -91,15 +93,17 @@ file:
       - keyword: group
       - keyword: by
       - cube_rollup_clause:
-          keyword: rollup
+          function_name:
+            function_name_identifier: rollup
           bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: as_of_date
-          - comma: ','
-          - column_reference:
-              naked_identifier: channel
-          - end_bracket: )
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: as_of_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: channel
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

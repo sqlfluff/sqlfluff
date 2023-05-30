@@ -1463,6 +1463,21 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
+class CubeFunctionNameSegment(BaseSegment):
+    """CUBE function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CUBE",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
 class CubeRollupClauseSegment(BaseSegment):
     """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
 
@@ -1471,7 +1486,7 @@ class CubeRollupClauseSegment(BaseSegment):
 
     type = "cube_rollup_clause"
     match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
+        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
         Bracketed(
             Ref("GroupingExpressionList"),
         ),
