@@ -2315,6 +2315,21 @@ class RollupFunctionNameSegment(BaseSegment):
     )
 
 
+class CubeFunctionNameSegment(BaseSegment):
+    """ROLLUP function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CUBE",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
 class GroupingExpressionList(BaseSegment):
     """A `GROUP BY` clause expression list like in `ROLLUP`."""
 
@@ -2327,12 +2342,26 @@ class GroupingExpressionList(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY ROLLUP(1)`
                 Ref("NumericLiteralSegment"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
                 # Can `GROUP BY ROLLUP(coalesce(col, 1))`
                 Ref("ExpressionSegment"),
+                Bracketed(),  # Allows empty parentheses
             ),
             terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         Dedent,
+    )
+
+
+class CubeRollupClauseSegment(BaseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
+
+    type = "cube_rollup_clause"
+    match_grammar = Sequence(
+        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
     )
 
 
@@ -2345,14 +2374,11 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         OneOf(
-            Sequence(
-                Ref("RollupFunctionNameSegment"),
-                Bracketed(Ref("GroupingExpressionList")),
-            ),
+            Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
-            # repeating this bit of code, but I would rather keep similar
-            # to other dialect's GROUP BY clauses.
+            # repeating this bit of code, but I would rather keep it flat
+            # to avoid changing regular `GROUP BY` clauses.
             Sequence(
                 Indent,
                 Delimited(

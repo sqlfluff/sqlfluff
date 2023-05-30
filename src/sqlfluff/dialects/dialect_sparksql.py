@@ -1843,21 +1843,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     parse_grammar = ansi.OrderByClauseSegment.parse_grammar
 
 
-class CubeFunctionNameSegment(BaseSegment):
-    """CUBE function name segment.
-
-    Need to be able to specify this as type `function_name_identifier`
-    within a `function_name` so that linting rules identify it properly.
-    """
-
-    type = "function_name"
-    match_grammar: Matchable = StringParser(
-        "CUBE",
-        CodeSegment,
-        type="function_name_identifier",
-    )
-
-
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
 
@@ -1869,22 +1854,6 @@ class WithCubeRollupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         OneOf("CUBE", "ROLLUP"),
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    type = "cube_rollup_clause"
-
-    match_grammar = Sequence(
-        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
     )
 
 
@@ -1902,22 +1871,6 @@ class GroupingSetsClauseSegment(BaseSegment):
                 Ref("GroupingExpressionList"),
             )
         ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ColumnReferenceSegment"),
-            Ref("NumericLiteralSegment"),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
     )
 
 

@@ -1463,36 +1463,6 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
-class CubeFunctionNameSegment(BaseSegment):
-    """CUBE function name segment.
-
-    Need to be able to specify this as type `function_name_identifier`
-    within a `function_name` so that linting rules identify it properly.
-    """
-
-    type = "function_name"
-    match_grammar: Matchable = StringParser(
-        "CUBE",
-        CodeSegment,
-        type="function_name_identifier",
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
-
-    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
-    """
-
-    type = "cube_rollup_clause"
-    match_grammar = Sequence(
-        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
 class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause.
 
@@ -1509,21 +1479,6 @@ class GroupingSetsClauseSegment(BaseSegment):
                 Ref("GroupingExpressionList"),
             )
         ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ColumnReferenceSegment"),
-            Ref("NumericLiteralSegment"),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
     )
 
 

@@ -679,32 +679,6 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     )
 
 
-class CubeFunctionNameSegment(BaseSegment):
-    """CUBE function name segment.
-
-    Need to be able to specify this as type `function_name_identifier`
-    within a `function_name` so that linting rules identify it properly.
-    """
-
-    type = "function_name"
-    match_grammar: Matchable = StringParser(
-        "CUBE",
-        CodeSegment,
-        type="function_name_identifier",
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause."""
-
-    type = "cube_rollup_clause"
-
-    match_grammar = Sequence(
-        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
-        Bracketed(Delimited(Ref("GroupingExpressionList"))),
-    )
-
-
 class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
