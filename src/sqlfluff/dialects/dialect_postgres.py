@@ -1519,6 +1519,8 @@ class GroupingExpressionList(BaseSegment):
     match_grammar = Delimited(
         OneOf(
             Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ColumnReferenceSegment"),
+            Ref("NumericLiteralSegment"),
             Ref("ExpressionSegment"),
             Bracketed(),  # Allows empty parentheses
         )
@@ -1538,10 +1540,10 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
