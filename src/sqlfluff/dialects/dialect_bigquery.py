@@ -2227,10 +2227,10 @@ class RaiseStatementSegment(BaseSegment):
     )
 
 
-class GroupByColumns(BaseSegment):
+class GroupByRollupColumns(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
-    type = "groupby_columns"
+    type = "groupbyrollup_columns"
 
     match_grammar: Matchable = Sequence(
         Indent,
@@ -2259,8 +2259,24 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         OneOf(
             Sequence(
                 Ref("RollupFunctionNameSegment"),
-                Bracketed(Ref("GroupByColumns")),
+                Bracketed(Ref("GroupByRollupColumns")),
             ),
-            Ref("GroupByColumns"),
+            # We could replace this next with GroupByRollupColumns (renaming
+            # that to a more generic name), to avoid repeating this, but
+            # would rather keep similar to other dialects GROUP BY clauses.
+            Sequence(
+                Indent,
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY ROLLUP(1)`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY ROLLUP(coalesce(col, 1))`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminator=Ref("GroupByClauseTerminatorGrammar"),
+                ),
+                Dedent,
+            ),
         ),
     )

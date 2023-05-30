@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 50aa727f50816f11086396cc807e53f0004cf8a12b22cf56aa5defd2e1098c6c
+_hash: 125abd1f84366271677a502bf8200380d0d52a3ecb5009f497b421ccaff8a845
 file:
   statement:
     select_statement:
@@ -134,18 +134,17 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - groupby_columns:
-        - column_reference:
-            naked_identifier: client
-        - comma: ','
-        - column_reference:
-            naked_identifier: firstHtml
-        - comma: ','
-        - column_reference:
-            naked_identifier: vary
-        - comma: ','
-        - column_reference:
-            naked_identifier: source
+      - column_reference:
+          naked_identifier: client
+      - comma: ','
+      - column_reference:
+          naked_identifier: firstHtml
+      - comma: ','
+      - column_reference:
+          naked_identifier: vary
+      - comma: ','
+      - column_reference:
+          naked_identifier: source
       having_clause:
         keyword: HAVING
         expression:
