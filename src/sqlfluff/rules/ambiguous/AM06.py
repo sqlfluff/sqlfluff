@@ -84,7 +84,9 @@ class Rule_AM06(BaseRule):
     aliases = ("L054",)
     groups: Tuple[str, ...] = ("all", "core", "ambiguous")
     config_keywords = ["group_by_and_order_by_style"]
-    crawl_behaviour = SegmentSeekerCrawler({"groupby_clause", "orderby_clause"})
+    crawl_behaviour = SegmentSeekerCrawler(
+        {"groupby_clause", "orderby_clause", "groupby_columns"}
+    )
     _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -93,7 +95,9 @@ class Rule_AM06(BaseRule):
         self.group_by_and_order_by_style: str
 
         # We only care about GROUP BY/ORDER BY clauses.
-        assert context.segment.is_type("groupby_clause", "orderby_clause")
+        assert context.segment.is_type(
+            "groupby_clause", "orderby_clause", "groupby_columns"
+        )
 
         # Ignore Windowing clauses
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):

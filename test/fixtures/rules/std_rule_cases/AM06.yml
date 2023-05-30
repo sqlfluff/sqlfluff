@@ -501,3 +501,37 @@ test_pass_withingroup_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_groupby_rollup_bigquery:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_groupby_rollup_bigquery:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
