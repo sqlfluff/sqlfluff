@@ -679,34 +679,6 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     )
 
 
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause."""
-
-    type = "cube_rollup_clause"
-
-    match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment"),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
-            ),
-        ),
-    )
-
-
 class ShowStatementSegment(BaseSegment):
     """A `show` execute statement.
 

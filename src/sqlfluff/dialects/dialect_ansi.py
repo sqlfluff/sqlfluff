@@ -2300,6 +2300,87 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
+class RollupFunctionNameSegment(BaseSegment):
+    """ROLLUP function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "ROLLUP",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class CubeFunctionNameSegment(BaseSegment):
+    """ROLLUP function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "CUBE",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+            )
+        ),
+    )
+
+
+class GroupingExpressionList(BaseSegment):
+    """A `GROUP BY` clause expression list like in `ROLLUP`."""
+
+    type = "grouping_expression_list"
+
+    match_grammar: Matchable = Sequence(
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY ROLLUP(1)`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY ROLLUP(coalesce(col, 1))`
+                Ref("ExpressionSegment"),
+                Bracketed(),  # Allows empty parentheses
+            ),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
+        ),
+        Dedent,
+    )
+
+
+class CubeRollupClauseSegment(BaseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
+
+    type = "cube_rollup_clause"
+    match_grammar = Sequence(
+        OneOf(Ref("CubeFunctionNameSegment"), Ref("RollupFunctionNameSegment")),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
@@ -2308,18 +2389,27 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
-        Indent,
-        Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `GROUP BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
+        OneOf(
+            Ref("CubeRollupClauseSegment"),
+            # We could replace this next bit with a GroupingExpressionList
+            # reference (renaming that to a more generic name), to avoid
+            # repeating this bit of code, but I would rather keep it flat
+            # to avoid changing regular `GROUP BY` clauses.
+            Sequence(
+                Indent,
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminator=Ref("GroupByClauseTerminatorGrammar"),
+                ),
+                Dedent,
             ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
-        Dedent,
     )
 
 
