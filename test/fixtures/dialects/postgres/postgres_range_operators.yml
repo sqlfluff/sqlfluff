@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7f82e72dc37ec47d9013ba40c43b4e16f1722417eb887b0763fb164e4f3045e
+_hash: 0fb5768779aab2ce85961a4826aba225f617cf326379763a3604ec13885bf57d
 file:
   statement:
     select_statement:
@@ -58,7 +58,10 @@ file:
           - naked_identifier: word
           - dot: .
           - naked_identifier: character_range
-        - binary_operator: '@>'
+        - json_operator:
+            at: '@'
+            comparison_operator:
+              raw_comparison_operator: '>'
         - column_reference:
           - naked_identifier: paragraph
           - dot: .
@@ -68,7 +71,10 @@ file:
           - naked_identifier: word
           - dot: .
           - naked_identifier: character_range
-        - binary_operator: <@
+        - json_operator:
+            comparison_operator:
+              raw_comparison_operator: <
+            at: '@'
         - column_reference:
           - naked_identifier: paragraph
           - dot: .
