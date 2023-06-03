@@ -330,7 +330,13 @@ class ColumnDefinitionSegment(BaseSegment):
                 ),
                 Sequence(
                     Sequence("ON", "UPDATE", optional=True),
-                    "CURRENT_TIMESTAMP",
+                    Sequence(
+                        OneOf("CURRENT_TIMESTAMP", "NOW"),
+                        Bracketed(
+                            Ref("NumericLiteralSegment", optional=True),
+                            optional=True,
+                        ),
+                    ),
                     Sequence(
                         Bracketed(Ref("NumericLiteralSegment")),
                         optional=True,
