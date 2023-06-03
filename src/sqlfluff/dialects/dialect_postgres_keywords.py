@@ -151,7 +151,7 @@ postgres_docs_keywords = [
     ("COALESCE", "non-reserved-(cannot-be-function-or-type)"),
     ("COBOL", "not-keyword"),
     ("COLLATE", "reserved"),
-    ("COLLATION", "reserved-(can-be-function-or-type)"),
+    ("COLLATION", "non-reserved"),
     ("COLLATION_CATALOG", "not-keyword"),
     ("COLLATION_NAME", "not-keyword"),
     ("COLLATION_SCHEMA", "not-keyword"),

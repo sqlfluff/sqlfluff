@@ -84,3 +84,8 @@ LIMIT 1;
 Select * from foo TABLESAMPLE SYSTEM (10);
 
 Select * from foo TABLESAMPLE BERNOULLI (10);
+
+-- use of dollar quote in query
+SELECT * FROM (SELECT * FROM mytable FOR UPDATE) ss WHERE col1 = $1;
+
+SELECT i + $1 INTO j from foo;

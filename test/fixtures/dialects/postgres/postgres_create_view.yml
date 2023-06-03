@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 80226c3fc2d057dac32c44b6c636966e669971a1cb6dbbffb2c994b817e8a3a3
+_hash: 9a2ca7e9622364bfcd6336dc851fcdf843de8e1e49728862276719068eb61b5c
 file:
 - statement:
     create_view_statement:
@@ -645,4 +645,28 @@ file:
                 raw_comparison_operator: '='
             - column_reference:
                 quoted_identifier: '"node_id"'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+            alias_expression:
+              keyword: as
+              naked_identifier: collation
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
 - statement_terminator: ;
