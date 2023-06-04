@@ -297,17 +297,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
-class OnClusterClauseSegment(BaseSegment):
-    """A `ON CLUSTER` clause."""
-
-    type = "on_cluster_clause"
-    match_grammar = Sequence(
-        "ON",
-        "CLUSTER",
-        Ref("SingleIdentifierGrammar"),
-    )
-
-
 class TableEngineFunctionSegment(BaseSegment):
     """A ClickHouse `ENGINE` clause function.
 
@@ -338,11 +327,21 @@ class TableEngineFunctionSegment(BaseSegment):
     )
 
 
+class OnClusterClauseSegment(BaseSegment):
+    """A `ON CLUSTER` clause."""
+
+    type = "on_cluster_clause"
+    match_grammar = Sequence(
+        "ON",
+        "CLUSTER",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class TableEngineSegment(BaseSegment):
     """An `ENGINE` used in `CREATE TABLE`."""
 
     type = "engine"
-
     match_grammar = Sequence(
         "ENGINE",
         Ref("EqualsSegment"),
@@ -700,7 +699,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         AnySetOf(
             Sequence(
                 "COMMENT",
-                Ref("SingleQuotedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
             ),
             Ref("TableTTLSegment"),
             optional=True,
@@ -775,13 +777,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -818,13 +814,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "USER",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -842,13 +832,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -866,13 +850,7 @@ class DropQuotaStatementSegment(BaseSegment):
         "QUOTA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -894,13 +872,7 @@ class DropSettingProfileStatementSegment(BaseSegment):
         "PROFILE",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -918,13 +890,7 @@ class DropViewStatementSegment(ansi.DropViewStatementSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
         Ref.keyword("SYNC", optional=True),
     )
 
@@ -943,13 +909,7 @@ class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("SingleIdentifierGrammar"),
-        # Ref("OnClusterClauseSegment", optional=True),
-        Sequence(
-            "ON",
-            "CLUSTER",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 

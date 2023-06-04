@@ -1,6 +1,6 @@
 CREATE DATABASE db_name;
 CREATE DATABASE db_name COMMENT 'SingleQuoted';
-CREATE DATABASE db_name COMMENT "DoubleQUoted";
+CREATE DATABASE db_name COMMENT "DoubleQuoted";
 CREATE DATABASE db_name COMMENT 'SingleQuoted three words';
 CREATE DATABASE db_name COMMENT "DoubleQuoted three words";
 CREATE DATABASE db_name COMMENT 'Weird characters: !@#$%^&*()_+{}|:"<>?';

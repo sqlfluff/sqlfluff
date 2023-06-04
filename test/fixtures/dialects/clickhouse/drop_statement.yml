@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da6e5315599385e2f44f947f48ab5f7250c93748007ba0ebfd386ecb13a482e6
+_hash: 2009929ac9fd7f306cb4749f88dbdd183dba6fbe1ae1e98b347863f6a4a34301
 file:
 - statement:
     drop_database_statement:
@@ -27,9 +27,10 @@ file:
     - keyword: DATABASE
     - database_reference:
         naked_identifier: db
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
 - statement_terminator: ;
 - statement:
     drop_database_statement:
@@ -131,9 +132,10 @@ file:
     - keyword: DROP
     - keyword: USER
     - naked_identifier: user_name
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
 - statement_terminator: ;
 - statement:
     drop_user_statement:
@@ -154,9 +156,10 @@ file:
     - keyword: DROP
     - keyword: ROLE
     - naked_identifier: role_name
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
 - statement_terminator: ;
 - statement:
     drop_quota_statement:
@@ -177,9 +180,10 @@ file:
     - keyword: DROP
     - keyword: QUOTA
     - naked_identifier: quota_name
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
 - statement_terminator: ;
 - statement:
     drop_setting_profile_statement:
@@ -203,9 +207,10 @@ file:
     - naked_identifier: setting_name
     - keyword: PROFILE
     - naked_identifier: profile_name
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
 - statement_terminator: ;
 - statement:
     drop_setting_profile_statement:
@@ -247,9 +252,10 @@ file:
     - keyword: VIEW
     - table_reference:
         naked_identifier: view_name
-    - keyword: 'ON'
-    - keyword: CLUSTER
-    - naked_identifier: cluster
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
 - statement_terminator: ;
 - statement:
     drop_view_statement:
@@ -278,7 +284,8 @@ file:
     - keyword: DROP
     - keyword: FUNCTION
     - naked_identifier: function_name
-    - keyword: 'on'
-    - keyword: CLUSTER
-    - naked_identifier: cluster
+    - on_cluster_clause:
+      - keyword: 'on'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
 - statement_terminator: ;

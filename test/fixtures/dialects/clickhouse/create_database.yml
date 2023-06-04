@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5169c9cedadab4817ec1ccc60d0796061e926341720a34c19c3f0b68b107e860
+_hash: 9e78f284bcd9f6853ca4d74d9fba0c6e2ad5e76d795a87763c4cf732346c8b8b
 file:
 - statement:
     create_database_statement:
@@ -28,7 +28,7 @@ file:
     - database_reference:
         naked_identifier: db_name
     - keyword: COMMENT
-    - quoted_identifier: '"DoubleQUoted"'
+    - quoted_identifier: '"DoubleQuoted"'
 - statement_terminator: ;
 - statement:
     create_database_statement:
