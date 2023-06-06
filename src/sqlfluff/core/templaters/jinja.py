@@ -467,6 +467,11 @@ class JinjaTemplater(PythonTemplater):
             if val not in live_context:
                 live_context[val] = Undefined.create(val)  # type: ignore
 
+        def render_func(in_str: str) -> str:
+            """Wraps the make_template function into a renderer."""
+            template = make_template(in_str)
+            return template.render()
+
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render(**live_context)
@@ -475,7 +480,7 @@ class JinjaTemplater(PythonTemplater):
                 in_str,
                 out_str,
                 config=config,
-                make_template=make_template,
+                render_func=render_func,
             )
             if undefined_variables:
                 # Lets go through and find out where they are:
@@ -517,10 +522,10 @@ class JinjaTemplater(PythonTemplater):
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
-        # enabled if the caller passes a make_template() function.
-        make_template = kwargs.pop("make_template", None)
-        if make_template is None:
-            # make_template() was not provided. Use the base class
+        # enabled if the caller passes a render_func() function.
+        render_func = kwargs.pop("render_func", None)
+        if render_func is None:
+            # render_func() was not provided. Use the base class
             # implementation instead.
             return super().slice_file(
                 raw_str, templated_str, config, **kwargs
@@ -530,9 +535,9 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
-        # uses make_template() to build and render the template itself.
+        # uses render_func() to render the template itself.
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
-        tracer = analyzer.analyze(make_template)
+        tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 

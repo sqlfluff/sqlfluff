@@ -52,14 +52,14 @@ class JinjaTracer:
         raw_sliced: List[RawFileSlice],
         raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
         sliced_file: List[TemplatedFileSlice],
-        make_template: Callable[[str], Template],
+        render_func: Callable[[str], str],
     ):
         # Input
         self.raw_str = raw_str
         self.raw_sliced = raw_sliced
         self.raw_slice_info = raw_slice_info
         self.sliced_file = sliced_file
-        self.make_template = make_template
+        self.render_func = render_func
 
         # Internal bookkeeping
         self.program_counter: int = 0
@@ -73,8 +73,7 @@ class JinjaTracer:
             else rs.raw
             for rs in self.raw_sliced
         )
-        trace_template = self.make_template(trace_template_str)
-        trace_template_output = trace_template.render()
+        trace_template_output = self.render_func(trace_template_str)
         # Split output by section. Each section has two possible formats.
         trace_entries: List[regex.Match] = list(
             regex.finditer(r"\0", trace_template_output)
@@ -127,7 +126,7 @@ class JinjaTracer:
         # 'append_to_templated' gets the default value of "", empty string.)
         # For more detail, see the comments near the call to slice_file() in
         # plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/templater.py.
-        templated_str = self.make_template(self.raw_str).render() + append_to_templated
+        templated_str = self.render_func(self.raw_str) + append_to_templated
         return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
     def find_slice_index(self, slice_identifier) -> int:
@@ -337,7 +336,7 @@ class JinjaAnalyzer:
         "raw_begin": "block",
     }
 
-    def analyze(self, make_template: Callable[[str], Template]) -> JinjaTracer:
+    def analyze(self, render_func: Callable[[str], str]) -> JinjaTracer:
         """Slice template in jinja."""
         # str_buff and str_parts are two ways we keep track of tokens received
         # from Jinja. str_buff concatenates them together, while str_parts
@@ -473,7 +472,7 @@ class JinjaAnalyzer:
             self.raw_sliced,
             self.raw_slice_info,
             self.sliced_file,
-            make_template,
+            render_func,
         )
 
     def track_templated(

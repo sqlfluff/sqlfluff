@@ -558,6 +558,11 @@ class DbtTemplater(JinjaTemplater):
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+            
+            def render_func(in_str: str) -> str:
+                """Wraps the make_template function into a renderer."""
+                template = make_template(in_str)
+                return template.render()
 
             # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
             # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
@@ -570,7 +575,7 @@ class DbtTemplater(JinjaTemplater):
                 source_dbt_sql,
                 compiled_sql,
                 config=config,
-                make_template=make_template,
+                render_func=render_func,
                 append_to_templated="\n" if n_trailing_newlines else "",
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
