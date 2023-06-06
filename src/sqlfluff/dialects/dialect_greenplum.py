@@ -173,14 +173,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 OneOf(
                     "RANDOMLY",
                     "REPLICATED",
-                    Sequence(
-                        "BY",
-                        Bracketed(
-                            Delimited(
-                                Ref("ColumnReferenceSegment")
-                            )
-                        )
-                    ),
+                    Sequence("BY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
                 ),
             ),
         ),
@@ -252,14 +245,7 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
             OneOf(
                 "RANDOMLY",
                 "REPLICATED",
-                Sequence(
-                    "BY",
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment")
-                        )
-                    )
-                ),
+                Sequence("BY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
             ),
         ),
     )
