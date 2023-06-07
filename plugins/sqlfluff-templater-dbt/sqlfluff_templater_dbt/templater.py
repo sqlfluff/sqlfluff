@@ -28,6 +28,14 @@ except ImportError:
         DbtProjectError,
     )
 
+try:
+    # NOTE: This will only be available for dbt 1.5+
+    from dbt.cli.main import dbtRunner
+
+    dbt_runner = dbtRunner()
+except ImportError:
+    dbt_runner = None
+
 from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
@@ -252,7 +260,16 @@ class DbtTemplater(JinjaTemplater):
         """Reorder fnames to process dependent files first.
 
         This avoids errors when an ephemeral model is processed before use.
+
+        NOTE: If the dbt_runner is available, sorting is not required.
         """
+        # The dbt_runner enables safe compilation for all nodes without
+        # sorting. If present, skip the sort. Only available on dbt 1.5+
+        if dbt_runner:
+            # NOTE: In this case, the "Sorting Nodes..." output will not be present.
+            yield from fnames
+            return
+
         if formatter:  # pragma: no cover
             formatter.dispatch_compilation_header("dbt templater", "Sorting Nodes...")
 
@@ -346,9 +363,14 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname)
 
+        if dbt_runner:
+            _unsafe_process = self._unsafe_process_runner
+        else:
+            _unsafe_process = self._unsafe_process_patch
+
         try:
             os.chdir(self.project_dir)
-            processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
+            processed_result = _unsafe_process(fname_absolute_path, in_str, config)
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
@@ -429,7 +451,92 @@ class DbtTemplater(JinjaTemplater):
                     return "disabled"
         return None  # pragma: no cover
 
-    def _unsafe_process(self, fname, in_str=None, config=None):
+    @cached_property
+    def _make_render_func(self):
+        extra_cmd = [
+            "--project-dir",
+            self.project_dir,
+            "--profiles-dir",
+            self.profiles_dir,
+        ]
+
+        def _render_func(in_str: str) -> str:
+            full_cmd = [
+                # ### dbt global options
+                # NOTE: Most of these are performance improvements which force
+                # dbt to do as little as possible on each pass.
+                "--quiet",  # Don't output anything to stdout
+                "--partial-parse",  # Don't parse more than we need to
+                "--static-parser",  # Static parse where possible
+                "--no-populate-cache",  # Don't pre-populate cache.
+                # ### dbt compile and options
+                "compile",
+                "--indirect-selection",
+                "empty",
+                "--no-introspect",
+                "--threads",
+                "4",
+                *extra_cmd,
+                "--inline",
+                in_str,
+            ]
+
+            templater_logger.info(f"Rendering: {in_str[:80]!r}...")
+            result = dbt_runner.invoke(full_cmd)
+
+            compiled = (
+                result.result.results[0].node.compiled_code
+                if result.result.results
+                else None
+            )
+            if compiled:
+                templater_logger.info(f"Rendered: {compiled[:80]!r}...")
+            return compiled
+
+        return _render_func
+
+    def _unsafe_process_runner(self, fname, in_str=None, config=None):
+        """Performs the compile process using the runner.
+
+        This is the unsafe process for dbt >=1.5.
+        """
+        render_func = self._make_render_func
+
+        source_dbt_sql = in_str
+
+        if not source_dbt_sql.rstrip().endswith("-%}"):
+            n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+        else:
+            # Source file ends with right whitespace stripping, so there's
+            # no need to preserve/restore trailing newlines, as they would
+            # have been removed regardless of dbt's
+            # keep_trailing_newlines=False behavior.
+            n_trailing_newlines = 0
+
+        raw_sliced, sliced_file, templated_sql = self.slice_file(
+            source_dbt_sql,
+            render_func=render_func,
+            config=config,
+            append_to_templated="\n" * n_trailing_newlines,
+        )
+
+        return (
+            TemplatedFile(
+                source_str=source_dbt_sql,
+                templated_str=templated_sql,
+                fname=fname,
+                sliced_file=sliced_file,
+                raw_sliced=raw_sliced,
+            ),
+            # No violations returned in this way.
+            [],
+        )
+
+    def _unsafe_process_patch(self, fname, in_str=None, config=None):
+        """Performs the compile process by patching.
+
+        This is the unsafe process for dbt <1.5.
+        """
         original_file_path = os.path.relpath(fname, start=os.getcwd())
 
         # Below, we monkeypatch Environment.from_string() to intercept when dbt
@@ -557,7 +664,7 @@ class DbtTemplater(JinjaTemplater):
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
-            
+
             def render_func(in_str: str) -> str:
                 """Wraps the make_template function into a renderer."""
                 template = make_template(in_str)
@@ -574,7 +681,7 @@ class DbtTemplater(JinjaTemplater):
                 source_dbt_sql,
                 render_func=render_func,
                 config=config,
-                append_to_templated="\n" if n_trailing_newlines else "",
+                append_to_templated="\n" * n_trailing_newlines,
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
         # restore them to their earlier state. This prevents a runtime error
