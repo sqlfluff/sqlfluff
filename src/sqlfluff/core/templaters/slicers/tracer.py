@@ -9,7 +9,6 @@ import regex
 from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple
 
 from jinja2 import Environment
-from jinja2.environment import Template
 from jinja2.exceptions import TemplateSyntaxError
 
 from sqlfluff.core.templaters.base import (

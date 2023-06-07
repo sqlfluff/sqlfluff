@@ -557,7 +557,6 @@ class DbtTemplater(JinjaTemplater):
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
-            compiled_sql = compiled_sql + "\n" * n_trailing_newlines
             
             def render_func(in_str: str) -> str:
                 """Wraps the make_template function into a renderer."""
@@ -573,9 +572,8 @@ class DbtTemplater(JinjaTemplater):
             # Below, we use "append_to_templated" to effectively "undo" this.
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
-                compiled_sql,
-                config=config,
                 render_func=render_func,
+                config=config,
                 append_to_templated="\n" if n_trailing_newlines else "",
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
