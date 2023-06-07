@@ -1549,7 +1549,7 @@ class FromExpressionSegment(BaseSegment):
         Sequence(
             Indent,
             OneOf(
-                # check first for MLTableExpression, 
+                # check first for MLTableExpression,
                 # because of possible FunctionSegment in
                 # MainTableExpression
                 Ref("MLTableExpressionSegment"),
