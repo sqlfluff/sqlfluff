@@ -17,6 +17,7 @@ At a high level, the behaviour of SQLFluff is divided into a few key stages.
 Whether calling `sqlfluff lint`, `sqlfluff fix` or `sqlfluff parse`, the
 internal flow is largely the same.
 
+.. _templater:
 
 Stage 1, the templater
 ^^^^^^^^^^^^^^^^^^^^^^
