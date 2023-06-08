@@ -15,6 +15,8 @@ from sqlfluff.core.parser import (
     Matchable,
     Ref,
     RegexLexer,
+    RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
@@ -50,6 +52,18 @@ oracle_dialect.sets("bare_functions").update(
     ]
 )
 
+
+oracle_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "code",
+            r"[a-zA-Z][0-9a-zA-Z_$#]*",
+            CodeSegment,
+            segment_kwargs={"type": "code"},
+        ),
+    ]
+)
+
 oracle_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -76,6 +90,14 @@ oracle_dialect.replace(
         ),
         Ref.keyword("PURGE", optional=True),
         optional=True,
+    ),
+    NakedIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
     ),
 )
 
