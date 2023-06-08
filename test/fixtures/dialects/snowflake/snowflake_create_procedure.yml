@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69630c224e7d42bd02d11e08fa7078e7b972ee4fabbb9150d5879b170ce1ee55
+_hash: 4e14caf275cffc5d0779baa4e239260207a6ce8f3fedac47860450eb239d0d6d
 file:
 - statement:
     create_procedure_statement:
@@ -103,4 +103,186 @@ file:
         \    return \"Succeeded.\";\n}\ncatch (err) {\n   return \"Failed: execute\
         \ \"+ sql_command +\". Error : \"+ err;   // Return a success/error indicator.\n\
         }\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_WITHOUT_EXPLICIT_LANGUAGE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN 1;\nEND\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_SQL
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN 1;\nEND\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_PYTHON
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: packages
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas'"
+      - comma: ','
+      - quoted_literal: "'xgboost==1.5.0'"
+      - end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'udf'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'hello_world'"
+    - keyword: as
+    - udf_body: "$$\nimport numpy as np\nimport pandas as pd\nimport xgboost as xgb\n\
+        def udf():\n    return [np.__version__, pd.__version__, xgb.__version__]\n\
+        $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_JAVA
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: varchar
+    - keyword: language
+    - keyword: java
+    - keyword: called
+    - keyword: 'on'
+    - keyword: 'null'
+    - keyword: input
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestFunc.echoVarchar'"
+    - keyword: target_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'@~/testfunc.jar'"
+    - keyword: as
+    - udf_body: "'class TestFunc {\n  public static String echoVarchar(String x) {\n\
+        \    return x;\n  }\n}'"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: filter_by_role
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: table_name
+        - data_type:
+            data_type_identifier: VARCHAR
+        - comma: ','
+        - parameter: role
+        - data_type:
+            data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SCALA
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'2.12'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'com.snowflake:snowpark:latest'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Filter.filterByRole'"
+    - keyword: AS
+    - udf_body: "$$\nimport com.snowflake.snowpark.functions._\nimport com.snowflake.snowpark._\n\
+        \nobject Filter {\n    def filterByRole(session: Session, tableName: String,\
+        \ role: String): DataFrame = {\n        val table = session.table(tableName)\n\
+        \        val filteredRows = table.filter(col(\"role\") === role)\n       \
+        \ return filteredRows\n    }\n}\n$$"
 - statement_terminator: ;

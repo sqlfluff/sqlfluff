@@ -43,3 +43,73 @@ catch (err) {
 }
 $$
 ;
+
+CREATE OR REPLACE PROCEDURE UTIL_DB.PUBLIC.PROCEDURE_WITHOUT_EXPLICIT_LANGUAGE()
+RETURNS INT
+AS
+$$
+BEGIN
+    RETURN 1;
+END
+$$;
+
+CREATE OR REPLACE PROCEDURE UTIL_DB.PUBLIC.PROCEDURE_LANGUAGE_SQL()
+RETURNS INT
+LANGUAGE SQL
+AS
+$$
+BEGIN
+    RETURN 1;
+END
+$$;
+
+
+create or replace procedure UTIL_DB.PUBLIC.PROCEDURE_LANGUAGE_PYTHON()
+  returns variant
+  language python
+  runtime_version = '3.8'
+  packages = ('numpy','pandas','xgboost==1.5.0')
+  handler = 'udf'
+  comment = 'hello_world'
+as $$
+import numpy as np
+import pandas as pd
+import xgboost as xgb
+def udf():
+    return [np.__version__, pd.__version__, xgb.__version__]
+$$;
+
+
+create or replace procedure UTIL_DB.PUBLIC.PROCEDURE_LANGUAGE_JAVA(x varchar)
+returns varchar
+language java
+called on null input
+handler='TestFunc.echoVarchar'
+target_path='@~/testfunc.jar'
+as
+'class TestFunc {
+  public static String echoVarchar(String x) {
+    return x;
+  }
+}';
+
+
+CREATE OR REPLACE PROCEDURE filter_by_role(table_name VARCHAR, role VARCHAR)
+RETURNS INT --TABLE()
+LANGUAGE SCALA
+RUNTIME_VERSION = '2.12'
+PACKAGES = ('com.snowflake:snowpark:latest')
+HANDLER = 'Filter.filterByRole'
+AS
+$$
+import com.snowflake.snowpark.functions._
+import com.snowflake.snowpark._
+
+object Filter {
+    def filterByRole(session: Session, tableName: String, role: String): DataFrame = {
+        val table = session.table(tableName)
+        val filteredRows = table.filter(col("role") === role)
+        return filteredRows
+    }
+}
+$$;
