@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a59d701f103f51b9bb9c72c0a7398a63227e35f63398e8ba85b39d63982d7ec
+_hash: deac0f7076a50c434b37acd68ecc449ad30920e19cd822fe5675f3f20f5fb8eb
 file:
 - statement:
     create_widget_statement:
@@ -24,9 +24,9 @@ file:
         from_clause:
           keyword: FROM
           from_expression:
-            from_expression_element:
-              bracketed:
-                start_bracket: (
+            bracketed:
+              start_bracket: (
+              from_expression_element:
                 table_expression:
                   values_clause:
                   - keyword: VALUES
@@ -65,7 +65,7 @@ file:
                       expression:
                         quoted_literal: '"VA"'
                       end_bracket: )
-                end_bracket: )
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     create_widget_statement:

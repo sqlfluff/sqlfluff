@@ -1545,23 +1545,27 @@ class FromExpressionSegment(BaseSegment):
     """A from expression segment."""
 
     type = "from_expression"
-    match_grammar: Matchable = Sequence(
-        Indent,
-        OneOf(
-            # check first for MLTableExpression, because of possible FunctionSegment in
-            # MainTableExpression
-            Ref("MLTableExpressionSegment"),
-            Ref("FromExpressionElementSegment"),
-        ),
-        Dedent,
-        Conditional(Indent, indented_joins=True),
-        AnyNumberOf(
-            Sequence(
-                OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+    match_grammar: Matchable = OptionallyBracketed(
+        Sequence(
+            Indent,
+            OneOf(
+                # check first for MLTableExpression,
+                # because of possible FunctionSegment in
+                # MainTableExpression
+                Ref("MLTableExpressionSegment"),
+                Ref("FromExpressionElementSegment"),
+                Bracketed(Ref("FromExpressionSegment")),
             ),
-            optional=True,
-        ),
-        Conditional(Dedent, indented_joins=True),
+            Dedent,
+            Conditional(Indent, indented_joins=True),
+            AnyNumberOf(
+                Sequence(
+                    OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                ),
+                optional=True,
+            ),
+            Conditional(Dedent, indented_joins=True),
+        )
     )
 
 
