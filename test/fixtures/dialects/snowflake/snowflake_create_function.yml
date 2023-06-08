@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0630997eb3e8b4bfb534a6524c14c7cab5a4bdd141bda2448a39df6e994d8b1d
+_hash: c6d5a25a9e969e736853457509d7391cef708fac8f582e55c7c83d85bd6fa5a1
 file:
 - statement:
     create_function_statement:
@@ -324,4 +324,36 @@ file:
     - quoted_literal: "'addone_py'"
     - keyword: as
     - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: echo_varchar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SCALA
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'2.12'"
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Echo.echoVarchar'"
+    - keyword: AS
+    - udf_body: "$$\nclass Echo {\n  def echoVarchar(x : String): String = {\n   \
+        \ return x\n  }\n}\n$$"
 - statement_terminator: ;

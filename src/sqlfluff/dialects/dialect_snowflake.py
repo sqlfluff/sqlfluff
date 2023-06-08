@@ -2495,23 +2495,73 @@ class CreateProcedureStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
+        Sequence("SECURE", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
+        Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
-        Ref("DatatypeSegment"),
-        Sequence("NOT", "NULL", optional=True),
-        "LANGUAGE",
-        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
-            Sequence("CALLED", "ON", "NULL", "INPUT"),
-            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
-            "STRICT",
+            Ref("DatatypeSegment"),
+            Sequence(
+                "TABLE",
+                Bracketed(Delimited(Ref("ColumnDefinitionSegment"), optional=True)),
+            ),
+        ),
+        AnySetOf(
+            Sequence("NOT", "NULL", optional=True),
+            Sequence(
+                "LANGUAGE",
+                OneOf(
+                    "JAVA",
+                    "JAVASCRIPT",
+                    "PYTHON",
+                    "SCALA",
+                    "SQL",
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+                optional=True,
+            ),
+            OneOf("VOLATILE", "IMMUTABLE", optional=True),
+            Sequence(
+                "RUNTIME_VERSION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Sequence(
+                "IMPORTS",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "PACKAGES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "HANDLER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "TARGET_PATH",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
             optional=True,
         ),
-        OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Ref("CommentEqualsClauseSegment", optional=True),
-        Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
         "AS",
         OneOf(
             Ref("DoubleQuotedUDFBody"),
@@ -2544,9 +2594,10 @@ class CreateFunctionStatementSegment(BaseSegment):
         AnySetOf(
             Sequence("NOT", "NULL", optional=True),
             Sequence(
-                "LANGUAGE", OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA"), optional=True
+                "LANGUAGE",
+                OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA", "SCALA"),
+                optional=True,
             ),
-            OneOf("VOLATILE", "IMMUTABLE", optional=True),
             OneOf(
                 Sequence("CALLED", "ON", "NULL", "INPUT"),
                 Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
