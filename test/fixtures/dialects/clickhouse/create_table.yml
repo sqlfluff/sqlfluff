@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d3e1886c27601f75fa70b5bfb1f2c9f7a11130c0ab56c659cfa75ccd887948d6
+_hash: b6c96ddb1dfcfd7fcc60de3b141edda1c9b72bd7a22de586fce83b51d3e3dfb2
 file:
 - statement:
     create_table_statement:
@@ -27,7 +27,7 @@ file:
       - keyword: engine
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -71,7 +71,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -137,7 +137,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -192,7 +192,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: PARTITION
@@ -229,7 +229,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: Merge
           bracketed:
@@ -259,7 +259,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: Distributed
           bracketed:
@@ -323,7 +323,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: Memory
     - keyword: AS
@@ -376,7 +376,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: MergeTree
           bracketed:
@@ -414,7 +414,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: ORDER
@@ -448,7 +448,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: ORDER
@@ -487,7 +487,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: ORDER
@@ -512,7 +512,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: Memory
     - keyword: COMMENT
@@ -527,7 +527,7 @@ file:
     - keyword: EXISTS
     - table_reference:
         naked_identifier: all_hits
-    - on_cluster:
+    - on_cluster_clause:
       - keyword: 'ON'
       - keyword: CLUSTER
       - naked_identifier: cluster
@@ -547,7 +547,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: Distributed
           bracketed:
@@ -598,7 +598,7 @@ file:
         keyword: ENGINE
         comparison_operator:
           raw_comparison_operator: '='
-        engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: engine
 - statement_terminator: ;
@@ -656,7 +656,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: PARTITION
@@ -698,7 +698,7 @@ file:
       - keyword: ENGINE
       - comparison_operator:
           raw_comparison_operator: '='
-      - engine_function:
+      - table_engine_function:
           function_name:
             function_name_identifier: MergeTree
       - keyword: PARTITION
