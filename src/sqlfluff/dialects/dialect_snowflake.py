@@ -3446,6 +3446,7 @@ class CreateStatementSegment(BaseSegment):
             "SHARE",
             "ROLE",
             "USER",
+            "TAG",
             "WAREHOUSE",
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
@@ -3520,6 +3521,13 @@ class CreateStatementSegment(BaseSegment):
                 "COMMENT",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
+            ),
+            # For tags
+            Sequence(
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             # For network policy
             Sequence(
