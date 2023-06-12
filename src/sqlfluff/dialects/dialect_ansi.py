@@ -1447,7 +1447,11 @@ class FrameClauseSegment(BaseSegment):
     _frame_extent = OneOf(
         Sequence("CURRENT", "ROW"),
         Sequence(
-            OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                "UNBOUNDED",
+            ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
     )
