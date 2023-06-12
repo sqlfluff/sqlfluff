@@ -595,6 +595,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SqlcmdCommandSegment"),
             Ref("CreateExternalFileFormat"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("DropExternalTableStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -5596,4 +5597,19 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
             Ref("RoleReferenceSegment"),
             optional=True,
         ),
+    )
+
+
+class DropExternalTableStatementSegment(BaseSegment):
+    """A `DROP EXTERNAL TABLE ...` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-external-table-transact-sql
+    """
+
+    type = "drop_external_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
     )
