@@ -152,9 +152,9 @@ Upgrading to 1.4
 This release brings several internal changes, and acts as a prelude
 to 2.0.0. In particular, the following config values have changed:
 
-* :code:`sqlfluff:rules:L007:operator_new_lines`` has been changed to
+* :code:`sqlfluff:rules:L007:operator_new_lines` has been changed to
   :code:`sqlfluff:layout:type:binary_operator:line_position`.
-* :code:`sqlfluff:rules:comma_style`` and
+* :code:`sqlfluff:rules:comma_style` and
   :code:`sqlfluff:rules:L019:comma_style` have both been consolidated
   into :code:`sqlfluff:layout:type:comma:line_position`.
 
