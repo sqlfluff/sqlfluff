@@ -6,7 +6,9 @@ from sqlfluff.core.parser import (
     Delimited,
     OneOf,
     Ref,
-    Sequence, Matchable, TypedParser,
+    Sequence,
+    Matchable,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -22,14 +24,18 @@ trino_dialect.replace(
     DateTimeLiteralGrammar=OneOf(
         Sequence(
             OneOf("DATE", "TIME", "TIMESTAMP"),
-            TypedParser("single_quote", ansi.LiteralSegment, type="date_constructor_literal"),
+            TypedParser(
+                "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+            ),
         ),
-        Ref("IntervalExpressionSegment")
+        Ref("IntervalExpressionSegment"),
     )
 )
 
+
 class ValuesClauseSegment(ansi.ValuesClauseSegment):
     """A `VALUES` clause within in `WITH`, `SELECT`, `INSERT`."""
+
     match_grammar = Sequence(
         "VALUES",
         Delimited(
@@ -37,6 +43,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             ephemeral_name="ValuesClauseElements",
         ),
     )
+
 
 class IntervalExpressionSegment(BaseSegment):
     """An interval representing a span of time.
@@ -49,15 +56,9 @@ class IntervalExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "INTERVAL",
         Ref("QuotedLiteralSegment"),
-        OneOf(
-            "YEAR",
-            "MONTH",
-            "DAY",
-            "HOUR",
-            "MINUTE",
-            "SECOND"
-        )
+        OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     )
+
 
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions.
@@ -70,7 +71,9 @@ class FrameClauseSegment(BaseSegment):
     _frame_extent = OneOf(
         Sequence("CURRENT", "ROW"),
         Sequence(
-            OneOf(Ref("NumericLiteralSegment"), Ref("DateTimeLiteralGrammar"), "UNBOUNDED"),
+            OneOf(
+                Ref("NumericLiteralSegment"), Ref("DateTimeLiteralGrammar"), "UNBOUNDED"
+            ),
             OneOf("PRECEDING", "FOLLOWING"),
         ),
     )
