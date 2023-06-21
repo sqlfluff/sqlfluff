@@ -549,11 +549,7 @@ def test__cli__command_lint_parse(command):
         (
             (
                 lint,
-                [
-                    "test/fixtures/cli/passing_b.sql",
-                    "--library-path",
-                    "none"
-                ],
+                ["test/fixtures/cli/passing_b.sql", "--library-path", "none"],
             ),
             0,
         ),
@@ -562,12 +558,12 @@ def test__cli__command_lint_parse(command):
         (
             (
                 # Render because that's the step where the issue will
-                # occur. 
+                # occur.
                 render,
                 [
                     "test/fixtures/templater/jinja_r_library_in_macro/jinja.sql"
                     "--library-path",
-                    "none"
+                    "none",
                 ],
             ),
             1,

@@ -1,17 +1,17 @@
 """This is an example of providing config overrides."""
 
-from sqlfluff.core import Lexer, Parser, Linter, FluffConfig
+from sqlfluff.core import Linter, FluffConfig
 
 sql = "SELECT 1"
 
 
 config = FluffConfig(
-    overrides={
-        "dialect": "snowflake",
+    configs={
+        "core": {"dialect": "snowflake"},
         # NOTE: We explicitly set the string "none" here rather
         # than a None literal so that it overrides any config
         # set by any config files in the path.
-        "templater": {"library_path": "none"}
+        "templater": {"library_path": "none"},
     }
 )
 

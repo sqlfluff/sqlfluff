@@ -31,8 +31,8 @@ tool functions in a secure environment.
    be able to access and edit the :ref:`config-files`. It's important to note
    that because of :ref:`in_file_config`, that users who can edit SQL files
    which are designed to be linted, will also have access to the vast majority
-   of any configuration options available in :ref:`config-files`. This means that
-   there is minimal additional protection from restricting access to
+   of any configuration options available in :ref:`config-files`. This means
+   that there is minimal additional protection from restricting access to
    :ref:`config-files` for users who already have access to edit the linting
    target files (as described above).
 
@@ -61,7 +61,7 @@ tool functions in a secure environment.
       :language: python
 
 .. _`Jinja2 SandboxedEnvironment`: https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment
-.. _`dbt run_query macro`: https://docs.getdbt.com/reference/dbt-jinja-functions/run_query 
+.. _`dbt run_query macro`: https://docs.getdbt.com/reference/dbt-jinja-functions/run_query
 
 Using SQLFluff on a whole sql codebase
 --------------------------------------
@@ -89,15 +89,15 @@ build for a one-line SQL change shouldn't encourage the developer to fix lots
 of unrelated quality issues.
 
 To support this use case, SQLFluff integrates with a quality checking tool
-called ``diff-quality``. By running SQLFluff using ``diff-quality`` (rather than
-running it directly), you can limit the the output to the new or modified SQL
-in the branch (aka pull request or PR) containing the proposed changes.
+called ``diff-quality``. By running SQLFluff using ``diff-quality`` (rather
+than running it directly), you can limit the the output to the new or modified
+SQL in the branch (aka pull request or PR) containing the proposed changes.
 
 Currently, ``diff-quality`` requires that you are using ``git`` for version
 control.
 
-NOTE: Installing SQLFluff automatically installs the ``diff_cover`` package that
-provides the ``diff-quality`` tool.
+NOTE: Installing SQLFluff automatically installs the ``diff_cover`` package
+that provides the ``diff-quality`` tool.
 
 Adding ``diff-quality`` to your builds
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -142,7 +142,8 @@ such as:
 * Generating HTML reports
 * Controlling which branch to compare against (i.e. to determine new/changed
   lines). The default is `origin/master`.
-* Configuring ``diff-quality`` to return an error code if the quality is too low
+* Configuring ``diff-quality`` to return an error code if the quality is
+  too low.
 * Troubleshooting
 
 .. _using-pre-commit:
