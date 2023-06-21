@@ -400,7 +400,7 @@ def get_config(
     if library_path is not None:
         # Check for a null value
         if library_path.lower() == "none":
-            library_path = None
+            library_path = None  # Set an explicit None value.
         # Make sure there's a dict there.
         overrides["templater"] = overrides["templater"] or {}
         # Set the global override
