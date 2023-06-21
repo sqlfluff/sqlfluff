@@ -401,10 +401,8 @@ def get_config(
         # Check for a null value
         if library_path.lower() == "none":
             library_path = None  # Set an explicit None value.
-        # Make sure there's a dict there.
-        overrides["templater"] = overrides["templater"] or {}
         # Set the global override
-        overrides["templater"]["library_path"] = library_path
+        overrides["library_path"] = library_path
     try:
         return FluffConfig.from_root(
             extra_config_path=extra_config_path,

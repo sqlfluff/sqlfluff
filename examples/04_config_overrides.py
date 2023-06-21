@@ -6,12 +6,12 @@ sql = "SELECT 1\n"
 
 
 config = FluffConfig(
-    configs={
-        "core": {"dialect": "snowflake"},
+    overrides={
+        "dialect": "snowflake",
         # NOTE: We explicitly set the string "none" here rather
         # than a None literal so that it overrides any config
         # set by any config files in the path.
-        "templater": {"library_path": "none"},
+        "library_path": "none",
     }
 )
 
