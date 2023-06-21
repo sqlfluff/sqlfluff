@@ -392,6 +392,7 @@ def get_config(
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
+    library_path = None
     if "library_path" in kwargs:
         library_path = kwargs.pop("library_path")
     # Instantiate a config object (filtering out the nulls)
