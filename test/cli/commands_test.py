@@ -545,6 +545,33 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
+        # Test overriding library path when it doesn't cause an issue
+        (
+            (
+                lint,
+                [
+                    "test/fixtures/cli/passing_b.sql",
+                    "--library-path",
+                    "none"
+                ],
+            ),
+            0,
+        ),
+        # Test overriding library path when it DOES cause an issue
+        # (because macros won't be found).
+        (
+            (
+                # Render because that's the step where the issue will
+                # occur. 
+                render,
+                [
+                    "test/fixtures/templater/jinja_r_library_in_macro/jinja.sql"
+                    "--library-path",
+                    "none"
+                ],
+            ),
+            1,
+        ),
         # Test render fail
         (
             (
