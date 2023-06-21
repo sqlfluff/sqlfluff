@@ -2,7 +2,7 @@
 
 from sqlfluff.core import Linter, FluffConfig
 
-sql = "SELECT 1"
+sql = "SELECT 1\n"
 
 
 config = FluffConfig(
