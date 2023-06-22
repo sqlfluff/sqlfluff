@@ -130,7 +130,8 @@ class JinjaTemplater(PythonTemplater):
         return macro_ctx
 
     def _extract_libraries_from_config(self, config):
-        library_path = config.get_section(
+        # If a more global library_path is set, let that take precedence.
+        library_path = config.get("library_path") or config.get_section(
             (self.templater_selector, self.name, "library_path")
         )
         if not library_path:

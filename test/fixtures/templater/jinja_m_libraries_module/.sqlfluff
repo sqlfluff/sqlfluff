@@ -1,2 +1,3 @@
-[sqlfluff:templater:jinja]
+[sqlfluff]
+# Test setting the library_path via the global setting (not via jinja config)
 library_path=libs

@@ -11,7 +11,9 @@ must be done via a file, because it otherwise gets slightly complicated.
 For details of what's available on the command line check out
 the :ref:`cliref`.
 
-Configuration files
+.. _`config-files`:
+
+Configuration Files
 -------------------
 
 For file based configuration *SQLFluff* will look for the following
@@ -655,6 +657,8 @@ projects. In particular it provides mock objects for:
 
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
+
+.. _jinja_library_templating:
 
 Library Templating
 """"""""""""""""""

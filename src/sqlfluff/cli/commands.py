@@ -309,6 +309,16 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help="Set this flag to ignore inline noqa comments.",
     )(f)
+    f = click.option(
+        "--library-path",
+        default=None,
+        help=(
+            "Override the `library_path` value from the [sqlfluff:templater:jinja]"
+            " configuration value. Set this to 'none' to disable entirely."
+            " This overrides any values set by users in configuration files or"
+            " inline directives."
+        ),
+    )(f)
     return f
 
 
@@ -382,8 +392,15 @@ def get_config(
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
+    library_path = kwargs.pop("library_path", None)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
+    if library_path is not None:
+        # Check for a null value
+        if library_path.lower() == "none":
+            library_path = None  # Set an explicit None value.
+        # Set the global override
+        overrides["library_path"] = library_path
     try:
         return FluffConfig.from_root(
             extra_config_path=extra_config_path,
