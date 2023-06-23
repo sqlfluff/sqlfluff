@@ -10,6 +10,30 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.1.2] - 2023-06-23
+
+## Highlights
+
+## What’s Changed
+
+* Security option for library path [#4925](https://github.com/sqlfluff/sqlfluff/pull/4925) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove extra code escapes from release notes docs [#4921](https://github.com/sqlfluff/sqlfluff/pull/4921) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres frame_clause quoted interval [#4915](https://github.com/sqlfluff/sqlfluff/pull/4915) [@greg-finley](https://github.com/greg-finley)
+* Snowflake: CREATE TAG [#4914](https://github.com/sqlfluff/sqlfluff/pull/4914) [@greg-finley](https://github.com/greg-finley)
+* TSQL: support for `DROP EXTERNAL TABLE` [#4919](https://github.com/sqlfluff/sqlfluff/pull/4919) [@keen85](https://github.com/keen85)
+* fix(dialect-clickhouse): Support create database [#4620](https://github.com/sqlfluff/sqlfluff/pull/4620) [@germainlefebvre4](https://github.com/germainlefebvre4)
+* Snowflake: Actualize the CreateProcedureStatementSegment and CreateFunctionStatementSegment [#4908](https://github.com/sqlfluff/sqlfluff/pull/4908) [@moreaupascal56](https://github.com/moreaupascal56)
+* Oracle: Add support for `$` and `#`  in identifier [#4903](https://github.com/sqlfluff/sqlfluff/pull/4903) [@ulixius9](https://github.com/ulixius9)
+* docs(templater): Refactor templater configuration docs [#4835](https://github.com/sqlfluff/sqlfluff/pull/4835) [@dmohns](https://github.com/dmohns)
+* Handle brackets in from clause with joins [#4890](https://github.com/sqlfluff/sqlfluff/pull/4890) [@ulixius9](https://github.com/ulixius9)
+* Postgres: Add support for dollar literal & mark collation as non-reserved [#4883](https://github.com/sqlfluff/sqlfluff/pull/4883) [@ulixius9](https://github.com/ulixius9)
+* MySQL: ON UPDATE NOW [#4898](https://github.com/sqlfluff/sqlfluff/pull/4898) [@greg-finley](https://github.com/greg-finley)
+* Support ROLLUP/CUBE in AM06 [#4892](https://github.com/sqlfluff/sqlfluff/pull/4892) [@tunetheweb](https://github.com/tunetheweb)
+
+## New Contributors
+
+
+
 ## [2.1.1] - 2023-05-25
 
 ## Highlights
