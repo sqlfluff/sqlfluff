@@ -14,6 +14,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release fixes a security issue for library path, and contains various dialect improvements.
+
 ## What’s Changed
 
 * Security option for library path [#4925](https://github.com/sqlfluff/sqlfluff/pull/4925) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -29,10 +31,6 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Postgres: Add support for dollar literal & mark collation as non-reserved [#4883](https://github.com/sqlfluff/sqlfluff/pull/4883) [@ulixius9](https://github.com/ulixius9)
 * MySQL: ON UPDATE NOW [#4898](https://github.com/sqlfluff/sqlfluff/pull/4898) [@greg-finley](https://github.com/greg-finley)
 * Support ROLLUP/CUBE in AM06 [#4892](https://github.com/sqlfluff/sqlfluff/pull/4892) [@tunetheweb](https://github.com/tunetheweb)
-
-## New Contributors
-
-
 
 ## [2.1.1] - 2023-05-25
 
