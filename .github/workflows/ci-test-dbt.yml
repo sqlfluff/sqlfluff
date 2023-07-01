@@ -60,7 +60,7 @@ jobs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install dependencies
-      run: pip install tox
+      run: pip install tox tox-constraints
 
     - name: Run the tests (with coverage)
       if: ${{ inputs.coverage }}

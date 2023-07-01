@@ -42,7 +42,7 @@ jobs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install dependencies
-      run: pip install tox
+      run: pip install tox tox-constraints
 
     - name: Parse Python Version
       id: py_version
