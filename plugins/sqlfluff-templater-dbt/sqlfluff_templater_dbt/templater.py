@@ -100,7 +100,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-
         if DBT_VERSION_TUPLE >= (1, 5):
             user_config = None
             # 1.5.x+ this is a dict.
