@@ -25,7 +25,7 @@ try:
 except ImportError:  # pragma: no cover
     # This path _is used_ on 1.5.1, but our test suite doesn't cover
     # that case.
-    cv_project_root = None  
+    cv_project_root = None
 
 try:
     from dbt.exceptions import (
