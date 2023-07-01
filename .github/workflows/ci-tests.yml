@@ -72,14 +72,17 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dbt-tests-cov:
-    name: dbt 1.5 Plugin Tests
+    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+    strategy:
+      matrix:
+        dbt-version: [ "dbt140", "dbt150" ]
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
       python-version: "3.10"
-      dbt-version: "dbt150"
+      dbt-version: "${{ matrix.dbt-version }}"
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}

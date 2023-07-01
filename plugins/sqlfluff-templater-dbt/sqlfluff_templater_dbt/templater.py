@@ -5,11 +5,12 @@ from contextlib import contextmanager
 import os
 import os.path
 import logging
-from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
+from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque, Union
 
 from dataclasses import dataclass
 
 from dbt.version import get_installed_version
+from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -67,7 +68,8 @@ class DbtConfigArgs:
     target: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
-    vars: Optional[Dict] = None
+    # dict in 1.5.x onwards, json string before.
+    vars: Optional[Union[Dict, str]] = None if DBT_VERSION_TUPLE >= (1, 5) else ""
 
 
 class DbtTemplater(JinjaTemplater):
@@ -98,15 +100,31 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
+
+        if DBT_VERSION_TUPLE >= (1, 5):
+            user_config = None
+            # 1.5.x+ this is a dict.
+            cli_vars = self._get_cli_vars()
+        else:
+            # Here, we read flags.PROFILE_DIR directly, prior to calling
+            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+            # to a lowercase version of the value, and the profile wouldn't be
+            # found if the directory name contained uppercase letters. This fix
+            # was suggested and described here:
+            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+            user_config = read_user_config(flags.PROFILES_DIR)
+            # Pre 1.5.x this is a string.
+            cli_vars = str(self._get_cli_vars())
+
         flags.set_from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
-                vars=self._get_cli_vars(),
+                vars=cli_vars,
                 threads=1,
             ),
-            None,
+            user_config,
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
@@ -114,7 +132,7 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 target=self._get_target(),
-                vars=self._get_cli_vars(),
+                vars=cli_vars,
                 threads=1,
             )
         )
