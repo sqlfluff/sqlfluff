@@ -16,6 +16,18 @@ from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
 from dbt.cli.resolvers import default_profiles_dir
 
+# After this PR on dbt-core, we need to inject context variables
+# directly. This change was backported and so exists in some versions
+# but not others. When not present, no additional action is needed.
+# https://github.com/dbt-labs/dbt-core/pull/7949
+# On the 1.5.x branch this was between 1.5.1 and 1.5.2
+try:
+    from dbt.task.contextvars import cv_project_root
+except ImportError:  # pragma: no cover
+    # This path _is used_ on 1.5.1, but our test suite doesn't cover
+    # that case.
+    cv_project_root = None
+
 try:
     from dbt.exceptions import (
         CompilationException as DbtCompilationException,
@@ -157,17 +169,11 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        old_cwd = os.getcwd()
         try:
-            # Changing cwd temporarily as dbt is not using project_dir to
-            # read/write `target/partial_parse.msgpack`. This can be undone when
-            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
-            os.chdir(self.project_dir)
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
         except DbtProjectError as err:  # pragma: no cover
             raise SQLFluffUserError(f"DbtProjectError: {err}")
-        finally:
-            os.chdir(old_cwd)
+
         return self.dbt_manifest
 
     @cached_property
@@ -480,6 +486,12 @@ class DbtTemplater(JinjaTemplater):
                             return env.from_string(in_str, globals=globals)
 
             return old_from_string(*args, **kwargs)
+
+        # NOTE: We need to inject the project root here in reaction to the
+        # breaking change upstream with dbt.
+        # https://github.com/dbt-labs/dbt-core/pull/7949
+        if cv_project_root is not None:
+            cv_project_root.set(self.project_dir)
 
         node = self._find_node(fname, config)
         templater_logger.debug(
