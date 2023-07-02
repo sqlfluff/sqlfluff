@@ -75,7 +75,7 @@ jobs:
     name: dbt ${{ matrix.dbt-version }} Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt140", "dbt150" ]
+        dbt-version: [ "dbt130", "dbt140", "dbt150" ]
     permissions:
       contents: read
       pull-requests: write
@@ -88,14 +88,17 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dbt-tests-nocov:
-    name: dbt 1.3 Plugin Tests
+    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+    strategy:
+      matrix:
+        dbt-version: [ "dbt110", "dbt120" ]
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
       python-version: "3.9"
-      dbt-version: "dbt130"
+      dbt-version: "${{ matrix.dbt-version }}"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
