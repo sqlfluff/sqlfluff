@@ -75,7 +75,7 @@ jobs:
     name: dbt ${{ matrix.dbt-version }} Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt130", "dbt140", "dbt150" ]
+        dbt-version: [ "dbt110", "dbt130", "dbt140", "dbt150" ]
     permissions:
       contents: read
       pull-requests: write
@@ -91,7 +91,7 @@ jobs:
     name: dbt ${{ matrix.dbt-version }} Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt110", "dbt120" ]
+        dbt-version: [ "dbt120" ]
     permissions:
       contents: read
       pull-requests: write
