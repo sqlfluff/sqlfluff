@@ -75,7 +75,7 @@ jobs:
     name: dbt ${{ matrix.dbt-version }} Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt130", "dbt140", "dbt150" ]
+        dbt-version: [ "dbt110", "dbt130", "dbt140", "dbt150" ]
     permissions:
       contents: read
       pull-requests: write
@@ -87,20 +87,20 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  # dbt-tests-nocov:
-  #   name: dbt ${{ matrix.dbt-version }} Plugin Tests
-  #   strategy:
-  #     matrix:
-  #       dbt-version: [ "dbt110", "dbt120" ]
-  #   permissions:
-  #     contents: read
-  #     pull-requests: write
-  #   uses: ./.github/workflows/ci-test-dbt.yml
-  #   with:
-  #     python-version: "3.9"
-  #     dbt-version: "${{ matrix.dbt-version }}"
-  #   secrets:
-  #     gh_token: ${{ secrets.github_token }}
+  dbt-tests-nocov:
+    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+    strategy:
+      matrix:
+        dbt-version: [ "dbt120" ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: "3.9"
+      dbt-version: "${{ matrix.dbt-version }}"
+    secrets:
+      gh_token: ${{ secrets.github_token }}
 
   # This runs the bulk of the dialect _parsing_ tests.
   #

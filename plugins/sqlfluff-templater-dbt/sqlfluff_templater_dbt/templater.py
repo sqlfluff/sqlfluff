@@ -14,7 +14,13 @@ from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
-from dbt.cli.resolvers import default_profiles_dir
+
+# From dbt 1.3 onwards, the default_profiles_dir resolver is
+# available. Before that version we use the flags module
+try:
+    from dbt.cli.resolvers import default_profiles_dir
+except ImportError:
+    default_profiles_dir = None
 
 # After this PR on dbt-core, we need to inject context variables
 # directly. This change was backported and so exists in some versions
@@ -221,12 +227,21 @@ class DbtTemplater(JinjaTemplater):
         as to support the same overwriting mechanism as
         dbt (currently an environment variable).
         """
+        # Where default_profiles_dir is available, use it. For dbt 1.2 and
+        # earlier, it is not, so fall back to the flags option which should
+        # still be available in those versions.
+        default_dir = (
+            default_profiles_dir()
+            if default_profiles_dir is not None
+            else flags.PROFILES_DIR
+        )
+
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
-                or (os.getenv("DBT_PROFILES_DIR") or default_profiles_dir())
+                or (os.getenv("DBT_PROFILES_DIR") or default_dir)
             )
         )
 
