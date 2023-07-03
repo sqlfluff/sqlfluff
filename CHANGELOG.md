@@ -32,6 +32,7 @@ and also contains various dialect improvements.
 
 ## What’s Changed
 
+* docs(templater): Add documentation for `SQLFLUFF_JINJA_FILTERS` [#4932](https://github.com/sqlfluff/sqlfluff/pull/4932) [@dmohns](https://github.com/dmohns)
 * Re-enable dbt 1.1 & 1.2 [#4944](https://github.com/sqlfluff/sqlfluff/pull/4944) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Re-enable dbt 1.4 & 1.3 [#4941](https://github.com/sqlfluff/sqlfluff/pull/4941) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix compatibility with dbt 1.5.2+ [#4939](https://github.com/sqlfluff/sqlfluff/pull/4939) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -78,6 +79,11 @@ This releases fixes a compatability issue with the latest version of dbt. It als
 
 ## New Contributors
 
+* [@dogversioning](https://github.com/dogversioning) made their first contribution in [#4854](https://github.com/sqlfluff/sqlfluff/pull/4854)
+* [@segoldma](https://github.com/segoldma) made their first contribution in [#4867](https://github.com/sqlfluff/sqlfluff/pull/4867)
+* [@spex66](https://github.com/spex66) made their first contribution in [#4874](https://github.com/sqlfluff/sqlfluff/pull/4874)
+* [@dimitris-flyr](https://github.com/dimitris-flyr) made their first contribution in [#4879](https://github.com/sqlfluff/sqlfluff/pull/4879)
+* [@JasonGluck](https://github.com/JasonGluck) made their first contribution in [#4886](https://github.com/sqlfluff/sqlfluff/pull/4886)
 
 ## [2.1.0] - 2023-05-03
 
