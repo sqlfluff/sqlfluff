@@ -10,14 +10,31 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.1.2] - 2023-06-23
+## [2.1.2] - 2023-07-03
 
 ## Highlights
 
-This release fixes a security issue for library path, and contains various dialect improvements.
+This release resolves compatibility issues with a set of `dbt-core` versions.
+- `dbt-core` 1.5.2 onwards is now properly supported.
+- support for `dbt-core` 1.1 to 1.4 has now been re-enabled after
+  support had to be abandoned a few releases ago.
+
+NOTE: We cannot guarantee that SQLFluff will always continue to remain
+compatible with all dbt versions, particularly as the folks at dbt-labs
+have often backported breaking changes to their internal APIs to previous
+versions of `dbt-core`. This release does at least bring more extensive
+internal testing to catch when this does occur to allow our community
+to react.
+
+This release fixes also resolves a potential security issue for when
+using external libraries (and the `library_path` config setting),
+and also contains various dialect improvements.
 
 ## What’s Changed
 
+* Re-enable dbt 1.1 & 1.2 [#4944](https://github.com/sqlfluff/sqlfluff/pull/4944) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Re-enable dbt 1.4 & 1.3 [#4941](https://github.com/sqlfluff/sqlfluff/pull/4941) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix compatibility with dbt 1.5.2+ [#4939](https://github.com/sqlfluff/sqlfluff/pull/4939) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Security option for library path [#4925](https://github.com/sqlfluff/sqlfluff/pull/4925) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Remove extra code escapes from release notes docs [#4921](https://github.com/sqlfluff/sqlfluff/pull/4921) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres frame_clause quoted interval [#4915](https://github.com/sqlfluff/sqlfluff/pull/4915) [@greg-finley](https://github.com/greg-finley)
@@ -61,11 +78,6 @@ This releases fixes a compatability issue with the latest version of dbt. It als
 
 ## New Contributors
 
-* [@dogversioning](https://github.com/dogversioning) made their first contribution in [#4854](https://github.com/sqlfluff/sqlfluff/pull/4854)
-* [@segoldma](https://github.com/segoldma) made their first contribution in [#4867](https://github.com/sqlfluff/sqlfluff/pull/4867)
-* [@spex66](https://github.com/spex66) made their first contribution in [#4874](https://github.com/sqlfluff/sqlfluff/pull/4874)
-* [@dimitris-flyr](https://github.com/dimitris-flyr) made their first contribution in [#4879](https://github.com/sqlfluff/sqlfluff/pull/4879)
-* [@JasonGluck](https://github.com/JasonGluck) made their first contribution in [#4886](https://github.com/sqlfluff/sqlfluff/pull/4886)
 
 ## [2.1.0] - 2023-05-03
 
